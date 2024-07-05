@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+            html,
+            body {
+                padding: 0;
+                margin: 0;
+                font-family: Arial, Helvetica, sans-serif;
+                letter-spacing: 1px;
+                background-color: #000;
+            }
+
+            #frame {
+                position: relative;
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+                opacity: 1;
+                transition: opacity 3s ease-out;
+            }
+
+            #frame.htmx-swapping {
+                opacity: 0;
+                transition: opacity 3s ease-out;
+            }
+
+            #frame img {
+                max-width: 100%;
+                max-height: 100%;
+                z-index: 100;
+            }
+
+            #frame-background {
+                position: absolute;
+                top: -5%;
+                left: -5%;
+                right: -5%;
+                bottom: -5%;
+                z-index: 0;
+            }
+
+            #frame-background img {
+                object-fit: cover;
+                width: 100%;
+                height: 100%;
+                -webkit-filter: blur(40px);
+                filter: blur(40px);
+            }
+
+            #date {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                color: #fff;
+                font-size: 2rem;
+                padding: 2rem;
+                z-index: 10000;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+
+            .error {
+                max-width: 560px;
+                color: #fff;
+            }
+        </style>
+        <script
+            src="https://unpkg.com/htmx.org@2.0.0"
+            integrity="sha384-wS5l5IKJBvK6sPTKa2WZ1js3d947pvWXbPJ1OmWfEuxLgeHcEbjUUA5i9V5ZkpCw"
+            crossorigin="anonymous"
+        ></script>
+    </head>
+    <body>
+        <div
+            id="frame"
+            hx-get="/new"
+            hx-trigger="every 20s"
+            hx-swap="innerHTML swap:3s"
+        >
+            <div id="frame-background">
+                <img src="{{ .ImageUrl }}" alt="" />
+            </div>
+            <img src="{{ .ImageUrl }}" alt="" />
+            <div id="date">{{ .Date }}</div>
+        </div>
+    </body>
+</html>
