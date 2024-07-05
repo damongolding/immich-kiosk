@@ -98,36 +98,45 @@ func getRandomImage() (ImmichImage, error) {
 
 	var image []ImmichImage
 
-	url := immichUrl + "/api/assets/random?count=1"
-	method := "GET"
+	u, err := url.Parse(immichUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	apiUrl := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     "api/assets/random",
+		RawQuery: "count=1",
+	}
 
 	client := &http.Client{}
-	req, err := http.NewRequest(method, url, nil)
+	req, err := http.NewRequest("GET", apiUrl.String(), nil)
 	if err != nil {
 		fmt.Println(err)
-		return image[0], err
+		return ImmichImage{}, err
 	}
 
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", "")
+	req.Header.Add("x-api-key", immichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
-		return image[0], err
+		return ImmichImage{}, err
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
-		return image[0], err
+		return ImmichImage{}, err
 	}
 
 	err = json.Unmarshal(body, &image)
 	if err != nil {
-		fmt.Println(err)
-		return image[0], err
+		fmt.Println(err, string(body))
+		return ImmichImage{}, err
 	}
 
 	// We only want images
@@ -142,22 +151,27 @@ func getImagePreview(id string) ([]byte, error) {
 
 	var img []byte
 
-	method := "GET"
-	apiUrl, err := url.JoinPath(immichUrl, "/api/assets/"+id+"/thumbnail?size=preview")
+	u, err := url.Parse(immichUrl)
 	if err != nil {
-		fmt.Println(err)
-		return img, err
+		log.Fatal(err)
+	}
+
+	apiUrl := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     "/api/assets/" + id + "/thumbnail",
+		RawQuery: "size=preview",
 	}
 
 	client := &http.Client{}
-	req, err := http.NewRequest(method, apiUrl, nil)
+	req, err := http.NewRequest("GET", apiUrl.String(), nil)
 	if err != nil {
 		fmt.Println(err)
 		return img, err
 	}
 
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", "")
+	req.Header.Add("x-api-key", immichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -190,7 +204,7 @@ func getImage(id string) ([]byte, error) {
 	}
 
 	req.Header.Add("Accept", "application/octet-stream")
-	req.Header.Add("x-api-key", "")
+	req.Header.Add("x-api-key", immichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
