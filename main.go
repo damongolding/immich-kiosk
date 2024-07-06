@@ -9,10 +9,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"reflect"
 	"text/template"
 	"time"
 
 	"github.com/joho/godotenv"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type ImmichImage struct {
@@ -248,7 +251,53 @@ func init() {
 	immichUrl = os.Getenv("IMMICH_URL")
 }
 
+type Config struct {
+	People string
+	Album  string
+}
+
+func configOverride(c Config, queries url.Values) Config {
+
+	config := c
+
+	v := reflect.ValueOf(&config).Elem()
+
+	// concatenatedValue := strings.Join(values, ", ")
+
+	// Loop through the map and update struct fields
+	for key, values := range queries {
+		if len(values) > 0 {
+			// Lets just use the first used override
+			value := values[0]
+			if value == "" {
+				continue
+			}
+
+			fmt.Println("KEY B", key)
+			key = cases.Title(language.English, cases.Compact).String(key)
+			fmt.Println("KEY A", key)
+
+			// Get the field by name
+			field := v.FieldByName(key)
+			if field.IsValid() && field.CanSet() {
+				// Check if the field is of type string
+				if field.Kind() == reflect.String {
+					// Set the field value
+					field.SetString(value)
+				}
+			}
+		}
+	}
+
+	return config
+}
+
 func main() {
+
+	config := Config{
+		People: "Damp",
+		Album:  "yes",
+	}
 
 	http.Handle("/assets/", http.FileServer(http.Dir("./")))
 
@@ -258,6 +307,12 @@ func main() {
 		if err != nil {
 
 		}
+
+		queries := referer.Query()
+
+		fmt.Println("config before", config)
+		c := configOverride(config, queries)
+		fmt.Println("config after", c)
 
 		person := referer.Query().Get("people")
 		if person != "" {
