@@ -1,0 +1,7 @@
+.vscode/
+.github/
+.git/
+.env
+
+dist/
+*.yaml

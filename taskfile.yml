@@ -4,3 +4,7 @@ tasks:
   default:
     cmds:
       - go build -o dist/frame .
+
+  docker-image:
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}} -t damongolding/eventsforce:{{.VERSION}} -t damongolding/eventsforce:latest .
