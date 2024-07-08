@@ -85,6 +85,8 @@ func main() {
 
 	e := echo.New()
 
+	e.HideBanner = true
+
 	e.Static("/css", "public/css")
 
 	e.Use(middleware.Recover())
