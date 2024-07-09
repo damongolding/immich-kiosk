@@ -1,4 +1,4 @@
-package main
+package immich
 
 import (
 	"encoding/json"
@@ -11,7 +11,15 @@ import (
 	"math/rand/v2"
 
 	"github.com/charmbracelet/log"
+
+	"github.com/damongolding/immich-frame/config"
 )
+
+var baseConfig config.Config
+
+func init() {
+	baseConfig.Load()
+}
 
 type ImmichImage struct {
 	ID               string    `json:"id"`
@@ -91,7 +99,7 @@ func (i *ImmichImage) GetRandomImage() error {
 
 	var image []ImmichImage
 
-	u, err := url.Parse(immichUrl)
+	u, err := url.Parse(baseConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -111,7 +119,7 @@ func (i *ImmichImage) GetRandomImage() error {
 	}
 
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", immichApiKey)
+	req.Header.Add("x-api-key", baseConfig.ImmichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -151,7 +159,7 @@ func (i *ImmichImage) GetRandomImageOfPerson(personId string) error {
 
 	var images []ImmichImage
 
-	u, err := url.Parse(immichUrl)
+	u, err := url.Parse(baseConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -170,7 +178,7 @@ func (i *ImmichImage) GetRandomImageOfPerson(personId string) error {
 	}
 
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", immichApiKey)
+	req.Header.Add("x-api-key", baseConfig.ImmichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -223,7 +231,7 @@ func (i *ImmichImage) GetImagePreview() ([]byte, error) {
 
 	var img []byte
 
-	u, err := url.Parse(immichUrl)
+	u, err := url.Parse(baseConfig.ImmichUrl)
 	if err != nil {
 		log.Error(err)
 		return img, err
@@ -244,7 +252,7 @@ func (i *ImmichImage) GetImagePreview() ([]byte, error) {
 	}
 
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", immichApiKey)
+	req.Header.Add("x-api-key", baseConfig.ImmichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {

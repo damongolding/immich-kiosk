@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"net/url"
@@ -7,17 +7,19 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/log"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	Refresh    int    `yaml:"refresh"`
-	Person     string `yaml:"person"`
-	Album      string `yaml:"album"`
-	FillScreen bool   `yaml:"fill_screen"`
+	ImmichApiKey string `yaml:"immich_api_key"`
+	ImmichUrl    string `yaml:"immich_url"`
+	Refresh      int    `yaml:"refresh"`
+	Person       string `yaml:"person"`
+	Album        string `yaml:"album"`
+	FillScreen   bool   `yaml:"fill_screen"`
+	ShowDate     bool   `yaml:"show_date"`
 }
 
 // Load loads config file
@@ -45,8 +47,6 @@ func (c *Config) Load() error {
 func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 
 	configWithOverrides := c
-
-	log.Debug("conf in", "config", configWithOverrides)
 
 	v := reflect.ValueOf(configWithOverrides).Elem()
 
@@ -82,8 +82,6 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 			}
 		}
 	}
-
-	log.Debug("conf out", "config", configWithOverrides)
 
 	return *configWithOverrides
 }
