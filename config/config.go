@@ -13,13 +13,14 @@ import (
 )
 
 type Config struct {
-	ImmichApiKey string `yaml:"immich_api_key"`
-	ImmichUrl    string `yaml:"immich_url"`
-	Refresh      int    `yaml:"refresh"`
-	Person       string `yaml:"person"`
-	Album        string `yaml:"album"`
-	FillScreen   bool   `yaml:"fill_screen"`
-	ShowDate     bool   `yaml:"show_date"`
+	ImmichApiKey   string `yaml:"immich_api_key"`
+	ImmichUrl      string `yaml:"immich_url"`
+	Refresh        int    `yaml:"refresh"`
+	Person         string `yaml:"person"`
+	Album          string `yaml:"album"`
+	FillScreen     bool   `yaml:"fill_screen"`
+	ShowDate       bool   `yaml:"show_date"`
+	BackgroundBlur bool   `yaml:"background_blur"`
 }
 
 // Load loads config file

@@ -17,10 +17,11 @@ import (
 var baseConfig config.Config
 
 type PageData struct {
-	ImageUrl   string
-	Date       string
-	FillScreen bool
-	ShowDate   bool
+	ImageUrl       string
+	Date           string
+	FillScreen     bool
+	ShowDate       bool
+	BackgroundBlur bool
 }
 
 type ErrorData struct {
@@ -50,11 +51,15 @@ func Home(c echo.Context) error {
 func NewImage(c echo.Context) error {
 	fmt.Println()
 
+	// log.Debug("in", "employeeNumber", c.FormValue("employeeNumber"))
+	// log.Debug("in", "test", c.FormValue("TEST"))
+
 	instanceConfig := baseConfig
 
 	referer, err := url.Parse(c.Request().Referer())
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return c.Render(http.StatusOK, "error.html", ErrorData{Message: err.Error()})
 	}
 
 	queries := referer.Query()
@@ -96,10 +101,11 @@ func NewImage(c echo.Context) error {
 	date := fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format("02-01-2006"), immichImage.LocalDateTime.Format(time.Kitchen))
 
 	data := PageData{
-		ImageUrl:   img,
-		Date:       date,
-		FillScreen: instanceConfig.FillScreen,
-		ShowDate:   instanceConfig.ShowDate,
+		ImageUrl:       img,
+		Date:           date,
+		FillScreen:     instanceConfig.FillScreen,
+		ShowDate:       instanceConfig.ShowDate,
+		BackgroundBlur: instanceConfig.BackgroundBlur,
 	}
 
 	return c.Render(http.StatusOK, "image.html", data)

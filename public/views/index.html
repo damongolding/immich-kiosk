@@ -16,7 +16,8 @@
             id="frame"
             hx-get="/new"
             hx-trigger="load, every {{ .Refresh }}s"
-            hx-swap="innerHTML swap:3s"
+            hx-swap="innerHTML swap:3s settle:3s"
+            hx-include="[name='employeeNumber']"
         >
             <div id="date">Loading</div>
         </div>

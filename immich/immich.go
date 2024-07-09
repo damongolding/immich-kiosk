@@ -21,6 +21,12 @@ func init() {
 	baseConfig.Load()
 }
 
+type ImmichError struct {
+	Message    []string `json:"message"`
+	Error      string   `json:"error"`
+	StatusCode int      `json:"statusCode"`
+}
+
 type ImmichImage struct {
 	ID               string    `json:"id"`
 	DeviceAssetID    string    `json:"deviceAssetId"`
@@ -97,7 +103,7 @@ func (i *ImmichImage) GetRandomImage() error {
 
 	log.Debug("Getting Random image")
 
-	var image []ImmichImage
+	var images []ImmichImage
 
 	u, err := url.Parse(baseConfig.ImmichUrl)
 	if err != nil {
@@ -134,23 +140,28 @@ func (i *ImmichImage) GetRandomImage() error {
 		return err
 	}
 
-	err = json.Unmarshal(body, &image)
+	err = json.Unmarshal(body, &images)
 	if err != nil {
-		log.Error(err, "body", string(body))
-		return err
+		var immichError ImmichError
+		errorUnmarshalErr := json.Unmarshal(body, &immichError)
+		if errorUnmarshalErr != nil {
+			log.Error("couln't read error", "body", string(body))
+			return err
+		}
+		return fmt.Errorf(immichError.Error, immichError.Message)
 	}
 
-	if len(image) == 0 {
+	if len(images) == 0 {
 		return fmt.Errorf("no images found")
 	}
 
 	// We only want images
-	if image[0].Type != "IMAGE" {
+	if images[0].Type != "IMAGE" {
 		log.Debug("Not a image. Trying again")
 		return i.GetRandomImage()
 	}
 
-	*i = image[0]
+	*i = images[0]
 
 	return nil
 }
@@ -195,8 +206,13 @@ func (i *ImmichImage) GetRandomImageOfPerson(personId string) error {
 
 	err = json.Unmarshal(body, &images)
 	if err != nil {
-		log.Error(err, "body", string(body))
-		return err
+		var immichError ImmichError
+		errorUnmarshalErr := json.Unmarshal(body, &immichError)
+		if errorUnmarshalErr != nil {
+			log.Error("couln't read error", "body", string(body))
+			return err
+		}
+		return fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 	}
 
 	if len(images) == 0 {

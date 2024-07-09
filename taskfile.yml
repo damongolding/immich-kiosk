@@ -12,4 +12,4 @@ tasks:
 
   docker-image:
     cmds:
-      - docker build --build-arg VERSION={{.VERSION}} -t damongolding/eventsforce:{{.VERSION}} -t damongolding/eventsforce:latest .
+      - docker build --build-arg VERSION={{.VERSION}} -t damongolding/immich-frame:{{.VERSION}} -t damongolding/immich-frame:latest .
