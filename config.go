@@ -5,7 +5,9 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 
+	"github.com/charmbracelet/log"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
@@ -13,7 +15,7 @@ import (
 
 type Config struct {
 	Refresh    int    `yaml:"refresh"`
-	People     string `yaml:"people"`
+	Person     string `yaml:"person"`
 	Album      string `yaml:"album"`
 	FillScreen bool   `yaml:"fill_screen"`
 }
@@ -44,6 +46,8 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 
 	configWithOverrides := c
 
+	log.Debug("conf in", "config", configWithOverrides)
+
 	v := reflect.ValueOf(configWithOverrides).Elem()
 
 	// Loop through the map and update struct fields
@@ -55,7 +59,9 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 				continue
 			}
 
+			key = strings.ReplaceAll(key, "_", " ")
 			key = cases.Title(language.English, cases.Compact).String(key)
+			key = strings.ReplaceAll(key, " ", "")
 
 			// Get the field by name
 			field := v.FieldByName(key)
@@ -68,11 +74,16 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 					if n, err := strconv.Atoi(value); err == nil {
 						field.SetInt(int64(n))
 					}
+				case reflect.Bool:
+					if b, err := strconv.ParseBool(value); err == nil {
+						field.SetBool(b)
+					}
 				}
-
 			}
 		}
 	}
+
+	log.Debug("conf out", "config", configWithOverrides)
 
 	return *configWithOverrides
 }

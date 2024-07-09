@@ -42,10 +42,12 @@ func newImage(c echo.Context) error {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
+	log.Debug("config used", "config", instanceConfig)
+
 	immichImage := NewImage()
 
-	if instanceConfig.People != "" {
-		randomPersonImageErr := immichImage.GetRandomImageOfPerson(instanceConfig.People)
+	if instanceConfig.Person != "" {
+		randomPersonImageErr := immichImage.GetRandomImageOfPerson(instanceConfig.Person)
 		if randomPersonImageErr != nil {
 			return c.Render(http.StatusOK, "error.html", ErrorData{Message: randomPersonImageErr.Error()})
 		}
@@ -56,20 +58,19 @@ func newImage(c echo.Context) error {
 		}
 	}
 
-	// imageGet := time.Now()
+	imageGet := time.Now()
 	imgBytes, err := immichImage.GetImagePreview()
 	if err != nil {
 		return err
 	}
+	log.Debug(immichImage.OriginalFileName, "Got image in", time.Since(imageGet).Seconds())
 
-	// fmt.Println(immichImage.OriginalFileName, ": Got image in", time.Since(imageGet).Seconds())
-
-	// imageConvert := time.Now()
+	imageConvertTime := time.Now()
 	img, err := ImageToBase64(imgBytes)
 	if err != nil {
 		return err
 	}
-	// fmt.Println(immichImage.OriginalFileName, ": Converted image in", time.Since(imageConvert).Seconds())
+	log.Debug(immichImage.OriginalFileName, "Converted image in", time.Since(imageConvertTime).Seconds())
 
 	date := fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format("02-01-2006"), immichImage.LocalDateTime.Format(time.Kitchen))
 
