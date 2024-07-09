@@ -1,4 +1,4 @@
-package main
+package routes
 
 import (
 	"fmt"
@@ -8,13 +8,34 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
+
+	"github.com/damongolding/immich-frame/config"
+	"github.com/damongolding/immich-frame/immich"
+	"github.com/damongolding/immich-frame/utils"
 )
 
-func home(c echo.Context) error {
+var baseConfig config.Config
+
+type PageData struct {
+	ImageUrl   string
+	Date       string
+	FillScreen bool
+	ShowDate   bool
+}
+
+type ErrorData struct {
+	Message string
+}
+
+func init() {
+	baseConfig.Load()
+}
+
+func Home(c echo.Context) error {
 	fmt.Println()
 
 	// create a copy of the global config to use with this instance
-	instanceConfig := config
+	instanceConfig := baseConfig
 
 	queries := c.Request().URL.Query()
 
@@ -26,10 +47,10 @@ func home(c echo.Context) error {
 
 }
 
-func newImage(c echo.Context) error {
+func NewImage(c echo.Context) error {
 	fmt.Println()
 
-	instanceConfig := config
+	instanceConfig := baseConfig
 
 	referer, err := url.Parse(c.Request().Referer())
 	if err != nil {
@@ -44,7 +65,7 @@ func newImage(c echo.Context) error {
 
 	log.Debug("config used", "config", instanceConfig)
 
-	immichImage := NewImage()
+	immichImage := immich.NewImage()
 
 	if instanceConfig.Person != "" {
 		randomPersonImageErr := immichImage.GetRandomImageOfPerson(instanceConfig.Person)
@@ -66,7 +87,7 @@ func newImage(c echo.Context) error {
 	log.Debug(immichImage.OriginalFileName, "Got image in", time.Since(imageGet).Seconds())
 
 	imageConvertTime := time.Now()
-	img, err := ImageToBase64(imgBytes)
+	img, err := utils.ImageToBase64(imgBytes)
 	if err != nil {
 		return err
 	}
@@ -78,6 +99,7 @@ func newImage(c echo.Context) error {
 		ImageUrl:   img,
 		Date:       date,
 		FillScreen: instanceConfig.FillScreen,
+		ShowDate:   instanceConfig.ShowDate,
 	}
 
 	return c.Render(http.StatusOK, "image.html", data)

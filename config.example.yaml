@@ -1,4 +1,7 @@
+immich_api_key: ""
+immich_url: ""
 refresh: 20
 person: ""
 album: ""
 fill_screen: true
+show_date: true
