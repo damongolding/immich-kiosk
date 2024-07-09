@@ -29,7 +29,10 @@ type ErrorData struct {
 }
 
 func init() {
-	baseConfig.Load()
+	err := baseConfig.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func Home(c echo.Context) error {
