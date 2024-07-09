@@ -76,24 +76,26 @@ func init() {
 
 	immichApiKey = os.Getenv("IMMICH_API_KEY")
 	immichUrl = os.Getenv("IMMICH_URL")
-}
 
-func main() {
+	log.SetLevel(log.DebugLevel)
 
 	config.Load()
 	log.Info("Config loaded", "config", config)
+}
+
+func main() {
 
 	e := echo.New()
 
 	e.HideBanner = true
 
-	e.Static("/css", "public/css")
-
-	e.Use(middleware.Recover())
-
 	e.Renderer = &TemplateRenderer{
 		templates: template.Must(template.ParseGlob("public/views/*.html")),
 	}
+
+	e.Use(middleware.Recover())
+
+	e.Static("/css", "public/css")
 
 	e.GET("/", home)
 
@@ -101,7 +103,7 @@ func main() {
 
 	err := e.Start(":3000")
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 
 }

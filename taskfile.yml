@@ -2,6 +2,11 @@ version: "3"
 
 tasks:
   default:
+    deps: [build]
+    cmds:
+      - ./dist/frame
+
+  build:
     cmds:
       - go build -o dist/frame .
 

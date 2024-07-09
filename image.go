@@ -87,7 +87,7 @@ func NewImage() ImmichImage {
 
 func (i *ImmichImage) GetRandomImage() error {
 
-	log.Info("Getting Random image")
+	log.Debug("Getting Random image")
 
 	var image []ImmichImage
 
@@ -138,7 +138,7 @@ func (i *ImmichImage) GetRandomImage() error {
 
 	// We only want images
 	if image[0].Type != "IMAGE" {
-		log.Info("Not a image. Trying again")
+		log.Debug("Not a image. Trying again")
 		return i.GetRandomImage()
 	}
 
@@ -211,7 +211,7 @@ func (i *ImmichImage) GetRandomImageOfPerson(personId string) error {
 
 	for _, per := range i.People {
 		if per.ID == personId {
-			log.Info("Got image of", "perople", per.Name)
+			log.Debug("Got image of", "perople", per.Name)
 			break
 		}
 	}
@@ -225,7 +225,8 @@ func (i *ImmichImage) GetImagePreview() ([]byte, error) {
 
 	u, err := url.Parse(immichUrl)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return img, err
 	}
 
 	apiUrl := url.URL{
