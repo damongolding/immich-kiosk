@@ -17,9 +17,7 @@ body {
     position: relative;
     width: 100vw;
     height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
     overflow: hidden;
     opacity: 1;
     transition: opacity 3s ease-out;
@@ -28,6 +26,15 @@ body {
 #frame.htmx-swapping {
     opacity: 0;
     transition: opacity 3s ease-out;
+}
+
+.image-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #frame #main-image {
