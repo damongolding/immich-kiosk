@@ -5,3 +5,4 @@ person: ""
 album: ""
 fill_screen: true
 show_date: true
+background_blur: true
