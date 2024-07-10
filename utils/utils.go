@@ -1,9 +1,14 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
+	"image"
+	"image/jpeg"
 	"net/http"
+
+	"github.com/disintegration/imaging"
 )
 
 func ImageToBase64(imgBtyes []byte) (string, error) {
@@ -17,4 +22,23 @@ func ImageToBase64(imgBtyes []byte) (string, error) {
 	base64Encoding += base64.StdEncoding.EncodeToString(imgBtyes)
 
 	return base64Encoding, nil
+}
+
+func BlurImage(imgBytes []byte) ([]byte, error) {
+	buf := new(bytes.Buffer)
+
+	img, _, err := image.Decode(bytes.NewReader(imgBytes))
+	if err != nil {
+		return buf.Bytes(), err
+	}
+
+	blurredImg := imaging.Blur(img, 20)
+	blurredImg = imaging.AdjustBrightness(blurredImg, -20)
+
+	err = jpeg.Encode(buf, blurredImg, nil)
+	if err != nil {
+		return buf.Bytes(), err
+	}
+
+	return buf.Bytes(), nil
 }

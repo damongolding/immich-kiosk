@@ -1,13 +1,13 @@
 <div class="image-container {{if not .BackgroundBlur}}black-bg{{end}}">
     {{if .BackgroundBlur }}
     <div class="image-background">
-        <img src="{{ .ImageUrl }}" alt="" />
+        <img src="{{ .ImageBlurData }}" alt="" />
     </div>
     {{ end }}
     <div class="main-image-container">
         <img
             class="main-image {{if .FillScreen}}fillscreen{{end}}"
-            src="{{ .ImageUrl }}"
+            src="{{ .ImageData }}"
             alt=""
         />
     </div>

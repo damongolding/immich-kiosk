@@ -17,7 +17,8 @@ import (
 var baseConfig config.Config
 
 type PageData struct {
-	ImageUrl       string
+	ImageData      string
+	ImageBlurData  string
 	Date           string
 	FillScreen     bool
 	ShowDate       bool
@@ -102,10 +103,26 @@ func NewImage(c echo.Context) error {
 	}
 	log.Debug(immichImage.OriginalFileName, "Converted image in", time.Since(imageConvertTime).Seconds())
 
+	var imgBlur string
+
+	if instanceConfig.BackgroundBlur {
+		imageBlurTime := time.Now()
+		imgBlurBytes, err := utils.BlurImage(imgBytes)
+		if err != nil {
+			return err
+		}
+		imgBlur, err = utils.ImageToBase64(imgBlurBytes)
+		if err != nil {
+			return err
+		}
+		log.Debug(immichImage.OriginalFileName, "Blurred image in", time.Since(imageBlurTime).Seconds())
+	}
+
 	date := fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format("02-01-2006"), immichImage.LocalDateTime.Format(time.Kitchen))
 
 	data := PageData{
-		ImageUrl:       img,
+		ImageData:      img,
+		ImageBlurData:  imgBlur,
 		Date:           date,
 		FillScreen:     instanceConfig.FillScreen,
 		ShowDate:       instanceConfig.ShowDate,

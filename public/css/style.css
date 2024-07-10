@@ -79,8 +79,6 @@ body {
     object-fit: cover;
     width: 100%;
     height: 100%;
-    -webkit-filter: blur(40px);
-    filter: blur(40px);
 }
 
 .date {
