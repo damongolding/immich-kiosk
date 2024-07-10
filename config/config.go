@@ -21,6 +21,7 @@ type Config struct {
 	FillScreen     bool   `yaml:"fill_screen"`
 	ShowDate       bool   `yaml:"show_date"`
 	BackgroundBlur bool   `yaml:"background_blur"`
+	Transition     string `yaml:"transition"`
 }
 
 // Load loads config file

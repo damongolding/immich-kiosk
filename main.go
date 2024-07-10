@@ -11,7 +11,6 @@ import (
 	"github.com/damongolding/immich-frame/routes"
 )
 
-// TemplateRenderer is a custom html/template renderer for Echo framework
 type TemplateRenderer struct {
 	templates *template.Template
 }

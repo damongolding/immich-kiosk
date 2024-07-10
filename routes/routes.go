@@ -22,6 +22,7 @@ type PageData struct {
 	FillScreen     bool
 	ShowDate       bool
 	BackgroundBlur bool
+	Transition     string
 }
 
 type ErrorData struct {
@@ -47,6 +48,8 @@ func Home(c echo.Context) error {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
+	log.Debug("home", "instanceConfig", instanceConfig)
+
 	return c.Render(http.StatusOK, "index.html", instanceConfig)
 
 }
@@ -54,9 +57,7 @@ func Home(c echo.Context) error {
 func NewImage(c echo.Context) error {
 	fmt.Println()
 
-	// log.Debug("in", "employeeNumber", c.FormValue("employeeNumber"))
-	// log.Debug("in", "test", c.FormValue("TEST"))
-
+	// create a copy of the global config to use with this instance
 	instanceConfig := baseConfig
 
 	referer, err := url.Parse(c.Request().Referer())
@@ -109,6 +110,7 @@ func NewImage(c echo.Context) error {
 		FillScreen:     instanceConfig.FillScreen,
 		ShowDate:       instanceConfig.ShowDate,
 		BackgroundBlur: instanceConfig.BackgroundBlur,
+		Transition:     instanceConfig.Transition,
 	}
 
 	return c.Render(http.StatusOK, "image.html", data)
