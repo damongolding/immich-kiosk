@@ -70,6 +70,10 @@ body {
     bottom: -5%;
 }
 
+.black-bg {
+    background-color: #000;
+}
+
 .image-background img {
     opacity: 1;
     object-fit: cover;

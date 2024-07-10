@@ -1,4 +1,4 @@
-<div class="image-container">
+<div class="image-container {{if not .BackgroundBlur}}black-bg{{end}}">
     {{if .BackgroundBlur }}
     <div class="image-background">
         <img src="{{ .ImageUrl }}" alt="" />
