@@ -1,10 +1,11 @@
-package main
+package config
 
 import (
 	"net/url"
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -12,10 +13,15 @@ import (
 )
 
 type Config struct {
-	Refresh    int    `yaml:"refresh"`
-	People     string `yaml:"people"`
-	Album      string `yaml:"album"`
-	FillScreen bool   `yaml:"fill_screen"`
+	ImmichApiKey   string `yaml:"immich_api_key"`
+	ImmichUrl      string `yaml:"immich_url"`
+	Refresh        int    `yaml:"refresh"`
+	Person         string `yaml:"person"`
+	Album          string `yaml:"album"`
+	FillScreen     bool   `yaml:"fill_screen"`
+	ShowDate       bool   `yaml:"show_date"`
+	BackgroundBlur bool   `yaml:"background_blur"`
+	Transition     string `yaml:"transition"`
 }
 
 // Load loads config file
@@ -55,7 +61,9 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 				continue
 			}
 
+			key = strings.ReplaceAll(key, "_", " ")
 			key = cases.Title(language.English, cases.Compact).String(key)
+			key = strings.ReplaceAll(key, " ", "")
 
 			// Get the field by name
 			field := v.FieldByName(key)
@@ -68,8 +76,11 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 					if n, err := strconv.Atoi(value); err == nil {
 						field.SetInt(int64(n))
 					}
+				case reflect.Bool:
+					if b, err := strconv.ParseBool(value); err == nil {
+						field.SetBool(b)
+					}
 				}
-
 			}
 		}
 	}

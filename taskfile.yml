@@ -2,9 +2,14 @@ version: "3"
 
 tasks:
   default:
+    deps: [build]
+    cmds:
+      - ./dist/frame
+
+  build:
     cmds:
       - go build -o dist/frame .
 
   docker-image:
     cmds:
-      - docker build --build-arg VERSION={{.VERSION}} -t damongolding/eventsforce:{{.VERSION}} -t damongolding/eventsforce:latest .
+      - docker build --build-arg VERSION={{.VERSION}} -t damongolding/immich-frame:{{.VERSION}} -t damongolding/immich-frame:latest .
