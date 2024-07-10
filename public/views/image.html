@@ -1,0 +1,17 @@
+<div class="image-container">
+    {{if .BackgroundBlur }}
+    <div class="image-background">
+        <img src="{{ .ImageUrl }}" alt="" />
+    </div>
+    {{ end }}
+    <div class="main-image-container">
+        <img
+            class="main-image {{if .FillScreen}}fillscreen{{end}}"
+            src="{{ .ImageUrl }}"
+            alt=""
+        />
+    </div>
+    {{if .ShowDate }}
+    <div class="date">{{ .Date }}</div>
+    {{ end }}
+</div>

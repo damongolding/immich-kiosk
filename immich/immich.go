@@ -1,4 +1,4 @@
-package main
+package immich
 
 import (
 	"encoding/json"
@@ -11,7 +11,21 @@ import (
 	"math/rand/v2"
 
 	"github.com/charmbracelet/log"
+
+	"github.com/damongolding/immich-frame/config"
 )
+
+var baseConfig config.Config
+
+func init() {
+	baseConfig.Load()
+}
+
+type ImmichError struct {
+	Message    []string `json:"message"`
+	Error      string   `json:"error"`
+	StatusCode int      `json:"statusCode"`
+}
 
 type ImmichImage struct {
 	ID               string    `json:"id"`
@@ -87,11 +101,11 @@ func NewImage() ImmichImage {
 
 func (i *ImmichImage) GetRandomImage() error {
 
-	log.Info("Getting Random image")
+	log.Debug("Getting Random image")
 
-	var image []ImmichImage
+	var images []ImmichImage
 
-	u, err := url.Parse(immichUrl)
+	u, err := url.Parse(baseConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -111,7 +125,7 @@ func (i *ImmichImage) GetRandomImage() error {
 	}
 
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", immichApiKey)
+	req.Header.Add("x-api-key", baseConfig.ImmichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -126,23 +140,28 @@ func (i *ImmichImage) GetRandomImage() error {
 		return err
 	}
 
-	err = json.Unmarshal(body, &image)
+	err = json.Unmarshal(body, &images)
 	if err != nil {
-		log.Error(err, "body", string(body))
-		return err
+		var immichError ImmichError
+		errorUnmarshalErr := json.Unmarshal(body, &immichError)
+		if errorUnmarshalErr != nil {
+			log.Error("couln't read error", "body", string(body))
+			return err
+		}
+		return fmt.Errorf(immichError.Error, immichError.Message)
 	}
 
-	if len(image) == 0 {
+	if len(images) == 0 {
 		return fmt.Errorf("no images found")
 	}
 
 	// We only want images
-	if image[0].Type != "IMAGE" {
-		log.Info("Not a image. Trying again")
+	if images[0].Type != "IMAGE" {
+		log.Debug("Not a image. Trying again")
 		return i.GetRandomImage()
 	}
 
-	*i = image[0]
+	*i = images[0]
 
 	return nil
 }
@@ -151,7 +170,7 @@ func (i *ImmichImage) GetRandomImageOfPerson(personId string) error {
 
 	var images []ImmichImage
 
-	u, err := url.Parse(immichUrl)
+	u, err := url.Parse(baseConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -170,7 +189,7 @@ func (i *ImmichImage) GetRandomImageOfPerson(personId string) error {
 	}
 
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", immichApiKey)
+	req.Header.Add("x-api-key", baseConfig.ImmichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -187,8 +206,13 @@ func (i *ImmichImage) GetRandomImageOfPerson(personId string) error {
 
 	err = json.Unmarshal(body, &images)
 	if err != nil {
-		log.Error(err, "body", string(body))
-		return err
+		var immichError ImmichError
+		errorUnmarshalErr := json.Unmarshal(body, &immichError)
+		if errorUnmarshalErr != nil {
+			log.Error("couln't read error", "body", string(body))
+			return err
+		}
+		return fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 	}
 
 	if len(images) == 0 {
@@ -211,7 +235,7 @@ func (i *ImmichImage) GetRandomImageOfPerson(personId string) error {
 
 	for _, per := range i.People {
 		if per.ID == personId {
-			log.Info("Got image of", "perople", per.Name)
+			log.Debug("Got image of", "perople", per.Name)
 			break
 		}
 	}
@@ -223,9 +247,10 @@ func (i *ImmichImage) GetImagePreview() ([]byte, error) {
 
 	var img []byte
 
-	u, err := url.Parse(immichUrl)
+	u, err := url.Parse(baseConfig.ImmichUrl)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return img, err
 	}
 
 	apiUrl := url.URL{
@@ -243,7 +268,7 @@ func (i *ImmichImage) GetImagePreview() ([]byte, error) {
 	}
 
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", immichApiKey)
+	req.Header.Add("x-api-key", baseConfig.ImmichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
