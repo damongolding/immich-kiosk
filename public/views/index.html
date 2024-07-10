@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -8,25 +8,48 @@
         <script
             src="https://unpkg.com/htmx.org@2.0.0"
             integrity="sha384-wS5l5IKJBvK6sPTKa2WZ1js3d947pvWXbPJ1OmWfEuxLgeHcEbjUUA5i9V5ZkpCw"
-            crossorigin="anonymous"></script>
+            crossorigin="anonymous"
+        ></script>
     </head>
     <body>
+        {{ if eq .Transition "cross-fade" }}
         <div
             id="frame"
             hx-get="/new"
             hx-trigger="load, every {{ .Refresh }}s"
-            hx-swap="beforeend swap:3s settle:3s">
+            hx-swap="beforeend settle:3s"
+        ></div>
+
+        {{ else if eq .Transition "fade" }}
+
+        <div
+            id="frame"
+            hx-get="/new"
+            hx-trigger="load, every {{ .Refresh }}s"
+            hx-swap="innerHTML swap:3s"
+        >
+            <div id="date">Loading</div>
+        </div>
+        {{ else }}
+
+        <div
+            id="frame"
+            hx-get="/new"
+            hx-trigger="load, every {{ .Refresh }}s"
+            hx-swap="innerHTML"
+        >
             <div id="date">Loading</div>
         </div>
 
+        {{ end }} {{ if eq .Transition "cross-fade" }}
         <script>
-            document.body.addEventListener("htmx:afterRequest", function () {
+            document.body.addEventListener("htmx:afterSettle", function () {
                 const frames = document.querySelectorAll(".image-container");
-                if (frames.length > 2) {
-                    console.log("lots");
+                if (frames.length > 3) {
                     frames[0].remove();
                 }
             });
         </script>
+        {{end}}
     </body>
 </html>
