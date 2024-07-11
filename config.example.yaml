@@ -1,6 +1,6 @@
 immich_api_key: ""
 immich_url: ""
-refresh: 20
+refresh: 20 # in seconds
 person: ""
 album: ""
 fill_screen: true

@@ -2,13 +2,15 @@ package main
 
 import (
 	"io"
+	"os"
+	"strconv"
 	"text/template"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"github.com/damongolding/immich-frame/routes"
+	"github.com/damongolding/immich-kiosk/routes"
 )
 
 type TemplateRenderer struct {
@@ -21,7 +23,13 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 
 func main() {
 
-	log.SetLevel(log.DebugLevel)
+	debugModeEnv := os.Getenv("DEBUG")
+	debugMode, _ := strconv.ParseBool(debugModeEnv)
+
+	if debugMode {
+		log.SetLevel(log.DebugLevel)
+		log.Debug("DEBUG mode on")
+	}
 
 	e := echo.New()
 
@@ -32,8 +40,9 @@ func main() {
 	}
 
 	e.Use(middleware.Recover())
+	e.Use(middleware.RequestID())
 
-	e.Static("/css", "public/css")
+	e.Static("/assets", "public/assets")
 
 	e.GET("/", routes.Home)
 

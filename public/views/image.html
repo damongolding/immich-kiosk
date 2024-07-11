@@ -1,17 +1,17 @@
-<div class="image-container {{if not .BackgroundBlur}}black-bg{{end}}">
+<div class="frame {{if not .BackgroundBlur}}frame-black-bg{{end}}">
     {{if .BackgroundBlur }}
-    <div class="image-background">
+    <div class="frame--background">
         <img src="{{ .ImageBlurData }}" alt="" />
     </div>
     {{ end }}
-    <div class="main-image-container">
+    <div class="frame--image">
         <img
-            class="main-image {{if .FillScreen}}fillscreen{{end}}"
+            class="{{if .FillScreen}}frame--image-fillscreen{{end}}"
             src="{{ .ImageData }}"
             alt=""
         />
     </div>
     {{if .ShowDate }}
-    <div class="date">{{ .Date }}</div>
+    <div class="frame--date">{{ .Date }}</div>
     {{ end }}
 </div>

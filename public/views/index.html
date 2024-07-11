@@ -3,8 +3,8 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
-        <link rel="stylesheet" href="./css/style.css" />
+        <title>Immich Kiosk</title>
+        <link rel="stylesheet" href="/assets/css/style.css" />
         <script
             src="https://unpkg.com/htmx.org@2.0.0"
             integrity="sha384-wS5l5IKJBvK6sPTKa2WZ1js3d947pvWXbPJ1OmWfEuxLgeHcEbjUUA5i9V5ZkpCw"
@@ -14,7 +14,7 @@
     <body>
         {{ if eq .Transition "cross-fade" }}
         <div
-            id="frame"
+            id="kiosk"
             hx-get="/new"
             hx-trigger="load, every {{ .Refresh }}s"
             hx-swap="beforeend settle:3s"
@@ -23,7 +23,7 @@
         {{ else if eq .Transition "fade" }}
 
         <div
-            id="frame"
+            id="kiosk"
             hx-get="/new"
             hx-trigger="load, every {{ .Refresh }}s"
             hx-swap="innerHTML swap:3s"
@@ -33,12 +33,12 @@
         {{ else }}
 
         <div
-            id="frame"
+            id="kiosk"
             hx-get="/new"
             hx-trigger="load, every {{ .Refresh }}s"
             hx-swap="innerHTML"
         >
-            <div id="date">Loading</div>
+            <div class="frame--date">Loading</div>
         </div>
 
         {{ end }} {{ if eq .Transition "cross-fade" }}
