@@ -9,9 +9,9 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 
-	"github.com/damongolding/immich-frame/config"
-	"github.com/damongolding/immich-frame/immich"
-	"github.com/damongolding/immich-frame/utils"
+	"github.com/damongolding/immich-kiosk/config"
+	"github.com/damongolding/immich-kiosk/immich"
+	"github.com/damongolding/immich-kiosk/utils"
 )
 
 var baseConfig config.Config
@@ -38,7 +38,12 @@ func init() {
 }
 
 func Home(c echo.Context) error {
-	fmt.Println()
+
+	if log.GetLevel() == log.DebugLevel {
+		fmt.Println()
+	}
+
+	requestId := fmt.Sprintf("[%s]", c.Response().Header().Get(echo.HeaderXRequestID))
 
 	// create a copy of the global config to use with this instance
 	instanceConfig := baseConfig
@@ -49,14 +54,19 @@ func Home(c echo.Context) error {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
-	log.Debug("home", "instanceConfig", instanceConfig)
+	log.Debug(requestId, "instanceConfig", instanceConfig)
 
 	return c.Render(http.StatusOK, "index.html", instanceConfig)
 
 }
 
 func NewImage(c echo.Context) error {
-	fmt.Println()
+
+	if log.GetLevel() == log.DebugLevel {
+		fmt.Println()
+	}
+
+	requestId := fmt.Sprintf("[%s]", c.Response().Header().Get(echo.HeaderXRequestID))
 
 	// create a copy of the global config to use with this instance
 	instanceConfig := baseConfig
@@ -73,17 +83,17 @@ func NewImage(c echo.Context) error {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
-	log.Debug("config used", "config", instanceConfig)
+	log.Debug(requestId, "config", instanceConfig)
 
 	immichImage := immich.NewImage()
 
 	if instanceConfig.Person != "" {
-		randomPersonImageErr := immichImage.GetRandomImageOfPerson(instanceConfig.Person)
+		randomPersonImageErr := immichImage.GetRandomImageOfPerson(instanceConfig.Person, requestId)
 		if randomPersonImageErr != nil {
 			return c.Render(http.StatusOK, "error.html", ErrorData{Message: randomPersonImageErr.Error()})
 		}
 	} else {
-		randomImageErr := immichImage.GetRandomImage()
+		randomImageErr := immichImage.GetRandomImage(requestId)
 		if randomImageErr != nil {
 			return c.Render(http.StatusOK, "error.html", ErrorData{Message: randomImageErr.Error()})
 		}
@@ -94,14 +104,14 @@ func NewImage(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	log.Debug(immichImage.OriginalFileName, "Got image in", time.Since(imageGet).Seconds())
+	log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
 
 	imageConvertTime := time.Now()
 	img, err := utils.ImageToBase64(imgBytes)
 	if err != nil {
 		return err
 	}
-	log.Debug(immichImage.OriginalFileName, "Converted image in", time.Since(imageConvertTime).Seconds())
+	log.Debug(requestId, "Converted image in", time.Since(imageConvertTime).Seconds())
 
 	var imgBlur string
 
@@ -115,10 +125,10 @@ func NewImage(c echo.Context) error {
 		if err != nil {
 			return err
 		}
-		log.Debug(immichImage.OriginalFileName, "Blurred image in", time.Since(imageBlurTime).Seconds())
+		log.Debug(requestId, "Blurred image in", time.Since(imageBlurTime).Seconds())
 	}
 
-	date := fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format("02-01-2006"), immichImage.LocalDateTime.Format(time.Kitchen))
+	date := fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format("02/01/2006"), immichImage.LocalDateTime.Format(time.Kitchen))
 
 	data := PageData{
 		ImageData:      img,

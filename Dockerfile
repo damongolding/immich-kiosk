@@ -9,15 +9,16 @@ WORKDIR /app
 COPY . .
 
 RUN go mod download
-RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o dist/frame .
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o dist/kiosk .
 
 
 FROM  alpine:latest
 
 WORKDIR /
 
-COPY --from=build /app/dist/frame .
+COPY --from=build /app/dist/kiosk .
+COPY public /public
 
 EXPOSE 3000
 
-ENTRYPOINT ["/frame"]
+ENTRYPOINT ["/kiosk"]

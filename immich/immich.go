@@ -12,7 +12,7 @@ import (
 
 	"github.com/charmbracelet/log"
 
-	"github.com/damongolding/immich-frame/config"
+	"github.com/damongolding/immich-kiosk/config"
 )
 
 var baseConfig config.Config
@@ -99,9 +99,9 @@ func NewImage() ImmichImage {
 	return ImmichImage{}
 }
 
-func (i *ImmichImage) GetRandomImage() error {
+func (i *ImmichImage) GetRandomImage(requestId string) error {
 
-	log.Debug("Getting Random image")
+	log.Debug(requestId + " Getting Random image")
 
 	var images []ImmichImage
 
@@ -158,7 +158,7 @@ func (i *ImmichImage) GetRandomImage() error {
 	// We only want images
 	if images[0].Type != "IMAGE" {
 		log.Debug("Not a image. Trying again")
-		return i.GetRandomImage()
+		return i.GetRandomImage(requestId)
 	}
 
 	*i = images[0]
@@ -166,7 +166,7 @@ func (i *ImmichImage) GetRandomImage() error {
 	return nil
 }
 
-func (i *ImmichImage) GetRandomImageOfPerson(personId string) error {
+func (i *ImmichImage) GetRandomImageOfPerson(personId string, requestId string) error {
 
 	var images []ImmichImage
 
@@ -235,7 +235,7 @@ func (i *ImmichImage) GetRandomImageOfPerson(personId string) error {
 
 	for _, per := range i.People {
 		if per.ID == personId {
-			log.Debug("Got image of", "perople", per.Name)
+			log.Debug(requestId+" Got image of", "perople", per.Name)
 			break
 		}
 	}

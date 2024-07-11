@@ -1,4 +1,4 @@
-module github.com/damongolding/immich-frame
+module github.com/damongolding/immich-kiosk
 
 go 1.22.5
 

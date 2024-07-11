@@ -1,15 +1,21 @@
 version: "3"
+env:
+  VERSION: 0.0.2
 
 tasks:
   default:
     deps: [build]
     cmds:
-      - ./dist/frame
+      - DEBUG=true ./dist/kiosk
 
   build:
     cmds:
-      - go build -o dist/frame .
+      - go build -o dist/kiosk .
 
   docker-image:
     cmds:
-      - docker build --build-arg VERSION={{.VERSION}} -t damongolding/immich-frame:{{.VERSION}} -t damongolding/immich-frame:latest .
+      - docker build --build-arg VERSION={{.VERSION}} -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
+
+  docker-image-push:
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}} --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
