@@ -12,6 +12,10 @@
 ## What is Immich Kiosk?
 I made Immich Kiosk as a lightweight (on the client) slideshow to run on kiosk devices and browsers.
 
+Example:
+
+You have a couple of spare Raspberry Pi's laying around
+
 ## Installation
 Use via [docker](#docker-compose)
 
