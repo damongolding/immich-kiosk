@@ -14,7 +14,13 @@ I made Immich Kiosk as a lightweight (on the client) slideshow to run on kiosk d
 
 Example:
 
-You have a couple of spare Raspberry Pi's laying around
+Maybe you have a couple of spare Raspberry Pi's laying around. 
+One hooked up to a lcd screen and the other you connect to your tv.
+You install a koisk service on them (maybe DeitPi).
+You want the pi conencted to the lcd screen to only show images from your refent holiday, which are in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
+On the pi connected to the TV you want to display a random image from your libary. 
+
+On the pi with the LCD using tbe url `http://{URL}?album={ALBUM_ID}&transtion=none&show_time=false` would acheive what we want. 
 
 ## Installation
 Use via [docker](#docker-compose)
