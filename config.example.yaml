@@ -3,11 +3,11 @@ immich_url: ""
 
 refresh: 60 # in seconds
 
-person: ""
+album: "" # ID of album to display
 
-album: ""
+person: "" # ID of person to display
 
-fill_screen: true
+fill_screen: true # force image to fill entire screen (depending on height/width disparity, will lead to blurriness)
 
 show_date: true # true or false
 date_format: 02/01/2006 # 02 = day, 01 = month and 2006 = year e.g. 01/02/2006 for American formate
@@ -15,6 +15,6 @@ date_format: 02/01/2006 # 02 = day, 01 = month and 2006 = year e.g. 01/02/2006 f
 show_time: true # true or false
 time_format: 12 # 12 or 24
 
-background_blur: true
+background_blur: true # display a blurred version of image as background
 
 transition: none # cross-fade, fade or none

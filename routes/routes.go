@@ -66,7 +66,6 @@ func NewImage(c echo.Context) error {
 
 	if log.GetLevel() == log.DebugLevel {
 		fmt.Println()
-		// return c.Render(http.StatusOK, "error.html", ErrorData{Title: "Error title", Message: "Vitae purus pharetra montes metus venenatis ligula. Elit nisl netus tincidunt tempus dictumst eleifend ridiculus. Tempus varius sed duis, nunc proin curae id ligula velit."})
 	}
 
 	requestId := fmt.Sprintf("[%s]", c.Response().Header().Get(echo.HeaderXRequestID))
@@ -91,28 +90,28 @@ func NewImage(c echo.Context) error {
 	immichImage := immich.NewImage()
 
 	switch {
-	case (instanceConfig.Person != "" && instanceConfig.Album != ""):
-		randomPersonFromAlbumImageErr := immichImage.GetRandomImageOfPersonFromAlbum(instanceConfig.Person, instanceConfig.Album, requestId)
-		if randomPersonFromAlbumImageErr != nil {
-			return c.Render(http.StatusOK, "error.html", ErrorData{Message: randomPersonFromAlbumImageErr.Error()})
-		}
-		break
+	// case (instanceConfig.Person != "" && instanceConfig.Album != ""):
+	// 	randomPersonFromAlbumImageErr := immichImage.GetRandomImageOfPersonFromAlbum(instanceConfig.Person, instanceConfig.Album, requestId)
+	// 	if randomPersonFromAlbumImageErr != nil {
+	// 		return c.Render(http.StatusOK, "error.html", ErrorData{Message: randomPersonFromAlbumImageErr.Error()})
+	// 	}
+	// 	break
 	case instanceConfig.Album != "":
 		randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(instanceConfig.Album, requestId)
 		if randomAlbumImageErr != nil {
-			return c.Render(http.StatusOK, "error.html", ErrorData{Message: randomAlbumImageErr.Error()})
+			return c.Render(http.StatusOK, "error.html", ErrorData{Title: "Error getting image from album", Message: randomAlbumImageErr.Error()})
 		}
 		break
 	case instanceConfig.Person != "":
 		randomPersonImageErr := immichImage.GetRandomImageOfPerson(instanceConfig.Person, requestId)
 		if randomPersonImageErr != nil {
-			return c.Render(http.StatusOK, "error.html", ErrorData{Message: randomPersonImageErr.Error()})
+			return c.Render(http.StatusOK, "error.html", ErrorData{Title: "Error getting image of person", Message: randomPersonImageErr.Error()})
 		}
 		break
 	default:
 		randomImageErr := immichImage.GetRandomImage(requestId)
 		if randomImageErr != nil {
-			return c.Render(http.StatusOK, "error.html", ErrorData{Message: randomImageErr.Error()})
+			return c.Render(http.StatusOK, "error.html", ErrorData{Title: "Error getting random image", Message: randomImageErr.Error()})
 		}
 	}
 
