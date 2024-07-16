@@ -36,18 +36,24 @@ type Config struct {
 func (c *Config) Load() error {
 
 	config := Config{
-		Refresh:    20,
-		FillScreen: true,
+		Refresh: 60,
 	}
 
-	data, err := os.ReadFile("config.yaml")
-	if err != nil {
-		return err
-	}
+	// Check for yaml config file first
+	if _, err := os.Stat("config.yaml"); err != nil {
+		data, err := os.ReadFile("config.yaml")
+		if err != nil {
+			return err
+		}
 
-	err = yaml.Unmarshal(data, &config)
-	if err != nil {
-		return err
+		err = yaml.Unmarshal(data, &config)
+		if err != nil {
+			return err
+		}
+
+	} else {
+		// Lets see if congig has been set by ENV
+
 	}
 
 	*c = config
