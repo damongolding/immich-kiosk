@@ -20,6 +20,7 @@ type Config struct {
 	Album          string `yaml:"album"`
 	FillScreen     bool   `yaml:"fill_screen"`
 	ShowDate       bool   `yaml:"show_date"`
+	ShowTime       bool   `yaml:"show_time"`
 	BackgroundBlur bool   `yaml:"background_blur"`
 	Transition     string `yaml:"transition"`
 }
