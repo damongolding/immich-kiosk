@@ -128,7 +128,6 @@ func (i *ImmichImage) immichApiCall(apiUrl string) ([]byte, error) {
 	}
 
 	return responseBody, err
-
 }
 
 // NewImage returns a new image instance
@@ -296,9 +295,11 @@ func (i *ImmichImage) GetRandomImageOfPersonFromAlbum(personId, albumId, request
 
 	for _, pick := range album.Assets {
 		// We only want images
-		if pick.Type != "IMAGE" && len(pick.People) != 0 {
+		if pick.Type != "IMAGE" {
 			continue
 		}
+
+		log.Debug("people", "peeps", pick.People)
 
 		for _, person := range pick.People {
 			if person.ID == personId {
