@@ -132,15 +132,28 @@ func NewImage(c echo.Context) error {
 	}
 
 	var date string
+
+	dateFormat := instanceConfig.DateFormat
+	if dateFormat == "" {
+		dateFormat = "02/01/2006"
+	}
+
+	var timeFormat string
+	if instanceConfig.TimeFormat == "12" {
+		timeFormat = time.Kitchen
+	} else {
+		timeFormat = time.TimeOnly
+	}
+
 	switch {
 	case (instanceConfig.ShowDate && instanceConfig.ShowTime):
-		date = fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format("02/01/2006"), immichImage.LocalDateTime.Format(time.Kitchen))
+		date = fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format(dateFormat), immichImage.LocalDateTime.Format(timeFormat))
 		break
 	case instanceConfig.ShowDate:
-		date = fmt.Sprintf("%s", immichImage.LocalDateTime.Format("02/01/2006"))
+		date = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(dateFormat))
 		break
 	case instanceConfig.ShowTime:
-		date = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(time.Kitchen))
+		date = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(timeFormat))
 		break
 	}
 
