@@ -22,11 +22,13 @@ type PageData struct {
 	Date           string
 	FillScreen     bool
 	ShowDate       bool
+	ShowTime       bool
 	BackgroundBlur bool
 	Transition     string
 }
 
 type ErrorData struct {
+	Title   string
 	Message string
 }
 
@@ -64,6 +66,7 @@ func NewImage(c echo.Context) error {
 
 	if log.GetLevel() == log.DebugLevel {
 		fmt.Println()
+		// return c.Render(http.StatusOK, "error.html", ErrorData{Title: "Error title", Message: "Vitae purus pharetra montes metus venenatis ligula. Elit nisl netus tincidunt tempus dictumst eleifend ridiculus. Tempus varius sed duis, nunc proin curae id ligula velit."})
 	}
 
 	requestId := fmt.Sprintf("[%s]", c.Response().Header().Get(echo.HeaderXRequestID))
@@ -74,7 +77,7 @@ func NewImage(c echo.Context) error {
 	referer, err := url.Parse(c.Request().Referer())
 	if err != nil {
 		log.Error(err)
-		return c.Render(http.StatusOK, "error.html", ErrorData{Message: err.Error()})
+		return c.Render(http.StatusOK, "error.html", ErrorData{Title: "Error with URL", Message: err.Error()})
 	}
 
 	queries := referer.Query()
@@ -128,14 +131,24 @@ func NewImage(c echo.Context) error {
 		log.Debug(requestId, "Blurred image in", time.Since(imageBlurTime).Seconds())
 	}
 
-	date := fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format("02/01/2006"), immichImage.LocalDateTime.Format(time.Kitchen))
+	var date string
+	switch {
+	case (instanceConfig.ShowDate && instanceConfig.ShowTime):
+		date = fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format("02/01/2006"), immichImage.LocalDateTime.Format(time.Kitchen))
+		break
+	case instanceConfig.ShowDate:
+		date = fmt.Sprintf("%s", immichImage.LocalDateTime.Format("02/01/2006"))
+		break
+	case instanceConfig.ShowTime:
+		date = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(time.Kitchen))
+		break
+	}
 
 	data := PageData{
 		ImageData:      img,
 		ImageBlurData:  imgBlur,
 		Date:           date,
 		FillScreen:     instanceConfig.FillScreen,
-		ShowDate:       instanceConfig.ShowDate,
 		BackgroundBlur: instanceConfig.BackgroundBlur,
 		Transition:     instanceConfig.Transition,
 	}

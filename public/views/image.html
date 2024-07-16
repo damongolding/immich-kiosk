@@ -11,7 +11,7 @@
             alt=""
         />
     </div>
-    {{if .ShowDate }}
+    {{if ne .Date ""}}
     <div class="frame--date">{{ .Date }}</div>
     {{ end }}
 </div>
