@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/log"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
@@ -15,10 +16,11 @@ import (
 type Config struct {
 	ImmichApiKey string `yaml:"immich_api_key"`
 	ImmichUrl    string `yaml:"immich_url"`
-	Refresh      int    `yaml:"refresh"`
-	Person       string `yaml:"person"`
-	Album        string `yaml:"album"`
-	FillScreen   bool   `yaml:"fill_screen"`
+
+	Refresh    int    `yaml:"refresh"`
+	Person     string `yaml:"person"`
+	Album      string `yaml:"album"`
+	FillScreen bool   `yaml:"fill_screen"`
 
 	ShowDate   bool   `yaml:"show_date"`
 	DateFormat string `yaml:"date_format"`
@@ -32,6 +34,7 @@ type Config struct {
 
 // Load loads config file
 func (c *Config) Load() error {
+
 	config := Config{
 		Refresh:    20,
 		FillScreen: true,
@@ -60,6 +63,12 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 
 	// Loop through the map and update struct fields
 	for key, values := range queries {
+		// Disble setting api and url for now
+		if strings.ToLower(key) == "immich_api_key" || strings.ToLower(key) == "immich_url" {
+			log.Error("tried to set Immich url or Immich api via queries")
+			continue
+		}
+
 		if len(values) > 0 {
 			// Lets just use the first used override
 			value := values[0]
