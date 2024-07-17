@@ -37,11 +37,16 @@ Use via [docker](#docker-compose)
 ## Configuration
 See the file config.example.yaml for an example config file
 
-| yaml           | ENV                 | description                   |
-|----------------|---------------------|-------------------------------|
-| immich_url     | KIOSK_IMMICH_URL    | The URL of your Immich server |
-| immich_api_key | KIOK_IMMICH_API_KEY | The API for you Immich server |
-|                |                     |                               |
+| yaml           | ENV                 | description                                                                                |
+|----------------|---------------------|--------------------------------------------------------------------------------------------|
+| immich_url     | KIOSK_IMMICH_URL    | The URL of your Immich server                                                              |
+| immich_api_key | KIOK_IMMICH_API_KEY | The API for you Immich server                                                              |
+| refresh        | KIOSK_REFRESH       | The amount in seconds a image will be displayed for                                        |
+| album          | KIOSK_ALBUM         | The ID of a specific album you want to display                                             |
+| person         | KIOSK_PERSON        | The ID of a specific person you want to display. Having the album set will overwride this  |
+| fill_screen    | KIOSK_FILL_SCREEN   | Force images to be full screen. Can lead to blurriness depending on image and screen size. |
+| show_date      | KIOSK_SHOW_DATE     | Display the image date                                                                     |
+| date_format    | KIOSK_DATE_FORMAT   | The format of the date. default is day/month/year.                                         |
 
 ## Changing config via browser queries
 You can configure settings for individual devices through the URL. This feature is particularly useful when you need different settings for different devices, especially if the only input option available is a URL, such as with kiosk devices.
