@@ -104,6 +104,12 @@ type ImmichAlbum struct {
 	Assets []ImmichImage `json:"assets"`
 }
 
+// NewImage returns a new image instance
+func NewImage(base config.Config) ImmichImage {
+	baseConfig = base
+	return ImmichImage{}
+}
+
 // immichApiCall bootstrap from immich api call
 func (i *ImmichImage) immichApiCall(apiUrl string) ([]byte, error) {
 
@@ -133,12 +139,6 @@ func (i *ImmichImage) immichApiCall(apiUrl string) ([]byte, error) {
 	}
 
 	return responseBody, err
-}
-
-// NewImage returns a new image instance
-func NewImage(base config.Config) ImmichImage {
-	baseConfig = base
-	return ImmichImage{}
 }
 
 // GetRandomImage retrieve a random image from Immich

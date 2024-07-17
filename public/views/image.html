@@ -1,12 +1,12 @@
-<div class="frame {{if not .BackgroundBlur}}frame-black-bg{{end}}">
-    {{if .BackgroundBlur }}
+<div class="frame {{if not .Config.BackgroundBlur}}frame-black-bg{{end}}">
+    {{if .Config.BackgroundBlur }}
     <div class="frame--background">
         <img src="{{ .ImageBlurData }}" alt="" />
     </div>
     {{ end }}
     <div class="frame--image">
         <img
-            class="{{if .FillScreen}}frame--image-fillscreen{{end}}"
+            class="{{if .Config.FillScreen}}frame--image-fillscreen{{end}}"
             src="{{ .ImageData }}"
             alt=""
         />
@@ -16,11 +16,11 @@
     {{ end }}
 </div>
 
-{{if .ShowProgress }}
+{{if .Config.ShowProgress }}
 <div class="progress">
     <div
         class="progress--bar"
-        style="animation-duration: {{ .Refresh }}s;"
+        style="animation-duration: {{ .Config.Refresh }}s;"
     ></div>
 </div>
 {{end}}

@@ -20,16 +20,11 @@ var (
 )
 
 type PageData struct {
-	ImageData      string
-	ImageBlurData  string
-	Date           string
-	FillScreen     bool
-	ShowDate       bool
-	ShowTime       bool
-	Refresh        int
-	BackgroundBlur bool
-	Transition     string
-	ShowProgress   bool
+	ImageData     string
+	ImageBlurData string
+	Date          string
+
+	config.Config
 }
 
 type ErrorData struct {
@@ -44,6 +39,7 @@ func init() {
 	}
 }
 
+// Home home endpoint
 func Home(c echo.Context) error {
 
 	if log.GetLevel() == log.DebugLevel {
@@ -67,6 +63,7 @@ func Home(c echo.Context) error {
 
 }
 
+// NewImage new image endpoint
 func NewImage(c echo.Context) error {
 
 	if log.GetLevel() == log.DebugLevel {
@@ -176,14 +173,10 @@ func NewImage(c echo.Context) error {
 	}
 
 	data := PageData{
-		ImageData:      img,
-		ImageBlurData:  imgBlur,
-		Date:           date,
-		FillScreen:     instanceConfig.FillScreen,
-		BackgroundBlur: instanceConfig.BackgroundBlur,
-		Transition:     instanceConfig.Transition,
-		ShowProgress:   instanceConfig.ShowProgress,
-		Refresh:        instanceConfig.Refresh,
+		ImageData:     img,
+		ImageBlurData: imgBlur,
+		Date:          date,
+		Config:        instanceConfig,
 	}
 
 	return c.Render(http.StatusOK, "image.html", data)
