@@ -51,6 +51,7 @@ See the file config.example.yaml for an example config file
 | time_format     | KIOSK_TIME_FORMAT     | 12 \| 24                   | Display time in either 12 hour or 24 hour format.Can either be 12 or 24.                   |
 | background_blur | KIOSK_BACKGROUND_BLUR | bool                       | Display a blurred version of the image as a background.                                    |
 | transition      | KIOSK_TRANSITION      | none \| fade \| cross-fade | Which transition to use when changing images                                               |
+| show_progress   | KIOSK_SHOW_PROGRESS   | bool                       | Display a progress bar
 
 ## Changing config via browser queries
 You can configure settings for individual devices through the URL. This feature is particularly useful when you need different settings for different devices, especially if the only input option available is a URL, such as with kiosk devices.

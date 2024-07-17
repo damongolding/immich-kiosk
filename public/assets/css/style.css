@@ -9,6 +9,7 @@
         U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323,
         U+0329, U+1EA0-1EF9, U+20AB;
 }
+
 /* latin-ext */
 @font-face {
     font-family: "Barlow";
@@ -19,6 +20,7 @@
     unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF,
         U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
 /* latin */
 @font-face {
     font-family: "Barlow";
@@ -63,6 +65,7 @@ body {
     opacity: 0;
     transition: opacity 3s ease-out;
 }
+
 /* END Fade transition */
 
 /* Cross fade transtion */
@@ -77,6 +80,7 @@ body {
     animation-duration: 3s;
     animation-fill-mode: forwards;
 }
+
 /* END Cross fade transtion */
 
 .frame {
@@ -160,7 +164,7 @@ body {
         rgba(0, 0, 0, 0.500437675070028) 0%,
         rgba(0, 0, 0, 0) 100%
     );
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000",endColorstr="#000000",GradientType=1);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000", endColorstr="#000000", GradientType=1);
 }
 
 .error-container {
@@ -197,4 +201,29 @@ body {
 .error svg {
     max-width: 2rem;
     fill: #fff;
+}
+
+.progress {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 2px;
+}
+
+@keyframes progress {
+    to {
+        width: 0%;
+    }
+}
+
+.progress--bar {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    right: 0;
+    background-color: #39ace7;
+    animation-name: progress;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
 }

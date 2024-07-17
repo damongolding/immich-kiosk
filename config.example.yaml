@@ -18,3 +18,5 @@ time_format: 12 # 12 or 24
 background_blur: true # display a blurred version of image as background
 
 transition: none # cross-fade, fade or none
+
+show_progress: false # display a progress bar

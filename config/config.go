@@ -31,6 +31,7 @@ type Config struct {
 
 	BackgroundBlur bool   `mapstructure:"background_blur"`
 	Transition     string `mapstructure:"transition"`
+	ShowProgress   bool   `mapstructure:"show_progress"`
 }
 
 //go:embed config.example.yaml

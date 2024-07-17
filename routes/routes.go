@@ -26,8 +26,10 @@ type PageData struct {
 	FillScreen     bool
 	ShowDate       bool
 	ShowTime       bool
+	Refresh        int
 	BackgroundBlur bool
 	Transition     string
+	ShowProgress   bool
 }
 
 type ErrorData struct {
@@ -180,6 +182,8 @@ func NewImage(c echo.Context) error {
 		FillScreen:     instanceConfig.FillScreen,
 		BackgroundBlur: instanceConfig.BackgroundBlur,
 		Transition:     instanceConfig.Transition,
+		ShowProgress:   instanceConfig.ShowProgress,
+		Refresh:        instanceConfig.Refresh,
 	}
 
 	return c.Render(http.StatusOK, "image.html", data)

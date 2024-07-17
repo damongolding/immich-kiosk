@@ -15,3 +15,12 @@
     <div class="frame--date">{{ .Date }}</div>
     {{ end }}
 </div>
+
+{{if .ShowProgress }}
+<div class="progress">
+    <div
+        class="progress--bar"
+        style="animation-duration: {{ .Refresh }}s;"
+    ></div>
+</div>
+{{end}}
