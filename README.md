@@ -12,15 +12,22 @@
 ## What is Immich Kiosk?
 I made Immich Kiosk as a lightweight (on the client) slideshow to run on kiosk devices and browsers.
 
-Example:
+### Example 1
 
-Maybe you have a couple of spare Raspberry Pi's laying around. 
-One hooked up to a lcd screen and the other you connect to your tv.
-You install a koisk service on them (maybe DeitPi).
-You want the pi conencted to the lcd screen to only show images from your refent holiday, which are in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
-On the pi connected to the TV you want to display a random image from your libary. 
+You have a couple of spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a kiosk service on them (I use [DeitPi](https://dietpi.com/docs/software/desktop/#chromium)).
 
-On the pi with the LCD using tbe url `http://{URL}?album={ALBUM_ID}&transtion=none&show_time=false` would acheive what we want. 
+You want the pi connected to the LCD screen to only show images from your recent holiday, which are stored in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
+
+Using this URL `http://{URL}?album={ALBUM_ID}&transtion=none&show_time=false` would achieve what we want.
+
+On the pi connected to the TV you want to display a random image from your library. It has to be fullscreen and we want to use the fade transition
+
+Using this URL `http://{URL}?full_screen=true&transition=fade` would achieve what we want.
+
+### Example 2
+
+You want to see a random picture of your child when you open a new tab in Chrome. To achieve this set the homepage URL in Chrome to `http://{URL}?person={PERSON_ID}`.
+
 
 ## Installation
 Use via [docker](#docker-compose)
@@ -35,23 +42,51 @@ example:
 
 `https://{URL}?refresh=60&background_blur=false&transition=none`
 
-Thos above would set refresh to 60 seconds, turn off the background blurred image and remove all transistions for this device/browser.
+Thos above would set refresh to 60 seconds, turn off the background blurred image and remove all transitions for this device/browser.
 
 
 ## Docker Compose
+
+> [!NOTE]
+> You can use both a yaml file and environment variables but environment variables will overwrite settings from the yaml file
+
+### When using a yaml config file
 ```yaml
 services:
   immich-kiosk:
     image: damongolding/immich-kiosk:latest
     container_name: immich-kiosk
-    environment:
-      DEBUG: false
-    ports:
-      - 3000:3000
     volumes:
       - ./config.yaml:/config.yaml
     restart: on-failure
+    ports:
+      - 3000:3000
 ```
+
+### When using environment variables
+```yaml
+services:
+  immich-kiosk:
+    image: damongolding/immich-kiosk:latest
+    container_name: immich-kiosk
+    enviroment:
+      KIOSK_IMMICH_API_KEY: ""
+      KIOSK_IMMICH_URL: ""
+      KIOSK_REFRESH: 60
+      KIOSK_ALBUM: ""
+      KIOSK_PERSON: ""
+      KIOSK_FILL_SCREEN: TRUE
+      KIOSK_SHOW_DATE: TRUE
+      KIOSK_DATE_FORMAT: 02/01/2006
+      KIOSK_SHOW_TIME: TRUE
+      KIOSK_TIME_FORMAT: 12
+      KIOSK_BACKGROUND_BLUR: TRUE
+      KIOSK_TRANSITION: NONE
+    ports:
+      - 3000:3000
+    restart: on-failure
+```
+
 ## TODO
 - Album
 
