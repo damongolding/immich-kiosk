@@ -37,7 +37,7 @@ Use via [docker](#docker-compose)
 ## Configuration
 See the file config.example.yaml for an example config file
 
-| **yaml**        | **ENV**               | **Value**                  | **description**                                                                            |
+| **yaml**        | **ENV**               | **Value**                  | **Description**                                                                            |
 |-----------------|-----------------------|----------------------------|--------------------------------------------------------------------------------------------|
 | immich_url      | KIOSK_IMMICH_URL      | string                     | The URL of your Immich server                                                              |
 | immich_api_key  | KIOK_IMMICH_API_KEY   | string                     | The API for you Immich server                                                              |
