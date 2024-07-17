@@ -32,6 +32,8 @@ You want to see a random picture of your child when you open a new tab in Chrome
 ## Installation
 Use via [docker](#docker-compose)
 
+
+
 ## Configuration
 See the file config.example.yaml for an example config file
 
