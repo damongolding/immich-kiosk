@@ -37,18 +37,20 @@ Use via [docker](#docker-compose)
 ## Configuration
 See the file config.example.yaml for an example config file
 
-| **yaml**       | **ENV**             | **Value** | **description**                                                                            |
-|----------------|---------------------|-----------|--------------------------------------------------------------------------------------------|
-| immich_url     | KIOSK_IMMICH_URL    | string    | The URL of your Immich server                                                              |
-| immich_api_key | KIOK_IMMICH_API_KEY | string    | The API for you Immich server                                                              |
-| refresh        | KIOSK_REFRESH       | int       | The amount in seconds a image will be displayed for                                        |
-| album          | KIOSK_ALBUM         | string    | The ID of a specific album you want to display                                             |
-| person         | KIOSK_PERSON        | string    | The ID of a specific person you want to display. Having the album set will overwride this  |
-| fill_screen    | KIOSK_FILL_SCREEN   | bool      | Force images to be full screen. Can lead to blurriness depending on image and screen size. |
-| show_date      | KIOSK_SHOW_DATE     | bool      | Display the image date                                                                     |
-| date_format    | KIOSK_DATE_FORMAT   | string    | The format of the date. default is day/month/year.                                         |
-| show_time      | KIOSK_SHOW_TIME     | bool      | Display the image timestamp                                                                |
-| time_format    | KIOSK_TIME_FORMAT   | 12 \| 24  | Display time in either 12 hour or 24 hour format.Can either be 12 or 24.                   |
+| **yaml**        | **ENV**               | **Value**                  | **description**                                                                            |
+|-----------------|-----------------------|----------------------------|--------------------------------------------------------------------------------------------|
+| immich_url      | KIOSK_IMMICH_URL      | string                     | The URL of your Immich server                                                              |
+| immich_api_key  | KIOK_IMMICH_API_KEY   | string                     | The API for you Immich server                                                              |
+| refresh         | KIOSK_REFRESH         | int                        | The amount in seconds a image will be displayed for                                        |
+| album           | KIOSK_ALBUM           | string                     | The ID of a specific album you want to display                                             |
+| person          | KIOSK_PERSON          | string                     | The ID of a specific person you want to display. Having the album set will overwride this  |
+| fill_screen     | KIOSK_FILL_SCREEN     | bool                       | Force images to be full screen. Can lead to blurriness depending on image and screen size. |
+| show_date       | KIOSK_SHOW_DATE       | bool                       | Display the image date                                                                     |
+| date_format     | KIOSK_DATE_FORMAT     | string                     | The format of the date. default is day/month/year.                                         |
+| show_time       | KIOSK_SHOW_TIME       | bool                       | Display the image timestamp                                                                |
+| time_format     | KIOSK_TIME_FORMAT     | 12 \| 24                   | Display time in either 12 hour or 24 hour format.Can either be 12 or 24.                   |
+| background_blur | KIOSK_BACKGROUND_BLUR | bool                       | Display a blurred version of the image as a background.                                    |
+| transition      | KIOSK_TRANSITION      | none \| fade \| cross-fade | Which transition to use when changing images                                               |
 
 ## Changing config via browser queries
 You can configure settings for individual devices through the URL. This feature is particularly useful when you need different settings for different devices, especially if the only input option available is a URL, such as with kiosk devices.
