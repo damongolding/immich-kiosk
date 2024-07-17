@@ -28,3 +28,5 @@ build
 dist
 
 config.yaml
+
+config/config.example.yaml

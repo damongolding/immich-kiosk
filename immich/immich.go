@@ -15,10 +15,15 @@ import (
 	"github.com/damongolding/immich-kiosk/config"
 )
 
-var baseConfig config.Config
+var (
+	baseConfig config.Config
+)
 
 func init() {
-	baseConfig.Load()
+	err := baseConfig.Load()
+	if err != nil {
+		log.Fatal("Could not load config", "err", err)
+	}
 }
 
 type ImmichError struct {
@@ -131,7 +136,8 @@ func (i *ImmichImage) immichApiCall(apiUrl string) ([]byte, error) {
 }
 
 // NewImage returns a new image instance
-func NewImage() ImmichImage {
+func NewImage(base config.Config) ImmichImage {
+	baseConfig = base
 	return ImmichImage{}
 }
 
