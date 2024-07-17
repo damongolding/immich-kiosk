@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"io"
 	"os"
 	"strconv"
@@ -21,7 +22,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-func main() {
+func init() {
 
 	debugModeEnv := os.Getenv("DEBUG")
 	debugMode, _ := strconv.ParseBool(debugModeEnv)
@@ -30,6 +31,10 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 		log.Debug("DEBUG mode on")
 	}
+
+}
+
+func main() {
 
 	e := echo.New()
 

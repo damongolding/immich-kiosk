@@ -14,7 +14,10 @@ import (
 	"github.com/damongolding/immich-kiosk/utils"
 )
 
-var baseConfig config.Config
+var (
+	ExampleConfig []byte
+	baseConfig    config.Config
+)
 
 type PageData struct {
 	ImageData      string
@@ -87,7 +90,7 @@ func NewImage(c echo.Context) error {
 
 	log.Debug(requestId, "config", instanceConfig)
 
-	immichImage := immich.NewImage()
+	immichImage := immich.NewImage(baseConfig)
 
 	switch {
 	// case (instanceConfig.Person != "" && instanceConfig.Album != ""):

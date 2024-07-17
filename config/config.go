@@ -1,36 +1,40 @@
 package config
 
 import (
+	"bytes"
+	_ "embed"
 	"net/url"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
-	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	ImmichApiKey string `yaml:"immich_api_key"`
-	ImmichUrl    string `yaml:"immich_url"`
+	ImmichApiKey string `mapstructure:"immich_api_key"`
+	ImmichUrl    string `mapstructure:"immich_url"`
 
-	Refresh    int    `yaml:"refresh"`
-	Person     string `yaml:"person"`
-	Album      string `yaml:"album"`
-	FillScreen bool   `yaml:"fill_screen"`
+	Refresh    int    `mapstructure:"refresh"`
+	Person     string `mapstructure:"person"`
+	Album      string `mapstructure:"album"`
+	FillScreen bool   `mapstructure:"fill_screen"`
 
-	ShowDate   bool   `yaml:"show_date"`
-	DateFormat string `yaml:"date_format"`
+	ShowDate   bool   `mapstructure:"show_date"`
+	DateFormat string `mapstructure:"date_format"`
 
-	ShowTime   bool   `yaml:"show_time"`
-	TimeFormat string `yaml:"time_format"`
+	ShowTime   bool   `mapstructure:"show_time"`
+	TimeFormat string `mapstructure:"time_format"`
 
-	BackgroundBlur bool   `yaml:"background_blur"`
-	Transition     string `yaml:"transition"`
+	BackgroundBlur bool   `mapstructure:"background_blur"`
+	Transition     string `mapstructure:"transition"`
 }
+
+//go:embed config.example.yaml
+var exampleConfig []byte
 
 // Load loads config file
 func (c *Config) Load() error {
@@ -39,21 +43,27 @@ func (c *Config) Load() error {
 		Refresh: 60,
 	}
 
-	// Check for yaml config file first
-	if _, err := os.Stat("config.yaml"); err != nil {
-		data, err := os.ReadFile("config.yaml")
-		if err != nil {
-			return err
+	viper.AddConfigPath(".")
+	viper.SetConfigFile("config.yaml")
+
+	viper.SetEnvPrefix("kiosk")
+
+	viper.AutomaticEnv()
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		if err := viper.ReadConfig(bytes.NewBuffer(exampleConfig)); err != nil {
+			log.Fatal("Config and Example config missing", "err", err)
 		}
+	}
 
-		err = yaml.Unmarshal(data, &config)
-		if err != nil {
-			return err
-		}
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		log.Fatal("Environment can't be loaded: ", "err", err)
+	}
 
-	} else {
-		// Lets see if congig has been set by ENV
-
+	if config.ImmichUrl == "" || config.ImmichApiKey == "" {
+		log.Fatal("Either Immich Url or Immich Api Key is missing", "ImmichUrl", config.ImmichUrl, "ImmichApiKey", config.ImmichApiKey)
 	}
 
 	*c = config
