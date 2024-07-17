@@ -7,7 +7,7 @@ ARG TARGETARCH
 WORKDIR /app
 
 COPY . .
-COPY config.example.yaml ./config
+COPY config.example.yaml /app/config/
 
 RUN go mod download
 RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o dist/kiosk .

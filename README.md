@@ -86,7 +86,7 @@ services:
   immich-kiosk:
     image: damongolding/immich-kiosk:latest
     container_name: immich-kiosk
-    enviroment:
+    environment:
       KIOSK_IMMICH_API_KEY: ""
       KIOSK_IMMICH_URL: ""
       KIOSK_REFRESH: 60

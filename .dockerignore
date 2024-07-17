@@ -4,4 +4,4 @@
 .env
 
 dist/
-*.yaml
+config.yaml
