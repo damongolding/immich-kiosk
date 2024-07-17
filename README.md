@@ -35,6 +35,12 @@ Use via [docker](#docker-compose)
 ## Configuration
 See the file config.example.yaml for an example config file
 
+| yaml           | ENV                 | description                   |
+|----------------|---------------------|-------------------------------|
+| immich_url     | KIOSK_IMMICH_URL    | The URL of your Immich server |
+| immich_api_key | KIOK_IMMICH_API_KEY | The API for you Immich server |
+|                |                     |                               |
+
 ## Changing config via browser queries
 You can configure settings for individual devices through the URL. This feature is particularly useful when you need different settings for different devices, especially if the only input option available is a URL, such as with kiosk devices.
 
