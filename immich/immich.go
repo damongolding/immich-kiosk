@@ -183,7 +183,7 @@ func (i *ImmichImage) GetRandomImage(requestId string) error {
 
 	// We only want images
 	if images[0].Type != "IMAGE" {
-		log.Debug("Not a image. Trying again")
+		log.Debug(requestId, "Not a image. Trying again")
 		return i.GetRandomImage(requestId)
 	}
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -13,6 +14,8 @@ import (
 
 	"github.com/damongolding/immich-kiosk/routes"
 )
+
+var version string
 
 type TemplateRenderer struct {
 	templates *template.Template
@@ -35,6 +38,9 @@ func init() {
 }
 
 func main() {
+
+	fmt.Println(smallBanner)
+	fmt.Print("Version ", version, "\n\n")
 
 	e := echo.New()
 

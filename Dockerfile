@@ -10,7 +10,7 @@ COPY . .
 COPY config.example.yaml /app/config/
 
 RUN go mod download
-RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o dist/kiosk .
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags "-X main.version=${VERSION}" -o dist/kiosk .
 
 
 FROM  alpine:latest
