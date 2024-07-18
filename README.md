@@ -1,5 +1,7 @@
 # Immich Kiosk
 
+![logo](/assets/logo.png)
+
 **This project is not affiliated with [immich][immich-github-url]**
 
 ## Table of Contents
