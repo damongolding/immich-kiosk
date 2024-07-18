@@ -53,6 +53,7 @@ func (c *Config) Load() error {
 
 	err := viper.ReadInConfig()
 	if err != nil {
+		// no yaml file found so lets load the example file as a base and any ENV will overwrite
 		if err := viper.ReadConfig(bytes.NewBuffer(exampleConfig)); err != nil {
 			log.Fatal("Config and Example config missing", "err", err)
 		}
@@ -87,12 +88,13 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 		}
 
 		if len(values) > 0 {
-			// Lets just use the first used override
+			// Lets just use the first given overwrite
 			value := values[0]
 			if value == "" {
 				continue
 			}
 
+			// format to match field names
 			key = strings.ReplaceAll(key, "_", " ")
 			key = cases.Title(language.English, cases.Compact).String(key)
 			key = strings.ReplaceAll(key, " ", "")
