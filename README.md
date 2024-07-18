@@ -1,7 +1,9 @@
 # Immich Kiosk
 
 <div align="center">
-  <img src="/assets/logo.svg" width="240" height="auto" alt="Immich Kiosk windmil logo" />
+  <a href="https://github.com/damongolding/immich-kiosk">
+    <img src="/assets/logo.svg" width="240" height="auto" alt="Immich Kiosk windmil logo" />
+  </a>
 </div>
 
 **This project is not affiliated with [immich][immich-github-url]**
