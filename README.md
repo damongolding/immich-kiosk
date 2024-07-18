@@ -3,7 +3,7 @@
 ![logo](/assets/logo.svg)
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/damongolding/immich-kiosk/main/assets/logo.svg" width="240" height="auto" alt="Immich Kiosk windmil logo" />
+  <img src="/assets/logo.svg" width="240" height="auto" alt="Immich Kiosk windmil logo" />
 </div>
 
 **This project is not affiliated with [immich][immich-github-url]**
