@@ -25,9 +25,17 @@
         />
 
         <script src="/assets/js/htmx.2.0.1.js"></script>
+
+        {{ if .Config.ShowProgress }}
+        <style>
+            .progress--bar {
+                animation-duration: {{ .Refresh }}s;
+            }
+        </style>
+        {{end}}
     </head>
     <body>
-        {{ if eq .Transition "cross-fade" }}
+        {{ if eq .Config.Transition "cross-fade" }}
         <div
             id="kiosk"
             hx-get="/new"
@@ -35,7 +43,7 @@
             hx-swap="beforeend settle:3s"
         ></div>
 
-        {{ else if eq .Transition "fade" }}
+        {{ else if eq .Config.Transition "fade" }}
 
         <div
             id="kiosk"
@@ -56,7 +64,39 @@
             <div class="frame--date">Loading</div>
         </div>
 
-        {{ end }} {{ if eq .Transition "cross-fade" }}
+        {{ end }} {{ if .Config.ShowProgress }}
+        <div class="progress">
+            <div
+                class="progress--bar"
+                style="animation-duration: {{ .Config.Refresh }}s;"
+            ></div>
+        </div>
+        {{end}}
+
+        <div id="offline">
+            <svg
+                width="48"
+                height="48"
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <rect width="48" height="48" />
+                <path
+                    opacity="0.7"
+                    d="M11.5408 21.0109C14.7757 17.9078 19.164 16 24.0023 16C28.8407 16 33.229 17.9078 36.4639 21.0109C37.064 21.5828 38.0111 21.5641 38.583 20.9688C39.155 20.3734 39.1362 19.4219 38.5408 18.85C34.7714 15.2266 29.6471 13 24.0023 13C18.3576 13 13.2333 15.2266 9.45917 18.8453C8.86375 19.4219 8.845 20.3687 9.41697 20.9688C9.98895 21.5688 10.9407 21.5875 11.5361 21.0109H11.5408ZM24.0023 23.5C26.6653 23.5 29.0939 24.4891 30.9504 26.125C31.574 26.6734 32.521 26.6125 33.0696 25.9938C33.6181 25.375 33.5571 24.4234 32.9383 23.875C30.5566 21.775 27.4248 20.5 24.0023 20.5C20.5799 20.5 17.4481 21.775 15.0711 23.875C14.4475 24.4234 14.3913 25.3703 14.9398 25.9938C15.4884 26.6172 16.4354 26.6734 17.0589 26.125C18.9108 24.4891 21.3394 23.5 24.007 23.5H24.0023ZM27.0029 31C27.0029 30.2044 26.6867 29.4413 26.124 28.8787C25.5613 28.3161 24.7981 28 24.0023 28C23.2066 28 22.4434 28.3161 21.8807 28.8787C21.3179 29.4413 21.0018 30.2044 21.0018 31C21.0018 31.7956 21.3179 32.5587 21.8807 33.1213C22.4434 33.6839 23.2066 34 24.0023 34C24.7981 34 25.5613 33.6839 26.124 33.1213C26.6867 32.5587 27.0029 31.7956 27.0029 31Z"
+                    fill="white"
+                />
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M47 24C47 36.7025 36.7025 47 24 47C11.2975 47 1 36.7025 1 24C1 11.2975 11.2975 1 24 1C36.7025 1 47 11.2975 47 24ZM44 24C44 35.0457 35.0457 44 24 44C19.048 44 14.5163 42.2003 11.0234 39.2192L39.2192 11.0234C42.2003 14.5163 44 19.048 44 24ZM8.89305 37.107L37.107 8.89304C33.5968 5.84497 29.0139 4 24 4C12.9543 4 4 12.9543 4 24C4 29.0139 5.84497 33.5968 8.89305 37.107Z"
+                    fill="#F3516B"
+                />
+            </svg>
+        </div>
+
+        {{ if eq .Config.Transition "cross-fade" }}
         <script>
             document.body.addEventListener("htmx:afterSettle", function () {
                 const frames = document.querySelectorAll(".image-container");
@@ -66,5 +106,26 @@
             });
         </script>
         {{end}}
+
+        <script>
+            document.body.addEventListener("htmx:afterRequest", function (e) {
+                {{ if .Config.ShowProgress }}
+                const progressBar = document.querySelector(".progress--bar");
+
+                progressBar.style.animation = "none";
+                progressBar.offsetHeight; /* trigger reflow */
+                progressBar.style.animation = null;
+
+                {{end}}
+
+                const offline = document.getElementById("offline");
+
+                if (e.detail.successful) {
+                    offline.classList.remove("offline");
+                } else {
+                    offline.classList.add("offline");
+                }
+            });
+        </script>
     </body>
 </html>

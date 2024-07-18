@@ -59,7 +59,11 @@ func Home(c echo.Context) error {
 
 	log.Debug(requestId, "instanceConfig", instanceConfig)
 
-	return c.Render(http.StatusOK, "index.html", instanceConfig)
+	pageData := PageData{
+		Config: instanceConfig,
+	}
+
+	return c.Render(http.StatusOK, "index.html", pageData)
 
 }
 

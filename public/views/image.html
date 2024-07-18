@@ -15,12 +15,3 @@
     <div class="frame--date">{{ .Date }}</div>
     {{ end }}
 </div>
-
-{{if .Config.ShowProgress }}
-<div class="progress">
-    <div
-        class="progress--bar"
-        style="animation-duration: {{ .Config.Refresh }}s;"
-    ></div>
-</div>
-{{end}}
