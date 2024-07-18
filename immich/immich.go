@@ -183,6 +183,7 @@ func (i *ImmichImage) GetRandomImage(requestId string) error {
 
 	// We only want images
 	if images[0].Type != "IMAGE" {
+		//TODO could cause an endless loop! fix this!
 		log.Debug(requestId, "Not a image. Trying again")
 		return i.GetRandomImage(requestId)
 	}
