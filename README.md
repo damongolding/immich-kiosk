@@ -18,9 +18,12 @@
 ## What is Immich Kiosk?
 I made Immich Kiosk as a lightweight (on the client) slideshow to run on kiosk devices and browsers.
 
+![preview 1](/assets/demo_1.jpeg)
+![preview 2](/assets/demo_2.jpeg)
+
 ### Example 1
 
-You have a couple of spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a kiosk service on them (I use [DeitPi](https://dietpi.com/docs/software/desktop/#chromium)).
+You have a couple of spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a kiosk service on them (I use [DeitPi][dietpi-url]).
 
 You want the pi connected to the LCD screen to only show images from your recent holiday, which are stored in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
 
@@ -112,9 +115,10 @@ services:
 ```
 
 ## TODO
-- Album
+- Investigate caching
 
 
 
 <!-- LINKS & IMAGES -->
 [immich-github-url]: https://github.com/immich-app/immich
+[dietpi-url]: https://dietpi.com/docs/software/desktop/#chromium
