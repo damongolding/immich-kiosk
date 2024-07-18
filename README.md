@@ -1,7 +1,5 @@
 # Immich Kiosk
 
-![logo](/assets/logo.svg)
-
 <div align="center">
   <img src="/assets/logo.svg" width="240" height="auto" alt="Immich Kiosk windmil logo" />
 </div>
