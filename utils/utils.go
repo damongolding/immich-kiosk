@@ -11,6 +11,7 @@ import (
 	"github.com/disintegration/imaging"
 )
 
+// ImageToBase64 converts image bytes into a base64 string
 func ImageToBase64(imgBtyes []byte) (string, error) {
 
 	var base64Encoding string
@@ -24,6 +25,7 @@ func ImageToBase64(imgBtyes []byte) (string, error) {
 	return base64Encoding, nil
 }
 
+// BlurImage converts image bytes into a blurred base64 string
 func BlurImage(imgBytes []byte) ([]byte, error) {
 	buf := new(bytes.Buffer)
 
