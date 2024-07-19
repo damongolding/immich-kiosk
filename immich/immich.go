@@ -21,13 +21,6 @@ var (
 	baseConfig config.Config
 )
 
-func init() {
-	err := baseConfig.Load()
-	if err != nil {
-		log.Fatal("Could not load config", "err", err)
-	}
-}
-
 type ImmichError struct {
 	Message    []string `json:"message"`
 	Error      string   `json:"error"`
@@ -174,7 +167,7 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 		var immichError ImmichError
 		errorUnmarshalErr := json.Unmarshal(body, &immichError)
 		if errorUnmarshalErr != nil {
-			log.Error("couln't read error", "body", string(body))
+			log.Error("couldn't read error", "body", string(body))
 			return err
 		}
 		return fmt.Errorf(immichError.Error, immichError.Message)
@@ -201,7 +194,6 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 	}
 
 	return i.GetRandomImage(requestId)
-
 }
 
 // GetRandomImageOfPerson retrieve random image of person from Immich
@@ -270,69 +262,6 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 
 	return nil
 }
-
-// GetRandomImageOfPersonFromAlbum retrieve random image of person within a specified album from Immich
-// func (i *ImmichAsset) GetRandomImageOfPersonFromAlbum(personId, albumId, requestId string) error {
-// 	var album ImmichAlbum
-
-// 	u, err := url.Parse(baseConfig.ImmichUrl)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	apiUrl := url.URL{
-// 		Scheme: u.Scheme,
-// 		Host:   u.Host,
-// 		Path:   "api/albums/" + albumId,
-// 	}
-
-// 	body, err := i.immichApiCall(apiUrl.String())
-// 	if err != nil {
-// 		log.Error(err)
-// 		return err
-// 	}
-
-// 	err = json.Unmarshal(body, &album)
-// 	if err != nil {
-// 		var immichError ImmichError
-// 		errorUnmarshalErr := json.Unmarshal(body, &immichError)
-// 		if errorUnmarshalErr != nil {
-// 			log.Error("couln't read error", "body", string(body))
-// 			return err
-// 		}
-// 		return fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
-// 	}
-
-// 	if len(album.Assets) == 0 {
-// 		return fmt.Errorf("no images found")
-// 	}
-
-// 	rand.Shuffle(len(album.Assets), func(i, j int) {
-// 		album.Assets[i], album.Assets[j] = album.Assets[j], album.Assets[i]
-// 	})
-
-// 	for _, pick := range album.Assets {
-// 		// We only want images
-// 		if pick.Type != "IMAGE" {
-// 			continue
-// 		}
-
-// 		log.Debug("people", "peeps", pick.People)
-
-// 		for _, person := range pick.People {
-// 			if person.ID == personId {
-// 				*i = pick
-// 				break
-// 			}
-// 		}
-// 	}
-
-// 	if i.ID == "" {
-// 		return fmt.Errorf("no images found")
-// 	}
-
-// 	return nil
-// }
 
 // GetRandomImageFromAlbum retrieve random image within a specified album from Immich
 func (i *ImmichAsset) GetRandomImageFromAlbum(albumId, requestId string) error {

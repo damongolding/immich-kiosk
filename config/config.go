@@ -15,23 +15,32 @@ import (
 )
 
 type Config struct {
+	// ImmichApiKey Immich key to access assets
 	ImmichApiKey string `mapstructure:"immich_api_key"`
-	ImmichUrl    string `mapstructure:"immich_url"`
-
-	Refresh    int    `mapstructure:"refresh"`
-	Person     string `mapstructure:"person"`
-	Album      string `mapstructure:"album"`
-	FillScreen bool   `mapstructure:"fill_screen"`
-
-	ShowDate   bool   `mapstructure:"show_date"`
+	// ImmichUrl Immuch base url
+	ImmichUrl string `mapstructure:"immich_url"`
+	// Refresh time between fetching new image
+	Refresh int `mapstructure:"refresh"`
+	// Person ID of person to display
+	Person string `mapstructure:"person"`
+	// Album ID of album to display
+	Album string `mapstructure:"album"`
+	// FillScreen force image to be fullscreen
+	FillScreen bool `mapstructure:"fill_screen"`
+	// ShowDate whether to display image date
+	ShowDate bool `mapstructure:"show_date"`
+	//  DateFormat format for date
 	DateFormat string `mapstructure:"date_format"`
-
-	ShowTime   bool   `mapstructure:"show_time"`
+	// ShowTime whether to display image time
+	ShowTime bool `mapstructure:"show_time"`
+	// TimeFormat  whether to use 12 of 24 hour format
 	TimeFormat string `mapstructure:"time_format"`
-
-	BackgroundBlur bool   `mapstructure:"background_blur"`
-	Transition     string `mapstructure:"transition"`
-	ShowProgress   bool   `mapstructure:"show_progress"`
+	// BackgroundBlur whether to display blurred image as background
+	BackgroundBlur bool `mapstructure:"background_blur"`
+	// BackgroundBlur which transistion to use none|fade|cross-fade
+	Transition string `mapstructure:"transition"`
+	// ShowProgress display a progress bar
+	ShowProgress bool `mapstructure:"show_progress"`
 }
 
 //go:embed config.example.yaml
@@ -73,6 +82,7 @@ func (c *Config) Load() error {
 	return nil
 }
 
+// ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 
 	configWithOverrides := c

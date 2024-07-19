@@ -20,10 +20,13 @@ var (
 )
 
 type PageData struct {
-	ImageData     string
+	// ImageData image as base64 data
+	ImageData string
+	// ImageData blurred image as base64 data
 	ImageBlurData string
-	Date          string
-
+	// Date image date
+	Date string
+	// instance config
 	config.Config
 }
 
