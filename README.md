@@ -18,7 +18,7 @@
 
 
 ## What is Immich Kiosk?
-I made Immich Kiosk as a lightweight (on the client) slideshow to run on kiosk devices and browsers.
+I made Immich Kiosk as a lightweight slideshow to run on kiosk devices and browsers.
 
 ![preview 1](/assets/demo_1.jpeg)
 ![preview 2](/assets/demo_2.jpeg)
