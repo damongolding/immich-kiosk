@@ -13,7 +13,7 @@
 - [Installation](#installation)
 - [Docker Compose](#docker-compose)
 - [Configuration](#configuration)
-- [Changing config via browser queries](#changing-config-via-browser-queries)
+- [Changing settings via URL](#changing-settings-via-url)
 - [TODO](#TODO)
 
 
@@ -106,7 +106,7 @@ See the file config.example.yaml for an example config file
 | transition      | KIOSK_TRANSITION      | none \| fade \| cross-fade | Which transition to use when changing images                                               |
 | show_progress   | KIOSK_SHOW_PROGRESS   | bool                       | Display a progress bar
 
-## Changing config via browser queries
+## Changing settings via URL
 You can configure settings for individual devices through the URL. This feature is particularly useful when you need different settings for different devices, especially if the only input option available is a URL, such as with kiosk devices.
 
 example:
