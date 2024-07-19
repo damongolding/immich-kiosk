@@ -41,7 +41,13 @@
             hx-get="/new"
             hx-trigger="load, every {{ .Refresh }}s"
             hx-swap="beforeend settle:3s"
-        ></div>
+        >
+            <img
+                class="kiosk--spinner"
+                src="/assets/images/spinner.gif"
+                alt="Loading spinner"
+            />
+        </div>
 
         {{ else if eq .Config.Transition "fade" }}
 
@@ -51,7 +57,11 @@
             hx-trigger="load, every {{ .Refresh }}s"
             hx-swap="innerHTML swap:3s"
         >
-            <div id="date">Loading</div>
+            <img
+                class="kiosk--spinner"
+                src="/assets/images/spinner.gif"
+                alt="Loading spinner"
+            />
         </div>
         {{ else }}
 
@@ -61,7 +71,11 @@
             hx-trigger="load, every {{ .Refresh }}s"
             hx-swap="innerHTML"
         >
-            <div class="frame--date">Loading</div>
+            <img
+                class="kiosk--spinner"
+                src="/assets/images/spinner.gif"
+                alt="Loading spinner"
+            />
         </div>
 
         {{ end }} {{ if .Config.ShowProgress }}

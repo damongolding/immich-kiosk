@@ -21,6 +21,11 @@ tasks:
     cmds:
       - docker build --build-arg VERSION={{.VERSION}} -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
 
+  docker-buildx:
+    cmds:
+      - docker buildx create --name mybuilder --use
+      - docker buildx install
+
   docker-image-push:
     cmds:
       - docker build --build-arg VERSION={{.VERSION}} --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
