@@ -2,11 +2,40 @@ package config
 
 import (
 	"net/url"
+	"strings"
 	"testing"
 )
 
+// TestTransition check transitions for being transformed
+func TestTransition(t *testing.T) {
+
+	originalUrl := "https://my-server.com"
+	originalApi := "123456"
+
+	c := Config{
+		ImmichUrl:    originalUrl,
+		ImmichApiKey: originalApi,
+	}
+
+	transitions := []string{"FadE", "NONE", "CroSs-FADE"}
+
+	for _, transition := range transitions {
+
+		q := url.Values{}
+
+		q.Add("transition", transition)
+
+		c.ConfigWithOverrides(q)
+
+		if c.Transition != strings.ToLower(transition) {
+			t.Errorf("Transition was not transformed to lowercase: %s", c.Transition)
+		}
+	}
+
+}
+
 // TestConfigWithOverrides testing whether ImmichUrl and ImmichApiKey are immutable
-func TestConfigWithOverrides(t *testing.T) {
+func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 
 	originalUrl := "https://my-server.com"
 	originalApi := "123456"
@@ -49,18 +78,21 @@ func TestMalformedURLs(t *testing.T) {
 
 	for _, test := range tests {
 
-		t.Setenv("KIOSK_IMMICH_URL", test.KIOSK_IMMICH_URL)
-		t.Setenv("KIOSK_IMMICH_API_KEY", "12345")
+		t.Run(test.KIOSK_IMMICH_URL, func(t *testing.T) {
+			t.Setenv("KIOSK_IMMICH_URL", test.KIOSK_IMMICH_URL)
+			t.Setenv("KIOSK_IMMICH_API_KEY", "12345")
 
-		var c Config
+			var c Config
 
-		err := c.Load()
-		if err != nil {
-			t.Error(err)
-		}
+			err := c.Load()
+			if err != nil {
+				t.Error(err)
+			}
 
-		if c.ImmichUrl != test.Want {
-			t.Error("did not format url correctly", c.ImmichUrl)
-		}
+			if c.ImmichUrl != test.Want {
+				t.Error("did not format url correctly", c.ImmichUrl)
+			}
+
+		})
 	}
 }

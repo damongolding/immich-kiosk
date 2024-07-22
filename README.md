@@ -104,9 +104,9 @@ See the file config.example.yaml for an example config file
 | show_date       | KIOSK_SHOW_DATE       | bool                       | Display the image date                                                                     |
 | date_format     | KIOSK_DATE_FORMAT     | string                     | The format of the date. default is day/month/year.                                         |
 | show_time       | KIOSK_SHOW_TIME       | bool                       | Display the image timestamp                                                                |
-| time_format     | KIOSK_TIME_FORMAT     | 12 \| 24                   | Display time in either 12 hour or 24 hour format.Can either be 12 or 24.                   |
+| time_format     | KIOSK_TIME_FORMAT     | 12 \| 24                   | Display time in either 12 hour or 24 hour format. Can either be 12 or 24.                   |
 | background_blur | KIOSK_BACKGROUND_BLUR | bool                       | Display a blurred version of the image as a background.                                    |
-| transition      | KIOSK_TRANSITION      | none \| fade \| cross-fade | Which transition to use when changing images - MUST be lowercase                                               |
+| transition      | KIOSK_TRANSITION      | none \| fade \| cross-fade | Which transition to use when changing images                                               |
 | show_progress   | KIOSK_SHOW_PROGRESS   | bool                       | Display a progress bar
 
 ## Changing settings via URL
