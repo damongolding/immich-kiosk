@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -43,6 +44,11 @@ type Config struct {
 	ShowProgress bool `mapstructure:"show_progress"`
 }
 
+const (
+	defaultImmichPort = "2283"
+	defaultScheme     = "http://"
+)
+
 //go:embed config.example.yaml
 var exampleConfig []byte
 
@@ -75,6 +81,23 @@ func (c *Config) Load() error {
 
 	if config.ImmichUrl == "" || config.ImmichApiKey == "" {
 		log.Fatal("Either Immich Url or Immich Api Key is missing", "ImmichUrl", config.ImmichUrl, "ImmichApiKey", config.ImmichApiKey)
+	}
+
+	// check for correct URL formatting
+	if !strings.HasPrefix(config.ImmichUrl, "http://") || !strings.HasPrefix(config.ImmichUrl, "https://") {
+		config.ImmichUrl = defaultScheme + config.ImmichUrl
+	}
+
+	u, err := url.Parse(config.ImmichUrl)
+	if err != nil {
+		log.Fatal("Immich URL malformed")
+	}
+
+	// Add default Immich port
+	if u.Port() == "" {
+		host := strings.Replace(u.Host, ":", "", -1)
+		// config.ImmichUrl = u.Scheme + host + ":" + defaultImmichPort
+		config.ImmichUrl = fmt.Sprintf("%s://%s:%s", u.Scheme, host, defaultImmichPort)
 	}
 
 	*c = config
@@ -115,7 +138,9 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 				// Set field (covert to correct type if needed)
 				switch field.Kind() {
 				case reflect.String:
-					field.SetString(value)
+					// all string values should be lowercase
+					lowercaseValue := strings.ToLower(value)
+					field.SetString(lowercaseValue)
 				case reflect.Int:
 					if n, err := strconv.Atoi(value); err == nil {
 						field.SetInt(int64(n))
