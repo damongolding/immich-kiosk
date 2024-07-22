@@ -121,6 +121,7 @@ Thos above would set refresh to 60 seconds, turn off the background blurred imag
 
 
 ## TODO
+- FAQs
 - Investigate caching
 
 
