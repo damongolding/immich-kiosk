@@ -95,10 +95,10 @@ See the file config.example.yaml for an example config file
 
 | **yaml**        | **ENV**               | **Value**                  | **Description**                                                                            |
 |-----------------|-----------------------|----------------------------|--------------------------------------------------------------------------------------------|
-| immich_url      | KIOSK_IMMICH_URL      | string                     | The URL of your Immich server                                                              |
-| immich_api_key  | KIOK_IMMICH_API_KEY   | string                     | The API for you Immich server                                                              |
+| immich_url      | KIOSK_IMMICH_URL      | string                     | The URL of your Immich server, e.g. `http://192.168.1.123:2283` - You MUST include the port and `http://`, even if you have not changed Immich's exposed port.                                                              |
+| immich_api_key  | KIOK_IMMICH_API_KEY   | string                     | The API for your Immich server                                                              |
 | refresh         | KIOSK_REFRESH         | int                        | The amount in seconds a image will be displayed for                                        |
-| album           | KIOSK_ALBUM           | string                     | The ID of a specific album you want to display                                             |
+| album           | KIOSK_ALBUM           | string                     | The ID of a specific album you want to display - Get this by viewing an album in the Immich webapp, then copying all the characters after `/albums/`, NOT including the `/`.                                             |
 | person          | KIOSK_PERSON          | string                     | The ID of a specific person you want to display. Having the album set will overwrite this  |
 | fill_screen     | KIOSK_FILL_SCREEN     | bool                       | Force images to be full screen. Can lead to blurriness depending on image and screen size. |
 | show_date       | KIOSK_SHOW_DATE       | bool                       | Display the image date                                                                     |
@@ -106,7 +106,7 @@ See the file config.example.yaml for an example config file
 | show_time       | KIOSK_SHOW_TIME       | bool                       | Display the image timestamp                                                                |
 | time_format     | KIOSK_TIME_FORMAT     | 12 \| 24                   | Display time in either 12 hour or 24 hour format.Can either be 12 or 24.                   |
 | background_blur | KIOSK_BACKGROUND_BLUR | bool                       | Display a blurred version of the image as a background.                                    |
-| transition      | KIOSK_TRANSITION      | none \| fade \| cross-fade | Which transition to use when changing images                                               |
+| transition      | KIOSK_TRANSITION      | none \| fade \| cross-fade | Which transition to use when changing images - MUST be lowercase                                               |
 | show_progress   | KIOSK_SHOW_PROGRESS   | bool                       | Display a progress bar
 
 ## Changing settings via URL
