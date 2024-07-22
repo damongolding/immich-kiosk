@@ -41,7 +41,7 @@ You want to see a random picture of your child when you open a new tab in Chrome
 
 
 ## Installation
-Use via [docker](#docker-compose)
+Use via [docker](#docker-compose) 👇
 
 
 ## Docker Compose
@@ -96,7 +96,7 @@ See the file config.example.yaml for an example config file
 | immich_api_key  | KIOK_IMMICH_API_KEY   | string                     | The API for you Immich server                                                              |
 | refresh         | KIOSK_REFRESH         | int                        | The amount in seconds a image will be displayed for                                        |
 | album           | KIOSK_ALBUM           | string                     | The ID of a specific album you want to display                                             |
-| person          | KIOSK_PERSON          | string                     | The ID of a specific person you want to display. Having the album set will overwride this  |
+| person          | KIOSK_PERSON          | string                     | The ID of a specific person you want to display. Having the album set will overwrite this  |
 | fill_screen     | KIOSK_FILL_SCREEN     | bool                       | Force images to be full screen. Can lead to blurriness depending on image and screen size. |
 | show_date       | KIOSK_SHOW_DATE       | bool                       | Display the image date                                                                     |
 | date_format     | KIOSK_DATE_FORMAT     | string                     | The format of the date. default is day/month/year.                                         |

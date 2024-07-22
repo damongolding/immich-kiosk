@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.0.8
+  VERSION: 0.1.0
 
 tasks:
   default:
