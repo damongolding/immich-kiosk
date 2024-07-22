@@ -35,7 +35,7 @@
         {{end}}
     </head>
     <body>
-        {{ if eq .Config.Transition "cross-fade" }}
+        {{ if eq (toLower .Config.Transition) "cross-fade" }}
         <div
             id="kiosk"
             hx-get="/new"
@@ -49,7 +49,7 @@
             />
         </div>
 
-        {{ else if eq .Config.Transition "fade" }}
+        {{ else if eq (toLower .Config.Transition) "fade" }}
 
         <div
             id="kiosk"

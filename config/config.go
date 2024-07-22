@@ -52,6 +52,38 @@ const (
 //go:embed config.example.yaml
 var exampleConfig []byte
 
+// parseUrl checks given url has correct formatting e.g. https://example:2283
+func (c *Config) checkUrlFormat(config Config) Config {
+	if config.ImmichUrl == "" || config.ImmichApiKey == "" {
+		log.Fatal("Either Immich Url or Immich Api Key is missing", "ImmichUrl", config.ImmichUrl, "ImmichApiKey", config.ImmichApiKey)
+	}
+
+	// check for correct scheme
+	switch {
+	case strings.HasPrefix(strings.ToLower(config.ImmichUrl), "http://"):
+		break
+	case strings.HasPrefix(strings.ToLower(config.ImmichUrl), "https://"):
+		break
+	default:
+		config.ImmichUrl = defaultScheme + config.ImmichUrl
+	}
+
+	u, err := url.Parse(config.ImmichUrl)
+	if err != nil {
+		log.Fatal("Immich URL malformed")
+	}
+
+	// Add default Immich port if no port has been specified
+	if u.Port() == "" {
+		// just in case URL has no port but has a colon, remove it
+		host := strings.Replace(u.Host, ":", "", -1)
+		// Build URL with scheme and default Immich port
+		config.ImmichUrl = fmt.Sprintf("%s://%s:%s", u.Scheme, host, defaultImmichPort)
+	}
+
+	return config
+}
+
 // Load loads config file
 func (c *Config) Load() error {
 
@@ -79,26 +111,7 @@ func (c *Config) Load() error {
 		log.Fatal("Environment can't be loaded: ", "err", err)
 	}
 
-	if config.ImmichUrl == "" || config.ImmichApiKey == "" {
-		log.Fatal("Either Immich Url or Immich Api Key is missing", "ImmichUrl", config.ImmichUrl, "ImmichApiKey", config.ImmichApiKey)
-	}
-
-	// check for correct URL formatting
-	if !strings.HasPrefix(config.ImmichUrl, "http://") || !strings.HasPrefix(config.ImmichUrl, "https://") {
-		config.ImmichUrl = defaultScheme + config.ImmichUrl
-	}
-
-	u, err := url.Parse(config.ImmichUrl)
-	if err != nil {
-		log.Fatal("Immich URL malformed")
-	}
-
-	// Add default Immich port
-	if u.Port() == "" {
-		host := strings.Replace(u.Host, ":", "", -1)
-		// config.ImmichUrl = u.Scheme + host + ":" + defaultImmichPort
-		config.ImmichUrl = fmt.Sprintf("%s://%s:%s", u.Scheme, host, defaultImmichPort)
-	}
+	config = c.checkUrlFormat(config)
 
 	*c = config
 

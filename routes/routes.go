@@ -99,12 +99,6 @@ func NewImage(c echo.Context) error {
 	immichImage := immich.NewImage(baseConfig)
 
 	switch {
-	// case (instanceConfig.Person != "" && instanceConfig.Album != ""):
-	// 	randomPersonFromAlbumImageErr := immichImage.GetRandomImageOfPersonFromAlbum(instanceConfig.Person, instanceConfig.Album, requestId)
-	// 	if randomPersonFromAlbumImageErr != nil {
-	// 		return c.Render(http.StatusOK, "error.html", ErrorData{Message: randomPersonFromAlbumImageErr.Error()})
-	// 	}
-	// 	break
 	case instanceConfig.Album != "":
 		randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(instanceConfig.Album, requestId)
 		if randomAlbumImageErr != nil {

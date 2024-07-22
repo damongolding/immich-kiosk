@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 	"text/template"
 
 	"github.com/charmbracelet/log"
@@ -20,8 +21,12 @@ type TemplateRenderer struct {
 	templates *template.Template
 }
 
+var TemplateFuncs = map[string]any{
+	"toLower": strings.ToLower,
+}
+
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
+	return t.templates.Funcs(TemplateFuncs).ExecuteTemplate(w, name, data)
 }
 
 func init() {
@@ -44,8 +49,15 @@ func main() {
 
 	e.HideBanner = true
 
+	// Start template engine
+	tmpl := template.New("views").Funcs(TemplateFuncs)
+	tmpl, err := tmpl.ParseGlob("public/views/*.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	e.Renderer = &TemplateRenderer{
-		templates: template.Must(template.ParseGlob("public/views/*.html")),
+		templates: tmpl,
 	}
 
 	e.Use(middleware.Recover())
@@ -57,7 +69,7 @@ func main() {
 
 	e.GET("/new", routes.NewImage)
 
-	err := e.Start(":3000")
+	err = e.Start(":3000")
 	if err != nil {
 		log.Fatal(err)
 	}

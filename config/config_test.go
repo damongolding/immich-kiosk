@@ -74,6 +74,8 @@ func TestMalformedURLs(t *testing.T) {
 		{KIOSK_IMMICH_URL: "nope:32", Want: defaultScheme + "nope:32"},
 		{KIOSK_IMMICH_URL: "nope.com", Want: defaultScheme + "nope.com:" + defaultImmichPort},
 		{KIOSK_IMMICH_URL: "123.123.123.123", Want: defaultScheme + "123.123.123.123:" + defaultImmichPort},
+		{KIOSK_IMMICH_URL: "http://123.123.123.123", Want: "http://123.123.123.123:" + defaultImmichPort},
+		{KIOSK_IMMICH_URL: "http://123.123.123.123:" + defaultImmichPort, Want: "http://123.123.123.123:" + defaultImmichPort},
 	}
 
 	for _, test := range tests {
