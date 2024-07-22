@@ -21,7 +21,10 @@
 I made Immich Kiosk as a lightweight slideshow to run on kiosk devices and browsers.
 
 ![preview 1](/assets/demo_1.jpeg)
+**Image shot by Damon Golding**
+
 ![preview 2](/assets/demo_2.jpeg)
+**[Image shot by @insungpandora](https://unsplash.com/@insungpandora)**
 
 ### Example 1
 
