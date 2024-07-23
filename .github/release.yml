@@ -21,6 +21,6 @@ changelog:
         - maintenance
         - performance
 
-    - title: ℹ Other changes
+    - title: Other changes
       labels:
         - "*"
