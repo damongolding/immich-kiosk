@@ -135,6 +135,7 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 ## TODO
 - FAQs
 - Investigate caching
+- Update README images
 
 
 <!-- LINKS & IMAGES -->
