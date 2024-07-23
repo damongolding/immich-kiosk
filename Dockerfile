@@ -10,10 +10,14 @@ COPY . .
 COPY config.example.yaml /app/config/
 
 RUN go mod download
-RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags "-X main.version=${VERSION}" -o dist/kiosk .
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags "-X main.version=${VERSION}" -o dist/kiosk .
 
 
 FROM  alpine:latest
+
+ENV TZ=Europe/London
+
+RUN apk add --no-cache tzdata
 
 WORKDIR /
 
