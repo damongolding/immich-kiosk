@@ -16,6 +16,7 @@
 - [Changing settings via URL](#changing-settings-via-url)
 - [FAQ](#faq)
 - [TODO](#TODO)
+- [Support](#support)
 
 
 ## What is Immich Kiosk?
@@ -138,6 +139,12 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 - Update README images
 - Homarr/Glance/other example
 - HA example
+
+
+## Support
+If this project has been helpful to you and you wish to support me, you can do so with the button below 🙂.
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/damongolding)
+
 
 
 <!-- LINKS & IMAGES -->
