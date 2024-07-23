@@ -103,7 +103,7 @@ See the file config.example.yaml for an example config file
 | show_time         | KIOSK_SHOW_TIME         | bool                       | Display clock.                                                                             |
 | time_format       | KIOSK_TIME_FORMAT       | 12 \| 24                   | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_date         | KIOSK_SHOW_DATE         | bool                       | Display the date.                                                                          |
-| date_format       | KIOSK_DATE_FORMAT       | string                     | The format of the date. default is day/month/year.                                         |
+| date_format       | KIOSK_DATE_FORMAT       | string                     | The format of the date. default is day/month/year. Any GO date string is valid.            |
 | refresh           | KIOSK_REFRESH           | int                        | The amount in seconds a image will be displayed for.                                       |
 | album             | KIOSK_ALBUM             | string                     | The ID of a specific album you want to display.                                            |
 | person            | KIOSK_PERSON            | string                     | The ID of a specific person you want to display. Having the album set will overwrite this. |
@@ -114,7 +114,7 @@ See the file config.example.yaml for an example config file
 | show_image_time   | KIOSK_SHOW_IMAGE_TIME   | bool                       | Display image time from METADATA (if available).                                           |
 | image_time_format | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date   | KIOSK_SHOW_IMAGE_DATE   | bool                       | Display the image date from METADATA (if available).                                       |
-| image_date_format | KIOSK_IMAGE_DATE_FORMAT | string                     | The format of the image date. default is day/month/year.                                   |
+| image_date_format | KIOSK_IMAGE_DATE_FORMAT | string                     | The format of the image date. default is day/month/year. Any GO date string is valid.      |
 
 
 ## Changing settings via URL
