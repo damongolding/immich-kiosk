@@ -130,6 +130,11 @@ func NewImage(c echo.Context) error {
 	}
 	log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
 
+	// if user wants the raw image data send it
+	if c.Request().URL.Query().Has("raw") {
+		return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
+	}
+
 	imageConvertTime := time.Now()
 	img, err := utils.ImageToBase64(imgBytes)
 	if err != nil {
@@ -217,7 +222,7 @@ func Clock(c echo.Context) error {
 
 	t := time.Now()
 
-	clockTimeFormat := "15/04"
+	clockTimeFormat := "15:04"
 	if instanceConfig.TimeFormat == "12" {
 		clockTimeFormat = time.Kitchen
 	}
@@ -242,32 +247,4 @@ func Clock(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "clock.tmpl", data)
-}
-
-func Raw(c echo.Context) error {
-
-	if log.GetLevel() == log.DebugLevel {
-		fmt.Println()
-	}
-
-	requestId := fmt.Sprintf("[%s]", c.Response().Header().Get(echo.HeaderXRequestID))
-
-	// create a copy of the global config to use with this instance
-	// instanceConfig := baseConfig
-
-	immichImage := immich.NewImage(baseConfig)
-
-	randomImageErr := immichImage.GetRandomImage(requestId)
-	if randomImageErr != nil {
-		return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting random image", Message: randomImageErr.Error()})
-	}
-
-	imageGet := time.Now()
-	imgBytes, err := immichImage.GetImagePreview()
-	if err != nil {
-		return err
-	}
-	log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
-
-	return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
 }

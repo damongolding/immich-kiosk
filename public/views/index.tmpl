@@ -37,7 +37,7 @@
   <body>
     <div
       id="kiosk"
-      hx-get="/new"
+      hx-get="/image"
       hx-trigger="load, every {{ .Refresh }}s"
       {{ if eq (toLower .Config.Transition) "cross-fade" }}
         hx-swap="beforeend settle:3s"

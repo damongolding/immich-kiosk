@@ -54,6 +54,7 @@ func main() {
 
 	e := echo.New()
 
+	// hide echos default banner
 	e.HideBanner = true
 
 	// Start template engine
@@ -74,7 +75,7 @@ func main() {
 
 	e.GET("/", routes.Home)
 
-	e.GET("/new", routes.NewImage)
+	e.GET("/image", routes.NewImage)
 
 	e.GET("/clock", routes.Clock)
 
