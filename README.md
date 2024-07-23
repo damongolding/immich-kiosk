@@ -136,6 +136,8 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 - FAQs
 - Investigate caching
 - Update README images
+- Homarr/Glance/other example
+- HA example
 
 
 <!-- LINKS & IMAGES -->
