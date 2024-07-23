@@ -14,6 +14,7 @@
 - [Docker Compose](#docker-compose)
 - [Configuration](#configuration)
 - [Changing settings via URL](#changing-settings-via-url)
+- [FAQ](#faq)
 - [TODO](#TODO)
 
 
@@ -126,6 +127,9 @@ example:
 
 Thos above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
 
+
+## FAQ
+- TODO
 
 
 ## TODO
