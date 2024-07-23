@@ -20,6 +20,16 @@ type Config struct {
 	ImmichApiKey string `mapstructure:"immich_api_key"`
 	// ImmichUrl Immuch base url
 	ImmichUrl string `mapstructure:"immich_url"`
+
+	// ShowTime whether to display clock
+	ShowTime bool `mapstructure:"show_time"`
+	// TimeFormat whether to use 12 of 24 hour format for clock
+	TimeFormat string `mapstructure:"time_format"`
+	// ShowDate whether to display date
+	ShowDate bool `mapstructure:"show_date"`
+	//  DateFormat format for date
+	DateFormat string `mapstructure:"date_format"`
+
 	// Refresh time between fetching new image
 	Refresh int `mapstructure:"refresh"`
 	// Person ID of person to display
@@ -28,20 +38,22 @@ type Config struct {
 	Album string `mapstructure:"album"`
 	// FillScreen force image to be fullscreen
 	FillScreen bool `mapstructure:"fill_screen"`
-	// ShowDate whether to display image date
-	ShowDate bool `mapstructure:"show_date"`
-	//  DateFormat format for date
-	DateFormat string `mapstructure:"date_format"`
-	// ShowTime whether to display image time
-	ShowTime bool `mapstructure:"show_time"`
-	// TimeFormat  whether to use 12 of 24 hour format
-	TimeFormat string `mapstructure:"time_format"`
+
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur"`
 	// BackgroundBlur which transistion to use none|fade|cross-fade
 	Transition string `mapstructure:"transition"`
 	// ShowProgress display a progress bar
 	ShowProgress bool `mapstructure:"show_progress"`
+
+	// ShowImageTime whether to display image time
+	ShowImageTime bool `mapstructure:"show_image_time"`
+	// ImageTimeFormat  whether to use 12 of 24 hour format
+	ImageTimeFormat string `mapstructure:"image_time_format"`
+	// ShowImageDate whether to display image date
+	ShowImageDate bool `mapstructure:"show_image_date"`
+	// ImageDateFormat format for date
+	ImageDateFormat string `mapstructure:"image_date_format"`
 }
 
 const (

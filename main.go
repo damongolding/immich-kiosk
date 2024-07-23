@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -36,6 +37,8 @@ func init() {
 	if debugMode {
 		log.SetLevel(log.DebugLevel)
 		log.Debug("DEBUG mode on")
+		zone, _ := time.Now().Zone()
+		log.Debug("🕐", "current_time", time.Now().Format(time.Kitchen), "current_zone", zone)
 	}
 
 }
@@ -51,7 +54,7 @@ func main() {
 
 	// Start template engine
 	tmpl := template.New("views").Funcs(TemplateFuncs)
-	tmpl, err := tmpl.ParseGlob("public/views/*.html")
+	tmpl, err := tmpl.ParseGlob("public/views/*.tmpl")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,6 +71,8 @@ func main() {
 	e.GET("/", routes.Home)
 
 	e.GET("/new", routes.NewImage)
+
+	e.GET("/clock", routes.Clock)
 
 	err = e.Start(":3000")
 	if err != nil {

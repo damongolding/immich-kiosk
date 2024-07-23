@@ -14,6 +14,8 @@ RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags "-X main.version=${VERSI
 
 
 FROM  alpine:latest
+RUN apk add --no-cache tzdata
+
 
 WORKDIR /
 

@@ -25,7 +25,7 @@ type PageData struct {
 	// ImageData blurred image as base64 data
 	ImageBlurData string
 	// Date image date
-	Date string
+	ImageDate string
 	// instance config
 	config.Config
 }
@@ -33,6 +33,11 @@ type PageData struct {
 type ErrorData struct {
 	Title   string
 	Message string
+}
+
+type ClockData struct {
+	ClockTime string
+	ClockDate string
 }
 
 func init() {
@@ -60,13 +65,13 @@ func Home(c echo.Context) error {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
-	log.Debug(requestId, "instanceConfig", instanceConfig)
+	log.Debug(requestId, "path", c.Request().URL.String(), "instanceConfig", instanceConfig)
 
 	pageData := PageData{
 		Config: instanceConfig,
 	}
 
-	return c.Render(http.StatusOK, "index.html", pageData)
+	return c.Render(http.StatusOK, "index.tmpl", pageData)
 
 }
 
@@ -85,7 +90,7 @@ func NewImage(c echo.Context) error {
 	referer, err := url.Parse(c.Request().Referer())
 	if err != nil {
 		log.Error(err)
-		return c.Render(http.StatusOK, "error.html", ErrorData{Title: "Error with URL", Message: err.Error()})
+		return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error with URL", Message: err.Error()})
 	}
 
 	queries := referer.Query()
@@ -94,7 +99,7 @@ func NewImage(c echo.Context) error {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
-	log.Debug(requestId, "config", instanceConfig)
+	log.Debug(requestId, "path", c.Request().URL.String(), "config", instanceConfig)
 
 	immichImage := immich.NewImage(baseConfig)
 
@@ -102,19 +107,19 @@ func NewImage(c echo.Context) error {
 	case instanceConfig.Album != "":
 		randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(instanceConfig.Album, requestId)
 		if randomAlbumImageErr != nil {
-			return c.Render(http.StatusOK, "error.html", ErrorData{Title: "Error getting image from album", Message: randomAlbumImageErr.Error()})
+			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting image from album", Message: randomAlbumImageErr.Error()})
 		}
 		break
 	case instanceConfig.Person != "":
 		randomPersonImageErr := immichImage.GetRandomImageOfPerson(instanceConfig.Person, requestId)
 		if randomPersonImageErr != nil {
-			return c.Render(http.StatusOK, "error.html", ErrorData{Title: "Error getting image of person", Message: randomPersonImageErr.Error()})
+			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting image of person", Message: randomPersonImageErr.Error()})
 		}
 		break
 	default:
 		randomImageErr := immichImage.GetRandomImage(requestId)
 		if randomImageErr != nil {
-			return c.Render(http.StatusOK, "error.html", ErrorData{Title: "Error getting random image", Message: randomImageErr.Error()})
+			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting random image", Message: randomImageErr.Error()})
 		}
 	}
 
@@ -147,38 +152,94 @@ func NewImage(c echo.Context) error {
 		log.Debug(requestId, "Blurred image in", time.Since(imageBlurTime).Seconds())
 	}
 
-	var date string
+	// Image METADATA
+	var imageDate string
 
-	dateFormat := instanceConfig.DateFormat
-	if dateFormat == "" {
-		dateFormat = "02/01/2006"
+	var imageTimeFormat string
+	if instanceConfig.ImageTimeFormat == "12" {
+		imageTimeFormat = time.Kitchen
+	} else {
+		imageTimeFormat = time.TimeOnly
 	}
 
-	var timeFormat string
-	if instanceConfig.TimeFormat == "12" {
-		timeFormat = time.Kitchen
-	} else {
-		timeFormat = time.TimeOnly
+	imageDateFormat := instanceConfig.ImageDateFormat
+	if imageDateFormat == "" {
+		imageDateFormat = "02/01/2006"
 	}
 
 	switch {
-	case (instanceConfig.ShowDate && instanceConfig.ShowTime):
-		date = fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format(dateFormat), immichImage.LocalDateTime.Format(timeFormat))
+	case (instanceConfig.ShowImageDate && instanceConfig.ShowImageTime):
+		imageDate = fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format(imageDateFormat), immichImage.LocalDateTime.Format(imageTimeFormat))
 		break
-	case instanceConfig.ShowDate:
-		date = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(dateFormat))
+	case instanceConfig.ShowImageDate:
+		imageDate = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(imageDateFormat))
 		break
-	case instanceConfig.ShowTime:
-		date = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(timeFormat))
+	case instanceConfig.ShowImageTime:
+		imageDate = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(imageTimeFormat))
 		break
 	}
 
 	data := PageData{
 		ImageData:     img,
 		ImageBlurData: imgBlur,
-		Date:          date,
+		ImageDate:     imageDate,
 		Config:        instanceConfig,
 	}
 
-	return c.Render(http.StatusOK, "image.html", data)
+	return c.Render(http.StatusOK, "image.tmpl", data)
+}
+
+// Clock clock endpoint
+func Clock(c echo.Context) error {
+
+	if log.GetLevel() == log.DebugLevel {
+		fmt.Println()
+	}
+
+	requestId := fmt.Sprintf("[%s]", c.Response().Header().Get(echo.HeaderXRequestID))
+
+	// create a copy of the global config to use with this instance
+	instanceConfig := baseConfig
+
+	referer, err := url.Parse(c.Request().Referer())
+	if err != nil {
+		log.Error(err)
+		return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error with URL", Message: err.Error()})
+	}
+
+	queries := referer.Query()
+
+	if len(queries) > 0 {
+		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
+	}
+
+	log.Debug(requestId, "path", c.Request().URL.String(), "config", instanceConfig)
+
+	t := time.Now()
+
+	clockTimeFormat := "15/04"
+	if instanceConfig.TimeFormat == "12" {
+		clockTimeFormat = time.Kitchen
+	}
+
+	clockDateFormat := instanceConfig.DateFormat
+	if clockDateFormat == "" {
+		clockDateFormat = "02/01/2006"
+	}
+
+	var data ClockData
+
+	switch {
+	case (instanceConfig.ShowTime && instanceConfig.ShowDate):
+		data.ClockTime = t.Format(clockTimeFormat)
+		data.ClockDate = t.Format(clockDateFormat)
+		break
+	case instanceConfig.ShowTime:
+		data.ClockTime = t.Format(clockTimeFormat)
+		break
+	case instanceConfig.ShowDate:
+		data.ClockDate = t.Format(clockDateFormat)
+	}
+
+	return c.Render(http.StatusOK, "clock.tmpl", data)
 }

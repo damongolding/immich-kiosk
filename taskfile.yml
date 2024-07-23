@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.1.0
+  VERSION: 0.2.0
 
 tasks:
   default:
@@ -19,7 +19,7 @@ tasks:
 
   docker-image:
     cmds:
-      - docker build --build-arg VERSION={{.VERSION}} -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
+      - docker build --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
 
   docker-buildx:
     cmds:
