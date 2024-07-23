@@ -16,16 +16,20 @@ import (
 	"github.com/damongolding/immich-kiosk/routes"
 )
 
+// version current build version number
 var version string
 
+// TemplateRenderer echos template render
 type TemplateRenderer struct {
 	templates *template.Template
 }
 
+// TemplateFuncs funcs available within template files
 var TemplateFuncs = map[string]any{
 	"toLower": strings.ToLower,
 }
 
+// Render use GOs template engine to render
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.Funcs(TemplateFuncs).ExecuteTemplate(w, name, data)
 }

@@ -15,7 +15,7 @@ tasks:
   build:
     deps: [copy-config]
     cmds:
-      - go build -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
+      - CGO_ENABLED=0 go build -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
 
   docker-image:
     cmds:
