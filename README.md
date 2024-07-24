@@ -164,6 +164,8 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 **Q: Do I need to a docker service for each client?**\
 **A**: Nope. Just one that your client(s) will connect to.
 
+**Q: Do I have to use port 3000?**\
+**A**: Nope. Just change the host port in your docker compose file i.e. `- 3000:3000` to `- PORT_YOU_WANT:3000`
 
 ------
 
