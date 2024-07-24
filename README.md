@@ -146,6 +146,11 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 
 **A**: This icon shows when the front end can't connect to the back end .
 
+
+**Q: Do I need to a docker service for each client?**
+
+**A**: Nope. Just one that your client(s) will connect to.
+
 ------
 
 ## TODO
