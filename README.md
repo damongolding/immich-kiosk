@@ -48,10 +48,12 @@ Using this URL `http://{URL}?full_screen=true&transition=fade` would achieve wha
 
 You want to see a random picture of your child when you open a new tab in Chrome. To achieve this set the homepage URL in Chrome to `http://{URL}?person={PERSON_ID}`.
 
+------
 
 ## Installation
 Use via [docker](#docker-compose) 👇
 
+------
 
 ## Docker Compose
 
@@ -98,6 +100,7 @@ services:
     restart: on-failure
 ```
 
+------
 
 ## Configuration
 See the file config.example.yaml for an example config file
@@ -122,6 +125,7 @@ See the file config.example.yaml for an example config file
 | show_image_date   | KIOSK_SHOW_IMAGE_DATE   | bool                       | Display the image date from METADATA (if available).                                       |
 | image_date_format | KIOSK_IMAGE_DATE_FORMAT | string                     | The format of the image date. default is day/month/year. Any GO date string is valid.      |
 
+------
 
 ## Changing settings via URL
 You can configure settings for individual devices through the URL. This feature is particularly useful when you need different settings for different devices, especially if the only input option available is a URL, such as with kiosk devices.
@@ -132,10 +136,12 @@ example:
 
 Thos above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
 
+------
 
 ## FAQ
 - TODO
 
+------
 
 ## TODO
 - FAQs
@@ -144,6 +150,7 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 - Homarr/Glance/other example
 - HA example
 
+------
 
 ## Support
 If this project has been helpful to you and you wish to support me, you can do so with the button below 🙂.
