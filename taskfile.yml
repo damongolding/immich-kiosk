@@ -8,6 +8,10 @@ tasks:
     cmds:
       - DEBUG=true ./dist/kiosk
 
+  test:
+    cmds:
+      - go test ./...
+
   copy-config:
     cmds:
       - cp config.example.yaml config

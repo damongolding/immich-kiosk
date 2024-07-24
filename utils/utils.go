@@ -7,7 +7,9 @@ import (
 	"image"
 	"image/jpeg"
 	"net/http"
+	"net/url"
 
+	"github.com/charmbracelet/log"
 	"github.com/disintegration/imaging"
 )
 
@@ -43,4 +45,25 @@ func BlurImage(imgBytes []byte) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+// CombineQueries combine URL.Query() and Referer() queries
+// NOTE: Referer queries will overwrite URL queries
+func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error) {
+
+	queries := urlQueries
+
+	referer, err := url.Parse(refererURL)
+	if err != nil {
+		log.Error("Error parsing URL", "url", refererURL, "err", err)
+		return queries, fmt.Errorf("Could not read URL. Is it formatted correctly?")
+	}
+
+	// Combine referer into values1
+	for key, vals := range referer.Query() {
+		queries.Set(key, vals[0])
+	}
+
+	return queries, nil
+
 }

@@ -3,7 +3,6 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -15,14 +14,14 @@ import (
 )
 
 var (
-	Version       string
+	KioskVersion  string
 	ExampleConfig []byte
 	baseConfig    config.Config
 )
 
 type PageData struct {
-	// Version the current build version of Kiosk
-	Version string
+	// KioskVersion the current build version of Kiosk
+	KioskVersion string
 	// ImageData image as base64 data
 	ImageData string
 	// ImageData blurred image as base64 data
@@ -62,7 +61,10 @@ func Home(c echo.Context) error {
 	// create a copy of the global config to use with this instance
 	instanceConfig := baseConfig
 
-	queries := c.Request().URL.Query()
+	queries, err := utils.CombineQueries(c.Request().URL.Query(), c.Request().Referer())
+	if err != nil {
+		log.Error("err combining queries", "err", err)
+	}
 
 	if len(queries) > 0 {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
@@ -71,8 +73,8 @@ func Home(c echo.Context) error {
 	log.Debug(requestId, "path", c.Request().URL.String(), "instanceConfig", instanceConfig)
 
 	pageData := PageData{
-		Version: Version,
-		Config:  instanceConfig,
+		KioskVersion: KioskVersion,
+		Config:       instanceConfig,
 	}
 
 	return c.Render(http.StatusOK, "index.tmpl", pageData)
@@ -91,13 +93,10 @@ func NewImage(c echo.Context) error {
 	// create a copy of the global config to use with this instance
 	instanceConfig := baseConfig
 
-	referer, err := url.Parse(c.Request().Referer())
+	queries, err := utils.CombineQueries(c.Request().URL.Query(), c.Request().Referer())
 	if err != nil {
-		log.Error("Error parsing URL", "url", c.Request().Referer(), "err", err)
-		return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error with URL", Message: "Could not read URL. Is it formatted correctly?"})
+		log.Error("err combining queries", "err", err)
 	}
-
-	queries := referer.Query()
 
 	if len(queries) > 0 {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
@@ -213,13 +212,10 @@ func Clock(c echo.Context) error {
 	// create a copy of the global config to use with this instance
 	instanceConfig := baseConfig
 
-	referer, err := url.Parse(c.Request().Referer())
+	queries, err := utils.CombineQueries(c.Request().URL.Query(), c.Request().Referer())
 	if err != nil {
-		log.Error("Error parsing URL", "url", c.Request().Referer(), "err", err)
-		return c.Render(http.StatusOK, "clock.tmpl", ClockData{ClockTime: "Error", ClockDate: ""})
+		log.Error("err combining queries", "err", err)
 	}
-
-	queries := referer.Query()
 
 	if len(queries) > 0 {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
