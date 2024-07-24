@@ -93,8 +93,8 @@ func NewImage(c echo.Context) error {
 
 	referer, err := url.Parse(c.Request().Referer())
 	if err != nil {
-		log.Error(err)
-		return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error with URL", Message: err.Error()})
+		log.Error("Error parsing URL", "url", c.Request().Referer(), "err", err)
+		return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error with URL", Message: "Could not read URL. Is it formatted correctly?"})
 	}
 
 	queries := referer.Query()
@@ -111,19 +111,22 @@ func NewImage(c echo.Context) error {
 	case instanceConfig.Album != "":
 		randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(instanceConfig.Album, requestId)
 		if randomAlbumImageErr != nil {
-			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting image from album", Message: randomAlbumImageErr.Error()})
+			log.Error("err getting image from album", "err", randomAlbumImageErr)
+			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting image from album", Message: "Is album ID correct?"})
 		}
 		break
 	case instanceConfig.Person != "":
 		randomPersonImageErr := immichImage.GetRandomImageOfPerson(instanceConfig.Person, requestId)
 		if randomPersonImageErr != nil {
-			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting image of person", Message: randomPersonImageErr.Error()})
+			log.Error("err getting image of person", "err", randomPersonImageErr)
+			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting image of person", Message: "Is person ID correct?"})
 		}
 		break
 	default:
 		randomImageErr := immichImage.GetRandomImage(requestId)
 		if randomImageErr != nil {
-			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting random image", Message: randomImageErr.Error()})
+			log.Error("err getting random image", "err", randomImageErr)
+			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting random image", Message: "Is Immich running? Are your config settings correct?"})
 		}
 	}
 
@@ -212,8 +215,8 @@ func Clock(c echo.Context) error {
 
 	referer, err := url.Parse(c.Request().Referer())
 	if err != nil {
-		log.Error(err)
-		return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error with URL", Message: err.Error()})
+		log.Error("Error parsing URL", "url", c.Request().Referer(), "err", err)
+		return c.Render(http.StatusOK, "clock.tmpl", ClockData{ClockTime: "Error", ClockDate: ""})
 	}
 
 	queries := referer.Query()
