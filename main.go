@@ -35,6 +35,8 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func init() {
+	routes.Version = version
+
 	debugModeEnv := os.Getenv("DEBUG")
 	debugMode, _ := strconv.ParseBool(debugModeEnv)
 
@@ -54,6 +56,7 @@ func main() {
 
 	e := echo.New()
 
+	// hide echos default banner
 	e.HideBanner = true
 
 	// Start template engine
@@ -70,11 +73,14 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
 
+	// CSS cache busting
+	e.File("/assets/css/style.*.css", "public/assets/css/style.css")
+
 	e.Static("/assets", "public/assets")
 
 	e.GET("/", routes.Home)
 
-	e.GET("/new", routes.NewImage)
+	e.GET("/image", routes.NewImage)
 
 	e.GET("/clock", routes.Clock)
 
