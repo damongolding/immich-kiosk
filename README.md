@@ -14,6 +14,8 @@
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
+  - [Example 1: Home Assistant](#example-1)
+  - [Example 2: Raspberry Pi](#example-2)
 - [Installation](#installation)
 - [Docker Compose](#docker-compose)
 - [Configuration](#configuration)
@@ -34,7 +36,11 @@ I made Immich Kiosk as a lightweight slideshow to run on kiosk devices and brows
 
 ### Example 1
 
-You have a couple of spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a kiosk service on them (I use [DeitPi][dietpi-url]).
+You want to have a slideshow of your Immmich images using a webpage card in Home Assistant.
+
+### Example 2
+
+You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DeitPi][dietpi-url]).
 
 You want the pi connected to the LCD screen to only show images from your recent holiday, which are stored in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
 
@@ -43,10 +49,6 @@ Using this URL `http://{URL}?album={ALBUM_ID}&transtion=none&show_time=false` wo
 On the pi connected to the TV you want to display a random image from your library. It has to be fullscreen and we want to use the fade transition
 
 Using this URL `http://{URL}?full_screen=true&transition=fade` would achieve what we want.
-
-### Example 2
-
-You want to see a random picture of your child when you open a new tab in Chrome. To achieve this set the homepage URL in Chrome to `http://{URL}?person={PERSON_ID}`.
 
 ------
 
