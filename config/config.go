@@ -21,6 +21,9 @@ type Config struct {
 	// ImmichUrl Immuch base url
 	ImmichUrl string `mapstructure:"immich_url"`
 
+	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
+	DisableUi bool
+
 	// ShowTime whether to display clock
 	ShowTime bool `mapstructure:"show_time"`
 	// TimeFormat whether to use 12 of 24 hour format for clock

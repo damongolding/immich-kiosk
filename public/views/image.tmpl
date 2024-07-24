@@ -11,7 +11,7 @@
       alt=""
     />
   </div>
-  {{ if ne .ImageDate "" }}
+  {{ if and (not .Config.DisableUi) (ne .ImageDate "") }}
     <div class="frame--date">{{ .ImageDate }}</div>
   {{ end }}
 </div>

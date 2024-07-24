@@ -35,11 +35,16 @@ I made Immich Kiosk as a lightweight slideshow to run on kiosk devices and brows
 **[Image shot by @insungpandora](https://unsplash.com/@insungpandora)**
 
 ### Example 1
+You want to have a slideshow of your Immmich images using the webpage card in Home Assistant.
 
-You want to have a slideshow of your Immmich images using a webpage card in Home Assistant.
+1. Open up the dahsboard you want to add the slideshow to in edit mode.
+2. Hit "add card" and search "webpage".
+3. Enter the your Immich Kiosk url in the URL field e.g. `http://192.168.0.123:3000`
+4. If you want to have some specific settings for the slideshow you can add them to the *[URL](#changing-settings-via-url)
+
+\* I would suggest disabling all the UI i.e. `http://192.168.0.123:3000?disable_ui=true`
 
 ### Example 2
-
 You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DeitPi][dietpi-url]).
 
 You want the pi connected to the LCD screen to only show images from your recent holiday, which are stored in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
@@ -87,16 +92,22 @@ services:
       TZ: "Europe/London"
       KIOSK_IMMICH_API_KEY: ""
       KIOSK_IMMICH_URL: ""
-      KIOSK_REFRESH: 60
-      KIOSK_ALBUM: ""
-      KIOSK_PERSON: ""
-      KIOSK_FILL_SCREEN: TRUE
+      KIOSK_DISBALE_UI: FALSE
       KIOSK_SHOW_DATE: TRUE
       KIOSK_DATE_FORMAT: 02/01/2006
       KIOSK_SHOW_TIME: TRUE
       KIOSK_TIME_FORMAT: 12
+      KIOSK_REFRESH: 60
+      KIOSK_ALBUM: ""
+      KIOSK_PERSON: ""
+      KIOSK_FILL_SCREEN: TRUE
       KIOSK_BACKGROUND_BLUR: TRUE
       KIOSK_TRANSITION: NONE
+      KIOSK_SHOW_PROGRESS: TRUE
+      KIOSK_SHOW_IMAGE_TIME: TRUE
+      KIOSK_IMAGE_TIME_FORMAT: 12
+      KIOSK_SHOW_IMAGE_DATE: TRUE
+      KIOSK_IMAGE_DATE_FORMAT: 02/01/2006
     ports:
       - 3000:3000
     restart: on-failure
@@ -111,6 +122,7 @@ See the file config.example.yaml for an example config file
 |-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
 | immich_url        | KIOSK_IMMICH_URL        | string                     | The URL of your Immich server, e.g. `http://192.168.1.123:2283`.                           |
 | immich_api_key    | KIOK_IMMICH_API_KEY     | string                     | The API for your Immich server.                                                            |
+| disable_ui        | KIOK_DISABLE_UI         | bool                       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | show_time         | KIOSK_SHOW_TIME         | bool                       | Display clock.                                                                             |
 | time_format       | KIOSK_TIME_FORMAT       | 12 \| 24                   | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_date         | KIOSK_SHOW_DATE         | bool                       | Display the date.                                                                          |
