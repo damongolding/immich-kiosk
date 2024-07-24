@@ -141,7 +141,10 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 ## FAQ
 
 **Q: What is the no wifi icon?**
-**A**: This icon ![no-wifi icon](/assets/offline.svg) shows when the front end can't connect to the back end
+
+![no-wifi icon](/assets/offline.svg)
+
+**A**: This icon shows when the front end can't connect to the back end .
 
 ------
 
