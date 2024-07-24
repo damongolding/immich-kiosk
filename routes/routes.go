@@ -15,11 +15,14 @@ import (
 )
 
 var (
+	Version       string
 	ExampleConfig []byte
 	baseConfig    config.Config
 )
 
 type PageData struct {
+	// Version the current build version of Kiosk
+	Version string
 	// ImageData image as base64 data
 	ImageData string
 	// ImageData blurred image as base64 data
@@ -68,7 +71,8 @@ func Home(c echo.Context) error {
 	log.Debug(requestId, "path", c.Request().URL.String(), "instanceConfig", instanceConfig)
 
 	pageData := PageData{
-		Config: instanceConfig,
+		Version: Version,
+		Config:  instanceConfig,
 	}
 
 	return c.Render(http.StatusOK, "index.tmpl", pageData)
