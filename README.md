@@ -158,9 +158,12 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 **Q: What is the no wifi icon?**\
 **A**: This icon shows when the front end can't connect to the back end .
 
+**Q: Can I use this to set Immich images as my Home Assistant dashboard background?**\
+**A**: Yes! Just navigate to the dashboard with the view you wish to add the image background to. Enter edit mode and click the ✏ next to the view you want to add the image to. Then select the "background" tab and toggle on "Local path or web URL" and enter your url with path `/image` and the query `raw` e.g. `http://192.168.0.123:3000/image?raw`. If you want to specify an album or a person you can also add that to the url e.g. `http://192.168.0.123:3000/image?album=ALBUM_ID&raw`
 
 **Q: Do I need to a docker service for each client?**\
 **A**: Nope. Just one that your client(s) will connect to.
+
 
 ------
 
@@ -168,8 +171,6 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 - FAQs
 - Investigate caching
 - Update README images
-- Homarr/Glance/other example
-- HA example
 
 ------
 
@@ -177,7 +178,6 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 If this project has been helpful to you and you wish to support me, you can do so with the button below 🙂.
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/damongolding)
-
 
 
 <!-- LINKS & IMAGES -->
