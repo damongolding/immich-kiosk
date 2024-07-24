@@ -121,8 +121,8 @@ See the file config.example.yaml for an example config file
 | **yaml**          | **ENV**                 | **Value**                  | **Description**                                                                            |
 |-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
 | immich_url        | KIOSK_IMMICH_URL        | string                     | The URL of your Immich server, e.g. `http://192.168.1.123:2283`.                           |
-| immich_api_key    | KIOK_IMMICH_API_KEY     | string                     | The API for your Immich server.                                                            |
-| disable_ui        | KIOK_DISABLE_UI         | bool                       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
+| immich_api_key    | KIOSK_IMMICH_API_KEY    | string                     | The API for your Immich server.                                                            |
+| disable_ui        | KIOSK_DISABLE_UI        | bool                       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | show_time         | KIOSK_SHOW_TIME         | bool                       | Display clock.                                                                             |
 | time_format       | KIOSK_TIME_FORMAT       | 12 \| 24                   | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_date         | KIOSK_SHOW_DATE         | bool                       | Display the date.                                                                          |
