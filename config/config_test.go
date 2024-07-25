@@ -31,7 +31,6 @@ func TestTransition(t *testing.T) {
 			t.Errorf("Transition was not transformed to lowercase: %s", c.Transition)
 		}
 	}
-
 }
 
 // TestConfigWithOverrides testing whether ImmichUrl and ImmichApiKey are immutable
@@ -59,6 +58,25 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 	if c.ImmichApiKey != originalApi {
 		t.Errorf("ImmichApiKey field was allowed to be changed: %s", c.ImmichUrl)
 	}
+}
+
+func TestImmichUrlImmichMulitplePerson(t *testing.T) {
+
+	c := Config{}
+
+	q := url.Values{}
+
+	q.Add("person", "bea")
+	q.Add("person", "laura")
+
+	t.Log("Trying to add:", q)
+
+	c.ConfigWithOverrides(q)
+
+	if len(c.Person) != 2 {
+		t.Errorf("People were not added: %s", c.Person)
+	}
+
 }
 
 // TestMalformedURLs testing urls without scheme or ports

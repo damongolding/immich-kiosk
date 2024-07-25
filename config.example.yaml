@@ -13,7 +13,8 @@ refresh: 60 # in seconds
 
 album: "" # ID of album to display
 
-person: "" # ID of person to display
+person: # ID(s) of person or people to display
+  - ""
 
 fill_screen: true # force image to fill entire screen (depending on height/width disparity, will lead to blurriness)
 
