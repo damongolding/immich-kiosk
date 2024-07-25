@@ -45,15 +45,15 @@ You want to have a slideshow of your Immmich images using the webpage card in Ho
 \* I would suggest disabling all the UI i.e. `http://192.168.0.123:3000?disable_ui=true`
 
 ### Example 2
-You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DeitPi][dietpi-url]).
+You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
 
 You want the pi connected to the LCD screen to only show images from your recent holiday, which are stored in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
 
 Using this URL `http://{URL}?album={ALBUM_ID}&transtion=none&show_time=false` would achieve what we want.
 
-On the pi connected to the TV you want to display a random image from your library. It has to be fullscreen and we want to use the fade transition
+On the pi connected to the TV you want to display a random image from your library but only images of two specific people. It has to be fullscreen and we want to use the fade transition
 
-Using this URL `http://{URL}?full_screen=true&transition=fade` would achieve what we want.
+Using this URL `http://{URL}?full_screen=true&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID` would achieve what we want.
 
 ------
 
@@ -90,16 +90,16 @@ services:
     container_name: immich-kiosk
     environment:
       TZ: "Europe/London"
-      KIOSK_IMMICH_API_KEY: ""
-      KIOSK_IMMICH_URL: ""
-      KIOSK_DISBALE_UI: FALSE
+      KIOSK_IMMICH_API_KEY: "****"
+      KIOSK_IMMICH_URL: "****"
+      KIOSK_DISABLE_UI: FALSE
       KIOSK_SHOW_DATE: TRUE
       KIOSK_DATE_FORMAT: 02/01/2006
       KIOSK_SHOW_TIME: TRUE
       KIOSK_TIME_FORMAT: 12
       KIOSK_REFRESH: 60
-      KIOSK_ALBUM: ""
-      KIOSK_PERSON: ""
+      KIOSK_ALBUM: "ALBUM_ID"
+      KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
       KIOSK_FILL_SCREEN: TRUE
       KIOSK_BACKGROUND_BLUR: TRUE
       KIOSK_TRANSITION: NONE
@@ -129,7 +129,7 @@ See the file config.example.yaml for an example config file
 | date_format       | KIOSK_DATE_FORMAT       | string                     | The format of the date. default is day/month/year. Any GO date string is valid.            |
 | refresh           | KIOSK_REFRESH           | int                        | The amount in seconds a image will be displayed for.                                       |
 | album             | KIOSK_ALBUM             | string                     | The ID of a specific album you want to display.                                            |
-| person            | KIOSK_PERSON            | string                     | The ID of a specific person you want to display. Having the album set will overwrite this. |
+| person            | KIOSK_PERSON            | []string                   | The ID(s) of a specific person or people you want to display. Having the album set will overwrite this. See [FAQ: How do I set multiple people?](#faq) to see how to impliment this.|
 | fill_screen       | KIOSK_FILL_SCREEN       | bool                       | Force images to be full screen. Can lead to blurriness depending on image and screen size. |
 | background_blur   | KIOSK_BACKGROUND_BLUR   | bool                       | Display a blurred version of the image as a background.                                    |
 | transition        | KIOSK_TRANSITION        | none \| fade \| cross-fade | Which transition to use when changing images.                                              |
@@ -166,6 +166,35 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 
 **Q: Do I have to use port 3000?**\
 **A**: Nope. Just change the host port in your docker compose file i.e. `- 3000:3000` to `- PORT_YOU_WANT:3000`
+
+**Q: How do I get a album ID?**\
+**A**: Open Immich's web interface and click on "Albums" in the left hand navigation.
+Click on the album you want the ID of.
+The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
+The album ID is everything after `albums/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+
+**Q: How do I get a persons ID?**\
+**A**: Open Immich's web interface and click on "Explore" in the left hand navigation.
+Click on the person you want the ID of (you may have to click "view all" if you don't see them).
+The url will now look something like this `http://192.168.86.123:2283/people/a04175f4-97bb-4d97-8d49-3700263043e5`.
+The persons ID is everything after `people/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+
+**Q: How do I set multiple people?**\
+**A**: 👇
+* via config.yaml file
+```yaml
+person:
+  - PERSON_ID
+  - PERSON_ID
+```
+
+* via ENV in your docker-compose file use a `,` to separate IDs
+```yaml
+environment:
+  KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
+```
+
+* via url quires `http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID`
 
 ------
 

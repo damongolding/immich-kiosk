@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 
@@ -59,11 +60,23 @@ func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error
 		return queries, fmt.Errorf("Could not read URL. Is it formatted correctly?")
 	}
 
-	// Combine referer into values1
+	// Combine referer into values
 	for key, vals := range referer.Query() {
-		queries.Set(key, vals[0])
+		for _, val := range vals {
+			queries.Add(key, val)
+		}
 	}
 
 	return queries, nil
 
+}
+
+// RandomItem returns a random item from given slice
+func RandomItem[T any](s []T) T {
+
+	rand.Shuffle(len(s), func(i, j int) {
+		s[i], s[j] = s[j], s[i]
+	})
+
+	return s[0]
 }

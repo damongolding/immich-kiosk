@@ -114,8 +114,11 @@ func NewImage(c echo.Context) error {
 			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting image from album", Message: "Is album ID correct?"})
 		}
 		break
-	case instanceConfig.Person != "":
-		randomPersonImageErr := immichImage.GetRandomImageOfPerson(instanceConfig.Person, requestId)
+	case len(instanceConfig.Person) > 0:
+
+		person := utils.RandomItem(instanceConfig.Person)
+
+		randomPersonImageErr := immichImage.GetRandomImageOfPerson(person, requestId)
 		if randomPersonImageErr != nil {
 			log.Error("err getting image of person", "err", randomPersonImageErr)
 			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting image of person", Message: "Is person ID correct?"})

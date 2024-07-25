@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"io"
 	"os"
@@ -18,6 +19,9 @@ import (
 
 // version current build version number
 var version string
+
+//go:embed public
+var public embed.FS
 
 // TemplateRenderer echos template render
 type TemplateRenderer struct {
@@ -37,7 +41,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 func init() {
 	routes.KioskVersion = version
 
-	debugModeEnv := os.Getenv("DEBUG")
+	debugModeEnv := os.Getenv("KIOSK_DEBUG")
 	debugMode, _ := strconv.ParseBool(debugModeEnv)
 
 	if debugMode {
@@ -61,7 +65,9 @@ func main() {
 
 	// Start template engine
 	tmpl := template.New("views").Funcs(TemplateFuncs)
-	tmpl, err := tmpl.ParseGlob("public/views/*.tmpl")
+
+	tmpl, err := tmpl.ParseFS(public, "public/views/*.tmpl")
+	// tmpl, err := tmpl.ParseGlob("public/views/*.tmpl")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,9 +80,10 @@ func main() {
 	e.Use(middleware.RequestID())
 
 	// CSS cache busting
-	e.File("/assets/css/style.*.css", "public/assets/css/style.css")
+	e.FileFS("/assets/css/style.*.css", "public/assets/css/style.css", public)
 
-	e.Static("/assets", "public/assets")
+	// serve embdedd staic assets
+	e.StaticFS("/assets", echo.MustSubFS(public, "public/assets"))
 
 	e.GET("/", routes.Home)
 

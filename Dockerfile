@@ -22,7 +22,6 @@ RUN apk add --no-cache tzdata
 WORKDIR /
 
 COPY --from=build /app/dist/kiosk .
-COPY public /public
 
 EXPOSE 3000
 

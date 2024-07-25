@@ -3,7 +3,7 @@ services:
     image: damongolding/immich-kiosk:latest
     container_name: immich-kiosk
     environment:
-      DEBUG: true
+      KIOSK_DEBUG: false
       TZ: "Europe/London"
     ports:
       - 3000:3000
