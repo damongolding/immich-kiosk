@@ -37,7 +37,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 func init() {
 	routes.KioskVersion = version
 
-	debugModeEnv := os.Getenv("DEBUG")
+	debugModeEnv := os.Getenv("KIOSK_DEBUG")
 	debugMode, _ := strconv.ParseBool(debugModeEnv)
 
 	if debugMode {
