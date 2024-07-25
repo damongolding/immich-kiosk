@@ -45,7 +45,7 @@ You want to have a slideshow of your Immmich images using the webpage card in Ho
 \* I would suggest disabling all the UI i.e. `http://192.168.0.123:3000?disable_ui=true`
 
 ### Example 2
-You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DeitPi][dietpi-url]).
+You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
 
 You want the pi connected to the LCD screen to only show images from your recent holiday, which are stored in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
 
