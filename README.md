@@ -92,7 +92,7 @@ services:
       TZ: "Europe/London"
       KIOSK_IMMICH_API_KEY: ""
       KIOSK_IMMICH_URL: ""
-      KIOSK_DISBALE_UI: FALSE
+      KIOSK_DISABLE_UI: FALSE
       KIOSK_SHOW_DATE: TRUE
       KIOSK_DATE_FORMAT: 02/01/2006
       KIOSK_SHOW_TIME: TRUE
