@@ -13,13 +13,13 @@
 > [!WARNING]
 > Like the Immich project, this project is currently in beta and may experience breaking changes.
 
-<dev style="display: flex; gap: 1rem;">
+<div style="display: flex; gap: 1rem;">
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test">
 
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/docker-release.yml">
 
   <img alt="GitHub License" src="https://img.shields.io/github/license/damongolding/immich-kiosk">
-</dev>
+</div>
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
