@@ -13,9 +13,11 @@
 > [!WARNING]
 > Like the Immich project, this project is currently in beta and may experience breaking changes.
 
+<span style="width: 100%; display: flex; gap: 1rem;">
 [![Test status](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml/badge.svg)](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml)
- 
+
 [![Docker Release Status](https://github.com/damongolding/immich-kiosk/actions/workflows/docker-release.yml/badge.svg)](https://github.com/damongolding/immich-kiosk/actions/workflows/docker-release.yml)
+</span>
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
@@ -205,7 +207,7 @@ environment:
 ## TODO
 - FAQs
 - Investigate caching
-- Update README images
+- Option to serve original image
 
 ------
 
