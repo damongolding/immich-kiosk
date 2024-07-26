@@ -29,7 +29,6 @@
 - [TODO](#TODO)
 - [Support](#support)
 
-
 ## What is Immich Kiosk?
 I made Immich Kiosk as a lightweight slideshow to run on kiosk devices and browsers.
 
