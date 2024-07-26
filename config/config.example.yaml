@@ -1,0 +1,29 @@
+immich_api_key: ""
+immich_url: ""
+
+refresh: 60 # in seconds
+
+album: "" # ID of album to display
+
+person: "" # ID of person to display
+
+fill_screen: true # force image to fill entire screen (depending on height/width disparity, will lead to blurriness)
+
+show_time: true # true or false
+time_format: 12 # 12 or 24
+
+show_date: true # true or false
+date_format: 02/01/2006 # 02 = day, 01 = month and 2006 = year e.g. 01/02/2006 for American formate
+
+background_blur: true # display a blurred version of image as background
+
+transition: none # cross-fade, fade or none
+
+show_progress: false # display a progress bar
+
+# Image METADATA
+show_image_time: true # true or false
+image_time_format: 12 # 12 or 24
+
+show_image_date: true # true or false
+image_date_format: 02/01/2006 # 02 = day, 01 = month and 2006 = year e.g. 01/02/2006 for American formate
