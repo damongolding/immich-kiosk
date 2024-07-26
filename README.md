@@ -6,13 +6,6 @@
   </a>
 </div>
 
-
-> [!IMPORTANT]
-> **This project is not affiliated with [immich][immich-github-url]**
-
-> [!WARNING]
-> Like the Immich project, this project is currently in beta and may experience breaking changes.
-
 <div align="center" style="display: flex; gap: 2rem;">
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test">
 
@@ -20,6 +13,12 @@
 
   <img alt="GitHub License" src="https://img.shields.io/github/license/damongolding/immich-kiosk">
 </div>
+
+> [!IMPORTANT]
+> **This project is not affiliated with [immich][immich-github-url]**
+
+> [!WARNING]
+> Like the Immich project, this project is currently in beta and may experience breaking changes.
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
