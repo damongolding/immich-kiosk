@@ -6,6 +6,8 @@
   </a>
 </div>
 
+[![Build Status](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml/badge.svg?branch=master)](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml)
+
 > [!IMPORTANT]
 > **This project is not affiliated with [immich][immich-github-url]**
 
