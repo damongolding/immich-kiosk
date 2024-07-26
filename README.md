@@ -6,13 +6,14 @@
   </a>
 </div>
 
-[![Build Status](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml/badge.svg?branch=master)](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml)
 
 > [!IMPORTANT]
 > **This project is not affiliated with [immich][immich-github-url]**
 
 > [!WARNING]
 > Like the Immich project, this project is currently in beta and may experience breaking changes.
+
+[![Build Status](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml/badge.svg?branch=master)](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml)
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
