@@ -13,7 +13,7 @@
 > [!WARNING]
 > Like the Immich project, this project is currently in beta and may experience breaking changes.
 
-<div style="display: flex; gap: 1rem;">
+<div align="center" style="display: flex; gap: 2rem;">
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test">
 
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/docker-release.yml">
