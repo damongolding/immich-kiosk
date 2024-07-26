@@ -5,7 +5,8 @@
     <img src="/assets/logo.svg" width="240" height="auto" alt="Immich Kiosk windmil logo" />
   </a>
 </div>
-
+<br />
+<br />
 <div align="center" style="display: flex; gap: 2rem;">
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test">
 
@@ -13,6 +14,8 @@
 
   <img alt="GitHub License" src="https://img.shields.io/github/license/damongolding/immich-kiosk">
 </div>
+<br />
+<br />
 
 > [!IMPORTANT]
 > **This project is not affiliated with [immich][immich-github-url]**
