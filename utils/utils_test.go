@@ -3,6 +3,7 @@ package utils
 import (
 	"net/url"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -11,15 +12,18 @@ func TestCombineQueries(t *testing.T) {
 	baseQueries := url.Values{}
 	baseQueries.Set("refresh", "60")
 	baseQueries.Set("transition", "fade")
+	baseQueries.Set("raw", "false")
 
-	refererQueries := "demo-url?transition=none&fill_screen=true&raw"
+	refererQueries := "/demo-url?transition=none&fill_screen=true&raw=true"
 
 	q, err := CombineQueries(baseQueries, refererQueries)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if q.Get("transition") != "none" || q.Get("fill_screen") != "true" || q.Get("refresh") != "60" || !q.Has("raw") {
+	//  NOT WORKING
+	if strings.Contains(q.Get("transition"), "none") || q.Get("fill_screen") != "[true]" || q.Get("refresh") != "[60]" || !q.Has("raw") {
+		t.Log(q["transition"])
 		t.Error(q)
 	}
 

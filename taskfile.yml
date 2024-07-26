@@ -6,7 +6,7 @@ tasks:
   default:
     deps: [build]
     cmds:
-      - DEBUG=true ./dist/kiosk
+      - KIOSK_DEBUG=true ./dist/kiosk
 
   test:
     cmds:

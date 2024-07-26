@@ -150,7 +150,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 
 	v := reflect.ValueOf(configWithOverrides).Elem()
 
-	// Loop through the map and update struct fields
+	// Loop through the queries and update struct fields
 	for key, values := range queries {
 		// Disble setting api and url for now
 		if strings.ToLower(key) == "immich_api_key" || strings.ToLower(key) == "immich_url" {
@@ -167,8 +167,11 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 			// Get the field by name
 			field := v.FieldByName(key)
 			if field.IsValid() && field.CanSet() {
+
+				// Loop values as queries are []string{}
 				for _, value := range values {
 
+					// We only want set values
 					if value == "" {
 						continue
 					}
