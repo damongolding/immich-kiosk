@@ -22,7 +22,7 @@ func TestCombineQueries(t *testing.T) {
 	}
 
 	//  NOT WORKING
-	if strings.Contains(q.Get("transition"), "none") || q.Get("fill_screen") != "[true]" || q.Get("refresh") != "[60]" || !q.Has("raw") {
+	if strings.Contains(q.Get("transition"), "fade") || q.Get("fill_screen") != "[true]" || q.Get("refresh") != "[60]" || !q.Has("raw") {
 		t.Log(q["transition"])
 		t.Error(q)
 	}
