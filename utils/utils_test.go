@@ -19,7 +19,7 @@ func TestCombineQueries(t *testing.T) {
 		t.Error(err)
 	}
 
-	if q.Get("transition") != "none" && q.Get("fill_screen") != "true" && q.Get("refresh") != "60" && !q.Has("raw") {
+	if q.Get("transition") != "none" || q.Get("fill_screen") != "true" || q.Get("refresh") != "60" || !q.Has("raw") {
 		t.Error(q)
 	}
 
