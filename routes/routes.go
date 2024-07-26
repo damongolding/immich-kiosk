@@ -133,10 +133,19 @@ func NewImage(c echo.Context) error {
 	}
 
 	imageGet := time.Now()
-	imgBytes, err := immichImage.GetImagePreview()
-	if err != nil {
-		return err
+	var imgBytes []byte
+	if instanceConfig.UseOriginal {
+		imgBytes, err = immichImage.GetImageOriginal()
+		if err != nil {
+			return err
+		}
+	} else {
+		imgBytes, err = immichImage.GetImagePreview()
+		if err != nil {
+			return err
+		}
 	}
+
 	log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
 
 	// if user wants the raw image data send it

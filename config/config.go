@@ -55,6 +55,8 @@ type Config struct {
 	ShowImageDate bool `mapstructure:"show_image_date"`
 	// ImageDateFormat format for image date
 	ImageDateFormat string `mapstructure:"image_date_format"`
+
+	UseOriginal bool `mapstructure:"use_original"`
 }
 
 const (

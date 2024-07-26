@@ -335,7 +335,29 @@ func (i *ImmichAsset) GetImagePreview() ([]byte, error) {
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     "/api/assets/" + i.ID + "/thumbnail",
-		RawQuery: "size=preview",
+		RawQuery: "size=preview&c=" + i.Checksum,
+	}
+
+	log.Debug("Getting", "image-url", apiUrl.String())
+
+	return i.immichApiCall(apiUrl.String())
+}
+
+// GetImageOriginal fetches the raw original image data from Immich
+func (i *ImmichAsset) GetImageOriginal() ([]byte, error) {
+
+	var bytes []byte
+
+	u, err := url.Parse(baseConfig.ImmichUrl)
+	if err != nil {
+		log.Error(err)
+		return bytes, err
+	}
+
+	apiUrl := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   "/api/assets/" + i.ID + "/original",
 	}
 
 	return i.immichApiCall(apiUrl.String())
