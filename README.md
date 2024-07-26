@@ -13,7 +13,7 @@
 > [!WARNING]
 > Like the Immich project, this project is currently in beta and may experience breaking changes.
 
-[![Build Status](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml/badge.svg)](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml)
+[![Build Status](https://github.com/damongolding/immich-kiosk/actions/workflows/test.yml/badge.svg)](https://github.com/damongolding/immich-kiosk/actions/workflows/test.yml)
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
