@@ -13,7 +13,7 @@
 > [!WARNING]
 > Like the Immich project, this project is currently in beta and may experience breaking changes.
 
-[![Test Status](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml/badge.svg)](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml)
+[![Test status](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml/badge.svg)](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml)
 
 [![Docker Release Status](https://github.com/damongolding/immich-kiosk/actions/workflows/docker-release.yml/badge.svg)](https://github.com/damongolding/immich-kiosk/actions/workflows/docker-release.yml)
 
