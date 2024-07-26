@@ -1,0 +1,30 @@
+name: Go Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.5" # Specify the Go version you want to use
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: |
+          mkdir -p test-results
+          go test -v ./... > test-results/test.log
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-test-results
+          path: test-results/test.log
