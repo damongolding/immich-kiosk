@@ -5,20 +5,23 @@
     <img src="/assets/logo.svg" width="240" height="auto" alt="Immich Kiosk windmil logo" />
   </a>
 </div>
+<br />
+<br />
+<div align="center" style="display: flex; gap: 2rem;">
+  <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test">
 
+  <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/docker-release.yml">
+
+  <img alt="GitHub License" src="https://img.shields.io/github/license/damongolding/immich-kiosk">
+</div>
+<br />
+<br />
 
 > [!IMPORTANT]
 > **This project is not affiliated with [immich][immich-github-url]**
 
 > [!WARNING]
 > Like the Immich project, this project is currently in beta and may experience breaking changes.
-
-<span style="width: 100%; display: flex; gap: 1rem;">
-
-[![Test status](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml/badge.svg)](https://github.com/damongolding/immich-kiosk/actions/workflows/go-test.yml)
-
-[![Docker Release Status](https://github.com/damongolding/immich-kiosk/actions/workflows/docker-release.yml/badge.svg)](https://github.com/damongolding/immich-kiosk/actions/workflows/docker-release.yml)
-</span>
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
