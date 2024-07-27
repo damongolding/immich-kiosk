@@ -143,7 +143,6 @@ body {
 
 .frame--image-fit-cover {
     object-fit: cover;
-    object-position: 50%;
 }
 
 .frame--image-fit-none {
