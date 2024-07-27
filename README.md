@@ -130,7 +130,7 @@ See the file config.example.yaml for an example config file
 
 | **yaml**          | **ENV**                 | **Value**                  | **Description**                                                                            |
 |-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
-| immich_url        | KIOSK_IMMICH_URL        | string                     | The URL of your Immich server, e.g. `http://192.168.1.123:2283`.                           |
+| immich_url        | KIOSK_IMMICH_URL        | string                     | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`.                           |
 | immich_api_key    | KIOSK_IMMICH_API_KEY    | string                     | The API for your Immich server.                                                            |
 | disable_ui        | KIOSK_DISABLE_UI        | bool                       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | show_time         | KIOSK_SHOW_TIME         | bool                       | Display clock.                                                                             |
