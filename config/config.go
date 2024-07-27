@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -62,8 +61,8 @@ const (
 	defaultScheme     = "http://"
 )
 
-// parseUrl checks given url has correct formatting e.g. https://example:2283
-func (c *Config) checkUrlFormat(config Config) Config {
+// checkUrlScheme checks given url has correct scheme and adds http:// if non if found
+func (c *Config) checkUrlScheme(config Config) Config {
 	if config.ImmichUrl == "" || config.ImmichApiKey == "" {
 		log.Fatal("Either Immich Url or Immich Api Key is missing", "ImmichUrl", config.ImmichUrl, "ImmichApiKey", config.ImmichApiKey)
 	}
@@ -76,19 +75,6 @@ func (c *Config) checkUrlFormat(config Config) Config {
 		break
 	default:
 		config.ImmichUrl = defaultScheme + config.ImmichUrl
-	}
-
-	u, err := url.Parse(config.ImmichUrl)
-	if err != nil {
-		log.Fatal("Immich URL malformed")
-	}
-
-	// Add default Immich port if no port has been specified
-	if u.Port() == "" {
-		// just in case URL has no port but has a colon, remove it
-		host := strings.Replace(u.Host, ":", "", -1)
-		// Build URL with scheme and default Immich port
-		config.ImmichUrl = fmt.Sprintf("%s://%s:%s", u.Scheme, host, defaultImmichPort)
 	}
 
 	return config
@@ -136,7 +122,7 @@ func (c *Config) Load() error {
 		log.Fatal("Environment can't be loaded: ", "err", err)
 	}
 
-	config = c.checkUrlFormat(config)
+	config = c.checkUrlScheme(config)
 
 	*c = config
 
