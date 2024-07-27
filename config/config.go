@@ -42,7 +42,7 @@ type Config struct {
 
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur"`
-	// BackgroundBlur which transistion to use none|fade|cross-fade
+	// BackgroundBlur which transition to use none|fade|cross-fade
 	Transition string `mapstructure:"transition"`
 	// ShowProgress display a progress bar
 	ShowProgress bool `mapstructure:"show_progress"`
