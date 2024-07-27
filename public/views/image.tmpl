@@ -6,7 +6,7 @@
   {{ end }}
   <div class="frame--image">
     <img
-      class="{{ if .Config.FillScreen }}frame--image-fillscreen{{ end }}"
+      class="{{ if .Config.ImageFit }}frame--image-fit-{{.ImageFit}}{{end}}"
       src="{{ .ImageData }}"
       alt=""
     />
