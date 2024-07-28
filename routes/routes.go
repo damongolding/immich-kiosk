@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
+	"github.com/damongolding/immich-kiosk/views"
 )
 
 var (
@@ -18,19 +20,6 @@ var (
 	ExampleConfig []byte
 	baseConfig    config.Config
 )
-
-type PageData struct {
-	// KioskVersion the current build version of Kiosk
-	KioskVersion string
-	// ImageData image as base64 data
-	ImageData string
-	// ImageData blurred image as base64 data
-	ImageBlurData string
-	// Date image date
-	ImageDate string
-	// instance config
-	config.Config
-}
 
 type ErrorData struct {
 	Title   string
@@ -72,12 +61,12 @@ func Home(c echo.Context) error {
 
 	log.Debug(requestId, "path", c.Request().URL.String(), "instanceConfig", instanceConfig)
 
-	pageData := PageData{
+	pageData := views.PageData{
 		KioskVersion: KioskVersion,
 		Config:       instanceConfig,
 	}
 
-	return c.Render(http.StatusOK, "index.tmpl", pageData)
+	return views.Home(pageData).Render(context.Background(), c.Response().Writer)
 
 }
 
@@ -193,14 +182,17 @@ func NewImage(c echo.Context) error {
 		break
 	}
 
-	data := PageData{
+	data := views.PageData{
 		ImageData:     img,
 		ImageBlurData: imgBlur,
 		ImageDate:     imageDate,
 		Config:        instanceConfig,
 	}
 
-	return c.Render(http.StatusOK, "image.tmpl", data)
+	fmt.Print(data)
+
+	return nil
+	// return c.Render(http.StatusOK, "image.tmpl", data)
 }
 
 // Clock clock endpoint
