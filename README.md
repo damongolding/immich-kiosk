@@ -168,7 +168,7 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 This controls how the image will fit on your screen.
 The options are:
 
-## Contain (the default)
+### Contain (the default)
 The image keeps its aspect ratio, but is resized to fit the whole screen. If the image is smaller than your screen, there will be some fuzzyness to your image
 
 ### Cover
