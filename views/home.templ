@@ -69,15 +69,19 @@ templ kioskNone(showProgress bool, refresh int) {
 	</div>
 }
 
+css animationDuration(duration int) {
+	animation-duration: { fmt.Sprintf("%ds", duration) };
+}
+
 templ Home(data PageData) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<meta name="version" content="{ data.KioskVersion }"/>
+			<meta name="version" content={ data.KioskVersion }/>
 			<title>Immich Kiosk</title>
-			<link rel="stylesheet" href="/assets/css/style.{ data.KioskVersion }.css"/>
+			<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/style.%s.css", data.KioskVersion))) }/>
 			<link
 				rel="apple-touch-icon"
 				sizes="180x180"
@@ -96,13 +100,6 @@ templ Home(data PageData) {
 				href="/assets/images/favicon-16x16.png"
 			/>
 			<script src="/assets/js/htmx.2.0.1.js"></script>
-			if data.Config.ShowProgress {
-				<style>
-                .progress--bar {
-                    animation-duration: {{ .Refresh }}s;
-                }
-            </style>
-			}
 		</head>
 		<body>
 			switch strings.ToLower(data.Config.Transition) {
@@ -116,8 +113,7 @@ templ Home(data PageData) {
 			if data.Config.ShowProgress {
 				<div class="progress">
 					<div
-						class="progress--bar"
-						style="animation-duration: {{ .Config.Refresh }}s;"
+						class={ "progress--bar", animationDuration(data.Config.Refresh) }
 					></div>
 				</div>
 			}

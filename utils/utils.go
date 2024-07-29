@@ -5,10 +5,18 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image"
-	"image/jpeg"
+	"io"
 	"math/rand/v2"
+	"mime"
 	"net/http"
 	"net/url"
+
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+
+	"golang.org/x/image/webp"
+	_ "golang.org/x/image/webp"
 
 	"github.com/charmbracelet/log"
 	"github.com/disintegration/imaging"
@@ -28,19 +36,49 @@ func ImageToBase64(imgBtyes []byte) (string, error) {
 	return base64Encoding, nil
 }
 
+// getImageFormat retrieve format a.k.a name from decode config
+func getImageFormat(r io.Reader) (string, error) {
+	_, format, err := image.DecodeConfig(r)
+	return format, err
+}
+
+// getImageMimeType Get image mime type (gif/jpeg/png/webp)
+func getImageMimeType(r io.Reader) string {
+	format, _ := getImageFormat(r)
+	if format == "" {
+		return ""
+	}
+	return mime.TypeByExtension("." + format)
+}
+
 // BlurImage converts image bytes into a blurred base64 string
 func BlurImage(imgBytes []byte) ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	img, _, err := image.Decode(bytes.NewReader(imgBytes))
-	if err != nil {
-		return buf.Bytes(), err
+	var img image.Image
+	var err error
+
+	imageMime := getImageMimeType(bytes.NewReader(imgBytes))
+
+	switch imageMime {
+	case "image/webp":
+		img, err = webp.Decode(bytes.NewReader(imgBytes))
+		if err != nil {
+			log.Error("could not decode image", "image mime type", imageMime, "err", err)
+			return buf.Bytes(), err
+		}
+	default:
+		img, err = imaging.Decode(bytes.NewReader(imgBytes))
+		if err != nil {
+			log.Error("could not decode image", "image mime type", imageMime, "err", err)
+			return buf.Bytes(), err
+		}
 	}
 
 	blurredImg := imaging.Blur(img, 20)
 	blurredImg = imaging.AdjustBrightness(blurredImg, -20)
 
-	err = jpeg.Encode(buf, blurredImg, nil)
+	err = imaging.Encode(buf, blurredImg, imaging.JPEG)
 	if err != nil {
 		return buf.Bytes(), err
 	}

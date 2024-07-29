@@ -1,21 +1,21 @@
 package views
 
-templ Image(){
-<div class="frame {{ if not .Config.BackgroundBlur }}frame-black-bg{{ end }}">
-  {{ if .Config.BackgroundBlur }}
-    <div class="frame--background">
-      <img src="{{ .ImageBlurData }}" alt="" />
-    </div>
-  {{ end }}
-  <div class="frame--image">
-    <img
-      class="{{ if .Config.FillScreen }}frame--image-fillscreen{{ end }}"
-      src="{{ .ImageData }}"
-      alt=""
-    />
-  </div>
-  {{ if and (not .Config.DisableUi) (ne .ImageDate "") }}
-    <div class="frame--date">{{ .ImageDate }}</div>
-  {{ end }}
-</div>
+templ Image(data PageData) {
+	<div class={ "frame", templ.KV("frame-black-bg", !data.Config.BackgroundBlur) }>
+		if data.Config.BackgroundBlur {
+			<div class="frame--background">
+				<img src={ data.ImageBlurData } alt="Blurred image background"/>
+			</div>
+		}
+		<div class="frame--image">
+			<img
+				class={ templ.KV("frame--image-fillscreen", data.Config.FillScreen) }
+				src={ data.ImageData }
+				alt="Main image"
+			/>
+		</div>
+		if !data.Config.DisableUi && data.ImageDate != "" {
+			<div class="frame--date">{ data.ImageDate }</div>
+		}
+	</div>
 }

@@ -174,6 +174,7 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 	}
 
 	if len(immichAssets) == 0 {
+		log.Error("no assets found")
 		return fmt.Errorf("no assets found")
 	}
 
@@ -190,6 +191,7 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 	log.Debug(requestId+" Not a image. Trying again", "retry", i.Retries)
 
 	if i.Retries >= maxRetries {
+		log.Error("No images found")
 		return fmt.Errorf("No images found")
 	}
 
@@ -226,10 +228,12 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 			log.Error("couln't read error", "body", string(body))
 			return err
 		}
+		log.Errorf("%s : %v", immichError.Error, immichError.Message)
 		return fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 	}
 
 	if len(images) == 0 {
+		log.Error("no images found")
 		return fmt.Errorf("no images found")
 	}
 
@@ -248,6 +252,7 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 	}
 
 	if i.ID == "" {
+		log.Error("no images found")
 		return fmt.Errorf("no images found")
 	}
 
@@ -292,10 +297,12 @@ func (i *ImmichAsset) GetRandomImageFromAlbum(albumId, requestId string) error {
 			log.Error("couln't read error", "body", string(body))
 			return err
 		}
+		log.Errorf("%s : %v", immichError.Error, immichError.Message)
 		return fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 	}
 
 	if len(album.Assets) == 0 {
+		log.Error("no images found")
 		return fmt.Errorf("no images found")
 	}
 
@@ -314,6 +321,7 @@ func (i *ImmichAsset) GetRandomImageFromAlbum(albumId, requestId string) error {
 	}
 
 	if i.ID == "" {
+		log.Error("no images found")
 		return fmt.Errorf("no images found")
 	}
 

@@ -8,11 +8,16 @@ tasks:
     cmds:
       - KIOSK_DEBUG=true ./dist/kiosk
 
+  templ:
+    cmds:
+      - templ generate
+
   test:
     cmds:
       - go test ./...
 
   build:
+    deps: [templ]
     cmds:
       - CGO_ENABLED=0 go build -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
 
