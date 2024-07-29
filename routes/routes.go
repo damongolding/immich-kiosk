@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/a-h/templ"
@@ -144,7 +145,7 @@ func NewImage(c echo.Context) error {
 
 	var imgBlur string
 
-	if instanceConfig.BackgroundBlur {
+	if instanceConfig.BackgroundBlur && strings.ToLower(instanceConfig.ImageFit) != "cover" {
 		imageBlurTime := time.Now()
 		imgBlurBytes, err := utils.BlurImage(imgBytes)
 		if err != nil {
@@ -244,6 +245,7 @@ func Clock(c echo.Context) error {
 		break
 	case instanceConfig.ShowDate:
 		data.ClockDate = t.Format(clockDateFormat)
+		break
 	}
 
 	return Render(c, http.StatusOK, views.Clock(data))

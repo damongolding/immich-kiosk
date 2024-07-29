@@ -7,7 +7,7 @@ show_time: true # true or false
 time_format: 12 # 12 or 24
 
 show_date: true # true or false
-date_format: 02/01/2006 # 02 = day, 01 = month and 2006 = year e.g. 01/02/2006 for American formate
+date_format: 02/01/2006 # 02 = day, 01 = month and 2006 = year e.g. 01/02/2006 for American format
 
 refresh: 60 # in seconds
 
@@ -16,7 +16,7 @@ album: "" # ID of album to display
 person: # ID(s) of person or people to display
   - ""
 
-fill_screen: true # force image to fill entire screen (depending on height/width disparity, will lead to blurriness)
+image_fit: contain # how the image fits the screen. Options are none, contain and cover
 
 background_blur: true # display a blurred version of image as background
 

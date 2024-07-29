@@ -36,8 +36,9 @@ type Config struct {
 	Person []string `mapstructure:"person"`
 	// Album ID of album to display
 	Album string `mapstructure:"album"`
-	// FillScreen force image to be fullscreen
-	FillScreen bool `mapstructure:"fill_screen"`
+
+	// ImageFit the fit style for main image
+	ImageFit string `mapstructure:"image_fit"`
 
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur"`
@@ -96,7 +97,7 @@ func (c *Config) Load() error {
 	viper.SetDefault("refresh", 60)
 	viper.SetDefault("album", "")
 	viper.SetDefault("person", []string{})
-	viper.SetDefault("fill_screen", true)
+	viper.SetDefault("image_fit", "contain")
 	viper.SetDefault("background_blur", true)
 	viper.SetDefault("transition", "")
 	viper.SetDefault("show_progress", false)

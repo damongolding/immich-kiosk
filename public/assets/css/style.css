@@ -80,6 +80,7 @@ body {
     animation-duration: 3s;
     animation-fill-mode: forwards;
 }
+
 /* END Cross fade transtion */
 
 .kiosk--spinner {
@@ -126,11 +127,18 @@ body {
     max-height: 100%;
 }
 
-.frame--image-fillscreen {
+.frame--image-fit-contain {
     width: 100%;
     height: 100%;
 
     object-fit: contain;
+}
+
+.frame--image-fit-cover {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
 }
 
 .frame--background {
@@ -287,4 +295,9 @@ body {
 .clock--date {
     font-size: 1.5rem;
     opacity: 0.8;
+}
+
+.clock--time {
+    padding-right: 3rem;
+    font-size: 3rem;
 }

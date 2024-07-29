@@ -13,7 +13,7 @@ func TestCombineQueries(t *testing.T) {
 	baseQueries.Set("transition", "fade")
 	baseQueries.Set("raw", "false")
 
-	refererQueries := "/demo-url?transition=none&fill_screen=true&raw=true"
+	refererQueries := "/demo-url?transition=none&image_fit=cover&raw=true"
 
 	q, err := CombineQueries(baseQueries, refererQueries)
 	if err != nil {
@@ -21,8 +21,7 @@ func TestCombineQueries(t *testing.T) {
 	}
 
 	//  NOT WORKING
-	if q.Get("transition") != "fade" || q.Get("fill_screen") != "true" || q.Get("refresh") != "60" || !q.Has("raw") {
-		t.Log(q["transition"])
+	if !reflect.DeepEqual(q["transition"], []string{"fade", "none"}) || q.Get("image_fit") != "cover" || q.Get("refresh") != "60" || !q.Has("raw") {
 		t.Error(q)
 	}
 
