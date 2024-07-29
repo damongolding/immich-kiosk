@@ -5,12 +5,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
+	"github.com/damongolding/immich-kiosk/views"
 )
 
 var (
@@ -19,34 +21,24 @@ var (
 	baseConfig    config.Config
 )
 
-type PageData struct {
-	// KioskVersion the current build version of Kiosk
-	KioskVersion string
-	// ImageData image as base64 data
-	ImageData string
-	// ImageData blurred image as base64 data
-	ImageBlurData string
-	// Date image date
-	ImageDate string
-	// instance config
-	config.Config
-}
-
-type ErrorData struct {
-	Title   string
-	Message string
-}
-
-type ClockData struct {
-	ClockTime string
-	ClockDate string
-}
-
 func init() {
 	err := baseConfig.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// This custom Render replaces Echo's echo.Context.Render() with templ's templ.Component.Render().
+func Render(ctx echo.Context, statusCode int, t templ.Component) error {
+	buf := templ.GetBuffer()
+	defer templ.ReleaseBuffer(buf)
+
+	if err := t.Render(ctx.Request().Context(), buf); err != nil {
+		log.Error("err rendering view", "err", err)
+		return err
+	}
+
+	return ctx.HTML(statusCode, buf.String())
 }
 
 // Home home endpoint
@@ -72,13 +64,12 @@ func Home(c echo.Context) error {
 
 	log.Debug(requestId, "path", c.Request().URL.String(), "instanceConfig", instanceConfig)
 
-	pageData := PageData{
+	pageData := views.PageData{
 		KioskVersion: KioskVersion,
 		Config:       instanceConfig,
 	}
 
-	return c.Render(http.StatusOK, "index.tmpl", pageData)
-
+	return Render(c, http.StatusOK, views.Home(pageData))
 }
 
 // NewImage new image endpoint
@@ -111,7 +102,7 @@ func NewImage(c echo.Context) error {
 		randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(instanceConfig.Album, requestId)
 		if randomAlbumImageErr != nil {
 			log.Error("err getting image from album", "err", randomAlbumImageErr)
-			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting image from album", Message: "Is album ID correct?"})
+			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting image from album", Message: "Is album ID correct?"}))
 		}
 		break
 	case len(instanceConfig.Person) > 0:
@@ -121,14 +112,14 @@ func NewImage(c echo.Context) error {
 		randomPersonImageErr := immichImage.GetRandomImageOfPerson(person, requestId)
 		if randomPersonImageErr != nil {
 			log.Error("err getting image of person", "err", randomPersonImageErr)
-			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting image of person", Message: "Is person ID correct?"})
+			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting image of person", Message: "Is person ID correct?"}))
 		}
 		break
 	default:
 		randomImageErr := immichImage.GetRandomImage(requestId)
 		if randomImageErr != nil {
 			log.Error("err getting random image", "err", randomImageErr)
-			return c.Render(http.StatusOK, "error.tmpl", ErrorData{Title: "Error getting random image", Message: "Is Immich running? Are your config settings correct?"})
+			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting random image", Message: "Is Immich running? Are your config settings correct?"}))
 		}
 	}
 
@@ -157,10 +148,12 @@ func NewImage(c echo.Context) error {
 		imageBlurTime := time.Now()
 		imgBlurBytes, err := utils.BlurImage(imgBytes)
 		if err != nil {
+			log.Error("err blurring image", "err", err)
 			return err
 		}
 		imgBlur, err = utils.ImageToBase64(imgBlurBytes)
 		if err != nil {
+			log.Error("err converting blurred image to base", "err", err)
 			return err
 		}
 		log.Debug(requestId, "Blurred image in", time.Since(imageBlurTime).Seconds())
@@ -193,14 +186,15 @@ func NewImage(c echo.Context) error {
 		break
 	}
 
-	data := PageData{
+	data := views.PageData{
 		ImageData:     img,
 		ImageBlurData: imgBlur,
 		ImageDate:     imageDate,
 		Config:        instanceConfig,
 	}
 
-	return c.Render(http.StatusOK, "image.tmpl", data)
+	return Render(c, http.StatusOK, views.Image(data))
+
 }
 
 // Clock clock endpoint
@@ -238,7 +232,7 @@ func Clock(c echo.Context) error {
 		clockDateFormat = "02/01/2006"
 	}
 
-	var data ClockData
+	var data views.ClockData
 
 	switch {
 	case (instanceConfig.ShowTime && instanceConfig.ShowDate):
@@ -252,5 +246,5 @@ func Clock(c echo.Context) error {
 		data.ClockDate = t.Format(clockDateFormat)
 	}
 
-	return c.Render(http.StatusOK, "clock.tmpl", data)
+	return Render(c, http.StatusOK, views.Clock(data))
 }

@@ -3,11 +3,8 @@ package main
 import (
 	"embed"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
-	"strings"
-	"text/template"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -22,21 +19,6 @@ var version string
 
 //go:embed public
 var public embed.FS
-
-// TemplateRenderer echos template render
-type TemplateRenderer struct {
-	templates *template.Template
-}
-
-// TemplateFuncs funcs available within template files
-var TemplateFuncs = map[string]any{
-	"toLower": strings.ToLower,
-}
-
-// Render use GOs template engine to render
-func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.Funcs(TemplateFuncs).ExecuteTemplate(w, name, data)
-}
 
 func init() {
 	routes.KioskVersion = version
@@ -63,19 +45,6 @@ func main() {
 	// hide echos default banner
 	e.HideBanner = true
 
-	// Start template engine
-	tmpl := template.New("views").Funcs(TemplateFuncs)
-
-	tmpl, err := tmpl.ParseFS(public, "public/views/*.tmpl")
-	// tmpl, err := tmpl.ParseGlob("public/views/*.tmpl")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	e.Renderer = &TemplateRenderer{
-		templates: tmpl,
-	}
-
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
 
@@ -91,7 +60,7 @@ func main() {
 
 	e.GET("/clock", routes.Clock)
 
-	err = e.Start(":3000")
+	err := e.Start(":3000")
 	if err != nil {
 		log.Fatal(err)
 	}
