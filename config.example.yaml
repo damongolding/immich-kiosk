@@ -16,7 +16,7 @@ album: "" # ID of album to display
 person: # ID(s) of person or people to display
   - ""
 
-image_fit: none # how the image fits the screen. Options are none, contain and cover
+image_fit: contain # how the image fits the screen. Options are none, contain and cover
 
 background_blur: true # display a blurred version of image as background
 

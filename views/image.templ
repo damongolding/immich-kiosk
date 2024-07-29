@@ -1,18 +1,46 @@
 package views
 
+import "strings"
+
+templ ImageFitCover(ImageData, imageFit string) {
+	<img
+		class="frame--image-fit-cover"
+		src={ ImageData }
+		alt="Main image"
+	/>
+}
+
+templ ImageFitNone(ImageData, imageFit string) {
+	<img
+		src={ ImageData }
+		alt="Main image"
+	/>
+}
+
+templ ImageFitContain(ImageData, imageFit string) {
+	<img
+		class="frame--image-fit-contain"
+		src={ ImageData }
+		alt="Main image"
+	/>
+}
+
 templ Image(data PageData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !data.Config.BackgroundBlur) }>
-		if data.Config.BackgroundBlur {
+		if data.Config.BackgroundBlur && strings.ToLower(data.Config.ImageFit) != "cover" {
 			<div class="frame--background">
 				<img src={ data.ImageBlurData } alt="Blurred image background"/>
 			</div>
 		}
 		<div class="frame--image">
-			<img
-				class={ templ.KV("frame--image-fillscreen", data.Config.FillScreen) }
-				src={ data.ImageData }
-				alt="Main image"
-			/>
+			switch strings.ToLower(data.Config.ImageFit) {
+				case "cover":
+					@ImageFitCover(data.ImageData, data.Config.ImageFit)
+				case "none":
+					@ImageFitNone(data.ImageData, data.Config.ImageFit)
+				default:
+					@ImageFitContain(data.ImageData, data.Config.ImageFit)
+			}
 		</div>
 		if !data.Config.DisableUi && data.ImageDate != "" {
 			<div class="frame--date">{ data.ImageDate }</div>

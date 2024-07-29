@@ -97,7 +97,7 @@ func (c *Config) Load() error {
 	viper.SetDefault("refresh", 60)
 	viper.SetDefault("album", "")
 	viper.SetDefault("person", []string{})
-	viper.SetDefault("image_fit", "none")
+	viper.SetDefault("image_fit", "contain")
 	viper.SetDefault("background_blur", true)
 	viper.SetDefault("transition", "")
 	viper.SetDefault("show_progress", false)

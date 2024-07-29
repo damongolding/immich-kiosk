@@ -31,6 +31,7 @@
 - [Docker Compose](#docker-compose)
 - [Configuration](#configuration)
 - [Changing settings via URL](#changing-settings-via-url)
+- [Image fit](#image-fit)
 - [FAQ](#faq)
 - [TODO](#TODO)
 - [Support](#support)
@@ -110,7 +111,7 @@ services:
       KIOSK_REFRESH: 60
       KIOSK_ALBUM: "ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
-      KIOSK_FILL_SCREEN: TRUE
+      KIOSK_IMAGE_FIT: COVER
       KIOSK_BACKGROUND_BLUR: TRUE
       KIOSK_TRANSITION: NONE
       KIOSK_SHOW_PROGRESS: TRUE
@@ -130,7 +131,7 @@ See the file config.example.yaml for an example config file
 
 | **yaml**          | **ENV**                 | **Value**                  | **Description**                                                                            |
 |-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
-| immich_url        | KIOSK_IMMICH_URL        | string                     | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`.                           |
+| immich_url        | KIOSK_IMMICH_URL        | string                     | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`. |
 | immich_api_key    | KIOSK_IMMICH_API_KEY    | string                     | The API for your Immich server.                                                            |
 | disable_ui        | KIOSK_DISABLE_UI        | bool                       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | show_time         | KIOSK_SHOW_TIME         | bool                       | Display clock.                                                                             |
@@ -140,7 +141,7 @@ See the file config.example.yaml for an example config file
 | refresh           | KIOSK_REFRESH           | int                        | The amount in seconds a image will be displayed for.                                       |
 | album             | KIOSK_ALBUM             | string                     | The ID of a specific album you want to display.                                            |
 | person            | KIOSK_PERSON            | []string                   | The ID(s) of a specific person or people you want to display. Having the album set will overwrite this. See [FAQ: How do I set multiple people?](#faq) to see how to impliment this.|
-| fill_screen       | KIOSK_FILL_SCREEN       | bool                       | Force images to be full screen. Can lead to blurriness depending on image and screen size. |
+| image_fit         | KIOSK_IMAGE_FIT         | cover \| contain \| none   | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
 | background_blur   | KIOSK_BACKGROUND_BLUR   | bool                       | Display a blurred version of the image as a background.                                    |
 | transition        | KIOSK_TRANSITION        | none \| fade \| cross-fade | Which transition to use when changing images.                                              |
 | show_progress     | KIOSK_SHOW_PROGRESS     | bool                       | Display a progress bar for when image will refresh.                                        |
@@ -159,6 +160,23 @@ example:
 `https://{URL}?refresh=120&background_blur=false&transition=none`
 
 Thos above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
+
+------
+
+## Image fit
+
+This controls how the image will fit on your screen.
+The options are:
+
+## Contain (the default)
+The image keeps its aspect ratio, but is resized to fit the whole screen. If the image is smaller than your screen, there will be some fuzzyness to your image
+
+### Cover
+The image will cover the whole screen. To achieve this the image will mostly likely have some clipping/cropping and if the image is smaller than your screen, there will be some fuzzyness to your image.
+
+### None
+The image is centered and displayed "as is". If the image is larger than your screen it will be scaled down to fit your screen.
+
 
 ------
 
@@ -205,6 +223,7 @@ environment:
 ```
 
 * via url quires `http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID`
+
 
 ------
 
