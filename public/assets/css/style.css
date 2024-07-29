@@ -126,25 +126,11 @@ body {
     max-height: 100%;
 }
 
-.frame--image-fillscreen {
-    width: 100%;
-    height: 100%;
-
-    object-fit: contain;
-}
-
 .frame--image-fit-contain {
     width: 100%;
     height: 100%;
 
     object-fit: contain;
-}
-
-.frame--image-fit-fill {
-    width: 100%;
-    height: 100%;
-
-    object-fit: fill;
 }
 
 .frame--image-fit-cover {
