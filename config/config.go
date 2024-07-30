@@ -32,10 +32,10 @@ type Config struct {
 
 	// Refresh time between fetching new image
 	Refresh int `mapstructure:"refresh"`
-	// Person ID of person to display
+	// Person ID of person(s) to display
 	Person []string `mapstructure:"person"`
-	// Album ID of album to display
-	Album string `mapstructure:"album"`
+	// Album ID of album(s) to display
+	Album []string `mapstructure:"album"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `mapstructure:"image_fit"`
