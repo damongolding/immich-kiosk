@@ -46,22 +46,33 @@ func NewImage(c echo.Context) error {
 
 	immichImage := immich.NewImage(baseConfig)
 
-	switch {
-	case len(instanceConfig.Album) > 0:
+	type ImagePick struct {
+		Type string
+		ID   string
+	}
 
-		album := utils.RandomItem(instanceConfig.Album)
+	var peopleAndAlbums []ImagePick
 
-		randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(album, requestId)
+	for _, people := range instanceConfig.Person {
+		peopleAndAlbums = append(peopleAndAlbums, ImagePick{Type: "PERSON", ID: people})
+	}
+
+	for _, album := range instanceConfig.Album {
+		peopleAndAlbums = append(peopleAndAlbums, ImagePick{Type: "ALBUM", ID: album})
+	}
+
+	imagePick := utils.RandomItem(peopleAndAlbums)
+
+	switch imagePick.Type {
+	case "ALBUM":
+		randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(imagePick.ID, requestId)
 		if randomAlbumImageErr != nil {
 			log.Error("err getting image from album", "err", randomAlbumImageErr)
 			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting image from album", Message: "Is album ID correct?"}))
 		}
 		break
-	case len(instanceConfig.Person) > 0:
-
-		person := utils.RandomItem(instanceConfig.Person)
-
-		randomPersonImageErr := immichImage.GetRandomImageOfPerson(person, requestId)
+	case "PERSON":
+		randomPersonImageErr := immichImage.GetRandomImageOfPerson(imagePick.ID, requestId)
 		if randomPersonImageErr != nil {
 			log.Error("err getting image of person", "err", randomPersonImageErr)
 			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting image of person", Message: "Is person ID correct?"}))
@@ -73,6 +84,7 @@ func NewImage(c echo.Context) error {
 			log.Error("err getting random image", "err", randomImageErr)
 			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting random image", Message: "Is Immich running? Are your config settings correct?"}))
 		}
+		break
 	}
 
 	imageGet := time.Now()
