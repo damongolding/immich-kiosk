@@ -82,12 +82,13 @@ func NewImage(c echo.Context) error {
 
 	kioskVersionHeader := c.Request().Header.Get("kiosk-version")
 	requestId := fmt.Sprintf("[%s]", c.Response().Header().Get(echo.HeaderXRequestID))
+	requestingRawImage := c.Request().URL.Query().Has("raw")
 
 	// create a copy of the global config to use with this instance
 	instanceConfig := baseConfig
 
-	// If kiosk version on client and server do not match refresh client
-	if KioskVersion != kioskVersionHeader {
+	// If kiosk version on client and server do not match refresh client. Pypass if requestingRawImage is set
+	if !requestingRawImage && KioskVersion != kioskVersionHeader {
 		c.Response().Header().Set("HX-Refresh", "true")
 		return c.String(http.StatusTemporaryRedirect, "")
 	}
@@ -139,7 +140,7 @@ func NewImage(c echo.Context) error {
 	log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
 
 	// if user wants the raw image data send it
-	if c.Request().URL.Query().Has("raw") {
+	if requestingRawImage {
 		return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
 	}
 
