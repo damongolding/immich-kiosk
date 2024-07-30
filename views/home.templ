@@ -27,7 +27,7 @@ templ spinner() {
 	/>
 }
 
-templ kioskCrossFade(showProgress bool, refresh int) {
+templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string) {
 	<div
 		id="kiosk"
 		hx-get="/image"
@@ -36,12 +36,13 @@ templ kioskCrossFade(showProgress bool, refresh int) {
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
 		}
+		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
 	>
 		@spinner()
 	</div>
 }
 
-templ kioskFade(showProgress bool, refresh int) {
+templ kioskFade(showProgress bool, refresh int, kioskVersion string) {
 	<div
 		id="kiosk"
 		hx-get="/image"
@@ -50,12 +51,13 @@ templ kioskFade(showProgress bool, refresh int) {
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
 		}
+		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
 	>
 		@spinner()
 	</div>
 }
 
-templ kioskNone(showProgress bool, refresh int) {
+templ kioskNone(showProgress bool, refresh int, kioskVersion string) {
 	<div
 		id="kiosk"
 		hx-get="/image"
@@ -64,6 +66,7 @@ templ kioskNone(showProgress bool, refresh int) {
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
 		}
+		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
 	>
 		@spinner()
 	</div>
@@ -71,6 +74,14 @@ templ kioskNone(showProgress bool, refresh int) {
 
 css animationDuration(duration int) {
 	animation-duration: { fmt.Sprintf("%ds", duration) };
+}
+
+templ kioskVersion(data any) {
+	@templ.JSONScript("kiosk-version", data)
+	<script>
+	    const kioskVersion = JSON.parse(document.getElementById('kiosk-version').textContent);
+		console.log(`\nImmich Kiosk version: %c${kioskVersion}`,  "color: white; font-weight:600; background-color:#1e83f7; padding:0.3rem 1rem; border-radius:4px;", "\n\n");
+	</script>
 }
 
 templ Home(data PageData) {
@@ -104,11 +115,11 @@ templ Home(data PageData) {
 		<body>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh)
+					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
 				case "fade":
-					@kioskFade(data.Config.ShowProgress, data.Config.Refresh)
+					@kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
 				default:
-					@kioskNone(data.Config.ShowProgress, data.Config.Refresh)
+					@kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
 			}
 			if data.Config.ShowProgress {
 				<div class="progress">
@@ -181,6 +192,7 @@ templ Home(data PageData) {
                 }
             });
             </script>
+			@kioskVersion(data.KioskVersion)
 		</body>
 	</html>
 }

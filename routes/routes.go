@@ -80,10 +80,17 @@ func NewImage(c echo.Context) error {
 		fmt.Println()
 	}
 
+	kioskVersionHeader := c.Request().Header.Get("kiosk-version")
 	requestId := fmt.Sprintf("[%s]", c.Response().Header().Get(echo.HeaderXRequestID))
 
 	// create a copy of the global config to use with this instance
 	instanceConfig := baseConfig
+
+	// If kiosk version on client and server do not match refresh client
+	if KioskVersion != kioskVersionHeader {
+		c.Response().Header().Set("HX-Refresh", "true")
+		return c.String(http.StatusTemporaryRedirect, "")
+	}
 
 	queries, err := utils.CombineQueries(c.Request().URL.Query(), c.Request().Referer())
 	if err != nil {
