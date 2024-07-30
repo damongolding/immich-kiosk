@@ -112,6 +112,12 @@ func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error
 // RandomItem returns a random item from given slice
 func RandomItem[T any](s []T) T {
 
+	var out T
+
+	if len(s) == 0 {
+		return out
+	}
+
 	rand.Shuffle(len(s), func(i, j int) {
 		s[i], s[j] = s[j], s[i]
 	})

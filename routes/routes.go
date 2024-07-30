@@ -14,6 +14,11 @@ var (
 	baseConfig    config.Config
 )
 
+type PersonOrAlbum struct {
+	Type string
+	ID   string
+}
+
 func init() {
 	err := baseConfig.Load()
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"math/rand/v2"
@@ -104,6 +105,24 @@ type ImmichAlbum struct {
 func NewImage(base config.Config) ImmichAsset {
 	baseConfig = base
 	return ImmichAsset{}
+}
+
+// IsOnWhitelist check to see if ID is on whitelist of album or person
+func (i *ImmichAsset) IsOnWhitelist() bool {
+
+	if i.ID == "" {
+		return true
+	}
+
+	if ok := slices.Contains(baseConfig.Album, i.ID); ok {
+		return ok
+	}
+
+	if ok := slices.Contains(baseConfig.Person, i.ID); ok {
+		return ok
+	}
+
+	return false
 }
 
 // immichApiCall bootstrap for immich api call

@@ -46,33 +46,32 @@ func NewImage(c echo.Context) error {
 
 	immichImage := immich.NewImage(baseConfig)
 
-	type ImagePick struct {
-		Type string
-		ID   string
-	}
-
-	var peopleAndAlbums []ImagePick
+	var peopleAndAlbums []immich.ImmichAsset
 
 	for _, people := range instanceConfig.Person {
-		peopleAndAlbums = append(peopleAndAlbums, ImagePick{Type: "PERSON", ID: people})
+		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "PERSON", ID: people})
 	}
 
 	for _, album := range instanceConfig.Album {
-		peopleAndAlbums = append(peopleAndAlbums, ImagePick{Type: "ALBUM", ID: album})
+		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
 	}
 
-	imagePick := utils.RandomItem(peopleAndAlbums)
+	pickedImage := utils.RandomItem(peopleAndAlbums)
 
-	switch imagePick.Type {
+	if !pickedImage.IsOnWhitelist() {
+		return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "ID is not allowed", Message: "Is ID on whitelist"}))
+	}
+
+	switch pickedImage.Type {
 	case "ALBUM":
-		randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(imagePick.ID, requestId)
+		randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(pickedImage.ID, requestId)
 		if randomAlbumImageErr != nil {
 			log.Error("err getting image from album", "err", randomAlbumImageErr)
 			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting image from album", Message: "Is album ID correct?"}))
 		}
 		break
 	case "PERSON":
-		randomPersonImageErr := immichImage.GetRandomImageOfPerson(imagePick.ID, requestId)
+		randomPersonImageErr := immichImage.GetRandomImageOfPerson(pickedImage.ID, requestId)
 		if randomPersonImageErr != nil {
 			log.Error("err getting image of person", "err", randomPersonImageErr)
 			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting image of person", Message: "Is person ID correct?"}))
