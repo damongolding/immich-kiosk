@@ -193,7 +193,7 @@ body {
     align-items: center;
     width: 100vw;
     height: 100vh;
-    background-color: #000;
+    background-color: #fff;
 }
 
 .error {
@@ -271,7 +271,7 @@ body {
     color: #fff;
     font-size: 3rem;
     padding: 5rem 5rem 1rem 1rem;
-    /* text-shadow: 0 0 20px black; */
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     background-color: rgba(0, 0, 0, 0.3);
     background: rgb(0, 0, 0);
 
@@ -288,20 +288,20 @@ body {
     background: radial-gradient(
         farthest-corner at 0px 100%,
         hsla(0, 0%, 0%, 0.6) 0%,
-        hsla(0, 0%, 0%, 0.54) 0.7%,
-        hsla(0, 0%, 0%, 0.481) 2.9%,
-        hsla(0, 0%, 0%, 0.423) 6.3%,
-        hsla(0, 0%, 0%, 0.367) 10.8%,
-        hsla(0, 0%, 0%, 0.312) 16.4%,
-        hsla(0, 0%, 0%, 0.261) 22.8%,
-        hsla(0, 0%, 0%, 0.213) 30%,
-        hsla(0, 0%, 0%, 0.168) 37.9%,
-        hsla(0, 0%, 0%, 0.127) 46.2%,
-        hsla(0, 0%, 0%, 0.092) 55%,
-        hsla(0, 0%, 0%, 0.061) 64%,
-        hsla(0, 0%, 0%, 0.036) 73.1%,
-        hsla(0, 0%, 0%, 0.017) 82.2%,
-        hsla(0, 0%, 0%, 0.005) 91.2%,
+        hsla(0, 0%, 0%, 0.488) 0.4%,
+        hsla(0, 0%, 0%, 0.391) 1.6%,
+        hsla(0, 0%, 0%, 0.307) 3.7%,
+        hsla(0, 0%, 0%, 0.237) 6.6%,
+        hsla(0, 0%, 0%, 0.178) 10.4%,
+        hsla(0, 0%, 0%, 0.13) 15%,
+        hsla(0, 0%, 0%, 0.091) 20.6%,
+        hsla(0, 0%, 0%, 0.061) 27.1%,
+        hsla(0, 0%, 0%, 0.038) 34.6%,
+        hsla(0, 0%, 0%, 0.022) 43%,
+        hsla(0, 0%, 0%, 0.011) 52.3%,
+        hsla(0, 0%, 0%, 0.005) 62.7%,
+        hsla(0, 0%, 0%, 0.001) 74.1%,
+        hsla(0, 0%, 0%, 0) 86.5%,
         hsla(0, 0%, 0%, 0) 100%
     );
 

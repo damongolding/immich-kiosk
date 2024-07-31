@@ -126,7 +126,7 @@ func NewImage(c echo.Context) error {
 		break
 	default:
 		randomImageErr := immichImage.GetRandomImage(requestId)
-		if randomImageErr != nil {
+		if randomImageErr == nil {
 			log.Error("err getting random image", "err", randomImageErr)
 			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting random image", Message: "Is Immich running? Are your config settings correct?"}))
 		}
