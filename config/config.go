@@ -10,7 +10,14 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"fmt"
 )
+
+type KioskSettings struct {
+	Cache bool `mapstructure:"cache"`
+	Age   int  `mapstructure:"age"`
+}
 
 type Config struct {
 	// ImmichApiKey Immich key to access assets
@@ -55,6 +62,9 @@ type Config struct {
 	ShowImageDate bool `mapstructure:"show_image_date"`
 	// ImageDateFormat format for image date
 	ImageDateFormat string `mapstructure:"image_date_format"`
+
+	// Kiosk
+	Kiosk KioskSettings `mapstructure:"kiosk"`
 }
 
 const (
@@ -106,6 +116,8 @@ func (c *Config) Load() error {
 	viper.SetDefault("show_image_date", false)
 	viper.SetDefault("image_date_format", "")
 
+	viper.SetDefault("kiosk.age", 12)
+
 	viper.AddConfigPath(".")
 	viper.SetConfigFile("config.yaml")
 
@@ -126,6 +138,9 @@ func (c *Config) Load() error {
 	config = c.checkUrlScheme(config)
 
 	*c = config
+
+	fmt.Println("config", config)
+	fmt.Println("age:", config.Kiosk.Age)
 
 	return nil
 }
