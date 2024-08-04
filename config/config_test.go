@@ -42,12 +42,18 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 	c := Config{
 		ImmichUrl:    originalUrl,
 		ImmichApiKey: originalApi,
+		Kiosk: KioskSettings{
+			Cache: false,
+		},
 	}
 
 	q := url.Values{}
 
 	q.Add("immich_url", "https://my-new-server.com")
 	q.Add("immich_api_key", "9999")
+
+	q.Add("kiosk.cache", "true")
+	q.Add("cache", "true")
 
 	c.ConfigWithOverrides(q)
 
@@ -57,6 +63,10 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 
 	if c.ImmichApiKey != originalApi {
 		t.Errorf("ImmichApiKey field was allowed to be changed: %s", c.ImmichUrl)
+	}
+
+	if c.Kiosk.Cache {
+		t.Errorf("Kiosk cache field was allowed to be changed: %v", c.Kiosk.Cache)
 	}
 }
 
