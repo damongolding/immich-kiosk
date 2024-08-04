@@ -106,6 +106,12 @@ func NewImage(base config.Config) ImmichAsset {
 	return ImmichAsset{}
 }
 
+func immichApiCallCache(f func(string) ([]byte, error)) func(string) ([]byte, error) {
+	return func(apiUrl string) ([]byte, error) {
+		return f(apiUrl)
+	}
+}
+
 // immichApiCall bootstrap for immich api call
 func (i *ImmichAsset) immichApiCall(apiUrl string) ([]byte, error) {
 
