@@ -132,40 +132,40 @@ func NewImage(c echo.Context) error {
 		}
 	}
 
-	imageGet := time.Now()
-	imgBytes, err := immichImage.GetImagePreview()
+	timedGetImagePreview := utils.TimeTrackDecorator(immichImage.GetImagePreview, requestId).(func() ([]byte, error))
+	imgBytes, err := timedGetImagePreview()
 	if err != nil {
 		return err
 	}
-	log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
 
 	// if user wants the raw image data send it
 	if requestingRawImage {
 		return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
 	}
 
-	imageConvertTime := time.Now()
-	img, err := utils.ImageToBase64(imgBytes)
+	timedImageConvertTime := utils.TimeTrackDecorator(utils.ImageToBase64, requestId).(func([]byte) (string, error))
+	img, err := timedImageConvertTime(imgBytes)
 	if err != nil {
 		return err
 	}
-	log.Debug(requestId, "Converted image in", time.Since(imageConvertTime).Seconds())
 
 	var imgBlur string
 
 	if instanceConfig.BackgroundBlur && strings.ToLower(instanceConfig.ImageFit) != "cover" {
-		imageBlurTime := time.Now()
-		imgBlurBytes, err := utils.BlurImage(imgBytes)
+		timedBlurImage := utils.TimeTrackDecorator(utils.BlurImage, requestId).(func([]byte) ([]byte, error))
+		imgBlurBytes, err := timedBlurImage(imgBytes)
 		if err != nil {
 			log.Error("err blurring image", "err", err)
 			return err
 		}
-		imgBlur, err = utils.ImageToBase64(imgBlurBytes)
+
+		timedImageConvertTime := utils.TimeTrackDecorator(utils.ImageToBase64, requestId).(func([]byte) (string, error))
+		imgBlur, err = timedImageConvertTime(imgBlurBytes)
 		if err != nil {
 			log.Error("err converting blurred image to base", "err", err)
 			return err
 		}
-		log.Debug(requestId, "Blurred image in", time.Since(imageBlurTime).Seconds())
+
 	}
 
 	// Image METADATA

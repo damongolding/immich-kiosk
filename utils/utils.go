@@ -10,6 +10,12 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
+	"os"
+	"reflect"
+	"runtime"
+	"runtime/pprof"
+	"strings"
+	"time"
 
 	_ "image/gif"
 	_ "image/jpeg"
@@ -117,4 +123,50 @@ func RandomItem[T any](s []T) T {
 	})
 
 	return s[0]
+}
+
+// Function to get the name of a function
+func getFunctionName(i interface{}) string {
+	fullFuncName := runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+	parts := strings.Split(fullFuncName, ".")
+	return strings.Replace(parts[len(parts)-1], "-fm", "", -1)
+}
+
+// Decorator function to measure execution time
+func TimeTrackDecorator(fn interface{}, requestId string) interface{} {
+	originalFunc := reflect.ValueOf(fn)
+	if originalFunc.Kind() != reflect.Func {
+		panic("Decorator can only be applied to functions")
+	}
+
+	originalType := originalFunc.Type()
+	funcName := getFunctionName(fn)
+
+	decoratedFunc := reflect.MakeFunc(originalType, func(args []reflect.Value) []reflect.Value {
+		log.Debug("Profiling: " + funcName + "()")
+		cpuprofile1 := "./pprof/cpu-" + funcName + ".pprof"
+		f, err := os.Create(cpuprofile1)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "could not create CPU profile: %v\n", err)
+			panic(err)
+		}
+		if err := pprof.StartCPUProfile(f); err != nil {
+			fmt.Fprintf(os.Stderr, "could not start CPU profile: %v\n", err)
+			panic(err)
+		}
+
+		start := time.Now()
+
+		// Call the original function
+		results := originalFunc.Call(args)
+
+		pprof.StopCPUProfile()
+
+		elapsed := time.Since(start)
+		log.Debug(requestId+" "+funcName, "done in", elapsed.Seconds())
+
+		return results
+	})
+
+	return decoratedFunc.Interface()
 }

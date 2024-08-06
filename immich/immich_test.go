@@ -50,5 +50,4 @@ func TestGetRandomImage(t *testing.T) {
 	if err.Error() != "No images found" && i.Retries != 10 {
 		t.Error(err)
 	}
-
 }
