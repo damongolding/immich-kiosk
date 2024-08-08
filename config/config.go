@@ -135,6 +135,8 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 
 	configWithOverrides := c
 
+	// TODO check for person or album in quries and empty baseconfig slice if found
+
 	v := reflect.ValueOf(configWithOverrides).Elem()
 
 	// Loop through the queries and update struct fields
