@@ -49,11 +49,13 @@ func NewImage(c echo.Context) error {
 	var peopleAndAlbums []immich.ImmichAsset
 
 	for _, people := range instanceConfig.Person {
+  // TODO whitelisting goes here
 		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "PERSON", ID: people})
 	}
 
 	for _, album := range instanceConfig.Album {
-		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
+		// TODO whitelisting goes here
+  peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
 	}
 
 	pickedImage := utils.RandomItem(peopleAndAlbums)
