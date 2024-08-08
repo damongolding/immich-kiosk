@@ -157,4 +157,19 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 	if len(configWithoutBase.Album) != 2 {
 		t.Errorf("Albums were not added: %s", configWithoutBase.Album)
 	}
+
+	// configWithBaseOnly
+	configWithBaseOnly := Config{
+		Album: []string{"BASE_ALUMB_1", "BASE_ALUMB_2"},
+	}
+
+	q = url.Values{}
+
+	configWithBaseOnly.ConfigWithOverrides(q)
+
+	t.Log("album", configWithBaseOnly.Album)
+
+	if len(configWithBaseOnly.Album) != 2 {
+		t.Errorf("Base albums did not persist: %s", configWithBaseOnly.Album)
+	}
 }
