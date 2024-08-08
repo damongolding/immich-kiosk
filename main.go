@@ -12,6 +12,9 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/damongolding/immich-kiosk/routes"
+
+	"net/http"
+	_ "net/http/pprof"
 )
 
 // version current build version number
@@ -36,6 +39,10 @@ func init() {
 }
 
 func main() {
+
+	go func() {
+		fmt.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
 
 	fmt.Println(smallBanner)
 	fmt.Print("Version ", version, "\n\n")
