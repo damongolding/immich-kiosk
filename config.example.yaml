@@ -1,6 +1,8 @@
 immich_api_key: ""
 immich_url: ""
 
+password: "1234" # omit or leave blank for passwordless access
+
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
 
 show_time: true # true or false

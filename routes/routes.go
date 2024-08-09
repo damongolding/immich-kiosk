@@ -59,6 +59,15 @@ func Home(c echo.Context) error {
 		log.Error("err combining queries", "err", err)
 	}
 
+	err = instanceConfig.CheckPassword(queries)
+	if err != nil {
+		return Render(
+			c,
+			http.StatusUnauthorized,
+			views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
+		)
+	}
+
 	if len(queries) > 0 {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
@@ -96,6 +105,15 @@ func NewImage(c echo.Context) error {
 	queries, err := utils.CombineQueries(c.Request().URL.Query(), c.Request().Referer())
 	if err != nil {
 		log.Error("err combining queries", "err", err)
+	}
+
+	err = instanceConfig.CheckPassword(queries)
+	if err != nil {
+		return Render(
+			c,
+			http.StatusUnauthorized,
+			views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
+		)
 	}
 
 	if len(queries) > 0 {
@@ -221,6 +239,15 @@ func Clock(c echo.Context) error {
 	queries, err := utils.CombineQueries(c.Request().URL.Query(), c.Request().Referer())
 	if err != nil {
 		log.Error("err combining queries", "err", err)
+	}
+
+	err = instanceConfig.CheckPassword(queries)
+	if err != nil {
+		return Render(
+			c,
+			http.StatusUnauthorized,
+			views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
+		)
 	}
 
 	if len(queries) > 0 {
