@@ -64,7 +64,7 @@ func Home(c echo.Context) error {
 		if err != nil {
 			return Render(
 				c,
-				http.StatusOK,
+				http.StatusUnauthorized,
 				views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
 			)
 		}
@@ -110,7 +110,7 @@ func NewImage(c echo.Context) error {
 		if err != nil {
 			return Render(
 				c,
-				http.StatusOK,
+				http.StatusUnauthorized,
 				views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
 			)
 		}
@@ -242,7 +242,7 @@ func Clock(c echo.Context) error {
 		if err != nil {
 			return Render(
 				c,
-				http.StatusOK,
+				http.StatusUnauthorized,
 				views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
 			)
 		}
