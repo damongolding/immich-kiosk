@@ -138,25 +138,11 @@ func (c *Config) Load() error {
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
-func (c *Config) ConfigWithOverrides(queries url.Values) (Config, error) {
+func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 
 	configWithOverrides := c
 
 	v := reflect.ValueOf(configWithOverrides).Elem()
-
-	if c.Password != "" {
-		log.Print("Configured password:", c.Password)
-
-		password := queries.Get("password")
-		if password == "" {
-			log.Error("tried to access without password")
-			return Config{}, errors.New("Password not set")
-		}
-		if c.Password != password {
-			log.Error("tried to access with incorrect password")
-			return Config{}, errors.New("Incorrect password")
-		}
-	}
 
 	// Loop through the queries and update struct fields
 	for key, values := range queries {
@@ -220,5 +206,23 @@ func (c *Config) ConfigWithOverrides(queries url.Values) (Config, error) {
 		}
 	}
 
-	return *configWithOverrides, nil
+	return *configWithOverrides
+}
+
+// CheckPassword checks if password is set and matches, only if a password is set in the config
+func (c *Config) CheckPassword(queries url.Values) error {
+	if c.Password != "" {
+		log.Print("Configured password:", c.Password)
+
+		password := queries.Get("password")
+		if password == "" {
+			log.Error("tried to access without password")
+			return errors.New("Password not set")
+		}
+		if c.Password != password {
+			log.Error("tried to access with incorrect password")
+			return errors.New("Incorrect password")
+		}
+	}
+	return nil
 }

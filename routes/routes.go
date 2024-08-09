@@ -59,15 +59,17 @@ func Home(c echo.Context) error {
 		log.Error("err combining queries", "err", err)
 	}
 
+	err = instanceConfig.CheckPassword(queries)
+	if err != nil {
+		return Render(
+			c,
+			http.StatusUnauthorized,
+			views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
+		)
+	}
+
 	if len(queries) > 0 {
-		instanceConfig, err = instanceConfig.ConfigWithOverrides(queries)
-		if err != nil {
-			return Render(
-				c,
-				http.StatusUnauthorized,
-				views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
-			)
-		}
+		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
 	log.Debug(requestId, "path", c.Request().URL.String(), "instanceConfig", instanceConfig)
@@ -105,15 +107,17 @@ func NewImage(c echo.Context) error {
 		log.Error("err combining queries", "err", err)
 	}
 
+	err = instanceConfig.CheckPassword(queries)
+	if err != nil {
+		return Render(
+			c,
+			http.StatusUnauthorized,
+			views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
+		)
+	}
+
 	if len(queries) > 0 {
-		instanceConfig, err = instanceConfig.ConfigWithOverrides(queries)
-		if err != nil {
-			return Render(
-				c,
-				http.StatusUnauthorized,
-				views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
-			)
-		}
+		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
 	log.Debug(requestId, "path", c.Request().URL.String(), "config", instanceConfig)
@@ -237,15 +241,17 @@ func Clock(c echo.Context) error {
 		log.Error("err combining queries", "err", err)
 	}
 
+	err = instanceConfig.CheckPassword(queries)
+	if err != nil {
+		return Render(
+			c,
+			http.StatusUnauthorized,
+			views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
+		)
+	}
+
 	if len(queries) > 0 {
-		instanceConfig, err = instanceConfig.ConfigWithOverrides(queries)
-		if err != nil {
-			return Render(
-				c,
-				http.StatusUnauthorized,
-				views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
-			)
-		}
+		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
 	log.Debug(requestId, "path", c.Request().URL.String(), "config", instanceConfig)

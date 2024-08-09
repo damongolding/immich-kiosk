@@ -73,7 +73,7 @@ func TestPassword(t *testing.T) {
 
 	q.Add("Password", "1234")
 
-	_, err := c.ConfigWithOverrides(q)
+	err := c.CheckPassword(q)
 
 	if c.Password != originalPassword {
 		t.Errorf("Password field was allowed to be changed: %s", c.Password)
