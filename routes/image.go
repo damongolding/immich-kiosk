@@ -49,20 +49,16 @@ func NewImage(c echo.Context) error {
 	var peopleAndAlbums []immich.ImmichAsset
 
 	for _, people := range instanceConfig.Person {
-  // TODO whitelisting goes here
+		// TODO whitelisting goes here
 		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "PERSON", ID: people})
 	}
 
 	for _, album := range instanceConfig.Album {
 		// TODO whitelisting goes here
-  peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
+		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
 	}
 
 	pickedImage := utils.RandomItem(peopleAndAlbums)
-
-	if !pickedImage.IsOnWhitelist() {
-		return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "ID is not allowed", Message: "Is ID on whitelist"}))
-	}
 
 	switch pickedImage.Type {
 	case "ALBUM":
