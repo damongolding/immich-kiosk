@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -17,6 +18,9 @@ type Config struct {
 	ImmichApiKey string `mapstructure:"immich_api_key"`
 	// ImmichUrl Immuch base url
 	ImmichUrl string `mapstructure:"immich_url"`
+
+	// Password string for authenticating client
+	Password string `mapstructure:"password"`
 
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
 	DisableUi bool
@@ -64,6 +68,8 @@ const (
 
 // checkUrlScheme checks given url has correct scheme and adds http:// if non if found
 func (c *Config) checkUrlScheme(config Config) Config {
+
+	log.Print("Immich URL", config.ImmichUrl)
 	if config.ImmichUrl == "" || config.ImmichApiKey == "" {
 		log.Fatal("Either Immich Url or Immich Api Key is missing", "ImmichUrl", config.ImmichUrl, "ImmichApiKey", config.ImmichApiKey)
 	}
@@ -89,6 +95,7 @@ func (c *Config) Load() error {
 	// Defaults
 	viper.SetDefault("immich_api_key", "")
 	viper.SetDefault("immich_url", "")
+	viper.SetDefault("password", "")
 	viper.SetDefault("disable_ui", false)
 	viper.SetDefault("show_time", false)
 	viper.SetDefault("time_format", "")
@@ -131,11 +138,25 @@ func (c *Config) Load() error {
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
-func (c *Config) ConfigWithOverrides(queries url.Values) Config {
+func (c *Config) ConfigWithOverrides(queries url.Values) (Config, error) {
 
 	configWithOverrides := c
 
 	v := reflect.ValueOf(configWithOverrides).Elem()
+
+	if c.Password != "" {
+		log.Print("Configured password:", c.Password)
+
+		password := queries.Get("password")
+		if password == "" {
+			log.Error("tried to access without password")
+			return Config{}, errors.New("Password not set")
+		}
+		if c.Password != password {
+			log.Error("tried to access with incorrect password")
+			return Config{}, errors.New("Incorrect password")
+		}
+	}
 
 	// Loop through the queries and update struct fields
 	for key, values := range queries {
@@ -199,5 +220,5 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 		}
 	}
 
-	return *configWithOverrides
+	return *configWithOverrides, nil
 }

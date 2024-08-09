@@ -60,7 +60,14 @@ func Home(c echo.Context) error {
 	}
 
 	if len(queries) > 0 {
-		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
+		instanceConfig, err = instanceConfig.ConfigWithOverrides(queries)
+		if err != nil {
+			return Render(
+				c,
+				http.StatusOK,
+				views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
+			)
+		}
 	}
 
 	log.Debug(requestId, "path", c.Request().URL.String(), "instanceConfig", instanceConfig)
@@ -99,7 +106,14 @@ func NewImage(c echo.Context) error {
 	}
 
 	if len(queries) > 0 {
-		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
+		instanceConfig, err = instanceConfig.ConfigWithOverrides(queries)
+		if err != nil {
+			return Render(
+				c,
+				http.StatusOK,
+				views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
+			)
+		}
 	}
 
 	log.Debug(requestId, "path", c.Request().URL.String(), "config", instanceConfig)
@@ -224,7 +238,14 @@ func Clock(c echo.Context) error {
 	}
 
 	if len(queries) > 0 {
-		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
+		instanceConfig, err = instanceConfig.ConfigWithOverrides(queries)
+		if err != nil {
+			return Render(
+				c,
+				http.StatusOK,
+				views.Error(views.ErrorData{Title: "Error", Message: err.Error()}),
+			)
+		}
 	}
 
 	log.Debug(requestId, "path", c.Request().URL.String(), "config", instanceConfig)

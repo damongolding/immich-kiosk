@@ -60,6 +60,30 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 	}
 }
 
+// TestPassword testing whether AuthCode is immutable and whether it is checked
+func TestPassword(t *testing.T) {
+
+	originalPassword := "123456"
+
+	c := Config{
+		Password: originalPassword,
+	}
+
+	q := url.Values{}
+
+	q.Add("Password", "1234")
+
+	_, err := c.ConfigWithOverrides(q)
+
+	if c.Password != originalPassword {
+		t.Errorf("Password field was allowed to be changed: %s", c.Password)
+	}
+
+	if err == nil {
+		t.Errorf("Password was not checked")
+	}
+}
+
 func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 
 	c := Config{}
