@@ -3,6 +3,7 @@ package views
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/config"
+	"net/url"
 	"strings"
 )
 
@@ -15,6 +16,8 @@ type PageData struct {
 	ImageBlurData string
 	// Date image date
 	ImageDate string
+	// URL queries
+	Queries url.Values
 	// instance config
 	config.Config
 }
@@ -143,11 +146,7 @@ templ Home(data PageData) {
 			if !data.Config.DisableUi && data.Config.ShowTime {
 				<div
 					id="clock"
-					if data.Password != "" {
-						hx-get={ fmt.Sprintf("/clock?password=%s", data.Config.Password) }
-					} else {
-						hx-get="/clock"
-					}
+					hx-get="/clock"
 					hx-trigger="load, every 30s"
 					hx-swap="innerHTML"
 				></div>
