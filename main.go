@@ -58,16 +58,7 @@ func main() {
 	// Middleware
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
-	// e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
-	// 	Root:       "public/assets",
-	// 	Filesystem: http.FS(public),
-	// }))
-	// e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
-	// 	Skipper:    middleware.Skipper,
-	// 	Root:       "/assets/css/style.*.css",
-	// 	Filesystem: http.FS(public),
-	// }))
-	if conf.Password != "" {
+	if conf.Kiosk.Password != "" {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 			Skipper: func(c echo.Context) bool {
 				if strings.HasPrefix(c.Request().URL.String(), "/assets") {
@@ -78,7 +69,7 @@ func main() {
 			KeyLookup: "query:password",
 			Validator: func(key string, c echo.Context) (bool, error) {
 				log.Print("ASS", "url", c.Request().URL.String())
-				return key == conf.Password, nil
+				return key == conf.Kiosk.Password, nil
 			},
 			ErrorHandler: func(err error, c echo.Context) error {
 				return c.String(http.StatusUnauthorized, "Unauthorized")

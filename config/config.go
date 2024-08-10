@@ -12,13 +12,16 @@ import (
 	"golang.org/x/text/language"
 )
 
+type KioskSettings struct {
+	Cache    bool   `mapstructure:"cache"`
+	Password string `mapstructure:"password"`
+}
+
 type Config struct {
 	// ImmichApiKey Immich key to access assets
 	ImmichApiKey string `mapstructure:"immich_api_key"`
 	// ImmichUrl Immuch base url
 	ImmichUrl string `mapstructure:"immich_url"`
-
-	Password string `mapstructure:"password"`
 
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
 	DisableUi bool
@@ -57,6 +60,9 @@ type Config struct {
 	ShowImageDate bool `mapstructure:"show_image_date"`
 	// ImageDateFormat format for image date
 	ImageDateFormat string `mapstructure:"image_date_format"`
+
+	// Kiosk
+	Kiosk KioskSettings `mapstructure:"kiosk"`
 }
 
 const (
@@ -108,6 +114,8 @@ func (c *Config) Load() error {
 	viper.SetDefault("image_time_format", "")
 	viper.SetDefault("show_image_date", false)
 	viper.SetDefault("image_date_format", "")
+	viper.SetDefault("kiosk.cache", true)
+	viper.SetDefault("kiosk.password", "")
 
 	viper.AddConfigPath(".")
 	viper.SetConfigFile("config.yaml")
