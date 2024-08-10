@@ -4,7 +4,6 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -78,27 +77,8 @@ func main() {
 			},
 			KeyLookup: "query:password",
 			Validator: func(key string, c echo.Context) (bool, error) {
-
 				log.Print("ASS", "url", c.Request().URL.String())
-
-				if key == conf.Password {
-					log.Debug("password is", "password", key)
-					return true, nil
-				}
-
-				u, err := url.Parse(c.Request().Referer())
-				if err != nil {
-					log.Error("password middleware", "err", err)
-					return false, err
-				}
-
-				log.Info("pass middleware", "u", u)
-
-				if u.Get("password") == conf.Password {
-					return true, nil
-				}
-
-				return false, nil
+				return key == conf.Password, nil
 			},
 			ErrorHandler: func(err error, c echo.Context) error {
 				return c.String(http.StatusUnauthorized, "Unauthorized")
