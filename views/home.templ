@@ -30,6 +30,7 @@ templ spinner() {
 templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, password string) {
 	<div
 		id="kiosk"
+		// TODO replace this if with hx-include
 		if password != "" {
 			hx-get={ fmt.Sprintf("/image?password=%s", password) }
 		} else {
@@ -49,6 +50,7 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, passwo
 templ kioskFade(showProgress bool, refresh int, kioskVersion string, password string) {
 	<div
 		id="kiosk"
+		// TODO replace this if with hx-include
 		if password != "" {
 			hx-get={ fmt.Sprintf("/image?password=%s", password) }
 		} else {
@@ -68,6 +70,7 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string, password st
 templ kioskNone(showProgress bool, refresh int, kioskVersion string, password string) {
 	<div
 		id="kiosk"
+		// TODO replace this if with hx-include
 		if password != "" {
 			hx-get={ fmt.Sprintf("/image?password=%s", password) }
 		} else {
@@ -143,6 +146,7 @@ templ Home(data PageData) {
 			if !data.Config.DisableUi && data.Config.ShowTime {
 				<div
 					id="clock"
+					// TODO replace this if with hx-include
 					if data.Password != "" {
 						hx-get={ fmt.Sprintf("/clock?password=%s", data.Config.Password) }
 					} else {
@@ -152,6 +156,9 @@ templ Home(data PageData) {
 					hx-swap="innerHTML"
 				></div>
 			}
+
+			// TODO add hidden inputs with page quires here
+
 			<div id="offline">
 				<svg
 					width="48"
