@@ -143,11 +143,13 @@ templ Home(data PageData) {
 					hx-swap="innerHTML"
 				></div>
 			}
-			for key, values := range data.Queries {
-				for _, value := range values {
-					<input class="kiosk-param" type="hidden" name={ key } value={ value }/>
+			<form>
+				for key, values := range data.Queries {
+					for _, value := range values {
+						<input class="kiosk-param" type="hidden" name={ key } value={ value }/>
+					}
 				}
-			}
+			</form>
 			<div id="offline">
 				<svg
 					width="48"
