@@ -3,14 +3,17 @@ package main
 import (
 	"embed"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
+	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/routes"
 )
 
@@ -37,6 +40,13 @@ func init() {
 
 func main() {
 
+	var conf config.Config
+
+	err := conf.Load()
+	if err != nil {
+		log.Fatal("oops", "err", err)
+	}
+
 	fmt.Println(smallBanner)
 	fmt.Print("Version ", version, "\n\n")
 
@@ -45,8 +55,36 @@ func main() {
 	// hide echos default banner
 	e.HideBanner = true
 
+	// Middleware
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
+	// e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+	// 	Root:       "public/assets",
+	// 	Filesystem: http.FS(public),
+	// }))
+	// e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+	// 	Skipper:    middleware.Skipper,
+	// 	Root:       "/assets/css/style.*.css",
+	// 	Filesystem: http.FS(public),
+	// }))
+	if conf.Password != "" {
+		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
+			Skipper: func(c echo.Context) bool {
+				if strings.HasPrefix(c.Request().URL.String(), "/assets") {
+					return true
+				}
+				return false
+			},
+			KeyLookup: "query:password",
+			Validator: func(key string, c echo.Context) (bool, error) {
+				log.Debug("password", key)
+				return key == conf.Password, nil
+			},
+			ErrorHandler: func(err error, c echo.Context) error {
+				return c.String(http.StatusUnauthorized, "Unauthorized")
+			},
+		}))
+	}
 
 	// CSS cache busting
 	e.FileFS("/assets/css/style.*.css", "public/assets/css/style.css", public)
@@ -60,7 +98,7 @@ func main() {
 
 	e.GET("/clock", routes.Clock)
 
-	err := e.Start(":3000")
+	err = e.Start(":3000")
 	if err != nil {
 		log.Fatal(err)
 	}

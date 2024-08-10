@@ -18,6 +18,8 @@ type Config struct {
 	// ImmichUrl Immuch base url
 	ImmichUrl string `mapstructure:"immich_url"`
 
+	Password string `mapstructure:"password"`
+
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
 	DisableUi bool
 
@@ -89,6 +91,7 @@ func (c *Config) Load() error {
 	// Defaults
 	viper.SetDefault("immich_api_key", "")
 	viper.SetDefault("immich_url", "")
+	viper.SetDefault("password", "")
 	viper.SetDefault("disable_ui", false)
 	viper.SetDefault("show_time", false)
 	viper.SetDefault("time_format", "")

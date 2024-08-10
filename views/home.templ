@@ -27,10 +27,14 @@ templ spinner() {
 	/>
 }
 
-templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string) {
+templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, password string) {
 	<div
 		id="kiosk"
-		hx-get="/image"
+		if password != "" {
+			hx-get={ fmt.Sprintf("/image?password=%s", password) }
+		} else {
+			hx-get="/image"
+		}
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="beforeend settle:3s"
 		if showProgress {
@@ -42,10 +46,14 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string) {
 	</div>
 }
 
-templ kioskFade(showProgress bool, refresh int, kioskVersion string) {
+templ kioskFade(showProgress bool, refresh int, kioskVersion string, password string) {
 	<div
 		id="kiosk"
-		hx-get="/image"
+		if password != "" {
+			hx-get={ fmt.Sprintf("/image?password=%s", password) }
+		} else {
+			hx-get="/image"
+		}
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="innerHTML swap:3s"
 		if showProgress {
@@ -57,10 +65,14 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string) {
 	</div>
 }
 
-templ kioskNone(showProgress bool, refresh int, kioskVersion string) {
+templ kioskNone(showProgress bool, refresh int, kioskVersion string, password string) {
 	<div
 		id="kiosk"
-		hx-get="/image"
+		if password != "" {
+			hx-get={ fmt.Sprintf("/image?password=%s", password) }
+		} else {
+			hx-get="/image"
+		}
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="innerHTML"
 		if showProgress {
@@ -115,11 +127,11 @@ templ Home(data PageData) {
 		<body>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
+					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Password)
 				case "fade":
-					@kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
+					@kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Password)
 				default:
-					@kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
+					@kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Password)
 			}
 			if data.Config.ShowProgress {
 				<div class="progress">
@@ -131,7 +143,11 @@ templ Home(data PageData) {
 			if !data.Config.DisableUi && data.Config.ShowTime {
 				<div
 					id="clock"
-					hx-get="/clock"
+					if data.Password != "" {
+						hx-get={ fmt.Sprintf("/clock?password=%s", data.Config.Password) }
+					} else {
+						hx-get="/clock"
+					}
 					hx-trigger="load, every 30s"
 					hx-swap="innerHTML"
 				></div>
