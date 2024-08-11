@@ -61,15 +61,15 @@ func main() {
 	if conf.Kiosk.Password != "" {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 			Skipper: func(c echo.Context) bool {
+				// skip auth for assets
 				if strings.HasPrefix(c.Request().URL.String(), "/assets") {
 					return true
 				}
 				return false
 			},
 			KeyLookup: "query:password",
-			Validator: func(key string, c echo.Context) (bool, error) {
-				log.Print("ASS", "url", c.Request().URL.String())
-				return key == conf.Kiosk.Password, nil
+			Validator: func(queryPassword string, c echo.Context) (bool, error) {
+				return queryPassword == conf.Kiosk.Password, nil
 			},
 			ErrorHandler: func(err error, c echo.Context) error {
 				return c.String(http.StatusUnauthorized, "Unauthorized")
