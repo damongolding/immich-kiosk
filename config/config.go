@@ -13,7 +13,10 @@ import (
 )
 
 type KioskSettings struct {
-	Cache    bool   `mapstructure:"cache"`
+	// Cache enable/disable api call caching
+	Cache bool `mapstructure:"cache"`
+
+	// Password the password used to add authentication to the frontend
 	Password string `mapstructure:"password"`
 }
 
@@ -37,6 +40,7 @@ type Config struct {
 
 	// Refresh time between fetching new image
 	Refresh int `mapstructure:"refresh"`
+
 	// Person ID of person to display
 	Person []string `mapstructure:"person"`
 	// Album ID of album to display
@@ -44,7 +48,6 @@ type Config struct {
 
 	// ImageFit the fit style for main image
 	ImageFit string `mapstructure:"image_fit"`
-
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
@@ -61,7 +64,7 @@ type Config struct {
 	// ImageDateFormat format for image date
 	ImageDateFormat string `mapstructure:"image_date_format"`
 
-	// Kiosk
+	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
 }
 
