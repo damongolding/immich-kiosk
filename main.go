@@ -44,7 +44,7 @@ func main() {
 
 	err := conf.Load()
 	if err != nil {
-		log.Fatal("oops", "err", err)
+		log.Fatal("Failed to load config", "err", err)
 	}
 
 	fmt.Println(smallBanner)
