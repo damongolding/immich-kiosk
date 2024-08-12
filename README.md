@@ -170,7 +170,7 @@ kiosk:
 
 | **yaml**          | **ENV**                 | **Value**                  | **Description**                                                                            |
 |-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
-| password          | KIOSK_PASSWORD          | string                     | the password |
+| password          | KIOSK_PASSWORD          | string                     | If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
 
 
 ------
