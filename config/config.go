@@ -13,7 +13,11 @@ import (
 )
 
 type KioskSettings struct {
+	// Cache enable/disable api call caching
 	Cache bool `mapstructure:"cache"`
+
+	// Password the password used to add authentication to the frontend
+	Password string `mapstructure:"password"`
 }
 
 type Config struct {
@@ -36,6 +40,7 @@ type Config struct {
 
 	// Refresh time between fetching new image
 	Refresh int `mapstructure:"refresh"`
+
 	// Person ID of person to display
 	Person []string `mapstructure:"person"`
 	// Album ID of album to display
@@ -43,7 +48,6 @@ type Config struct {
 
 	// ImageFit the fit style for main image
 	ImageFit string `mapstructure:"image_fit"`
-
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
@@ -60,7 +64,7 @@ type Config struct {
 	// ImageDateFormat format for image date
 	ImageDateFormat string `mapstructure:"image_date_format"`
 
-	// Kiosk
+	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
 }
 
@@ -96,6 +100,7 @@ func (c *Config) Load() error {
 	// Defaults
 	viper.SetDefault("immich_api_key", "")
 	viper.SetDefault("immich_url", "")
+	viper.SetDefault("password", "")
 	viper.SetDefault("disable_ui", false)
 	viper.SetDefault("show_time", false)
 	viper.SetDefault("time_format", "")
@@ -112,6 +117,11 @@ func (c *Config) Load() error {
 	viper.SetDefault("image_time_format", "")
 	viper.SetDefault("show_image_date", false)
 	viper.SetDefault("image_date_format", "")
+	viper.SetDefault("kiosk.cache", true)
+	viper.SetDefault("kiosk.password", "")
+
+	viper.BindEnv("kiosk.password", "KIOSK_PASSWORD")
+	viper.BindEnv("kiosk.cache", "KIOSK_CACHE")
 
 	viper.SetDefault("kiosk.cache", true)
 

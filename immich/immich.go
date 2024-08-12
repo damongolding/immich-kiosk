@@ -210,7 +210,8 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 			log.Error("couldn't read error", "body", string(body))
 			return err
 		}
-		return fmt.Errorf(immichError.Error, immichError.Message)
+		return fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
+
 	}
 
 	if len(immichAssets) == 0 {

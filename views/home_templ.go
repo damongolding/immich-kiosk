@@ -11,6 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/config"
+	"net/url"
 	"strings"
 )
 
@@ -23,6 +24,8 @@ type PageData struct {
 	ImageBlurData string
 	// Date image date
 	ImageDate string
+	// URL queries
+	Queries url.Values
 	// instance config
 	config.Config
 }
@@ -71,14 +74,14 @@ func kioskCrossFade(showProgress bool, refresh int, kioskVersion string) templ.C
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-get=\"/image\" hx-trigger=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-get=\"/image\" hx-include=\".kiosk-param\" hx-trigger=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("load, every %ds", refresh))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 34, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 38, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -101,7 +104,7 @@ func kioskCrossFade(showProgress bool, refresh int, kioskVersion string) templ.C
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 39, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 43, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -141,14 +144,14 @@ func kioskFade(showProgress bool, refresh int, kioskVersion string) templ.Compon
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-get=\"/image\" hx-trigger=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-get=\"/image\" hx-include=\".kiosk-param\" hx-trigger=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("load, every %ds", refresh))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 49, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 54, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -171,7 +174,7 @@ func kioskFade(showProgress bool, refresh int, kioskVersion string) templ.Compon
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 54, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 59, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -211,14 +214,14 @@ func kioskNone(showProgress bool, refresh int, kioskVersion string) templ.Compon
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-get=\"/image\" hx-trigger=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-get=\"/image\" hx-include=\".kiosk-param\" hx-trigger=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("load, every %ds", refresh))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 64, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 70, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -241,7 +244,7 @@ func kioskNone(showProgress bool, refresh int, kioskVersion string) templ.Compon
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 69, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 75, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -328,7 +331,7 @@ func Home(data PageData) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(data.KioskVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 93, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 99, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -341,7 +344,7 @@ func Home(data PageData) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/css/style.%s.css", data.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 95, Col: 110}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 101, Col: 110}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -397,12 +400,50 @@ func Home(data PageData) templ.Component {
 			}
 		}
 		if !data.Config.DisableUi && data.Config.ShowTime {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"clock\" hx-get=\"/clock\" hx-trigger=\"load, every 30s\" hx-swap=\"innerHTML\"></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"clock\" hx-get=\"/clock\" hx-include=\".kiosk-param\" hx-trigger=\"load, every 30s\" hx-swap=\"innerHTML\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"offline\"><svg width=\"48\" height=\"48\" viewBox=\"0 0 48 48\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"48\" height=\"48\"></rect> <path opacity=\"0.7\" d=\"M11.5408 21.0109C14.7757 17.9078 19.164 16 24.0023 16C28.8407 16 33.229 17.9078 36.4639 21.0109C37.064 21.5828 38.0111 21.5641 38.583 20.9688C39.155 20.3734 39.1362 19.4219 38.5408 18.85C34.7714 15.2266 29.6471 13 24.0023 13C18.3576 13 13.2333 15.2266 9.45917 18.8453C8.86375 19.4219 8.845 20.3687 9.41697 20.9688C9.98895 21.5688 10.9407 21.5875 11.5361 21.0109H11.5408ZM24.0023 23.5C26.6653 23.5 29.0939 24.4891 30.9504 26.125C31.574 26.6734 32.521 26.6125 33.0696 25.9938C33.6181 25.375 33.5571 24.4234 32.9383 23.875C30.5566 21.775 27.4248 20.5 24.0023 20.5C20.5799 20.5 17.4481 21.775 15.0711 23.875C14.4475 24.4234 14.3913 25.3703 14.9398 25.9938C15.4884 26.6172 16.4354 26.6734 17.0589 26.125C18.9108 24.4891 21.3394 23.5 24.007 23.5H24.0023ZM27.0029 31C27.0029 30.2044 26.6867 29.4413 26.124 28.8787C25.5613 28.3161 24.7981 28 24.0023 28C23.2066 28 22.4434 28.3161 21.8807 28.8787C21.3179 29.4413 21.0018 30.2044 21.0018 31C21.0018 31.7956 21.3179 32.5587 21.8807 33.1213C22.4434 33.6839 23.2066 34 24.0023 34C24.7981 34 25.5613 33.6839 26.124 33.1213C26.6867 32.5587 27.0029 31.7956 27.0029 31Z\" fill=\"white\"></path> <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M47 24C47 36.7025 36.7025 47 24 47C11.2975 47 1 36.7025 1 24C1 11.2975 11.2975 1 24 1C36.7025 1 47 11.2975 47 24ZM44 24C44 35.0457 35.0457 44 24 44C19.048 44 14.5163 42.2003 11.0234 39.2192L39.2192 11.0234C42.2003 14.5163 44 19.048 44 24ZM8.89305 37.107L37.107 8.89304C33.5968 5.84497 29.0139 4 24 4C12.9543 4 4 12.9543 4 24C4 29.0139 5.84497 33.5968 8.89305 37.107Z\" fill=\"#F3516B\"></path></svg></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for key, values := range data.Queries {
+			for _, value := range values {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input class=\"kiosk-param\" type=\"hidden\" name=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var17 string
+				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(key)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 149, Col: 57}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var18 string
+				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(value)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 149, Col: 73}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</form><div id=\"offline\"><svg width=\"48\" height=\"48\" viewBox=\"0 0 48 48\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"48\" height=\"48\"></rect> <path opacity=\"0.7\" d=\"M11.5408 21.0109C14.7757 17.9078 19.164 16 24.0023 16C28.8407 16 33.229 17.9078 36.4639 21.0109C37.064 21.5828 38.0111 21.5641 38.583 20.9688C39.155 20.3734 39.1362 19.4219 38.5408 18.85C34.7714 15.2266 29.6471 13 24.0023 13C18.3576 13 13.2333 15.2266 9.45917 18.8453C8.86375 19.4219 8.845 20.3687 9.41697 20.9688C9.98895 21.5688 10.9407 21.5875 11.5361 21.0109H11.5408ZM24.0023 23.5C26.6653 23.5 29.0939 24.4891 30.9504 26.125C31.574 26.6734 32.521 26.6125 33.0696 25.9938C33.6181 25.375 33.5571 24.4234 32.9383 23.875C30.5566 21.775 27.4248 20.5 24.0023 20.5C20.5799 20.5 17.4481 21.775 15.0711 23.875C14.4475 24.4234 14.3913 25.3703 14.9398 25.9938C15.4884 26.6172 16.4354 26.6734 17.0589 26.125C18.9108 24.4891 21.3394 23.5 24.007 23.5H24.0023ZM27.0029 31C27.0029 30.2044 26.6867 29.4413 26.124 28.8787C25.5613 28.3161 24.7981 28 24.0023 28C23.2066 28 22.4434 28.3161 21.8807 28.8787C21.3179 29.4413 21.0018 30.2044 21.0018 31C21.0018 31.7956 21.3179 32.5587 21.8807 33.1213C22.4434 33.6839 23.2066 34 24.0023 34C24.7981 34 25.5613 33.6839 26.124 33.1213C26.6867 32.5587 27.0029 31.7956 27.0029 31Z\" fill=\"white\"></path> <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M47 24C47 36.7025 36.7025 47 24 47C11.2975 47 1 36.7025 1 24C1 11.2975 11.2975 1 24 1C36.7025 1 47 11.2975 47 24ZM44 24C44 35.0457 35.0457 44 24 44C19.048 44 14.5163 42.2003 11.0234 39.2192L39.2192 11.0234C42.2003 14.5163 44 19.048 44 24ZM8.89305 37.107L37.107 8.89304C33.5968 5.84497 29.0139 4 24 4C12.9543 4 4 12.9543 4 24C4 29.0139 5.84497 33.5968 8.89305 37.107Z\" fill=\"#F3516B\"></path></svg></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
