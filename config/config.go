@@ -123,8 +123,6 @@ func (c *Config) Load() error {
 	viper.BindEnv("kiosk.password", "KIOSK_PASSWORD")
 	viper.BindEnv("kiosk.cache", "KIOSK_CACHE")
 
-	viper.SetDefault("kiosk.cache", true)
-
 	viper.AddConfigPath(".")
 	viper.SetConfigFile("config.yaml")
 
