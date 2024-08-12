@@ -124,6 +124,7 @@ services:
       KIOSK_SHOW_IMAGE_DATE: TRUE
       KIOSK_IMAGE_DATE_FORMAT: 02/01/2006
       KIOSK_PASSWORD: "****"
+      KIOSK_CACHE: TRUE
     ports:
       - 3000:3000
     restart: on-failure

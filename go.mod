@@ -7,6 +7,7 @@ require (
 	github.com/charmbracelet/log v0.4.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/labstack/echo/v4 v4.12.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/viper v1.19.0
 	golang.org/x/image v0.19.0
 	golang.org/x/text v0.17.0
@@ -27,9 +28,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.2 // indirect
-	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
