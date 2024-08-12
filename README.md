@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> An update regarding Kiosks development [here](https://github.com/damongolding/immich-kiosk/discussions/31)
+
+
 # Immich Kiosk
 
 <div align="center">
@@ -119,6 +123,7 @@ services:
       KIOSK_IMAGE_TIME_FORMAT: 12
       KIOSK_SHOW_IMAGE_DATE: TRUE
       KIOSK_IMAGE_DATE_FORMAT: 02/01/2006
+      KIOSK_PASSWORD: "****"
     ports:
       - 3000:3000
     restart: on-failure
@@ -149,6 +154,25 @@ See the file config.example.yaml for an example config file
 | image_time_format | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date   | KIOSK_SHOW_IMAGE_DATE   | bool                       | Display the image date from METADATA (if available).                                       |
 | image_date_format | KIOSK_IMAGE_DATE_FORMAT | string                     | The format of the image date. default is day/month/year. Any GO date string is valid.      |
+
+### Additional options
+The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
+
+```yaml
+immich_url: "****"
+immich_api_key: "****"
+
+// 👇 Additional options
+kiosk:
+  password: "****"
+
+```
+
+
+| **yaml**          | **ENV**                 | **Value**                  | **Description**                                                                            |
+|-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
+| password          | KIOSK_PASSWORD          | string                     | If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
+
 
 ------
 
