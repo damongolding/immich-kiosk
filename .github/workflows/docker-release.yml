@@ -48,3 +48,4 @@ jobs:
           subreddit: immich
           title: Immich Kiosk ${{ github.event.release.tag_name }} Released
           comment: ${{ github.event.release.body }}
+          url: ${{ github.event.release.html_url }}
