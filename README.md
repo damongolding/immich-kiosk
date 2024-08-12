@@ -155,8 +155,18 @@ See the file config.example.yaml for an example config file
 | show_image_date   | KIOSK_SHOW_IMAGE_DATE   | bool                       | Display the image date from METADATA (if available).                                       |
 | image_date_format | KIOSK_IMAGE_DATE_FORMAT | string                     | The format of the image date. default is day/month/year. Any GO date string is valid.      |
 
-### Immutable options
-The below configuration options are NOT configurable through URL params
+### Additional options
+The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
+
+```yaml
+immich_url: "****"
+immich_api_key: "****"
+
+kiosk:
+  password: "****"
+
+```
+
 
 | **yaml**          | **ENV**                 | **Value**                  | **Description**                                                                            |
 |-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|

@@ -30,3 +30,7 @@ image_time_format: 12 # 12 or 24
 
 show_image_date: true # true or false
 image_date_format: 02/01/2006 # 02 = day, 01 = month and 2006 = year e.g. 01/02/2006 for American formate
+
+# options that can not be changed via url params
+kiosk:
+  password: ""
