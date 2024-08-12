@@ -12,14 +12,19 @@ import (
 	"math/rand/v2"
 
 	"github.com/charmbracelet/log"
+	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/config"
 )
 
+// maxRetries the maximum amount of retries to find a IMAGE type
 const maxRetries int = 10
 
 var (
+	// baseConfig the base config i.e config.yaml or ENV
 	baseConfig config.Config
+	// apiCache cache store for immich api call(s)
+	apiCache *cache.Cache
 )
 
 type ImmichError struct {
@@ -101,28 +106,46 @@ type ImmichAlbum struct {
 	Assets []ImmichAsset `json:"assets"`
 }
 
+func init() {
+	// Setting up Immich api cache
+	apiCache = cache.New(5*time.Minute, 10*time.Minute)
+}
+
 // NewImage returns a new image instance
 func NewImage(base config.Config) ImmichAsset {
 	baseConfig = base
 	return ImmichAsset{}
 }
 
-// IsOnWhitelist check to see if ID is on whitelist of album or person
-func (i *ImmichAsset) IsOnWhitelist() bool {
+type ImmichApiCall func(string) ([]byte, error)
 
-	if i.ID == "" {
-		return true
+// immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
+func immichApiCallDecorator(immichApiCall ImmichApiCall, requestId string) ImmichApiCall {
+	return func(apiUrl string) ([]byte, error) {
+
+		if baseConfig.Kiosk.Cache {
+			apiData, found := apiCache.Get(apiUrl)
+			if found {
+				log.Debug(requestId+" Cache hit", "url", apiUrl)
+				return apiData.([]byte), nil
+			}
+
+			log.Debug(requestId+" Cache miss", "url", apiUrl)
+			body, err := immichApiCall(apiUrl)
+			if err != nil {
+				log.Error(err)
+				return nil, err
+			}
+
+			apiCache.Set(apiUrl, body, cache.DefaultExpiration)
+			log.Debug(requestId+" Cache saved", "url", apiUrl)
+			return body, nil
+
+		}
+
+		return immichApiCall(apiUrl)
 	}
 
-	if ok := slices.Contains(baseConfig.Album, i.ID); ok {
-		return ok
-	}
-
-	if ok := slices.Contains(baseConfig.Person, i.ID); ok {
-		return ok
-	}
-
-	return false
 }
 
 // immichApiCall bootstrap for immich api call
@@ -234,7 +257,8 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 		Path:   "api/people/" + personId + "/assets",
 	}
 
-	body, err := i.immichApiCall(apiUrl.String())
+	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestId)
+	body, err := immichApiCal(apiUrl.String())
 	if err != nil {
 		log.Error(err)
 		return err
@@ -279,7 +303,7 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 	if log.GetLevel() == log.DebugLevel {
 		for _, per := range i.People {
 			if per.ID == personId {
-				log.Debug(requestId+" Got image of", "perople", per.Name)
+				log.Debug(requestId+" Got image of", "person", per.Name)
 				break
 			}
 		}
@@ -303,7 +327,8 @@ func (i *ImmichAsset) GetRandomImageFromAlbum(albumId, requestId string) error {
 		Path:   "api/albums/" + albumId,
 	}
 
-	body, err := i.immichApiCall(apiUrl.String())
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId)
+	body, err := immichApiCall(apiUrl.String())
 	if err != nil {
 		log.Error(err)
 		return err

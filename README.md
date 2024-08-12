@@ -172,6 +172,7 @@ kiosk:
 | **yaml**          | **ENV**                 | **Value**                  | **Description**                                                                            |
 |-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
 | password          | KIOSK_PASSWORD          | string                     | If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
+| cache             | KIOSK_CACHE             | bool                       | Cache selective Immich api calls to reduce unnecessary calls. Default is true.             |
 
 
 ------
