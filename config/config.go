@@ -43,8 +43,8 @@ type Config struct {
 
 	// Person ID of person to display
 	Person []string `mapstructure:"person"`
-	// Album ID of album to display
-	Album string `mapstructure:"album"`
+	// Album ID of album(s) to display
+	Album []string `mapstructure:"album"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `mapstructure:"image_fit"`
@@ -151,6 +151,15 @@ func (c *Config) Load() error {
 func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 
 	configWithOverrides := c
+
+	// check for person or album in quries and empty baseconfig slice if found
+	if queries.Has("person") {
+		configWithOverrides.Person = []string{}
+	}
+
+	if queries.Has("album") {
+		configWithOverrides.Album = []string{}
+	}
 
 	v := reflect.ValueOf(configWithOverrides).Elem()
 

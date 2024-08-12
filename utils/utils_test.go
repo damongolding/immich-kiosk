@@ -37,6 +37,34 @@ func TestRandomSingleItem(t *testing.T) {
 	if out != "cheese" {
 		t.Error("Not the outcome we want:", out)
 	}
+}
+
+// TestRandomSingleItem test a single item
+func TestRandomEmptyItem(t *testing.T) {
+
+	s := []string{}
+
+	out := RandomItem(s)
+
+	if out != "" {
+		t.Error("Not the outcome we want:", out)
+	}
+
+	n := []int{}
+
+	out2 := RandomItem(n)
+
+	if out2 != 0 {
+		t.Error("Not the outcome we want:", out2)
+	}
+
+	i := []any{}
+
+	out3 := RandomItem(i)
+
+	if out3 != nil {
+		t.Error("Not the outcome we want:", out3)
+	}
 
 }
 

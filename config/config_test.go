@@ -2,6 +2,7 @@ package config
 
 import (
 	"net/url"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -76,7 +77,6 @@ func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 	if len(c.Person) != 2 {
 		t.Errorf("People were not added: %s", c.Person)
 	}
-
 }
 
 // TestMalformedURLs testing urls without scheme or ports
@@ -111,5 +111,65 @@ func TestMalformedURLs(t *testing.T) {
 			}
 
 		})
+	}
+}
+
+func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
+
+	// configWithBase
+	configWithBase := Config{
+		Album: []string{"BASE_ALBUM"},
+	}
+
+	q := url.Values{}
+
+	q.Add("album", "ALBUM_1")
+	q.Add("album", "ALBUM_2")
+
+	t.Log("Trying to add:", q)
+
+	configWithBase.ConfigWithOverrides(q)
+
+	t.Log("album", configWithBase.Album)
+
+	if slices.Contains(configWithBase.Album, "BASE_ALBUM") {
+		t.Errorf("BASE_ALBUM is present: %s", configWithBase.Album)
+	}
+
+	if len(configWithBase.Album) != 2 {
+		t.Errorf("Albums were not added: %s", configWithBase.Album)
+	}
+
+	// configWithBase
+	configWithoutBase := Config{}
+
+	q = url.Values{}
+
+	q.Add("album", "ALBUM_1")
+	q.Add("album", "ALBUM_2")
+
+	t.Log("Trying to add:", q)
+
+	configWithoutBase.ConfigWithOverrides(q)
+
+	t.Log("album", configWithoutBase.Album)
+
+	if len(configWithoutBase.Album) != 2 {
+		t.Errorf("Albums were not added: %s", configWithoutBase.Album)
+	}
+
+	// configWithBaseOnly
+	configWithBaseOnly := Config{
+		Album: []string{"BASE_ALUMB_1", "BASE_ALUMB_2"},
+	}
+
+	q = url.Values{}
+
+	configWithBaseOnly.ConfigWithOverrides(q)
+
+	t.Log("album", configWithBaseOnly.Album)
+
+	if len(configWithBaseOnly.Album) != 2 {
+		t.Errorf("Base albums did not persist: %s", configWithBaseOnly.Album)
 	}
 }

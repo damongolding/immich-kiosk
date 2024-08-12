@@ -144,6 +144,7 @@ func immichApiCallDecorator(immichApiCall ImmichApiCall, requestId string) Immic
 
 		return immichApiCall(apiUrl)
 	}
+
 }
 
 // immichApiCall bootstrap for immich api call
