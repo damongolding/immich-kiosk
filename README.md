@@ -162,6 +162,7 @@ The below options are NOT configurable through URL params. In the `config.yaml` 
 immich_url: "****"
 immich_api_key: "****"
 
+// 👇 Additional options
 kiosk:
   password: "****"
 
