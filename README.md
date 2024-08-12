@@ -166,6 +166,7 @@ immich_api_key: "****"
 // 👇 Additional options
 kiosk:
   password: "****"
+  cache: true
 
 ```
 
