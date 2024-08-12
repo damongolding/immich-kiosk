@@ -33,10 +33,7 @@ func NewImage(c echo.Context) error {
 		return c.String(http.StatusTemporaryRedirect, "")
 	}
 
-	queries, err := utils.CombineQueries(c.Request().URL.Query(), c.Request().Referer())
-	if err != nil {
-		log.Error("err combining queries", "err", err)
-	}
+	queries := c.Request().URL.Query()
 
 	if len(queries) > 0 {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
