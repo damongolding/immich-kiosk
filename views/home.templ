@@ -3,6 +3,7 @@ package views
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/config"
+	"net/url"
 	"strings"
 )
 
@@ -15,6 +16,8 @@ type PageData struct {
 	ImageBlurData string
 	// Date image date
 	ImageDate string
+	// URL queries
+	Queries url.Values
 	// instance config
 	config.Config
 }
@@ -31,6 +34,7 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string) {
 	<div
 		id="kiosk"
 		hx-get="/image"
+		hx-include=".kiosk-param"
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="beforeend settle:3s"
 		if showProgress {
@@ -46,6 +50,7 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string) {
 	<div
 		id="kiosk"
 		hx-get="/image"
+		hx-include=".kiosk-param"
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="innerHTML swap:3s"
 		if showProgress {
@@ -61,6 +66,7 @@ templ kioskNone(showProgress bool, refresh int, kioskVersion string) {
 	<div
 		id="kiosk"
 		hx-get="/image"
+		hx-include=".kiosk-param"
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="innerHTML"
 		if showProgress {
@@ -132,10 +138,18 @@ templ Home(data PageData) {
 				<div
 					id="clock"
 					hx-get="/clock"
+					hx-include=".kiosk-param"
 					hx-trigger="load, every 30s"
 					hx-swap="innerHTML"
 				></div>
 			}
+			<form>
+				for key, values := range data.Queries {
+					for _, value := range values {
+						<input class="kiosk-param" type="hidden" name={ key } value={ value }/>
+					}
+				}
+			</form>
 			<div id="offline">
 				<svg
 					width="48"
