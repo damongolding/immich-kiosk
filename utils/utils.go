@@ -22,6 +22,23 @@ import (
 	"github.com/disintegration/imaging"
 )
 
+// DateToLayout takes a string and replaces normal date layouts to GO layouts
+func DateToLayout(input string) string {
+    replacer := strings.NewReplacer(
+        "YYYY", "2006",
+        "YY", "06",
+								"MMMM", "January",
+								"MMM", "Jan",
+								"MM", "01",
+								"M", "1",
+								"DDDD", "Monday",
+								"DDD", "Mon",
+        "DD", "02",
+								"D", "2",
+    )
+    return replacer.Replace(input)
+}
+
 // ImageToBase64 converts image bytes into a base64 string
 func ImageToBase64(imgBtyes []byte) (string, error) {
 
