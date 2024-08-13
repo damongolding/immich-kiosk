@@ -173,7 +173,7 @@ kiosk:
 
 | **yaml**          | **ENV**                 | **Value**                  | **Description**                                                                            |
 |-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
-| password          | KIOSK_PASSWORD          | string                     | If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
+| password          | KIOSK_PASSWORD          | string                     | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
 | cache             | KIOSK_CACHE             | bool                       | Cache selective Immich api calls to reduce unnecessary calls. Default is true.             |
 
 
@@ -268,6 +268,27 @@ environment:
 
 * via url quires `http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID`
 
+**Q: How do I set/use a password?**\
+**A**: 👇
+
+> [!WARNING]
+> This feature is meant for edgecase senarios and offers very little in terms of protection. 
+> If you are aiming to expose Kiosk beyond your local network, please investigate more secure alternatives. 
+
+via config.yaml file
+```yaml
+kiosk:
+  password: 12345
+```
+
+via ENV in your docker-compose file
+```yaml
+environment:
+  KIOSK_PASSWORD: "12345"
+```
+
+
+Then to access Kiosk you MUST add the password param in your URL e.g. http://{URL}?password=12345
 
 ------
 
