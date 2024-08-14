@@ -88,3 +88,21 @@ func TestRandomStruct(t *testing.T) {
 	}
 
 }
+
+func TestDateToLayout(t *testing.T) {
+	tests := []struct {
+		Have string
+		Want string
+	}{
+		{Have: "YYYY-MM-DD", Want: "2006-01-02"},
+	}
+
+	for _, test := range tests {
+		result := DateToLayout(test.Have)
+
+		if result != test.Want {
+			t.Log(test.Have, test.Want)
+			t.Errorf("Does not match, %s : %s", test.Have, test.Want)
+		}
+	}
+}
