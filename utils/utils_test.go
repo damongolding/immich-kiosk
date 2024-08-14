@@ -91,18 +91,21 @@ func TestRandomStruct(t *testing.T) {
 
 func TestDateToLayout(t *testing.T) {
 	tests := []struct {
-		Have string
+		In   string
 		Want string
 	}{
-		{Have: "YYYY-MM-DD", Want: "2006-01-02"},
-		{Have: "YYYY/MM/DD", Want: "2006/01/02"},
-		{Have: "YYYY MM DD", Want: "2006 01 02"},
-		{Have: "YYYY MM DD additional text", Want: "2006 01 02 additional text"},
-		{Have: "YYYYYY-MM-DD", Want: "200606-01-02"},
+		{"YYYY-MM-DD", "2006-01-02"},
+		{"YYYY/MM/DD", "2006/01/02"},
+		{"YYYY:MM:DD", "2006:01:02"},
+		{"YYYY MM DD", "2006 01 02"},
+		{"YY M DDD", "06 1 Mon"},
+		{"YY MMM DDDD", "06 Jan Monday"},
+		{"YYYYYY-MM-DD", "200606-01-02"},
+		{"YYYY MM DD additional text", "2006 01 02 additional text"},
 	}
 
 	for _, test := range tests {
-		result := DateToLayout(test.Have)
+		result := DateToLayout(test.In)
 
 		if result != test.Want {
 			t.Log(result, test.Want)
