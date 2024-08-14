@@ -95,14 +95,18 @@ func TestDateToLayout(t *testing.T) {
 		Want string
 	}{
 		{Have: "YYYY-MM-DD", Want: "2006-01-02"},
+		{Have: "YYYY/MM/DD", Want: "2006/01/02"},
+		{Have: "YYYY MM DD", Want: "2006 01 02"},
+		{Have: "YYYY MM DD additional text", Want: "2006 01 02 additional text"},
+		{Have: "YYYYYY-MM-DD", Want: "200606-01-02"},
 	}
 
 	for _, test := range tests {
 		result := DateToLayout(test.Have)
 
 		if result != test.Want {
-			t.Log(test.Have, test.Want)
-			t.Errorf("Does not match, %s : %s", test.Have, test.Want)
+			t.Log(result, test.Want)
+			t.Errorf("Does not match, %s : %s", result, test.Want)
 		}
 	}
 }
