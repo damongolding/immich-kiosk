@@ -209,9 +209,14 @@ The image is centered and displayed "as is". If the image is larger than your sc
 ------
 
 ## Date format
+> [!NOTE]
+> Some characters, such as `/` and `:` are not allowed in URL params.
+> So while you can set the date layout via URL params, I would suggest setting them via `config.yaml` or environment variables. 
 
 
-| **Value**   | **Example**  |
+You can use the below values to create your preferred date layout.
+
+| **Value**   | **Example output**  |
 |-------------|--------------|
 | YYYY        | 2024         |
 | YY          | 24           |
@@ -224,14 +229,15 @@ The image is centered and displayed "as is". If the image is larger than your sc
 | DD          | 04           |
 | D           | 4            |
 
-### Examples
+### Date layout examples
+
 * "YYYY-MM-DD" => "2024-08-22"
 * "YYYY/MM/DD" => "2024/08/22"
 * "YYYY:MM:DD" => "2024:08:22"
 * "YYYY MM DD" => "2024 08 22"
 * "YY M DDD" => "24 8 Thur"
-* "YY MMM DDDD" => "24 Jan Thursday"
-* "YYYY MMMM DDDD" => "2024 August Thursday"
+* "YY MMM DDDD" => "24 Aug Thursday"
+* "YYYY MMMM DDDD DD" => "2024 August Thursday 22"
 
 ------
 
