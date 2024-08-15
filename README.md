@@ -230,6 +230,7 @@ You can use the below values to create your preferred date layout.
 | D           | 4            |
 
 ### Date layout examples
+These examples assume that today's date is the 22nd of August 2024. 
 
 * "YYYY-MM-DD" => "2024-08-22"
 * "YYYY/MM/DD" => "2024/08/22"
