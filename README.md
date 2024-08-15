@@ -148,7 +148,7 @@ See the file config.example.yaml for an example config file
 | refresh           | KIOSK_REFRESH           | int                        | The amount in seconds a image will be displayed for.                                       |
 | album             | KIOSK_ALBUM             | []string                   | The ID(s) of a specific album or albums you want to display. See [FAQ: How do I set multiple albums?](#faq) to see how to impliment this.|
 | person            | KIOSK_PERSON            | []string                   | The ID(s) of a specific person or people you want to display. See [FAQ: How do I set multiple people?](#faq) to see how to impliment this.|
-| [image_fit]#iImage-fit) | KIOSK_IMAGE_FIT   | cover \| contain \| none   | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
+| [image_fit](#iImage-fit) | KIOSK_IMAGE_FIT  | cover \| contain \| none   | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
 | background_blur   | KIOSK_BACKGROUND_BLUR   | bool                       | Display a blurred version of the image as a background.                                    |
 | transition        | KIOSK_TRANSITION        | none \| fade \| cross-fade | Which transition to use when changing images.                                              |
 | show_progress     | KIOSK_SHOW_PROGRESS     | bool                       | Display a progress bar for when image will refresh.                                        |
@@ -213,6 +213,32 @@ The image is centered and displayed "as is". If the image is larger than your sc
 > Some characters, such as `/` and `:` are not allowed in URL params.
 > So while you can set the date layout via URL params, I would suggest setting them via `config.yaml` or environment variables.
 
+
+You can use the below values to create your preferred date layout.
+
+| **Value**   | **Example output**  |
+|-------------|--------------|
+| YYYY        | 2024         |
+| YY          | 24           |
+| MMMM        | August       |
+| MMM         | Aug          |
+| MM          | 08           |
+| M           | 8            |
+| DDDD        | Monday       |
+| DDD         | Mon          |
+| DD          | 04           |
+| D           | 4            |
+
+### Date layout examples
+These examples assume that today's date is the 22nd of August 2024.
+
+* "YYYY-MM-DD" => "2024-08-22"
+* "YYYY/MM/DD" => "2024/08/22"
+* "YYYY:MM:DD" => "2024:08:22"
+* "YYYY MM DD" => "2024 08 22"
+* "YY M DDD" => "24 8 Thur"
+* "YY MMM DDDD" => "24 Aug Thursday"
+* "YYYY MMMM DDDD DD" => "2024 August Thursday 22"
 
 ------
 
