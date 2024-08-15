@@ -127,9 +127,9 @@ func NewImage(c echo.Context) error {
 		imageTimeFormat = time.TimeOnly
 	}
 
-	imageDateFormat := instanceConfig.ImageDateFormat
+	imageDateFormat := utils.DateToLayout(instanceConfig.ImageDateFormat)
 	if imageDateFormat == "" {
-		imageDateFormat = "02/01/2006"
+		imageDateFormat = defaultDateLayout
 	}
 
 	switch {

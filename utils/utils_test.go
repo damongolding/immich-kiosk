@@ -20,7 +20,6 @@ func TestCombineQueries(t *testing.T) {
 		t.Error(err)
 	}
 
-	//  NOT WORKING
 	if !reflect.DeepEqual(q["transition"], []string{"fade", "none"}) || q.Get("image_fit") != "cover" || q.Get("refresh") != "60" || !q.Has("raw") {
 		t.Error(q)
 	}
@@ -103,7 +102,7 @@ func TestDateToLayout(t *testing.T) {
 		{"YYYY MMMM DDDD", "2006 January Monday"},
 		{"YYYYYY-MM-DD", "200606-01-02"},
 		{"YYYY MM DD additional text", "2006 01 02 additional text"},
-  {"", ""},
+		{"", ""},
 	}
 
 	for _, test := range tests {
