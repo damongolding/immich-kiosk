@@ -36,6 +36,24 @@ jobs:
           --push -t damongolding/immich-kiosk:${{ env.VERSION }} \
           -t damongolding/immich-kiosk:latest .
 
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v5
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GORELEASER }}
+
   post-release-on-reddit:
     runs-on: ubuntu-latest
     steps:
