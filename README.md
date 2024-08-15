@@ -110,7 +110,7 @@ services:
       KIOSK_IMMICH_URL: "****"
       KIOSK_DISABLE_UI: FALSE
       KIOSK_SHOW_DATE: TRUE
-      KIOSK_DATE_FORMAT: 02/01/2006
+      KIOSK_DATE_FORMAT: YYYY/MM/DD
       KIOSK_SHOW_TIME: TRUE
       KIOSK_TIME_FORMAT: 12
       KIOSK_REFRESH: 60
@@ -123,7 +123,7 @@ services:
       KIOSK_SHOW_IMAGE_TIME: TRUE
       KIOSK_IMAGE_TIME_FORMAT: 12
       KIOSK_SHOW_IMAGE_DATE: TRUE
-      KIOSK_IMAGE_DATE_FORMAT: 02/01/2006
+      KIOSK_IMAGE_DATE_FORMAT: YYYY-MM-DD
       KIOSK_PASSWORD: "****"
       KIOSK_CACHE: TRUE
     ports:
@@ -144,7 +144,7 @@ See the file config.example.yaml for an example config file
 | show_time         | KIOSK_SHOW_TIME         | bool                       | Display clock.                                                                             |
 | time_format       | KIOSK_TIME_FORMAT       | 12 \| 24                   | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_date         | KIOSK_SHOW_DATE         | bool                       | Display the date.                                                                          |
-| date_format       | KIOSK_DATE_FORMAT       | string                     | The format of the date. default is day/month/year. Any GO date string is valid.            |
+| [date_format](#date-format) | KIOSK_DATE_FORMAT       | string                     | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh           | KIOSK_REFRESH           | int                        | The amount in seconds a image will be displayed for.                                       |
 | album             | KIOSK_ALBUM             | []string                   | The ID(s) of a specific album or albums you want to display. See [FAQ: How do I set multiple albums?](#faq) to see how to impliment this.|
 | person            | KIOSK_PERSON            | []string                   | The ID(s) of a specific person or people you want to display. See [FAQ: How do I set multiple people?](#faq) to see how to impliment this.|
@@ -155,7 +155,7 @@ See the file config.example.yaml for an example config file
 | show_image_time   | KIOSK_SHOW_IMAGE_TIME   | bool                       | Display image time from METADATA (if available).                                           |
 | image_time_format | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date   | KIOSK_SHOW_IMAGE_DATE   | bool                       | Display the image date from METADATA (if available).                                       |
-| image_date_format | KIOSK_IMAGE_DATE_FORMAT | string                     | The format of the image date. default is day/month/year. Any GO date string is valid.      |
+| [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | The format of the image date. default is day/month/year. See [date format](#date-format) for more information. |
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
@@ -211,7 +211,7 @@ The image is centered and displayed "as is". If the image is larger than your sc
 ## Date format
 > [!NOTE]
 > Some characters, such as `/` and `:` are not allowed in URL params.
-> So while you can set the date layout via URL params, I would suggest setting them via `config.yaml` or environment variables. 
+> So while you can set the date layout via URL params, I would suggest setting them via `config.yaml` or environment variables.
 
 
 You can use the below values to create your preferred date layout.
