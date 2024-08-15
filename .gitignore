@@ -31,3 +31,5 @@ config.yaml
 *.config.yaml
 
 *.pprof
+
+dist/

@@ -214,32 +214,6 @@ The image is centered and displayed "as is". If the image is larger than your sc
 > So while you can set the date layout via URL params, I would suggest setting them via `config.yaml` or environment variables.
 
 
-You can use the below values to create your preferred date layout.
-
-| **Value**   | **Example output**  |
-|-------------|--------------|
-| YYYY        | 2024         |
-| YY          | 24           |
-| MMMM        | August       |
-| MMM         | Aug          |
-| MM          | 08           |
-| M           | 8            |
-| DDDD        | Monday       |
-| DDD         | Mon          |
-| DD          | 04           |
-| D           | 4            |
-
-### Date layout examples
-These examples assume that today's date is the 22nd of August 2024. 
-
-* "YYYY-MM-DD" => "2024-08-22"
-* "YYYY/MM/DD" => "2024/08/22"
-* "YYYY:MM:DD" => "2024:08:22"
-* "YYYY MM DD" => "2024 08 22"
-* "YY M DDD" => "24 8 Thur"
-* "YY MMM DDDD" => "24 Aug Thursday"
-* "YYYY MMMM DDDD DD" => "2024 August Thursday 22"
-
 ------
 
 ## FAQ
