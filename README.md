@@ -210,10 +210,28 @@ The image is centered and displayed "as is". If the image is larger than your sc
 
 ## Date format
 
+
 | **Value**   | **Example**  |
 |-------------|--------------|
 | YYYY        | 2024         |
+| YY          | 24           |
+| MMMM        | August       |
+| MMM         | Aug          |
+| MM          | 08           |
+| M           | 8            |
+| DDDD        | Monday       |
+| DDD         | Mon          |
+| DD          | 04           |
+| D           | 4            |
 
+### Examples
+* "YYYY-MM-DD" => "2024-08-22"
+* "YYYY/MM/DD" => "2024/08/22"
+* "YYYY:MM:DD" => "2024:08:22"
+* "YYYY MM DD" => "2024 08 22"
+* "YY M DDD" => "24 8 Thur"
+* "YY MMM DDDD" => "24 Jan Thursday"
+* "YYYY MMMM DDDD" => "2024 August Thursday"
 
 ------
 
