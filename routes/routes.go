@@ -8,6 +8,8 @@ import (
 	"github.com/damongolding/immich-kiosk/config"
 )
 
+const defaultDateLayout = "02/01/2006"
+
 var (
 	KioskVersion  string
 	ExampleConfig []byte

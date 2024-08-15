@@ -20,7 +20,6 @@ func TestCombineQueries(t *testing.T) {
 		t.Error(err)
 	}
 
-	//  NOT WORKING
 	if !reflect.DeepEqual(q["transition"], []string{"fade", "none"}) || q.Get("image_fit") != "cover" || q.Get("refresh") != "60" || !q.Has("raw") {
 		t.Error(q)
 	}
@@ -87,4 +86,31 @@ func TestRandomStruct(t *testing.T) {
 		t.Error("Not the outcome we want:", out)
 	}
 
+}
+
+func TestDateToLayout(t *testing.T) {
+	tests := []struct {
+		In   string
+		Want string
+	}{
+		{"YYYY-MM-DD", "2006-01-02"},
+		{"YYYY/MM/DD", "2006/01/02"},
+		{"YYYY:MM:DD", "2006:01:02"},
+		{"YYYY MM DD", "2006 01 02"},
+		{"YY M DDD", "06 1 Mon"},
+		{"YY MMM DDDD", "06 Jan Monday"},
+		{"YYYY MMMM DDDD", "2006 January Monday"},
+		{"YYYYYY-MM-DD", "200606-01-02"},
+		{"YYYY MM DD additional text", "2006 01 02 additional text"},
+		{"", ""},
+	}
+
+	for _, test := range tests {
+		result := DateToLayout(test.In)
+
+		if result != test.Want {
+			t.Log(result, test.Want)
+			t.Errorf("Does not match, %s : %s", result, test.Want)
+		}
+	}
 }

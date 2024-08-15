@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
 	"github.com/labstack/echo/v4"
 )
@@ -37,9 +38,9 @@ func Clock(c echo.Context) error {
 		clockTimeFormat = time.Kitchen
 	}
 
-	clockDateFormat := instanceConfig.DateFormat
+	clockDateFormat := utils.DateToLayout(instanceConfig.DateFormat)
 	if clockDateFormat == "" {
-		clockDateFormat = "02/01/2006"
+		clockDateFormat = defaultDateLayout
 	}
 
 	var data views.ClockData
