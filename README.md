@@ -36,6 +36,7 @@
 - [Configuration](#configuration)
 - [Changing settings via URL](#changing-settings-via-url)
 - [Image fit](#image-fit)
+- [Date format](#date-format)
 - [FAQ](#faq)
 - [TODO](#TODO)
 - [Support](#support)
@@ -66,9 +67,9 @@ You want the pi connected to the LCD screen to only show images from your recent
 
 Using this URL `http://{URL}?album={ALBUM_ID}&transtion=none&show_time=false` would achieve what we want.
 
-On the pi connected to the TV you want to display a random image from your library but only images of two specific people. It has to be fullscreen and we want to use the fade transition
+On the pi connected to the TV you want to display a random image from your library but only images of two specific people. We want the image to cover the whole screen (knowing some cropping will happen) and we want to use the fade transition.
 
-Using this URL `http://{URL}?full_screen=true&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID` would achieve what we want.
+Using this URL `http://{URL}?image_fit=cover&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID` would achieve what we want.
 
 ------
 
@@ -207,6 +208,15 @@ The image is centered and displayed "as is". If the image is larger than your sc
 
 ------
 
+## Date format
+
+| **Value**   | **Example**  |
+|-------------|--------------|
+| YYYY        | 2024         |
+
+
+------
+
 ## FAQ
 
 ![no-wifi icon](/assets/offline.svg)\
@@ -272,8 +282,8 @@ environment:
 **A**: 👇
 
 > [!WARNING]
-> This feature is meant for edgecase senarios and offers very little in terms of protection. 
-> If you are aiming to expose Kiosk beyond your local network, please investigate more secure alternatives. 
+> This feature is meant for edgecase senarios and offers very little in terms of protection.
+> If you are aiming to expose Kiosk beyond your local network, please investigate more secure alternatives.
 
 via config.yaml file
 ```yaml
