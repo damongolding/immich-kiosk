@@ -103,6 +103,7 @@ func TestDateToLayout(t *testing.T) {
 		{"YYYY MMMM DDDD", "2006 January Monday"},
 		{"YYYYYY-MM-DD", "200606-01-02"},
 		{"YYYY MM DD additional text", "2006 01 02 additional text"},
+  {"", ""},
 	}
 
 	for _, test := range tests {
