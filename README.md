@@ -144,18 +144,18 @@ See the file config.example.yaml for an example config file
 | show_time         | KIOSK_SHOW_TIME         | bool                       | Display clock.                                                                             |
 | time_format       | KIOSK_TIME_FORMAT       | 12 \| 24                   | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_date         | KIOSK_SHOW_DATE         | bool                       | Display the date.                                                                          |
-| [date_format](#date-format) | KIOSK_DATE_FORMAT       | string                     | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
+| [date_format](#date-format) | KIOSK_DATE_FORMAT | string                 | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh           | KIOSK_REFRESH           | int                        | The amount in seconds a image will be displayed for.                                       |
 | album             | KIOSK_ALBUM             | []string                   | The ID(s) of a specific album or albums you want to display. See [FAQ: How do I set multiple albums?](#faq) to see how to impliment this.|
 | person            | KIOSK_PERSON            | []string                   | The ID(s) of a specific person or people you want to display. See [FAQ: How do I set multiple people?](#faq) to see how to impliment this.|
-| image_fit         | KIOSK_IMAGE_FIT         | cover \| contain \| none   | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
+| [image_fit]#iImage-fit) | KIOSK_IMAGE_FIT   | cover \| contain \| none   | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
 | background_blur   | KIOSK_BACKGROUND_BLUR   | bool                       | Display a blurred version of the image as a background.                                    |
 | transition        | KIOSK_TRANSITION        | none \| fade \| cross-fade | Which transition to use when changing images.                                              |
 | show_progress     | KIOSK_SHOW_PROGRESS     | bool                       | Display a progress bar for when image will refresh.                                        |
 | show_image_time   | KIOSK_SHOW_IMAGE_TIME   | bool                       | Display image time from METADATA (if available).                                           |
 | image_time_format | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date   | KIOSK_SHOW_IMAGE_DATE   | bool                       | Display the image date from METADATA (if available).                                       |
-| [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | The format of the image date. default is day/month/year. See [date format](#date-format) for more information. |
+| [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string     | The format of the image date. default is day/month/year. See [date format](#date-format) for more information. |
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
