@@ -328,9 +328,9 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ------
 
 ## TODO
-- FAQs
-- Investigate caching
-- Option to serve original image
+- Clock/timestamp shadow redesign 
+- Whitelist for people and albums
+- Exclude list
 
 ------
 
