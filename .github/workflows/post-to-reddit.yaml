@@ -9,7 +9,7 @@ jobs:
   post-release-on-reddit:
     runs-on: ubuntu-latest
     steps:
-      - uses: bluwy/release-for-reddit-action@v1
+      - uses: bluwy/release-for-reddit-action@v2
         with:
           username: ${{ secrets.REDDIT_USERNAME }}
           password: ${{ secrets.REDDIT_PASSWORD }}
