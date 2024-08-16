@@ -71,6 +71,38 @@ On the pi connected to the TV you want to display a random image from your libra
 
 Using this URL `http://{URL}?image_fit=cover&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID` would achieve what we want.
 
+### Example 3
+Using immich-kiosk as an image source for Wallpanel in HomeAssistant:
+
+```yaml
+  wallpanel:
+    enabled: true
+    image_fit: cover
+    idle_time: 10
+    screensaver_entity: input_boolean.kiosk
+    screensaver_stop_navigation_path: /dashboard-kiosk
+    fullscreen: true
+    display_time: 86400
+    image_url: >-
+      http://{immich-kiosk-url}?image_fit=cover&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:weather-card
+            details: true
+            forecast: true
+            hourly_forecast: false
+            name: Weather
+            entity: weather.pirateweather
+            current: true
+            number_of_forecasts: '6'
+          - type: custom:horizon-card
+            darkMode: true
+            showAzimuth: true
+            showElevation: true
+```
+
+
 ------
 
 ## Installation
