@@ -1,4 +1,4 @@
-name: Docker Release
+name: Post to Reddit
 
 on:
   push:
@@ -16,6 +16,6 @@ jobs:
           app-id: ${{ secrets.REDDIT_APP_ID }}
           app-secret: ${{ secrets.REDDIT_APP_SECRET }}
           subreddit: immich
-          title: Immich Kiosk ${{ github.event.release.tag_name }} Released
+          title: Immich Kiosk ${{ GITHUB_REF#refs/tags/}} Released
           comment: ${{ github.event.release.body }}
-          url: https://github.com/damongolding/immich-kiosk/releases/latest
+          url: https://github.com/damongolding/immich-kiosk/releases/tag/${{ GITHUB_REF#refs/tags/ }}
