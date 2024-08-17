@@ -29,7 +29,7 @@ func init() {
 	debugModeEnv := os.Getenv("KIOSK_DEBUG")
 	debugMode, _ := strconv.ParseBool(debugModeEnv)
 
-	if debugMode {
+	if !debugMode {
 		log.SetLevel(log.DebugLevel)
 		log.Debug("DEBUG mode on")
 		zone, _ := time.Now().Zone()
@@ -73,6 +73,17 @@ func main() {
 			},
 			ErrorHandler: func(err error, c echo.Context) error {
 				return c.String(http.StatusUnauthorized, "Unauthorized")
+			},
+		}))
+	}
+	if log.GetLevel() != log.DebugLevel {
+		logger := log.New(os.Stdout)
+		e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+			LogURI:    true,
+			LogStatus: true,
+			LogValuesFunc: func(c echo.Context, values middleware.RequestLoggerValues) error {
+				logger.WithPrefix(values.RequestID).Debug("path", c.Path(), "URI", values.URI)
+				return nil
 			},
 		}))
 	}
