@@ -79,10 +79,12 @@ func main() {
 	if log.GetLevel() != log.DebugLevel {
 		logger := log.New(os.Stdout)
 		e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-			LogURI:    true,
-			LogStatus: true,
+			LogURI:       true,
+			LogStatus:    true,
+			LogRequestID: true,
+			LogRemoteIP:  true,
 			LogValuesFunc: func(c echo.Context, values middleware.RequestLoggerValues) error {
-				logger.WithPrefix(values.RequestID).Debug("path", c.Path(), "URI", values.URI)
+				logger.WithPrefix(values.RequestID).Info(values.Protocol, "status", values.Status, "URI", values.URI)
 				return nil
 			},
 		}))
