@@ -142,3 +142,37 @@ func RandomItem[T any](s []T) T {
 
 	return s[0]
 }
+
+
+type Color struct {
+	R   int
+	G   int
+	B   int
+	RGB string
+	Hex string
+}
+
+// StringToColor takes any string and returns a Color struct. 
+// Identical strings should return identical values
+func StringToColor(inputString string) Color {
+	sum := 0
+	for _, char := range inputString {
+		sum += int(char)
+	}
+
+	// Helper function to calculate a color component
+	calcColor := func(offset int) int {
+		return int(math.Floor((math.Sin(float64(sum+offset)) + 1) * 128))
+	}
+
+	r := calcColor(1)
+	g := calcColor(2)
+	b := calcColor(3)
+
+	rgb := fmt.Sprintf("rgb(%d, %d, %d)", r, g, b)
+	hex := fmt.Sprintf("#%02X%02X%02X", r, g, b)
+
+	return Color{R: r, G: g, B: b, RGB: rgb, Hex: hex}
+}
+
+
