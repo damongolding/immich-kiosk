@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image"
 	"io"
+	"math"
 	"math/rand/v2"
 	"mime"
 	"net/http"
@@ -152,7 +153,7 @@ type Color struct {
 	Hex string
 }
 
-// StringToColor takes any string and returns a Color struct. 
+// StringToColor takes any string and returns a Color struct.
 // Identical strings should return identical values
 func StringToColor(inputString string) Color {
 	sum := 0
@@ -174,5 +175,3 @@ func StringToColor(inputString string) Color {
 
 	return Color{R: r, G: g, B: b, RGB: rgb, Hex: hex}
 }
-
-
