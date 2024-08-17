@@ -84,7 +84,7 @@ Using immich-kiosk as an image source for Wallpanel in HomeAssistant:
     fullscreen: true
     display_time: 86400
     image_url: >-
-      http://{immich-kiosk-url}?image_fit=cover&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID
+      http://{immich-kiosk-url}/image?raw&image_fit=contain&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID
     cards:
       - type: vertical-stack
         cards:
