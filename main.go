@@ -9,12 +9,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/routes"
+	"github.com/damongolding/immich-kiosk/utils"
 )
 
 // version current build version number
@@ -84,7 +86,9 @@ func main() {
 			LogRequestID: true,
 			LogRemoteIP:  true,
 			LogValuesFunc: func(c echo.Context, values middleware.RequestLoggerValues) error {
-				logger.WithPrefix(values.RequestID).Info(values.Protocol, "status", values.Status, "URI", values.URI)
+				requestColor := utils.StringToColor(values.RequestID)
+				rColor := lipgloss.NewStyle().Foreground(lipgloss.Color(requestColor.Hex)).Render(values.RequestID)
+				logger.WithPrefix(rColor).Info("status", values.Status, "URI", values.URI)
 				return nil
 			},
 		}))
