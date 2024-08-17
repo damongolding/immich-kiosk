@@ -114,3 +114,15 @@ func TestDateToLayout(t *testing.T) {
 		}
 	}
 }
+
+
+func TestStringToColor(t *testing.T){
+  in := "a sample string"
+
+  a := StringToColor(in)
+  b := StringToColor(in)
+
+  if a.Hex != b.Hex {
+    t.Error("colors do not match")
+  }
+}
