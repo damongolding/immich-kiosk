@@ -28,7 +28,7 @@ func Home(c echo.Context) error {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
-	log.Debug(requestId, "path", c.Request().URL.String(), "instanceConfig", instanceConfig)
+	log.Debug(requestId, "path", c.Request().URL.String(), "instanceConfig", instanceConfig.String())
 
 	pageData := views.PageData{
 		KioskVersion: KioskVersion,

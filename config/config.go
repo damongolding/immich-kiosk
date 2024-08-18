@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -226,4 +227,12 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 	}
 
 	return *configWithOverrides
+}
+
+func (c *Config) String() string {
+	out, err := json.MarshalIndent(c, "", " ")
+	if err != nil {
+		log.Error("", "err", err)
+	}
+	return string(out)
 }

@@ -39,7 +39,7 @@ func NewImage(c echo.Context) error {
 		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
 	}
 
-	log.Debug(requestId, "path", c.Request().URL.String(), "config", instanceConfig)
+	log.Debug(requestId, "path", c.Request().URL.String(), "config", instanceConfig.String())
 
 	immichImage := immich.NewImage(baseConfig)
 
