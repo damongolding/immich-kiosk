@@ -20,6 +20,7 @@ import (
 	"golang.org/x/image/webp"
 	_ "golang.org/x/image/webp"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/disintegration/imaging"
 )
@@ -144,7 +145,6 @@ func RandomItem[T any](s []T) T {
 	return s[0]
 }
 
-
 type Color struct {
 	R   int
 	G   int
@@ -174,4 +174,10 @@ func StringToColor(inputString string) Color {
 	hex := fmt.Sprintf("#%02X%02X%02X", r, g, b)
 
 	return Color{R: r, G: g, B: b, RGB: rgb, Hex: hex}
+}
+
+func ColorizeRequestId(id string) string {
+	requestId := "[" + id + "]"
+	c := StringToColor(id)
+	return lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(c.Hex)).Render(requestId)
 }

@@ -18,7 +18,7 @@ func Clock(c echo.Context) error {
 		fmt.Println()
 	}
 
-	requestId := fmt.Sprintf("[%s]", c.Response().Header().Get(echo.HeaderXRequestID))
+	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 	// create a copy of the global config to use with this instance
 	instanceConfig := baseConfig

@@ -31,7 +31,7 @@ func init() {
 	debugModeEnv := os.Getenv("KIOSK_DEBUG")
 	debugMode, _ := strconv.ParseBool(debugModeEnv)
 
-	if !debugMode {
+	if debugMode {
 		log.SetLevel(log.DebugLevel)
 		log.Debug("DEBUG mode on")
 		zone, _ := time.Now().Zone()

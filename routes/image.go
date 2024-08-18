@@ -21,7 +21,7 @@ func NewImage(c echo.Context) error {
 	}
 
 	kioskVersionHeader := c.Request().Header.Get("kiosk-version")
-	requestId := fmt.Sprintf("[%s]", c.Response().Header().Get(echo.HeaderXRequestID))
+	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	requestingRawImage := c.Request().URL.Query().Has("raw")
 
 	// create a copy of the global config to use with this instance
