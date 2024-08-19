@@ -115,14 +115,30 @@ func TestDateToLayout(t *testing.T) {
 	}
 }
 
+func TestStringToColor(t *testing.T) {
+	in := "a sample string"
 
-func TestStringToColor(t *testing.T){
-  in := "a sample string"
+	a := StringToColor(in)
+	b := StringToColor(in)
 
-  a := StringToColor(in)
-  b := StringToColor(in)
+	if a.Hex != b.Hex {
+		t.Error("colors do not match")
+	}
+}
 
-  if a.Hex != b.Hex {
-    t.Error("colors do not match")
-  }
+func TestColorContrast(t *testing.T) {
+	white := Color{R: 255, G: 255, B: 255}
+	black := Color{R: 255, G: 255, B: 255}
+	grey := Color{R: 105, G: 105, B: 105}
+
+	maxRatio := CalculateContrastRatio(white, black)
+	if maxRatio != 1 {
+		t.Error("ratio is not at maximum", maxRatio)
+	}
+
+	failRatio := CalculateContrastRatio(grey, black)
+	if failRatio == 1 {
+		t.Error("ratio is not at maximum", failRatio)
+	}
+
 }
