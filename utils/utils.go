@@ -176,8 +176,45 @@ func StringToColor(inputString string) Color {
 	return Color{R: r, G: g, B: b, RGB: rgb, Hex: hex}
 }
 
-func ColorizeRequestId(id string) string {
-	requestId := "[" + id + "]"
-	c := StringToColor(id)
-	return lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(c.Hex)).Render(requestId)
+func ColorizeRequestId(requestId string) string {
+
+	c := StringToColor(requestId)
+
+	textWhite := CalculateContrastRatio(Color{R: 255, G: 255, B: 255}, c)
+	textBlack := CalculateContrastRatio(Color{R: 0, G: 0, B: 0}, c)
+
+	textColor := lipgloss.Color("#000000")
+	if textWhite > textBlack {
+		textColor = lipgloss.Color("#ffffff")
+	}
+
+	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestId)
+}
+
+// CalculateContrastRatio computes the contrast ratio between two RGB colors.
+func CalculateContrastRatio(color1, color2 Color) float64 {
+	lum1 := calculateLuminance(color1)
+	lum2 := calculateLuminance(color2)
+
+	if lum1 > lum2 {
+		return (lum1 + 0.05) / (lum2 + 0.05)
+	}
+	return (lum2 + 0.05) / (lum1 + 0.05)
+}
+
+// calculateLuminance calculates the relative luminance of an RGB color.
+func calculateLuminance(color Color) float64 {
+	r := linearize(float64(color.R))
+	g := linearize(float64(color.G))
+	b := linearize(float64(color.B))
+
+	return 0.2126*r + 0.7152*g + 0.0722*b
+}
+
+// linearize converts an sRGB component to a linear value.
+func linearize(value float64) float64 {
+	if value <= 0.03928 {
+		return value / 12.92
+	}
+	return math.Pow((value+0.055)/1.055, 2.4)
 }
