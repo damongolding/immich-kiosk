@@ -180,8 +180,8 @@ func ColorizeRequestId(requestId string) string {
 
 	c := StringToColor(requestId)
 
-	textWhite := CalculateContrastRatio(Color{R: 255, G: 255, B: 255}, c)
-	textBlack := CalculateContrastRatio(Color{R: 0, G: 0, B: 0}, c)
+	textWhite := calculateContrastRatio(Color{R: 255, G: 255, B: 255}, c)
+	textBlack := calculateContrastRatio(Color{R: 0, G: 0, B: 0}, c)
 
 	textColor := lipgloss.Color("#000000")
 	if textWhite > textBlack {
@@ -191,8 +191,8 @@ func ColorizeRequestId(requestId string) string {
 	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestId)
 }
 
-// CalculateContrastRatio computes the contrast ratio between two RGB colors.
-func CalculateContrastRatio(color1, color2 Color) float64 {
+// calculateContrastRatio computes the contrast ratio between two RGB colors.
+func calculateContrastRatio(color1, color2 Color) float64 {
 	lum1 := calculateLuminance(color1)
 	lum2 := calculateLuminance(color2)
 
