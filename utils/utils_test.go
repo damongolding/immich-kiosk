@@ -140,7 +140,7 @@ func TestColorContrast(t *testing.T) {
 	textBlack := calculateContrastRatio(Color{R: 0, G: 0, B: 0}, Color{R: 0, G: 0, B: 0})
 
 	if textWhite < textBlack {
-  t.Error("white text should have a better ratio")
+		t.Error("white text should have a better ratio")
 	}
 
 }
