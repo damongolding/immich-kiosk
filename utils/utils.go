@@ -204,9 +204,9 @@ func CalculateContrastRatio(color1, color2 Color) float64 {
 
 // calculateLuminance calculates the relative luminance of an RGB color.
 func calculateLuminance(color Color) float64 {
-	r := linearize(float64(color.R))
-	g := linearize(float64(color.G))
-	b := linearize(float64(color.B))
+	r := linearize(float64(color.R) / 255.0)
+	g := linearize(float64(color.G) / 255.0)
+	b := linearize(float64(color.B) / 255.0)
 
 	return 0.2126*r + 0.7152*g + 0.0722*b
 }
