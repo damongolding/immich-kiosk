@@ -286,7 +286,7 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 
 	for _, pick := range images {
 		// We only want images and that should not be archived or in trashed
-		if pick.Type != "IMAGE" || !pick.IsArchived || !pick.IsTrashed {
+		if pick.Type != "IMAGE" || pick.IsArchived || pick.IsTrashed {
 			continue
 		}
 
@@ -356,7 +356,7 @@ func (i *ImmichAsset) GetRandomImageFromAlbum(albumId, requestId string) error {
 
 	for _, pick := range album.Assets {
 		// We only want images and that should not be archived or in trashed
-		if pick.Type != "IMAGE" || !pick.IsArchived || !pick.IsTrashed {
+		if pick.Type != "IMAGE" || pick.IsArchived || pick.IsTrashed {
 			continue
 		}
 
