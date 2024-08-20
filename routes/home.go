@@ -19,21 +19,21 @@ func Home(c echo.Context) error {
 
 	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
-	// create a copy of the global config to use with this instance
-	instanceConfig := baseConfig
+	// create a copy of the global config to use with this request
+	requestConfig := baseConfig
 
 	queries := c.Request().URL.Query()
 
 	if len(queries) > 0 {
-		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
+		requestConfig = requestConfig.ConfigWithOverrides(queries)
 	}
 
-	log.Debug(requestId, "path", c.Request().URL.String(), "instanceConfig", instanceConfig.String())
+	log.Debug(requestId, "path", c.Request().URL.String(), "requestConfig", requestConfig.String())
 
 	pageData := views.PageData{
 		KioskVersion: KioskVersion,
 		Queries:      queries,
-		Config:       instanceConfig,
+		Config:       requestConfig,
 	}
 
 	return Render(c, http.StatusOK, views.Home(pageData))

@@ -24,8 +24,8 @@ func NewImage(c echo.Context) error {
 	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	requestingRawImage := c.Request().URL.Query().Has("raw")
 
-	// create a copy of the global config to use with this instance
-	instanceConfig := baseConfig
+	// create a copy of the global config to use with this request
+	requestConfig := baseConfig
 
 	// If kiosk version on client and server do not match refresh client. Pypass if requestingRawImage is set
 	if !requestingRawImage && KioskVersion != kioskVersionHeader {
@@ -36,21 +36,21 @@ func NewImage(c echo.Context) error {
 	queries := c.Request().URL.Query()
 
 	if len(queries) > 0 {
-		instanceConfig = instanceConfig.ConfigWithOverrides(queries)
+		requestConfig = requestConfig.ConfigWithOverrides(queries)
 	}
 
-	log.Debug(requestId, "path", c.Request().URL.String(), "config", instanceConfig.String())
+	log.Debug(requestId, "path", c.Request().URL.String(), "config", requestConfig.String())
 
 	immichImage := immich.NewImage(baseConfig)
 
 	var peopleAndAlbums []immich.ImmichAsset
 
-	for _, people := range instanceConfig.Person {
+	for _, people := range requestConfig.Person {
 		// TODO whitelisting goes here
 		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "PERSON", ID: people})
 	}
 
-	for _, album := range instanceConfig.Album {
+	for _, album := range requestConfig.Album {
 		// TODO whitelisting goes here
 		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
 	}
@@ -102,7 +102,7 @@ func NewImage(c echo.Context) error {
 
 	var imgBlur string
 
-	if instanceConfig.BackgroundBlur && strings.ToLower(instanceConfig.ImageFit) != "cover" {
+	if requestConfig.BackgroundBlur && strings.ToLower(requestConfig.ImageFit) != "cover" {
 		imageBlurTime := time.Now()
 		imgBlurBytes, err := utils.BlurImage(imgBytes)
 		if err != nil {
@@ -121,25 +121,25 @@ func NewImage(c echo.Context) error {
 	var imageDate string
 
 	var imageTimeFormat string
-	if instanceConfig.ImageTimeFormat == "12" {
+	if requestConfig.ImageTimeFormat == "12" {
 		imageTimeFormat = time.Kitchen
 	} else {
 		imageTimeFormat = time.TimeOnly
 	}
 
-	imageDateFormat := utils.DateToLayout(instanceConfig.ImageDateFormat)
+	imageDateFormat := utils.DateToLayout(requestConfig.ImageDateFormat)
 	if imageDateFormat == "" {
 		imageDateFormat = defaultDateLayout
 	}
 
 	switch {
-	case (instanceConfig.ShowImageDate && instanceConfig.ShowImageTime):
+	case (requestConfig.ShowImageDate && requestConfig.ShowImageTime):
 		imageDate = fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format(imageDateFormat), immichImage.LocalDateTime.Format(imageTimeFormat))
 		break
-	case instanceConfig.ShowImageDate:
+	case requestConfig.ShowImageDate:
 		imageDate = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(imageDateFormat))
 		break
-	case instanceConfig.ShowImageTime:
+	case requestConfig.ShowImageTime:
 		imageDate = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(imageTimeFormat))
 		break
 	}
@@ -148,7 +148,7 @@ func NewImage(c echo.Context) error {
 		ImageData:     img,
 		ImageBlurData: imgBlur,
 		ImageDate:     imageDate,
-		Config:        instanceConfig,
+		Config:        requestConfig,
 	}
 
 	return Render(c, http.StatusOK, views.Image(data))
