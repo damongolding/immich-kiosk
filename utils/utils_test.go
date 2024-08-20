@@ -122,13 +122,13 @@ func TestStringToColor(t *testing.T) {
 	b := StringToColor(in)
 
 	if a.Hex != b.Hex {
-		t.Error("colors do not match")
+		t.Error("colors do not match", a, b)
 	}
 }
 
 func TestColorContrast(t *testing.T) {
 	white := Color{R: 255, G: 255, B: 255}
-	black := Color{R: 255, G: 255, B: 255}
+	black := Color{R: 0, G: 0, B: 0}
 	grey := Color{R: 105, G: 105, B: 105}
 
 	maxRatio := CalculateContrastRatio(white, black)
