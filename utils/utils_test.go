@@ -128,16 +128,16 @@ func TestStringToColor(t *testing.T) {
 
 func TestColorContrast(t *testing.T) {
 	white := Color{R: 255, G: 255, B: 255}
-	black := Color{R: 255, G: 255, B: 255}
+	black := Color{R: 0, G: 0, B: 0}
 	grey := Color{R: 105, G: 105, B: 105}
 
 	maxRatio := CalculateContrastRatio(white, black)
-	if maxRatio != 1 {
+	if maxRatio != 21 {
 		t.Error("ratio is not at maximum", maxRatio)
 	}
 
 	failRatio := CalculateContrastRatio(grey, black)
-	if failRatio == 1 {
+	if failRatio == 21 {
 		t.Error("ratio is not at maximum", failRatio)
 	}
 
