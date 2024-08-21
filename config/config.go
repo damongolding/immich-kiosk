@@ -118,6 +118,7 @@ func (c *Config) Load() error {
 	viper.SetDefault("image_time_format", "")
 	viper.SetDefault("show_image_date", false)
 	viper.SetDefault("image_date_format", "")
+
 	viper.SetDefault("kiosk.cache", true)
 	viper.SetDefault("kiosk.password", "")
 
