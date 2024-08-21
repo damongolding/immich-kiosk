@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image"
 	"io"
+	"math"
 	"math/rand/v2"
 	"mime"
 	"net/http"
@@ -19,6 +20,7 @@ import (
 	"golang.org/x/image/webp"
 	_ "golang.org/x/image/webp"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/disintegration/imaging"
 )
@@ -141,4 +143,78 @@ func RandomItem[T any](s []T) T {
 	})
 
 	return s[0]
+}
+
+type Color struct {
+	R   int
+	G   int
+	B   int
+	RGB string
+	Hex string
+}
+
+// StringToColor takes any string and returns a Color struct.
+// Identical strings should return identical values
+func StringToColor(inputString string) Color {
+	sum := 0
+	for _, char := range inputString {
+		sum += int(char)
+	}
+
+	// Helper function to calculate a color component
+	calcColor := func(offset int) int {
+		return int(math.Floor((math.Sin(float64(sum+offset)) + 1) * 128))
+	}
+
+	r := calcColor(1)
+	g := calcColor(2)
+	b := calcColor(3)
+
+	rgb := fmt.Sprintf("rgb(%d, %d, %d)", r, g, b)
+	hex := fmt.Sprintf("#%02X%02X%02X", r, g, b)
+
+	return Color{R: r, G: g, B: b, RGB: rgb, Hex: hex}
+}
+
+func ColorizeRequestId(requestId string) string {
+
+	c := StringToColor(requestId)
+
+	textWhite := calculateContrastRatio(Color{R: 255, G: 255, B: 255}, c)
+	textBlack := calculateContrastRatio(Color{R: 0, G: 0, B: 0}, c)
+
+	textColor := lipgloss.Color("#000000")
+	if textWhite > textBlack {
+		textColor = lipgloss.Color("#ffffff")
+	}
+
+	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestId)
+}
+
+// calculateContrastRatio computes the contrast ratio between two RGB colors.
+func calculateContrastRatio(color1, color2 Color) float64 {
+	lum1 := calculateLuminance(color1)
+	lum2 := calculateLuminance(color2)
+
+	if lum1 > lum2 {
+		return (lum1 + 0.05) / (lum2 + 0.05)
+	}
+	return (lum2 + 0.05) / (lum1 + 0.05)
+}
+
+// calculateLuminance calculates the relative luminance of an RGB color.
+func calculateLuminance(color Color) float64 {
+	r := linearize(float64(color.R) / 255.0)
+	g := linearize(float64(color.G) / 255.0)
+	b := linearize(float64(color.B) / 255.0)
+
+	return 0.2126*r + 0.7152*g + 0.0722*b
+}
+
+// linearize converts an sRGB component to a linear value.
+func linearize(value float64) float64 {
+	if value <= 0.03928 {
+		return value / 12.92
+	}
+	return math.Pow((value+0.055)/1.055, 2.4)
 }

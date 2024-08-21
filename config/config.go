@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -117,6 +118,7 @@ func (c *Config) Load() error {
 	viper.SetDefault("image_time_format", "")
 	viper.SetDefault("show_image_date", false)
 	viper.SetDefault("image_date_format", "")
+
 	viper.SetDefault("kiosk.cache", true)
 	viper.SetDefault("kiosk.password", "")
 
@@ -226,4 +228,12 @@ func (c *Config) ConfigWithOverrides(queries url.Values) Config {
 	}
 
 	return *configWithOverrides
+}
+
+func (c *Config) String() string {
+	out, err := json.MarshalIndent(c, "", " ")
+	if err != nil {
+		log.Error("", "err", err)
+	}
+	return string(out)
 }
