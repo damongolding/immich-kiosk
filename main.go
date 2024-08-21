@@ -9,14 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/routes"
-	"github.com/damongolding/immich-kiosk/utils"
 )
 
 // version current build version number
@@ -75,21 +73,6 @@ func main() {
 			},
 			ErrorHandler: func(err error, c echo.Context) error {
 				return c.String(http.StatusUnauthorized, "Unauthorized")
-			},
-		}))
-	}
-	if log.GetLevel() != log.DebugLevel {
-		logger := log.New(os.Stdout)
-		e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-			LogURI:       true,
-			LogStatus:    true,
-			LogRequestID: true,
-			LogRemoteIP:  true,
-			LogValuesFunc: func(c echo.Context, values middleware.RequestLoggerValues) error {
-				requestColor := utils.StringToColor(values.RequestID)
-				rColor := lipgloss.NewStyle().Foreground(lipgloss.Color(requestColor.Hex)).Render(values.RequestID)
-				logger.WithPrefix(rColor).Info("status", values.Status, "URI", values.URI)
-				return nil
 			},
 		}))
 	}
