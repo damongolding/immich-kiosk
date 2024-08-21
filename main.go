@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -48,7 +49,8 @@ func main() {
 	}
 
 	fmt.Println(smallBanner)
-	fmt.Print("Version ", version, "\n\n")
+	versionStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#5af78e")).Render(version)
+	fmt.Print("Version ", versionStyle, "\n\n")
 
 	e := echo.New()
 
