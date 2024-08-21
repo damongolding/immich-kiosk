@@ -223,7 +223,7 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 	for _, img := range immichAssets {
 		// We only want images and that are not archived or trashed
 		if img.Type != "IMAGE" || img.IsArchived || img.IsTrashed {
-			return nil
+			continue
 		}
 
 		*i = img
