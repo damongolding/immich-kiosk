@@ -4,28 +4,17 @@ import (
 	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
-
-	"github.com/damongolding/immich-kiosk/config"
 )
 
 const defaultDateLayout = "02/01/2006"
 
 var (
-	KioskVersion  string
-	ExampleConfig []byte
-	baseConfig    config.Config
+	KioskVersion string
 )
 
 type PersonOrAlbum struct {
 	Type string
 	ID   string
-}
-
-func init() {
-	err := baseConfig.Load()
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 // This custom Render replaces Echo's echo.Context.Render() with templ's templ.Component.Render().

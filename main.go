@@ -40,9 +40,9 @@ func init() {
 
 func main() {
 
-	var conf config.Config
+	var baseConfig config.Config
 
-	err := conf.Load()
+	err := baseConfig.Load()
 	if err != nil {
 		log.Fatal("Failed to load config", "err", err)
 	}
@@ -58,7 +58,7 @@ func main() {
 	// Middleware
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
-	if conf.Kiosk.Password != "" {
+	if baseConfig.Kiosk.Password != "" {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 			Skipper: func(c echo.Context) bool {
 				// skip auth for assets
@@ -69,7 +69,7 @@ func main() {
 			},
 			KeyLookup: "query:password",
 			Validator: func(queryPassword string, c echo.Context) (bool, error) {
-				return queryPassword == conf.Kiosk.Password, nil
+				return queryPassword == baseConfig.Kiosk.Password, nil
 			},
 			ErrorHandler: func(err error, c echo.Context) error {
 				return c.String(http.StatusUnauthorized, "Unauthorized")
@@ -83,11 +83,11 @@ func main() {
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "public/assets"))
 
-	e.GET("/", routes.Home)
+	e.GET("/", routes.Home(baseConfig))
 
-	e.GET("/image", routes.NewImage)
+	e.GET("/image", routes.NewImage(baseConfig))
 
-	e.GET("/clock", routes.Clock)
+	e.GET("/clock", routes.Clock(baseConfig))
 
 	err = e.Start(":3000")
 	if err != nil {
