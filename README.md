@@ -366,7 +366,8 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - Fullscreen mode
 - Hide cursor
 - Use favourites as image pool sauce
-- Prevent screendim/screensaver 
+- Prevent screendim/screensaver
+- Display image metadata. aperture, shutter speed, ISO etc 
 
 ------
 
