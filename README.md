@@ -29,20 +29,20 @@
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
-  - [Example 1: Home Assistant](#example-1)
-  - [Example 2: Raspberry Pi](#example-2)
+  - [Example 1: Raspberry Pi](#example-2)
 - [Installation](#installation)
 - [Docker Compose](#docker-compose)
 - [Configuration](#configuration)
   - [Changing settings via URL](#changing-settings-via-url)
   - [Image fit](#image-fit)
   - [Date format](#date-format)
+- [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO](#TODO)
 - [Support](#support)
 
 ## What is Immich Kiosk?
-I made Immich Kiosk as a lightweight slideshow to run on kiosk devices and browsers.
+I created Immich Kiosk to be a lightweight slideshow to run on kiosk devices and browsers.
 
 ![preview 1](/assets/demo_1.jpg)
 **Image shot by Damon Golding**
@@ -50,17 +50,8 @@ I made Immich Kiosk as a lightweight slideshow to run on kiosk devices and brows
 ![preview 2](/assets/demo_2.jpg)
 **[Image shot by @insungpandora](https://unsplash.com/@insungpandora)**
 
+
 ### Example 1
-You want to have a slideshow of your Immmich images using the webpage card in Home Assistant.
-
-1. Open up the dahsboard you want to add the slideshow to in edit mode.
-2. Hit "add card" and search "webpage".
-3. Enter the your Immich Kiosk url in the URL field e.g. `http://192.168.0.123:3000`
-4. If you want to have some specific settings for the slideshow you can add them to the *[URL](#changing-settings-via-url)
-
-\* I would suggest disabling all the UI i.e. `http://192.168.0.123:3000?disable_ui=true`
-
-### Example 2
 You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
 
 You want the pi connected to the LCD screen to only show images from your recent holiday, which are stored in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
@@ -70,37 +61,6 @@ Using this URL `http://{URL}?album={ALBUM_ID}&transtion=none&show_time=false` wo
 On the pi connected to the TV you want to display a random image from your library but only images of two specific people. We want the image to cover the whole screen (knowing some cropping will happen) and we want to use the fade transition.
 
 Using this URL `http://{URL}?image_fit=cover&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID` would achieve what we want.
-
-### Example 3
-Using immich-kiosk as an image source for Wallpanel in HomeAssistant:
-
-```yaml
-  wallpanel:
-    enabled: true
-    image_fit: cover
-    idle_time: 10
-    screensaver_entity: input_boolean.kiosk
-    screensaver_stop_navigation_path: /dashboard-kiosk
-    fullscreen: true
-    display_time: 86400
-    image_url: >-
-      http://{immich-kiosk-url}/image?raw&person=PERSON_1_ID&person=PERSON_2_ID
-    cards:
-      - type: vertical-stack
-        cards:
-          - type: custom:weather-card
-            details: true
-            forecast: true
-            hourly_forecast: false
-            name: Weather
-            entity: weather.pirateweather
-            current: true
-            number_of_forecasts: '6'
-          - type: custom:horizon-card
-            darkMode: true
-            showAzimuth: true
-            showElevation: true
-```
 
 
 ------
@@ -271,6 +231,53 @@ These examples assume that today's date is the 22nd of August 2024.
 * "YY M DDD" => "24 8 Thur"
 * "YY MMM DDDD" => "24 Aug Thursday"
 * "YYYY MMMM DDDD DD" => "2024 August Thursday 22"
+
+------
+
+## Home Assistant
+
+While I did not create Kiosk with Home Assistant in mind. I thought it would be useful to add Kiosk implimentations I have come across.
+
+## Using Kiosk to add a slideshow in Home Assistant.
+
+1. Open up the dahsboard you want to add the slideshow to in edit mode.
+2. Hit "add card" and search "webpage".
+3. Enter the your Immich Kiosk url in the URL field e.g. `http://192.168.0.123:3000`
+4. If you want to have some specific settings for the slideshow you can add them to the *[URL](#changing-settings-via-url)
+
+\* I would suggest disabling all the UI i.e. `http://192.168.0.123:3000?disable_ui=true`
+
+
+### Using Immich Kiosk as an image source for Wallpanel in HomeAssistant:
+
+```yaml
+  wallpanel:
+    enabled: true
+    image_fit: cover
+    idle_time: 10
+    screensaver_entity: input_boolean.kiosk
+    screensaver_stop_navigation_path: /dashboard-kiosk
+    fullscreen: true
+    display_time: 86400
+    image_url: >-
+      http://{immich-kiosk-url}/image?raw&person=PERSON_1_ID&person=PERSON_2_ID
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:weather-card
+            details: true
+            forecast: true
+            hourly_forecast: false
+            name: Weather
+            entity: weather.pirateweather
+            current: true
+            number_of_forecasts: '6'
+          - type: custom:horizon-card
+            darkMode: true
+            showAzimuth: true
+            showElevation: true
+```
+
 
 ------
 
