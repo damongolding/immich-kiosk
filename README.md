@@ -236,9 +236,9 @@ These examples assume that today's date is the 22nd of August 2024.
 
 ## Home Assistant
 
-While I did not create Kiosk with Home Assistant in mind. I thought it would be useful to add Kiosk implimentations I have come across.
+While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io) in mind. I thought it would be useful to add Kiosk implimentations I have come across.
 
-## Using Kiosk to add a slideshow in Home Assistant.
+### Using Kiosk to add a slideshow in Home Assistant.
 
 1. Open up the dahsboard you want to add the slideshow to in edit mode.
 2. Hit "add card" and search "webpage".
