@@ -121,7 +121,7 @@ func setDefaultValue(field reflect.StructField, val reflect.Value, recursice ...
 		value, _ := strconv.ParseFloat(defaultValue, 64)
 		viper.SetDefault(mapStructure, value)
 	default:
-		viper.SetDefault(mapStructure, field.Type.Kind())
+		viper.SetDefault(mapStructure, relfect.New(field.Type).Elem())
 	}
 }
 
