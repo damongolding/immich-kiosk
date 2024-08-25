@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+ "github.com/mcuadros/go-defaults"
 )
 
 type KioskSettings struct {
@@ -44,9 +45,9 @@ type Config struct {
 	Refresh int `mapstructure:"refresh" default:"60"`
 
 	// Person ID of person to display
-	Person []string `mapstructure:"person" default:""`
+	Person []string `mapstructure:"person" default:"[]"`
 	// Album ID of album(s) to display
-	Album []string `mapstructure:"album" default:""`
+	Album []string `mapstructure:"album" default:"[]"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `mapstructure:"image_fit" default:"contain"`
@@ -150,10 +151,11 @@ func setDefaults(s interface{}, recursive ...string) {
 // Load loads config file
 func (c *Config) Load() error {
 
-	var config Config
+	config := new(Config)
+
+ defaults.SetDefaults(config)
 
 	// Defaults
-	setDefaults(c)
 	// viper.SetDefault("immich_api_key", "")
 	// viper.SetDefault("immich_url", "")
 	// viper.SetDefault("password", "")
