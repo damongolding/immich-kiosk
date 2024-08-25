@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
- "github.com/mcuadros/go-defaults"
 )
 
 type KioskSettings struct {
@@ -151,9 +151,9 @@ func setDefaults(s interface{}, recursive ...string) {
 // Load loads config file
 func (c *Config) Load() error {
 
-	config := new(Config)
+	var config Config
 
- defaults.SetDefaults(config)
+	defaults.SetDefaults(config)
 
 	// Defaults
 	// viper.SetDefault("immich_api_key", "")
