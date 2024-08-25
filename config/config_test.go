@@ -173,3 +173,11 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 		t.Errorf("Base albums did not persist: %s", configWithBaseOnly.Album)
 	}
 }
+
+func TestDefaults(t *testing.T) {
+	var c Config
+	err := c.Load()
+	if err != nil {
+		t.Error(err)
+	}
+}
