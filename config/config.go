@@ -119,7 +119,7 @@ func setDefaultValue(field reflect.StructField, recursive ...string) {
 		viper.SetDefault(mapStructure, value)
 	default:
 		value := reflect.New(field.Type).Elem()
-		fmt.Printf("type %T val %v", value, value)
+		fmt.Printf("type %T val %v\n", value, value)
 		viper.SetDefault(mapStructure, value)
 	}
 }
@@ -141,10 +141,8 @@ func setDefaults(s interface{}, recursive ...string) {
 			}
 			setDefaults(fieldValue.Addr().Interface(), recursive...)
 		} else {
-			defaultTag := field.Tag.Get("default")
-			fmt.Printf("Field: %s, mapstructure: %s, default: %s\n", field.Name, mapstructureTag, defaultTag)
-
-			setDefaultValue(field, recursive...) // Set default value based on type
+			// Set default value based on type
+			setDefaultValue(field, recursive...)
 		}
 	}
 }
