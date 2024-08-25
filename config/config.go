@@ -134,7 +134,10 @@ func setDefaults(s interface{}, recursice ...string) {
 
 		if fieldValue.Kind() == reflect.Struct {
 			// Recurse for nested structs
-			setDefaults(fieldValue.Addr().Interface(), mapstructureTag)
+	  if len(recursice) != 0 {
+		  recursice = append(recursice, mapStructure)
+	  }
+			setDefaults(fieldValue.Addr().Interface(), recursive...)
 		} else {
 			defaultTag := field.Tag.Get("default")
 			fmt.Printf("Field: %s, mapstructure: %s, default: %s\n", field.Name, mapstructureTag, defaultTag)
