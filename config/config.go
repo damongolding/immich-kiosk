@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -15,55 +16,55 @@ import (
 
 type KioskSettings struct {
 	// Cache enable/disable api call caching
-	Cache bool `mapstructure:"cache"`
+	Cache bool `mapstructure:"cache" default:"true"`
 
 	// Password the password used to add authentication to the frontend
-	Password string `mapstructure:"password"`
+	Password string `mapstructure:"password" default:""`
 }
 
 type Config struct {
 	// ImmichApiKey Immich key to access assets
-	ImmichApiKey string `mapstructure:"immich_api_key"`
+	ImmichApiKey string `mapstructure:"immich_api_key" default:""`
 	// ImmichUrl Immuch base url
-	ImmichUrl string `mapstructure:"immich_url"`
+	ImmichUrl string `mapstructure:"immich_url" default:""`
 
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
-	DisableUi bool
+	DisableUi bool `mapstructure:"disable_ui" default:"false"`
 
 	// ShowTime whether to display clock
-	ShowTime bool `mapstructure:"show_time"`
+	ShowTime bool `mapstructure:"show_time" default:"false"`
 	// TimeFormat whether to use 12 of 24 hour format for clock
-	TimeFormat string `mapstructure:"time_format"`
+	TimeFormat string `mapstructure:"time_format" default:""`
 	// ShowDate whether to display date
-	ShowDate bool `mapstructure:"show_date"`
+	ShowDate bool `mapstructure:"show_date" default:"false"`
 	//  DateFormat format for date
-	DateFormat string `mapstructure:"date_format"`
+	DateFormat string `mapstructure:"date_format" default:""`
 
 	// Refresh time between fetching new image
-	Refresh int `mapstructure:"refresh"`
+	Refresh int `mapstructure:"refresh" default:"60"`
 
 	// Person ID of person to display
-	Person []string `mapstructure:"person"`
+	Person []string `mapstructure:"person" default:""`
 	// Album ID of album(s) to display
-	Album []string `mapstructure:"album"`
+	Album []string `mapstructure:"album" default:""`
 
 	// ImageFit the fit style for main image
-	ImageFit string `mapstructure:"image_fit"`
+	ImageFit string `mapstructure:"image_fit" default:"contain"`
 	// BackgroundBlur whether to display blurred image as background
-	BackgroundBlur bool `mapstructure:"background_blur"`
+	BackgroundBlur bool `mapstructure:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
-	Transition string `mapstructure:"transition"`
+	Transition string `mapstructure:"transition" default:""`
 	// ShowProgress display a progress bar
-	ShowProgress bool `mapstructure:"show_progress"`
+	ShowProgress bool `mapstructure:"show_progress" default:"false"`
 
 	// ShowImageTime whether to display image time
-	ShowImageTime bool `mapstructure:"show_image_time"`
+	ShowImageTime bool `mapstructure:"show_image_time" default:"false"`
 	// ImageTimeFormat  whether to use 12 of 24 hour format
-	ImageTimeFormat string `mapstructure:"image_time_format"`
+	ImageTimeFormat string `mapstructure:"image_time_format" default:""`
 	// ShowImageDate whether to display image date
-	ShowImageDate bool `mapstructure:"show_image_date"`
+	ShowImageDate bool `mapstructure:"show_image_date"  default:"false"`
 	// ImageDateFormat format for image date
-	ImageDateFormat string `mapstructure:"image_date_format"`
+	ImageDateFormat string `mapstructure:"image_date_format" default:""`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
@@ -91,6 +92,59 @@ func (c *Config) checkUrlScheme(config Config) Config {
 	}
 
 	return config
+}
+
+func setDefaultValue(field reflect.StructField, val reflect.Value, recursice ...string) {
+
+	mapStructure := field.Tag.Get("mapstructure")
+
+	if len(recursice) != 0 {
+		recursice = append(recursice, mapStructure)
+		mapStructure = strings.Join(recursice, ".")
+	}
+
+	defaultValue := field.Tag.Get("default")
+	if defaultValue == "" {
+		return
+	}
+
+	switch field.Type.Kind() {
+	case reflect.Bool:
+		value, _ := strconv.ParseBool(defaultValue)
+		viper.SetDefault(mapStructure, value)
+	case reflect.String:
+		viper.SetDefault(mapStructure, defaultValue)
+	case reflect.Int:
+		value, _ := strconv.ParseInt(defaultValue, 10, 64)
+		viper.SetDefault(mapStructure, value)
+	case reflect.Float64:
+		value, _ := strconv.ParseFloat(defaultValue, 64)
+		viper.SetDefault(mapStructure, value)
+	default:
+		viper.SetDefault(mapStructure, field.Type.Kind())
+	}
+}
+
+func setDefaults(s interface{}, recursice ...string) {
+	val := reflect.ValueOf(s).Elem()
+	t := val.Type()
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		fieldValue := val.Field(i)
+
+		mapstructureTag := field.Tag.Get("mapstructure")
+
+		if fieldValue.Kind() == reflect.Struct {
+			// Recurse for nested structs
+			setDefaults(fieldValue.Addr().Interface(), mapstructureTag)
+		} else {
+			defaultTag := field.Tag.Get("default")
+			fmt.Printf("Field: %s, mapstructure: %s, default: %s\n", field.Name, mapstructureTag, defaultTag)
+
+			setDefaultValue(field, fieldValue, recursice...) // Set default value based on type
+		}
+	}
 }
 
 // Load loads config file
