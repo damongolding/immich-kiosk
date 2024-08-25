@@ -104,9 +104,6 @@ func setDefaultValue(field reflect.StructField, val reflect.Value, recursice ...
 	}
 
 	defaultValue := field.Tag.Get("default")
-	if defaultValue == "" {
-		return
-	}
 
 	switch field.Type.Kind() {
 	case reflect.Bool:
