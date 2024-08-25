@@ -94,13 +94,13 @@ func (c *Config) checkUrlScheme(config Config) Config {
 	return config
 }
 
-func setDefaultValue(field reflect.StructField, val reflect.Value, recursice ...string) {
+func setDefaultValue(field reflect.StructField, recursive ...string) {
 
 	mapStructure := field.Tag.Get("mapstructure")
 
-	if len(recursice) != 0 {
-		recursice = append(recursice, mapStructure)
-		mapStructure = strings.Join(recursice, ".")
+	if len(recursive) != 0 {
+		recursive = append(recursive, mapStructure)
+		mapStructure = strings.Join(recursive, ".")
 	}
 
 	defaultValue := field.Tag.Get("default")
@@ -122,7 +122,7 @@ func setDefaultValue(field reflect.StructField, val reflect.Value, recursice ...
 	}
 }
 
-func setDefaults(s interface{}, recursice ...string) {
+func setDefaults(s interface{}, recursive ...string) {
 	val := reflect.ValueOf(s).Elem()
 	t := val.Type()
 
@@ -134,15 +134,15 @@ func setDefaults(s interface{}, recursice ...string) {
 
 		if fieldValue.Kind() == reflect.Struct {
 			// Recurse for nested structs
-	  if len(recursice) != 0 {
-		  recursice = append(recursice, mapStructure)
-	  }
+			if len(recursive) != 0 {
+				recursive = append(recursive, mapstructureTag)
+			}
 			setDefaults(fieldValue.Addr().Interface(), recursive...)
 		} else {
 			defaultTag := field.Tag.Get("default")
 			fmt.Printf("Field: %s, mapstructure: %s, default: %s\n", field.Name, mapstructureTag, defaultTag)
 
-			setDefaultValue(field, fieldValue, recursice...) // Set default value based on type
+			setDefaultValue(field, recursive...) // Set default value based on type
 		}
 	}
 }
