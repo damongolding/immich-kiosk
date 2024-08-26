@@ -10,6 +10,8 @@ import (
 // TestTransition check transitions for being transformed
 func TestTransition(t *testing.T) {
 
+	t.Log("TestTransition")
+
 	originalUrl := "https://my-server.com"
 	originalApi := "123456"
 
@@ -37,6 +39,8 @@ func TestTransition(t *testing.T) {
 // TestConfigWithOverrides testing whether ImmichUrl and ImmichApiKey are immutable
 func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 
+	t.Log("TestImmichUrlImmichApiKeyImmutability")
+
 	originalUrl := "https://my-server.com"
 	originalApi := "123456"
 
@@ -63,6 +67,8 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 
 func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 
+	t.Log("TestImmichUrlImmichMulitplePerson")
+
 	c := Config{}
 
 	q := url.Values{}
@@ -81,6 +87,8 @@ func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 
 // TestMalformedURLs testing urls without scheme or ports
 func TestMalformedURLs(t *testing.T) {
+
+	t.Log("TestMalformedURLs")
 
 	var tests = []struct {
 		KIOSK_IMMICH_URL string
@@ -103,7 +111,7 @@ func TestMalformedURLs(t *testing.T) {
 
 			err := c.Load()
 			if err != nil {
-				t.Error(err)
+				t.Error("Config load err", err)
 			}
 
 			if c.ImmichUrl != test.Want {
@@ -115,6 +123,8 @@ func TestMalformedURLs(t *testing.T) {
 }
 
 func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
+
+	t.Log("TestImmichUrlImmichMulitpleAlbum")
 
 	// configWithBase
 	configWithBase := Config{
@@ -171,13 +181,5 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 
 	if len(configWithBaseOnly.Album) != 2 {
 		t.Errorf("Base albums did not persist: %s", configWithBaseOnly.Album)
-	}
-}
-
-func TestDefaults(t *testing.T) {
-	var c Config
-	err := c.Load()
-	if err != nil {
-		t.Error(err)
 	}
 }

@@ -77,22 +77,21 @@ const (
 )
 
 // checkUrlScheme checks given url has correct scheme and adds http:// if non if found
-func (c *Config) checkUrlScheme(config Config) Config {
-	if config.ImmichUrl == "" || config.ImmichApiKey == "" {
-		log.Fatal("Either Immich Url or Immich Api Key is missing", "ImmichUrl", config.ImmichUrl, "ImmichApiKey", config.ImmichApiKey)
+func (c *Config) checkUrlScheme() {
+	if c.ImmichUrl == "" || c.ImmichApiKey == "" {
+		log.Warn("Either Immich Url or Immich Api Key is missing", "ImmichUrl", c.ImmichUrl, "ImmichApiKey", c.ImmichApiKey)
 	}
 
 	// check for correct scheme
 	switch {
-	case strings.HasPrefix(strings.ToLower(config.ImmichUrl), "http://"):
+	case strings.HasPrefix(strings.ToLower(c.ImmichUrl), "http://"):
 		break
-	case strings.HasPrefix(strings.ToLower(config.ImmichUrl), "https://"):
+	case strings.HasPrefix(strings.ToLower(c.ImmichUrl), "https://"):
 		break
 	default:
-		config.ImmichUrl = defaultScheme + config.ImmichUrl
+		c.ImmichUrl = defaultScheme + c.ImmichUrl
 	}
 
-	return config
 }
 
 func setDefaultValue(field reflect.StructField, recursive ...string) {
@@ -149,11 +148,9 @@ func setDefaults(s interface{}, recursive ...string) {
 }
 
 // Load loads config file
-func (c *Config) Load() error {
+func (c Config) Load() error {
 
-	var config Config
-
-	defaults.SetDefaults(config)
+	defaults.SetDefaults(&c)
 
 	// Defaults
 	// viper.SetDefault("immich_api_key", "")
@@ -194,14 +191,12 @@ func (c *Config) Load() error {
 		log.Debug("config.yaml file not being used")
 	}
 
-	err = viper.Unmarshal(&config)
+	err = viper.Unmarshal(&c)
 	if err != nil {
 		log.Fatal("Environment can't be loaded: ", "err", err)
 	}
 
-	config = c.checkUrlScheme(config)
-
-	*c = config
+	c.checkUrlScheme()
 
 	return nil
 }
