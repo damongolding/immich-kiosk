@@ -10,8 +10,6 @@ import (
 // TestTransition check transitions for being transformed
 func TestTransition(t *testing.T) {
 
-	t.Log("TestTransition")
-
 	originalUrl := "https://my-server.com"
 	originalApi := "123456"
 
@@ -39,8 +37,6 @@ func TestTransition(t *testing.T) {
 // TestConfigWithOverrides testing whether ImmichUrl and ImmichApiKey are immutable
 func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 
-	t.Log("TestImmichUrlImmichApiKeyImmutability")
-
 	originalUrl := "https://my-server.com"
 	originalApi := "123456"
 
@@ -66,8 +62,6 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 }
 
 func TestImmichUrlImmichMulitplePerson(t *testing.T) {
-
-	t.Log("TestImmichUrlImmichMulitplePerson")
 
 	c := Config{}
 
@@ -121,8 +115,6 @@ func TestMalformedURLs(t *testing.T) {
 }
 
 func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
-
-	t.Log("TestImmichUrlImmichMulitpleAlbum")
 
 	// configWithBase
 	configWithBase := Config{

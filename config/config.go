@@ -99,87 +99,10 @@ func (c *Config) checkUrlScheme() {
 
 }
 
-// func setDefaultValue(field reflect.StructField, recursive ...string) {
-
-// 	mapStructure := field.Tag.Get("mapstructure")
-
-// 	if len(recursive) != 0 {
-// 		recursive = append(recursive, mapStructure)
-// 		mapStructure = strings.Join(recursive, ".")
-// 	}
-
-// 	defaultValue := field.Tag.Get("default")
-
-// 	switch field.Type.Kind() {
-// 	case reflect.Bool:
-// 		value, _ := strconv.ParseBool(defaultValue)
-// 		viper.SetDefault(mapStructure, value)
-// 	case reflect.String:
-// 		viper.SetDefault(mapStructure, defaultValue)
-// 	case reflect.Int:
-// 		value, _ := strconv.ParseInt(defaultValue, 10, 64)
-// 		viper.SetDefault(mapStructure, value)
-// 	case reflect.Float64:
-// 		value, _ := strconv.ParseFloat(defaultValue, 64)
-// 		viper.SetDefault(mapStructure, value)
-// 	default:
-// 		value := reflect.New(field.Type).Elem()
-// 		fmt.Printf("type %T val %v\n", value, value)
-// 		viper.SetDefault(mapStructure, value)
-// 	}
-// }
-
-// func setDefaults(s interface{}, recursive ...string) {
-// 	val := reflect.ValueOf(s).Elem()
-// 	t := val.Type()
-
-// 	for i := 0; i < t.NumField(); i++ {
-// 		field := t.Field(i)
-// 		fieldValue := val.Field(i)
-
-// 		mapstructureTag := field.Tag.Get("mapstructure")
-
-// 		if fieldValue.Kind() == reflect.Struct {
-// 			// Recurse for nested structs
-// 			if len(recursive) != 0 {
-// 				recursive = append(recursive, mapstructureTag)
-// 			}
-// 			setDefaults(fieldValue.Addr().Interface(), recursive...)
-// 		} else {
-// 			// Set default value based on type
-// 			setDefaultValue(field, recursive...)
-// 		}
-// 	}
-// }
-
 // Load loads config file
 func (c *Config) Load() error {
 
-	v := viper.NewWithOptions()
-
-	// Defaults
-	// viper.SetDefault("immich_api_key", "")
-	// viper.SetDefault("immich_url", "")
-	// viper.SetDefault("password", "")
-	// viper.SetDefault("disable_ui", false)
-	// viper.SetDefault("show_time", false)
-	// viper.SetDefault("time_format", "")
-	// viper.SetDefault("show_date", false)
-	// viper.SetDefault("date_format", "")
-	// viper.SetDefault("refresh", 60)
-	// viper.SetDefault("album", "")
-	// viper.SetDefault("person", []string{})
-	// viper.SetDefault("image_fit", "contain")
-	// viper.SetDefault("background_blur", true)
-	// viper.SetDefault("transition", "")
-	// viper.SetDefault("show_progress", false)
-	// viper.SetDefault("show_image_time", false)
-	// viper.SetDefault("image_time_format", "")
-	// viper.SetDefault("show_image_date", false)
-	// viper.SetDefault("image_date_format", "")
-
-	// viper.SetDefault("kiosk.cache", true)
-	// viper.SetDefault("kiosk.password", "")
+	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
 
 	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
 	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
@@ -189,7 +112,6 @@ func (c *Config) Load() error {
 
 	v.SetEnvPrefix("kiosk")
 
-	// v.BindStruct()
 	v.AutomaticEnv()
 
 	err := v.ReadInConfig()

@@ -34,10 +34,9 @@ func TestGetRandomImage(t *testing.T) {
 	// Close the server when test finishes
 	defer server.Close()
 
-	c := config.Config{
-		ImmichUrl:    server.URL,
-		ImmichApiKey: "123456",
-	}
+	c := config.New()
+	c.ImmichUrl = server.URL
+	c.ImmichApiKey = "123456"
 
 	i := NewImage(c)
 
