@@ -15,7 +15,7 @@ import (
 )
 
 // NewImage new image endpoint
-func NewImage(baseConfig config.Config) echo.HandlerFunc {
+func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		if log.GetLevel() == log.DebugLevel {
@@ -27,7 +27,7 @@ func NewImage(baseConfig config.Config) echo.HandlerFunc {
 		requestingRawImage := c.Request().URL.Query().Has("raw")
 
 		// create a copy of the global config to use with this request
-		requestConfig := baseConfig
+		requestConfig := *baseConfig
 
 		// If kiosk version on client and server do not match refresh client. Pypass if requestingRawImage is set
 		if !requestingRawImage && KioskVersion != kioskVersionHeader {

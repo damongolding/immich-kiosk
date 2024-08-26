@@ -88,8 +88,6 @@ func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 // TestMalformedURLs testing urls without scheme or ports
 func TestMalformedURLs(t *testing.T) {
 
-	t.Log("TestMalformedURLs")
-
 	var tests = []struct {
 		KIOSK_IMMICH_URL string
 		Want             string

@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -13,6 +12,11 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+)
+
+const (
+	defaultImmichPort = "2283"
+	defaultScheme     = "http://"
 )
 
 type KioskSettings struct {
@@ -71,10 +75,11 @@ type Config struct {
 	Kiosk KioskSettings `mapstructure:"kiosk"`
 }
 
-const (
-	defaultImmichPort = "2283"
-	defaultScheme     = "http://"
-)
+func New() *Config {
+	c := &Config{}
+	defaults.SetDefaults(c)
+	return c
+}
 
 // checkUrlScheme checks given url has correct scheme and adds http:// if non if found
 func (c *Config) checkUrlScheme() {
@@ -94,63 +99,63 @@ func (c *Config) checkUrlScheme() {
 
 }
 
-func setDefaultValue(field reflect.StructField, recursive ...string) {
+// func setDefaultValue(field reflect.StructField, recursive ...string) {
 
-	mapStructure := field.Tag.Get("mapstructure")
+// 	mapStructure := field.Tag.Get("mapstructure")
 
-	if len(recursive) != 0 {
-		recursive = append(recursive, mapStructure)
-		mapStructure = strings.Join(recursive, ".")
-	}
+// 	if len(recursive) != 0 {
+// 		recursive = append(recursive, mapStructure)
+// 		mapStructure = strings.Join(recursive, ".")
+// 	}
 
-	defaultValue := field.Tag.Get("default")
+// 	defaultValue := field.Tag.Get("default")
 
-	switch field.Type.Kind() {
-	case reflect.Bool:
-		value, _ := strconv.ParseBool(defaultValue)
-		viper.SetDefault(mapStructure, value)
-	case reflect.String:
-		viper.SetDefault(mapStructure, defaultValue)
-	case reflect.Int:
-		value, _ := strconv.ParseInt(defaultValue, 10, 64)
-		viper.SetDefault(mapStructure, value)
-	case reflect.Float64:
-		value, _ := strconv.ParseFloat(defaultValue, 64)
-		viper.SetDefault(mapStructure, value)
-	default:
-		value := reflect.New(field.Type).Elem()
-		fmt.Printf("type %T val %v\n", value, value)
-		viper.SetDefault(mapStructure, value)
-	}
-}
+// 	switch field.Type.Kind() {
+// 	case reflect.Bool:
+// 		value, _ := strconv.ParseBool(defaultValue)
+// 		viper.SetDefault(mapStructure, value)
+// 	case reflect.String:
+// 		viper.SetDefault(mapStructure, defaultValue)
+// 	case reflect.Int:
+// 		value, _ := strconv.ParseInt(defaultValue, 10, 64)
+// 		viper.SetDefault(mapStructure, value)
+// 	case reflect.Float64:
+// 		value, _ := strconv.ParseFloat(defaultValue, 64)
+// 		viper.SetDefault(mapStructure, value)
+// 	default:
+// 		value := reflect.New(field.Type).Elem()
+// 		fmt.Printf("type %T val %v\n", value, value)
+// 		viper.SetDefault(mapStructure, value)
+// 	}
+// }
 
-func setDefaults(s interface{}, recursive ...string) {
-	val := reflect.ValueOf(s).Elem()
-	t := val.Type()
+// func setDefaults(s interface{}, recursive ...string) {
+// 	val := reflect.ValueOf(s).Elem()
+// 	t := val.Type()
 
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		fieldValue := val.Field(i)
+// 	for i := 0; i < t.NumField(); i++ {
+// 		field := t.Field(i)
+// 		fieldValue := val.Field(i)
 
-		mapstructureTag := field.Tag.Get("mapstructure")
+// 		mapstructureTag := field.Tag.Get("mapstructure")
 
-		if fieldValue.Kind() == reflect.Struct {
-			// Recurse for nested structs
-			if len(recursive) != 0 {
-				recursive = append(recursive, mapstructureTag)
-			}
-			setDefaults(fieldValue.Addr().Interface(), recursive...)
-		} else {
-			// Set default value based on type
-			setDefaultValue(field, recursive...)
-		}
-	}
-}
+// 		if fieldValue.Kind() == reflect.Struct {
+// 			// Recurse for nested structs
+// 			if len(recursive) != 0 {
+// 				recursive = append(recursive, mapstructureTag)
+// 			}
+// 			setDefaults(fieldValue.Addr().Interface(), recursive...)
+// 		} else {
+// 			// Set default value based on type
+// 			setDefaultValue(field, recursive...)
+// 		}
+// 	}
+// }
 
 // Load loads config file
-func (c Config) Load() error {
+func (c *Config) Load() error {
 
-	defaults.SetDefaults(&c)
+	// defaults.SetDefaults(c)
 
 	// Defaults
 	// viper.SetDefault("immich_api_key", "")

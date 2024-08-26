@@ -111,8 +111,8 @@ func init() {
 }
 
 // NewImage returns a new image instance
-func NewImage(base config.Config) ImmichAsset {
-	baseConfig = base
+func NewImage(base *config.Config) ImmichAsset {
+	baseConfig = *base
 	return ImmichAsset{}
 }
 

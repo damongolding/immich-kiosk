@@ -41,7 +41,7 @@ func init() {
 
 func main() {
 
-	var baseConfig config.Config
+	baseConfig := config.New()
 
 	err := baseConfig.Load()
 	if err != nil {
