@@ -189,6 +189,7 @@ func (c *Config) Load() error {
 
 	viper.SetEnvPrefix("kiosk")
 
+ // viper.BindStruct!!
 	viper.AutomaticEnv()
 
 	err := viper.ReadInConfig()
