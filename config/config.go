@@ -155,7 +155,7 @@ func (c *Config) checkUrlScheme() {
 // Load loads config file
 func (c *Config) Load() error {
 
-	// defaults.SetDefaults(c)
+	v := viper.NewWithOptions()
 
 	// Defaults
 	// viper.SetDefault("immich_api_key", "")
@@ -181,23 +181,23 @@ func (c *Config) Load() error {
 	// viper.SetDefault("kiosk.cache", true)
 	// viper.SetDefault("kiosk.password", "")
 
-	viper.BindEnv("kiosk.password", "KIOSK_PASSWORD")
-	viper.BindEnv("kiosk.cache", "KIOSK_CACHE")
+	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
+	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
 
-	viper.AddConfigPath(".")
-	viper.SetConfigFile("config.yaml")
+	v.AddConfigPath(".")
+	v.SetConfigFile("config.yaml")
 
-	viper.SetEnvPrefix("kiosk")
+	v.SetEnvPrefix("kiosk")
 
- // viper.BindStruct!!
-	viper.AutomaticEnv()
+	// v.BindStruct()
+	v.AutomaticEnv()
 
-	err := viper.ReadInConfig()
+	err := v.ReadInConfig()
 	if err != nil {
 		log.Debug("config.yaml file not being used")
 	}
 
-	err = viper.Unmarshal(&c)
+	err = v.Unmarshal(&c)
 	if err != nil {
 		log.Fatal("Environment can't be loaded: ", "err", err)
 	}
