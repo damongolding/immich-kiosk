@@ -64,21 +64,18 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 				log.Error("err getting image from album", "err", randomAlbumImageErr)
 				return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting image from album", Message: "Is album ID correct?"}))
 			}
-			break
 		case "PERSON":
 			randomPersonImageErr := immichImage.GetRandomImageOfPerson(pickedImage.ID, requestId)
 			if randomPersonImageErr != nil {
 				log.Error("err getting image of person", "err", randomPersonImageErr)
 				return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting image of person", Message: "Is person ID correct?"}))
 			}
-			break
 		default:
 			randomImageErr := immichImage.GetRandomImage(requestId)
 			if randomImageErr != nil {
 				log.Error("err getting random image", "err", randomImageErr)
 				return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting random image", Message: "Is Immich running? Are your config settings correct?"}))
 			}
-			break
 		}
 
 		imageGet := time.Now()
@@ -135,13 +132,10 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		switch {
 		case (requestConfig.ShowImageDate && requestConfig.ShowImageTime):
 			imageDate = fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format(imageDateFormat), immichImage.LocalDateTime.Format(imageTimeFormat))
-			break
 		case requestConfig.ShowImageDate:
 			imageDate = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(imageDateFormat))
-			break
 		case requestConfig.ShowImageTime:
 			imageDate = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(imageTimeFormat))
-			break
 		}
 
 		data := views.PageData{
