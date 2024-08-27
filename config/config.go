@@ -100,7 +100,7 @@ func (c *Config) checkUrlScheme() {
 }
 
 // Load loads config file
-func (c *Config) Load() error {
+func (c *Config) Load() {
 
 	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
 
@@ -126,7 +126,6 @@ func (c *Config) Load() error {
 
 	c.checkUrlScheme()
 
-	return nil
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
