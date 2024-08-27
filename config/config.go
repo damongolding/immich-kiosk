@@ -75,6 +75,7 @@ type Config struct {
 	Kiosk KioskSettings `mapstructure:"kiosk"`
 }
 
+// New returns a new config pointer instance
 func New() *Config {
 	c := &Config{}
 	defaults.SetDefaults(c)
@@ -99,8 +100,8 @@ func (c *Config) checkUrlScheme() {
 
 }
 
-// Load loads config file
-func (c *Config) Load() {
+// Load loads yaml config file into memory, then loads ENV vars. ENV vars overwrties yaml settings.
+func (c *Config) Load() error {
 
 	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
 
@@ -121,10 +122,13 @@ func (c *Config) Load() {
 
 	err = v.Unmarshal(&c)
 	if err != nil {
-		log.Fatal("Environment can't be loaded: ", "err", err)
+		log.Error("Environment can't be loaded", "err", err)
+		return err
 	}
 
 	c.checkUrlScheme()
+
+	return nil
 
 }
 
