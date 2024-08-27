@@ -41,7 +41,12 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			requestConfig = requestConfig.ConfigWithOverrides(queries)
 		}
 
-		immichImage := immich.NewImage(baseConfig)
+		immichImage := immich.NewImage(requestConfig)
+
+		if requestConfig.ImmichApiKey == "" || requestConfig.ImmichUrl == "" {
+			log.Error("missing Immich api key or Immich url", "ImmichApiKey", requestConfig.ImmichApiKey, "ImmichUrl", requestConfig.ImmichUrl)
+			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Missing Immich api key or Immich url", Message: "Both the Immich api key or Immich url are required"}))
+		}
 
 		var peopleAndAlbums []immich.ImmichAsset
 

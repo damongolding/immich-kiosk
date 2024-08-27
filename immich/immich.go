@@ -20,8 +20,8 @@ import (
 const maxRetries int = 10
 
 var (
-	// baseConfig the base config i.e config.yaml or ENV
-	baseConfig config.Config
+	// requestConfig the config for this request
+	requestConfig config.Config
 	// apiCache cache store for immich api call(s)
 	apiCache *cache.Cache
 )
@@ -111,8 +111,8 @@ func init() {
 }
 
 // NewImage returns a new image instance
-func NewImage(base *config.Config) ImmichAsset {
-	baseConfig = *base
+func NewImage(base config.Config) ImmichAsset {
+	requestConfig = base
 	return ImmichAsset{}
 }
 
@@ -122,7 +122,7 @@ type ImmichApiCall func(string) ([]byte, error)
 func immichApiCallDecorator(immichApiCall ImmichApiCall, requestId string) ImmichApiCall {
 	return func(apiUrl string) ([]byte, error) {
 
-		if baseConfig.Kiosk.Cache {
+		if requestConfig.Kiosk.Cache {
 			apiData, found := apiCache.Get(apiUrl)
 			if found {
 				log.Debug(requestId+" Cache hit", "url", apiUrl)
@@ -152,19 +152,15 @@ func (i *ImmichAsset) immichApiCall(apiUrl string) ([]byte, error) {
 
 	var responseBody []byte
 
-	if baseConfig.ImmichApiKey == "" || baseConfig.ImmichUrl == "" {
-		return responseBody, fmt.Errorf("missing Immich api key or Immich url")
-	}
-
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", apiUrl, nil)
 	if err != nil {
-	 log.Error(err)
+		log.Error(err)
 		return responseBody, err
 	}
 
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", baseConfig.ImmichApiKey)
+	req.Header.Add("x-api-key", requestConfig.ImmichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -189,7 +185,7 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 
 	var immichAssets []ImmichAsset
 
-	u, err := url.Parse(baseConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -251,7 +247,7 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 
 	var images []ImmichAsset
 
-	u, err := url.Parse(baseConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -321,7 +317,7 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 func (i *ImmichAsset) GetRandomImageFromAlbum(albumId, requestId string) error {
 	var album ImmichAlbum
 
-	u, err := url.Parse(baseConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -383,7 +379,7 @@ func (i *ImmichAsset) GetImagePreview() ([]byte, error) {
 
 	var bytes []byte
 
-	u, err := url.Parse(baseConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		log.Error(err)
 		return bytes, err
