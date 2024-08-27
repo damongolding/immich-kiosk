@@ -54,13 +54,10 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 		case (requestConfig.ShowTime && requestConfig.ShowDate):
 			data.ClockTime = t.Format(clockTimeFormat)
 			data.ClockDate = t.Format(clockDateFormat)
-			break
 		case requestConfig.ShowTime:
 			data.ClockTime = t.Format(clockTimeFormat)
-			break
 		case requestConfig.ShowDate:
 			data.ClockDate = t.Format(clockDateFormat)
-			break
 		}
 
 		return Render(c, http.StatusOK, views.Clock(data))
