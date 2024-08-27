@@ -152,10 +152,14 @@ func (i *ImmichAsset) immichApiCall(apiUrl string) ([]byte, error) {
 
 	var responseBody []byte
 
+ if baseConfig.ImmichApiKey == "" || baseConfig.ImmichUrl == "" {
+  return responseBody, fmt.Errorf("missing Immich api key or Immich url")
+ }
+
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", apiUrl, nil)
 	if err != nil {
-		log.Error(err)
+	 log.Error(err)
 		return responseBody, err
 	}
 
