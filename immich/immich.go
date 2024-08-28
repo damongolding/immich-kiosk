@@ -32,6 +32,50 @@ type ImmichError struct {
 	StatusCode int      `json:"statusCode"`
 }
 
+type ExifInfo struct {
+	Make             string    `json:"make"`
+	Model            string    `json:"model"`
+	ExifImageWidth   int       `json:"exifImageWidth"`
+	ExifImageHeight  int       `json:"exifImageHeight"`
+	FileSizeInByte   int       `json:"fileSizeInByte"`
+	Orientation      any       `json:"orientation"`
+	DateTimeOriginal time.Time `json:"dateTimeOriginal"`
+	ModifyDate       time.Time `json:"modifyDate"`
+	TimeZone         string    `json:"timeZone"`
+	LensModel        string    `json:"lensModel"`
+	FNumber          float64   `json:"fNumber"`
+	FocalLength      float64   `json:"focalLength"`
+	Iso              int       `json:"iso"`
+	ExposureTime     string    `json:"exposureTime"`
+	Latitude         float64   `json:"latitude"`
+	Longitude        float64   `json:"longitude"`
+	City             string    `json:"city"`
+	State            string    `json:"state"`
+	Country          string    `json:"country"`
+	Description      string    `json:"description"`
+	ProjectionType   any       `json:"projectionType"`
+}
+
+type People []struct {
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	BirthDate     any       `json:"birthDate"`
+	ThumbnailPath string    `json:"thumbnailPath"`
+	IsHidden      bool      `json:"isHidden"`
+	UpdatedAt     time.Time `json:"updatedAt"`
+	Faces         Faces     `json:"faces"`
+}
+
+type Faces []struct {
+	ID            string `json:"id"`
+	ImageHeight   int    `json:"imageHeight"`
+	ImageWidth    int    `json:"imageWidth"`
+	BoundingBoxX1 int    `json:"boundingBoxX1"`
+	BoundingBoxX2 int    `json:"boundingBoxX2"`
+	BoundingBoxY1 int    `json:"boundingBoxY1"`
+	BoundingBoxY2 int    `json:"boundingBoxY2"`
+}
+
 type ImmichAsset struct {
 	Retries          int
 	ID               string    `json:"id"`
@@ -53,52 +97,14 @@ type ImmichAsset struct {
 	IsArchived       bool      `json:"isArchived"`
 	IsTrashed        bool      `json:"isTrashed"`
 	Duration         string    `json:"duration"`
-	ExifInfo         struct {
-		Make             string    `json:"make"`
-		Model            string    `json:"model"`
-		ExifImageWidth   int       `json:"exifImageWidth"`
-		ExifImageHeight  int       `json:"exifImageHeight"`
-		FileSizeInByte   int       `json:"fileSizeInByte"`
-		Orientation      any       `json:"orientation"`
-		DateTimeOriginal time.Time `json:"dateTimeOriginal"`
-		ModifyDate       time.Time `json:"modifyDate"`
-		TimeZone         string    `json:"timeZone"`
-		LensModel        string    `json:"lensModel"`
-		FNumber          float64   `json:"fNumber"`
-		FocalLength      float64   `json:"focalLength"`
-		Iso              int       `json:"iso"`
-		ExposureTime     string    `json:"exposureTime"`
-		Latitude         float64   `json:"latitude"`
-		Longitude        float64   `json:"longitude"`
-		City             string    `json:"city"`
-		State            string    `json:"state"`
-		Country          string    `json:"country"`
-		Description      string    `json:"description"`
-		ProjectionType   any       `json:"projectionType"`
-	} `json:"exifInfo"`
-	LivePhotoVideoID any `json:"livePhotoVideoId"`
-	People           []struct {
-		ID            string    `json:"id"`
-		Name          string    `json:"name"`
-		BirthDate     any       `json:"birthDate"`
-		ThumbnailPath string    `json:"thumbnailPath"`
-		IsHidden      bool      `json:"isHidden"`
-		UpdatedAt     time.Time `json:"updatedAt"`
-		Faces         []struct {
-			ID            string `json:"id"`
-			ImageHeight   int    `json:"imageHeight"`
-			ImageWidth    int    `json:"imageWidth"`
-			BoundingBoxX1 int    `json:"boundingBoxX1"`
-			BoundingBoxX2 int    `json:"boundingBoxX2"`
-			BoundingBoxY1 int    `json:"boundingBoxY1"`
-			BoundingBoxY2 int    `json:"boundingBoxY2"`
-		} `json:"faces"`
-	} `json:"people"`
-	Checksum    string `json:"checksum"`
-	StackCount  any    `json:"stackCount"`
-	IsOffline   bool   `json:"isOffline"`
-	HasMetadata bool   `json:"hasMetadata"`
-	DuplicateID any    `json:"duplicateId"`
+	ExifInfo         ExifInfo  `json:"exifInfo"`
+	LivePhotoVideoID any       `json:"livePhotoVideoId"`
+	People           People    `json:"people"`
+	Checksum         string    `json:"checksum"`
+	StackCount       any       `json:"stackCount"`
+	IsOffline        bool      `json:"isOffline"`
+	HasMetadata      bool      `json:"hasMetadata"`
+	DuplicateID      any       `json:"duplicateId"`
 }
 
 type ImmichAlbum struct {
