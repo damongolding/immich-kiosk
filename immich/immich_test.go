@@ -38,7 +38,7 @@ func TestGetRandomImage(t *testing.T) {
 	c.ImmichUrl = server.URL
 	c.ImmichApiKey = "123456"
 
-	i := NewImage(c)
+	i := NewImage(*c)
 
 	err := i.GetRandomImage("TESTING")
 	if err == nil {
