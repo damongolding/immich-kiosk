@@ -84,9 +84,6 @@ func New() *Config {
 
 // checkUrlScheme checks given url has correct scheme and adds http:// if non if found
 func (c *Config) checkUrlScheme() {
-	if c.ImmichUrl == "" || c.ImmichApiKey == "" {
-		log.Warn("Either Immich Url or Immich Api Key is missing", "ImmichUrl", c.ImmichUrl, "ImmichApiKey", c.ImmichApiKey)
-	}
 
 	// check for correct scheme
 	switch {
@@ -100,13 +97,24 @@ func (c *Config) checkUrlScheme() {
 
 }
 
+// checkRequiredFields check is required config files are set.
+func (c *Config) checkRequiredFields() {
+	switch {
+	case c.ImmichUrl == "":
+		log.Fatal("Immich Url is missing")
+	case c.ImmichApiKey == "":
+		log.Fatal("Immich API is missing")
+	}
+}
+
 // Load loads yaml config file into memory, then loads ENV vars. ENV vars overwrties yaml settings.
 func (c *Config) Load() error {
 
 	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
 
-	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
-	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
+	// I dont think these are needed anymore!
+	// v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
+	// v.BindEnv("kiosk.cache", "KIOSK_CACHE")
 
 	v.AddConfigPath(".")
 	v.SetConfigFile("config.yaml")
@@ -126,6 +134,7 @@ func (c *Config) Load() error {
 		return err
 	}
 
+	c.checkRequiredFields()
 	c.checkUrlScheme()
 
 	return nil
