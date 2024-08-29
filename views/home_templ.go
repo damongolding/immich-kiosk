@@ -448,13 +448,19 @@ func Home(data PageData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if data.Config.Transition == "cross-fade" {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n                    document.body.addEventListener(\"htmx:afterSettle\", function () {\n                    const frames = document.querySelectorAll(\".image-container\");\n                    if (frames.length > 3) {\n                        frames[0].remove();\n                    }\n                    });\n                </script>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n                    document.body.addEventListener(\"htmx:afterSettle\", function () {\n                        const frames = document.querySelectorAll(\".image-container\");\n                        if (frames.length > 3) {\n                            frames[0].remove();\n                        }\n                    });\n                </script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		if data.Config.ShowProgress {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n                    // Efter image AJAX request.\n                    function afterImageRequest(e) {\n                    const progressBar = document.querySelector(\".progress--bar\");\n\n                    progressBar.style.animation = \"none\";\n                    progressBar.offsetHeight; /* trigger reflow */\n                    progressBar.style.animation = null;\n                    }\n                </script>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n                    // Efter image AJAX request.\n                    function afterImageRequest(e) {\n                        const progressBar = document.querySelector(\".progress--bar\");\n\n                        progressBar.style.animation = \"none\";\n                        progressBar.offsetHeight; /* trigger reflow */\n                        progressBar.style.animation = null;\n                    }\n                </script>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		if data.Config.DisableScreensaver {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script src=\"/assets/js/wakelock.js\"></script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

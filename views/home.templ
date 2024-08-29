@@ -175,10 +175,10 @@ templ Home(data PageData) {
 			if data.Config.Transition == "cross-fade" {
 				<script>
                     document.body.addEventListener("htmx:afterSettle", function () {
-                    const frames = document.querySelectorAll(".image-container");
-                    if (frames.length > 3) {
-                        frames[0].remove();
-                    }
+                        const frames = document.querySelectorAll(".image-container");
+                        if (frames.length > 3) {
+                            frames[0].remove();
+                        }
                     });
                 </script>
 			}
@@ -186,13 +186,16 @@ templ Home(data PageData) {
 				<script>
                     // Efter image AJAX request.
                     function afterImageRequest(e) {
-                    const progressBar = document.querySelector(".progress--bar");
+                        const progressBar = document.querySelector(".progress--bar");
 
-                    progressBar.style.animation = "none";
-                    progressBar.offsetHeight; /* trigger reflow */
-                    progressBar.style.animation = null;
+                        progressBar.style.animation = "none";
+                        progressBar.offsetHeight; /* trigger reflow */
+                        progressBar.style.animation = null;
                     }
                 </script>
+			}
+			if data.Config.DisableScreensaver {
+				<script src="/assets/js/wakelock.js"></script>
 			}
 			<script>
             // After every AJAX request.
