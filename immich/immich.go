@@ -33,78 +33,78 @@ type ImmichError struct {
 }
 
 type ExifInfo struct {
-	Make             string    `json:"make"`
-	Model            string    `json:"model"`
-	ExifImageWidth   int       `json:"exifImageWidth"`
-	ExifImageHeight  int       `json:"exifImageHeight"`
-	FileSizeInByte   int       `json:"fileSizeInByte"`
-	Orientation      any       `json:"orientation"`
-	DateTimeOriginal time.Time `json:"dateTimeOriginal"`
-	ModifyDate       time.Time `json:"modifyDate"`
-	TimeZone         string    `json:"timeZone"`
-	LensModel        string    `json:"lensModel"`
-	FNumber          float64   `json:"fNumber"`
-	FocalLength      float64   `json:"focalLength"`
-	Iso              int       `json:"iso"`
-	ExposureTime     string    `json:"exposureTime"`
-	Latitude         float64   `json:"latitude"`
-	Longitude        float64   `json:"longitude"`
-	City             string    `json:"city"`
-	State            string    `json:"state"`
-	Country          string    `json:"country"`
-	Description      string    `json:"description"`
-	ProjectionType   any       `json:"projectionType"`
+	Make             string    `json:"-"` // `json:"make"`
+	Model            string    `json:"-"` // `json:"model"`
+	ExifImageWidth   int       `json:"-"` // `json:"exifImageWidth"`
+	ExifImageHeight  int       `json:"-"` // `json:"exifImageHeight"`
+	FileSizeInByte   int       `json:"-"` // `json:"fileSizeInByte"`
+	Orientation      any       `json:"-"` // `json:"orientation"`
+	DateTimeOriginal time.Time `json:"-"` // `json:"dateTimeOriginal"`
+	ModifyDate       time.Time `json:"-"` // `json:"modifyDate"`
+	TimeZone         string    `json:"-"` // `json:"timeZone"`
+	LensModel        string    `json:"-"` // `json:"lensModel"`
+	FNumber          float64   `json:"-"` // `json:"fNumber"`
+	FocalLength      float64   `json:"-"` // `json:"focalLength"`
+	Iso              int       `json:"-"` // `json:"iso"`
+	ExposureTime     string    `json:"-"` // `json:"exposureTime"`
+	Latitude         float64   `json:"-"` // `json:"latitude"`
+	Longitude        float64   `json:"-"` // `json:"longitude"`
+	City             string    `json:"-"` // `json:"city"`
+	State            string    `json:"-"` // `json:"state"`
+	Country          string    `json:"-"` // `json:"country"`
+	Description      string    `json:"-"` // `json:"description"`
+	ProjectionType   any       `json:"-"` // `json:"projectionType"`
 }
 
 type People []struct {
 	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	BirthDate     any       `json:"birthDate"`
-	ThumbnailPath string    `json:"thumbnailPath"`
-	IsHidden      bool      `json:"isHidden"`
-	UpdatedAt     time.Time `json:"updatedAt"`
-	Faces         Faces     `json:"faces"`
+	Name          string    `json:"-"` // `json:"name"`
+	BirthDate     any       `json:"-"` // `json:"birthDate"`
+	ThumbnailPath string    `json:"-"` // `json:"thumbnailPath"`
+	IsHidden      bool      `json:"-"` // `json:"isHidden"`
+	UpdatedAt     time.Time `json:"-"` // `json:"updatedAt"`
+	Faces         Faces     `json:"-"` // `json:"faces"`
 }
 
 type Faces []struct {
-	ID            string `json:"id"`
-	ImageHeight   int    `json:"imageHeight"`
-	ImageWidth    int    `json:"imageWidth"`
-	BoundingBoxX1 int    `json:"boundingBoxX1"`
-	BoundingBoxX2 int    `json:"boundingBoxX2"`
-	BoundingBoxY1 int    `json:"boundingBoxY1"`
-	BoundingBoxY2 int    `json:"boundingBoxY2"`
+	ID            string `json:"-"` // `json:"id"`
+	ImageHeight   int    `json:"-"` // `json:"imageHeight"`
+	ImageWidth    int    `json:"-"` // `json:"imageWidth"`
+	BoundingBoxX1 int    `json:"-"` // `json:"boundingBoxX1"`
+	BoundingBoxX2 int    `json:"-"` // `json:"boundingBoxX2"`
+	BoundingBoxY1 int    `json:"-"` // `json:"boundingBoxY1"`
+	BoundingBoxY2 int    `json:"-"` // `json:"boundingBoxY2"`
 }
 
 type ImmichAsset struct {
 	Retries          int
-	ID               string    `json:"id"`
-	DeviceAssetID    string    `json:"deviceAssetId"`
-	OwnerID          string    `json:"ownerId"`
-	DeviceID         string    `json:"deviceId"`
-	LibraryID        string    `json:"libraryId"`
-	Type             string    `json:"type"`
-	OriginalPath     string    `json:"originalPath"`
-	OriginalFileName string    `json:"originalFileName"`
-	OriginalMimeType string    `json:"originalMimeType"`
-	Resized          bool      `json:"resized"`
-	Thumbhash        string    `json:"thumbhash"`
-	FileCreatedAt    time.Time `json:"fileCreatedAt"`
-	FileModifiedAt   time.Time `json:"fileModifiedAt"`
-	LocalDateTime    time.Time `json:"localDateTime"`
-	UpdatedAt        time.Time `json:"updatedAt"`
-	IsFavorite       bool      `json:"isFavorite"`
-	IsArchived       bool      `json:"isArchived"`
-	IsTrashed        bool      `json:"isTrashed"`
-	Duration         string    `json:"duration"`
-	ExifInfo         ExifInfo  `json:"exifInfo"`
-	LivePhotoVideoID any       `json:"livePhotoVideoId"`
-	People           People    `json:"people"`
-	Checksum         string    `json:"checksum"`
-	StackCount       any       `json:"stackCount"`
-	IsOffline        bool      `json:"isOffline"`
-	HasMetadata      bool      `json:"hasMetadata"`
-	DuplicateID      any       `json:"duplicateId"`
+	ID               string    `json:"id"`               // `json:"id"`
+	DeviceAssetID    string    `json:"deviceAssetId"`    // `json:"deviceAssetId"`
+	OwnerID          string    `json:"ownerId"`          // `json:"ownerId"`
+	DeviceID         string    `json:"deviceId"`         // `json:"deviceId"`
+	LibraryID        string    `json:"libraryId"`        // `json:"libraryId"`
+	Type             string    `json:"type"`             // `json:"type"`
+	OriginalPath     string    `json:"originalPath"`     // `json:"originalPath"`
+	OriginalFileName string    `json:"originalFileName"` // `json:"originalFileName"`
+	OriginalMimeType string    `json:"originalMimeType"` // `json:"originalMimeType"`
+	Resized          bool      `json:"resized"`          // `json:"resized"`
+	Thumbhash        string    `json:"thumbhash"`        // `json:"thumbhash"`
+	FileCreatedAt    time.Time `json:"fileCreatedAt"`    // `json:"fileCreatedAt"`
+	FileModifiedAt   time.Time `json:"fileModifiedAt"`   // `json:"fileModifiedAt"`
+	LocalDateTime    time.Time `json:"localDateTime"`    // `json:"localDateTime"`
+	UpdatedAt        time.Time `json:"updatedAt"`        // `json:"updatedAt"`
+	IsFavorite       bool      `json:"isFavorite"`       // `json:"isFavorite"`
+	IsArchived       bool      `json:"isArchived"`       // `json:"isArchived"`
+	IsTrashed        bool      `json:"isTrashed"`        // `json:"isTrashed"`
+	Duration         string    `json:"duration"`         // `json:"duration"`
+	ExifInfo         ExifInfo  `json:"exifInfo"`         // `json:"exifInfo"`
+	LivePhotoVideoID any       `json:"livePhotoVideoId"` // `json:"livePhotoVideoId"`
+	People           People    `json:"people"`           // `json:"people"`
+	Checksum         string    `json:"checksum"`         // `json:"checksum"`
+	StackCount       any       `json:"stackCount"`       // `json:"stackCount"`
+	IsOffline        bool      `json:"isOffline"`        // `json:"isOffline"`
+	HasMetadata      bool      `json:"hasMetadata"`      // `json:"hasMetadata"`
+	DuplicateID      any       `json:"duplicateId"`      // `json:"duplicateId"`
 }
 
 type ImmichAlbum struct {
