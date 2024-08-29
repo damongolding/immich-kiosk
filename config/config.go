@@ -41,6 +41,8 @@ type Config struct {
 
 	// Refresh time between fetching new image
 	Refresh int `mapstructure:"refresh"`
+	// DisableScreensaver asks browser to disable screensaver
+	DisableScreensaver bool `mapstructure:"disable_screesaver" default:"false"`
 
 	// Person ID of person to display
 	Person []string `mapstructure:"person"`
