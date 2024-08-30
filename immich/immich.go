@@ -130,43 +130,42 @@ type ImmichApiCall func(string) ([]byte, error)
 func immichApiCallDecorator[T []ImmichAsset | ImmichAlbum](immichApiCall ImmichApiCall, requestId string, jsonShape T) ImmichApiCall {
 	return func(apiUrl string) ([]byte, error) {
 
-		if requestConfig.Kiosk.Cache {
-			apiData, found := apiCache.Get(apiUrl)
-			if found {
-				log.Debug(requestId+" Cache hit", "url", apiUrl)
-				return apiData.([]byte), nil
-			}
-
-			log.Debug(requestId+" Cache miss", "url", apiUrl)
-			body, err := immichApiCall(apiUrl)
-			if err != nil {
-				log.Error(err)
-				return nil, err
-			}
-
-			err = json.Unmarshal(body, &jsonShape)
-			if err != nil {
-				log.Error(err)
-				return nil, err
-			}
-
-			bs, err := json.Marshal(jsonShape)
-			if err != nil {
-				log.Error(err)
-				return nil, err
-			}
-
-			log.Debug("cache", "body", human.Bytes(uint64(len(body))), "json", human.Bytes(uint64(len(bs))))
-
-			apiCache.Set(apiUrl, bs, cache.DefaultExpiration)
-			log.Debug(requestId+" Cache saved", "url", apiUrl)
-			return body, nil
-
+		if !requestConfig.Kiosk.Cache {
+			return immichApiCall(apiUrl)
 		}
 
-		return immichApiCall(apiUrl)
-	}
+		apiData, found := apiCache.Get(apiUrl)
+		if found {
+			log.Debug(requestId+" Cache hit", "url", apiUrl)
+			return apiData.([]byte), nil
+		}
 
+		log.Debug(requestId+" Cache miss", "url", apiUrl)
+		body, err := immichApiCall(apiUrl)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+
+		err = json.Unmarshal(body, &jsonShape)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+
+		bs, err := json.Marshal(jsonShape)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+
+		log.Debug("cache", "body", human.Bytes(uint64(len(body))), "json", human.Bytes(uint64(len(bs))))
+
+		apiCache.Set(apiUrl, bs, cache.DefaultExpiration)
+		log.Debug(requestId+" Cache saved", "url", apiUrl)
+		
+		return body, nil
+	}
 }
 
 // immichApiCall bootstrap for immich api call
