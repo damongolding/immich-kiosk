@@ -14,6 +14,8 @@ import (
 	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/config"
+
+	human "github.com/dustin/go-humanize"
 )
 
 // maxRetries the maximum amount of retries to find a IMAGE type
@@ -58,7 +60,7 @@ type ExifInfo struct {
 
 type People []struct {
 	ID            string    `json:"id"`
-	Name          string    `json:"-"` // `json:"name"`
+	Name          string    `json:"name"`
 	BirthDate     any       `json:"-"` // `json:"birthDate"`
 	ThumbnailPath string    `json:"-"` // `json:"thumbnailPath"`
 	IsHidden      bool      `json:"-"` // `json:"isHidden"`
@@ -79,32 +81,32 @@ type Faces []struct {
 type ImmichAsset struct {
 	Retries          int
 	ID               string    `json:"id"`               // `json:"id"`
-	DeviceAssetID    string    `json:"deviceAssetId"`    // `json:"deviceAssetId"`
-	OwnerID          string    `json:"ownerId"`          // `json:"ownerId"`
-	DeviceID         string    `json:"deviceId"`         // `json:"deviceId"`
-	LibraryID        string    `json:"libraryId"`        // `json:"libraryId"`
-	Type             string    `json:"type"`             // `json:"type"`
-	OriginalPath     string    `json:"originalPath"`     // `json:"originalPath"`
-	OriginalFileName string    `json:"originalFileName"` // `json:"originalFileName"`
+	DeviceAssetID    string    `json:"-"`                // `json:"deviceAssetId"`
+	OwnerID          string    `json:"-"`                // `json:"ownerId"`
+	DeviceID         string    `json:"-"`                // `json:"deviceId"`
+	LibraryID        string    `json:"-"`                // `json:"libraryId"`
+	Type             string    `json:"-"`                // `json:"type"`
+	OriginalPath     string    `json:"-"`                // `json:"originalPath"`
+	OriginalFileName string    `json:"-"`                // `json:"originalFileName"`
 	OriginalMimeType string    `json:"originalMimeType"` // `json:"originalMimeType"`
-	Resized          bool      `json:"resized"`          // `json:"resized"`
-	Thumbhash        string    `json:"thumbhash"`        // `json:"thumbhash"`
-	FileCreatedAt    time.Time `json:"fileCreatedAt"`    // `json:"fileCreatedAt"`
-	FileModifiedAt   time.Time `json:"fileModifiedAt"`   // `json:"fileModifiedAt"`
+	Resized          bool      `json:"-"`                // `json:"resized"`
+	Thumbhash        string    `json:"-"`                // `json:"thumbhash"`
+	FileCreatedAt    time.Time `json:"-"`                // `json:"fileCreatedAt"`
+	FileModifiedAt   time.Time `json:"-"`                // `json:"fileModifiedAt"`
 	LocalDateTime    time.Time `json:"localDateTime"`    // `json:"localDateTime"`
-	UpdatedAt        time.Time `json:"updatedAt"`        // `json:"updatedAt"`
+	UpdatedAt        time.Time `json:"-"`                // `json:"updatedAt"`
 	IsFavorite       bool      `json:"isFavorite"`       // `json:"isFavorite"`
 	IsArchived       bool      `json:"isArchived"`       // `json:"isArchived"`
 	IsTrashed        bool      `json:"isTrashed"`        // `json:"isTrashed"`
-	Duration         string    `json:"duration"`         // `json:"duration"`
-	ExifInfo         ExifInfo  `json:"exifInfo"`         // `json:"exifInfo"`
-	LivePhotoVideoID any       `json:"livePhotoVideoId"` // `json:"livePhotoVideoId"`
+	Duration         string    `json:"-"`                // `json:"duration"`
+	ExifInfo         ExifInfo  `json:"-"`                // `json:"exifInfo"`
+	LivePhotoVideoID any       `json:"-"`                // `json:"livePhotoVideoId"`
 	People           People    `json:"people"`           // `json:"people"`
 	Checksum         string    `json:"checksum"`         // `json:"checksum"`
-	StackCount       any       `json:"stackCount"`       // `json:"stackCount"`
-	IsOffline        bool      `json:"isOffline"`        // `json:"isOffline"`
-	HasMetadata      bool      `json:"hasMetadata"`      // `json:"hasMetadata"`
-	DuplicateID      any       `json:"duplicateId"`      // `json:"duplicateId"`
+	StackCount       any       `json:"-"`                // `json:"stackCount"`
+	IsOffline        bool      `json:"-"`                // `json:"isOffline"`
+	HasMetadata      bool      `json:"-"`                // `json:"hasMetadata"`
+	DuplicateID      any       `json:"-"`                // `json:"duplicateId"`
 }
 
 type ImmichAlbum struct {
@@ -125,7 +127,7 @@ func NewImage(base config.Config) ImmichAsset {
 type ImmichApiCall func(string) ([]byte, error)
 
 // immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
-func immichApiCallDecorator(immichApiCall ImmichApiCall, requestId string) ImmichApiCall {
+func immichApiCallDecorator[T []ImmichAsset | ImmichAlbum](immichApiCall ImmichApiCall, requestId string, jsonShape T) ImmichApiCall {
 	return func(apiUrl string) ([]byte, error) {
 
 		if requestConfig.Kiosk.Cache {
@@ -142,7 +144,21 @@ func immichApiCallDecorator(immichApiCall ImmichApiCall, requestId string) Immic
 				return nil, err
 			}
 
-			apiCache.Set(apiUrl, body, cache.DefaultExpiration)
+			err = json.Unmarshal(body, &jsonShape)
+			if err != nil {
+				log.Error(err)
+				return nil, err
+			}
+
+			bs, err := json.Marshal(jsonShape)
+			if err != nil {
+				log.Error(err)
+				return nil, err
+			}
+
+			log.Debug("cache", "body", human.Bytes(uint64(len(body))), "json", human.Bytes(uint64(len(bs))))
+
+			apiCache.Set(apiUrl, bs, cache.DefaultExpiration)
 			log.Debug(requestId+" Cache saved", "url", apiUrl)
 			return body, nil
 
@@ -264,7 +280,7 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 		Path:   "api/people/" + personId + "/assets",
 	}
 
-	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestId)
+	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestId, images)
 	body, err := immichApiCal(apiUrl.String())
 	if err != nil {
 		log.Error(err)
@@ -334,7 +350,7 @@ func (i *ImmichAsset) GetRandomImageFromAlbum(albumId, requestId string) error {
 		Path:   "api/albums/" + albumId,
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId, album)
 	body, err := immichApiCall(apiUrl.String())
 	if err != nil {
 		log.Error(err)
