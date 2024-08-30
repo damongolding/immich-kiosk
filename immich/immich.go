@@ -80,12 +80,12 @@ type Faces []struct {
 
 type ImmichAsset struct {
 	Retries          int
-	ID               string    `json:"id"`               // `json:"id"`
+	ID               string    `json:"id"`
 	DeviceAssetID    string    `json:"-"`                // `json:"deviceAssetId"`
 	OwnerID          string    `json:"-"`                // `json:"ownerId"`
 	DeviceID         string    `json:"-"`                // `json:"deviceId"`
 	LibraryID        string    `json:"-"`                // `json:"libraryId"`
-	Type             string    `json:"-"`                // `json:"type"`
+	Type             string    `json:"type"`
 	OriginalPath     string    `json:"-"`                // `json:"originalPath"`
 	OriginalFileName string    `json:"-"`                // `json:"originalFileName"`
 	OriginalMimeType string    `json:"originalMimeType"` // `json:"originalMimeType"`
