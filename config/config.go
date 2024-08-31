@@ -31,7 +31,7 @@ type Config struct {
 	DisableUi bool
 
 	// ShowTime whether to display clock
-	ShowTime bool `mapstructure:"show_time"`
+	ShowTime bool `mapstructure:"show_time" query:"show_time"`
 	// TimeFormat whether to use 12 of 24 hour format for clock
 	TimeFormat string `mapstructure:"time_format"`
 	// ShowDate whether to display date
