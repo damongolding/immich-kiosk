@@ -1,6 +1,9 @@
 package views
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 
 templ ImageFitCover(ImageData, imageFit string) {
 	<img
@@ -46,4 +49,7 @@ templ Image(data PageData) {
 			<div class="frame--date">{ data.ImageDate }</div>
 		}
 	</div>
+	<form id="kiosk-history" hx-swap-oob="true">
+		<input type="hidden" name="foo" value={ time.Now().Format(time.Kitchen) }/>
+	</form>
 }
