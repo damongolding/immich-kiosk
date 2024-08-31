@@ -50,6 +50,8 @@ templ Image(data PageData) {
 		}
 	</div>
 	<form id="kiosk-history" hx-swap-oob="true">
-		<input type="hidden" name="foo" value={ time.Now().Format(time.Kitchen) }/>
+		<input type="hidden" class="kiosk-history--entry" name="history" value={ time.Now().Format(time.Stamp) }/>
+		<input type="hidden" class="kiosk-history--entry" name="history" value={ time.Now().Format(time.Kitchen) }/>
+		<input type="hidden" class="kiosk-history--entry" name="history" value="working"/>
 	</form>
 }

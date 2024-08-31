@@ -34,7 +34,7 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string) {
 	<div
 		id="kiosk"
 		hx-get="/image"
-		hx-include=".kiosk-param"
+		hx-include=".kiosk-param, .kiosk-history--entry"
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="beforeend settle:3s"
 		if showProgress {
@@ -50,7 +50,7 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string) {
 	<div
 		id="kiosk"
 		hx-get="/image"
-		hx-include=".kiosk-param"
+		hx-include=".kiosk-param, .kiosk-history--entry"
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="innerHTML swap:3s"
 		if showProgress {
@@ -66,7 +66,7 @@ templ kioskNone(showProgress bool, refresh int, kioskVersion string) {
 	<div
 		id="kiosk"
 		hx-get="/image"
-		hx-include=".kiosk-param"
+		hx-include=".kiosk-param, .kiosk-history--entry"
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="innerHTML"
 		if showProgress {
@@ -138,7 +138,7 @@ templ Home(data PageData) {
 				<div
 					id="clock"
 					hx-get="/clock"
-					hx-include=".kiosk-param"
+					hx-include=".kiosk-param, .kiosk-history--entry"
 					hx-trigger="load, every 30s"
 					hx-swap="innerHTML"
 				></div>
