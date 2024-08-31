@@ -41,6 +41,8 @@ func NewImage(baseConfig config.Config) echo.HandlerFunc {
 			requestConfig = requestConfig.ConfigWithOverrides(queries)
 		}
 
+		log.Debug(requestId, "path", c.Request().URL.String(), "config", requestConfig.String())
+
 		immichImage := immich.NewImage(baseConfig)
 
 		var peopleAndAlbums []immich.ImmichAsset
