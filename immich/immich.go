@@ -81,10 +81,10 @@ type Faces []struct {
 type ImmichAsset struct {
 	Retries          int
 	ID               string    `json:"id"`
-	DeviceAssetID    string    `json:"-"`                // `json:"deviceAssetId"`
-	OwnerID          string    `json:"-"`                // `json:"ownerId"`
-	DeviceID         string    `json:"-"`                // `json:"deviceId"`
-	LibraryID        string    `json:"-"`                // `json:"libraryId"`
+	DeviceAssetID    string    `json:"-"` // `json:"deviceAssetId"`
+	OwnerID          string    `json:"-"` // `json:"ownerId"`
+	DeviceID         string    `json:"-"` // `json:"deviceId"`
+	LibraryID        string    `json:"-"` // `json:"libraryId"`
 	Type             string    `json:"type"`
 	OriginalPath     string    `json:"-"`                // `json:"originalPath"`
 	OriginalFileName string    `json:"-"`                // `json:"originalFileName"`
@@ -147,24 +147,26 @@ func immichApiCallDecorator[T []ImmichAsset | ImmichAlbum](immichApiCall ImmichA
 			return nil, err
 		}
 
+		// Unpack api json into struct which discards data we don't use (for smaller cache size)
 		err = json.Unmarshal(body, &jsonShape)
 		if err != nil {
 			log.Error(err)
 			return nil, err
 		}
 
-		bs, err := json.Marshal(jsonShape)
+		// get bytes and store in cache
+		jsonBytes, err := json.Marshal(jsonShape)
 		if err != nil {
 			log.Error(err)
 			return nil, err
 		}
 
-		log.Debug("cache", "body", human.Bytes(uint64(len(body))), "json", human.Bytes(uint64(len(bs))))
+		log.Debug("cache", "body", human.Bytes(uint64(len(body))), "json", human.Bytes(uint64(len(jsonBytes))))
 
-		apiCache.Set(apiUrl, bs, cache.DefaultExpiration)
+		apiCache.Set(apiUrl, jsonBytes, cache.DefaultExpiration)
 		log.Debug(requestId+" Cache saved", "url", apiUrl)
-		
-		return body, nil
+
+		return jsonBytes, nil
 	}
 }
 
