@@ -4,6 +4,8 @@ import (
 	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
+
+	"github.com/damongolding/immich-kiosk/config"
 )
 
 const defaultDateLayout = "02/01/2006"
