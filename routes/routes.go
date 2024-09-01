@@ -17,6 +17,11 @@ type PersonOrAlbum struct {
 	ID   string
 }
 
+type RequestData struct {
+	History []string `query:"history"`
+	config.Config
+}
+
 // This custom Render replaces Echo's echo.Context.Render() with templ's templ.Component.Render().
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	buf := templ.GetBuffer()
