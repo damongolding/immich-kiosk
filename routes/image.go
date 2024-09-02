@@ -35,11 +35,12 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			return c.String(http.StatusTemporaryRedirect, "")
 		}
 
-		queries := c.Request().URL.Query()
-
-		if len(queries) > 0 {
-			requestConfig = requestConfig.ConfigWithOverrides(queries)
+		err := requestConfig.ConfigWithOverrides(c)
+		if err != nil {
+			log.Error("err overriding config", "err", err)
 		}
+
+		log.Debug(requestId, "path", c.Request().URL.String(), "requestConfig", requestConfig.String())
 
 		immichImage := immich.NewImage(requestConfig)
 

@@ -24,16 +24,9 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
 
-		queries := c.Request().URL.Query()
-
-		if len(queries) > 0 {
-			requestConfig = requestConfig.ConfigWithOverrides(queries)
-		}
-
-		t := time.Now()
-
-		if len(queries) > 0 {
-			requestConfig = requestConfig.ConfigWithOverrides(queries)
+		err := requestConfig.ConfigWithOverrides(c)
+		if err != nil {
+			log.Error("err overriding config", "err", err)
 		}
 
 		log.Debug(requestId, "path", c.Request().URL.String(), "config", requestConfig.String())
@@ -49,6 +42,8 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		var data views.ClockData
+
+		t := time.Now()
 
 		switch {
 		case (requestConfig.ShowTime && requestConfig.ShowDate):
