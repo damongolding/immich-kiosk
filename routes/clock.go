@@ -19,21 +19,16 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 			fmt.Println()
 		}
 
+		t := time.Now()
+
 		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
 
-		queries := c.Request().URL.Query()
-
-		if len(queries) > 0 {
-			requestConfig = requestConfig.ConfigWithOverrides(queries)
-		}
-
-		t := time.Now()
-
-		if len(queries) > 0 {
-			requestConfig = requestConfig.ConfigWithOverrides(queries)
+		err := requestConfig.ConfigWithOverrides(c)
+		if err != nil {
+			log.Error("err overriding config", "err", err)
 		}
 
 		log.Debug(requestId, "path", c.Request().URL.String(), "config", requestConfig.String())
