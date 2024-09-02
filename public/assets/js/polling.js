@@ -30,10 +30,8 @@ function stopPolling() {
 
 htmx.on("click", () => {
   if (isPaused) {
-    console.log("starting");
     startPolling();
   } else {
-    console.log("pausing");
     stopPolling();
   }
 
