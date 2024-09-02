@@ -8,145 +8,136 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
-
-type KioskSettings struct {
-	// Cache enable/disable api call caching
-	Cache bool `mapstructure:"cache"`
-
-	// Password the password used to add authentication to the frontend
-	Password string `mapstructure:"password"`
-}
-
-type Config struct {
-	// ImmichApiKey Immich key to access assets
-	ImmichApiKey string `mapstructure:"immich_api_key"`
-	// ImmichUrl Immuch base url
-	ImmichUrl string `mapstructure:"immich_url"`
-
-	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
-	DisableUi bool
-
-	// ShowTime whether to display clock
-	ShowTime bool `mapstructure:"show_time"`
-	// TimeFormat whether to use 12 of 24 hour format for clock
-	TimeFormat string `mapstructure:"time_format"`
-	// ShowDate whether to display date
-	ShowDate bool `mapstructure:"show_date"`
-	//  DateFormat format for date
-	DateFormat string `mapstructure:"date_format"`
-
-	// Refresh time between fetching new image
-	Refresh int `mapstructure:"refresh"`
-
-	// Person ID of person to display
-	Person []string `mapstructure:"person"`
-	// Album ID of album(s) to display
-	Album []string `mapstructure:"album"`
-
-	// ImageFit the fit style for main image
-	ImageFit string `mapstructure:"image_fit"`
-	// BackgroundBlur whether to display blurred image as background
-	BackgroundBlur bool `mapstructure:"background_blur"`
-	// BackgroundBlur which transition to use none|fade|cross-fade
-	Transition string `mapstructure:"transition"`
-	// ShowProgress display a progress bar
-	ShowProgress bool `mapstructure:"show_progress"`
-
-	// ShowImageTime whether to display image time
-	ShowImageTime bool `mapstructure:"show_image_time"`
-	// ImageTimeFormat  whether to use 12 of 24 hour format
-	ImageTimeFormat string `mapstructure:"image_time_format"`
-	// ShowImageDate whether to display image date
-	ShowImageDate bool `mapstructure:"show_image_date"`
-	// ImageDateFormat format for image date
-	ImageDateFormat string `mapstructure:"image_date_format"`
-
-	// Kiosk settings that are unable to be changed via URL queries
-	Kiosk KioskSettings `mapstructure:"kiosk"`
-}
 
 const (
 	defaultImmichPort = "2283"
 	defaultScheme     = "http://"
 )
 
+type KioskSettings struct {
+	// Cache enable/disable api call caching
+	Cache bool `mapstructure:"cache" default:"true"`
+
+	// Password the password used to add authentication to the frontend
+	Password string `mapstructure:"password" default:""`
+}
+
+type Config struct {
+	// ImmichApiKey Immich key to access assets
+	ImmichApiKey string `mapstructure:"immich_api_key" default:""`
+	// ImmichUrl Immuch base url
+	ImmichUrl string `mapstructure:"immich_url" default:""`
+
+	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
+	DisableUi bool `mapstructure:"disable_ui" default:"false"`
+
+	// ShowTime whether to display clock
+	ShowTime bool `mapstructure:"show_time" default:"false"`
+	// TimeFormat whether to use 12 of 24 hour format for clock
+	TimeFormat string `mapstructure:"time_format" default:""`
+	// ShowDate whether to display date
+	ShowDate bool `mapstructure:"show_date" default:"false"`
+	//  DateFormat format for date
+	DateFormat string `mapstructure:"date_format" default:""`
+
+	// Refresh time between fetching new image
+	Refresh int `mapstructure:"refresh" default:"60"`
+
+	// Person ID of person to display
+	Person []string `mapstructure:"person" default:"[]"`
+	// Album ID of album(s) to display
+	Album []string `mapstructure:"album" default:"[]"`
+
+	// ImageFit the fit style for main image
+	ImageFit string `mapstructure:"image_fit" default:"contain"`
+	// BackgroundBlur whether to display blurred image as background
+	BackgroundBlur bool `mapstructure:"background_blur" default:"true"`
+	// BackgroundBlur which transition to use none|fade|cross-fade
+	Transition string `mapstructure:"transition" default:""`
+	// ShowProgress display a progress bar
+	ShowProgress bool `mapstructure:"show_progress" default:"false"`
+
+	// ShowImageTime whether to display image time
+	ShowImageTime bool `mapstructure:"show_image_time" default:"false"`
+	// ImageTimeFormat  whether to use 12 of 24 hour format
+	ImageTimeFormat string `mapstructure:"image_time_format" default:""`
+	// ShowImageDate whether to display image date
+	ShowImageDate bool `mapstructure:"show_image_date"  default:"false"`
+	// ImageDateFormat format for image date
+	ImageDateFormat string `mapstructure:"image_date_format" default:""`
+
+	// Kiosk settings that are unable to be changed via URL queries
+	Kiosk KioskSettings `mapstructure:"kiosk"`
+}
+
+// New returns a new config pointer instance
+func New() *Config {
+	c := &Config{}
+	defaults.SetDefaults(c)
+	return c
+}
+
 // checkUrlScheme checks given url has correct scheme and adds http:// if non if found
-func (c *Config) checkUrlScheme(config Config) Config {
-	if config.ImmichUrl == "" || config.ImmichApiKey == "" {
-		log.Fatal("Either Immich Url or Immich Api Key is missing", "ImmichUrl", config.ImmichUrl, "ImmichApiKey", config.ImmichApiKey)
-	}
+func (c *Config) checkUrlScheme() {
 
 	// check for correct scheme
 	switch {
-	case strings.HasPrefix(strings.ToLower(config.ImmichUrl), "http://"):
+	case strings.HasPrefix(strings.ToLower(c.ImmichUrl), "http://"):
 		break
-	case strings.HasPrefix(strings.ToLower(config.ImmichUrl), "https://"):
+	case strings.HasPrefix(strings.ToLower(c.ImmichUrl), "https://"):
 		break
 	default:
-		config.ImmichUrl = defaultScheme + config.ImmichUrl
+		c.ImmichUrl = defaultScheme + c.ImmichUrl
 	}
 
-	return config
 }
 
-// Load loads config file
+// checkRequiredFields check is required config files are set.
+func (c *Config) checkRequiredFields() {
+	switch {
+	case c.ImmichUrl == "":
+		log.Fatal("Immich Url is missing")
+	case c.ImmichApiKey == "":
+		log.Fatal("Immich API is missing")
+	}
+}
+
+// Load loads yaml config file into memory, then loads ENV vars. ENV vars overwrties yaml settings.
 func (c *Config) Load() error {
 
-	var config Config
+	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
 
-	// Defaults
-	viper.SetDefault("immich_api_key", "")
-	viper.SetDefault("immich_url", "")
-	viper.SetDefault("password", "")
-	viper.SetDefault("disable_ui", false)
-	viper.SetDefault("show_time", false)
-	viper.SetDefault("time_format", "")
-	viper.SetDefault("show_date", false)
-	viper.SetDefault("date_format", "")
-	viper.SetDefault("refresh", 60)
-	viper.SetDefault("album", "")
-	viper.SetDefault("person", []string{})
-	viper.SetDefault("image_fit", "contain")
-	viper.SetDefault("background_blur", true)
-	viper.SetDefault("transition", "")
-	viper.SetDefault("show_progress", false)
-	viper.SetDefault("show_image_time", false)
-	viper.SetDefault("image_time_format", "")
-	viper.SetDefault("show_image_date", false)
-	viper.SetDefault("image_date_format", "")
+	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
+	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
 
-	viper.SetDefault("kiosk.cache", true)
-	viper.SetDefault("kiosk.password", "")
+	v.AddConfigPath(".")
+	v.SetConfigFile("config.yaml")
 
-	viper.BindEnv("kiosk.password", "KIOSK_PASSWORD")
-	viper.BindEnv("kiosk.cache", "KIOSK_CACHE")
+	v.SetEnvPrefix("kiosk")
 
-	viper.AddConfigPath(".")
-	viper.SetConfigFile("config.yaml")
+	v.AutomaticEnv()
 
-	viper.SetEnvPrefix("kiosk")
-
-	viper.AutomaticEnv()
-
-	err := viper.ReadInConfig()
+	err := v.ReadInConfig()
 	if err != nil {
 		log.Debug("config.yaml file not being used")
 	}
 
-	err = viper.Unmarshal(&config)
+	err = v.Unmarshal(&c)
 	if err != nil {
-		log.Fatal("Environment can't be loaded: ", "err", err)
+		log.Error("Environment can't be loaded", "err", err)
+		return err
 	}
 
-	config = c.checkUrlScheme(config)
-
-	*c = config
+	c.checkRequiredFields()
+	c.checkUrlScheme()
 
 	return nil
+
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
