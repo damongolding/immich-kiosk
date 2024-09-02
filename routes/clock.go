@@ -19,8 +19,6 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 			fmt.Println()
 		}
 
-		t := time.Now()
-
 		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
@@ -44,6 +42,8 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		var data views.ClockData
+
+		t := time.Now()
 
 		switch {
 		case (requestConfig.ShowTime && requestConfig.ShowDate):
