@@ -112,7 +112,6 @@ func (c *Config) Load() error {
 
 	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
 
-	// I dont think these are needed anymore!
 	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
 	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
 
