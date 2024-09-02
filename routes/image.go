@@ -30,7 +30,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		requestConfig := *baseConfig
 
 		// If kiosk version on client and server do not match refresh client. Pypass if requestingRawImage is set
-		if !requestingRawImage && KioskVersion != kioskVersionHeader {
+		if !requestingRawImage && c.Request().Method == http.MethodGet && KioskVersion != kioskVersionHeader {
 			c.Response().Header().Set("HX-Refresh", "true")
 			return c.String(http.StatusTemporaryRedirect, "")
 		}
@@ -40,7 +40,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			log.Error("err overriding config", "err", err)
 		}
 
-		log.Debug(requestId, "path", c.Request().URL.String(), "requestConfig", requestConfig.String())
+		log.Debug(requestId, "method", c.Request().Method, "path", c.Request().URL.String(), "requestConfig", requestConfig.String())
 
 		immichImage := immich.NewImage(requestConfig)
 
@@ -87,7 +87,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
 
 		// if user wants the raw image data send it
-		if requestingRawImage {
+		if requestingRawImage || c.Request().Method == http.MethodGet {
 			return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
 		}
 
@@ -139,7 +139,12 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			imageDate = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(imageTimeFormat))
 		}
 
+		if len(requestConfig.History) > 10 {
+			requestConfig.History = requestConfig.History[len(requestConfig.History)-10:]
+		}
+
 		data := views.PageData{
+			ImageID:       immichImage.ID,
 			ImageData:     img,
 			ImageBlurData: imgBlur,
 			ImageDate:     imageDate,

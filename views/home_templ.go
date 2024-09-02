@@ -10,25 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/damongolding/immich-kiosk/config"
 	"net/url"
 	"strings"
 )
-
-type PageData struct {
-	// KioskVersion the current build version of Kiosk
-	KioskVersion string
-	// ImageData image as base64 data
-	ImageData string
-	// ImageData blurred image as base64 data
-	ImageBlurData string
-	// Date image date
-	ImageDate string
-	// URL queries
-	Queries url.Values
-	// instance config
-	config.Config
-}
 
 func quriesToJson(values url.Values) map[string]any {
 
@@ -36,9 +20,9 @@ func quriesToJson(values url.Values) map[string]any {
 
 	for key, value := range values {
 		if len(value) == 1 {
-			result[key] = value[0] // Store as a single string if only one value exists
+			result[key] = value[0]
 		} else {
-			result[key] = value // Store as a slice of strings if multiple values exist
+			result[key] = value
 		}
 	}
 
@@ -89,12 +73,17 @@ func kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-get=\"/image\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(queries) > 0 {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-param, .kiosk-history--entry\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-history--entry\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -106,7 +95,7 @@ func kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("load, every %ds", refresh))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 55, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 41, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -129,7 +118,7 @@ func kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 60, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 46, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -169,12 +158,17 @@ func kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-get=\"/image\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(queries) > 0 {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-param, .kiosk-history--entry\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-history--entry\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -186,7 +180,7 @@ func kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("load, every %ds", refresh))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 73, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 61, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -209,7 +203,7 @@ func kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 78, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 66, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -249,12 +243,17 @@ func kioskNone(showProgress bool, refresh int, kioskVersion string, queries url.
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-get=\"/image\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(queries) > 0 {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-param, .kiosk-history--entry\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-history--entry\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -266,7 +265,7 @@ func kioskNone(showProgress bool, refresh int, kioskVersion string, queries url.
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("load, every %ds", refresh))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 91, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 81, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -289,7 +288,7 @@ func kioskNone(showProgress bool, refresh int, kioskVersion string, queries url.
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 96, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 86, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -376,7 +375,7 @@ func Home(data PageData) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(data.KioskVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 120, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 110, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -389,7 +388,7 @@ func Home(data PageData) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/css/style.%s.css", data.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 122, Col: 110}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 112, Col: 110}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -454,6 +453,11 @@ func Home(data PageData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+			} else {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-history--entry\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-trigger=\"load, every 30s\" hx-swap=\"innerHTML\"></div>")
 			if templ_7745c5c3_Err != nil {
@@ -473,7 +477,7 @@ func Home(data PageData) templ.Component {
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 172, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 164, Col: 57}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
@@ -486,7 +490,7 @@ func Home(data PageData) templ.Component {
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 172, Col: 73}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 164, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -514,7 +518,7 @@ func Home(data PageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n            // After every AJAX request.\n            document.body.addEventListener(\"htmx:afterRequest\", function (e) {\n                const offline = document.getElementById(\"offline\");\n\n                if (e.detail.successful) {\n                offline.classList.remove(\"offline\");\n                } else {\n                offline.classList.add(\"offline\");\n                }\n            });\n            </script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n                // After every AJAX request.\n                document.body.addEventListener(\"htmx:afterRequest\", function (e) {\n                    const offline = document.getElementById(\"offline\");\n\n                    if (e.detail.successful) {\n                        offline.classList.remove(\"offline\");\n                    } else {\n                        offline.classList.add(\"offline\");\n                    }\n                });\n            </script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

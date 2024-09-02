@@ -20,7 +20,7 @@ type PersonOrAlbum struct {
 }
 
 type RequestData struct {
-	History []string `query:"history"`
+	History []string `form:"history"`
 	config.Config
 }
 

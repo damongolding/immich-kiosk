@@ -2,25 +2,9 @@ package views
 
 import (
 	"fmt"
-	"github.com/damongolding/immich-kiosk/config"
 	"net/url"
 	"strings"
 )
-
-type PageData struct {
-	// KioskVersion the current build version of Kiosk
-	KioskVersion string
-	// ImageData image as base64 data
-	ImageData string
-	// ImageData blurred image as base64 data
-	ImageBlurData string
-	// Date image date
-	ImageDate string
-	// URL queries
-	Queries url.Values
-	// instance config
-	config.Config
-}
 
 func quriesToJson(values url.Values) map[string]any {
 
@@ -28,9 +12,9 @@ func quriesToJson(values url.Values) map[string]any {
 
 	for key, value := range values {
 		if len(value) == 1 {
-			result[key] = value[0] // Store as a single string if only one value exists
+			result[key] = value[0]
 		} else {
-			result[key] = value // Store as a slice of strings if multiple values exist
+			result[key] = value
 		}
 	}
 
@@ -48,9 +32,11 @@ templ spinner() {
 templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
-		hx-get="/image"
+		hx-post="/image"
 		if len(queries) > 0 {
 			hx-include=".kiosk-param, .kiosk-history--entry"
+		} else {
+			hx-include=".kiosk-history--entry"
 		}
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="beforeend settle:3s"
@@ -66,9 +52,11 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, querie
 templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
-		hx-get="/image"
+		hx-post="/image"
 		if len(queries) > 0 {
 			hx-include=".kiosk-param, .kiosk-history--entry"
+		} else {
+			hx-include=".kiosk-history--entry"
 		}
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="innerHTML swap:3s"
@@ -84,9 +72,11 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url
 templ kioskNone(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
-		hx-get="/image"
+		hx-post="/image"
 		if len(queries) > 0 {
 			hx-include=".kiosk-param, .kiosk-history--entry"
+		} else {
+			hx-include=".kiosk-history--entry"
 		}
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="innerHTML"
@@ -161,6 +151,8 @@ templ Home(data PageData) {
 					hx-get="/clock"
 					if len(data.Queries) > 0 {
 						hx-include=".kiosk-param, .kiosk-history--entry"
+					} else {
+						hx-include=".kiosk-history--entry"
 					}
 					hx-trigger="load, every 30s"
 					hx-swap="innerHTML"
@@ -219,16 +211,16 @@ templ Home(data PageData) {
                 </script>
 			}
 			<script>
-            // After every AJAX request.
-            document.body.addEventListener("htmx:afterRequest", function (e) {
-                const offline = document.getElementById("offline");
+                // After every AJAX request.
+                document.body.addEventListener("htmx:afterRequest", function (e) {
+                    const offline = document.getElementById("offline");
 
-                if (e.detail.successful) {
-                offline.classList.remove("offline");
-                } else {
-                offline.classList.add("offline");
-                }
-            });
+                    if (e.detail.successful) {
+                        offline.classList.remove("offline");
+                    } else {
+                        offline.classList.add("offline");
+                    }
+                });
             </script>
 			@kioskData(map[string]any{"version": data.KioskVersion, "params": quriesToJson(data.Queries)})
 		</body>

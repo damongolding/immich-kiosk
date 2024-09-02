@@ -31,50 +31,52 @@ type KioskSettings struct {
 
 type Config struct {
 	// ImmichApiKey Immich key to access assets
-	ImmichApiKey string `mapstructure:"immich_api_key" query:"immich_api_key" default:""`
+	ImmichApiKey string `mapstructure:"immich_api_key" query:"immich_api_key" form:"immich_api_key" default:""`
 	// ImmichUrl Immuch base url
-	ImmichUrl string `mapstructure:"immich_url" query:"immich_url" default:""`
+	ImmichUrl string `mapstructure:"immich_url" query:"immich_url" form:"immich_url" default:""`
 
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
-	DisableUi bool `mapstructure:"disable_ui" query:"disable_ui" default:"false"`
+	DisableUi bool `mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 
 	// ShowTime whether to display clock
-	ShowTime bool `mapstructure:"show_time" query:"show_time" default:"false"`
+	ShowTime bool `mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`
 	// TimeFormat whether to use 12 of 24 hour format for clock
-	TimeFormat string `mapstructure:"time_format" query:"time_format" default:""`
+	TimeFormat string `mapstructure:"time_format" query:"time_format" form:"time_format" default:""`
 	// ShowDate whether to display date
-	ShowDate bool `mapstructure:"show_date" query:"show_date" default:"false"`
+	ShowDate bool `mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
 	//  DateFormat format for date
-	DateFormat string `mapstructure:"date_format" query:"date_format" default:""`
+	DateFormat string `mapstructure:"date_format" query:"date_format" form:"date_format" default:""`
 
 	// Refresh time between fetching new image
-	Refresh int `mapstructure:"refresh" query:"refresh" default:"60"`
+	Refresh int `mapstructure:"refresh" query:"refresh" form:"refresh" default:"60"`
 
 	// Person ID of person to display
-	Person []string `mapstructure:"person" query:"person" default:"[]"`
+	Person []string `mapstructure:"person" query:"person" form:"person" default:"[]"`
 	// Album ID of album(s) to display
-	Album []string `mapstructure:"album" query:"album" default:"[]"`
+	Album []string `mapstructure:"album" query:"album" form:"album" default:"[]"`
 
 	// ImageFit the fit style for main image
-	ImageFit string `mapstructure:"image_fit" query:"image_fit" default:"contain"`
+	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain"`
 	// BackgroundBlur whether to display blurred image as background
-	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" default:"true"`
+	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
-	Transition string `mapstructure:"transition" query:"transition" default:""`
+	Transition string `mapstructure:"transition" query:"transition" form:"transition" default:""`
 	// ShowProgress display a progress bar
-	ShowProgress bool `mapstructure:"show_progress" query:"show_progress" default:"false"`
+	ShowProgress bool `mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
 
 	// ShowImageTime whether to display image time
-	ShowImageTime bool `mapstructure:"show_image_time" query:"show_image_time" default:"false"`
+	ShowImageTime bool `mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`
 	// ImageTimeFormat  whether to use 12 of 24 hour format
-	ImageTimeFormat string `mapstructure:"image_time_format" query:"image_time_format" default:""`
+	ImageTimeFormat string `mapstructure:"image_time_format" query:"image_time_format" form:"image_time_format" default:""`
 	// ShowImageDate whether to display image date
-	ShowImageDate bool `mapstructure:"show_image_date" query:"show_image_date"  default:"false"`
+	ShowImageDate bool `mapstructure:"show_image_date" query:"show_image_date" form:"show_image_date"  default:"false"`
 	// ImageDateFormat format for image date
-	ImageDateFormat string `mapstructure:"image_date_format" query:"image_date_format" default:""`
+	ImageDateFormat string `mapstructure:"image_date_format" query:"image_date_format" form:"image_date_format" default:""`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
+
+	History []string `form:"history" default:"[]"`
 }
 
 // New returns a new config pointer instance
