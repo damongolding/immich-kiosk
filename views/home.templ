@@ -38,7 +38,7 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, querie
 		} else {
 			hx-include=".kiosk-history--entry"
 		}
-		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
+		hx-trigger="load, new-image"
 		hx-swap="beforeend settle:3s"
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
@@ -58,7 +58,7 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url
 		} else {
 			hx-include=".kiosk-history--entry"
 		}
-		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
+		hx-trigger="load, new-image"
 		hx-swap="innerHTML swap:3s"
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
@@ -78,7 +78,7 @@ templ kioskNone(showProgress bool, refresh int, kioskVersion string, queries url
 		} else {
 			hx-include=".kiosk-history--entry"
 		}
-		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
+		hx-trigger="load, new-image"
 		hx-swap="innerHTML"
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
@@ -150,9 +150,7 @@ templ Home(data PageData) {
 					id="clock"
 					hx-get="/clock"
 					if len(data.Queries) > 0 {
-						hx-include=".kiosk-param, .kiosk-history--entry"
-					} else {
-						hx-include=".kiosk-history--entry"
+						hx-include=".kiosk-param"
 					}
 					hx-trigger="load, every 30s"
 					hx-swap="innerHTML"
@@ -188,41 +186,50 @@ templ Home(data PageData) {
 					></path>
 				</svg>
 			</div>
+
+			@kioskData(map[string]any{"version": data.KioskVersion, "params": quriesToJson(data.Queries), "refresh": data.Config.Refresh})
+
 			if data.Config.Transition == "cross-fade" {
 				<script>
-                    document.body.addEventListener("htmx:afterSettle", function () {
-                    const frames = document.querySelectorAll(".image-container");
-                    if (frames.length > 3) {
-                        frames[0].remove();
-                    }
+                    htmx.on("htmx:afterSettle", function (evt) {
+                        // Only trigger this if settle is from main kiosk
+                        if (evt.detail.elt.id != "kiosk") return;
+
+                        const frames = htmx.findAll(".frame");
+                        if (frames.length > 3) {
+                            htmx.remove(frames[0], 3000);
+                        }
                     });
                 </script>
 			}
+
 			if data.Config.ShowProgress {
 				<script>
                     // Efter image AJAX request.
                     function afterImageRequest(e) {
-                    const progressBar = document.querySelector(".progress--bar");
+                        const progressBar = htmx.find(".progress--bar");
 
-                    progressBar.style.animation = "none";
-                    progressBar.offsetHeight; /* trigger reflow */
-                    progressBar.style.animation = null;
+                        progressBar.style.animation = "none";
+                        progressBar.offsetHeight; /* trigger reflow */
+                        progressBar.style.animation = null;
                     }
                 </script>
 			}
+
 			<script>
-                // After every AJAX request.
-                document.body.addEventListener("htmx:afterRequest", function (e) {
-                    const offline = document.getElementById("offline");
+                // Server online check. Fires after every AJAX request.
+                htmx.on("htmx:afterRequest", function (e) {
+                    const offline = htmx.find("#offline");
 
                     if (e.detail.successful) {
-                        offline.classList.remove("offline");
+                        htmx.removeClass(offline, "offline")
                     } else {
-                        offline.classList.add("offline");
+                        htmx.addClass(offline, "offline")
                     }
                 });
             </script>
-			@kioskData(map[string]any{"version": data.KioskVersion, "params": quriesToJson(data.Queries)})
+
+			<script src="/assets/js/polling.js"></script>
 		</body>
 	</html>
 }
