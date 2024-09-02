@@ -17,6 +17,10 @@ FROM  alpine:latest
 
 ENV TZ=Europe/London
 
+ENV TERM=xterm-256color
+ENV DEBUG_COLORS=true
+ENV COLORTERM=truecolor
+
 RUN apk add --no-cache tzdata
 
 WORKDIR /

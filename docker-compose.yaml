@@ -2,8 +2,8 @@ services:
   immich-kiosk:
     image: damongolding/immich-kiosk:latest
     container_name: immich-kiosk
+    tty: true
     environment:
-      KIOSK_DEBUG: false
       TZ: "Europe/London"
     ports:
       - 3000:3000
