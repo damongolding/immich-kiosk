@@ -14,8 +14,6 @@ import (
 	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/config"
-
-	human "github.com/dustin/go-humanize"
 )
 
 // maxRetries the maximum amount of retries to find a IMAGE type
@@ -160,8 +158,6 @@ func immichApiCallDecorator[T []ImmichAsset | ImmichAlbum](immichApiCall ImmichA
 			log.Error(err)
 			return nil, err
 		}
-
-		log.Debug("cache", "body", human.Bytes(uint64(len(body))), "json", human.Bytes(uint64(len(jsonBytes))))
 
 		apiCache.Set(apiUrl, jsonBytes, cache.DefaultExpiration)
 		log.Debug(requestId+" Cache saved", "url", apiUrl)
