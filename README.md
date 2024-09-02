@@ -106,6 +106,7 @@ services:
       KIOSK_SHOW_TIME: TRUE
       KIOSK_TIME_FORMAT: 12
       KIOSK_REFRESH: 60
+      KIOSK_DISBALE_SCREENSAVER: TRUE
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
       KIOSK_IMAGE_FIT: CONTAIN
@@ -138,6 +139,7 @@ See the file config.example.yaml for an example config file
 | show_date         | KIOSK_SHOW_DATE         | bool                       | Display the date.                                                                          |
 | [date_format](#date-format) | KIOSK_DATE_FORMAT | string                 | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh           | KIOSK_REFRESH           | int                        | The amount in seconds a image will be displayed for.                                       |
+| disable_screensaver | KIOSK_DISBALE_SCREENSAVER | bool                   | Ask broswer to request a wakelock and disable screensaver.                                 |
 | album             | KIOSK_ALBUM             | []string                   | The ID(s) of a specific album or albums you want to display. See [FAQ: How do I set multiple albums?](#faq) to see how to impliment this.|
 | person            | KIOSK_PERSON            | []string                   | The ID(s) of a specific person or people you want to display. See [FAQ: How do I set multiple people?](#faq) to see how to impliment this.|
 | [image_fit](#image-fit) | KIOSK_IMAGE_FIT   | cover \| contain \| none   | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
@@ -367,14 +369,14 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ------
 
 ## TODO
-- Clock/timestamp shadow redesign 
+- Clock/timestamp shadow redesign
 - Whitelist for people and albums
 - Exclude list
 - Fullscreen mode
 - Hide cursor
 - Use favourites as image pool sauce
 - Prevent screendim/screensaver
-- Display image metadata. aperture, shutter speed, ISO etc 
+- Display image metadata. aperture, shutter speed, ISO etc
 
 ------
 
