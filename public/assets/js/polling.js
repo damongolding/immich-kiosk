@@ -39,7 +39,7 @@ htmx.on("click", () => {
   isPaused = !isPaused;
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+htmx.on("DOMContentLoaded", () => {
   if (!isPaused) {
     startPolling();
   }
