@@ -449,7 +449,7 @@ func Home(data PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if len(queries) > 0 {
+			if len(data.Queries) > 0 {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-param, .kiosk-history--entry\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

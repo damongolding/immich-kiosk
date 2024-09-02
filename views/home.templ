@@ -159,7 +159,7 @@ templ Home(data PageData) {
 				<div
 					id="clock"
 					hx-get="/clock"
-					if len(queries) > 0 {
+					if len(data.Queries) > 0 {
 						hx-include=".kiosk-param, .kiosk-history--entry"
 					}
 					hx-trigger="load, every 30s"
