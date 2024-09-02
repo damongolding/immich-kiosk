@@ -103,7 +103,7 @@ func TestMalformedURLs(t *testing.T) {
 
 			err := c.Load()
 			if err != nil {
-				t.Error(err)
+				t.Error("Config load err", err)
 			}
 
 			if c.ImmichUrl != test.Want {

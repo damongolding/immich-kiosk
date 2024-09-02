@@ -12,7 +12,7 @@ import (
 )
 
 // Home home endpoint
-func Home(baseConfig config.Config) echo.HandlerFunc {
+func Home(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		if log.GetLevel() == log.DebugLevel {
@@ -22,7 +22,7 @@ func Home(baseConfig config.Config) echo.HandlerFunc {
 		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
-		requestConfig := baseConfig
+		requestConfig := *baseConfig
 
 		queries := c.Request().URL.Query()
 
