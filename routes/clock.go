@@ -29,7 +29,15 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 			log.Error("err overriding config", "err", err)
 		}
 
-		log.Debug(requestId, "path", c.Request().URL.String(), "config", requestConfig.String())
+		log.Debug(
+			requestId,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"ShowTime", requestConfig.ShowTime,
+			"TimeFormat", requestConfig.TimeFormat,
+			"ShowDate", requestConfig.ShowDate,
+			"DateFormat", requestConfig.DateFormat,
+		)
 
 		clockTimeFormat := "15:04"
 		if requestConfig.TimeFormat == "12" {

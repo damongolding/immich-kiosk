@@ -29,7 +29,12 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			log.Error("err overriding config", "err", err)
 		}
 
-		log.Debug(requestId, "path", c.Request().URL.String(), "requestConfig", requestConfig.String())
+		log.Debug(
+			requestId,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
 
 		pageData := views.PageData{
 			KioskVersion: KioskVersion,

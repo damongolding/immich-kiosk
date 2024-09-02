@@ -2,39 +2,23 @@ package views
 
 import (
 	"fmt"
-	"github.com/damongolding/immich-kiosk/config"
 	"net/url"
 	"strings"
 )
 
-type PageData struct {
-	// KioskVersion the current build version of Kiosk
-	KioskVersion string
-	// ImageData image as base64 data
-	ImageData string
-	// ImageData blurred image as base64 data
-	ImageBlurData string
-	// Date image date
-	ImageDate string
-	// URL queries
-	Queries url.Values
-	// instance config
-	config.Config
-}
-
 func quriesToJson(values url.Values) map[string]any {
 
-    result := make(map[string]any)
+	result := make(map[string]any)
 
-    for key, value := range values {
-        if len(value) == 1 {
-            result[key] = value[0] // Store as a single string if only one value exists
-        } else {
-            result[key] = value // Store as a slice of strings if multiple values exist
-        }
-    }
+	for key, value := range values {
+		if len(value) == 1 {
+			result[key] = value[0]
+		} else {
+			result[key] = value
+		}
+	}
 
-    return result
+	return result
 }
 
 templ spinner() {
@@ -48,11 +32,13 @@ templ spinner() {
 templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
-		hx-get="/image"
+		hx-post="/image"
 		if len(queries) > 0 {
-			hx-include=".kiosk-param"
+			hx-include=".kiosk-param, .kiosk-history--entry"
+		} else {
+			hx-include=".kiosk-history--entry"
 		}
-		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
+		hx-trigger="load, new-image"
 		hx-swap="beforeend settle:3s"
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
@@ -66,11 +52,13 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, querie
 templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
-		hx-get="/image"
+		hx-post="/image"
 		if len(queries) > 0 {
-			hx-include=".kiosk-param"
+			hx-include=".kiosk-param, .kiosk-history--entry"
+		} else {
+			hx-include=".kiosk-history--entry"
 		}
-		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
+		hx-trigger="load, new-image"
 		hx-swap="innerHTML swap:3s"
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
@@ -84,11 +72,13 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url
 templ kioskNone(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
-		hx-get="/image"
+		hx-post="/image"
 		if len(queries) > 0 {
-			hx-include=".kiosk-param"
+			hx-include=".kiosk-param, .kiosk-history--entry"
+		} else {
+			hx-include=".kiosk-history--entry"
 		}
-		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
+		hx-trigger="load, new-image"
 		hx-swap="innerHTML"
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
@@ -166,13 +156,14 @@ templ Home(data PageData) {
 					hx-swap="innerHTML"
 				></div>
 			}
-			<form>
+			<form id="kiosk-params">
 				for key, values := range data.Queries {
 					for _, value := range values {
 						<input class="kiosk-param" type="hidden" name={ key } value={ value }/>
 					}
 				}
 			</form>
+			<form id="kiosk-history" hx-swap-oob="true"></form>
 			<div id="offline">
 				<svg
 					width="48"
@@ -195,41 +186,50 @@ templ Home(data PageData) {
 					></path>
 				</svg>
 			</div>
+
+			@kioskData(map[string]any{"version": data.KioskVersion, "params": quriesToJson(data.Queries), "refresh": data.Config.Refresh})
+
 			if data.Config.Transition == "cross-fade" {
 				<script>
-                    document.body.addEventListener("htmx:afterSettle", function () {
-                    const frames = document.querySelectorAll(".image-container");
-                    if (frames.length > 3) {
-                        frames[0].remove();
-                    }
+                    htmx.on("htmx:afterSettle", function (evt) {
+                        // Only trigger this if settle is from main kiosk
+                        if (evt.detail.elt.id != "kiosk") return;
+
+                        const frames = htmx.findAll(".frame");
+                        if (frames.length > 3) {
+                            htmx.remove(frames[0], 3000);
+                        }
                     });
                 </script>
 			}
+
 			if data.Config.ShowProgress {
 				<script>
                     // Efter image AJAX request.
                     function afterImageRequest(e) {
-                    const progressBar = document.querySelector(".progress--bar");
+                        const progressBar = htmx.find(".progress--bar");
 
-                    progressBar.style.animation = "none";
-                    progressBar.offsetHeight; /* trigger reflow */
-                    progressBar.style.animation = null;
+                        progressBar.style.animation = "none";
+                        progressBar.offsetHeight; /* trigger reflow */
+                        progressBar.style.animation = null;
                     }
                 </script>
 			}
-			<script>
-            // After every AJAX request.
-            document.body.addEventListener("htmx:afterRequest", function (e) {
-                const offline = document.getElementById("offline");
 
-                if (e.detail.successful) {
-                offline.classList.remove("offline");
-                } else {
-                offline.classList.add("offline");
-                }
-            });
+			<script>
+                // Server online check. Fires after every AJAX request.
+                htmx.on("htmx:afterRequest", function (e) {
+                    const offline = htmx.find("#offline");
+
+                    if (e.detail.successful) {
+                        htmx.removeClass(offline, "offline")
+                    } else {
+                        htmx.addClass(offline, "offline")
+                    }
+                });
             </script>
-			@kioskData(map[string]any{"version": data.KioskVersion, "params": quriesToJson(data.Queries) })
+
+			<script src="/assets/js/polling.js"></script>
 		</body>
 	</html>
 }

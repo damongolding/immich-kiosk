@@ -46,4 +46,10 @@ templ Image(data PageData) {
 			<div class="frame--date">{ data.ImageDate }</div>
 		}
 	</div>
+	<form id="kiosk-history" hx-swap-oob="true">
+		for _, entry := range data.Config.History {
+			<input type="hidden" class="kiosk-history--entry" name="history" value={ entry }/>
+		}
+		<input type="hidden" class="kiosk-history--entry" name="history" value={ data.ImageID }/>
+	</form>
 }

@@ -87,6 +87,8 @@ func main() {
 
 	e.GET("/image", routes.NewImage(baseConfig))
 
+	e.POST("/image", routes.NewImage(baseConfig))
+
 	e.GET("/clock", routes.Clock(baseConfig))
 
 	err = e.Start(":3000")
