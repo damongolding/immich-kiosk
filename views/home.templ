@@ -166,7 +166,7 @@ templ Home(data PageData) {
 					hx-swap="innerHTML"
 				></div>
 			}
-			<form>
+			<form id="kiosk-params">
 				for key, values := range data.Queries {
 					for _, value := range values {
 						<input class="kiosk-param" type="hidden" name={ key } value={ value }/>
