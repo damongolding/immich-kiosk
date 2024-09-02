@@ -22,6 +22,21 @@ type PageData struct {
 	config.Config
 }
 
+func quriesToJson(values url.Values) map[string]any {
+
+	result := make(map[string]any)
+
+	for key, value := range values {
+		if len(value) == 1 {
+			result[key] = value[0] // Store as a single string if only one value exists
+		} else {
+			result[key] = value // Store as a slice of strings if multiple values exist
+		}
+	}
+
+	return result
+}
+
 templ spinner() {
 	<img
 		class="kiosk--spinner"
@@ -30,11 +45,13 @@ templ spinner() {
 	/>
 }
 
-templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string) {
+templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
 		hx-get="/image"
-		hx-include=".kiosk-param, .kiosk-history--entry"
+		if len(queries) > 0 {
+			hx-include=".kiosk-param, .kiosk-history--entry"
+		}
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="beforeend settle:3s"
 		if showProgress {
@@ -46,11 +63,13 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string) {
 	</div>
 }
 
-templ kioskFade(showProgress bool, refresh int, kioskVersion string) {
+templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
 		hx-get="/image"
-		hx-include=".kiosk-param, .kiosk-history--entry"
+		if len(queries) > 0 {
+			hx-include=".kiosk-param, .kiosk-history--entry"
+		}
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="innerHTML swap:3s"
 		if showProgress {
@@ -62,11 +81,13 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string) {
 	</div>
 }
 
-templ kioskNone(showProgress bool, refresh int, kioskVersion string) {
+templ kioskNone(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
 		hx-get="/image"
-		hx-include=".kiosk-param, .kiosk-history--entry"
+		if len(queries) > 0 {
+			hx-include=".kiosk-param, .kiosk-history--entry"
+		}
 		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
 		hx-swap="innerHTML"
 		if showProgress {
@@ -82,11 +103,11 @@ css animationDuration(duration int) {
 	animation-duration: { fmt.Sprintf("%ds", duration) };
 }
 
-templ kioskVersion(data any) {
-	@templ.JSONScript("kiosk-version", data)
+templ kioskData(data any) {
+	@templ.JSONScript("kiosk-data", data)
 	<script>
-	    const kioskVersion = JSON.parse(document.getElementById('kiosk-version').textContent);
-		console.log(`\nImmich Kiosk version: %c${kioskVersion}`,  "color: white; font-weight:600; background-color:#1e83f7; padding:0.3rem 1rem; border-radius:4px;", "\n\n");
+	    const kioskData = JSON.parse(document.getElementById('kiosk-data').textContent);
+		console.log(`\nImmich Kiosk version: %c${kioskData.version}`,  "color: white; font-weight:600; background-color:#1e83f7; padding:0.3rem 1rem; border-radius:4px;", "\n\n");
 	</script>
 }
 
@@ -121,11 +142,11 @@ templ Home(data PageData) {
 		<body>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
+					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries)
 				case "fade":
-					@kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
+					@kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries)
 				default:
-					@kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
+					@kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries)
 			}
 			if data.Config.ShowProgress {
 				<div class="progress">
@@ -138,7 +159,9 @@ templ Home(data PageData) {
 				<div
 					id="clock"
 					hx-get="/clock"
-					hx-include=".kiosk-param, .kiosk-history--entry"
+					if len(queries) > 0 {
+						hx-include=".kiosk-param, .kiosk-history--entry"
+					}
 					hx-trigger="load, every 30s"
 					hx-swap="innerHTML"
 				></div>
@@ -207,7 +230,7 @@ templ Home(data PageData) {
                 }
             });
             </script>
-			@kioskVersion(data.KioskVersion)
+			@kioskData(map[string]any{"version": data.KioskVersion, "params": quriesToJson(data.Queries)})
 		</body>
 	</html>
 }

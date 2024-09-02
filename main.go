@@ -41,11 +41,11 @@ func init() {
 
 func main() {
 
-	var baseConfig config.Config
+	baseConfig := config.New()
 
 	err := baseConfig.Load()
 	if err != nil {
-		log.Fatal("Failed to load config", "err", err)
+		log.Error("Failed to load config", "err", err)
 	}
 
 	fmt.Println(smallBanner)
@@ -53,8 +53,6 @@ func main() {
 	fmt.Print("Version ", versionStyle, "\n\n")
 
 	e := echo.New()
-
-	// hide echos default banner
 	e.HideBanner = true
 
 	// Middleware

@@ -12,7 +12,7 @@ import (
 )
 
 // Home home endpoint
-func Home(baseConfig config.Config) echo.HandlerFunc {
+func Home(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		if log.GetLevel() == log.DebugLevel {
@@ -22,19 +22,18 @@ func Home(baseConfig config.Config) echo.HandlerFunc {
 		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
-		requestConfig := baseConfig
+		requestConfig := *baseConfig
 
-		queries := c.Request().URL.Query()
-
-		if len(queries) > 0 {
-			requestConfig = requestConfig.ConfigWithOverrides(queries)
+		err := requestConfig.ConfigWithOverrides(c)
+		if err != nil {
+			log.Error("err overriding config", "err", err)
 		}
 
 		log.Debug(requestId, "path", c.Request().URL.String(), "requestConfig", requestConfig.String())
 
 		pageData := views.PageData{
 			KioskVersion: KioskVersion,
-			Queries:      queries,
+			Queries:      c.Request().URL.Query(),
 			Config:       requestConfig,
 		}
 

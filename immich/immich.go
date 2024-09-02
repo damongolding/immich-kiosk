@@ -20,8 +20,8 @@ import (
 const maxRetries int = 10
 
 var (
-	// baseConfig the base config i.e config.yaml or ENV
-	baseConfig config.Config
+	// requestConfig the config for this request
+	requestConfig config.Config
 	// apiCache cache store for immich api call(s)
 	apiCache *cache.Cache
 )
@@ -32,73 +32,79 @@ type ImmichError struct {
 	StatusCode int      `json:"statusCode"`
 }
 
+type ExifInfo struct {
+	Make             string    `json:"-"` // `json:"make"`
+	Model            string    `json:"-"` // `json:"model"`
+	ExifImageWidth   int       `json:"-"` // `json:"exifImageWidth"`
+	ExifImageHeight  int       `json:"-"` // `json:"exifImageHeight"`
+	FileSizeInByte   int       `json:"-"` // `json:"fileSizeInByte"`
+	Orientation      any       `json:"-"` // `json:"orientation"`
+	DateTimeOriginal time.Time `json:"-"` // `json:"dateTimeOriginal"`
+	ModifyDate       time.Time `json:"-"` // `json:"modifyDate"`
+	TimeZone         string    `json:"-"` // `json:"timeZone"`
+	LensModel        string    `json:"-"` // `json:"lensModel"`
+	FNumber          float64   `json:"-"` // `json:"fNumber"`
+	FocalLength      float64   `json:"-"` // `json:"focalLength"`
+	Iso              int       `json:"-"` // `json:"iso"`
+	ExposureTime     string    `json:"-"` // `json:"exposureTime"`
+	Latitude         float64   `json:"-"` // `json:"latitude"`
+	Longitude        float64   `json:"-"` // `json:"longitude"`
+	City             string    `json:"-"` // `json:"city"`
+	State            string    `json:"-"` // `json:"state"`
+	Country          string    `json:"-"` // `json:"country"`
+	Description      string    `json:"-"` // `json:"description"`
+	ProjectionType   any       `json:"-"` // `json:"projectionType"`
+}
+
+type People []struct {
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	BirthDate     any       `json:"-"` // `json:"birthDate"`
+	ThumbnailPath string    `json:"-"` // `json:"thumbnailPath"`
+	IsHidden      bool      `json:"-"` // `json:"isHidden"`
+	UpdatedAt     time.Time `json:"-"` // `json:"updatedAt"`
+	Faces         Faces     `json:"-"` // `json:"faces"`
+}
+
+type Faces []struct {
+	ID            string `json:"-"` // `json:"id"`
+	ImageHeight   int    `json:"-"` // `json:"imageHeight"`
+	ImageWidth    int    `json:"-"` // `json:"imageWidth"`
+	BoundingBoxX1 int    `json:"-"` // `json:"boundingBoxX1"`
+	BoundingBoxX2 int    `json:"-"` // `json:"boundingBoxX2"`
+	BoundingBoxY1 int    `json:"-"` // `json:"boundingBoxY1"`
+	BoundingBoxY2 int    `json:"-"` // `json:"boundingBoxY2"`
+}
+
 type ImmichAsset struct {
 	Retries          int
 	ID               string    `json:"id"`
-	DeviceAssetID    string    `json:"deviceAssetId"`
-	OwnerID          string    `json:"ownerId"`
-	DeviceID         string    `json:"deviceId"`
-	LibraryID        string    `json:"libraryId"`
+	DeviceAssetID    string    `json:"-"` // `json:"deviceAssetId"`
+	OwnerID          string    `json:"-"` // `json:"ownerId"`
+	DeviceID         string    `json:"-"` // `json:"deviceId"`
+	LibraryID        string    `json:"-"` // `json:"libraryId"`
 	Type             string    `json:"type"`
-	OriginalPath     string    `json:"originalPath"`
-	OriginalFileName string    `json:"originalFileName"`
-	OriginalMimeType string    `json:"originalMimeType"`
-	Resized          bool      `json:"resized"`
-	Thumbhash        string    `json:"thumbhash"`
-	FileCreatedAt    time.Time `json:"fileCreatedAt"`
-	FileModifiedAt   time.Time `json:"fileModifiedAt"`
-	LocalDateTime    time.Time `json:"localDateTime"`
-	UpdatedAt        time.Time `json:"updatedAt"`
-	IsFavorite       bool      `json:"isFavorite"`
-	IsArchived       bool      `json:"isArchived"`
-	IsTrashed        bool      `json:"isTrashed"`
-	Duration         string    `json:"duration"`
-	ExifInfo         struct {
-		Make             string    `json:"make"`
-		Model            string    `json:"model"`
-		ExifImageWidth   int       `json:"exifImageWidth"`
-		ExifImageHeight  int       `json:"exifImageHeight"`
-		FileSizeInByte   int       `json:"fileSizeInByte"`
-		Orientation      any       `json:"orientation"`
-		DateTimeOriginal time.Time `json:"dateTimeOriginal"`
-		ModifyDate       time.Time `json:"modifyDate"`
-		TimeZone         string    `json:"timeZone"`
-		LensModel        string    `json:"lensModel"`
-		FNumber          float64   `json:"fNumber"`
-		FocalLength      float64   `json:"focalLength"`
-		Iso              int       `json:"iso"`
-		ExposureTime     string    `json:"exposureTime"`
-		Latitude         float64   `json:"latitude"`
-		Longitude        float64   `json:"longitude"`
-		City             string    `json:"city"`
-		State            string    `json:"state"`
-		Country          string    `json:"country"`
-		Description      string    `json:"description"`
-		ProjectionType   any       `json:"projectionType"`
-	} `json:"exifInfo"`
-	LivePhotoVideoID any `json:"livePhotoVideoId"`
-	People           []struct {
-		ID            string    `json:"id"`
-		Name          string    `json:"name"`
-		BirthDate     any       `json:"birthDate"`
-		ThumbnailPath string    `json:"thumbnailPath"`
-		IsHidden      bool      `json:"isHidden"`
-		UpdatedAt     time.Time `json:"updatedAt"`
-		Faces         []struct {
-			ID            string `json:"id"`
-			ImageHeight   int    `json:"imageHeight"`
-			ImageWidth    int    `json:"imageWidth"`
-			BoundingBoxX1 int    `json:"boundingBoxX1"`
-			BoundingBoxX2 int    `json:"boundingBoxX2"`
-			BoundingBoxY1 int    `json:"boundingBoxY1"`
-			BoundingBoxY2 int    `json:"boundingBoxY2"`
-		} `json:"faces"`
-	} `json:"people"`
-	Checksum    string `json:"checksum"`
-	StackCount  any    `json:"stackCount"`
-	IsOffline   bool   `json:"isOffline"`
-	HasMetadata bool   `json:"hasMetadata"`
-	DuplicateID any    `json:"duplicateId"`
+	OriginalPath     string    `json:"-"`                // `json:"originalPath"`
+	OriginalFileName string    `json:"-"`                // `json:"originalFileName"`
+	OriginalMimeType string    `json:"originalMimeType"` // `json:"originalMimeType"`
+	Resized          bool      `json:"-"`                // `json:"resized"`
+	Thumbhash        string    `json:"-"`                // `json:"thumbhash"`
+	FileCreatedAt    time.Time `json:"-"`                // `json:"fileCreatedAt"`
+	FileModifiedAt   time.Time `json:"-"`                // `json:"fileModifiedAt"`
+	LocalDateTime    time.Time `json:"localDateTime"`    // `json:"localDateTime"`
+	UpdatedAt        time.Time `json:"-"`                // `json:"updatedAt"`
+	IsFavorite       bool      `json:"isFavorite"`       // `json:"isFavorite"`
+	IsArchived       bool      `json:"isArchived"`       // `json:"isArchived"`
+	IsTrashed        bool      `json:"isTrashed"`        // `json:"isTrashed"`
+	Duration         string    `json:"-"`                // `json:"duration"`
+	ExifInfo         ExifInfo  `json:"-"`                // `json:"exifInfo"`
+	LivePhotoVideoID any       `json:"-"`                // `json:"livePhotoVideoId"`
+	People           People    `json:"people"`           // `json:"people"`
+	Checksum         string    `json:"checksum"`         // `json:"checksum"`
+	StackCount       any       `json:"-"`                // `json:"stackCount"`
+	IsOffline        bool      `json:"-"`                // `json:"isOffline"`
+	HasMetadata      bool      `json:"-"`                // `json:"hasMetadata"`
+	DuplicateID      any       `json:"-"`                // `json:"duplicateId"`
 }
 
 type ImmichAlbum struct {
@@ -112,39 +118,52 @@ func init() {
 
 // NewImage returns a new image instance
 func NewImage(base config.Config) ImmichAsset {
-	baseConfig = base
+	requestConfig = base
 	return ImmichAsset{}
 }
 
 type ImmichApiCall func(string) ([]byte, error)
 
 // immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
-func immichApiCallDecorator(immichApiCall ImmichApiCall, requestId string) ImmichApiCall {
+func immichApiCallDecorator[T []ImmichAsset | ImmichAlbum](immichApiCall ImmichApiCall, requestId string, jsonShape T) ImmichApiCall {
 	return func(apiUrl string) ([]byte, error) {
 
-		if baseConfig.Kiosk.Cache {
-			apiData, found := apiCache.Get(apiUrl)
-			if found {
-				log.Debug(requestId+" Cache hit", "url", apiUrl)
-				return apiData.([]byte), nil
-			}
-
-			log.Debug(requestId+" Cache miss", "url", apiUrl)
-			body, err := immichApiCall(apiUrl)
-			if err != nil {
-				log.Error(err)
-				return nil, err
-			}
-
-			apiCache.Set(apiUrl, body, cache.DefaultExpiration)
-			log.Debug(requestId+" Cache saved", "url", apiUrl)
-			return body, nil
-
+		if !requestConfig.Kiosk.Cache {
+			return immichApiCall(apiUrl)
 		}
 
-		return immichApiCall(apiUrl)
-	}
+		apiData, found := apiCache.Get(apiUrl)
+		if found {
+			log.Debug(requestId+" Cache hit", "url", apiUrl)
+			return apiData.([]byte), nil
+		}
 
+		log.Debug(requestId+" Cache miss", "url", apiUrl)
+		body, err := immichApiCall(apiUrl)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+
+		// Unpack api json into struct which discards data we don't use (for smaller cache size)
+		err = json.Unmarshal(body, &jsonShape)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+
+		// get bytes and store in cache
+		jsonBytes, err := json.Marshal(jsonShape)
+		if err != nil {
+			log.Error(err)
+			return nil, err
+		}
+
+		apiCache.Set(apiUrl, jsonBytes, cache.DefaultExpiration)
+		log.Debug(requestId+" Cache saved", "url", apiUrl)
+
+		return jsonBytes, nil
+	}
 }
 
 // immichApiCall bootstrap for immich api call
@@ -160,7 +179,7 @@ func (i *ImmichAsset) immichApiCall(apiUrl string) ([]byte, error) {
 	}
 
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", baseConfig.ImmichApiKey)
+	req.Header.Add("x-api-key", requestConfig.ImmichApiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -185,7 +204,7 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 
 	var immichAssets []ImmichAsset
 
-	u, err := url.Parse(baseConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -247,7 +266,7 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 
 	var images []ImmichAsset
 
-	u, err := url.Parse(baseConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -258,7 +277,7 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 		Path:   "api/people/" + personId + "/assets",
 	}
 
-	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestId)
+	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestId, images)
 	body, err := immichApiCal(apiUrl.String())
 	if err != nil {
 		log.Error(err)
@@ -317,7 +336,7 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 func (i *ImmichAsset) GetRandomImageFromAlbum(albumId, requestId string) error {
 	var album ImmichAlbum
 
-	u, err := url.Parse(baseConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -328,7 +347,7 @@ func (i *ImmichAsset) GetRandomImageFromAlbum(albumId, requestId string) error {
 		Path:   "api/albums/" + albumId,
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId, album)
 	body, err := immichApiCall(apiUrl.String())
 	if err != nil {
 		log.Error(err)
@@ -379,7 +398,7 @@ func (i *ImmichAsset) GetImagePreview() ([]byte, error) {
 
 	var bytes []byte
 
-	u, err := url.Parse(baseConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		log.Error(err)
 		return bytes, err

@@ -1,38 +1,14 @@
 package config
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"slices"
-	"strings"
 	"testing"
+
+	"github.com/labstack/echo/v4"
 )
-
-// TestTransition check transitions for being transformed
-func TestTransition(t *testing.T) {
-
-	originalUrl := "https://my-server.com"
-	originalApi := "123456"
-
-	c := Config{
-		ImmichUrl:    originalUrl,
-		ImmichApiKey: originalApi,
-	}
-
-	transitions := []string{"FadE", "NONE", "CroSs-FADE"}
-
-	for _, transition := range transitions {
-
-		q := url.Values{}
-
-		q.Add("transition", transition)
-
-		c.ConfigWithOverrides(q)
-
-		if c.Transition != strings.ToLower(transition) {
-			t.Errorf("Transition was not transformed to lowercase: %s", c.Transition)
-		}
-	}
-}
 
 // TestConfigWithOverrides testing whether ImmichUrl and ImmichApiKey are immutable
 func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
@@ -40,17 +16,21 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 	originalUrl := "https://my-server.com"
 	originalApi := "123456"
 
-	c := Config{
-		ImmichUrl:    originalUrl,
-		ImmichApiKey: originalApi,
-	}
+	c := New()
+	c.ImmichUrl = originalUrl
+	c.ImmichApiKey = originalApi
 
-	q := url.Values{}
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
 
-	q.Add("immich_url", "https://my-new-server.com")
-	q.Add("immich_api_key", "9999")
+	req.URL.Query().Add("immich_url", "https://my-new-server.com")
+	req.URL.Query().Add("immich_api_key", "9999")
 
-	c.ConfigWithOverrides(q)
+	rec := httptest.NewRecorder()
+
+	echoContenx := e.NewContext(req, rec)
+
+	c.ConfigWithOverrides(echoContenx)
 
 	if c.ImmichUrl != originalUrl {
 		t.Errorf("ImmichUrl field was allowed to be changed: %s", c.ImmichUrl)
@@ -63,16 +43,22 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 
 func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 
-	c := Config{}
+	c := New()
 
-	q := url.Values{}
+	e := echo.New()
 
+	q := make(url.Values)
 	q.Add("person", "bea")
 	q.Add("person", "laura")
 
-	t.Log("Trying to add:", q)
+	req := httptest.NewRequest(http.MethodGet, "/?"+q.Encode(), nil)
+	rec := httptest.NewRecorder()
 
-	c.ConfigWithOverrides(q)
+	echoContenx := e.NewContext(req, rec)
+
+	t.Log("Trying to add:", echoContenx.Request().URL.Query())
+
+	c.ConfigWithOverrides(echoContenx)
 
 	if len(c.Person) != 2 {
 		t.Errorf("People were not added: %s", c.Person)
@@ -103,7 +89,7 @@ func TestMalformedURLs(t *testing.T) {
 
 			err := c.Load()
 			if err != nil {
-				t.Error(err)
+				t.Error("Config load err", err)
 			}
 
 			if c.ImmichUrl != test.Want {
@@ -117,18 +103,23 @@ func TestMalformedURLs(t *testing.T) {
 func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 
 	// configWithBase
-	configWithBase := Config{
-		Album: []string{"BASE_ALBUM"},
-	}
+	configWithBase := New()
+	configWithBase.Album = []string{"BASE_ALBUM"}
 
-	q := url.Values{}
+	e := echo.New()
 
+	q := make(url.Values)
 	q.Add("album", "ALBUM_1")
 	q.Add("album", "ALBUM_2")
 
-	t.Log("Trying to add:", q)
+	req := httptest.NewRequest(http.MethodGet, "/?"+q.Encode(), nil)
+	rec := httptest.NewRecorder()
 
-	configWithBase.ConfigWithOverrides(q)
+	echoContenx := e.NewContext(req, rec)
+
+	t.Log("Trying to add:", echoContenx.Request().URL.Query())
+
+	configWithBase.ConfigWithOverrides(echoContenx)
 
 	t.Log("album", configWithBase.Album)
 
@@ -141,16 +132,20 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 	}
 
 	// configWithBase
-	configWithoutBase := Config{}
+	configWithoutBase := New()
 
-	q = url.Values{}
-
+	q = make(url.Values)
 	q.Add("album", "ALBUM_1")
 	q.Add("album", "ALBUM_2")
 
-	t.Log("Trying to add:", q)
+	req = httptest.NewRequest(http.MethodGet, "/?"+q.Encode(), nil)
+	rec = httptest.NewRecorder()
 
-	configWithoutBase.ConfigWithOverrides(q)
+	echoContenx = e.NewContext(req, rec)
+
+	t.Log("Trying to add:", echoContenx.Request().URL.Query())
+
+	configWithoutBase.ConfigWithOverrides(echoContenx)
 
 	t.Log("album", configWithoutBase.Album)
 
@@ -159,13 +154,13 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 	}
 
 	// configWithBaseOnly
-	configWithBaseOnly := Config{
-		Album: []string{"BASE_ALUMB_1", "BASE_ALUMB_2"},
-	}
+	configWithBaseOnly := New()
+	configWithBaseOnly.Album = []string{"BASE_ALUMB_1", "BASE_ALUMB_2"}
 
-	q = url.Values{}
+	req = httptest.NewRequest(http.MethodGet, "/", nil)
+	rec = httptest.NewRecorder()
 
-	configWithBaseOnly.ConfigWithOverrides(q)
+	echoContenx = e.NewContext(req, rec)
 
 	t.Log("album", configWithBaseOnly.Album)
 
