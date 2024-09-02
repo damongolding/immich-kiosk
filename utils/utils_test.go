@@ -130,7 +130,6 @@ func TestColorContrast(t *testing.T) {
 	white := Color{R: 255, G: 255, B: 255}
 	black := Color{R: 0, G: 0, B: 0}
 
-
 	maxRatio := calculateContrastRatio(white, black)
 	if maxRatio != 21 {
 		t.Error("ratio is not at maximum", maxRatio)

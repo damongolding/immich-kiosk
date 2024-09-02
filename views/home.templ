@@ -2,24 +2,23 @@ package views
 
 import (
 	"fmt"
-	"github.com/damongolding/immich-kiosk/config"
 	"net/url"
 	"strings"
 )
 
-type PageData struct {
-	// KioskVersion the current build version of Kiosk
-	KioskVersion string
-	// ImageData image as base64 data
-	ImageData string
-	// ImageData blurred image as base64 data
-	ImageBlurData string
-	// Date image date
-	ImageDate string
-	// URL queries
-	Queries url.Values
-	// instance config
-	config.Config
+func quriesToJson(values url.Values) map[string]any {
+
+	result := make(map[string]any)
+
+	for key, value := range values {
+		if len(value) == 1 {
+			result[key] = value[0]
+		} else {
+			result[key] = value
+		}
+	}
+
+	return result
 }
 
 templ spinner() {
@@ -30,12 +29,16 @@ templ spinner() {
 	/>
 }
 
-templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string) {
+templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
-		hx-get="/image"
-		hx-include=".kiosk-param"
-		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
+		hx-post="/image"
+		if len(queries) > 0 {
+			hx-include=".kiosk-param, .kiosk-history--entry"
+		} else {
+			hx-include=".kiosk-history--entry"
+		}
+		hx-trigger="load, new-image"
 		hx-swap="beforeend settle:3s"
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
@@ -46,12 +49,16 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string) {
 	</div>
 }
 
-templ kioskFade(showProgress bool, refresh int, kioskVersion string) {
+templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
-		hx-get="/image"
-		hx-include=".kiosk-param"
-		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
+		hx-post="/image"
+		if len(queries) > 0 {
+			hx-include=".kiosk-param, .kiosk-history--entry"
+		} else {
+			hx-include=".kiosk-history--entry"
+		}
+		hx-trigger="load, new-image"
 		hx-swap="innerHTML swap:3s"
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
@@ -62,12 +69,16 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string) {
 	</div>
 }
 
-templ kioskNone(showProgress bool, refresh int, kioskVersion string) {
+templ kioskNone(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
 	<div
 		id="kiosk"
-		hx-get="/image"
-		hx-include=".kiosk-param"
-		hx-trigger={ fmt.Sprintf("load, every %ds", refresh) }
+		hx-post="/image"
+		if len(queries) > 0 {
+			hx-include=".kiosk-param, .kiosk-history--entry"
+		} else {
+			hx-include=".kiosk-history--entry"
+		}
+		hx-trigger="load, new-image"
 		hx-swap="innerHTML"
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
@@ -82,11 +93,11 @@ css animationDuration(duration int) {
 	animation-duration: { fmt.Sprintf("%ds", duration) };
 }
 
-templ kioskVersion(data any) {
-	@templ.JSONScript("kiosk-version", data)
+templ kioskData(data any) {
+	@templ.JSONScript("kiosk-data", data)
 	<script>
-	    const kioskVersion = JSON.parse(document.getElementById('kiosk-version').textContent);
-		console.log(`\nImmich Kiosk version: %c${kioskVersion}`,  "color: white; font-weight:600; background-color:#1e83f7; padding:0.3rem 1rem; border-radius:4px;", "\n\n");
+	    const kioskData = JSON.parse(document.getElementById('kiosk-data').textContent);
+		console.log(`\nImmich Kiosk version: %c${kioskData.version}`,  "color: white; font-weight:600; background-color:#1e83f7; padding:0.3rem 1rem; border-radius:4px;", "\n\n");
 	</script>
 }
 
@@ -121,11 +132,11 @@ templ Home(data PageData) {
 		<body>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
+					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries)
 				case "fade":
-					@kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
+					@kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries)
 				default:
-					@kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion)
+					@kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries)
 			}
 			if data.Config.ShowProgress {
 				<div class="progress">
@@ -138,18 +149,21 @@ templ Home(data PageData) {
 				<div
 					id="clock"
 					hx-get="/clock"
-					hx-include=".kiosk-param"
+					if len(data.Queries) > 0 {
+						hx-include=".kiosk-param"
+					}
 					hx-trigger="load, every 30s"
 					hx-swap="innerHTML"
 				></div>
 			}
-			<form>
+			<form id="kiosk-params">
 				for key, values := range data.Queries {
 					for _, value := range values {
 						<input class="kiosk-param" type="hidden" name={ key } value={ value }/>
 					}
 				}
 			</form>
+			<form id="kiosk-history" hx-swap-oob="true"></form>
 			<div id="offline">
 				<svg
 					width="48"
@@ -172,21 +186,28 @@ templ Home(data PageData) {
 					></path>
 				</svg>
 			</div>
+
+			@kioskData(map[string]any{"version": data.KioskVersion, "params": quriesToJson(data.Queries), "refresh": data.Config.Refresh})
+
 			if data.Config.Transition == "cross-fade" {
 				<script>
-                    document.body.addEventListener("htmx:afterSettle", function () {
-                        const frames = document.querySelectorAll(".image-container");
+                    htmx.on("htmx:afterSettle", function (evt) {
+                        // Only trigger this if settle is from main kiosk
+                        if (evt.detail.elt.id != "kiosk") return;
+
+                        const frames = htmx.findAll(".frame");
                         if (frames.length > 3) {
-                            frames[0].remove();
+                            htmx.remove(frames[0], 3000);
                         }
                     });
                 </script>
 			}
+
 			if data.Config.ShowProgress {
 				<script>
                     // Efter image AJAX request.
                     function afterImageRequest(e) {
-                        const progressBar = document.querySelector(".progress--bar");
+                        const progressBar = htmx.find(".progress--bar");
 
                         progressBar.style.animation = "none";
                         progressBar.offsetHeight; /* trigger reflow */
@@ -194,22 +215,25 @@ templ Home(data PageData) {
                     }
                 </script>
 			}
+
 			if data.Config.DisableScreensaver {
 				<script src="/assets/js/wakelock.js"></script>
 			}
-			<script>
-            // After every AJAX request.
-            document.body.addEventListener("htmx:afterRequest", function (e) {
-                const offline = document.getElementById("offline");
 
-                if (e.detail.successful) {
-                offline.classList.remove("offline");
-                } else {
-                offline.classList.add("offline");
-                }
-            });
+			<script>
+                // Server online check. Fires after every AJAX request.
+                htmx.on("htmx:afterRequest", function (e) {
+                    const offline = htmx.find("#offline");
+
+                    if (e.detail.successful) {
+                        htmx.removeClass(offline, "offline")
+                    } else {
+                        htmx.addClass(offline, "offline")
+                    }
+                });
             </script>
-			@kioskVersion(data.KioskVersion)
+
+			<script src="/assets/js/polling.js"></script>
 		</body>
 	</html>
 }

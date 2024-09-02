@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.22.5-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.23-alpine AS build
 
 ARG VERSION
 ARG TARGETOS
@@ -16,6 +16,10 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags "-X main.v
 FROM  alpine:latest
 
 ENV TZ=Europe/London
+
+ENV TERM=xterm-256color
+ENV DEBUG_COLORS=true
+ENV COLORTERM=truecolor
 
 RUN apk add --no-cache tzdata
 

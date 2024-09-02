@@ -13,7 +13,7 @@ import (
 )
 
 // Clock clock endpoint
-func Clock(baseConfig config.Config) echo.HandlerFunc {
+func Clock(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		if log.GetLevel() == log.DebugLevel {
 			fmt.Println()
@@ -22,21 +22,22 @@ func Clock(baseConfig config.Config) echo.HandlerFunc {
 		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
-		requestConfig := baseConfig
+		requestConfig := *baseConfig
 
-		queries := c.Request().URL.Query()
-
-		if len(queries) > 0 {
-			requestConfig = requestConfig.ConfigWithOverrides(queries)
+		err := requestConfig.ConfigWithOverrides(c)
+		if err != nil {
+			log.Error("err overriding config", "err", err)
 		}
 
-		t := time.Now()
-
-		if len(queries) > 0 {
-			requestConfig = requestConfig.ConfigWithOverrides(queries)
-		}
-
-		log.Debug(requestId, "path", c.Request().URL.String(), "config", requestConfig.String())
+		log.Debug(
+			requestId,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"ShowTime", requestConfig.ShowTime,
+			"TimeFormat", requestConfig.TimeFormat,
+			"ShowDate", requestConfig.ShowDate,
+			"DateFormat", requestConfig.DateFormat,
+		)
 
 		clockTimeFormat := "15:04"
 		if requestConfig.TimeFormat == "12" {
@@ -50,17 +51,16 @@ func Clock(baseConfig config.Config) echo.HandlerFunc {
 
 		var data views.ClockData
 
+		t := time.Now()
+
 		switch {
 		case (requestConfig.ShowTime && requestConfig.ShowDate):
 			data.ClockTime = t.Format(clockTimeFormat)
 			data.ClockDate = t.Format(clockDateFormat)
-			break
 		case requestConfig.ShowTime:
 			data.ClockTime = t.Format(clockTimeFormat)
-			break
 		case requestConfig.ShowDate:
 			data.ClockDate = t.Format(clockDateFormat)
-			break
 		}
 
 		return Render(c, http.StatusOK, views.Clock(data))

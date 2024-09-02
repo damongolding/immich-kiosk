@@ -245,6 +245,10 @@ body {
     animation-timing-function: linear;
 }
 
+.progress--bar-paused {
+    animation-play-state: paused;
+}
+
 #offline {
     position: absolute;
     top: 1rem;
