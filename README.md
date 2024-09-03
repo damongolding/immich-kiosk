@@ -239,6 +239,10 @@ These examples assume that today's date is the 22nd of August 2024.
 
 ## Home Assistant
 
+> [!NOTE]
+> These examples are community Kiosk implimentations.
+> I am unable to provide support for Home Assistant via issues.
+
 While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io) in mind. I thought it would be useful to add Kiosk implimentations I have come across.
 
 ### Using Kiosk to add a slideshow in Home Assistant.
