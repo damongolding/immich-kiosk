@@ -129,28 +129,28 @@ services:
 ## Configuration
 See the file config.example.yaml for an example config file
 
-| **yaml**                          | **ENV**                 | **Value**                  | **Description**                                                                            |
-|-----------------------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
-| immich_url                        | KIOSK_IMMICH_URL        | string                     | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`. |
-| immich_api_key                    | KIOSK_IMMICH_API_KEY    | string                     | The API for your Immich server.                                                            |
-| disable_ui                        | KIOSK_DISABLE_UI        | bool                       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
-| show_time                         | KIOSK_SHOW_TIME         | bool                       | Display clock.                                                                             |
-| time_format                       | KIOSK_TIME_FORMAT       | 12 \| 24                   | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
-| show_date                         | KIOSK_SHOW_DATE         | bool                       | Display the date.                                                                          |
-| [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
-| refresh                           | KIOSK_REFRESH           | int                        | The amount in seconds a image will be displayed for.                                       |
-| disable_screensaver               | KIOSK_DISBALE_SCREENSAVER | bool                     | Ask broswer to request a lock that prevents device screens from dimming or locking.        |
-| hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | Hide cursor/mouse via CSS.                                                                 |
-| album                             | KIOSK_ALBUM             | []string                   | The ID(s) of a specific album or albums you want to display. See [FAQ: How do I set multiple albums?](#faq) to see how to impliment this.|
-| person                            | KIOSK_PERSON            | []string                   | The ID(s) of a specific person or people you want to display. See [FAQ: How do I set multiple people?](#faq) to see how to impliment this.|
-| [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
-| background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | Display a blurred version of the image as a background.                                    |
-| transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | Which transition to use when changing images.                                              |
-| show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | Display a progress bar for when image will refresh.                                        |
-| show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | Display image time from METADATA (if available).                                           |
-| image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
-| show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | Display the image date from METADATA (if available).                                       |
-| [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | The format of the image date. default is day/month/year. See [date format](#date-format) for more information. |
+| **yaml**                          | **ENV**                 | **Value**                  | **Default** | **Description**                                                                            |
+|-----------------------------------|-------------------------|----------------------------|-------------|--------------------------------------------------------------------------------------------|
+| immich_url                        | KIOSK_IMMICH_URL        | string                     | ""          | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`. |
+| immich_api_key                    | KIOSK_IMMICH_API_KEY    | string                     | ""          | The API for your Immich server.                                                            |
+| disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
+| show_time                         | KIOSK_SHOW_TIME         | bool                       | false       | Display clock.                                                                             |
+| time_format                       | KIOSK_TIME_FORMAT       | 12 \| 24                   | 24          | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
+| show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
+| [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
+| refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
+| disable_screensaver               | KIOSK_DISBALE_SCREENSAVER | bool                     | false       | Ask broswer to request a lock that prevents device screens from dimming or locking.        |
+| hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
+| album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [FAQ: How do I set multiple albums?](#faq) to see how to impliment this.|
+| person                            | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [FAQ: How do I set multiple people?](#faq) to see how to impliment this.|
+| [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | contain     | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
+| background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
+| transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
+| show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
+| show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
+| image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
+| show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
+| [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information. |
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
