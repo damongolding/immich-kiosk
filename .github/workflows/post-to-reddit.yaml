@@ -9,6 +9,12 @@ jobs:
   post-release-on-reddit:
     runs-on: ubuntu-latest
     steps:
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - uses: bluwy/release-for-reddit-action@v2
         with:
           username: ${{ secrets.REDDIT_USERNAME }}
@@ -16,6 +22,6 @@ jobs:
           app-id: ${{ secrets.REDDIT_APP_ID }}
           app-secret: ${{ secrets.REDDIT_APP_SECRET }}
           subreddit: immich
-          title: Immich Kiosk ${{ GITHUB_REF#refs/tags/}} Released
+          title: Immich Kiosk ${{ env.VERSION }} Released
           comment: ${{ github.event.release.body }}
-          url: https://github.com/damongolding/immich-kiosk/releases/tag/${{ GITHUB_REF#refs/tags/ }}
+          url: https://github.com/damongolding/immich-kiosk/releases/tag/${{ env.VERSION }}
