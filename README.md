@@ -262,7 +262,7 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
     fullscreen: true
     display_time: 86400
     image_url: >-
-      http://{immich-kiosk-url}/image?raw&person=PERSON_1_ID&person=PERSON_2_ID
+      http://{immich-kiosk-url}/image?person=PERSON_1_ID&person=PERSON_2_ID
     cards:
       - type: vertical-stack
         cards:
@@ -290,7 +290,10 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
 **A**: This icon shows when the front end can't connect to the back end .
 
 **Q: Can I use this to set Immich images as my Home Assistant dashboard background?**\
-**A**: Yes! Just navigate to the dashboard with the view you wish to add the image background to. Enter edit mode and click the ✏ next to the view you want to add the image to. Then select the "background" tab and toggle on "Local path or web URL" and enter your url with path `/image` and the query `raw` e.g. `http://192.168.0.123:3000/image?raw`. If you want to specify an album or a person you can also add that to the url e.g. `http://192.168.0.123:3000/image?album=ALBUM_ID&raw`
+**A**: Yes! Just navigate to the dashboard with the view you wish to add the image background to.
+Enter edit mode and click the ✏ next to the view you want to add the image to.
+Then select the "background" tab and toggle on "Local path or web URL" and enter your url with path `/image` e.g. `http://192.168.0.123:3000/image`.
+If you want to specify an album or a person you can also add that to the url e.g. `http://192.168.0.123:3000/image?album=ALBUM_ID`
 
 **Q: Do I need to a docker service for each client?**\
 **A**: Nope. Just one that your client(s) will connect to.
