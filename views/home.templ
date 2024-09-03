@@ -128,6 +128,13 @@ templ Home(data PageData) {
 				href="/assets/images/favicon-16x16.png"
 			/>
 			<script src="/assets/js/htmx.2.0.1.js"></script>
+			if data.Config.HideCursor {
+				<style>
+    				html, body{
+    				    cursor: none;
+    				}
+				</style>
+			}
 		</head>
 		<body>
 			switch strings.ToLower(data.Config.Transition) {
