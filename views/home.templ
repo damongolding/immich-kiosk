@@ -186,9 +186,7 @@ templ Home(data PageData) {
 					></path>
 				</svg>
 			</div>
-
 			@kioskData(map[string]any{"version": data.KioskVersion, "params": quriesToJson(data.Queries), "refresh": data.Config.Refresh})
-
 			if data.Config.Transition == "cross-fade" {
 				<script>
                     htmx.on("htmx:afterSettle", function (evt) {
@@ -202,7 +200,6 @@ templ Home(data PageData) {
                     });
                 </script>
 			}
-
 			if data.Config.ShowProgress {
 				<script>
                     // Efter image AJAX request.
@@ -215,11 +212,9 @@ templ Home(data PageData) {
                     }
                 </script>
 			}
-
 			if data.Config.DisableScreensaver {
 				<script src="/assets/js/wakelock.js"></script>
 			}
-
 			<script>
                 // Server online check. Fires after every AJAX request.
                 htmx.on("htmx:afterRequest", function (e) {
@@ -232,7 +227,6 @@ templ Home(data PageData) {
                     }
                 });
             </script>
-
 			<script src="/assets/js/polling.js"></script>
 		</body>
 	</html>
