@@ -51,6 +51,8 @@ type Config struct {
 	Refresh int `mapstructure:"refresh" query:"refresh" form:"refresh" default:"60"`
 	// DisableScreensaver asks browser to disable screensaver
 	DisableScreensaver bool `mapstructure:"disable_screensaver" query:"disable_screensaver" form:"disable_screensaver" default:"false"`
+	// HideCursor hide cursor via CSS
+	HideCursor bool `mapstructure:"hide_cursor" query:"hide_cursor" form:"hide_cursor" default:"false"`
 
 	// Person ID of person to display
 	Person []string `mapstructure:"person" query:"person" form:"person" default:"[]"`
