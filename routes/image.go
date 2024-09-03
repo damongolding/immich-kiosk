@@ -24,13 +24,12 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		kioskVersionHeader := c.Request().Header.Get("kiosk-version")
 		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
-		requestingRawImage := c.Request().URL.Query().Has("raw")
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
 
-		// If kiosk version on client and server do not match refresh client. Pypass if requestingRawImage is set
-		if !requestingRawImage && c.Request().Method == http.MethodPost && KioskVersion != kioskVersionHeader {
+		// If kiosk version on client and server do not match refresh client.
+		if kioskVersionHeader != "" && KioskVersion != kioskVersionHeader {
 			c.Response().Header().Set("HX-Refresh", "true")
 			return c.String(http.StatusTemporaryRedirect, "")
 		}
@@ -91,8 +90,8 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 		log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
 
-		// if user wants the raw image data send it
-		if requestingRawImage || c.Request().Method == http.MethodGet {
+		// if user wants the raw image (via GET request) data send it
+		if c.Request().Method == http.MethodGet {
 			return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
 		}
 
