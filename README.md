@@ -38,7 +38,7 @@
   - [Date format](#date-format)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
-- [TODO](#TODO)
+- [TODO / Roadmap](#todo--roadmap)
 - [Support](#support)
 
 ## What is Immich Kiosk?
