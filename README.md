@@ -106,7 +106,7 @@ services:
       KIOSK_SHOW_TIME: TRUE
       KIOSK_TIME_FORMAT: 12
       KIOSK_REFRESH: 60
-      KIOSK_DISBALE_SCREENSAVER: TRUE
+      KIOSK_DISABLE_SCREENSAVER: TRUE
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
       KIOSK_IMAGE_FIT: CONTAIN
@@ -139,7 +139,7 @@ See the file config.example.yaml for an example config file
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
-| disable_screensaver               | KIOSK_DISBALE_SCREENSAVER | bool                     | false       | Ask broswer to request a lock that prevents device screens from dimming or locking.        |
+| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask broswer to request a lock that prevents device screens from dimming or locking.        |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [FAQ: How do I set multiple albums?](#faq) to see how to impliment this.|
 | person                            | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [FAQ: How do I set multiple people?](#faq) to see how to impliment this.|
