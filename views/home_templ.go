@@ -478,6 +478,12 @@ func Home(data PageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
+		if data.Config.DisableScreensaver {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script src=\"/assets/js/wakelock.js\"></script>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n                // Server online check. Fires after every AJAX request.\n                htmx.on(\"htmx:afterRequest\", function (e) {\n                    const offline = htmx.find(\"#offline\");\n\n                    if (e.detail.successful) {\n                        htmx.removeClass(offline, \"offline\")\n                    } else {\n                        htmx.addClass(offline, \"offline\")\n                    }\n                });\n            </script><script src=\"/assets/js/polling.js\"></script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

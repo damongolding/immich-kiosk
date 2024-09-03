@@ -216,6 +216,10 @@ templ Home(data PageData) {
                 </script>
 			}
 
+			if data.Config.DisableScreensaver {
+				<script src="/assets/js/wakelock.js"></script>
+			}
+
 			<script>
                 // Server online check. Fires after every AJAX request.
                 htmx.on("htmx:afterRequest", function (e) {
