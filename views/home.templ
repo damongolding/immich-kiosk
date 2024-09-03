@@ -163,6 +163,7 @@ templ Home(data PageData) {
 					hx-swap="innerHTML"
 				></div>
 			}
+			@menu()
 			<form id="kiosk-params">
 				for key, values := range data.Queries {
 					for _, value := range values {

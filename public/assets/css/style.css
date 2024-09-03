@@ -309,3 +309,49 @@ body {
     padding-right: 3rem;
     font-size: 3rem;
 }
+
+.navigation {
+    display: flex;
+    gap: 0.5rem;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0 0.5rem;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 0.5rem;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+    will-change: opacity;
+    box-shadow:
+        rgba(17, 17, 26, 0.1) 0px 4px 16px,
+        rgba(17, 17, 26, 0.05) 0px 8px 32px;
+}
+
+.navigation div {
+    padding: 1rem;
+}
+
+.navigation-hidden {
+    opacity: 0;
+}
+
+.navigation svg {
+    fill: white;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.navigation--fullscreen--exit {
+    display: none;
+    visibility: hidden;
+}
+
+.navigation--fullscreen-enabled .navigation--fullscreen--exit {
+    display: block;
+    visibility: visible;
+}
+
+.navigation--fullscreen-enabled .navigation--fullscreen--enter {
+    display: none;
+    visibility: hidden;
+}
