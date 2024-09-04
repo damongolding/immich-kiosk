@@ -3,27 +3,27 @@ let pollingInterval;
 let isPaused = false;
 let isFullscreen = false;
 
+// Cache DOM elements
+const body = document.body;
+const progressBar = htmx.find(".progress--bar");
+const fullscreenButton = htmx.find(".navigation--fullscreen");
+const menu = htmx.find(".navigation");
+
 // Utility functions for fullscreen actions
 function toggleFullscreen() {
-  const body = document.body;
-
   if (isFullscreen) {
     exitFullscreen();
   } else {
     enterFullscreen();
   }
 
-  // Toggle the fullscreen state and button class
   isFullscreen = !isFullscreen;
-  htmx.toggleClass(
-    htmx.find(".navigation--fullscreen"),
-    "navigation--fullscreen-enabled",
-  );
+  if (fullscreenButton) {
+    htmx.toggleClass(fullscreenButton, "navigation--fullscreen-enabled");
+  }
 }
 
 function enterFullscreen() {
-  const body = document.body;
-
   if (body.requestFullscreen) {
     body.requestFullscreen();
   } else if (body.mozRequestFullScreen) {
@@ -49,10 +49,10 @@ async function exitFullscreen() {
 
 // Functions to manage polling and progress bar animation
 function startPolling() {
-  const progressBar = htmx.find(".progress--bar");
-
-  htmx.removeClass(progressBar, "progress--bar-paused");
-  resetAnimation(progressBar);
+  if (progressBar) {
+    htmx.removeClass(progressBar, "progress--bar-paused");
+    resetAnimation(progressBar);
+  }
 
   pollingInterval = setInterval(() => {
     htmx.trigger("#kiosk", "new-image");
@@ -60,7 +60,10 @@ function startPolling() {
 }
 
 function stopPolling() {
-  htmx.addClass(htmx.find(".progress--bar"), "progress--bar-paused");
+  if (progressBar) {
+    htmx.addClass(progressBar, "progress--bar-paused");
+  }
+
   clearInterval(pollingInterval);
 }
 
@@ -72,10 +75,14 @@ function resetAnimation(element) {
 
 // Event listeners
 htmx.on("#kiosk", "click", () => {
-  const menu = htmx.find(".navigation");
-
-  isPaused ? startPolling() : stopPolling();
-  htmx.toggleClass(menu, "navigation-hidden");
+  if (menu) {
+    if (isPaused) {
+      startPolling();
+    } else {
+      stopPolling();
+    }
+    htmx.toggleClass(menu, "navigation-hidden");
+  }
 
   isPaused = !isPaused;
 });
@@ -83,6 +90,8 @@ htmx.on("#kiosk", "click", () => {
 htmx.on(".navigation--fullscreen", "click", toggleFullscreen);
 
 // Start polling on page load
-htmx.on("DOMContentLoaded", () => {
-  if (!isPaused) startPolling();
+document.addEventListener("DOMContentLoaded", () => {
+  if (!isPaused) {
+    startPolling();
+  }
 });
