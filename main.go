@@ -67,7 +67,7 @@ func main() {
 				}
 				return false
 			},
-			KeyLookup: "query:password",
+			KeyLookup: "query:password,form:password",
 			Validator: func(queryPassword string, c echo.Context) (bool, error) {
 				return queryPassword == baseConfig.Kiosk.Password, nil
 			},
