@@ -152,6 +152,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			ImageData:     img,
 			ImageBlurData: imgBlur,
 			ImageDate:     imageDate,
+			ImageExif:     immichImage.ExifInfo,
 			Config:        requestConfig,
 		}
 

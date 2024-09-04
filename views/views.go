@@ -4,6 +4,7 @@ import (
 	"net/url"
 
 	"github.com/damongolding/immich-kiosk/config"
+	"github.com/damongolding/immich-kiosk/immich"
 )
 
 type PageData struct {
@@ -18,6 +19,8 @@ type PageData struct {
 	ImageBlurData string
 	// Date image date
 	ImageDate string
+	// ImageExif image exif data
+	ImageExif immich.ExifInfo
 	// URL queries
 	Queries url.Values
 	// instance config

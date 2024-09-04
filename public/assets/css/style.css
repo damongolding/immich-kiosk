@@ -165,12 +165,14 @@ body {
 .image--metadata {
     position: absolute;
     display: flex;
+    gap: 0.5rem;
     flex-direction: column;
     align-items: flex-end;
     bottom: 0;
     right: 0;
     padding: 1rem;
     color: #fff;
+    font-size: 1.1rem;
     text-shadow: 0 0 20px black;
     background-color: rgba(0, 0, 0, 0.3);
     background: rgb(0, 0, 0);
@@ -192,14 +194,33 @@ body {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000", endColorstr="#000000", GradientType=1);
 }
 
-.image--metadata:empty {
+.image--metadata:empty,
+.image--metadata--date:empty,
+.image--metadata--exif:empty,
+.image--metadata--location:empty {
     display: none;
     padding: 0;
 }
 
 .image--metadata--date {
-    color: #fff;
-    font-size: 2rem;
+    font-size: 1.5rem;
+    padding-left: 3rem;
+}
+.image--metadata--exif {
+    padding-left: 3rem;
+}
+.image--metadata--exif--fnumber {
+    display: inline-block;
+    font-size: 0.84rem;
+    font-weight: bold;
+    transform: translate(1px, -3px);
+}
+.image--metadata--exif--seperator {
+    opacity: 0.3;
+    padding: 0 0.5rem;
+}
+.image--metadata--location {
+    padding-left: 3rem;
 }
 
 /* --- error --- */
