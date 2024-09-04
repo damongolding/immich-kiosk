@@ -393,7 +393,7 @@ body {
 }
 
 .navigation--fullscreen-enabled .navigation--fullscreen--exit {
-    display: block;
+    display: inline;
     visibility: visible;
 }
 
