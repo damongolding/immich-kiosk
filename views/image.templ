@@ -42,8 +42,12 @@ templ Image(data PageData) {
 					@ImageFitContain(data.ImageData, data.Config.ImageFit)
 			}
 		</div>
-		if !data.Config.DisableUi && data.ImageDate != "" {
-			<div class="frame--date">{ data.ImageDate }</div>
+		if !data.Config.DisableUi {
+			<div class="image--metadata">
+				if data.ImageDate != "" {
+					<div class="image--metadata--date">{ data.ImageDate }</div>
+				}
+			</div>
 		}
 	</div>
 	<form id="kiosk-history" hx-swap-oob="true">

@@ -97,6 +97,7 @@ body {
     transform: translate(-50%);
 }
 
+/* --- frame --- */
 .frame {
     position: absolute;
     width: 100%;
@@ -160,13 +161,16 @@ body {
     height: 100%;
 }
 
-.frame--date {
+/* --- image metadata --- */
+.image--metadata {
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
     bottom: 0;
     right: 0;
-    color: #fff;
-    font-size: 2rem;
     padding: 1rem;
+    color: #fff;
     text-shadow: 0 0 20px black;
     background-color: rgba(0, 0, 0, 0.3);
     background: rgb(0, 0, 0);
@@ -188,6 +192,17 @@ body {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000", endColorstr="#000000", GradientType=1);
 }
 
+.image--metadata:empty {
+    display: none;
+    padding: 0;
+}
+
+.image--metadata--date {
+    color: #fff;
+    font-size: 2rem;
+}
+
+/* --- error --- */
 .error-container {
     position: absolute;
     display: flex;
@@ -224,6 +239,7 @@ body {
     fill: #fff;
 }
 
+/* --- progress bar --- */
 .progress {
     position: absolute;
     top: 0;
@@ -253,6 +269,7 @@ body {
     animation-play-state: paused;
 }
 
+/* --- offline icon --- */
 #offline {
     position: absolute;
     top: 1rem;
@@ -270,6 +287,7 @@ body {
     display: block !important;
 }
 
+/* --- clock --- */
 #clock {
     position: absolute;
     bottom: 0;
@@ -300,6 +318,11 @@ body {
     z-index: 10000;
 }
 
+#clock:empty {
+    display: none;
+    padding: 0;
+}
+
 .clock--date {
     font-size: 1.5rem;
     opacity: 0.8;
@@ -308,4 +331,51 @@ body {
 .clock--time {
     padding-right: 3rem;
     font-size: 3rem;
+}
+
+/* --- menu --- */
+.navigation {
+    display: flex;
+    gap: 0.5rem;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0 0.5rem;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 0.5rem;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+    will-change: opacity;
+    box-shadow:
+        rgba(17, 17, 26, 0.1) 0px 4px 16px,
+        rgba(17, 17, 26, 0.05) 0px 8px 32px;
+}
+
+.navigation div {
+    padding: 1rem;
+}
+
+.navigation-hidden {
+    opacity: 0;
+}
+
+.navigation svg {
+    fill: white;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.navigation--fullscreen--exit {
+    display: none;
+    visibility: hidden;
+}
+
+.navigation--fullscreen-enabled .navigation--fullscreen--exit {
+    display: block;
+    visibility: visible;
+}
+
+.navigation--fullscreen-enabled .navigation--fullscreen--enter {
+    display: none;
+    visibility: hidden;
 }

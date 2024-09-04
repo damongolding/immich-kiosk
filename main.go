@@ -48,7 +48,7 @@ func main() {
 		log.Error("Failed to load config", "err", err)
 	}
 
-	fmt.Println(smallBanner)
+	fmt.Println(kioskBanner)
 	versionStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#5af78e")).Render(version)
 	fmt.Print("Version ", versionStyle, "\n\n")
 
@@ -79,6 +79,9 @@ func main() {
 
 	// CSS cache busting
 	e.FileFS("/assets/css/style.*.css", "public/assets/css/style.css", public)
+
+	// JS cache busting
+	e.FileFS("/assets/js/kiosk.*.js", "public/assets/js/kiosk.js", public)
 
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "public/assets"))
