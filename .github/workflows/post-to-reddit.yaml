@@ -23,5 +23,5 @@ jobs:
           app-secret: ${{ secrets.REDDIT_APP_SECRET }}
           subreddit: immich
           title: Immich Kiosk ${{ env.VERSION }} Released
-          comment: ${{ github.event.release.body }}
+          # comment: ${{ github.event.release.body }}
           url: https://github.com/damongolding/immich-kiosk/releases/tag/${{ env.VERSION }}
