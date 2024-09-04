@@ -1,11 +1,15 @@
 {
+  const kioskData = JSON.parse(
+    document.getElementById("kiosk-data").textContent,
+  );
+
   const pollInterval = htmx.parseInterval(`${kioskData.refresh}s`);
   let pollingInterval;
+
   let isPaused = false;
   let isFullscreen = false;
 
-  // Cache DOM elements
-  const body = document.body;
+  const documentBody = document.body;
   const progressBar = htmx.find(".progress--bar");
   const fullscreenButton = htmx.find(".navigation--fullscreen");
   const menu = htmx.find(".navigation");
@@ -25,14 +29,14 @@
   }
 
   function enterFullscreen() {
-    if (body.requestFullscreen) {
-      body.requestFullscreen();
-    } else if (body.mozRequestFullScreen) {
-      body.mozRequestFullScreen();
-    } else if (body.webkitRequestFullscreen) {
-      body.webkitRequestFullscreen();
-    } else if (body.msRequestFullscreen) {
-      body.msRequestFullscreen();
+    if (documentBody.requestFullscreen) {
+      documentBody.requestFullscreen();
+    } else if (documentBody.mozRequestFullScreen) {
+      documentBody.mozRequestFullScreen();
+    } else if (documentBody.webkitRequestFullscreen) {
+      documentBody.webkitRequestFullscreen();
+    } else if (documentBody.msRequestFullscreen) {
+      documentBody.msRequestFullscreen();
     }
   }
 
