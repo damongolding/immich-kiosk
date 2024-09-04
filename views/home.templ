@@ -2,6 +2,7 @@ package views
 
 import (
 	"fmt"
+	"github.com/charmbracelet/log"
 	"net/url"
 	"strings"
 )
@@ -171,7 +172,9 @@ templ Home(data PageData) {
 					}
 				}
 			</form>
-			<form id="kiosk-history" hx-swap-oob="true"></form>
+			<form id="kiosk-history" hx-swap-oob="true">
+				<input class="kiosk-history--entry" value=""/>
+			</form>
 			<div id="offline">
 				<svg
 					width="48"
@@ -236,6 +239,11 @@ templ Home(data PageData) {
                 });
             </script>
 			<script src="/assets/js/polling.js"></script>
+			if log.GetLevel() == log.DebugLevel {
+				<script>
+				    htmx.logAll();
+				</script>
+			}
 		</body>
 	</html>
 }

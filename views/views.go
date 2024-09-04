@@ -7,6 +7,7 @@ import (
 )
 
 type PageData struct {
+
 	// KioskVersion the current build version of Kiosk
 	KioskVersion string
 	// ImageID id of image to be displayed
