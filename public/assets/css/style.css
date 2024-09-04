@@ -47,6 +47,7 @@ html,
 body {
     padding: 0;
     margin: 0;
+    font-size: 100%; /* 16px */
     font-family: "Barlow", Arial, Helvetica, sans-serif;
     letter-spacing: 1px;
     background-color: #000;
@@ -203,7 +204,7 @@ body {
 }
 
 .image--metadata--date {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     padding-left: 3rem;
 }
 .image--metadata--exif {
