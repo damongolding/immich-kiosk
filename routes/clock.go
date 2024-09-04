@@ -19,10 +19,17 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 			fmt.Println()
 		}
 
+		kioskVersionHeader := c.Request().Header.Get("kiosk-version")
 		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
+
+		// If kiosk version on client and server do not match refresh client.
+		if kioskVersionHeader != "" && KioskVersion != kioskVersionHeader {
+			c.Response().Header().Set("HX-Refresh", "true")
+			return c.String(http.StatusTemporaryRedirect, "")
+		}
 
 		err := requestConfig.ConfigWithOverrides(c)
 		if err != nil {

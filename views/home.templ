@@ -154,7 +154,7 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-templ clock(queries url.Values) {
+templ clock(queries url.Values, kioskVersion string) {
 	<div
 		id="clock"
 		hx-get="/clock"
@@ -163,6 +163,7 @@ templ clock(queries url.Values) {
 		}
 		hx-trigger="load, every 13s"
 		hx-swap="innerHTML"
+		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
 	></div>
 }
 
@@ -191,7 +192,7 @@ templ Home(data PageData) {
 	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
-			<meta name="apple-mobile-web-app-capable" content="yes">
+			<meta name="apple-mobile-web-app-capable" content="yes"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<meta name="version" content={ data.KioskVersion }/>
 			<title>Immich Kiosk</title>
@@ -235,7 +236,7 @@ templ Home(data PageData) {
 				@progressBar(data.Config.Refresh)
 			}
 			if !data.Config.DisableUi && data.Config.ShowTime {
-				@clock(data.Queries)
+				@clock(data.Queries, data.KioskVersion)
 			}
 			@menu()
 			@paramForm(data.Queries)

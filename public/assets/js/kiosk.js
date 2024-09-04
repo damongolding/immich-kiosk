@@ -1,4 +1,6 @@
-{
+"use strict";
+
+(() => {
   const kioskData = JSON.parse(
     document.getElementById("kiosk-data").textContent,
   );
@@ -100,4 +102,4 @@
       startPolling();
     }
   });
-}
+})();
