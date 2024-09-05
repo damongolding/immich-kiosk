@@ -25,8 +25,9 @@
   const documentBody = document.body;
   const progressBar = htmx.find(".progress--bar");
   const fullscreenButton = htmx.find(".navigation--fullscreen");
-  const menu = htmx.find(".navigation");
   const kiosk = htmx.find("#kiosk");
+  const menu = htmx.find(".navigation");
+  const menuPausedButton = htmx.find(".navigation--paused");
 
   // Get the appropriate fullscreen API for the current browser
   const fullscreenAPI = getFullscreenAPI();
@@ -178,7 +179,10 @@
    * Add event listeners to Kiosk elements
    */
   function addEventListeners() {
+    // Pause and show menu
     kiosk?.addEventListener("click", togglePolling);
+    menuPausedButton?.addEventListener("click", togglePolling);
+
     fullscreenButton?.addEventListener("click", toggleFullscreen);
     document.addEventListener("fullscreenchange", () => {
       isFullscreen = !!document[fullscreenAPI.fullscreenElement];

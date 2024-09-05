@@ -34,21 +34,21 @@ templ ImageFitContain(ImageData, imageFit string) {
 
 func ImageLocation(info immich.ExifInfo) string {
 
-	var location []string
+	var location string
 
 	if info.City != "" {
-		location = append(location, info.City)
+		location += info.City
 	}
 
 	if info.State != "" {
-		location = append(location, info.State)
+		location += ", " + info.State
 	}
 
 	if info.Country != "" {
-		location = append(location, info.Country)
+		location += "<span>, </span><br class=\"responsive-break\"/>" + info.Country
 	}
 
-	return strings.Join(location, ", ")
+	return location
 }
 
 func ImageExif(info immich.ExifInfo) string {
@@ -132,7 +132,7 @@ templ Image(data PageData) {
 				}
 				if data.Config.ShowImageLocation {
 					<div class="image--metadata--location">
-						{ ImageLocation(data.ImmichImage.ExifInfo) }
+						@templ.Raw(ImageLocation(data.ImmichImage.ExifInfo))
 					</div>
 				}
 			</div>

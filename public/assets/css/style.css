@@ -78,7 +78,6 @@ body {
     opacity: 0;
     transition: opacity 1s ease-out;
 }
-
 /* END Fade transition */
 
 /* Cross fade transtion */
@@ -93,7 +92,6 @@ body {
     animation-duration: 1s;
     animation-fill-mode: forwards;
 }
-
 /* END Cross fade transtion */
 
 .kiosk--spinner {
@@ -179,9 +177,11 @@ body {
     align-items: flex-end;
     bottom: 0;
     right: 0;
+    max-width: 70vw;
     padding: 1rem;
     color: #fff;
     font-size: 1.1rem;
+    text-align: right;
     text-shadow: 0 0 20px black;
     background-color: rgba(0, 0, 0, 0.3);
     background: rgb(0, 0, 0);
@@ -203,18 +203,16 @@ body {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000", endColorstr="#000000", GradientType=1);
 }
 
+.image--metadata .responsive-break {
+    display: none;
+}
+
 .image--metadata:empty,
 .image--metadata--date:empty,
 .image--metadata--exif:empty,
 .image--metadata--location:empty {
     display: none;
     padding: 0;
-}
-
-@media screen and (max-width: 500px) {
-    .image--metadata {
-        padding: 0.5rem;
-    }
 }
 
 .image--metadata--date {
@@ -236,6 +234,26 @@ body {
 }
 .image--metadata--location {
     padding-left: 3rem;
+}
+
+@media screen and (max-width: 500px) {
+    .image--metadata {
+        padding: 0.5rem;
+        max-width: 50vw;
+    }
+
+    .image--metadata--date,
+    .image--metadata--exif,
+    .image--metadata--location {
+        padding-left: 0.5rem;
+    }
+
+    .image--metadata--location span {
+        display: none;
+    }
+    .image--metadata--location .responsive-break {
+        display: inline;
+    }
 }
 
 /* --- error --- */
@@ -375,8 +393,8 @@ body {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    padding: 0 0.5rem;
-    background-color: rgba(0, 0, 0, 0.9);
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.8);
     border-radius: 0.5rem;
     opacity: 1;
     transition: opacity 0.5s ease;
@@ -386,8 +404,16 @@ body {
         rgba(17, 17, 26, 0.05) 0px 8px 32px;
 }
 
-.navigation div {
-    padding: 1rem;
+.navigation--item {
+    width: 3.62rem;
+    height: 3.62rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navigation--item--separator {
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .navigation-hidden {
@@ -396,8 +422,8 @@ body {
 
 .navigation svg {
     fill: white;
-    width: 1.5rem;
-    height: 1.5rem;
+    max-width: 2rem;
+    max-height: 2rem;
 }
 
 .navigation--fullscreen--exit {
