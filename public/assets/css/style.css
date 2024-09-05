@@ -312,10 +312,6 @@ body {
     will-change: width;
 }
 
-.progress--bar-paused {
-    animation-play-state: paused;
-}
-
 /* --- offline icon --- */
 #offline {
     position: absolute;
@@ -410,6 +406,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 .navigation--item--separator {
@@ -426,6 +423,7 @@ body {
     max-height: 2rem;
 }
 
+/* nav fullscreen */
 .navigation--fullscreen--exit {
     display: none;
     visibility: hidden;
@@ -437,6 +435,22 @@ body {
 }
 
 .navigation--fullscreen-enabled .navigation--fullscreen--enter {
+    display: none;
+    visibility: hidden;
+}
+
+/* nav controls */
+.navigation--control--play {
+    display: none;
+    visibility: hidden;
+}
+
+.navigation--control--paused .navigation--control--play {
+    display: inline;
+    visibility: visible;
+}
+
+.navigation--control--paused .navigation--control--pause {
     display: none;
     visibility: hidden;
 }

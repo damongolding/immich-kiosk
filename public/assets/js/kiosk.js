@@ -27,7 +27,7 @@
   const fullscreenButton = htmx.find(".navigation--fullscreen");
   const kiosk = htmx.find("#kiosk");
   const menu = htmx.find(".navigation");
-  const menuPausedButton = htmx.find(".navigation--paused");
+  const menuPausePlayButton = htmx.find(".navigation--control");
 
   // Get the appropriate fullscreen API for the current browser
   const fullscreenAPI = getFullscreenAPI();
@@ -154,6 +154,9 @@
   function startPolling() {
     progressBarElement = htmx.find(".progress--bar");
     progressBarElement?.classList.remove("progress--bar-paused");
+
+    menuPausePlayButton?.classList.remove("navigation--control--paused");
+
     lastUpdateTime = 0;
     animationFrameId = requestAnimationFrame(updateKiosk);
   }
@@ -164,6 +167,7 @@
   function stopPolling() {
     cancelAnimationFrame(animationFrameId);
     progressBarElement?.classList.add("progress--bar-paused");
+    menuPausePlayButton?.classList.add("navigation--control--paused");
   }
 
   /**
@@ -181,7 +185,7 @@
   function addEventListeners() {
     // Pause and show menu
     kiosk?.addEventListener("click", togglePolling);
-    menuPausedButton?.addEventListener("click", togglePolling);
+    menuPausePlayButton?.addEventListener("click", togglePolling);
 
     fullscreenButton?.addEventListener("click", toggleFullscreen);
     document.addEventListener("fullscreenchange", () => {
