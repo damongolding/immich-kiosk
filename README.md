@@ -389,12 +389,11 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ------
 
 ## TODO / Roadmap
+- Exclude video thumbnails from being displayed
 - Clock/timestamp shadow redesign
 - Whitelist for people and albums
 - Exclude list
-- Fullscreen mode
 - Use favourites as image pool sauce
-- Display image metadata. aperture, shutter speed, ISO etc
 
 ------
 
