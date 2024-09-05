@@ -1,105 +1,187 @@
 "use strict";
 
+/**
+ * Immediately Invoked Function Expression (IIFE) to encapsulate the kiosk functionality
+ * and avoid polluting the global scope.
+ */
 (() => {
+  // Parse kiosk data from the HTML element
   const kioskData = JSON.parse(
     document.getElementById("kiosk-data").textContent,
   );
-
+  // Set polling interval based on the refresh rate in kiosk data
   const pollInterval = htmx.parseInterval(`${kioskData.refresh}s`);
   let pollingInterval;
+
+  let lastUpdateTime = 0;
+  let animationFrameId;
+  let progressBarElement;
 
   let isPaused = false;
   let isFullscreen = false;
 
+  // Cache DOM elements for better performance
   const documentBody = document.body;
   const progressBar = htmx.find(".progress--bar");
   const fullscreenButton = htmx.find(".navigation--fullscreen");
   const menu = htmx.find(".navigation");
+  const kiosk = htmx.find("#kiosk");
 
-  // Utility functions for fullscreen actions
+  // Get the appropriate fullscreen API for the current browser
+  const fullscreenAPI = getFullscreenAPI();
+
+  /**
+   * Initialize Kiosk functionality
+   */
+  function init() {
+    if (!fullscreenAPI.requestFullscreen) {
+      htmx.remove(fullscreenButton);
+    }
+
+    if (!isPaused) startPolling();
+
+    addEventListeners();
+  }
+
+  /**
+   * Updates the kiosk display and progress bar
+   * @param {number} timestamp - The current timestamp from requestAnimationFrame
+   */
+  function updateKiosk(timestamp) {
+    // Initialize lastUpdateTime if it's the first update
+    if (!lastUpdateTime) lastUpdateTime = timestamp;
+
+    // Calculate elapsed time and progress
+    const elapsed = timestamp - lastUpdateTime;
+    const progress = Math.min(elapsed / pollInterval, 1);
+
+    // Update progress bar width
+    if (progressBarElement) {
+      progressBarElement.style.width = `${progress * 100}%`;
+    }
+
+    // Trigger new image and reset progress bar if interval has passed
+    if (elapsed >= pollInterval) {
+      htmx.trigger(kiosk, "kiosk-new-image");
+      lastUpdateTime = timestamp;
+
+      // Reset progress bar
+      if (progressBarElement) {
+        progressBarElement.style.width = "0%";
+      }
+    }
+
+    // Schedule the next update
+    animationFrameId = requestAnimationFrame(updateKiosk);
+  }
+
+  /**
+   * Determine the correct fullscreen API methods for the current browser
+   * @returns {Object} An object containing the appropriate fullscreen methods
+   */
+  function getFullscreenAPI() {
+    const apis = [
+      [
+        "requestFullscreen",
+        "exitFullscreen",
+        "fullscreenElement",
+        "fullscreenEnabled",
+      ],
+      [
+        "mozRequestFullScreen",
+        "mozCancelFullScreen",
+        "mozFullScreenElement",
+        "mozFullScreenEnabled",
+      ],
+      [
+        "webkitRequestFullscreen",
+        "webkitExitFullscreen",
+        "webkitFullscreenElement",
+        "webkitFullscreenEnabled",
+      ],
+      [
+        "msRequestFullscreen",
+        "msExitFullscreen",
+        "msFullscreenElement",
+        "msFullscreenEnabled",
+      ],
+    ];
+
+    for (const [request, exit, element, enabled] of apis) {
+      if (request in document.documentElement) {
+        return {
+          requestFullscreen: request,
+          exitFullscreen: exit,
+          fullscreenElement: element,
+          fullscreenEnabled: enabled,
+        };
+      }
+    }
+
+    return {
+      requestFullscreen: null,
+      exitFullscreen: null,
+      fullscreenElement: null,
+      fullscreenEnabled: null,
+    };
+  }
+
+  /**
+   * Toggle fullscreen mode
+   */
   function toggleFullscreen() {
     if (isFullscreen) {
-      exitFullscreen();
+      document[fullscreenAPI.exitFullscreen]();
     } else {
-      enterFullscreen();
+      documentBody[fullscreenAPI.requestFullscreen]();
     }
 
     isFullscreen = !isFullscreen;
-    if (fullscreenButton) {
-      htmx.toggleClass(fullscreenButton, "navigation--fullscreen-enabled");
-    }
+    fullscreenButton?.classList.toggle("navigation--fullscreen-enabled");
   }
 
-  function enterFullscreen() {
-    if (documentBody.requestFullscreen) {
-      documentBody.requestFullscreen();
-    } else if (documentBody.mozRequestFullScreen) {
-      documentBody.mozRequestFullScreen();
-    } else if (documentBody.webkitRequestFullscreen) {
-      documentBody.webkitRequestFullscreen();
-    } else if (documentBody.msRequestFullscreen) {
-      documentBody.msRequestFullscreen();
-    }
-  }
-
-  async function exitFullscreen() {
-    if (document.exitFullscreen) {
-      await document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) {
-      await document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) {
-      await document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      await document.msExitFullscreen();
-    }
-  }
-
-  // Functions to manage polling and progress bar animation
+  /**
+   * Start the polling process to fetch new images
+   */
   function startPolling() {
-    if (progressBar) {
-      htmx.removeClass(progressBar, "progress--bar-paused");
-      resetAnimation(progressBar);
-    }
-
-    pollingInterval = setInterval(() => {
-      htmx.trigger("#kiosk", "new-image");
-    }, pollInterval);
+    progressBarElement = htmx.find(".progress--bar");
+    progressBarElement?.classList.remove("progress--bar-paused");
+    lastUpdateTime = 0;
+    animationFrameId = requestAnimationFrame(updateKiosk);
   }
 
+  /**
+   * Stop the polling process
+   */
   function stopPolling() {
-    if (progressBar) {
-      htmx.addClass(progressBar, "progress--bar-paused");
-    }
-
-    clearInterval(pollingInterval);
+    cancelAnimationFrame(animationFrameId);
+    progressBarElement?.classList.add("progress--bar-paused");
   }
 
-  function resetAnimation(element) {
-    element.style.animation = "none";
-    element.offsetHeight; // Trigger reflow
-    element.style.animation = "";
-  }
-
-  // Event listeners
-  htmx.on("#kiosk", "click", () => {
-    if (menu) {
-      if (isPaused) {
-        startPolling();
-      } else {
-        stopPolling();
-      }
-      htmx.toggleClass(menu, "navigation-hidden");
-    }
-
+  /**
+   * Toggle the polling state (pause/restart)
+   */
+  function togglePolling() {
+    isPaused ? startPolling() : stopPolling();
+    menu?.classList.toggle("navigation-hidden");
     isPaused = !isPaused;
-  });
+  }
 
-  htmx.on(".navigation--fullscreen", "click", toggleFullscreen);
+  /**
+   * Add event listeners to Kiosk elements
+   */
+  function addEventListeners() {
+    kiosk?.addEventListener("click", togglePolling);
+    fullscreenButton?.addEventListener("click", toggleFullscreen);
+    document.addEventListener("fullscreenchange", () => {
+      isFullscreen = !!document[fullscreenAPI.fullscreenElement];
+      fullscreenButton?.classList.toggle(
+        "navigation--fullscreen-enabled",
+        isFullscreen,
+      );
+    });
+  }
 
-  // Start polling on page load
-  document.addEventListener("DOMContentLoaded", () => {
-    if (!isPaused) {
-      startPolling();
-    }
-  });
+  // Initialize Kiosk when the DOM is fully loaded
+  document.addEventListener("DOMContentLoaded", init);
 })();
