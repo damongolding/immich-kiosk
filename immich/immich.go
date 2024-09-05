@@ -39,19 +39,19 @@ type ExifInfo struct {
 	ExifImageHeight  int       `json:"-"` // `json:"exifImageHeight"`
 	FileSizeInByte   int       `json:"-"` // `json:"fileSizeInByte"`
 	Orientation      any       `json:"-"` // `json:"orientation"`
-	DateTimeOriginal time.Time `json:"-"` // `json:"dateTimeOriginal"`
+	DateTimeOriginal time.Time `json:"dateTimeOriginal"`
 	ModifyDate       time.Time `json:"-"` // `json:"modifyDate"`
 	TimeZone         string    `json:"-"` // `json:"timeZone"`
 	LensModel        string    `json:"-"` // `json:"lensModel"`
-	FNumber          float64   `json:"-"` // `json:"fNumber"`
-	FocalLength      float64   `json:"-"` // `json:"focalLength"`
-	Iso              int       `json:"-"` // `json:"iso"`
+	FNumber          float64   `json:"fNumber"`
+	FocalLength      float64   `json:"focalLength"`
+	Iso              int       `json:"iso"`
 	ExposureTime     string    `json:"-"` // `json:"exposureTime"`
 	Latitude         float64   `json:"-"` // `json:"latitude"`
 	Longitude        float64   `json:"-"` // `json:"longitude"`
-	City             string    `json:"-"` // `json:"city"`
-	State            string    `json:"-"` // `json:"state"`
-	Country          string    `json:"-"` // `json:"country"`
+	City             string    `json:"city"`
+	State            string    `json:"state"`
+	Country          string    `json:"country"`
 	Description      string    `json:"-"` // `json:"description"`
 	ProjectionType   any       `json:"-"` // `json:"projectionType"`
 }
@@ -97,14 +97,14 @@ type ImmichAsset struct {
 	IsArchived       bool      `json:"isArchived"`       // `json:"isArchived"`
 	IsTrashed        bool      `json:"isTrashed"`        // `json:"isTrashed"`
 	Duration         string    `json:"-"`                // `json:"duration"`
-	ExifInfo         ExifInfo  `json:"-"`                // `json:"exifInfo"`
-	LivePhotoVideoID any       `json:"-"`                // `json:"livePhotoVideoId"`
-	People           People    `json:"people"`           // `json:"people"`
-	Checksum         string    `json:"checksum"`         // `json:"checksum"`
-	StackCount       any       `json:"-"`                // `json:"stackCount"`
-	IsOffline        bool      `json:"-"`                // `json:"isOffline"`
-	HasMetadata      bool      `json:"-"`                // `json:"hasMetadata"`
-	DuplicateID      any       `json:"-"`                // `json:"duplicateId"`
+	ExifInfo         ExifInfo  `json:"exifInfo"`
+	LivePhotoVideoID any       `json:"-"`        // `json:"livePhotoVideoId"`
+	People           People    `json:"people"`   // `json:"people"`
+	Checksum         string    `json:"checksum"` // `json:"checksum"`
+	StackCount       any       `json:"-"`        // `json:"stackCount"`
+	IsOffline        bool      `json:"-"`        // `json:"isOffline"`
+	HasMetadata      bool      `json:"-"`        // `json:"hasMetadata"`
+	DuplicateID      any       `json:"-"`        // `json:"duplicateId"`
 }
 
 type ImmichAlbum struct {

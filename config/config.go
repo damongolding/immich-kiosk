@@ -19,6 +19,7 @@ import (
 const (
 	defaultImmichPort = "2283"
 	defaultScheme     = "http://"
+	DefaultDateLayout = "02/01/2006"
 )
 
 type KioskSettings struct {
@@ -76,10 +77,15 @@ type Config struct {
 	ShowImageDate bool `mapstructure:"show_image_date" query:"show_image_date" form:"show_image_date"  default:"false"`
 	// ImageDateFormat format for image date
 	ImageDateFormat string `mapstructure:"image_date_format" query:"image_date_format" form:"image_date_format" default:""`
+	// ShowImageExif display image exif data (f number, iso, shutter speed, Focal length)
+	ShowImageExif bool `mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
+	// ShowImageLocation display image location data
+	ShowImageLocation bool `mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
 
+	// History past shown images
 	History []string `form:"history" default:"[]"`
 }
 

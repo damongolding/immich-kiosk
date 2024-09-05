@@ -47,11 +47,20 @@ html,
 body {
     padding: 0;
     margin: 0;
+    font-size: 100%; /* 16px */
     font-family: "Barlow", Arial, Helvetica, sans-serif;
     letter-spacing: 1px;
     background-color: #000;
 }
 
+@media screen and (max-width: 500px) {
+    html,
+    body {
+        font-size: 80%; /* 16px */
+    }
+}
+
+/* --- koisk (main ciontainer) ---- */
 #kiosk {
     position: relative;
     width: 100vw;
@@ -67,9 +76,8 @@ body {
 /* Fade transition */
 #kiosk.htmx-swapping {
     opacity: 0;
-    transition: opacity 3s ease-out;
+    transition: opacity 1s ease-out;
 }
-
 /* END Fade transition */
 
 /* Cross fade transtion */
@@ -81,10 +89,9 @@ body {
 
 #kiosk.htmx-settling .htmx-added {
     animation-name: fade-in;
-    animation-duration: 3s;
+    animation-duration: 1s;
     animation-fill-mode: forwards;
 }
-
 /* END Cross fade transtion */
 
 .kiosk--spinner {
@@ -165,12 +172,16 @@ body {
 .image--metadata {
     position: absolute;
     display: flex;
+    gap: 0.5rem;
     flex-direction: column;
     align-items: flex-end;
     bottom: 0;
     right: 0;
+    max-width: 70vw;
     padding: 1rem;
     color: #fff;
+    font-size: 1.1rem;
+    text-align: right;
     text-shadow: 0 0 20px black;
     background-color: rgba(0, 0, 0, 0.3);
     background: rgb(0, 0, 0);
@@ -192,14 +203,57 @@ body {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000", endColorstr="#000000", GradientType=1);
 }
 
-.image--metadata:empty {
+.image--metadata .responsive-break {
+    display: none;
+}
+
+.image--metadata:empty,
+.image--metadata--date:empty,
+.image--metadata--exif:empty,
+.image--metadata--location:empty {
     display: none;
     padding: 0;
 }
 
 .image--metadata--date {
-    color: #fff;
-    font-size: 2rem;
+    font-size: 1.3rem;
+    padding-left: 3rem;
+}
+.image--metadata--exif {
+    padding-left: 3rem;
+}
+.image--metadata--exif--fnumber {
+    display: inline-block;
+    font-size: 0.84rem;
+    font-weight: bold;
+    transform: translate(1px, -3px);
+}
+.image--metadata--exif--seperator {
+    opacity: 0.3;
+    padding: 0 0.5rem;
+}
+.image--metadata--location {
+    padding-left: 3rem;
+}
+
+@media screen and (max-width: 500px) {
+    .image--metadata {
+        padding: 0.5rem;
+        max-width: 50vw;
+    }
+
+    .image--metadata--date,
+    .image--metadata--exif,
+    .image--metadata--location {
+        padding-left: 0.5rem;
+    }
+
+    .image--metadata--location span {
+        display: none;
+    }
+    .image--metadata--location .responsive-break {
+        display: inline;
+    }
 }
 
 /* --- error --- */
@@ -244,29 +298,18 @@ body {
     position: absolute;
     top: 0;
     width: 100%;
-    height: 2px;
-}
-
-@keyframes progress {
-    to {
-        width: 0%;
-    }
+    height: 3px;
 }
 
 .progress--bar {
     position: absolute;
-    width: 100%;
+    width: 0;
     height: 100%;
     top: 0;
-    right: 0;
+    left: 0;
     background-color: #1e83f7;
-    animation-name: progress;
-    animation-fill-mode: forwards;
-    animation-timing-function: linear;
-}
-
-.progress--bar-paused {
-    animation-play-state: paused;
+    transition: width 0.03s linear; /* Smooth transition for the width changes */
+    will-change: width;
 }
 
 /* --- offline icon --- */
@@ -323,6 +366,12 @@ body {
     padding: 0;
 }
 
+@media screen and (max-width: 500px) {
+    #clock {
+        padding: 0.5rem;
+    }
+}
+
 .clock--date {
     font-size: 1.5rem;
     opacity: 0.8;
@@ -340,8 +389,8 @@ body {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    padding: 0 0.5rem;
-    background-color: rgba(0, 0, 0, 0.9);
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.8);
     border-radius: 0.5rem;
     opacity: 1;
     transition: opacity 0.5s ease;
@@ -351,8 +400,17 @@ body {
         rgba(17, 17, 26, 0.05) 0px 8px 32px;
 }
 
-.navigation div {
-    padding: 1rem;
+.navigation--item {
+    width: 3.62rem;
+    height: 3.62rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.navigation--item--separator {
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .navigation-hidden {
@@ -361,21 +419,38 @@ body {
 
 .navigation svg {
     fill: white;
-    width: 1.5rem;
-    height: 1.5rem;
+    max-width: 2rem;
+    max-height: 2rem;
 }
 
+/* nav fullscreen */
 .navigation--fullscreen--exit {
     display: none;
     visibility: hidden;
 }
 
 .navigation--fullscreen-enabled .navigation--fullscreen--exit {
-    display: block;
+    display: inline;
     visibility: visible;
 }
 
 .navigation--fullscreen-enabled .navigation--fullscreen--enter {
+    display: none;
+    visibility: hidden;
+}
+
+/* nav controls */
+.navigation--control--play {
+    display: none;
+    visibility: hidden;
+}
+
+.navigation--control--paused .navigation--control--play {
+    display: inline;
+    visibility: visible;
+}
+
+.navigation--control--paused .navigation--control--pause {
     display: none;
     visibility: hidden;
 }

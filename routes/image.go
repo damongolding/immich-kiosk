@@ -119,39 +119,14 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			log.Debug(requestId, "Blurred image in", time.Since(imageBlurTime).Seconds())
 		}
 
-		// Image METADATA
-		var imageDate string
-
-		var imageTimeFormat string
-		if requestConfig.ImageTimeFormat == "12" {
-			imageTimeFormat = time.Kitchen
-		} else {
-			imageTimeFormat = time.TimeOnly
-		}
-
-		imageDateFormat := utils.DateToLayout(requestConfig.ImageDateFormat)
-		if imageDateFormat == "" {
-			imageDateFormat = defaultDateLayout
-		}
-
-		switch {
-		case (requestConfig.ShowImageDate && requestConfig.ShowImageTime):
-			imageDate = fmt.Sprintf("%s %s", immichImage.LocalDateTime.Format(imageDateFormat), immichImage.LocalDateTime.Format(imageTimeFormat))
-		case requestConfig.ShowImageDate:
-			imageDate = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(imageDateFormat))
-		case requestConfig.ShowImageTime:
-			imageDate = fmt.Sprintf("%s", immichImage.LocalDateTime.Format(imageTimeFormat))
-		}
-
 		if len(requestConfig.History) > 10 {
 			requestConfig.History = requestConfig.History[len(requestConfig.History)-10:]
 		}
 
 		data := views.PageData{
-			ImageID:       immichImage.ID,
+			ImmichImage:   immichImage,
 			ImageData:     img,
 			ImageBlurData: imgBlur,
-			ImageDate:     imageDate,
 			Config:        requestConfig,
 		}
 

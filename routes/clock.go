@@ -53,7 +53,7 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 
 		clockDateFormat := utils.DateToLayout(requestConfig.DateFormat)
 		if clockDateFormat == "" {
-			clockDateFormat = defaultDateLayout
+			clockDateFormat = config.DefaultDateLayout
 		}
 
 		var data views.ClockData

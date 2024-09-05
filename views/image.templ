@@ -1,6 +1,13 @@
 package views
 
-import "strings"
+import (
+	"fmt"
+	"github.com/damongolding/immich-kiosk/config"
+	"github.com/damongolding/immich-kiosk/immich"
+	"github.com/damongolding/immich-kiosk/utils"
+	"strings"
+	"time"
+)
 
 templ ImageFitCover(ImageData, imageFit string) {
 	<img
@@ -25,6 +32,75 @@ templ ImageFitContain(ImageData, imageFit string) {
 	/>
 }
 
+func ImageLocation(info immich.ExifInfo) string {
+
+	var location string
+
+	if info.City != "" {
+		location += info.City
+	}
+
+	if info.State != "" {
+		location += ", " + info.State
+	}
+
+	if info.Country != "" {
+		location += "<span>, </span><br class=\"responsive-break\"/>" + info.Country
+	}
+
+	return location
+}
+
+func ImageExif(info immich.ExifInfo) string {
+
+	var stats []string
+
+	if info.FNumber != 0 {
+		stats = append(stats, fmt.Sprintf("<span class=\"image--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
+	}
+
+	if info.ExposureTime != "" {
+		stats = append(stats, fmt.Sprintf("%s <small>s<small>", info.ExposureTime))
+	}
+
+	if info.FocalLength != 0 {
+		stats = append(stats, fmt.Sprintf("%vmm", info.FocalLength))
+	}
+
+	if info.Iso != 0 {
+		stats = append(stats, fmt.Sprintf("ISO %v", info.Iso))
+	}
+
+	return strings.Join(stats, "<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+}
+
+func ImageDateTime(data PageData) string {
+	var imageDate string
+
+	var imageTimeFormat string
+	if data.Config.ImageTimeFormat == "12" {
+		imageTimeFormat = time.Kitchen
+	} else {
+		imageTimeFormat = time.TimeOnly
+	}
+
+	imageDateFormat := utils.DateToLayout(data.Config.ImageDateFormat)
+	if imageDateFormat == "" {
+		imageDateFormat = config.DefaultDateLayout
+	}
+
+	switch {
+	case (data.Config.ShowImageDate && data.Config.ShowImageTime):
+		imageDate = fmt.Sprintf("%s %s", data.ImmichImage.LocalDateTime.Format(imageTimeFormat), data.ImmichImage.LocalDateTime.Format(imageDateFormat))
+	case data.Config.ShowImageDate:
+		imageDate = fmt.Sprintf("%s", data.ImmichImage.LocalDateTime.Format(imageDateFormat))
+	case data.Config.ShowImageTime:
+		imageDate = fmt.Sprintf("%s", data.ImmichImage.LocalDateTime.Format(imageTimeFormat))
+	}
+
+	return imageDate
+}
+
 templ Image(data PageData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !data.Config.BackgroundBlur) }>
 		if data.Config.BackgroundBlur && strings.ToLower(data.Config.ImageFit) != "cover" {
@@ -44,8 +120,20 @@ templ Image(data PageData) {
 		</div>
 		if !data.Config.DisableUi {
 			<div class="image--metadata">
-				if data.ImageDate != "" {
-					<div class="image--metadata--date">{ data.ImageDate }</div>
+				if data.Config.ShowImageDate || data.Config.ShowImageTime {
+					<div class="image--metadata--date">
+						{ ImageDateTime(data) }
+					</div>
+				}
+				if data.Config.ShowImageExif {
+					<div class="image--metadata--exif">
+						@templ.Raw(ImageExif(data.ImmichImage.ExifInfo))
+					</div>
+				}
+				if data.Config.ShowImageLocation {
+					<div class="image--metadata--location">
+						@templ.Raw(ImageLocation(data.ImmichImage.ExifInfo))
+					</div>
 				}
 			</div>
 		}
@@ -54,6 +142,6 @@ templ Image(data PageData) {
 		for _, entry := range data.Config.History {
 			<input type="hidden" class="kiosk-history--entry" name="history" value={ entry }/>
 		}
-		<input type="hidden" class="kiosk-history--entry" name="history" value={ data.ImageID }/>
+		<input type="hidden" class="kiosk-history--entry" name="history" value={ data.ImmichImage.ID }/>
 	</form>
 }
