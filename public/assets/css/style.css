@@ -53,6 +53,13 @@ body {
     background-color: #000;
 }
 
+@media screen and (max-width: 500px) {
+    html,
+    body {
+        font-size: 80%; /* 16px */
+    }
+}
+
 /* --- koisk (main ciontainer) ---- */
 #kiosk {
     position: relative;
@@ -204,6 +211,12 @@ body {
     padding: 0;
 }
 
+@media screen and (max-width: 500px) {
+    .image--metadata {
+        padding: 0.5rem;
+    }
+}
+
 .image--metadata--date {
     font-size: 1.3rem;
     padding-left: 3rem;
@@ -337,6 +350,12 @@ body {
 #clock:empty {
     display: none;
     padding: 0;
+}
+
+@media screen and (max-width: 500px) {
+    #clock {
+        padding: 0.5rem;
+    }
 }
 
 .clock--date {
