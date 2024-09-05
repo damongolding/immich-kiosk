@@ -1,36 +1,38 @@
 immich_api_key: ""
 immich_url: ""
 
-disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
+show_time: false # true or false
+time_format: 24 # 12 or 24
 
-show_time: true # true or false
-time_format: 12 # 12 or 24
-
-show_date: true # true or false
-date_format: 02/01/2006 # 02 = day, 01 = month and 2006 = year e.g. 01/02/2006 for American format
+show_date: false # true or false
+date_format: YYYY/MM/DD
 
 refresh: 60 # in seconds
+disable_screensaver: false
 
-album: "" # ID of album to display
-
+album: # ID(s) of album or albums to display
+  - ""
 person: # ID(s) of person or people to display
   - ""
 
-image_fit: contain # how the image fits the screen. Options are none, contain and cover
-
+disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
+hide_cursor: false # Hide cursor/mouse via CSS.
 background_blur: true # display a blurred version of image as background
-
 transition: none # cross-fade, fade or none
 
 show_progress: false # display a progress bar
+image_fit: contain # how the image fits the screen. Options are none, contain and cover
 
 # Image METADATA
-show_image_time: true # true or false
-image_time_format: 12 # 12 or 24
+show_image_time: false # true or false
+image_time_format: 24 # 12 or 24
 
-show_image_date: true # true or false
-image_date_format: 02/01/2006 # 02 = day, 01 = month and 2006 = year e.g. 01/02/2006 for American formate
+show_image_date: false # true or false
+image_date_format: YYYY-MM-DD
+show_image_exif: false
+show_image_location: false
 
-# options that can not be changed via url params
+# options that can NOT be changed via url params
 kiosk:
   password: ""
+  cache: true
