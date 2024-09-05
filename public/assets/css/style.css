@@ -69,7 +69,7 @@ body {
 /* Fade transition */
 #kiosk.htmx-swapping {
     opacity: 0;
-    transition: opacity 3s ease-out;
+    transition: opacity 1s ease-out;
 }
 
 /* END Fade transition */
@@ -83,7 +83,7 @@ body {
 
 #kiosk.htmx-settling .htmx-added {
     animation-name: fade-in;
-    animation-duration: 3s;
+    animation-duration: 1s;
     animation-fill-mode: forwards;
 }
 

@@ -71,7 +71,7 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url
 			hx-include=".kiosk-history--entry"
 		}
 		hx-trigger="load, kiosk-new-image"
-		hx-swap="innerHTML swap:3s"
+		hx-swap="innerHTML swap:1s"
 		if showProgress {
 			hx-on::after-request="afterImageRequest()"
 		}

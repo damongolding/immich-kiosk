@@ -19,6 +19,7 @@
 
   let isPaused = false;
   let isFullscreen = false;
+  let triggerSent = false;
 
   // Cache DOM elements for better performance
   const documentBody = document.body;
@@ -53,6 +54,7 @@
 
     // Calculate elapsed time and progress
     const elapsed = timestamp - lastUpdateTime;
+    const triggerOffset = 500; // 0.5 second offset
     const progress = Math.min(elapsed / pollInterval, 1);
 
     // Update progress bar width
@@ -60,15 +62,20 @@
       progressBarElement.style.width = `${progress * 100}%`;
     }
 
-    // Trigger new image and reset progress bar if interval has passed
-    if (elapsed >= pollInterval) {
+    // Trigger new image 1 second before the interval has passed
+    if (elapsed >= pollInterval - triggerOffset && !triggerSent) {
+      console.log("Trigger new image");
       htmx.trigger(kiosk, "kiosk-new-image");
-      lastUpdateTime = timestamp;
+      triggerSent = true;
+    }
 
-      // Reset progress bar
+    // Reset progress bar and lastUpdateTime when the full interval has passed
+    if (elapsed >= pollInterval) {
       if (progressBarElement) {
         progressBarElement.style.width = "0%";
       }
+      lastUpdateTime = timestamp;
+      triggerSent = false;
     }
 
     // Schedule the next update
