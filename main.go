@@ -21,7 +21,7 @@ import (
 // version current build version number
 var version string
 
-//go:embed public
+//go:embed frontend/public
 var public embed.FS
 
 func init() {
@@ -78,13 +78,13 @@ func main() {
 	}
 
 	// CSS cache busting
-	e.FileFS("/assets/css/style.*.css", "public/assets/css/style.css", public)
+	e.FileFS("/assets/css/style.*.css", "frontend/public/assets/css/style.css", public)
 
 	// JS cache busting
-	e.FileFS("/assets/js/kiosk.*.js", "public/assets/js/kiosk.js", public)
+	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public)
 
 	// serve embdedd staic assets
-	e.StaticFS("/assets", echo.MustSubFS(public, "public/assets"))
+	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
 
 	e.GET("/", routes.Home(baseConfig))
 
