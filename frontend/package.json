@@ -1,0 +1,16 @@
+{
+  "name": "immich-kiosk",
+  "version": "0.8.1",
+  "description": "",
+  "main": "src/kiosk.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Damon Golding",
+  "license": "GPL-3.0-only",
+  "dependencies": {
+    "typescript": "^5.5.4"
+  }
+}
