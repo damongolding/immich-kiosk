@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES5",                      // Compile to ES5 for iOS 12 compatibility
+    "lib": ["ES2015", "DOM"],             // Include ES6 features and browser DOM APIs
+    "downlevelIteration": true,           // Handle `for...of` loops in ES5
+    "strictNullChecks": true,             // Ensure safer null/undefined handling
+    "esModuleInterop": true,              // Handle ES module compatibility
+    "module": "ES6",                      // Set module system to ES6 (or "CommonJS" if using Node)
+    "outDir": "./public/assets/js",       // Output directory for compiled files
+    "sourceMap": true                     // Optional: generate source maps for debugging
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}
