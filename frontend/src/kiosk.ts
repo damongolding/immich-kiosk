@@ -1,4 +1,6 @@
-"use strict";
+import type { htmx } from "htmx.org";
+
+("use strict");
 
 /**
  * Immediately Invoked Function Expression (IIFE) to encapsulate the kiosk functionality
@@ -7,7 +9,7 @@
 (() => {
   // Parse kiosk data from the HTML element
   const kioskData = JSON.parse(
-    document.getElementById("kiosk-data")?.textContent || '{}'
+    document.getElementById("kiosk-data")?.textContent || "{}",
   );
 
   // Set polling interval based on the refresh rate in kiosk data
@@ -25,10 +27,14 @@
   // Cache DOM elements for better performance
   const documentBody = document.body;
   const progressBar = htmx.find(".progress--bar") as HTMLElement | null;
-  const fullscreenButton = htmx.find(".navigation--fullscreen") as HTMLElement | null;
+  const fullscreenButton = htmx.find(
+    ".navigation--fullscreen",
+  ) as HTMLElement | null;
   const kiosk = htmx.find("#kiosk") as HTMLElement | null;
   const menu = htmx.find(".navigation") as HTMLElement | null;
-  const menuPausePlayButton = htmx.find(".navigation--control") as HTMLElement | null;
+  const menuPausePlayButton = htmx.find(
+    ".navigation--control",
+  ) as HTMLElement | null;
 
   // Get the appropriate fullscreen API for the current browser
   const fullscreenAPI = getFullscreenAPI();
@@ -195,7 +201,8 @@
 
     fullscreenButton?.addEventListener("click", toggleFullscreen);
     document.addEventListener("fullscreenchange", () => {
-      isFullscreen = !!document[fullscreenAPI.fullscreenElement as keyof Document];
+      isFullscreen =
+        !!document[fullscreenAPI.fullscreenElement as keyof Document];
       fullscreenButton?.classList.toggle(
         "navigation--fullscreen-enabled",
         isFullscreen,

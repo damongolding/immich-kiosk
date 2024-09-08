@@ -11,6 +11,10 @@
   "author": "Damon Golding",
   "license": "GPL-3.0-only",
   "dependencies": {
+    "htmx.org": "^2.0.2",
     "typescript": "^5.5.4"
+  },
+  "engine": {
+    "node": "20.17.0"
   }
 }

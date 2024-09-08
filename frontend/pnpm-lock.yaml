@@ -1,18 +1,32 @@
-lockfileVersion: '6.0'
+lockfileVersion: '9.0'
 
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  typescript:
-    specifier: ^5.5.4
-    version: 5.5.4
+importers:
+
+  .:
+    dependencies:
+      htmx.org:
+        specifier: ^2.0.2
+        version: 2.0.2
+      typescript:
+        specifier: ^5.5.4
+        version: 5.5.4
 
 packages:
 
-  /typescript@5.5.4:
+  htmx.org@2.0.2:
+    resolution: {integrity: sha512-eUPIpQaWKKstX393XNCRCMJTrqPzikh36Y9RceqsUZLTtlFjFaVDgwZLUsrFk8J2uzZxkkfiy0TE359j2eN6hA==}
+
+  typescript@5.5.4:
     resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: false
+
+snapshots:
+
+  htmx.org@2.0.2: {}
+
+  typescript@5.5.4: {}
