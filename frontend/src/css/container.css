@@ -1,0 +1,43 @@
+/* --- koisk (main container) ---- */
+#kiosk {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 3s ease-out;
+
+    z-index: 0;
+}
+
+/* Fade transition */
+#kiosk.htmx-swapping {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+/* END Fade transition */
+
+/* Cross fade transtion */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+#kiosk.htmx-settling .htmx-added {
+    animation-name: fade-in;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+}
+/* END Cross fade transtion */
+
+.kiosk--spinner {
+    position: absolute;
+    display: block;
+    width: 5rem;
+    height: 5rem;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%);
+}

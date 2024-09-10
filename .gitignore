@@ -33,3 +33,6 @@ config.yaml
 *.pprof
 
 dist/
+
+
+node_modules/

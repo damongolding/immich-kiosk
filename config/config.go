@@ -32,9 +32,9 @@ type KioskSettings struct {
 
 type Config struct {
 	// ImmichApiKey Immich key to access assets
-	ImmichApiKey string `mapstructure:"immich_api_key" query:"immich_api_key" form:"immich_api_key" default:""`
+	ImmichApiKey string `mapstructure:"immich_api_key" default:""`
 	// ImmichUrl Immuch base url
-	ImmichUrl string `mapstructure:"immich_url" query:"immich_url" form:"immich_url" default:""`
+	ImmichUrl string `mapstructure:"immich_url" default:""`
 
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
 	DisableUi bool `mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
@@ -55,6 +55,8 @@ type Config struct {
 	// HideCursor hide cursor via CSS
 	HideCursor bool `mapstructure:"hide_cursor" query:"hide_cursor" form:"hide_cursor" default:"false"`
 
+	// ShowArchived allow archived image to be displayed
+	ShowArchived bool `mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display
 	Person []string `mapstructure:"person" query:"person" form:"person" default:"[]"`
 	// Album ID of album(s) to display

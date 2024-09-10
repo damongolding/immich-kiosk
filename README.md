@@ -22,7 +22,7 @@
 <br />
 
 > [!IMPORTANT]
-> **This project is not affiliated with [immich][immich-github-url]**
+> **This project is not affiliated with [Immich][immich-github-url]**
 
 > [!WARNING]
 > Like the Immich project, this project is currently in beta and may experience breaking changes.
@@ -42,7 +42,7 @@
 - [Support](#support)
 
 ## What is Immich Kiosk?
-Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers.
+Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
 
 ![preview 1](/assets/demo_1.jpg)
 **Image shot by Damon Golding**
@@ -110,6 +110,7 @@ services:
       KIOSK_REFRESH: 60
       KIOSK_DISABLE_SCREENSAVER: FALSE
       # Asset sources
+      KIOSK_SHOW_ARCHIVED: FALSE
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
       # UI
@@ -149,7 +150,8 @@ See the file config.example.yaml for an example config file
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
-| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask broswer to request a lock that prevents device screens from dimming or locking.        |
+| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking.        |
+| show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [FAQ: How do I set multiple albums?](#faq) to see how to implement this.|
 | person                            | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [FAQ: How do I set multiple people?](#faq) to see how to implement this.|
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |

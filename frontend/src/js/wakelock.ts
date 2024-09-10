@@ -1,6 +1,6 @@
-(async () => {
+export const wakeLock = async () => {
   if ("wakeLock" in navigator) {
-    let wakeLock = null;
+    let wakeLock: null | WakeLockSentinel = null;
 
     // request a wake lock
     const requestWakeLock = async () => {
@@ -19,4 +19,4 @@
 
     await requestWakeLock();
   }
-})();
+};

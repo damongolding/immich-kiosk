@@ -1,0 +1,72 @@
+/* --- menu --- */
+.navigation {
+    display: flex;
+    gap: 0.5rem;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 0.5rem;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+    will-change: opacity;
+    box-shadow:
+        rgba(17, 17, 26, 0.1) 0px 4px 16px,
+        rgba(17, 17, 26, 0.05) 0px 8px 32px;
+}
+
+.navigation--item {
+    width: 3.62rem;
+    height: 3.62rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.navigation--item--separator {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.navigation-hidden {
+    opacity: 0;
+}
+
+.navigation svg {
+    fill: white;
+    max-width: 2rem;
+    max-height: 2rem;
+}
+
+/* nav fullscreen */
+.navigation--fullscreen--exit {
+    display: none;
+    visibility: hidden;
+}
+
+.navigation--fullscreen-enabled .navigation--fullscreen--exit {
+    display: inline;
+    visibility: visible;
+}
+
+.navigation--fullscreen-enabled .navigation--fullscreen--enter {
+    display: none;
+    visibility: hidden;
+}
+
+/* nav controls */
+.navigation--control--play {
+    display: none;
+    visibility: hidden;
+}
+
+.navigation--control--paused .navigation--control--play {
+    display: inline;
+    visibility: visible;
+}
+
+.navigation--control--paused .navigation--control--pause {
+    display: none;
+    visibility: hidden;
+}

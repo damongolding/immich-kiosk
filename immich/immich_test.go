@@ -49,5 +49,59 @@ func TestGetRandomImage(t *testing.T) {
 	if err.Error() != "No images found" && i.Retries != 10 {
 		t.Error(err)
 	}
+}
+
+func TestArchiveLogic(t *testing.T) {
+
+	tests := []struct {
+		Type                  string
+		IsTrashed             bool
+		IsArchived            bool
+		ArchivedWantedByUser  bool
+		WantSimulatedContinue bool
+	}{
+		{
+			Type:                  "IMAGE",
+			IsTrashed:             false,
+			IsArchived:            false,
+			ArchivedWantedByUser:  false,
+			WantSimulatedContinue: false,
+		},
+		{
+			Type:                  "IMAGE",
+			IsTrashed:             true,
+			IsArchived:            false,
+			ArchivedWantedByUser:  false,
+			WantSimulatedContinue: true,
+		},
+		{
+			Type:                  "IMAGE",
+			IsTrashed:             false,
+			IsArchived:            true,
+			ArchivedWantedByUser:  false,
+			WantSimulatedContinue: true,
+		},
+		{
+			Type:                  "IMAGE",
+			IsTrashed:             false,
+			IsArchived:            true,
+			ArchivedWantedByUser:  true,
+			WantSimulatedContinue: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run("", func(t *testing.T) {
+			simulatedContinueTriggered := false
+
+			if test.Type != "IMAGE" || test.IsTrashed || (test.IsArchived && !test.ArchivedWantedByUser) {
+				simulatedContinueTriggered = true
+			}
+
+			if simulatedContinueTriggered != test.WantSimulatedContinue {
+				t.Error()
+			}
+		})
+	}
 
 }

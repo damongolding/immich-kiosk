@@ -41,24 +41,12 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, querie
 		}
 		hx-trigger="load, kiosk-new-image"
 		hx-swap="beforeend settle:3s"
-		if showProgress {
-			hx-on::after-request="afterImageRequest()"
-		}
+		hx-on::after-request="kiosk.startPolling()"
+		hx-on::after-settle="kiosk.cleanupFrames()"
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
 	>
 		@spinner()
 	</div>
-	<script>
-        htmx.on("htmx:afterSettle", function (evt) {
-            // Only trigger this if settle is from main kiosk
-            if (evt.detail.elt.id != "kiosk") return;
-
-            const frames = htmx.findAll(".frame");
-            if (frames.length > 3) {
-                htmx.remove(frames[0], 3000);
-            }
-        });
-    </script>
 }
 
 templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
@@ -72,9 +60,7 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url
 		}
 		hx-trigger="load, kiosk-new-image"
 		hx-swap="innerHTML swap:1s"
-		if showProgress {
-			hx-on::after-request="afterImageRequest()"
-		}
+		hx-on::after-request="kiosk.startPolling()"
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
 	>
 		@spinner()
@@ -92,9 +78,7 @@ templ kioskNone(showProgress bool, refresh int, kioskVersion string, queries url
 		}
 		hx-trigger="load, kiosk-new-image"
 		hx-swap="innerHTML"
-		if showProgress {
-			hx-on::after-request="afterImageRequest()"
-		}
+		hx-on::after-request="kiosk.startPolling()"
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
 	>
 		@spinner()
@@ -173,18 +157,6 @@ templ progressBar(refresh int) {
 			class={ "progress--bar", animationDuration(refresh) }
 		></div>
 	</div>
-	<script>
-        // After image AJAX request.
-        function afterImageRequest(e) {
-            const progressBar = htmx.find(".progress--bar");
-
-            if (progressBar){
-                progressBar.style.animation = "none";
-                progressBar.offsetHeight; /* trigger reflow */
-                progressBar.style.animation = null;
-            }
-        }
-    </script>
 }
 
 templ Home(data PageData) {
@@ -196,7 +168,7 @@ templ Home(data PageData) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<meta name="version" content={ data.KioskVersion }/>
 			<title>Immich Kiosk</title>
-			<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/style.%s.css", data.KioskVersion))) }/>
+			<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", data.KioskVersion))) }/>
 			<link
 				rel="apple-touch-icon"
 				sizes="180x180"
@@ -214,7 +186,6 @@ templ Home(data PageData) {
 				sizes="16x16"
 				href="/assets/images/favicon-16x16.png"
 			/>
-			<script src="/assets/js/htmx.2.0.1.js"></script>
 			if data.Config.HideCursor {
 				<style>
     				html, body{
@@ -242,27 +213,13 @@ templ Home(data PageData) {
 			@paramForm(data.Queries)
 			@historyForm()
 			@offlineIcon()
-			@kioskData(map[string]any{"version": data.KioskVersion, "params": quriesToJson(data.Queries), "refresh": data.Config.Refresh})
-			if data.Config.DisableScreensaver {
-				<script src="/assets/js/wakelock.js"></script>
-			}
-			<script>
-                // Server online check. Fires after every AJAX request.
-                htmx.on("htmx:afterRequest", function (e) {
-                    const offline = htmx.find("#offline");
-
-                    if (e.detail.successful) {
-                        htmx.removeClass(offline, "offline")
-                    } else {
-                        htmx.addClass(offline, "offline")
-                    }
-                });
-            </script>
-			if log.GetLevel() == log.DebugLevel {
-				<script>
-				    htmx.logAll();
-				</script>
-			}
+			@kioskData(map[string]any{
+				"debug":              log.GetLevel() == log.DebugLevel,
+				"version":            data.KioskVersion,
+				"params":             quriesToJson(data.Queries),
+				"refresh":            data.Config.Refresh,
+				"disableScreensaver": data.Config.DisableScreensaver,
+			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", data.KioskVersion))) }></script>
 		</body>
 	</html>

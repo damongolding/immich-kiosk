@@ -1,0 +1,26 @@
+* {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+html,
+body {
+    padding: 0;
+    margin: 0;
+    font-size: 100%; /* 16px */
+    font-family: "Barlow", Arial, Helvetica, sans-serif;
+    letter-spacing: 1px;
+    background-color: #000;
+}
+
+@media screen and (max-width: 500px) {
+    html,
+    body {
+        font-size: 80%; /* 16px */
+    }
+}
