@@ -132,8 +132,7 @@ func immichApiCallDecorator[T []ImmichAsset | ImmichAlbum](immichApiCall ImmichA
 			return immichApiCall(apiUrl)
 		}
 
-		apiData, found := apiCache.Get(apiUrl)
-		if found {
+		if apiData, found := apiCache.Get(apiUrl); found {
 			log.Debug(requestId+" Cache hit", "url", apiUrl)
 			return apiData.([]byte), nil
 		}

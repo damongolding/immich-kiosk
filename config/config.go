@@ -26,8 +26,14 @@ type KioskSettings struct {
 	// Cache enable/disable api call caching
 	Cache bool `mapstructure:"cache" default:"true"`
 
+	// PreFetch get and cache an image in the background
+	PreFetch bool `mapstructure:"pre_fetch" default:"true"`
+
 	// Password the password used to add authentication to the frontend
 	Password string `mapstructure:"password" default:""`
+
+	Debug        bool `mapstructure:"debug" default:"false"`
+	DebugVerbose bool `mapstructure:"debug_verbose" default:"false"`
 }
 
 type Config struct {
@@ -130,6 +136,9 @@ func (c *Config) Load() error {
 
 	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
 	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
+
+	v.BindEnv("kiosk.debug", "KIOSK_DEBUG")
+	v.BindEnv("kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE")
 
 	v.AddConfigPath(".")
 	v.SetConfigFile("config.yaml")
@@ -262,6 +271,11 @@ func (c *Config) ConfigWithOverrides(e echo.Context) error {
 }
 
 func (c *Config) String() string {
+
+	if !c.Kiosk.DebugVerbose {
+		return "use debug_verbose for more info"
+	}
+
 	out, err := json.MarshalIndent(c, "", " ")
 	if err != nil {
 		log.Error("", "err", err)

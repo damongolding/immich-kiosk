@@ -1,15 +1,20 @@
 package routes
 
 import (
+	"time"
+
 	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
+	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/config"
 )
 
 var (
 	KioskVersion string
+
+	pageDataCache *cache.Cache
 )
 
 type PersonOrAlbum struct {
@@ -20,6 +25,11 @@ type PersonOrAlbum struct {
 type RequestData struct {
 	History []string `form:"history"`
 	config.Config
+}
+
+func init() {
+	// Setting up Immich api cache
+	pageDataCache = cache.New(5*time.Minute, 10*time.Minute)
 }
 
 // This custom Render replaces Echo's echo.Context.Render() with templ's templ.Component.Render().
