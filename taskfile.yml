@@ -7,6 +7,11 @@ tasks:
     cmds:
       - KIOSK_DEBUG=true ./dist/kiosk
 
+  frontend:
+    dir: ./frontend
+    cmds:
+      - pnpm build
+
   templ:
     cmds:
       - templ generate
@@ -16,7 +21,7 @@ tasks:
       - go test ./...
 
   build:
-    deps: [templ]
+    deps: [frontend, templ]
     cmds:
       - CGO_ENABLED=0 go build -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
 

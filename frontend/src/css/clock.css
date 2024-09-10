@@ -1,0 +1,51 @@
+/* --- clock --- */
+#clock {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: #fff;
+    font-size: 3rem;
+    padding: 1rem;
+    text-shadow: 0 0 20px black;
+    background-color: rgba(0, 0, 0, 0.3);
+    background: rgb(0, 0, 0);
+    background: -moz-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.500437675070028) 0%,
+        rgba(0, 0, 0, 0) 100%
+    );
+    background: -webkit-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.500437675070028) 0%,
+        rgba(0, 0, 0, 0) 100%
+    );
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.500437675070028) 0%,
+        rgba(0, 0, 0, 0) 100%
+    );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000", endColorstr="#000000", GradientType=1);
+
+    z-index: 10000;
+}
+
+#clock:empty {
+    display: none;
+    padding: 0;
+}
+
+@media screen and (max-width: 500px) {
+    #clock {
+        padding: 0.5rem;
+    }
+}
+
+.clock--date {
+    font-size: 1.5rem;
+    opacity: 0.8;
+}
+
+.clock--time {
+    padding-right: 3rem;
+    font-size: 3rem;
+}

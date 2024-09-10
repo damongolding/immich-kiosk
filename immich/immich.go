@@ -93,10 +93,10 @@ type ImmichAsset struct {
 	FileModifiedAt   time.Time `json:"-"`                // `json:"fileModifiedAt"`
 	LocalDateTime    time.Time `json:"localDateTime"`    // `json:"localDateTime"`
 	UpdatedAt        time.Time `json:"-"`                // `json:"updatedAt"`
-	IsFavorite       bool      `json:"isFavorite"`       // `json:"isFavorite"`
-	IsArchived       bool      `json:"isArchived"`       // `json:"isArchived"`
-	IsTrashed        bool      `json:"isTrashed"`        // `json:"isTrashed"`
-	Duration         string    `json:"-"`                // `json:"duration"`
+	IsFavorite       bool      `json:"isFavorite"`
+	IsArchived       bool      `json:"isArchived"`
+	IsTrashed        bool      `json:"isTrashed"`
+	Duration         string    `json:"-"` // `json:"duration"`
 	ExifInfo         ExifInfo  `json:"exifInfo"`
 	LivePhotoVideoID any       `json:"-"`        // `json:"livePhotoVideoId"`
 	People           People    `json:"people"`   // `json:"people"`
@@ -240,8 +240,8 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 	}
 
 	for _, img := range immichAssets {
-		// We only want images and that are not archived or trashed
-		if img.Type != "IMAGE" || img.IsArchived || img.IsTrashed {
+		// We only want images and that are not trashed or archived (unless wanted by user)
+		if img.Type != "IMAGE" || img.IsTrashed || (img.IsArchived && !requestConfig.ShowArchived) {
 			continue
 		}
 
@@ -306,8 +306,8 @@ func (i *ImmichAsset) GetRandomImageOfPerson(personId, requestId string) error {
 	})
 
 	for _, pick := range images {
-		// We only want images and that are not archived or trashed
-		if pick.Type != "IMAGE" || pick.IsArchived || pick.IsTrashed {
+		// We only want images and that are not trashed or archived (unless wanted by user)
+		if pick.Type != "IMAGE" || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) {
 			continue
 		}
 
@@ -376,8 +376,8 @@ func (i *ImmichAsset) GetRandomImageFromAlbum(albumId, requestId string) error {
 	})
 
 	for _, pick := range album.Assets {
-		// We only want images and that should not be archived or in trashed
-		if pick.Type != "IMAGE" || pick.IsArchived || pick.IsTrashed {
+		// We only want images and that are not trashed or archived (unless wanted by user)
+		if pick.Type != "IMAGE" || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) {
 			continue
 		}
 

@@ -4,13 +4,16 @@
   "description": "",
   "main": "src/kiosk.ts",
   "scripts": {
-    "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "js": "pnpm exec esbuild 'src/js/kiosk.ts' --format=iife --global-name=kiosk --bundle --target=es6 --outfile=./public/assets/js/kiosk.js ",
+    "css": "pnpm exec esbuild  --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css",
+    "build": "pnpm test && pnpm css && pnpm js",
+    "test": "tsc --noEmit"
   },
   "keywords": [],
   "author": "Damon Golding",
   "license": "GPL-3.0-only",
   "dependencies": {
+    "esbuild": "^0.23.1",
     "htmx.org": "^2.0.2",
     "typescript": "^5.5.4"
   },
