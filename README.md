@@ -22,7 +22,7 @@
 <br />
 
 > [!IMPORTANT]
-> **This project is not affiliated with [immich][immich-github-url]**
+> **This project is not affiliated with [Immich][immich-github-url]**
 
 > [!WARNING]
 > Like the Immich project, this project is currently in beta and may experience breaking changes.
@@ -42,7 +42,7 @@
 - [Support](#support)
 
 ## What is Immich Kiosk?
-Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers.
+Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
 
 ![preview 1](/assets/demo_1.jpg)
 **Image shot by Damon Golding**
