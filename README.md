@@ -12,6 +12,11 @@
 <br />
 <br />
 <div align="center" style="display: flex; gap: 2rem;">
+
+  <a href="https://www.buymeacoffee.com/damongolding" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me A Coffee and support Kiosk" style="height: 60px !important;width: 217px !important;">
+  </a>
+  
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test">
 
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/docker-release.yml">
