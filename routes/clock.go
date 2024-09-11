@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/labstack/echo/v4"
+
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
-	"github.com/labstack/echo/v4"
 )
 
 // Clock clock endpoint

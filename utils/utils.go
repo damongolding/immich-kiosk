@@ -23,7 +23,14 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/disintegration/imaging"
+
+	"github.com/google/uuid"
 )
+
+// GenerateUUID generates as UUID
+func GenerateUUID() string {
+	return uuid.New().String()
+}
 
 // DateToLayout takes a string and replaces normal date layouts to GO layouts
 func DateToLayout(input string) string {

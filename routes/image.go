@@ -7,103 +7,105 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/labstack/echo/v4"
+	"github.com/patrickmn/go-cache"
+
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
-	"github.com/labstack/echo/v4"
-	"github.com/patrickmn/go-cache"
 )
 
-func ImagePreFetch(requestConfig config.Config, c echo.Context) {
-
+func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) (views.PageData, error) {
 	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
-
+	kioskDeviceId := c.Request().Header.Get("kiosk-device-id")
 	immichImage := immich.NewImage(requestConfig)
 
-	var peopleAndAlbums []immich.ImmichAsset
-
+	peopleAndAlbums := []immich.ImmichAsset{}
 	for _, people := range requestConfig.Person {
-		// TODO whitelisting goes here
 		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "PERSON", ID: people})
 	}
-
 	for _, album := range requestConfig.Album {
-		// TODO whitelisting goes here
 		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
 	}
 
 	pickedImage := utils.RandomItem(peopleAndAlbums)
 
+	var err error
 	switch pickedImage.Type {
 	case "ALBUM":
-		randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(pickedImage.ID, requestId)
-		if randomAlbumImageErr != nil {
-			log.Error("err getting image from album", "err", randomAlbumImageErr)
-			return
-		}
+		err = immichImage.GetRandomImageFromAlbum(pickedImage.ID, requestId)
 	case "PERSON":
-		randomPersonImageErr := immichImage.GetRandomImageOfPerson(pickedImage.ID, requestId)
-		if randomPersonImageErr != nil {
-			log.Error("err getting image of person", "err", randomPersonImageErr)
-			return
-		}
+		err = immichImage.GetRandomImageOfPerson(pickedImage.ID, requestId)
 	default:
-		randomImageErr := immichImage.GetRandomImage(requestId)
-		if randomImageErr != nil {
-			log.Error("err getting random image", "err", randomImageErr)
-			return
-		}
+		err = immichImage.GetRandomImage(requestId)
+	}
+
+	if err != nil {
+		return views.PageData{}, fmt.Errorf("error getting image: %w", err)
 	}
 
 	imageGet := time.Now()
 	imgBytes, err := immichImage.GetImagePreview()
 	if err != nil {
-		log.Error("get image preview", "err", err)
-		return
+		return views.PageData{}, fmt.Errorf("error getting image preview: %w", err)
 	}
-	log.Debug(requestId, "PREFETCH", true, "Got image in", time.Since(imageGet).Seconds())
+	if isPrefetch {
+		log.Debug(requestId, "PREFETCH", kioskDeviceId, "Got image in", time.Since(imageGet).Seconds())
+	} else {
+		log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
+	}
 
 	imageConvertTime := time.Now()
 	img, err := utils.ImageToBase64(imgBytes)
 	if err != nil {
-		log.Error("image to base64", "err", err)
-		return
+		return views.PageData{}, fmt.Errorf("error converting image to base64: %w", err)
 	}
-	log.Debug(requestId, "PREFETCH", true, "Converted image in", time.Since(imageConvertTime).Seconds())
+	if isPrefetch {
+		log.Debug(requestId, "PREFETCH", kioskDeviceId, "Converted image in", time.Since(imageConvertTime).Seconds())
+	} else {
+		log.Debug(requestId, "Converted image in", time.Since(imageConvertTime).Seconds())
+	}
 
 	var imgBlur string
-
 	if requestConfig.BackgroundBlur && strings.ToLower(requestConfig.ImageFit) != "cover" {
 		imageBlurTime := time.Now()
 		imgBlurBytes, err := utils.BlurImage(imgBytes)
 		if err != nil {
-			log.Error("err blurring image", "err", err)
-			return
+			return views.PageData{}, fmt.Errorf("error blurring image: %w", err)
 		}
 		imgBlur, err = utils.ImageToBase64(imgBlurBytes)
 		if err != nil {
-			log.Error("err converting blurred image to base", "err", err)
-			return
+			return views.PageData{}, fmt.Errorf("error converting blurred image to base64: %w", err)
 		}
-		log.Debug(requestId, "PREFETCH", true, "Blurred image in", time.Since(imageBlurTime).Seconds())
+		if isPrefetch {
+			log.Debug(requestId, "PREFETCH", kioskDeviceId, "Blurred image in", time.Since(imageBlurTime).Seconds())
+		} else {
+			log.Debug(requestId, "Blurred image in", time.Since(imageBlurTime).Seconds())
+		}
 	}
 
 	if len(requestConfig.History) > 10 {
 		requestConfig.History = requestConfig.History[len(requestConfig.History)-10:]
 	}
 
-	data := views.PageData{
+	return views.PageData{
 		ImmichImage:   immichImage,
 		ImageData:     img,
 		ImageBlurData: imgBlur,
 		Config:        requestConfig,
-	}
-
-	pageDataCache.Set(c.Request().URL.String(), data, cache.DefaultExpiration)
+	}, nil
 }
 
-// NewImage new image endpoint
+func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceId string) {
+	data, err := processImage(requestConfig, c, true)
+	if err != nil {
+		log.Error("Error in prefetch", "err", err)
+		return
+	}
+	pageDataCache.Set(c.Request().URL.String()+kioskDeviceId, data, cache.DefaultExpiration)
+}
+
 func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -111,14 +113,15 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			fmt.Println()
 		}
 
-		kioskVersionHeader := c.Request().Header.Get("kiosk-version")
+		kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
+		kioskDeviceId := c.Request().Header.Get("kiosk-device-id")
 		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
 
 		// If kiosk version on client and server do not match refresh client.
-		if kioskVersionHeader != "" && KioskVersion != kioskVersionHeader {
+		if kioskDeviceVersion != "" && KioskVersion != kioskDeviceVersion {
 			c.Response().Header().Set("HX-Refresh", "true")
 			return c.String(http.StatusTemporaryRedirect, "")
 		}
@@ -131,114 +134,51 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		log.Debug(
 			requestId,
 			"method", c.Request().Method,
+			"deviceID", kioskDeviceId,
 			"path", c.Request().URL.String(),
 			"requestConfig", requestConfig.String(),
 		)
 
+		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
-			if f, found := pageDataCache.Get(c.Request().URL.String()); found {
-
-				log.Debug(requestId, "cache hit for new image", true)
-
-				d := f.(views.PageData)
+			if data, found := pageDataCache.Get(c.Request().URL.String() + kioskDeviceId); found {
+				log.Debug(
+					requestId,
+					"deviceID", kioskDeviceId,
+					"cache hit for new image", true,
+				)
+				cachedPageData := data.(views.PageData)
 				pageDataCache.Delete(c.Request().URL.String())
-
-				log.Debug(requestId, "prefetching new image", true)
-
-				go ImagePreFetch(requestConfig, c)
-
-				return Render(c, http.StatusOK, views.Image(d))
+				go imagePreFetch(requestConfig, c, kioskDeviceId)
+				return Render(c, http.StatusOK, views.Image(cachedPageData))
 			}
+			log.Debug(
+				requestId,
+				"deviceID", kioskDeviceId,
+				"cache miss for new image", false,
+			)
 		}
 
-		immichImage := immich.NewImage(requestConfig)
-
-		var peopleAndAlbums []immich.ImmichAsset
-
-		for _, people := range requestConfig.Person {
-			// TODO whitelisting goes here
-			peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "PERSON", ID: people})
-		}
-
-		for _, album := range requestConfig.Album {
-			// TODO whitelisting goes here
-			peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
-		}
-
-		pickedImage := utils.RandomItem(peopleAndAlbums)
-
-		switch pickedImage.Type {
-		case "ALBUM":
-			randomAlbumImageErr := immichImage.GetRandomImageFromAlbum(pickedImage.ID, requestId)
-			if randomAlbumImageErr != nil {
-				log.Error("err getting image from album", "err", randomAlbumImageErr)
-				return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting image from album", Message: "Is album ID correct?"}))
-			}
-		case "PERSON":
-			randomPersonImageErr := immichImage.GetRandomImageOfPerson(pickedImage.ID, requestId)
-			if randomPersonImageErr != nil {
-				log.Error("err getting image of person", "err", randomPersonImageErr)
-				return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting image of person", Message: "Is person ID correct?"}))
-			}
-		default:
-			randomImageErr := immichImage.GetRandomImage(requestId)
-			if randomImageErr != nil {
-				log.Error("err getting random image", "err", randomImageErr)
-				return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error getting random image", Message: "Is Immich running? Are your config settings correct?"}))
-			}
-		}
-
-		imageGet := time.Now()
-		imgBytes, err := immichImage.GetImagePreview()
-		if err != nil {
-			return err
-		}
-		log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
-
-		// if user wants the raw image (via GET request) data send it
+		// If it's a GET request for raw image data
 		if c.Request().Method == http.MethodGet {
+			immichImage := immich.NewImage(requestConfig)
+			imgBytes, err := immichImage.GetImagePreview()
+			if err != nil {
+				return err
+			}
 			return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
 		}
 
-		imageConvertTime := time.Now()
-		img, err := utils.ImageToBase64(imgBytes)
+		pageData, err := processImage(requestConfig, c, false)
 		if err != nil {
-			return err
-		}
-		log.Debug(requestId, "Converted image in", time.Since(imageConvertTime).Seconds())
-
-		var imgBlur string
-
-		if requestConfig.BackgroundBlur && strings.ToLower(requestConfig.ImageFit) != "cover" {
-			imageBlurTime := time.Now()
-			imgBlurBytes, err := utils.BlurImage(imgBytes)
-			if err != nil {
-				log.Error("err blurring image", "err", err)
-				return err
-			}
-			imgBlur, err = utils.ImageToBase64(imgBlurBytes)
-			if err != nil {
-				log.Error("err converting blurred image to base", "err", err)
-				return err
-			}
-			log.Debug(requestId, "Blurred image in", time.Since(imageBlurTime).Seconds())
-		}
-
-		if len(requestConfig.History) > 10 {
-			requestConfig.History = requestConfig.History[len(requestConfig.History)-10:]
-		}
-
-		data := views.PageData{
-			ImmichImage:   immichImage,
-			ImageData:     img,
-			ImageBlurData: imgBlur,
-			Config:        requestConfig,
+			log.Error("Error processing image", "err", err)
+			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error processing image", Message: err.Error()}))
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			go ImagePreFetch(requestConfig, c)
+			go imagePreFetch(requestConfig, c, kioskDeviceId)
 		}
 
-		return Render(c, http.StatusOK, views.Image(data))
+		return Render(c, http.StatusOK, views.Image(pageData))
 	}
 }

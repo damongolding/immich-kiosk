@@ -5,6 +5,7 @@ import { wakeLock } from "./wakelock";
 
 type KioskData = {
   debug: boolean;
+  debugVerbose: boolean;
   version: string;
   params: Record<string, unknown>;
   refresh: number;
@@ -44,7 +45,7 @@ const fullscreenAPI = getFullscreenAPI();
  * Initialize Kiosk functionality
  */
 function init() {
-  if (kioskData.debug) {
+  if (kioskData.debugVerbose) {
     htmx.logAll();
   }
 
@@ -55,8 +56,6 @@ function init() {
   if (!fullscreenAPI.requestFullscreen) {
     fullscreenButton && htmx.remove(fullscreenButton);
   }
-
-  // if (!isPaused) startPolling();
 
   addEventListeners();
 }

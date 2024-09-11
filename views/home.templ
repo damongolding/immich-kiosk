@@ -2,7 +2,7 @@ package views
 
 import (
 	"fmt"
-	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/utils"
 	"net/url"
 	"strings"
 )
@@ -30,7 +30,7 @@ templ spinner() {
 	/>
 }
 
-templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
+templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, deviceID string, queries url.Values) {
 	<div
 		id="kiosk"
 		hx-post="/image"
@@ -43,13 +43,13 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, querie
 		hx-swap="beforeend settle:3s"
 		hx-on::after-request="kiosk.startPolling()"
 		hx-on::after-settle="kiosk.cleanupFrames()"
-		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
+		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
 	>
 		@spinner()
 	</div>
 }
 
-templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
+templ kioskFade(showProgress bool, refresh int, kioskVersion string, deviceID string, queries url.Values) {
 	<div
 		id="kiosk"
 		hx-post="/image"
@@ -61,13 +61,13 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string, queries url
 		hx-trigger="load, kiosk-new-image"
 		hx-swap="innerHTML swap:1s"
 		hx-on::after-request="kiosk.startPolling()"
-		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
+		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
 	>
 		@spinner()
 	</div>
 }
 
-templ kioskNone(showProgress bool, refresh int, kioskVersion string, queries url.Values) {
+templ kioskNone(showProgress bool, refresh int, kioskVersion string, deviceID string, queries url.Values) {
 	<div
 		id="kiosk"
 		hx-post="/image"
@@ -79,7 +79,7 @@ templ kioskNone(showProgress bool, refresh int, kioskVersion string, queries url
 		hx-trigger="load, kiosk-new-image"
 		hx-swap="innerHTML"
 		hx-on::after-request="kiosk.startPolling()"
-		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
+		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
 	>
 		@spinner()
 	</div>
@@ -138,7 +138,7 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-templ clock(queries url.Values, kioskVersion string) {
+templ clock(queries url.Values, kioskVersion string, deviceID string) {
 	<div
 		id="clock"
 		hx-get="/clock"
@@ -147,7 +147,7 @@ templ clock(queries url.Values, kioskVersion string) {
 		}
 		hx-trigger="load, every 13s"
 		hx-swap="innerHTML"
-		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion) }
+		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
 	></div>
 }
 
@@ -197,24 +197,25 @@ templ Home(data PageData) {
 		<body>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries)
+					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, utils.GenerateUUID(), data.Queries)
 				case "fade":
-					@kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries)
+					@kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, utils.GenerateUUID(), data.Queries)
 				default:
-					@kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries)
+					@kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, utils.GenerateUUID(), data.Queries)
 			}
 			if data.Config.ShowProgress {
 				@progressBar(data.Config.Refresh)
 			}
 			if !data.Config.DisableUi && data.Config.ShowTime {
-				@clock(data.Queries, data.KioskVersion)
+				@clock(data.Queries, data.KioskVersion, data.DeviceID)
 			}
 			@menu()
 			@paramForm(data.Queries)
 			@historyForm()
 			@offlineIcon()
 			@kioskData(map[string]any{
-				"debug":              log.GetLevel() == log.DebugLevel,
+				"debug":              data.Config.Kiosk.Debug,
+				"debugVerbose":       data.Config.Kiosk.DebugVerbose,
 				"version":            data.KioskVersion,
 				"params":             quriesToJson(data.Queries),
 				"refresh":            data.Config.Refresh,

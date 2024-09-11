@@ -3612,7 +3612,7 @@ var kiosk = (() => {
   );
   var fullscreenAPI = getFullscreenAPI();
   function init() {
-    if (kioskData.debug) {
+    if (kioskData.debugVerbose) {
       htmx_esm_default.logAll();
     }
     if (kioskData.disableScreensaver) {
