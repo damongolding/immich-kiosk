@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      browserslist:
+        specifier: ^4.23.3
+        version: 4.23.3
     devDependencies:
       esbuild:
         specifier: ^0.23.1

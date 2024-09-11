@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/kiosk.ts",
   "scripts": {
-    "lint": "pnpm exec eslint ./public/assets/js/kiosk.js ",
+    "lint": "pnpm exec eslint ./public/assets/js/kiosk.js",
     "js": "pnpm exec esbuild 'src/js/kiosk.ts' --format=iife --global-name=kiosk --bundle --target=es6 --outfile=./public/assets/js/kiosk.js ",
     "css": "pnpm exec esbuild  --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css",
     "build": "pnpm test && pnpm css && pnpm js && pnpm lint",
@@ -22,12 +22,12 @@
     "eslint-plugin-compat": "^6.0.0",
     "globals": "^15.9.0",
     "htmx.org": "^2.0.2",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "browserslist": "^4.23.3"
   },
   "browserslist": [
-    "last 2 versions",
-    "not dead",
-    "not < 0.25%",
+    "> 0.2%",
+    "not op_mini all",
     "not IE 11"
   ]
 }
