@@ -24,8 +24,12 @@
   <br />
   <br />
 
-  [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/damongolding)
+   <a href="https://www.buymeacoffee.com/damongolding" target="_blank" style="underline: none !important">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me A Coffee and support Kiosk" style="height: 46.88px !important;width: 167px !important;">
+  </a>
 
+
+  
 </div>
 <br />
 <br />
