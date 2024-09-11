@@ -30,8 +30,11 @@ This can be found on the startup banner in the terminal. Or in the browser via t
 - Docker
 - Binary
 
-**The URL used to access Kiosk**
-- http://{KIOSK_URL}/show_time=true&time_format=12
+**Your Kiosk ENV or config file**
+Please remove any sensitive data first (Immich API and URL)
+
+**Any parms passed to the URL used to access Kiosk**
+- http://****/?show_time=true&time_format=12
 
 **Desktop:**
  - OS: [e.g. iOS]
