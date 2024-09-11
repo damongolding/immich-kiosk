@@ -18,6 +18,8 @@
   </a>
 
   <img alt="Docker pulls" src="https://badgen.net/docker/pulls/damongolding/immich-kiosk">
+
+  <br />
   
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test">
 
