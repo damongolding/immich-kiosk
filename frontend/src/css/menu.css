@@ -9,6 +9,7 @@
     background-color: rgba(0, 0, 0, 0.8);
     border-radius: 0.5rem;
     opacity: 1;
+    visibility: visible;
     transition: opacity 0.5s ease;
     will-change: opacity;
     box-shadow:
@@ -31,6 +32,7 @@
 
 .navigation-hidden {
     opacity: 0;
+    visibility: hidden;
 }
 
 .navigation svg {

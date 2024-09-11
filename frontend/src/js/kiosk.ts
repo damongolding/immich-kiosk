@@ -1,4 +1,9 @@
 import htmx from "htmx.org";
+import {
+  fullscreenAPI,
+  toggleFullscreen,
+  addFullscreenEventListener,
+} from "./fullscreen";
 import { wakeLock } from "./wakelock";
 
 ("use strict");
@@ -20,12 +25,13 @@ const kioskData: KioskData = JSON.parse(
 // Set polling interval based on the refresh rate in kiosk data
 const pollInterval = htmx.parseInterval(`${kioskData.refresh}s`);
 
-let lastUpdateTime = 0;
-let animationFrameId: number;
+let animationFrameId: number | null = null;
 let progressBarElement: HTMLElement | null;
 
 let isPaused = false;
-let isFullscreen = false;
+
+let lastPollTime: number | null = null;
+let pausedTime: number | null = null;
 
 // Cache DOM elements for better performance
 const documentBody = document.body;
@@ -37,9 +43,6 @@ const menu = htmx.find(".navigation") as HTMLElement | null;
 const menuPausePlayButton = htmx.find(
   ".navigation--control",
 ) as HTMLElement | null;
-
-// Get the appropriate fullscreen API for the current browser
-const fullscreenAPI = getFullscreenAPI();
 
 /**
  * Initialize Kiosk functionality
@@ -65,100 +68,30 @@ function init() {
  * @param {number} timestamp - The current timestamp from requestAnimationFrame
  */
 function updateKiosk(timestamp: number) {
-  // Initialize lastUpdateTime if it's the first update
-  if (!lastUpdateTime) lastUpdateTime = timestamp;
+  if (pausedTime !== null) {
+    // Adjust lastPollTime by the duration of the pause
+    lastPollTime! += timestamp - pausedTime;
+    pausedTime = null;
+  }
 
-  // Calculate elapsed time and progress
-  const elapsed = timestamp - lastUpdateTime;
+  const elapsed = timestamp - lastPollTime!;
   const progress = Math.min(elapsed / pollInterval, 1);
 
-  // Update progress bar width
   if (progressBarElement) {
     progressBarElement.style.width = `${progress * 100}%`;
   }
 
-  // Trigger new image 1 second before the interval has passed
   if (elapsed >= pollInterval) {
     if (kiosk) {
       console.log("Trigger new image");
       htmx.trigger(kiosk, "kiosk-new-image");
-      stopPolling();
-      return;
     }
+    lastPollTime = timestamp;
+    stopPolling();
+    return;
   }
 
-  // Schedule the next update
   animationFrameId = requestAnimationFrame(updateKiosk);
-}
-
-/**
- * Determine the correct fullscreen API methods for the current browser
- * @returns {Object} An object containing the appropriate fullscreen methods
- */
-function getFullscreenAPI(): {
-  requestFullscreen: string | null;
-  exitFullscreen: string | null;
-  fullscreenElement: string | null;
-  fullscreenEnabled: string | null;
-} {
-  const apis = [
-    [
-      "requestFullscreen",
-      "exitFullscreen",
-      "fullscreenElement",
-      "fullscreenEnabled",
-    ],
-    [
-      "mozRequestFullScreen",
-      "mozCancelFullScreen",
-      "mozFullScreenElement",
-      "mozFullScreenEnabled",
-    ],
-    [
-      "webkitRequestFullscreen",
-      "webkitExitFullscreen",
-      "webkitFullscreenElement",
-      "webkitFullscreenEnabled",
-    ],
-    [
-      "msRequestFullscreen",
-      "msExitFullscreen",
-      "msFullscreenElement",
-      "msFullscreenEnabled",
-    ],
-  ];
-
-  for (const [request, exit, element, enabled] of apis) {
-    if (request in document.documentElement) {
-      return {
-        requestFullscreen: request,
-        exitFullscreen: exit,
-        fullscreenElement: element,
-        fullscreenEnabled: enabled,
-      };
-    }
-  }
-
-  return {
-    requestFullscreen: null,
-    exitFullscreen: null,
-    fullscreenElement: null,
-    fullscreenEnabled: null,
-  };
-}
-
-/**
- * Toggle fullscreen mode
- */
-function toggleFullscreen() {
-  if (isFullscreen) {
-    document[fullscreenAPI.exitFullscreen as keyof string]?.();
-  } else {
-    documentBody[fullscreenAPI.requestFullscreen as keyof string]?.();
-  }
-
-  isFullscreen = !isFullscreen;
-  fullscreenButton?.classList.toggle("navigation--fullscreen-enabled");
 }
 
 /**
@@ -167,10 +100,11 @@ function toggleFullscreen() {
 function startPolling() {
   progressBarElement = htmx.find(".progress--bar") as HTMLElement | null;
   progressBarElement?.classList.remove("progress--bar-paused");
-
   menuPausePlayButton?.classList.remove("navigation--control--paused");
 
-  lastUpdateTime = 0;
+  lastPollTime = performance.now();
+  pausedTime = null;
+
   animationFrameId = requestAnimationFrame(updateKiosk);
 }
 
@@ -178,18 +112,48 @@ function startPolling() {
  * Stop the polling process
  */
 function stopPolling() {
-  cancelAnimationFrame(animationFrameId);
+  if (isPaused && animationFrameId === null) return;
+
+  cancelAnimationFrame(animationFrameId as number);
+
   progressBarElement?.classList.add("progress--bar-paused");
   menuPausePlayButton?.classList.add("navigation--control--paused");
+}
+
+function pausePolling() {
+  if (isPaused && animationFrameId === null) return;
+
+  cancelAnimationFrame(animationFrameId as number);
+  pausedTime = performance.now();
+
+  progressBarElement?.classList.add("progress--bar-paused");
+  menuPausePlayButton?.classList.add("navigation--control--paused");
+  menu?.classList.remove("navigation-hidden");
+
+  isPaused = true;
+}
+
+function resumePolling() {
+  if (!isPaused) return;
+
+  animationFrameId = requestAnimationFrame(updateKiosk);
+
+  progressBarElement?.classList.remove("progress--bar-paused");
+  menuPausePlayButton?.classList.remove("navigation--control--paused");
+  menu?.classList.add("navigation-hidden");
+
+  isPaused = false;
 }
 
 /**
  * Toggle the polling state (pause/restart)
  */
 function togglePolling() {
-  isPaused ? startPolling() : stopPolling();
-  menu?.classList.toggle("navigation-hidden");
-  isPaused = !isPaused;
+  isPaused ? resumePolling() : pausePolling();
+}
+
+function handleFullscreenClick() {
+  toggleFullscreen(documentBody, fullscreenButton);
 }
 
 /**
@@ -200,15 +164,9 @@ function addEventListeners() {
   kiosk?.addEventListener("click", togglePolling);
   menuPausePlayButton?.addEventListener("click", togglePolling);
 
-  fullscreenButton?.addEventListener("click", toggleFullscreen);
-  document.addEventListener("fullscreenchange", () => {
-    isFullscreen =
-      !!document[fullscreenAPI.fullscreenElement as keyof Document];
-    fullscreenButton?.classList.toggle(
-      "navigation--fullscreen-enabled",
-      isFullscreen,
-    );
-  });
+  fullscreenButton?.addEventListener("click", handleFullscreenClick);
+
+  addFullscreenEventListener(fullscreenButton);
 
   // Server online check. Fires after every AJAX request.
   htmx.on("htmx:afterRequest", function (e: any) {
