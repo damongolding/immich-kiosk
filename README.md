@@ -14,8 +14,10 @@
 <div align="center" style="display: flex; gap: 2rem;">
 
   <a href="https://github.com/damongolding/immich-kiosk/releases/latest" target="_blank" style="underline: none !important">
-   <img src="https://badgen.net/github/release/damongolding/immich-kiosk/stable">
+   <img alt="Kiosk latest release number" src="https://badgen.net/github/release/damongolding/immich-kiosk/stable">
   </a>
+
+  <img alt="Docker pulls" src="https://badgen.net/docker/pulls/damongolding/immich-kiosk">
   
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test">
 
