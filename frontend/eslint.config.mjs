@@ -3,6 +3,7 @@ import globals from "globals";
 
 export default [
   {
+    ignores: ["**/*.ts"],
     plugins: {
       compat,
     },
@@ -12,7 +13,6 @@ export default [
         ...globals.browser,
       },
     },
-
     rules: {
       "compat/compat": "error",
     },

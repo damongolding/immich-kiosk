@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/labstack/echo/v4"
+
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
-	"github.com/labstack/echo/v4"
 )
 
 // Clock clock endpoint
@@ -33,7 +34,7 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 
 		err := requestConfig.ConfigWithOverrides(c)
 		if err != nil {
-			log.Error("err overriding config", "err", err)
+			log.Error("overriding config", "err", err)
 		}
 
 		log.Debug(

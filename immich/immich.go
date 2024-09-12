@@ -107,6 +107,11 @@ type ImmichAsset struct {
 	DuplicateID      any       `json:"-"`        // `json:"duplicateId"`
 }
 
+type ImmichBuckets []struct {
+	Count      int       `json:"count"`
+	TimeBucket time.Time `json:"timeBucket"`
+}
+
 type ImmichAlbum struct {
 	Assets []ImmichAsset `json:"assets"`
 }
@@ -132,8 +137,7 @@ func immichApiCallDecorator[T []ImmichAsset | ImmichAlbum](immichApiCall ImmichA
 			return immichApiCall(apiUrl)
 		}
 
-		apiData, found := apiCache.Get(apiUrl)
-		if found {
+		if apiData, found := apiCache.Get(apiUrl); found {
 			log.Debug(requestId+" Cache hit", "url", apiUrl)
 			return apiData.([]byte), nil
 		}
@@ -254,8 +258,8 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 	log.Debug(requestId+" Not a image. Trying again", "retry", i.Retries)
 
 	if i.Retries >= maxRetries {
-		log.Error("No images found")
-		return fmt.Errorf("No images found")
+		log.Error("no images found")
+		return fmt.Errorf("no images found")
 	}
 
 	return i.GetRandomImage(requestId)

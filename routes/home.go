@@ -5,10 +5,11 @@ import (
 	"net/http"
 
 	"github.com/charmbracelet/log"
+	"github.com/labstack/echo/v4"
+
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
-	"github.com/labstack/echo/v4"
 )
 
 // Home home endpoint
@@ -26,7 +27,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 
 		err := requestConfig.ConfigWithOverrides(c)
 		if err != nil {
-			log.Error("err overriding config", "err", err)
+			log.Error("overriding config", "err", err)
 		}
 
 		log.Debug(
@@ -38,6 +39,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 
 		pageData := views.PageData{
 			KioskVersion: KioskVersion,
+			DeviceID:     utils.GenerateUUID(),
 			Queries:      c.Request().URL.Query(),
 			Config:       requestConfig,
 		}

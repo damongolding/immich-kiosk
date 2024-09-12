@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/utils"
 	"net/url"
 	"strings"
 )
@@ -56,7 +56,7 @@ func spinner() templ.Component {
 	})
 }
 
-func kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) templ.Component {
+func kioskCrossFade(showProgress bool, refresh int, kioskVersion string, deviceID string, queries url.Values) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -94,9 +94,9 @@ func kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion))
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 46, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 46, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -118,7 +118,7 @@ func kioskCrossFade(showProgress bool, refresh int, kioskVersion string, queries
 	})
 }
 
-func kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.Values) templ.Component {
+func kioskFade(showProgress bool, refresh int, kioskVersion string, deviceID string, queries url.Values) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -156,9 +156,9 @@ func kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion))
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 64, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 64, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -180,7 +180,7 @@ func kioskFade(showProgress bool, refresh int, kioskVersion string, queries url.
 	})
 }
 
-func kioskNone(showProgress bool, refresh int, kioskVersion string, queries url.Values) templ.Component {
+func kioskNone(showProgress bool, refresh int, kioskVersion string, deviceID string, queries url.Values) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -218,9 +218,9 @@ func kioskNone(showProgress bool, refresh int, kioskVersion string, queries url.
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion))
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 82, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 82, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -398,7 +398,7 @@ func paramForm(queries url.Values) templ.Component {
 	})
 }
 
-func clock(queries url.Values, kioskVersion string) templ.Component {
+func clock(queries url.Values, kioskVersion string, deviceID string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -431,9 +431,9 @@ func clock(queries url.Values, kioskVersion string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var15 string
-		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s"}`, kioskVersion))
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 150, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 150, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -555,17 +555,17 @@ func Home(data PageData) templ.Component {
 		}
 		switch strings.ToLower(data.Config.Transition) {
 		case "cross-fade":
-			templ_7745c5c3_Err = kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, utils.GenerateUUID(), data.Queries).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case "fade":
-			templ_7745c5c3_Err = kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, utils.GenerateUUID(), data.Queries).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		default:
-			templ_7745c5c3_Err = kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, data.Queries).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, utils.GenerateUUID(), data.Queries).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -577,7 +577,7 @@ func Home(data PageData) templ.Component {
 			}
 		}
 		if !data.Config.DisableUi && data.Config.ShowTime {
-			templ_7745c5c3_Err = clock(data.Queries, data.KioskVersion).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = clock(data.Queries, data.KioskVersion, data.DeviceID).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -599,7 +599,8 @@ func Home(data PageData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = kioskData(map[string]any{
-			"debug":              log.GetLevel() == log.DebugLevel,
+			"debug":              data.Config.Kiosk.Debug,
+			"debugVerbose":       data.Config.Kiosk.DebugVerbose,
 			"version":            data.KioskVersion,
 			"params":             quriesToJson(data.Queries),
 			"refresh":            data.Config.Refresh,
@@ -615,7 +616,7 @@ func Home(data PageData) templ.Component {
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", data.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 223, Col: 92}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 224, Col: 92}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {

@@ -4,8 +4,6 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
-	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -26,17 +24,6 @@ var public embed.FS
 
 func init() {
 	routes.KioskVersion = version
-
-	debugModeEnv := os.Getenv("KIOSK_DEBUG")
-	debugMode, _ := strconv.ParseBool(debugModeEnv)
-
-	if debugMode {
-		log.SetLevel(log.DebugLevel)
-		log.Debug("DEBUG mode on")
-		zone, _ := time.Now().Zone()
-		log.Debug("🕐", "current_time", time.Now().Format(time.Kitchen), "current_zone", zone)
-	}
-
 }
 
 func main() {
@@ -46,6 +33,20 @@ func main() {
 	err := baseConfig.Load()
 	if err != nil {
 		log.Error("Failed to load config", "err", err)
+	}
+
+	if baseConfig.Kiosk.Debug {
+		log.SetTimeFormat("15:04:05")
+
+		log.SetLevel(log.DebugLevel)
+		if baseConfig.Kiosk.DebugVerbose {
+			log.Debug("DEBUG VERBOSE mode on")
+		} else {
+			log.Debug("DEBUG mode on")
+		}
+
+		zone, _ := time.Now().Zone()
+		log.Debug("🕐", "current_time", time.Now().Format(time.Kitchen), "current_zone", zone)
 	}
 
 	fmt.Println(kioskBanner)

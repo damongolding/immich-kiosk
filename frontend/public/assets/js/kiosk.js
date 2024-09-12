@@ -3570,76 +3570,9 @@ var kiosk = (() => {
   }();
   var htmx_esm_default = htmx2;
 
-  // src/js/wakelock.ts
-  var wakeLock = () => __async(void 0, null, function* () {
-    if ("wakeLock" in navigator) {
-      let wakeLock2 = null;
-      const requestWakeLock = () => __async(void 0, null, function* () {
-        try {
-          wakeLock2 = yield navigator.wakeLock.request("screen");
-        } catch (err) {
-          console.error(`${err.name}, ${err.message}`);
-        }
-      });
-      document.addEventListener("visibilitychange", () => {
-        if (wakeLock2 !== null && document.visibilityState === "visible") {
-          requestWakeLock();
-        }
-      });
-      yield requestWakeLock();
-    }
-  });
-
-  // src/js/kiosk.ts
-  var _a;
-  var kioskData = JSON.parse(
-    ((_a = document.getElementById("kiosk-data")) == null ? void 0 : _a.textContent) || "{}"
-  );
-  var pollInterval = htmx_esm_default.parseInterval(`${kioskData.refresh}s`);
-  var lastUpdateTime = 0;
-  var animationFrameId;
-  var progressBarElement;
-  var isPaused = false;
+  // src/js/fullscreen.ts
   var isFullscreen = false;
-  var documentBody = document.body;
-  var fullscreenButton = htmx_esm_default.find(
-    ".navigation--fullscreen"
-  );
-  var kiosk = htmx_esm_default.find("#kiosk");
-  var menu = htmx_esm_default.find(".navigation");
-  var menuPausePlayButton = htmx_esm_default.find(
-    ".navigation--control"
-  );
   var fullscreenAPI = getFullscreenAPI();
-  function init() {
-    if (kioskData.debug) {
-      htmx_esm_default.logAll();
-    }
-    if (kioskData.disableScreensaver) {
-      wakeLock();
-    }
-    if (!fullscreenAPI.requestFullscreen) {
-      fullscreenButton && htmx_esm_default.remove(fullscreenButton);
-    }
-    addEventListeners();
-  }
-  function updateKiosk(timestamp) {
-    if (!lastUpdateTime) lastUpdateTime = timestamp;
-    const elapsed = timestamp - lastUpdateTime;
-    const progress = Math.min(elapsed / pollInterval, 1);
-    if (progressBarElement) {
-      progressBarElement.style.width = `${progress * 100}%`;
-    }
-    if (elapsed >= pollInterval) {
-      if (kiosk) {
-        console.log("Trigger new image");
-        htmx_esm_default.trigger(kiosk, "kiosk-new-image");
-        stopPolling();
-        return;
-      }
-    }
-    animationFrameId = requestAnimationFrame(updateKiosk);
-  }
   function getFullscreenAPI() {
     const apis = [
       [
@@ -3684,44 +3617,153 @@ var kiosk = (() => {
       fullscreenEnabled: null
     };
   }
-  function toggleFullscreen() {
-    var _a2, _b;
+  function toggleFullscreen(documentBody2, fullscreenButton2) {
+    var _a2;
     if (isFullscreen) {
-      (_a2 = document[fullscreenAPI.exitFullscreen]) == null ? void 0 : _a2.call(document);
+      if (fullscreenAPI.exitFullscreen) {
+        document[fullscreenAPI.exitFullscreen]();
+      }
     } else {
-      (_b = documentBody[fullscreenAPI.requestFullscreen]) == null ? void 0 : _b.call(documentBody);
+      (_a2 = documentBody2[fullscreenAPI.requestFullscreen]) == null ? void 0 : _a2.call(documentBody2);
     }
     isFullscreen = !isFullscreen;
-    fullscreenButton == null ? void 0 : fullscreenButton.classList.toggle("navigation--fullscreen-enabled");
+    fullscreenButton2 == null ? void 0 : fullscreenButton2.classList.toggle("navigation--fullscreen-enabled");
+  }
+  function addFullscreenEventListener(fullscreenButton2) {
+    document.addEventListener("fullscreenchange", () => {
+      isFullscreen = !!document[fullscreenAPI.fullscreenElement];
+      fullscreenButton2 == null ? void 0 : fullscreenButton2.classList.toggle(
+        "navigation--fullscreen-enabled",
+        isFullscreen
+      );
+    });
+  }
+
+  // src/js/polling.ts
+  var animationFrameId = null;
+  var progressBarElement;
+  var lastPollTime = null;
+  var pausedTime = null;
+  var isPaused = false;
+  var pollInterval;
+  var kioskElement;
+  var menuElement;
+  var menuPausePlayButton;
+  function initPolling(interval, kiosk2, menu2, pausePlayButton) {
+    pollInterval = interval;
+    kioskElement = kiosk2;
+    menuElement = menu2;
+    menuPausePlayButton = pausePlayButton;
+  }
+  function updateKiosk(timestamp) {
+    if (pausedTime !== null) {
+      lastPollTime += timestamp - pausedTime;
+      pausedTime = null;
+    }
+    const elapsed = timestamp - lastPollTime;
+    const progress = Math.min(elapsed / pollInterval, 1);
+    if (progressBarElement) {
+      progressBarElement.style.width = `${progress * 100}%`;
+    }
+    if (elapsed >= pollInterval) {
+      htmx_esm_default.trigger(kioskElement, "kiosk-new-image");
+      lastPollTime = timestamp;
+      stopPolling();
+      return;
+    }
+    animationFrameId = requestAnimationFrame(updateKiosk);
   }
   function startPolling() {
     progressBarElement = htmx_esm_default.find(".progress--bar");
     progressBarElement == null ? void 0 : progressBarElement.classList.remove("progress--bar-paused");
     menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--control--paused");
-    lastUpdateTime = 0;
+    lastPollTime = performance.now();
+    pausedTime = null;
     animationFrameId = requestAnimationFrame(updateKiosk);
   }
   function stopPolling() {
+    if (isPaused && animationFrameId === null) return;
     cancelAnimationFrame(animationFrameId);
     progressBarElement == null ? void 0 : progressBarElement.classList.add("progress--bar-paused");
     menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--control--paused");
   }
+  function pausePolling() {
+    if (isPaused && animationFrameId === null) return;
+    cancelAnimationFrame(animationFrameId);
+    pausedTime = performance.now();
+    progressBarElement == null ? void 0 : progressBarElement.classList.add("progress--bar-paused");
+    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--control--paused");
+    menuElement == null ? void 0 : menuElement.classList.remove("navigation-hidden");
+    isPaused = true;
+  }
+  function resumePolling() {
+    if (!isPaused) return;
+    animationFrameId = requestAnimationFrame(updateKiosk);
+    progressBarElement == null ? void 0 : progressBarElement.classList.remove("progress--bar-paused");
+    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--control--paused");
+    menuElement == null ? void 0 : menuElement.classList.add("navigation-hidden");
+    isPaused = false;
+  }
   function togglePolling() {
-    isPaused ? startPolling() : stopPolling();
-    menu == null ? void 0 : menu.classList.toggle("navigation-hidden");
-    isPaused = !isPaused;
+    isPaused ? resumePolling() : pausePolling();
+  }
+
+  // src/js/wakelock.ts
+  var wakeLock = () => __async(void 0, null, function* () {
+    if ("wakeLock" in navigator) {
+      let wakeLock2 = null;
+      const requestWakeLock = () => __async(void 0, null, function* () {
+        try {
+          wakeLock2 = yield navigator.wakeLock.request("screen");
+        } catch (err) {
+          console.error(`${err.name}, ${err.message}`);
+        }
+      });
+      document.addEventListener("visibilitychange", () => {
+        if (wakeLock2 !== null && document.visibilityState === "visible") {
+          requestWakeLock();
+        }
+      });
+      yield requestWakeLock();
+    }
+  });
+
+  // src/js/kiosk.ts
+  var _a;
+  var kioskData = JSON.parse(
+    ((_a = document.getElementById("kiosk-data")) == null ? void 0 : _a.textContent) || "{}"
+  );
+  var pollInterval2 = htmx_esm_default.parseInterval(`${kioskData.refresh}s`);
+  var documentBody = document.body;
+  var fullscreenButton = htmx_esm_default.find(
+    ".navigation--fullscreen"
+  );
+  var kiosk = htmx_esm_default.find("#kiosk");
+  var menu = htmx_esm_default.find(".navigation");
+  var menuPausePlayButton2 = htmx_esm_default.find(
+    ".navigation--control"
+  );
+  function init() {
+    if (kioskData.debugVerbose) {
+      htmx_esm_default.logAll();
+    }
+    if (kioskData.disableScreensaver) {
+      wakeLock();
+    }
+    if (!fullscreenAPI.requestFullscreen) {
+      fullscreenButton && htmx_esm_default.remove(fullscreenButton);
+    }
+    initPolling(pollInterval2, kiosk, menu, menuPausePlayButton2);
+    addEventListeners();
+  }
+  function handleFullscreenClick() {
+    toggleFullscreen(documentBody, fullscreenButton);
   }
   function addEventListeners() {
     kiosk == null ? void 0 : kiosk.addEventListener("click", togglePolling);
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.addEventListener("click", togglePolling);
-    fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", toggleFullscreen);
-    document.addEventListener("fullscreenchange", () => {
-      isFullscreen = !!document[fullscreenAPI.fullscreenElement];
-      fullscreenButton == null ? void 0 : fullscreenButton.classList.toggle(
-        "navigation--fullscreen-enabled",
-        isFullscreen
-      );
-    });
+    menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
+    fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", handleFullscreenClick);
+    addFullscreenEventListener(fullscreenButton);
     htmx_esm_default.on("htmx:afterRequest", function(e) {
       const offline = htmx_esm_default.find("#offline");
       if (e.detail.successful) {

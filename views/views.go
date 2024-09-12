@@ -8,9 +8,10 @@ import (
 )
 
 type PageData struct {
-
 	// KioskVersion the current build version of Kiosk
 	KioskVersion string
+	// DeviceID unique id for device
+	DeviceID string
 	// ImmichImage immich asset data
 	ImmichImage immich.ImmichAsset
 	// ImageData image as base64 data
