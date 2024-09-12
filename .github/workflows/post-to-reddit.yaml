@@ -5,23 +5,87 @@ on:
     tags:
       - "v*"
 
+# jobs:
+#   post-release-on-reddit:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Extract version from tag
+#         id: extract_version
+#         run: |
+#           VERSION=${GITHUB_REF#refs/tags/}
+#           echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+#       - uses: bluwy/release-for-reddit-action@v2
+#         with:
+#           username: ${{ secrets.REDDIT_USERNAME }}
+#           password: ${{ secrets.REDDIT_PASSWORD }}
+#           app-id: ${{ secrets.REDDIT_APP_ID }}
+#           app-secret: ${{ secrets.REDDIT_APP_SECRET }}
+#           subreddit: immich
+#           title: Immich Kiosk ${{ env.VERSION }} Released
+#           # comment: ${{ github.event.release.body }}
+#           url: https://github.com/damongolding/immich-kiosk/releases/tag/${{ env.VERSION }}
+
 jobs:
-  post-release-on-reddit:
+  post-to-reddit:
     runs-on: ubuntu-latest
     steps:
-      - name: Extract version from tag
-        id: extract_version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - uses: bluwy/release-for-reddit-action@v2
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          username: ${{ secrets.REDDIT_USERNAME }}
-          password: ${{ secrets.REDDIT_PASSWORD }}
-          app-id: ${{ secrets.REDDIT_APP_ID }}
-          app-secret: ${{ secrets.REDDIT_APP_SECRET }}
-          subreddit: immich
-          title: Immich Kiosk ${{ env.VERSION }} Released
-          # comment: ${{ github.event.release.body }}
-          url: https://github.com/damongolding/immich-kiosk/releases/tag/${{ env.VERSION }}
+          python-version: "3.x"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install praw
+      - name: Post to Reddit
+        env:
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_APP_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_APP_SECRET }}
+          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+          SUBREDDITS: '["immich", "selfhosted"]'
+        run: |
+          python - <<EOF
+          import praw
+          import os
+
+          reddit = praw.Reddit(
+              client_id=os.environ['REDDIT_CLIENT_ID'],
+              client_secret=os.environ['REDDIT_CLIENT_SECRET'],
+              username=os.environ['REDDIT_USERNAME'],
+              password=os.environ['REDDIT_PASSWORD'],
+              user_agent="GitHub-Release-Bot/1.0"
+          )
+
+          subreddit = reddit.subreddit(os.environ['SUBREDDIT'])
+          release = ${{ toJson(github.event.release) }}
+
+          title = f"Immich Kiosk {release['tag_name']} Released"
+
+          tag_name = release['tag_name']
+          clean_tag_name = tag_name[1:] if tag_name.startswith('v') else tag_name
+
+          body = f"""
+          ![Immich Kiosk {tag_name}](https://immich-kiosk.vercel.app/api/banner?v={clean_tag_name})
+
+          [What is Kiosk?](https://github.com/damongolding/immich-kiosk?tab=readme-ov-file#what-is-immich-kiosk)
+
+          Release Notes:
+          {release['body']}
+
+          View on GitHub: {release['html_url']}
+          """
+
+          subreddits = json.loads(os.environ['SUBREDDITS'])
+
+          for subreddit_name in subreddits:
+              try:
+                  subreddit = reddit.subreddit(subreddit_name)
+                  subreddit.submit(title, selftext=body)
+                  print(f"Posted to r/{subreddit_name}")
+                  time.sleep(10)  # Wait 10 seconds between posts to avoid rate limiting
+              except Exception as e:
+                  print(f"Failed to post to r/{subreddit_name}: {str(e)}")
+          EOF
