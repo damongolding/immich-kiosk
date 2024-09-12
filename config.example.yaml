@@ -36,5 +36,5 @@ show_image_location: false
 # options that can NOT be changed via url params
 kiosk:
   password: ""
-  cache: true
-  pre_fetch: true
+  cache: true # cache select api calls
+  pre_fetch: true # fetch assets in the background
