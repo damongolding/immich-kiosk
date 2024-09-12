@@ -129,8 +129,9 @@ services:
       KIOSK_SHOW_IMAGE_EXIF: FALSE
       KIOSK_SHOW_IMAGE_LOCATION: FALSE
       # Kiosk settings
-      KIOSK_PASSWORD: "****"
+      KIOSK_PASSWORD: ""
       KIOSK_CACHE: TRUE
+      KIOSK_PRE_FETCH: TRUE
     ports:
       - 3000:3000
     restart: on-failure
@@ -172,19 +173,22 @@ The below options are NOT configurable through URL params. In the `config.yaml` 
 ```yaml
 immich_url: "****"
 immich_api_key: "****"
+// all your other config options
 
 // 👇 Additional options
 kiosk:
-  password: "****"
+  password: ""
   cache: true
+  pre_fetch: true
 
 ```
 
 
-| **yaml**          | **ENV**                 | **Value**                  | **Description**                                                                            |
-|-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
-| password          | KIOSK_PASSWORD          | string                     | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
-| cache             | KIOSK_CACHE             | bool                       | Cache selective Immich api calls to reduce unnecessary calls. Default is true.             |
+| **yaml**          | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
+|-------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
+| password          | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
+| cache             | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
+| pre_fetch         | KIOSK_PRE_FETCH         | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |
 
 
 ------

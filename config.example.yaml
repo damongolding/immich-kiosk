@@ -36,3 +36,4 @@ show_image_location: false
 kiosk:
   password: ""
   cache: true
+  pre_fetch: true
