@@ -27,7 +27,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 
 		err := requestConfig.ConfigWithOverrides(c)
 		if err != nil {
-			log.Error("err overriding config", "err", err)
+			log.Error("overriding config", "err", err)
 		}
 
 		log.Debug(

@@ -258,8 +258,8 @@ func (i *ImmichAsset) GetRandomImage(requestId string) error {
 	log.Debug(requestId+" Not a image. Trying again", "retry", i.Retries)
 
 	if i.Retries >= maxRetries {
-		log.Error("No images found")
-		return fmt.Errorf("No images found")
+		log.Error("no images found")
+		return fmt.Errorf("no images found")
 	}
 
 	return i.GetRandomImage(requestId)
