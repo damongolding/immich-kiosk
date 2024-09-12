@@ -107,6 +107,11 @@ type ImmichAsset struct {
 	DuplicateID      any       `json:"-"`        // `json:"duplicateId"`
 }
 
+type ImmichBuckets []struct {
+	Count      int       `json:"count"`
+	TimeBucket time.Time `json:"timeBucket"`
+}
+
 type ImmichAlbum struct {
 	Assets []ImmichAsset `json:"assets"`
 }
