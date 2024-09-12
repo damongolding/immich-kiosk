@@ -20,7 +20,7 @@
   <img alt="Docker pulls" src="https://badgen.net/docker/pulls/damongolding/immich-kiosk">
 
   <br />
-  
+
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test&color=029356">
 
   <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/docker-release.yml?color=029356">
@@ -35,7 +35,7 @@
   </a>
 
 
-  
+
 </div>
 <br />
 <br />
@@ -136,7 +136,10 @@ services:
       KIOSK_DISABLE_UI: FALSE
       KIOSK_HIDE_CURSOR: FALSE
       KIOSK_BACKGROUND_BLUR: TRUE
+      # Transistion options
       KIOSK_TRANSITION: NONE
+      KIOSK_FADE_TRANSITION_DURATION: 1
+      KIOSK_CROSS_FADE_TRANSITION_DURATION: 1
       # Image display settings
       KIOSK_SHOW_PROGRESS: FALSE
       KIOSK_IMAGE_FIT: CONTAIN
@@ -178,6 +181,8 @@ See the file config.example.yaml for an example config file
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
+| fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
+| cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
 | [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | contain     | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |

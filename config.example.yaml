@@ -19,7 +19,10 @@ person: # ID(s) of person or people to display
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
 hide_cursor: false # Hide cursor/mouse via CSS.
 background_blur: true # display a blurred version of image as background
+# Transition options
 transition: none # cross-fade, fade or none
+fade_transition_duration: 1 # in seconds
+cross_fade_transition_duration: 1 # in seconds
 
 show_progress: false # display a progress bar
 image_fit: contain # how the image fits the screen. Options are none, contain and cover
