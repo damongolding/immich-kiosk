@@ -25,3 +25,18 @@ type PageData struct {
 	// instance config
 	config.Config
 }
+
+func quriesToJson(values url.Values) map[string]any {
+
+	result := make(map[string]any)
+
+	for key, value := range values {
+		if len(value) == 1 {
+			result[key] = value[0]
+		} else {
+			result[key] = value
+		}
+	}
+
+	return result
+}

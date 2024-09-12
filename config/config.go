@@ -75,6 +75,10 @@ type Config struct {
 	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
 	Transition string `mapstructure:"transition" query:"transition" form:"transition" default:""`
+	// FadeTransitionDuration sets the length of the fade transition
+	FadeTransitionDuration float32 `mapstructure:"fade_transition_duration" query:"fade_transition_duration" form:"fade_transition_duration" default:"1"`
+	// CrossFadeTransitionDuration sets the length of the cross-fade transition
+	CrossFadeTransitionDuration float32 `mapstructure:"cross_fade_transition_duration" query:"cross_fade_transition_duration" form:"cross_fade_transition_duration" default:"1"`
 	// ShowProgress display a progress bar
 	ShowProgress bool `mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
 
