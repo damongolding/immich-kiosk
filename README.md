@@ -12,11 +12,30 @@
 <br />
 <br />
 <div align="center" style="display: flex; gap: 2rem;">
-  <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test">
 
-  <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/docker-release.yml">
+  <a href="https://github.com/damongolding/immich-kiosk/releases/latest" target="_blank" style="underline: none !important">
+   <img alt="Kiosk latest release number" src="https://badgen.net/github/release/damongolding/immich-kiosk/stable">
+  </a>
 
-  <img alt="GitHub License" src="https://img.shields.io/github/license/damongolding/immich-kiosk">
+  <img alt="Docker pulls" src="https://badgen.net/docker/pulls/damongolding/immich-kiosk">
+
+  <br />
+  
+  <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/go-test.yml?label=test&color=029356">
+
+  <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/damongolding/immich-kiosk/docker-release.yml?color=029356">
+
+  <img alt="GitHub License" src="https://img.shields.io/github/license/damongolding/immich-kiosk?color=E6308A">
+
+  <br />
+  <br />
+
+   <a href="https://www.buymeacoffee.com/damongolding" target="_blank" style="underline: none !important">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me A Coffee and support Kiosk" style="height: 46.88px !important;width: 167px !important;">
+  </a>
+
+
+  
 </div>
 <br />
 <br />
@@ -129,8 +148,9 @@ services:
       KIOSK_SHOW_IMAGE_EXIF: FALSE
       KIOSK_SHOW_IMAGE_LOCATION: FALSE
       # Kiosk settings
-      KIOSK_PASSWORD: "****"
+      KIOSK_PASSWORD: ""
       KIOSK_CACHE: TRUE
+      KIOSK_PRE_FETCH: TRUE
     ports:
       - 3000:3000
     restart: on-failure
@@ -150,7 +170,8 @@ See the file config.example.yaml for an example config file
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
-| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask broswer to request a lock that prevents device screens from dimming or locking.        |
+| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking.        |
+| show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [FAQ: How do I set multiple albums?](#faq) to see how to implement this.|
 | person                            | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [FAQ: How do I set multiple people?](#faq) to see how to implement this.|
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
@@ -172,19 +193,22 @@ The below options are NOT configurable through URL params. In the `config.yaml` 
 ```yaml
 immich_url: "****"
 immich_api_key: "****"
+// all your other config options
 
 // 👇 Additional options
 kiosk:
-  password: "****"
+  password: ""
   cache: true
+  pre_fetch: true
 
 ```
 
 
-| **yaml**          | **ENV**                 | **Value**                  | **Description**                                                                            |
-|-------------------|-------------------------|----------------------------|--------------------------------------------------------------------------------------------|
-| password          | KIOSK_PASSWORD          | string                     | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
-| cache             | KIOSK_CACHE             | bool                       | Cache selective Immich api calls to reduce unnecessary calls. Default is true.             |
+| **yaml**          | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
+|-------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
+| password          | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
+| cache             | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
+| pre_fetch         | KIOSK_PRE_FETCH         | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |
 
 
 ------

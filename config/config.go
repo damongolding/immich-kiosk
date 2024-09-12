@@ -32,6 +32,7 @@ type KioskSettings struct {
 	// Password the password used to add authentication to the frontend
 	Password string `mapstructure:"password" default:""`
 
+	// debug modes
 	Debug        bool `mapstructure:"debug" default:"false"`
 	DebugVerbose bool `mapstructure:"debug_verbose" default:"false"`
 }
@@ -140,6 +141,7 @@ func (c *Config) Load() error {
 
 	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
 	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
+	v.BindEnv("kiosk.pre_fetch", "KIOSK_PRE_FETCH")
 
 	v.BindEnv("kiosk.debug", "KIOSK_DEBUG")
 	v.BindEnv("kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE")

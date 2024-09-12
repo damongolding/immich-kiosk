@@ -38,7 +38,7 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	defer templ.ReleaseBuffer(buf)
 
 	if err := t.Render(ctx.Request().Context(), buf); err != nil {
-		log.Error("err rendering view", "err", err)
+		log.Error("rendering view", "err", err)
 		return err
 	}
 

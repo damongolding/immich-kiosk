@@ -121,7 +121,7 @@ func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error
 
 	referer, err := url.Parse(refererURL)
 	if err != nil {
-		log.Error("Error parsing URL", "url", refererURL, "err", err)
+		log.Error("parsing URL", "url", refererURL, "err", err)
 		return queries, fmt.Errorf("Could not read URL. Is it formatted correctly?")
 	}
 

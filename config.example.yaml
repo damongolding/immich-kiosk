@@ -8,8 +8,9 @@ show_date: false # true or false
 date_format: YYYY/MM/DD
 
 refresh: 60 # in seconds
-disable_screensaver: false
+disable_screensaver: false # Ask browser to request a lock that prevents device screens from dimming or locking.
 
+show_archived: false # Allow assets marked as archived to be displayed.
 album: # ID(s) of album or albums to display
   - ""
 person: # ID(s) of person or people to display
@@ -36,3 +37,4 @@ show_image_location: false
 kiosk:
   password: ""
   cache: true
+  pre_fetch: true

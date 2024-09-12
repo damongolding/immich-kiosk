@@ -42,13 +42,13 @@ func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) 
 	}
 
 	if err != nil {
-		return views.PageData{}, fmt.Errorf("error getting image: %w", err)
+		return views.PageData{}, fmt.Errorf("getting image: %w", err)
 	}
 
 	imageGet := time.Now()
 	imgBytes, err := immichImage.GetImagePreview()
 	if err != nil {
-		return views.PageData{}, fmt.Errorf("error getting image preview: %w", err)
+		return views.PageData{}, fmt.Errorf("getting image preview: %w", err)
 	}
 	if isPrefetch {
 		log.Debug(requestId, "PREFETCH", kioskDeviceId, "Got image in", time.Since(imageGet).Seconds())
@@ -59,7 +59,7 @@ func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) 
 	imageConvertTime := time.Now()
 	img, err := utils.ImageToBase64(imgBytes)
 	if err != nil {
-		return views.PageData{}, fmt.Errorf("error converting image to base64: %w", err)
+		return views.PageData{}, fmt.Errorf("converting image to base64: %w", err)
 	}
 	if isPrefetch {
 		log.Debug(requestId, "PREFETCH", kioskDeviceId, "Converted image in", time.Since(imageConvertTime).Seconds())
@@ -72,11 +72,11 @@ func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) 
 		imageBlurTime := time.Now()
 		imgBlurBytes, err := utils.BlurImage(imgBytes)
 		if err != nil {
-			return views.PageData{}, fmt.Errorf("error blurring image: %w", err)
+			return views.PageData{}, fmt.Errorf("blurring image: %w", err)
 		}
 		imgBlur, err = utils.ImageToBase64(imgBlurBytes)
 		if err != nil {
-			return views.PageData{}, fmt.Errorf("error converting blurred image to base64: %w", err)
+			return views.PageData{}, fmt.Errorf("converting blurred image to base64: %w", err)
 		}
 		if isPrefetch {
 			log.Debug(requestId, "PREFETCH", kioskDeviceId, "Blurred image in", time.Since(imageBlurTime).Seconds())
@@ -100,7 +100,7 @@ func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) 
 func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceId string) {
 	data, err := processImage(requestConfig, c, true)
 	if err != nil {
-		log.Error("Error in prefetch", "err", err)
+		log.Error("prefetch", "err", err)
 		return
 	}
 	pageDataCache.Set(c.Request().URL.String()+kioskDeviceId, data, cache.DefaultExpiration)
@@ -128,7 +128,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		err := requestConfig.ConfigWithOverrides(c)
 		if err != nil {
-			log.Error("err overriding config", "err", err)
+			log.Error("overriding config", "err", err)
 		}
 
 		log.Debug(
@@ -171,7 +171,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		pageData, err := processImage(requestConfig, c, false)
 		if err != nil {
-			log.Error("Error processing image", "err", err)
+			log.Error("processing image", "err", err)
 			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error processing image", Message: err.Error()}))
 		}
 
