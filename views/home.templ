@@ -7,21 +7,6 @@ import (
 	"strings"
 )
 
-func quriesToJson(values url.Values) map[string]any {
-
-	result := make(map[string]any)
-
-	for key, value := range values {
-		if len(value) == 1 {
-			result[key] = value[0]
-		} else {
-			result[key] = value
-		}
-	}
-
-	return result
-}
-
 templ spinner() {
 	<img
 		class="kiosk--spinner"
@@ -30,7 +15,18 @@ templ spinner() {
 	/>
 }
 
-templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, deviceID string, queries url.Values) {
+func crossFadeDurationCSS(crossFadeDuration float32) string {
+	return fmt.Sprintf(`
+	   <style>
+            #kiosk.htmx-settling .htmx-added {
+                animation-duration: %.1fs;
+            }
+        </style>
+    `, crossFadeDuration)
+}
+
+templ kioskCrossFade(showProgress bool, kioskVersion string, deviceID string, queries url.Values, crossFadeDuration float32) {
+	@templ.Raw(crossFadeDurationCSS(crossFadeDuration))
 	<div
 		id="kiosk"
 		hx-post="/image"
@@ -40,7 +36,7 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, device
 			hx-include=".kiosk-history--entry"
 		}
 		hx-trigger="load, kiosk-new-image"
-		hx-swap="beforeend settle:3s"
+		hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", crossFadeDuration) }
 		hx-on::after-request="kiosk.startPolling()"
 		hx-on::after-settle="kiosk.cleanupFrames()"
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
@@ -49,7 +45,18 @@ templ kioskCrossFade(showProgress bool, refresh int, kioskVersion string, device
 	</div>
 }
 
-templ kioskFade(showProgress bool, refresh int, kioskVersion string, deviceID string, queries url.Values) {
+func fadeDurationCSS(fadeDuration float32) string {
+	return fmt.Sprintf(`
+	   <style>
+            #kiosk.htmx-swapping {
+                transition: opacity %.1fs ease-out;
+            }
+        </style>
+        `, fadeDuration)
+}
+
+templ kioskFade(showProgress bool, kioskVersion string, deviceID string, queries url.Values, fadeDuration float32) {
+	@templ.Raw(fadeDurationCSS(fadeDuration))
 	<div
 		id="kiosk"
 		hx-post="/image"
@@ -59,7 +66,7 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string, deviceID st
 			hx-include=".kiosk-history--entry"
 		}
 		hx-trigger="load, kiosk-new-image"
-		hx-swap="innerHTML swap:1s"
+		hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration) }
 		hx-on::after-request="kiosk.startPolling()"
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
 	>
@@ -67,7 +74,7 @@ templ kioskFade(showProgress bool, refresh int, kioskVersion string, deviceID st
 	</div>
 }
 
-templ kioskNone(showProgress bool, refresh int, kioskVersion string, deviceID string, queries url.Values) {
+templ kioskNone(showProgress bool, kioskVersion string, deviceID string, queries url.Values) {
 	<div
 		id="kiosk"
 		hx-post="/image"
@@ -197,11 +204,13 @@ templ Home(data PageData) {
 		<body>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, utils.GenerateUUID(), data.Queries)
+					@kioskCrossFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.CrossFadeTransitionDuration)
+					)
 				case "fade":
-					@kioskFade(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, utils.GenerateUUID(), data.Queries)
+					@kioskFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.FadeTransitionDuration)
+					)
 				default:
-					@kioskNone(data.Config.ShowProgress, data.Config.Refresh, data.KioskVersion, utils.GenerateUUID(), data.Queries)
+					@kioskNone(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries)
 			}
 			if data.Config.ShowProgress {
 				@progressBar(data.Config.Refresh)
