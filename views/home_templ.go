@@ -44,7 +44,7 @@ func spinner() templ.Component {
 func crossFadeDurationCSS(crossFadeDuration float32) string {
 	return fmt.Sprintf(`
 	   <style>
-            #kiosk.htmx-settling .htmx-added {
+            #kiosk,#kiosk.htmx-settling .htmx-added {
                 animation-duration: %.1fs;
             }
         </style>
@@ -133,7 +133,7 @@ func kioskCrossFade(showProgress bool, kioskVersion string, deviceID string, que
 func fadeDurationCSS(fadeDuration float32) string {
 	return fmt.Sprintf(`
 	   <style>
-            #kiosk.htmx-swapping {
+            #kiosk,#kiosk.htmx-swapping {
                 transition: opacity %.1fs ease-out;
             }
         </style>
@@ -158,7 +158,7 @@ func kioskFade(showProgress bool, kioskVersion string, deviceID string, queries 
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.Raw(fadeDurationCSS(fadeDuration)).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = templ.Raw(fadeDurationCSS(fadeDuration/2)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -182,9 +182,9 @@ func kioskFade(showProgress bool, kioskVersion string, deviceID string, queries 
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration))
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration/2))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 69, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 69, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {

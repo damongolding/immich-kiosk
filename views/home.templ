@@ -48,7 +48,7 @@ templ kioskCrossFade(showProgress bool, kioskVersion string, deviceID string, qu
 func fadeDurationCSS(fadeDuration float32) string {
 	return fmt.Sprintf(`
 	   <style>
-            #kiosk.htmx-swapping {
+            #kiosk,#kiosk.htmx-swapping {
                 transition: opacity %.1fs ease-out;
             }
         </style>
@@ -56,7 +56,7 @@ func fadeDurationCSS(fadeDuration float32) string {
 }
 
 templ kioskFade(showProgress bool, kioskVersion string, deviceID string, queries url.Values, fadeDuration float32) {
-	@templ.Raw(fadeDurationCSS(fadeDuration))
+	@templ.Raw(fadeDurationCSS(fadeDuration / 2))
 	<div
 		id="kiosk"
 		hx-post="/image"
@@ -66,7 +66,7 @@ templ kioskFade(showProgress bool, kioskVersion string, deviceID string, queries
 			hx-include=".kiosk-history--entry"
 		}
 		hx-trigger="load, kiosk-new-image"
-		hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration) }
+		hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration/2) }
 		hx-on::after-request="kiosk.startPolling()"
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
 	>

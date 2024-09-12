@@ -6,7 +6,7 @@
 
     overflow: hidden;
     opacity: 1;
-    transition: opacity 3s ease-out;
+    transition: opacity 1s ease-out;
 
     z-index: 0;
 }
