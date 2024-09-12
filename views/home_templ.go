@@ -44,7 +44,7 @@ func spinner() templ.Component {
 func crossFadeDurationCSS(crossFadeDuration float32) string {
 	return fmt.Sprintf(`
 	   <style>
-            #kiosk,#kiosk.htmx-settling .htmx-added {
+            #kiosk.htmx-settling .htmx-added {
                 animation-duration: %.1fs;
             }
         </style>
