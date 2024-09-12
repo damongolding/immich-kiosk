@@ -30,11 +30,9 @@
   <br />
   <br />
 
-   <a href="https://www.buymeacoffee.com/damongolding" target="_blank" style="underline: none !important">
+  <a href="https://www.buymeacoffee.com/damongolding" target="_blank" style="underline: none !important">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-yellow.png" alt="Buy Me A Coffee and support Kiosk" style="height: 46.88px !important;width: 167px !important;">
   </a>
-
-
 
 </div>
 <br />
