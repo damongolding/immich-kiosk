@@ -5,40 +5,28 @@ on:
     tags:
       - "v*"
 
-# jobs:
-#   post-release-on-reddit:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Extract version from tag
-#         id: extract_version
-#         run: |
-#           VERSION=${GITHUB_REF#refs/tags/}
-#           echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-#       - uses: bluwy/release-for-reddit-action@v2
-#         with:
-#           username: ${{ secrets.REDDIT_USERNAME }}
-#           password: ${{ secrets.REDDIT_PASSWORD }}
-#           app-id: ${{ secrets.REDDIT_APP_ID }}
-#           app-secret: ${{ secrets.REDDIT_APP_SECRET }}
-#           subreddit: immich
-#           title: Immich Kiosk ${{ env.VERSION }} Released
-#           # comment: ${{ github.event.release.body }}
-#           url: https://github.com/damongolding/immich-kiosk/releases/tag/${{ env.VERSION }}
-
 jobs:
   post-to-reddit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Get Release
+        id: get_release
+        uses: bruceadams/get-release@v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GORELEASER }}
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: "3.x"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install praw
+
       - name: Post to Reddit
         env:
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_APP_ID }}
@@ -46,6 +34,7 @@ jobs:
           REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
           REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
           SUBREDDITS: '["immich", "selfhosted"]'
+          RELEASE_JSON: ${{ toJson(steps.get_release.outputs) }}
         run: |
           python - <<EOF
           import praw
@@ -61,7 +50,7 @@ jobs:
               user_agent="GitHub-Release-Bot/1.0"
           )
 
-          release = ${{ toJson(github.event.release) }}
+          release = json.loads(os.environ['RELEASE_JSON'])
 
           title = f"Immich Kiosk {release['tag_name']} Released"
 
