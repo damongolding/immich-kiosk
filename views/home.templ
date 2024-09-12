@@ -36,7 +36,7 @@ templ kioskCrossFade(showProgress bool, kioskVersion string, deviceID string, qu
 			hx-include=".kiosk-history--entry"
 		}
 		hx-trigger="load, kiosk-new-image"
-		hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", crossFadeDuration) }
+		hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", crossFadeDuration+1) }
 		hx-on::after-request="kiosk.startPolling()"
 		hx-on::after-settle="kiosk.cleanupFrames()"
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
