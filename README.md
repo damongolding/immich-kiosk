@@ -51,6 +51,8 @@
 - [Docker Compose](#docker-compose)
 - [Configuration](#configuration)
   - [Changing settings via URL](#changing-settings-via-url)
+  - [Albums](#albums)
+  - [People](#people)
   - [Image fit](#image-fit)
   - [Date format](#date-format)
 - [Home Assistant](#home-assistant)
@@ -173,8 +175,8 @@ See the file config.example.yaml for an example config file
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
 | disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking.        |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
-| album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Multiple Albums](#multiple-albums) for more info and how to do this |
-| person                            | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [Multiple People](#multiple-people) to see how to implement this.|
+| [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
+| [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
@@ -227,16 +229,23 @@ Thos above would set refresh to 120 seconds (2 minutes), turn off the background
 
 ------
 
-## Album ID's: 
-Open Immich's web interface and click on "Albums" in the left hand navigation.
-Click on the album you want the ID of.
-The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
-The album ID is everything after `albums/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+## Albums
 
-## Multiple Albums 
-When you add multiple albums (and/or people) at the same time, Immich-Kiosk adds all the requested album(s) ID(s) and people IDs into a "bucket". Then Immich-Kiosk grabs one at random and fetches an image related to that album or person.
+### Getting an albums ID from Immich:
+1. Open Immich's web interface and click on "Albums" in the left hand navigation.
+2. Click on the album you want the ID of.
+3. The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
+4. The album ID is everything after `albums/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
 
-There are **three** ways you can set multiple albums: 
+### How multiple albums work
+When you specify multiple albums and/or people, Immich Kiosk creates a pool of all the requested person and album IDs.
+For each image refresh, Kiosk randomly selects one ID from this pool and fetches an image associated with that album or person.
+
+There are **three** ways you can set multiple albums:
+
+> [!NOTE]
+> These methods are applied in order of precedence. URL queries take highest priority, followed by environment variables, and finally the config.yaml file.
+> Each subsequent method overwrites the settings from the previous ones.
 
 1. via config.yaml file
 ```yaml
@@ -257,16 +266,23 @@ environment:
 http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID
 ```
 
-## Person ID's 
-Open Immich's web interface and click on "Explore" in the left hand navigation.
-Click on the person you want the ID of (you may have to click "view all" if you don't see them).
-The url will now look something like this `http://192.168.86.123:2283/people/a04175f4-97bb-4d97-8d49-3700263043e5`.
-The persons ID is everything after `people/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+### People
 
-## Multiple People
-When you add multiple people (and/or albums) at the same time, Immich-Kiosk adds all the requested album(s) ID(s) and people IDs into a "bucket". Then Immich-Kiosk grabs one at random and fetches an image related to that album or person.
+### Getting a person's ID from Immich:
+1. Open Immich's web interface and click on "Explore" in the left hand navigation.
+2. Click on the person you want the ID of (you may have to click "view all" if you don't see them).
+3. The url will now look something like this `http://192.168.86.123:2283/people/a04175f4-97bb-4d97-8d49-3700263043e5`.
+4. The persons ID is everything after `people/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
 
-There are **three** ways you can set multiple people ID's: 
+### How multiple people work
+When you specify multiple people and/or albums, Immich Kiosk creates a pool of all the requested album and person IDs.
+For each image refresh, Kiosk randomly selects one ID from this pool and fetches an image associated with that person or album.
+
+There are **three** ways you can set multiple people ID's:
+
+> [!NOTE]
+> These methods are applied in order of precedence. URL queries take highest priority, followed by environment variables, and finally the config.yaml file.
+> Each subsequent method overwrites the settings from the previous ones.
 
 1. via config.yaml file
 
