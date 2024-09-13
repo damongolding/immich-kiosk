@@ -266,6 +266,8 @@ environment:
 http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID
 ```
 
+------
+
 ### People
 
 ### Getting a person's ID from Immich:
@@ -304,6 +306,7 @@ environment:
 ```
 http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 ```
+------
 
 ## Image fit
 
