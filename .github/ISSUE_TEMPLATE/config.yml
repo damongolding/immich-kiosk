@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature Request
+    url: https://github.com/damongolding/immich-kiosk/discussions/new?category=feature_request
+    about: Please use our GitHub Discussion for making feature requests.

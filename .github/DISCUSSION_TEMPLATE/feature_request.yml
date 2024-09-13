@@ -1,0 +1,24 @@
+title: "[Feature] feature-name-goes-here"
+labels: ["feature"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please use this form to request new feature for Kiosk.
+        Stick to only a single feature per request. If you list multiple different features at once,
+        your request will be closed.
+
+  - type: checkboxes
+    attributes:
+      label: I have searched the existing feature requests to make sure this is not a duplicate request.
+      options:
+        - label: "Yes"
+          required: true
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: The feature
+    validations:
+      required: true
