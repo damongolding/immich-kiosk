@@ -422,7 +422,7 @@ Then select the "background" tab and toggle on "Local path or web URL" and enter
 If you want to specify an album or a person you can also add that to the url e.g. `http://192.168.0.123:3000/image?album=ALBUM_ID`
 
 **Q: Do I need to a docker service for each client?**\
-**A**: Nope. Just one that your client(s) will connect to.
+**A**: You only need one docker service (or binary running) that your devices(s) will connect to.
 
 **Q: Do I have to use port 3000?**\
 **A**: Nope. Just change the host port in your docker compose file i.e. `- 3000:3000` to `- PORT_YOU_WANT:3000`
