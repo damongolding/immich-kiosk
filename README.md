@@ -51,6 +51,8 @@
 - [Docker Compose](#docker-compose)
 - [Configuration](#configuration)
   - [Changing settings via URL](#changing-settings-via-url)
+  - [Albums](#albums)
+  - [People](#people)
   - [Image fit](#image-fit)
   - [Date format](#date-format)
 - [Home Assistant](#home-assistant)
@@ -173,8 +175,8 @@ See the file config.example.yaml for an example config file
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
 | disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking.        |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
-| album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [FAQ: How do I set multiple albums?](#faq) to see how to implement this.|
-| person                            | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [FAQ: How do I set multiple people?](#faq) to see how to implement this.|
+| [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
+| [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
@@ -226,6 +228,82 @@ example:
 Thos above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
 
 ------
+
+## Albums
+
+### Getting an albums ID from Immich:
+1. Open Immich's web interface and click on "Albums" in the left hand navigation.
+2. Click on the album you want the ID of.
+3. The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
+4. The album ID is everything after `albums/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+
+### How multiple albums work
+When you specify multiple albums and/or people, Immich Kiosk creates a pool of all the requested person and album IDs.
+For each image refresh, Kiosk randomly selects one ID from this pool and fetches an image associated with that album or person.
+
+There are **three** ways you can set multiple albums:
+
+> [!NOTE]
+> These methods are applied in order of precedence. URL queries take highest priority, followed by environment variables, and finally the config.yaml file.
+> Each subsequent method overwrites the settings from the previous ones.
+
+1. via config.yaml file
+```yaml
+album:
+  - ALBUM_ID
+  - ALBUM_ID
+```
+
+2. via ENV in your docker-compose file use a `,` to separate IDs
+```yaml
+environment:
+  KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
+```
+
+3. via url quires:
+
+```
+http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID
+```
+
+### People
+
+### Getting a person's ID from Immich:
+1. Open Immich's web interface and click on "Explore" in the left hand navigation.
+2. Click on the person you want the ID of (you may have to click "view all" if you don't see them).
+3. The url will now look something like this `http://192.168.86.123:2283/people/a04175f4-97bb-4d97-8d49-3700263043e5`.
+4. The persons ID is everything after `people/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+
+### How multiple people work
+When you specify multiple people and/or albums, Immich Kiosk creates a pool of all the requested album and person IDs.
+For each image refresh, Kiosk randomly selects one ID from this pool and fetches an image associated with that person or album.
+
+There are **three** ways you can set multiple people ID's:
+
+> [!NOTE]
+> These methods are applied in order of precedence. URL queries take highest priority, followed by environment variables, and finally the config.yaml file.
+> Each subsequent method overwrites the settings from the previous ones.
+
+1. via config.yaml file
+
+```yaml
+person:
+  - PERSON_ID
+  - PERSON_ID
+```
+
+2. via ENV in your docker-compose file use a `,` to separate IDs
+
+```yaml
+environment:
+  KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
+```
+
+3. via url quires
+
+```
+http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
+```
 
 ## Image fit
 
@@ -346,51 +424,6 @@ If you want to specify an album or a person you can also add that to the url e.g
 **Q: Do I have to use port 3000?**\
 **A**: Nope. Just change the host port in your docker compose file i.e. `- 3000:3000` to `- PORT_YOU_WANT:3000`
 
-**Q: How do I get a album ID?**\
-**A**: Open Immich's web interface and click on "Albums" in the left hand navigation.
-Click on the album you want the ID of.
-The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
-The album ID is everything after `albums/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
-
-**Q: How do I get a persons ID?**\
-**A**: Open Immich's web interface and click on "Explore" in the left hand navigation.
-Click on the person you want the ID of (you may have to click "view all" if you don't see them).
-The url will now look something like this `http://192.168.86.123:2283/people/a04175f4-97bb-4d97-8d49-3700263043e5`.
-The persons ID is everything after `people/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
-
-**Q: How do I set multiple people?**\
-**A**: 👇
-* via config.yaml file
-```yaml
-person:
-  - PERSON_ID
-  - PERSON_ID
-```
-
-* via ENV in your docker-compose file use a `,` to separate IDs
-```yaml
-environment:
-  KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
-```
-
-* via url quires `http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID`
-
-**Q: How do I set multiple albums?**\
-**A**: 👇
-* via config.yaml file
-```yaml
-album:
-  - ALBUM_ID
-  - ALBUM_ID
-```
-
-* via ENV in your docker-compose file use a `,` to separate IDs
-```yaml
-environment:
-  KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
-```
-
-* via url quires `http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID`
 
 **Q: How do I set/use a password?**\
 **A**: 👇
