@@ -139,6 +139,16 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
+		// If it's a GET request for raw image data
+		if c.Request().Method == http.MethodGet {
+			immichImage := immich.NewImage(requestConfig)
+			imgBytes, err := immichImage.GetImagePreview()
+			if err != nil {
+				return err
+			}
+			return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
+		}
+
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
 			if data, found := pageDataCache.Get(c.Request().URL.String() + kioskDeviceId); found {
@@ -159,15 +169,6 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			)
 		}
 
-		// If it's a GET request for raw image data
-		if c.Request().Method == http.MethodGet {
-			immichImage := immich.NewImage(requestConfig)
-			imgBytes, err := immichImage.GetImagePreview()
-			if err != nil {
-				return err
-			}
-			return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
-		}
 
 		pageData, err := processImage(requestConfig, c, false)
 		if err != nil {
