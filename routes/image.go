@@ -185,6 +185,11 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
 
+		err := requestConfig.ConfigWithOverrides(c)
+		if err != nil {
+			log.Error("overriding config", "err", err)
+		}
+
 		log.Debug(
 			requestId,
 			"method", c.Request().Method,
@@ -204,7 +209,6 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		pickedImage := utils.RandomItem(peopleAndAlbums)
 
-		var err error
 		switch pickedImage.Type {
 		case "ALBUM":
 			err = immichImage.GetRandomImageFromAlbum(pickedImage.ID, requestId)
@@ -218,7 +222,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
 
+		return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
 	}
 }
