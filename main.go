@@ -89,7 +89,7 @@ func main() {
 
 	e.GET("/", routes.Home(baseConfig))
 
-	e.GET("/image", routes.NewImage(baseConfig))
+	e.GET("/image", routes.NewRawImage(baseConfig))
 
 	e.POST("/image", routes.NewImage(baseConfig))
 

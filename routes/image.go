@@ -139,16 +139,6 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		// If it's a GET request for raw image data
-		if c.Request().Method == http.MethodGet {
-			immichImage := immich.NewImage(requestConfig)
-			imgBytes, err := immichImage.GetImagePreview()
-			if err != nil {
-				return err
-			}
-			return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
-		}
-
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
 			if data, found := pageDataCache.Get(c.Request().URL.String() + kioskDeviceId); found {
@@ -169,7 +159,6 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			)
 		}
 
-
 		pageData, err := processImage(requestConfig, c, false)
 		if err != nil {
 			log.Error("processing image", "err", err)
@@ -181,5 +170,55 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		return Render(c, http.StatusOK, views.Image(pageData))
+	}
+}
+
+func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		if log.GetLevel() == log.DebugLevel {
+			fmt.Println()
+		}
+
+		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+
+		// create a copy of the global config to use with this request
+		requestConfig := *baseConfig
+
+		log.Debug(
+			requestId,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
+
+		immichImage := immich.NewImage(requestConfig)
+
+		peopleAndAlbums := []immich.ImmichAsset{}
+		for _, people := range requestConfig.Person {
+			peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "PERSON", ID: people})
+		}
+		for _, album := range requestConfig.Album {
+			peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
+		}
+
+		pickedImage := utils.RandomItem(peopleAndAlbums)
+
+		var err error
+		switch pickedImage.Type {
+		case "ALBUM":
+			err = immichImage.GetRandomImageFromAlbum(pickedImage.ID, requestId)
+		case "PERSON":
+			err = immichImage.GetRandomImageOfPerson(pickedImage.ID, requestId)
+		default:
+			err = immichImage.GetRandomImage(requestId)
+		}
+
+		imgBytes, err := immichImage.GetImagePreview()
+		if err != nil {
+			return err
+		}
+		return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
+
 	}
 }
