@@ -16,10 +16,8 @@ import (
 	"github.com/damongolding/immich-kiosk/views"
 )
 
-func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) (views.PageData, error) {
-	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
-	kioskDeviceId := c.Request().Header.Get("kiosk-device-id")
-	immichImage := immich.NewImage(requestConfig)
+func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestId string, kioskDeviceId string, isPrefetch bool) ([]byte, error) {
+	var imgBytes []byte
 
 	peopleAndAlbums := []immich.ImmichAsset{}
 	for _, people := range requestConfig.Person {
@@ -42,18 +40,33 @@ func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) 
 	}
 
 	if err != nil {
-		return views.PageData{}, fmt.Errorf("getting image: %w", err)
+		return imgBytes, fmt.Errorf("getting image: %w", err)
 	}
 
 	imageGet := time.Now()
-	imgBytes, err := immichImage.GetImagePreview()
+	imgBytes, err = immichImage.GetImagePreview()
 	if err != nil {
-		return views.PageData{}, fmt.Errorf("getting image preview: %w", err)
+		return imgBytes, fmt.Errorf("getting image preview: %w", err)
 	}
+
 	if isPrefetch {
 		log.Debug(requestId, "PREFETCH", kioskDeviceId, "Got image in", time.Since(imageGet).Seconds())
 	} else {
 		log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
+	}
+
+	return imgBytes, err
+}
+
+func getPageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (views.PageData, error) {
+	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+	kioskDeviceId := c.Request().Header.Get("kiosk-device-id")
+
+	immichImage := immich.NewImage(requestConfig)
+
+	imgBytes, err := processImage(&immichImage, requestConfig, requestId, kioskDeviceId, isPrefetch)
+	if err != nil {
+		return views.PageData{}, fmt.Errorf("converting image to base64: %w", err)
 	}
 
 	imageConvertTime := time.Now()
@@ -98,7 +111,7 @@ func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) 
 }
 
 func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceId string) {
-	data, err := processImage(requestConfig, c, true)
+	data, err := getPageData(requestConfig, c, true)
 	if err != nil {
 		log.Error("prefetch", "err", err)
 		return
@@ -159,7 +172,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			)
 		}
 
-		pageData, err := processImage(requestConfig, c, false)
+		pageData, err := getPageData(requestConfig, c, false)
 		if err != nil {
 			log.Error("processing image", "err", err)
 			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error processing image", Message: err.Error()}))
@@ -199,26 +212,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		immichImage := immich.NewImage(requestConfig)
 
-		peopleAndAlbums := []immich.ImmichAsset{}
-		for _, people := range requestConfig.Person {
-			peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "PERSON", ID: people})
-		}
-		for _, album := range requestConfig.Album {
-			peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
-		}
-
-		pickedImage := utils.RandomItem(peopleAndAlbums)
-
-		switch pickedImage.Type {
-		case "ALBUM":
-			err = immichImage.GetRandomImageFromAlbum(pickedImage.ID, requestId)
-		case "PERSON":
-			err = immichImage.GetRandomImageOfPerson(pickedImage.ID, requestId)
-		default:
-			err = immichImage.GetRandomImage(requestId)
-		}
-
-		imgBytes, err := immichImage.GetImagePreview()
+		imgBytes, err := processImage(&immichImage, requestConfig, requestId, "", false)
 		if err != nil {
 			return err
 		}
