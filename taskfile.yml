@@ -45,3 +45,4 @@ tasks:
   outdated:
     cmds:
       - go list -m -u all
+      - cd frontend && pnpm outdated

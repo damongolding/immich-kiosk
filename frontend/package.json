@@ -17,13 +17,13 @@
     "node": "20.17.0"
   },
   "devDependencies": {
+    "browserslist": "^4.23.3",
     "esbuild": "^0.23.1",
     "eslint": "^9.10.0",
-    "eslint-plugin-compat": "^6.0.0",
+    "eslint-plugin-compat": "^6.0.1",
     "globals": "^15.9.0",
     "htmx.org": "^2.0.2",
-    "typescript": "^5.6.2",
-    "browserslist": "^4.23.3"
+    "typescript": "^5.6.2"
   },
   "browserslist": [
     "> 0.2%",
