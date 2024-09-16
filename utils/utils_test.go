@@ -4,6 +4,8 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestCombineQueries test to see if referer queries overwrite url queries
@@ -16,55 +18,42 @@ func TestCombineQueries(t *testing.T) {
 	refererQueries := "/demo-url?transition=none&image_fit=cover&raw=true"
 
 	q, err := CombineQueries(baseQueries, refererQueries)
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err)
 
-	if !reflect.DeepEqual(q["transition"], []string{"fade", "none"}) || q.Get("image_fit") != "cover" || q.Get("refresh") != "60" || !q.Has("raw") {
-		t.Error(q)
-	}
-
+	assert.Equal(t, []string{"fade", "none"}, q["transition"])
+	assert.Equal(t, "cover", q.Get("image_fit"))
+	assert.Equal(t, "60", q.Get("refresh"))
+	assert.True(t, q.Has("raw"))
 }
 
 // TestRandomSingleItem test a single item
 func TestRandomSingleItem(t *testing.T) {
-
 	s := []string{"cheese"}
 
 	out := RandomItem(s)
 
-	if out != "cheese" {
-		t.Error("Not the outcome we want:", out)
-	}
+	assert.Equal(t, "cheese", out, "RandomItem should return the only item in a single-item slice")
 }
 
 // TestRandomSingleItem test a single item
 func TestRandomEmptyItem(t *testing.T) {
-
 	s := []string{}
 
 	out := RandomItem(s)
 
-	if out != "" {
-		t.Error("Not the outcome we want:", out)
-	}
+	assert.Equal(t, "", out, "RandomItem should return an empty string for an empty string slice")
 
 	n := []int{}
 
 	out2 := RandomItem(n)
 
-	if out2 != 0 {
-		t.Error("Not the outcome we want:", out2)
-	}
+	assert.Equal(t, 0, out2, "RandomItem should return 0 for an empty int slice")
 
 	i := []any{}
 
 	out3 := RandomItem(i)
 
-	if out3 != nil {
-		t.Error("Not the outcome we want:", out3)
-	}
-
+	assert.Nil(t, out3, "RandomItem should return nil for an empty interface slice")
 }
 
 // TestRandomStruct get out what we expect
@@ -82,12 +71,16 @@ func TestRandomStruct(t *testing.T) {
 
 	out := RandomItem(s)
 
-	if reflect.TypeOf(out).String() != "utils.RendomStructDemo" {
-		t.Error("Not the outcome we want:", out)
-	}
+	assert.Equal(t, "utils.RendomStructDemo", reflect.TypeOf(out).String(), "Unexpected type returned from RandomItem")
+
+	assert.Contains(t, s, out, "RandomItem should return an item from the input slice")
+
+	assert.NotNil(t, out, "RandomItem should not return nil for a non-empty slice")
 
 }
 
+// TestDateToLayout tests the DateToLayout function with various input formats.
+// It verifies that the function correctly converts date format strings to Go layout strings.
 func TestDateToLayout(t *testing.T) {
 	tests := []struct {
 		In   string
@@ -107,39 +100,35 @@ func TestDateToLayout(t *testing.T) {
 
 	for _, test := range tests {
 		result := DateToLayout(test.In)
-
-		if result != test.Want {
-			t.Log(result, test.Want)
-			t.Errorf("Does not match, %s : %s", result, test.Want)
-		}
+		assert.Equal(t, test.Want, result, "DateToLayout(%q) = %q, want %q", test.In, result, test.Want)
 	}
 }
 
+// TestStringToColor checks if the StringToColor function consistently
+// produces the same color for a given input string.
 func TestStringToColor(t *testing.T) {
 	in := "a sample string"
 
 	a := StringToColor(in)
 	b := StringToColor(in)
 
-	if a.Hex != b.Hex {
-		t.Error("colors do not match", a, b)
-	}
+	assert.Equal(t, a.Hex, b.Hex, "Colors should match for the same input string")
+	assert.NotEmpty(t, a.Hex, "Generated color should not be empty")
+	assert.Len(t, a.Hex, 7, "Generated color should be in '#RRGGBB' format")
+	assert.Equal(t, "#", a.Hex[:1], "Generated color should start with '#'")
 }
 
+// TestColorContrast checks the contrast ratio calculation between different colors
+// and verifies that the maximum contrast ratio is achieved between black and white.
 func TestColorContrast(t *testing.T) {
 	white := Color{R: 255, G: 255, B: 255}
 	black := Color{R: 0, G: 0, B: 0}
 
 	maxRatio := calculateContrastRatio(white, black)
-	if maxRatio != 21 {
-		t.Error("ratio is not at maximum", maxRatio)
-	}
+	assert.Equal(t, float64(21), maxRatio, "The contrast ratio between white and black should be 21")
 
 	textWhite := calculateContrastRatio(white, black)
 	textBlack := calculateContrastRatio(black, black)
 
-	if textWhite < textBlack {
-		t.Error("white text should have a better ratio")
-	}
-
+	assert.Greater(t, textWhite, textBlack, "White text on black background should have a better contrast ratio than black text on black background")
 }

@@ -134,8 +134,9 @@ func (c *Config) checkRequiredFields() {
 	}
 }
 
-// Load loads yaml config file into memory, then loads ENV vars. ENV vars overwrties yaml settings.
-func (c *Config) Load() error {
+// Load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
+// If configFile is provided, it will use that file instead of the default "config.yaml".
+func (c *Config) Load(configFile ...string) error {
 
 	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
 
@@ -147,7 +148,12 @@ func (c *Config) Load() error {
 	v.BindEnv("kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE")
 
 	v.AddConfigPath(".")
-	v.SetConfigFile("config.yaml")
+	// Use the provided config file if one is given, otherwise use the default
+	if len(configFile) > 0 && configFile[0] != "" {
+		v.SetConfigFile(configFile[0])
+	} else {
+		v.SetConfigFile("config.yaml")
+	}
 
 	v.SetEnvPrefix("kiosk")
 

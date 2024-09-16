@@ -58,7 +58,7 @@ func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, 
 	return imgBytes, err
 }
 
-func getPageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (views.PageData, error) {
+func processPageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (views.PageData, error) {
 	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	kioskDeviceId := c.Request().Header.Get("kiosk-device-id")
 
@@ -111,12 +111,12 @@ func getPageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (
 }
 
 func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceId string) {
-	data, err := getPageData(requestConfig, c, true)
+	pageData, err := processPageData(requestConfig, c, true)
 	if err != nil {
 		log.Error("prefetch", "err", err)
 		return
 	}
-	pageDataCache.Set(c.Request().URL.String()+kioskDeviceId, data, cache.DefaultExpiration)
+	pageDataCache.Set(c.Request().URL.String()+kioskDeviceId, pageData, cache.DefaultExpiration)
 }
 
 func NewImage(baseConfig *config.Config) echo.HandlerFunc {
@@ -172,7 +172,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			)
 		}
 
-		pageData, err := getPageData(requestConfig, c, false)
+		pageData, err := processPageData(requestConfig, c, false)
 		if err != nil {
 			log.Error("processing image", "err", err)
 			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error processing image", Message: err.Error()}))
