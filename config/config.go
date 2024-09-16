@@ -61,6 +61,8 @@ type Config struct {
 	DisableScreensaver bool `mapstructure:"disable_screensaver" query:"disable_screensaver" form:"disable_screensaver" default:"false"`
 	// HideCursor hide cursor via CSS
 	HideCursor bool `mapstructure:"hide_cursor" query:"hide_cursor" form:"hide_cursor" default:"false"`
+	// FontSize the base font size as a percentage
+	FontSize int `mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
 
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
@@ -79,6 +81,7 @@ type Config struct {
 	FadeTransitionDuration float32 `mapstructure:"fade_transition_duration" query:"fade_transition_duration" form:"fade_transition_duration" default:"1"`
 	// CrossFadeTransitionDuration sets the length of the cross-fade transition
 	CrossFadeTransitionDuration float32 `mapstructure:"cross_fade_transition_duration" query:"cross_fade_transition_duration" form:"cross_fade_transition_duration" default:"1"`
+
 	// ShowProgress display a progress bar
 	ShowProgress bool `mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
 

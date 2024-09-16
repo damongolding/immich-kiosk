@@ -92,6 +92,10 @@ templ kioskNone(showProgress bool, kioskVersion string, deviceID string, queries
 	</div>
 }
 
+css baseFontSize(fontSize int) {
+	font-size: { fmt.Sprintf("%v%%", fontSize) };
+}
+
 css animationDuration(duration int) {
 	animation-duration: { fmt.Sprintf("%ds", duration) };
 }
@@ -168,7 +172,7 @@ templ progressBar(refresh int) {
 
 templ Home(data PageData) {
 	<!DOCTYPE html>
-	<html lang="en">
+	<html lang="en" class={ baseFontSize(data.Config.FontSize) }>
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="apple-mobile-web-app-capable" content="yes"/>

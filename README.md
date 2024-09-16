@@ -135,6 +135,7 @@ services:
       # UI
       KIOSK_DISABLE_UI: FALSE
       KIOSK_HIDE_CURSOR: FALSE
+      KIOSK_FONT_SIZE: 100
       KIOSK_BACKGROUND_BLUR: TRUE
       # Transistion options
       KIOSK_TRANSITION: NONE
@@ -179,6 +180,7 @@ See the file config.example.yaml for an example config file
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
+| font_size                         | KIOSK_FONT_SZIE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
