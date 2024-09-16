@@ -14,11 +14,11 @@ body {
     margin: 0;
     font-size: 100%; /* 16px */
     font-family: "Barlow", Arial, Helvetica, sans-serif;
-    letter-spacing: 1px;
+    letter-spacing: 0.0625rem;
     background-color: #000;
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 31.25rem) {
     html,
     body {
         font-size: 80%; /* 16px */

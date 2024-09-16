@@ -32,6 +32,8 @@ type KioskSettings struct {
 	// Password the password used to add authentication to the frontend
 	Password string `mapstructure:"password" default:""`
 
+	AssetWeighting bool `mapstructure:"asset_weighting" default:"true"`
+
 	// debug modes
 	Debug        bool `mapstructure:"debug" default:"false"`
 	DebugVerbose bool `mapstructure:"debug_verbose" default:"false"`
@@ -137,6 +139,12 @@ func (c *Config) checkRequiredFields() {
 	}
 }
 
+func (c *Config) checkDebuging() {
+	if c.Kiosk.DebugVerbose {
+		c.Kiosk.Debug = true
+	}
+}
+
 // Load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
 // If configFile is provided, it will use that file instead of the default "config.yaml".
 func (c *Config) Load(configFile ...string) error {
@@ -146,6 +154,7 @@ func (c *Config) Load(configFile ...string) error {
 	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
 	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
 	v.BindEnv("kiosk.pre_fetch", "KIOSK_PRE_FETCH")
+	v.BindEnv("kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING")
 
 	v.BindEnv("kiosk.debug", "KIOSK_DEBUG")
 	v.BindEnv("kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE")
@@ -175,6 +184,7 @@ func (c *Config) Load(configFile ...string) error {
 
 	c.checkRequiredFields()
 	c.checkUrlScheme()
+	c.checkDebuging()
 
 	return nil
 

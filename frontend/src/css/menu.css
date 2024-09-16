@@ -13,8 +13,8 @@
     transition: opacity 0.5s ease;
     will-change: opacity;
     box-shadow:
-        rgba(17, 17, 26, 0.1) 0px 4px 16px,
-        rgba(17, 17, 26, 0.05) 0px 8px 32px;
+        rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem,
+        rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
 }
 
 .navigation--item {
@@ -27,18 +27,19 @@
 }
 
 .navigation--item--separator {
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 0.0625rem solid rgba(255, 255, 255, 0.2);
 }
 
 .navigation-hidden {
+    transition-duration: 0s;
     opacity: 0;
     visibility: hidden;
 }
 
 .navigation svg {
     fill: white;
-    max-width: 2rem;
-    max-height: 2rem;
+    width: 2rem;
+    height: 2rem;
 }
 
 /* nav fullscreen */

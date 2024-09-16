@@ -11,12 +11,12 @@
 
 .error {
     background-color: rgba(204, 0, 0, 0.4);
-    border: 2px solid rgb(204, 0, 0);
-    max-width: 560px;
+    border: 0.125rem solid rgb(204, 0, 0);
+    max-width: 35rem;
     width: 100%;
     color: #fff;
     padding: 2rem;
-    border-radius: 12px;
+    border-radius: 0.75rem;
 }
 
 .error--title {

@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -131,4 +132,88 @@ func TestColorContrast(t *testing.T) {
 	textBlack := calculateContrastRatio(black, black)
 
 	assert.Greater(t, textWhite, textBlack, "White text on black background should have a better contrast ratio than black text on black background")
+}
+
+// TestWeightedRandomItem tests the WeightedRandomItem function.
+// It verifies that:
+// 1. The function returns an empty WeightedAsset for an empty input slice.
+// 2. The function correctly returns the single asset for a slice with one item.
+// 3. The function returns a valid asset from the input slice for multiple assets.
+// 4. The distribution of returned assets approximately matches their weights over many iterations.
+func TestWeightedRandomItem(t *testing.T) {
+	// Define test cases
+	testCases := []struct {
+		name   string
+		assets []immich.AssetWithWeighting
+		want   immich.WeightedAsset
+	}{
+		{
+			name:   "Empty slice",
+			assets: []immich.AssetWithWeighting{},
+			want:   immich.WeightedAsset{},
+		},
+		{
+			name: "Single asset",
+			assets: []immich.AssetWithWeighting{
+				{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
+			},
+			want: immich.WeightedAsset{ID: "1"},
+		},
+		{
+			name: "Multiple assets",
+			assets: []immich.AssetWithWeighting{
+				{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
+				{Asset: immich.WeightedAsset{ID: "2"}, Weight: 2},
+				{Asset: immich.WeightedAsset{ID: "3"}, Weight: 3},
+			},
+			want: immich.WeightedAsset{}, // We'll check for non-empty result
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := WeightedRandomItem(tc.assets)
+
+			if len(tc.assets) == 0 {
+				assert.Equal(t, tc.want, got, "WeightedRandomItem() = %v, want %v", got, tc.want)
+			} else {
+				found := false
+				for _, asset := range tc.assets {
+					if got == asset.Asset {
+						found = true
+						break
+					}
+				}
+				assert.True(t, found, "WeightedRandomItem() returned an asset not in the input slice")
+			}
+		})
+	}
+
+	// Test for distribution
+	assets := []immich.AssetWithWeighting{
+		{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
+		{Asset: immich.WeightedAsset{ID: "2"}, Weight: 2},
+		{Asset: immich.WeightedAsset{ID: "3"}, Weight: 3},
+	}
+
+	counts := make(map[string]int)
+	iterations := 10000
+
+	for i := 0; i < iterations; i++ {
+		result := WeightedRandomItem(assets)
+		counts[result.ID]++
+	}
+
+	expectedRatios := map[string]float64{
+		"1": 1.0 / 6.0,
+		"2": 2.0 / 6.0,
+		"3": 3.0 / 6.0,
+	}
+
+	tolerance := 0.05
+
+	for id, expectedRatio := range expectedRatios {
+		actualRatio := float64(counts[id]) / float64(iterations)
+		assert.InDelta(t, expectedRatio, actualRatio, tolerance, "Distribution for asset %s: got %.2f, want %.2f (±%.2f)", id, actualRatio, expectedRatio, tolerance)
+	}
 }

@@ -19,24 +19,51 @@ import (
 func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestId string, kioskDeviceId string, isPrefetch bool) ([]byte, error) {
 	var imgBytes []byte
 
-	peopleAndAlbums := []immich.ImmichAsset{}
-	for _, people := range requestConfig.Person {
-		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "PERSON", ID: people})
-	}
-	for _, album := range requestConfig.Album {
-		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
+	peopleAndAlbums := []immich.AssetWithWeighting{}
+
+	for _, person := range requestConfig.Person {
+		personAssetCount, err := immichImage.PersonImageCount(person, requestId)
+		if err != nil {
+			return imgBytes, fmt.Errorf("getting person image count: %w", err)
+		}
+		peopleAndAlbums = append(peopleAndAlbums, immich.AssetWithWeighting{
+			Asset:  immich.WeightedAsset{Type: "PERSON", ID: person},
+			Weight: personAssetCount,
+		})
 	}
 
-	pickedImage := utils.RandomItem(peopleAndAlbums)
+	for _, album := range requestConfig.Album {
+		albumAssetCount, err := immichImage.AlbumImageCount(album, requestId)
+		if err != nil {
+			return imgBytes, fmt.Errorf("getting album asset count: %w", err)
+		}
+		peopleAndAlbums = append(peopleAndAlbums, immich.AssetWithWeighting{
+			Asset:  immich.WeightedAsset{Type: "ALBUM", ID: album},
+			Weight: albumAssetCount,
+		})
+	}
+
+	var pickedImage immich.WeightedAsset
+
+	if requestConfig.Kiosk.AssetWeighting {
+		pickedImage = utils.WeightedRandomItem(peopleAndAlbums)
+	} else {
+		var assetsOnly []immich.WeightedAsset
+		for _, item := range peopleAndAlbums {
+			assetsOnly = append(assetsOnly, item.Asset)
+		}
+
+		pickedImage = utils.RandomItem(assetsOnly)
+	}
 
 	var err error
 	switch pickedImage.Type {
 	case "ALBUM":
-		err = immichImage.GetRandomImageFromAlbum(pickedImage.ID, requestId)
+		err = immichImage.RandomImageFromAlbum(pickedImage.ID, requestId, kioskDeviceId, isPrefetch)
 	case "PERSON":
-		err = immichImage.GetRandomImageOfPerson(pickedImage.ID, requestId)
+		err = immichImage.RandomImageOfPerson(pickedImage.ID, requestId, kioskDeviceId, isPrefetch)
 	default:
-		err = immichImage.GetRandomImage(requestId)
+		err = immichImage.RandomImage(requestId, kioskDeviceId, isPrefetch)
 	}
 
 	if err != nil {
@@ -44,7 +71,7 @@ func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, 
 	}
 
 	imageGet := time.Now()
-	imgBytes, err = immichImage.GetImagePreview()
+	imgBytes, err = immichImage.ImagePreview()
 	if err != nil {
 		return imgBytes, fmt.Errorf("getting image preview: %w", err)
 	}

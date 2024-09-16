@@ -25,6 +25,8 @@ import (
 	"github.com/disintegration/imaging"
 
 	"github.com/google/uuid"
+
+	"github.com/damongolding/immich-kiosk/immich"
 )
 
 // GenerateUUID generates as UUID
@@ -150,6 +152,36 @@ func RandomItem[T any](s []T) T {
 	})
 
 	return s[0]
+}
+
+// calculateTotalWeight calculates the sum of weights for all assets in the given slice.
+// It iterates through the slice of WeightedAsset and accumulates their weights.
+func calculateTotalWeight(assets []immich.AssetWithWeighting) int {
+	total := 0
+	for _, asset := range assets {
+		total += asset.Weight
+	}
+	return total
+}
+
+// WeightedRandomItem selects a random asset from the given slice of WeightedAsset(s)
+// based on their weights. It uses a weighted random selection algorithm.
+func WeightedRandomItem(assets []immich.AssetWithWeighting) immich.WeightedAsset {
+
+	if len(assets) == 0 {
+		return immich.WeightedAsset{}
+	}
+
+	totalWeight := calculateTotalWeight(assets)
+	randomWeight := rand.IntN(totalWeight) + 1
+
+	for _, asset := range assets {
+		if randomWeight <= asset.Weight {
+			return asset.Asset
+		}
+		randomWeight -= asset.Weight
+	}
+	return immich.WeightedAsset{}
 }
 
 type Color struct {

@@ -6,7 +6,7 @@
     color: #fff;
     font-size: 3rem;
     padding: 1rem;
-    text-shadow: 0 0 20px black;
+    text-shadow: 0 0 1.25rem black;
     background-color: rgba(0, 0, 0, 0.3);
     background: rgb(0, 0, 0);
     background: -moz-linear-gradient(
@@ -34,7 +34,7 @@
     padding: 0;
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 31.25rem) {
     #clock {
         padding: 0.5rem;
     }

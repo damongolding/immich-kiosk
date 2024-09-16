@@ -96,6 +96,19 @@ css baseFontSize(fontSize int) {
 	font-size: { fmt.Sprintf("%v%%", fontSize) };
 }
 
+func baseFontSizeMobile(fontSize int) string {
+
+	return fmt.Sprintf(`
+	   <style>
+		@media screen and (max-width: 31.25rem) {
+            html,
+            body {
+                font-size: %v%% !important;
+            }
+        }
+		<style>`, fontSize-20)
+}
+
 css animationDuration(duration int) {
 	animation-duration: { fmt.Sprintf("%ds", duration) };
 }
@@ -204,6 +217,7 @@ templ Home(data PageData) {
     				}
 				</style>
 			}
+			@templ.Raw(baseFontSizeMobile(data.FontSize))
 		</head>
 		<body>
 			switch strings.ToLower(data.Config.Transition) {
