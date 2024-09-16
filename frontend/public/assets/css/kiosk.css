@@ -123,11 +123,15 @@ body {
   animation-duration: 1s;
   animation-fill-mode: forwards;
 }
+
+/* src/css/spinner.css */
 .kiosk--spinner {
   position: absolute;
   display: block;
   width: 5rem;
   height: 5rem;
+  max-width: 80px;
+  max-height: 80px;
   left: 50%;
   top: 50%;
   transform: translate(-50%);

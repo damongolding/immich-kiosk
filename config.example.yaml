@@ -1,36 +1,40 @@
+# Required settings
 immich_api_key: ""
 immich_url: ""
 
+# Clock
 show_time: false # true or false
 time_format: 24 # 12 or 24
-
 show_date: false # true or false
 date_format: YYYY/MM/DD
 
+# Kiosk behaviour
 refresh: 60 # in seconds
 disable_screensaver: false # Ask browser to request a lock that prevents device screens from dimming or locking.
 
+# Asset sources
 show_archived: false # Allow assets marked as archived to be displayed.
-album: # ID(s) of album or albums to display
-  - ""
 person: # ID(s) of person or people to display
   - ""
-
+album: # ID(s) of album or albums to display
+  - ""
+# UI
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
 hide_cursor: false # Hide cursor/mouse via CSS.
+font_size: 100 # the base font size as a percentage. OMIT the % character
 background_blur: true # display a blurred version of image as background
 # Transition options
 transition: none # cross-fade, fade or none
 fade_transition_duration: 1 # in seconds
 cross_fade_transition_duration: 1 # in seconds
 
+# Image display settings
 show_progress: false # display a progress bar
 image_fit: contain # how the image fits the screen. Options are none, contain and cover
 
 # Image METADATA
 show_image_time: false # true or false
 image_time_format: 24 # 12 or 24
-
 show_image_date: false # true or false
 image_date_format: YYYY-MM-DD
 show_image_exif: false

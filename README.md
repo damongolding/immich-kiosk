@@ -135,6 +135,7 @@ services:
       # UI
       KIOSK_DISABLE_UI: FALSE
       KIOSK_HIDE_CURSOR: FALSE
+      KIOSK_FONT_SIZE: 100
       KIOSK_BACKGROUND_BLUR: TRUE
       # Transistion options
       KIOSK_TRANSITION: NONE
