@@ -19,6 +19,8 @@ jobs:
         run: go mod download
 
       - name: Run tests
+        env:
+          CI: true
         run: |
           mkdir -p test-results
           go test -v ./... > test-results/test.log

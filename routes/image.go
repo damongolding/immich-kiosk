@@ -16,10 +16,8 @@ import (
 	"github.com/damongolding/immich-kiosk/views"
 )
 
-func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) (views.PageData, error) {
-	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
-	kioskDeviceId := c.Request().Header.Get("kiosk-device-id")
-	immichImage := immich.NewImage(requestConfig)
+func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestId string, kioskDeviceId string, isPrefetch bool) ([]byte, error) {
+	var imgBytes []byte
 
 	peopleAndAlbums := []immich.ImmichAsset{}
 	for _, people := range requestConfig.Person {
@@ -42,18 +40,33 @@ func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) 
 	}
 
 	if err != nil {
-		return views.PageData{}, fmt.Errorf("getting image: %w", err)
+		return imgBytes, fmt.Errorf("getting image: %w", err)
 	}
 
 	imageGet := time.Now()
-	imgBytes, err := immichImage.GetImagePreview()
+	imgBytes, err = immichImage.GetImagePreview()
 	if err != nil {
-		return views.PageData{}, fmt.Errorf("getting image preview: %w", err)
+		return imgBytes, fmt.Errorf("getting image preview: %w", err)
 	}
+
 	if isPrefetch {
 		log.Debug(requestId, "PREFETCH", kioskDeviceId, "Got image in", time.Since(imageGet).Seconds())
 	} else {
 		log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
+	}
+
+	return imgBytes, err
+}
+
+func processPageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (views.PageData, error) {
+	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+	kioskDeviceId := c.Request().Header.Get("kiosk-device-id")
+
+	immichImage := immich.NewImage(requestConfig)
+
+	imgBytes, err := processImage(&immichImage, requestConfig, requestId, kioskDeviceId, isPrefetch)
+	if err != nil {
+		return views.PageData{}, fmt.Errorf("converting image to base64: %w", err)
 	}
 
 	imageConvertTime := time.Now()
@@ -98,12 +111,12 @@ func processImage(requestConfig config.Config, c echo.Context, isPrefetch bool) 
 }
 
 func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceId string) {
-	data, err := processImage(requestConfig, c, true)
+	pageData, err := processPageData(requestConfig, c, true)
 	if err != nil {
 		log.Error("prefetch", "err", err)
 		return
 	}
-	pageDataCache.Set(c.Request().URL.String()+kioskDeviceId, data, cache.DefaultExpiration)
+	pageDataCache.Set(c.Request().URL.String()+kioskDeviceId, pageData, cache.DefaultExpiration)
 }
 
 func NewImage(baseConfig *config.Config) echo.HandlerFunc {
@@ -159,17 +172,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			)
 		}
 
-		// If it's a GET request for raw image data
-		if c.Request().Method == http.MethodGet {
-			immichImage := immich.NewImage(requestConfig)
-			imgBytes, err := immichImage.GetImagePreview()
-			if err != nil {
-				return err
-			}
-			return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
-		}
-
-		pageData, err := processImage(requestConfig, c, false)
+		pageData, err := processPageData(requestConfig, c, false)
 		if err != nil {
 			log.Error("processing image", "err", err)
 			return Render(c, http.StatusOK, views.Error(views.ErrorData{Title: "Error processing image", Message: err.Error()}))
@@ -180,5 +183,40 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		return Render(c, http.StatusOK, views.Image(pageData))
+	}
+}
+
+func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		if log.GetLevel() == log.DebugLevel {
+			fmt.Println()
+		}
+
+		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+
+		// create a copy of the global config to use with this request
+		requestConfig := *baseConfig
+
+		err := requestConfig.ConfigWithOverrides(c)
+		if err != nil {
+			log.Error("overriding config", "err", err)
+		}
+
+		log.Debug(
+			requestId,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
+
+		immichImage := immich.NewImage(requestConfig)
+
+		imgBytes, err := processImage(&immichImage, requestConfig, requestId, "", false)
+		if err != nil {
+			return err
+		}
+
+		return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
 	}
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/config"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestGetRandomImage testing if no images are found. Should retry 10 times
@@ -41,14 +42,9 @@ func TestGetRandomImage(t *testing.T) {
 	i := NewImage(*c)
 
 	err := i.GetRandomImage("TESTING")
-	if err == nil {
-		t.Error("A image was found")
-		return
-	}
-
-	if err.Error() != "No images found" && i.Retries != 10 {
-		t.Error(err)
-	}
+	assert.NotNil(t, err, "Expected an error, but got nil")
+	assert.Equal(t, "no images found", err.Error(), "Unexpected error message")
+	assert.Equal(t, 10, i.Retries, "Expected 10 retries")
 }
 
 func TestArchiveLogic(t *testing.T) {
@@ -98,9 +94,7 @@ func TestArchiveLogic(t *testing.T) {
 				simulatedContinueTriggered = true
 			}
 
-			if simulatedContinueTriggered != test.WantSimulatedContinue {
-				t.Error()
-			}
+			assert.Equal(t, test.WantSimulatedContinue, simulatedContinueTriggered, "Unexpected simulatedContinueTriggered value")
 		})
 	}
 
