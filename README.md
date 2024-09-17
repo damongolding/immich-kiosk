@@ -66,13 +66,6 @@
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
 
-
-![preview 1](/assets/demo_1.jpg)
-**Image shot by Damon Golding**
-
-![preview 2](/assets/demo_2.jpg)
-**[Image shot by @insungpandora](https://unsplash.com/@insungpandora)**
-
 ## Key features
 - Simple installation and updates via Docker.
 - Lightweight, responsive frontend for smooth performance.
@@ -81,6 +74,12 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 - Add a live clock with adjustable formats.
 - Define default settings for all devices through environment variables or YAML config files.
 - Configure device-specific settings using URL parameters.
+
+![preview 1](/assets/demo_1.jpg)
+**Image shot by Damon Golding**
+
+![preview 2](/assets/demo_2.jpg)
+**[Image shot by @insungpandora](https://unsplash.com/@insungpandora)**
 
 ## Example 1
 You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
