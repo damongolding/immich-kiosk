@@ -12,6 +12,7 @@
     height: 100%;
     top: 0;
     left: 0;
+    border-radius: 0 1rem 1rem 0;
     background-color: #1e83f7;
     transition: width 0.03s linear; /* Smooth transition for the width changes */
     will-change: width;
