@@ -160,6 +160,9 @@ func calculateTotalWeight(assets []immich.AssetWithWeighting) int {
 	total := 0
 	for _, asset := range assets {
 		logWeight := int(math.Log(float64(asset.Weight) + 1))
+		if logWeight == 0 {
+			logWeight = 1
+		}
 		total += logWeight
 	}
 	return total
@@ -168,8 +171,13 @@ func calculateTotalWeight(assets []immich.AssetWithWeighting) int {
 // WeightedRandomItem selects a random asset from the given slice of WeightedAsset(s)
 // based on their logarithmic weights. It uses a weighted random selection algorithm.
 func WeightedRandomItem(assets []immich.AssetWithWeighting) immich.WeightedAsset {
-	if len(assets) == 0 {
+
+	// guards
+	switch len(assets) {
+	case 0:
 		return immich.WeightedAsset{}
+	case 1:
+		return assets[0].Asset
 	}
 
 	totalWeight := calculateTotalWeight(assets)
@@ -181,6 +189,13 @@ func WeightedRandomItem(assets []immich.AssetWithWeighting) immich.WeightedAsset
 			return asset.Asset
 		}
 		randomWeight -= logWeight
+	}
+
+	// WeightedRandomItem sometimes returns an empty WeightedAsset
+	// when the random selection process fails to pick an item.
+	// This is a fallback to ensure we always return a valid asset.
+	if len(assets) > 0 {
+		return assets[0].Asset
 	}
 	return immich.WeightedAsset{}
 }
@@ -216,6 +231,9 @@ func StringToColor(inputString string) Color {
 	return Color{R: r, G: g, B: b, RGB: rgb, Hex: hex}
 }
 
+// ColorizeRequestId takes a request ID string and returns a colorized string representation.
+// It generates a color based on the input string, determines the best contrasting text color,
+// and applies styling using lipgloss to create a visually distinct, colored representation of the request ID.
 func ColorizeRequestId(requestId string) string {
 
 	c := StringToColor(requestId)
