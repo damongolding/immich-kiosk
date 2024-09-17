@@ -154,20 +154,20 @@ func RandomItem[T any](s []T) T {
 	return s[0]
 }
 
-// calculateTotalWeight calculates the sum of weights for all assets in the given slice.
-// It iterates through the slice of WeightedAsset and accumulates their weights.
+// calculateTotalWeight calculates the sum of logarithmic weights for all assets in the given slice.
+// It uses natural logarithm (base e) and adds 1 to avoid log(0).
 func calculateTotalWeight(assets []immich.AssetWithWeighting) int {
 	total := 0
 	for _, asset := range assets {
-		total += asset.Weight
+		logWeight := int(math.Log(float64(asset.Weight) + 1))
+		total += logWeight
 	}
 	return total
 }
 
 // WeightedRandomItem selects a random asset from the given slice of WeightedAsset(s)
-// based on their weights. It uses a weighted random selection algorithm.
+// based on their logarithmic weights. It uses a weighted random selection algorithm.
 func WeightedRandomItem(assets []immich.AssetWithWeighting) immich.WeightedAsset {
-
 	if len(assets) == 0 {
 		return immich.WeightedAsset{}
 	}
@@ -176,10 +176,11 @@ func WeightedRandomItem(assets []immich.AssetWithWeighting) immich.WeightedAsset
 	randomWeight := rand.IntN(totalWeight) + 1
 
 	for _, asset := range assets {
-		if randomWeight <= asset.Weight {
+		logWeight := int(math.Log(float64(asset.Weight) + 1))
+		if randomWeight <= logWeight {
 			return asset.Asset
 		}
-		randomWeight -= asset.Weight
+		randomWeight -= logWeight
 	}
 	return immich.WeightedAsset{}
 }
