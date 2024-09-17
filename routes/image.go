@@ -70,8 +70,6 @@ func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, 
 		pickedImage = utils.RandomItem(assetsOnly)
 	}
 
-	log.Debug("picker", "pool", peopleAndAlbums, "picked", pickedImage)
-
 	var err error
 	switch pickedImage.Type {
 	case "ALBUM":
@@ -261,7 +259,6 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 				)
 				cachedPageData := data.([]views.PageData)
 				if len(cachedPageData) != 0 {
-					log.Debug("number of images in cache", "items", len(cachedPageData))
 					nextPageData := cachedPageData[0]
 					pageDataCache.Set(cacheKey, cachedPageData[1:], cache.DefaultExpiration)
 					go imagePreFetch(1, requestConfig, c, kioskDeviceId)
