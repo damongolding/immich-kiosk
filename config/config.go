@@ -26,12 +26,13 @@ type KioskSettings struct {
 	// Cache enable/disable api call caching
 	Cache bool `mapstructure:"cache" default:"true"`
 
-	// PreFetch get and cache an image in the background
+	// PreFetch fetch and cache an image in the background
 	PreFetch bool `mapstructure:"pre_fetch" default:"true"`
 
 	// Password the password used to add authentication to the frontend
 	Password string `mapstructure:"password" default:""`
 
+	// AssetWeighting use weighting when picking assets
 	AssetWeighting bool `mapstructure:"asset_weighting" default:"true"`
 
 	// debug modes
