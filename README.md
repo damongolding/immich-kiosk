@@ -431,6 +431,21 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
 
 ## FAQ
 
+**Q: What is the difference between ImmichFrame and ImmichKiosk?**\
+**A**:The main differences between ImmichFrame and ImmichKiosk are in how they are set up and how they interact with Immich:
+
+- **ImmichFrame**: For individual devices
+   - Installed on each device you want to use.
+   - The device connects directly to Immich.
+   - Data is processed on the device itself.
+
+- **ImmichKiosk**: For multiple devices
+   - Installed once on a central server.
+   - Devices connect to it via a web browser, and it connects to Immich.
+   - Data is processed by the Kiosk server.
+
+In short, ImmichFrame is a 'one device, one installation, direct connection' setup, while ImmichKiosk is 'one installation, multiple devices, indirect connection.'"
+
 ![no-wifi icon](/assets/offline.svg)\
 **Q: What is the no wifi icon?**\
 **A**: This icon shows when the front end can't connect to the back end .
@@ -473,7 +488,6 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ------
 
 ## TODO / Roadmap
-- Exclude video thumbnails from being displayed
 - Clock/timestamp shadow redesign
 - Whitelist for people and albums
 - Exclude list
