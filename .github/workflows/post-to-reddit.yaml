@@ -33,7 +33,7 @@ jobs:
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_APP_SECRET }}
           REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
           REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
-          SUBREDDITS: '["immich", "selfhosted"]'
+          SUBREDDITS: '["immich"]'
           RELEASE_JSON: ${{ toJson(steps.get_release.outputs) }}
         run: |
           python - <<EOF
