@@ -1,7 +1,3 @@
-> [!IMPORTANT]
-> An update regarding Kiosks development [here](https://github.com/damongolding/immich-kiosk/discussions/31)
-
-
 # Immich Kiosk
 
 <div align="center">
