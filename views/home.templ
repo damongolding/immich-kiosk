@@ -96,6 +96,19 @@ css baseFontSize(fontSize int) {
 	font-size: { fmt.Sprintf("%v%%", fontSize) };
 }
 
+func baseFontSizeMobile(fontSize int) string {
+
+	return fmt.Sprintf(`
+	   <style>
+		@media screen and (max-width: 31.25rem) {
+            html,
+            body {
+                font-size: %v%% !important;
+            }
+        }
+		<style>`, fontSize-20)
+}
+
 css animationDuration(duration int) {
 	animation-duration: { fmt.Sprintf("%ds", duration) };
 }
@@ -204,15 +217,14 @@ templ Home(data PageData) {
     				}
 				</style>
 			}
+			@templ.Raw(baseFontSizeMobile(data.FontSize))
 		</head>
 		<body>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
 					@kioskCrossFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.CrossFadeTransitionDuration)
-					)
 				case "fade":
 					@kioskFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.FadeTransitionDuration)
-					)
 				default:
 					@kioskNone(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries)
 			}

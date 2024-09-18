@@ -89,10 +89,10 @@ body {
     Arial,
     Helvetica,
     sans-serif;
-  letter-spacing: 1px;
+  letter-spacing: 0.0625rem;
   background-color: #000;
 }
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 31.25rem) {
   html,
   body {
     font-size: 80%;
@@ -204,7 +204,7 @@ body {
   color: #fff;
   font-size: 1.1rem;
   text-align: right;
-  text-shadow: 0 0 20px black;
+  text-shadow: 0 0 1.25rem black;
   background-color: rgba(0, 0, 0, 0.3);
   background: rgb(0, 0, 0);
   background: -moz-linear-gradient(270deg, rgba(0, 0, 0, 0.500437675070028) 0%, rgba(0, 0, 0, 0) 100%);
@@ -237,7 +237,7 @@ body {
   display: inline-block;
   font-size: 0.84rem;
   font-weight: bold;
-  transform: translate(1px, -3px);
+  transform: translate(0.0625rem, -0.1875rem);
 }
 .image--metadata--exif--seperator {
   opacity: 0.3;
@@ -246,7 +246,7 @@ body {
 .image--metadata--location {
   padding-left: 3rem;
 }
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 31.25rem) {
   .image--metadata {
     padding: 0.5rem;
     max-width: 50vw;
@@ -276,12 +276,12 @@ body {
 }
 .error {
   background-color: rgba(204, 0, 0, 0.4);
-  border: 2px solid rgb(204, 0, 0);
-  max-width: 560px;
+  border: 0.125rem solid rgb(204, 0, 0);
+  max-width: 35rem;
   width: 100%;
   color: #fff;
   padding: 2rem;
-  border-radius: 12px;
+  border-radius: 0.75rem;
 }
 .error--title {
   font-size: 2.5rem;
@@ -302,7 +302,7 @@ body {
   position: absolute;
   top: 0;
   width: 100%;
-  height: 3px;
+  height: 0.18rem;
 }
 .progress--bar {
   position: absolute;
@@ -310,6 +310,7 @@ body {
   height: 100%;
   top: 0;
   left: 0;
+  border-radius: 0 1rem 1rem 0;
   background-color: #1e83f7;
   transition: width 0.03s linear;
   will-change: width;
@@ -325,7 +326,7 @@ body {
   display: none;
 }
 #offline svg {
-  filter: drop-shadow(0px 0px 1rem black);
+  filter: drop-shadow(0rem 0rem 1rem black);
 }
 .offline {
   display: block !important;
@@ -339,7 +340,7 @@ body {
   color: #fff;
   font-size: 3rem;
   padding: 1rem;
-  text-shadow: 0 0 20px black;
+  text-shadow: 0 0 1.25rem black;
   background-color: rgba(0, 0, 0, 0.3);
   background: rgb(0, 0, 0);
   background: -moz-linear-gradient(90deg, rgba(0, 0, 0, 0.500437675070028) 0%, rgba(0, 0, 0, 0) 100%);
@@ -356,7 +357,7 @@ body {
   display: none;
   padding: 0;
 }
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 31.25rem) {
   #clock {
     padding: 0.5rem;
   }
@@ -384,7 +385,7 @@ body {
   visibility: visible;
   transition: opacity 0.5s ease;
   will-change: opacity;
-  box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
+  box-shadow: rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem, rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
 }
 .navigation--item {
   width: 3.62rem;
@@ -395,16 +396,17 @@ body {
   cursor: pointer;
 }
 .navigation--item--separator {
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.2);
 }
 .navigation-hidden {
+  transition-duration: 0s;
   opacity: 0;
   visibility: hidden;
 }
 .navigation svg {
   fill: white;
-  max-width: 2rem;
-  max-height: 2rem;
+  width: 2rem;
+  height: 2rem;
 }
 .navigation--fullscreen--exit {
   display: none;

@@ -45,3 +45,4 @@ kiosk:
   password: ""
   cache: true # cache select api calls
   pre_fetch: true # fetch assets in the background
+  asset_weighting: true # use weighting when picking assets

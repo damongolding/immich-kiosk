@@ -26,11 +26,14 @@ type KioskSettings struct {
 	// Cache enable/disable api call caching
 	Cache bool `mapstructure:"cache" default:"true"`
 
-	// PreFetch get and cache an image in the background
+	// PreFetch fetch and cache an image in the background
 	PreFetch bool `mapstructure:"pre_fetch" default:"true"`
 
 	// Password the password used to add authentication to the frontend
 	Password string `mapstructure:"password" default:""`
+
+	// AssetWeighting use weighting when picking assets
+	AssetWeighting bool `mapstructure:"asset_weighting" default:"true"`
 
 	// debug modes
 	Debug        bool `mapstructure:"debug" default:"false"`
@@ -137,26 +140,38 @@ func (c *Config) checkRequiredFields() {
 	}
 }
 
+func (c *Config) checkDebuging() {
+	if c.Kiosk.DebugVerbose {
+		c.Kiosk.Debug = true
+	}
+}
+
 // Load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
-// If configFile is provided, it will use that file instead of the default "config.yaml".
-func (c *Config) Load(configFile ...string) error {
+func (c *Config) Load() error {
+	return c.load("config.yaml")
+}
+
+// Load loads yaml config file into memory with a custom path, then loads ENV vars. ENV vars overwrites yaml settings.
+func (c *Config) LoadWithConfigLocation(configPath string) error {
+	return c.load(configPath)
+}
+
+// load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
+func (c *Config) load(configFile string) error {
 
 	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
 
 	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
 	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
 	v.BindEnv("kiosk.pre_fetch", "KIOSK_PRE_FETCH")
+	v.BindEnv("kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING")
 
 	v.BindEnv("kiosk.debug", "KIOSK_DEBUG")
 	v.BindEnv("kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE")
 
 	v.AddConfigPath(".")
-	// Use the provided config file if one is given, otherwise use the default
-	if len(configFile) > 0 && configFile[0] != "" {
-		v.SetConfigFile(configFile[0])
-	} else {
-		v.SetConfigFile("config.yaml")
-	}
+
+	v.SetConfigFile(configFile)
 
 	v.SetEnvPrefix("kiosk")
 
@@ -175,6 +190,7 @@ func (c *Config) Load(configFile ...string) error {
 
 	c.checkRequiredFields()
 	c.checkUrlScheme()
+	c.checkDebuging()
 
 	return nil
 

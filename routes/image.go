@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -16,27 +17,67 @@ import (
 	"github.com/damongolding/immich-kiosk/views"
 )
 
+// processImage processes an image based on the given configuration and returns the image bytes.
+// It selects an image from either albums or people based on the configuration and asset weighting.
+//
+// Parameters:
+//   - immichImage: A pointer to the ImmichAsset to process.
+//   - requestConfig: The configuration for the current request.
+//   - requestId: A unique identifier for the request.
+//   - kioskDeviceId: The ID of the kiosk device.
+//   - isPrefetch: A boolean indicating if this is a prefetch operation.
+//
+// Returns:
+//   - []byte: The processed image bytes.
+//   - error: An error if any occurred during processing.
 func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestId string, kioskDeviceId string, isPrefetch bool) ([]byte, error) {
 	var imgBytes []byte
 
-	peopleAndAlbums := []immich.ImmichAsset{}
-	for _, people := range requestConfig.Person {
-		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "PERSON", ID: people})
-	}
-	for _, album := range requestConfig.Album {
-		peopleAndAlbums = append(peopleAndAlbums, immich.ImmichAsset{Type: "ALBUM", ID: album})
+	peopleAndAlbums := []immich.AssetWithWeighting{}
+
+	for _, person := range requestConfig.Person {
+		personAssetCount, err := immichImage.PersonImageCount(person, requestId)
+		if err != nil {
+			return imgBytes, fmt.Errorf("getting person image count: %w", err)
+		}
+		peopleAndAlbums = append(peopleAndAlbums, immich.AssetWithWeighting{
+			Asset:  immich.WeightedAsset{Type: "PERSON", ID: person},
+			Weight: personAssetCount,
+		})
 	}
 
-	pickedImage := utils.RandomItem(peopleAndAlbums)
+	for _, album := range requestConfig.Album {
+		albumAssetCount, err := immichImage.AlbumImageCount(album, requestId)
+		if err != nil {
+			return imgBytes, fmt.Errorf("getting album asset count: %w", err)
+		}
+		peopleAndAlbums = append(peopleAndAlbums, immich.AssetWithWeighting{
+			Asset:  immich.WeightedAsset{Type: "ALBUM", ID: album},
+			Weight: albumAssetCount,
+		})
+	}
+
+	var pickedImage immich.WeightedAsset
+
+	if requestConfig.Kiosk.AssetWeighting {
+		pickedImage = utils.WeightedRandomItem(peopleAndAlbums)
+	} else {
+		var assetsOnly []immich.WeightedAsset
+		for _, item := range peopleAndAlbums {
+			assetsOnly = append(assetsOnly, item.Asset)
+		}
+
+		pickedImage = utils.RandomItem(assetsOnly)
+	}
 
 	var err error
 	switch pickedImage.Type {
 	case "ALBUM":
-		err = immichImage.GetRandomImageFromAlbum(pickedImage.ID, requestId)
+		err = immichImage.RandomImageFromAlbum(pickedImage.ID, requestId, kioskDeviceId, isPrefetch)
 	case "PERSON":
-		err = immichImage.GetRandomImageOfPerson(pickedImage.ID, requestId)
+		err = immichImage.RandomImageOfPerson(pickedImage.ID, requestId, kioskDeviceId, isPrefetch)
 	default:
-		err = immichImage.GetRandomImage(requestId)
+		err = immichImage.RandomImage(requestId, kioskDeviceId, isPrefetch)
 	}
 
 	if err != nil {
@@ -44,7 +85,7 @@ func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, 
 	}
 
 	imageGet := time.Now()
-	imgBytes, err = immichImage.GetImagePreview()
+	imgBytes, err = immichImage.ImagePreview()
 	if err != nil {
 		return imgBytes, fmt.Errorf("getting image preview: %w", err)
 	}
@@ -58,6 +99,17 @@ func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, 
 	return imgBytes, err
 }
 
+// processPageData processes the page data for an image request.
+// It handles image conversion, blurring (if configured), and prepares the PageData struct.
+//
+// Parameters:
+//   - requestConfig: The configuration for the current request.
+//   - c: The echo.Context for the current request.
+//   - isPrefetch: A boolean indicating if this is a prefetch operation.
+//
+// Returns:
+//   - views.PageData: The processed page data.
+//   - error: An error if any occurred during processing.
 func processPageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (views.PageData, error) {
 	requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	kioskDeviceId := c.Request().Header.Get("kiosk-device-id")
@@ -110,15 +162,59 @@ func processPageData(requestConfig config.Config, c echo.Context, isPrefetch boo
 	}, nil
 }
 
-func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceId string) {
-	pageData, err := processPageData(requestConfig, c, true)
-	if err != nil {
-		log.Error("prefetch", "err", err)
-		return
+// imagePreFetch prefetches a specified number of images and caches them for future use.
+// This function improves performance by preparing images in advance, reducing load times for subsequent requests.
+//
+// Parameters:
+//   - numberOfImages: The number of images to prefetch and cache.
+//   - requestConfig: Configuration for the current request.
+//   - c: The echo.Context for the current request.
+//   - kioskDeviceId: The unique identifier for the kiosk device.
+//
+// The function creates a worker pool to concurrently process and cache the specified number of images.
+// Cached images are stored with a key that combines the request URL and kiosk device ID.
+func imagePreFetch(numberOfImages int, requestConfig config.Config, c echo.Context, kioskDeviceId string) {
+
+	var wg sync.WaitGroup
+
+	wg.Add(numberOfImages)
+
+	for range make([]struct{}, numberOfImages) {
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
+
+			pageData, err := processPageData(requestConfig, c, true)
+			if err != nil {
+				log.Error("prefetch", "err", err)
+				return
+			}
+
+			cacheKey := c.Request().URL.String() + kioskDeviceId
+
+			cachedPageData := []views.PageData{}
+
+			if data, found := pageDataCache.Get(cacheKey); found {
+				cachedPageData = data.([]views.PageData)
+			}
+
+			cachedPageData = append(cachedPageData, pageData)
+
+			pageDataCache.Set(cacheKey, cachedPageData, cache.DefaultExpiration)
+		}(&wg)
+
 	}
-	pageDataCache.Set(c.Request().URL.String()+kioskDeviceId, pageData, cache.DefaultExpiration)
+
+	wg.Wait()
 }
 
+// NewImage returns an echo.HandlerFunc that handles requests for new images.
+// It manages image processing, caching, and prefetching based on the configuration.
+//
+// Parameters:
+//   - baseConfig: A pointer to the base configuration.
+//
+// Returns:
+//   - echo.HandlerFunc: A function that handles the image request.
 func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -154,16 +250,20 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
-			if data, found := pageDataCache.Get(c.Request().URL.String() + kioskDeviceId); found {
+			cacheKey := c.Request().URL.String() + kioskDeviceId
+			if data, found := pageDataCache.Get(cacheKey); found {
 				log.Debug(
 					requestId,
 					"deviceID", kioskDeviceId,
 					"cache hit for new image", true,
 				)
-				cachedPageData := data.(views.PageData)
-				pageDataCache.Delete(c.Request().URL.String())
-				go imagePreFetch(requestConfig, c, kioskDeviceId)
-				return Render(c, http.StatusOK, views.Image(cachedPageData))
+				cachedPageData := data.([]views.PageData)
+				if len(cachedPageData) != 0 {
+					nextPageData := cachedPageData[0]
+					pageDataCache.Set(cacheKey, cachedPageData[1:], cache.DefaultExpiration)
+					go imagePreFetch(1, requestConfig, c, kioskDeviceId)
+					return Render(c, http.StatusOK, views.Image(nextPageData))
+				}
 			}
 			log.Debug(
 				requestId,
@@ -179,13 +279,21 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			go imagePreFetch(requestConfig, c, kioskDeviceId)
+			go imagePreFetch(1, requestConfig, c, kioskDeviceId)
 		}
 
 		return Render(c, http.StatusOK, views.Image(pageData))
 	}
 }
 
+// NewRawImage returns an echo.HandlerFunc that handles requests for raw images.
+// It processes the image without any additional transformations and returns it as a blob.
+//
+// Parameters:
+//   - baseConfig: A pointer to the base configuration.
+//
+// Returns:
+//   - echo.HandlerFunc: A function that handles the raw image request.
 func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 

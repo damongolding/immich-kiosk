@@ -48,7 +48,8 @@
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
-  - [Example 1: Raspberry Pi](#example-2)
+  - [Key features](#key-features)
+  - [Example 1: Raspberry Pi](#example-1)
 - [Installation](#installation)
 - [Docker Compose](#docker-compose)
 - [Configuration](#configuration)
@@ -65,14 +66,22 @@
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
 
+## Key features
+- Simple installation and updates via Docker.
+- Lightweight, responsive frontend for smooth performance.
+- Display random images from your Immich collection, or curate specific albums and people.
+- Fully customizable appearance with flexible transitions.
+- Add a live clock with adjustable formats.
+- Define default settings for all devices through environment variables or YAML config files.
+- Configure device-specific settings using URL parameters.
+
 ![preview 1](/assets/demo_1.jpg)
 **Image shot by Damon Golding**
 
 ![preview 2](/assets/demo_2.jpg)
 **[Image shot by @insungpandora](https://unsplash.com/@insungpandora)**
 
-
-### Example 1
+## Example 1
 You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
 
 You want the pi connected to the LCD screen to only show images from your recent holiday, which are stored in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
@@ -112,6 +121,11 @@ services:
 ```
 
 ### When using environment variables
+
+> [!NOTE]
+> You do not need to specifiy all of these.
+> If you want the default behaviour/value you can omit it from you compose file.
+
 ```yaml
 services:
   immich-kiosk:
@@ -157,6 +171,7 @@ services:
       KIOSK_PASSWORD: ""
       KIOSK_CACHE: TRUE
       KIOSK_PRE_FETCH: TRUE
+      KIOSK_ASSET_WEIGHTING: TRUE
     ports:
       - 3000:3000
     restart: on-failure
@@ -218,6 +233,7 @@ kiosk:
 | password          | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
 | cache             | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
 | pre_fetch         | KIOSK_PRE_FETCH         | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |
+| asset_weighting   | KIOSK_ASSET_WEIGHTING   | bool         | true        | Balances asset selection when multiple sources are used e.g. multiple people and albums. When enabled, sources with fewer assets will show less often. |
 
 
 ------
@@ -415,6 +431,21 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
 
 ## FAQ
 
+**Q: What is the difference between ImmichFrame and ImmichKiosk?**\
+**A**:The main differences between ImmichFrame and ImmichKiosk are in how they are set up and how they interact with Immich:
+
+- **ImmichFrame**: For individual devices
+   - Installed on each device you want to use.
+   - The device connects directly to Immich.
+   - Data is processed on the device itself.
+
+- **ImmichKiosk**: For multiple devices
+   - Installed once on a central server.
+   - Devices connect to it via a web browser, and it connects to Immich.
+   - Data is processed by the Kiosk server.
+
+In short, ImmichFrame is a 'one device, one installation, direct connection' setup, while ImmichKiosk is 'one installation, multiple devices, indirect connection.'"
+
 ![no-wifi icon](/assets/offline.svg)\
 **Q: What is the no wifi icon?**\
 **A**: This icon shows when the front end can't connect to the back end .
@@ -457,7 +488,6 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ------
 
 ## TODO / Roadmap
-- Exclude video thumbnails from being displayed
 - Clock/timestamp shadow redesign
 - Whitelist for people and albums
 - Exclude list

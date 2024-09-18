@@ -12,7 +12,7 @@ import (
 )
 
 // TestGetRandomImage testing if no images are found. Should retry 10 times
-func TestGetRandomImage(t *testing.T) {
+func TestRandomImage(t *testing.T) {
 
 	log.SetLevel(log.DebugLevel)
 
@@ -41,7 +41,7 @@ func TestGetRandomImage(t *testing.T) {
 
 	i := NewImage(*c)
 
-	err := i.GetRandomImage("TESTING")
+	err := i.RandomImage("TESTING", "TESTING", false)
 	assert.NotNil(t, err, "Expected an error, but got nil")
 	assert.Equal(t, "no images found", err.Error(), "Unexpected error message")
 	assert.Equal(t, 10, i.Retries, "Expected 10 retries")

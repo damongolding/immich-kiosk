@@ -9,7 +9,7 @@
 }
 
 #offline svg {
-    filter: drop-shadow(0px 0px 1rem black);
+    filter: drop-shadow(0rem 0rem 1rem black);
 }
 
 .offline {

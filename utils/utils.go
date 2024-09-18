@@ -25,6 +25,8 @@ import (
 	"github.com/disintegration/imaging"
 
 	"github.com/google/uuid"
+
+	"github.com/damongolding/immich-kiosk/immich"
 )
 
 // GenerateUUID generates as UUID
@@ -152,6 +154,52 @@ func RandomItem[T any](s []T) T {
 	return s[0]
 }
 
+// calculateTotalWeight calculates the sum of logarithmic weights for all assets in the given slice.
+// It uses natural logarithm (base e) and adds 1 to avoid log(0).
+func calculateTotalWeight(assets []immich.AssetWithWeighting) int {
+	total := 0
+	for _, asset := range assets {
+		logWeight := int(math.Log(float64(asset.Weight) + 1))
+		if logWeight == 0 {
+			logWeight = 1
+		}
+		total += logWeight
+	}
+	return total
+}
+
+// WeightedRandomItem selects a random asset from the given slice of WeightedAsset(s)
+// based on their logarithmic weights. It uses a weighted random selection algorithm.
+func WeightedRandomItem(assets []immich.AssetWithWeighting) immich.WeightedAsset {
+
+	// guards
+	switch len(assets) {
+	case 0:
+		return immich.WeightedAsset{}
+	case 1:
+		return assets[0].Asset
+	}
+
+	totalWeight := calculateTotalWeight(assets)
+	randomWeight := rand.IntN(totalWeight) + 1
+
+	for _, asset := range assets {
+		logWeight := int(math.Log(float64(asset.Weight) + 1))
+		if randomWeight <= logWeight {
+			return asset.Asset
+		}
+		randomWeight -= logWeight
+	}
+
+	// WeightedRandomItem sometimes returns an empty WeightedAsset
+	// when the random selection process fails to pick an item.
+	// This is a fallback to ensure we always return a valid asset.
+	if len(assets) > 0 {
+		return assets[0].Asset
+	}
+	return immich.WeightedAsset{}
+}
+
 type Color struct {
 	R   int
 	G   int
@@ -183,6 +231,9 @@ func StringToColor(inputString string) Color {
 	return Color{R: r, G: g, B: b, RGB: rgb, Hex: hex}
 }
 
+// ColorizeRequestId takes a request ID string and returns a colorized string representation.
+// It generates a color based on the input string, determines the best contrasting text color,
+// and applies styling using lipgloss to create a visually distinct, colored representation of the request ID.
 func ColorizeRequestId(requestId string) string {
 
 	c := StringToColor(requestId)
