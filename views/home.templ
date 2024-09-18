@@ -106,7 +106,7 @@ func baseFontSizeMobile(fontSize int) string {
                 font-size: %v%% !important;
             }
         }
-		<style>`, fontSize-20)
+		</style>`, fontSize-20)
 }
 
 css animationDuration(duration int) {
@@ -173,6 +173,7 @@ templ clock(queries url.Values, kioskVersion string, deviceID string) {
 		hx-swap="innerHTML"
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
 	></div>
+	<div class="clock-shadow"></div>
 }
 
 templ progressBar(refresh int) {
@@ -220,6 +221,7 @@ templ Home(data PageData) {
 			@templ.Raw(baseFontSizeMobile(data.FontSize))
 		</head>
 		<body>
+			<div class="image--metadata-shadow"></div>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
 					@kioskCrossFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.CrossFadeTransitionDuration)
