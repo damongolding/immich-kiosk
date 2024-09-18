@@ -301,7 +301,7 @@ func baseFontSizeMobile(fontSize int) string {
                 font-size: %v%% !important;
             }
         }
-		<style>`, fontSize-20)
+		</style>`, fontSize-20)
 }
 
 func animationDuration(duration int) templ.CSSClass {
