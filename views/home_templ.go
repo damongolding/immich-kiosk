@@ -647,16 +647,8 @@ func Home(data PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ) ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
 		case "fade":
 			templ_7745c5c3_Err = kioskFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.FadeTransitionDuration).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ) ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -712,7 +704,7 @@ func Home(data PageData) templ.Component {
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", data.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 251, Col: 92}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/home.templ`, Line: 249, Col: 92}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {

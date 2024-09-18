@@ -223,10 +223,8 @@ templ Home(data PageData) {
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
 					@kioskCrossFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.CrossFadeTransitionDuration)
-					)
 				case "fade":
 					@kioskFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.FadeTransitionDuration)
-					)
 				default:
 					@kioskNone(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries)
 			}
