@@ -119,6 +119,7 @@ templ Image(data PageData) {
 			}
 		</div>
 		if !data.Config.DisableUi {
+			<div class="image--metadata-shadow"></div>
 			<div class="image--metadata">
 				if data.Config.ShowImageDate || data.Config.ShowImageTime {
 					<div class="image--metadata--date">

@@ -6,23 +6,36 @@
     color: #fff;
     font-size: 3rem;
     padding: 1rem;
-    /* text-shadow: 0 0 1.25rem black; */
+    text-shadow: 0 0 1.25rem black;
 
     z-index: 10000;
 }
 
 .clock-shadow {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
-    background-size: 100% 100%;
-    background-position: 0px 0px;
+    height: 50vh;
     background-image: radial-gradient(
         23rem 13rem at 0% 100%,
-        #000000a6 0%,
-        #073aff00 100%
+
+        hsla(0, 0%, 0%, 0.59) 0%,
+        hsla(0, 0%, 0%, 0.582) 5.2%,
+        hsla(0, 0%, 0%, 0.561) 10.9%,
+        hsla(0, 0%, 0%, 0.529) 16.9%,
+        hsla(0, 0%, 0%, 0.487) 23.3%,
+        hsla(0, 0%, 0%, 0.437) 29.9%,
+        hsla(0, 0%, 0%, 0.382) 36.8%,
+        hsla(0, 0%, 0%, 0.324) 43.8%,
+        hsla(0, 0%, 0%, 0.266) 51%,
+        hsla(0, 0%, 0%, 0.208) 58.2%,
+        hsla(0, 0%, 0%, 0.153) 65.4%,
+        hsla(0, 0%, 0%, 0.103) 72.6%,
+        hsla(0, 0%, 0%, 0.061) 79.7%,
+        hsla(0, 0%, 0%, 0.029) 86.7%,
+        hsla(0, 0%, 0%, 0.008) 93.5%,
+        hsla(0, 0%, 0%, 0) 100%
     );
 }
 
@@ -35,11 +48,33 @@
     #clock {
         padding: 0.5rem;
     }
+
+    .clock-shadow {
+        background-image: radial-gradient(
+            13rem 13rem at 0% 100%,
+
+            hsla(0, 0%, 0%, 0.59) 0%,
+            hsla(0, 0%, 0%, 0.582) 5.2%,
+            hsla(0, 0%, 0%, 0.561) 10.9%,
+            hsla(0, 0%, 0%, 0.529) 16.9%,
+            hsla(0, 0%, 0%, 0.487) 23.3%,
+            hsla(0, 0%, 0%, 0.437) 29.9%,
+            hsla(0, 0%, 0%, 0.382) 36.8%,
+            hsla(0, 0%, 0%, 0.324) 43.8%,
+            hsla(0, 0%, 0%, 0.266) 51%,
+            hsla(0, 0%, 0%, 0.208) 58.2%,
+            hsla(0, 0%, 0%, 0.153) 65.4%,
+            hsla(0, 0%, 0%, 0.103) 72.6%,
+            hsla(0, 0%, 0%, 0.061) 79.7%,
+            hsla(0, 0%, 0%, 0.029) 86.7%,
+            hsla(0, 0%, 0%, 0.008) 93.5%,
+            hsla(0, 0%, 0%, 0) 100%
+        );
+    }
 }
 
 .clock--date {
     font-size: 1.5rem;
-    opacity: 0.8;
 }
 
 .clock--time {

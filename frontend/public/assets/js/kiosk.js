@@ -3740,6 +3740,9 @@ var kiosk = (() => {
   );
   var kiosk = htmx_esm_default.find("#kiosk");
   var menu = htmx_esm_default.find(".navigation");
+  var menuInteraction = htmx_esm_default.find(
+    "#navigation-interaction-area"
+  );
   var menuPausePlayButton2 = htmx_esm_default.find(
     ".navigation--control"
   );
@@ -3760,7 +3763,7 @@ var kiosk = (() => {
     toggleFullscreen(documentBody, fullscreenButton);
   }
   function addEventListeners() {
-    kiosk == null ? void 0 : kiosk.addEventListener("click", togglePolling);
+    menuInteraction == null ? void 0 : menuInteraction.addEventListener("click", togglePolling);
     menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
     fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", handleFullscreenClick);
     addFullscreenEventListener(fullscreenButton);

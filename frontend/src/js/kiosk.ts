@@ -33,6 +33,9 @@ const fullscreenButton = htmx.find(
 ) as HTMLElement | null;
 const kiosk = htmx.find("#kiosk") as HTMLElement | null;
 const menu = htmx.find(".navigation") as HTMLElement | null;
+const menuInteraction = htmx.find(
+  "#navigation-interaction-area",
+) as HTMLElement | null;
 const menuPausePlayButton = htmx.find(
   ".navigation--control",
 ) as HTMLElement | null;
@@ -67,7 +70,7 @@ function handleFullscreenClick() {
  */
 function addEventListeners() {
   // Pause/resume polling and show/hide menu
-  kiosk?.addEventListener("click", togglePolling);
+  menuInteraction?.addEventListener("click", togglePolling);
   menuPausePlayButton?.addEventListener("click", togglePolling);
 
   // Fullscreen
