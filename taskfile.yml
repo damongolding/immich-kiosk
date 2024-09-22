@@ -8,9 +8,30 @@ tasks:
       - KIOSK_DEBUG=true ./dist/kiosk
 
   frontend:
+    deps: [frontend-test, frontend-css, frontend-js]
+    dir: ./frontend
+    cmds:
+      - pnpm lint
+
+  frontend-build:
     dir: ./frontend
     cmds:
       - pnpm build
+
+  frontend-test:
+    dir: ./frontend
+    cmds:
+      - pnpm test
+
+  frontend-css:
+    dir: ./frontend
+    cmds:
+      - pnpm css
+
+  frontend-js:
+    dir: ./frontend
+    cmds:
+      - pnpm js
 
   templ:
     cmds:
