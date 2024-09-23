@@ -118,7 +118,7 @@ func processPageData(requestConfig config.Config, c echo.Context, isPrefetch boo
 
 	imgBytes, err := processImage(&immichImage, requestConfig, requestId, kioskDeviceId, isPrefetch)
 	if err != nil {
-		return views.PageData{}, fmt.Errorf("converting image to base64: %w", err)
+		return views.PageData{}, fmt.Errorf("selecting image: %w", err)
 	}
 
 	imageConvertTime := time.Now()
@@ -259,10 +259,24 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 				)
 				cachedPageData := data.([]views.PageData)
 				if len(cachedPageData) != 0 {
-					nextPageData := cachedPageData[0]
-					pageDataCache.Set(cacheKey, cachedPageData[1:], cache.DefaultExpiration)
-					go imagePreFetch(1, requestConfig, c, kioskDeviceId)
-					return Render(c, http.StatusOK, views.Image(nextPageData))
+					switch requestConfig.SplitView {
+					case true:
+						nextPageData := cachedPageData[:2]
+						pageDataCache.Set(cacheKey, cachedPageData[2:], cache.DefaultExpiration)
+						log.Debug("cached items remaining", "items", len(cachedPageData[2:]))
+						if len(cachedPageData) < 4 {
+							go imagePreFetch(requestConfig.Kiosk.CacheImageLimit, requestConfig, c, kioskDeviceId)
+						}
+						return Render(c, http.StatusOK, views.ImageSplit(nextPageData...))
+					default:
+						nextPageData := cachedPageData[0]
+						pageDataCache.Set(cacheKey, cachedPageData[1:], cache.DefaultExpiration)
+						log.Debug("cached items remaining", "items", len(cachedPageData[1:]))
+						if len(cachedPageData) < 4 {
+							go imagePreFetch(requestConfig.Kiosk.CacheImageLimit, requestConfig, c, kioskDeviceId)
+						}
+						return Render(c, http.StatusOK, views.Image(nextPageData))
+					}
 				}
 			}
 			log.Debug(
@@ -279,10 +293,10 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			go imagePreFetch(1, requestConfig, c, kioskDeviceId)
+			go imagePreFetch(requestConfig.Kiosk.CacheImageLimit, requestConfig, c, kioskDeviceId)
 		}
 
-		return Render(c, http.StatusOK, views.Image(pageData))
+		return Render(c, http.StatusOK, views.ImageSplit(pageData))
 	}
 }
 

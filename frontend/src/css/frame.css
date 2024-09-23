@@ -1,6 +1,7 @@
 /* --- frame --- */
 .frame {
     position: absolute;
+    display: flex;
     width: 100%;
     height: 100%;
 
@@ -62,4 +63,32 @@
     object-fit: cover;
     width: 100%;
     height: 100%;
+}
+
+/* Split images */
+.frame--split {
+    position: relative;
+    width: 50%;
+    height: 100%;
+
+    width: 50vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.frame--split:nth-child(1) {
+    border-right: 0.125rem solid black;
+}
+
+.frame--split:nth-child(2) {
+    border-left: 0.125rem solid black;
+}
+
+.frame--split .frame--image {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50vw;
+    height: 100vh;
 }

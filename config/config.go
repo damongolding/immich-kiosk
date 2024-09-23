@@ -23,8 +23,10 @@ const (
 )
 
 type KioskSettings struct {
-	// Cache enable/disable api call caching
+	// Cache enable/disable api call and image caching
 	Cache bool `mapstructure:"cache" default:"true"`
+	// CacheImageLimit the amount of images allowed to be cached
+	CacheImageLimit int `mapstructure:"cache_image_limit" default:"10"`
 
 	// PreFetch fetch and cache an image in the background
 	PreFetch bool `mapstructure:"pre_fetch" default:"true"`
@@ -68,6 +70,8 @@ type Config struct {
 	FontSize int `mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
 	// Theme which theme to use
 	Theme string `mapstructure:"theme" query:"theme" form:"theme" default:"fade"`
+	// SplitView display two asstes side by side vertically
+	SplitView bool `mapstructure:"split_view" query:"split_view" form:"split_view" default:"false"`
 
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
