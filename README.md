@@ -378,9 +378,12 @@ These examples assume that today's date is the 22nd of August 2024.
 ------
 
 ## Themes
+
 ### Fade (the default)
+![Kiosk theme fade]("/assets/theme-fade.jpeg")
 
 ### Solid
+![Kiosk theme fade]("/assets/theme-solid.jpeg")
 
 ------
 
