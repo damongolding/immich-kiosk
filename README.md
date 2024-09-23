@@ -380,9 +380,11 @@ These examples assume that today's date is the 22nd of August 2024.
 ## Themes
 
 ### Fade (the default)
+Soft gradient background for the clock and image metadata
 ![Kiosk theme fade](/assets/theme-fade.jpeg)
 
 ### Solid
+Solid background for the clock and image metadata
 ![Kiosk theme solid](/assets/theme-solid.jpeg)
 
 ------
