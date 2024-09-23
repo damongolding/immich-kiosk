@@ -37,7 +37,7 @@ var kiosk = (() => {
     });
   };
 
-  // src/js/kiosk.ts
+  // src/ts/kiosk.ts
   var kiosk_exports = {};
   __export(kiosk_exports, {
     cleanupFrames: () => cleanupFrames,
@@ -3570,7 +3570,7 @@ var kiosk = (() => {
   }();
   var htmx_esm_default = htmx2;
 
-  // src/js/fullscreen.ts
+  // src/ts/fullscreen.ts
   var isFullscreen = false;
   var fullscreenAPI = getFullscreenAPI();
   function getFullscreenAPI() {
@@ -3639,7 +3639,7 @@ var kiosk = (() => {
     });
   }
 
-  // src/js/polling.ts
+  // src/ts/polling.ts
   var animationFrameId = null;
   var progressBarElement;
   var lastPollTime = null;
@@ -3708,7 +3708,7 @@ var kiosk = (() => {
     isPaused ? resumePolling() : pausePolling();
   }
 
-  // src/js/wakelock.ts
+  // src/ts/wakelock.ts
   var wakeLock = () => __async(void 0, null, function* () {
     if ("wakeLock" in navigator) {
       let wakeLock2 = null;
@@ -3728,7 +3728,7 @@ var kiosk = (() => {
     }
   });
 
-  // src/js/kiosk.ts
+  // src/ts/kiosk.ts
   var _a;
   var kioskData = JSON.parse(
     ((_a = document.getElementById("kiosk-data")) == null ? void 0 : _a.textContent) || "{}"
@@ -3740,6 +3740,9 @@ var kiosk = (() => {
   );
   var kiosk = htmx_esm_default.find("#kiosk");
   var menu = htmx_esm_default.find(".navigation");
+  var menuInteraction = htmx_esm_default.find(
+    "#navigation-interaction-area"
+  );
   var menuPausePlayButton2 = htmx_esm_default.find(
     ".navigation--control"
   );
@@ -3760,7 +3763,7 @@ var kiosk = (() => {
     toggleFullscreen(documentBody, fullscreenButton);
   }
   function addEventListeners() {
-    kiosk == null ? void 0 : kiosk.addEventListener("click", togglePolling);
+    menuInteraction == null ? void 0 : menuInteraction.addEventListener("click", togglePolling);
     menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
     fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", handleFullscreenClick);
     addFullscreenEventListener(fullscreenButton);

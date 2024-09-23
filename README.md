@@ -2,7 +2,7 @@
 
 <div align="center">
   <a href="https://github.com/damongolding/immich-kiosk">
-    <img src="/assets/logo.svg" width="240" height="auto" alt="Immich Kiosk windmil logo" />
+    <img src="/assets/logo.svg" width="240" height="auto" alt="Immich Kiosk windmill logo" />
   </a>
 </div>
 <br />
@@ -54,6 +54,7 @@
   - [People](#people)
   - [Image fit](#image-fit)
   - [Date format](#date-format)
+  - [Themes](#themes)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -149,6 +150,7 @@ services:
       KIOSK_HIDE_CURSOR: FALSE
       KIOSK_FONT_SIZE: 100
       KIOSK_BACKGROUND_BLUR: TRUE
+      KIOSK_THEME: FADE
       # Transistion options
       KIOSK_TRANSITION: NONE
       KIOSK_FADE_TRANSITION_DURATION: 1
@@ -193,8 +195,9 @@ See the file config.example.yaml for an example config file
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
-| font_size                         | KIOSK_FONT_SZIE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
+| font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
+| theme                             | KIOSK_THEME             | fade \| solid              | fade        | Which Kiosk theme to use. See [Themes](#themes) for more information.                      |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
@@ -374,6 +377,20 @@ These examples assume that today's date is the 22nd of August 2024.
 
 ------
 
+## Themes
+
+### Fade (the default)
+Soft gradient background for the clock and image metadata
+
+![Kiosk theme fade](/assets/theme-fade.jpeg)
+
+### Solid
+Solid background for the clock and image metadata
+
+![Kiosk theme solid](/assets/theme-solid.jpeg)
+
+------
+
 ## Home Assistant
 
 > [!NOTE]
@@ -463,7 +480,7 @@ If you want to specify an album or a person you can also add that to the url e.g
 **A**: 👇
 
 > [!WARNING]
-> This feature is meant for edgecase senarios and offers very little in terms of protection.
+> This feature is meant for edgecase scenarios and offers very little in terms of protection.
 > If you are aiming to expose Kiosk beyond your local network, please investigate more secure alternatives.
 
 via config.yaml file
@@ -487,7 +504,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - Clock/timestamp shadow redesign
 - Whitelist for people and albums
 - Exclude list
-- Use favourites as image pool sauce
+- Use favourites as image pool source
 - PWA
 
 ------

@@ -33,45 +33,54 @@ templ ImageFitContain(ImageData, imageFit string) {
 }
 
 func ImageLocation(info immich.ExifInfo) string {
-
-	var location string
+	var location strings.Builder
 
 	if info.City != "" {
-		location += info.City
+		location.WriteString(info.City)
 	}
 
 	if info.State != "" {
-		location += ", " + info.State
+		location.WriteString(", ")
+		location.WriteString(info.State)
 	}
 
 	if info.Country != "" {
-		location += "<span>, </span><br class=\"responsive-break\"/>" + info.Country
+		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
+		location.WriteString(info.Country)
 	}
 
-	return location
+	return location.String()
 }
 
 func ImageExif(info immich.ExifInfo) string {
-
-	var stats []string
+	var stats strings.Builder
 
 	if info.FNumber != 0 {
-		stats = append(stats, fmt.Sprintf("<span class=\"image--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
+		stats.WriteString(fmt.Sprintf("<span class=\"image--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
 	}
 
 	if info.ExposureTime != "" {
-		stats = append(stats, fmt.Sprintf("%s <small>s<small>", info.ExposureTime))
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("%s <small>s<small>", info.ExposureTime))
 	}
 
 	if info.FocalLength != 0 {
-		stats = append(stats, fmt.Sprintf("%vmm", info.FocalLength))
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("%vmm", info.FocalLength))
 	}
 
 	if info.Iso != 0 {
-		stats = append(stats, fmt.Sprintf("ISO %v", info.Iso))
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("ISO %v", info.Iso))
 	}
 
-	return strings.Join(stats, "<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+	return stats.String()
 }
 
 func ImageDateTime(data PageData) string {
@@ -119,7 +128,7 @@ templ Image(data PageData) {
 			}
 		</div>
 		if !data.Config.DisableUi {
-			<div class="image--metadata">
+			<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", data.Theme) }>
 				if data.Config.ShowImageDate || data.Config.ShowImageTime {
 					<div class="image--metadata--date">
 						{ ImageDateTime(data) }

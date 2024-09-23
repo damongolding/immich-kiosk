@@ -6,25 +6,7 @@
     color: #fff;
     font-size: 3rem;
     padding: 1rem;
-    text-shadow: 0 0 1.25rem black;
-    background-color: rgba(0, 0, 0, 0.3);
-    background: rgb(0, 0, 0);
-    background: -moz-linear-gradient(
-        90deg,
-        rgba(0, 0, 0, 0.500437675070028) 0%,
-        rgba(0, 0, 0, 0) 100%
-    );
-    background: -webkit-linear-gradient(
-        90deg,
-        rgba(0, 0, 0, 0.500437675070028) 0%,
-        rgba(0, 0, 0, 0) 100%
-    );
-    background: linear-gradient(
-        90deg,
-        rgba(0, 0, 0, 0.500437675070028) 0%,
-        rgba(0, 0, 0, 0) 100%
-    );
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000", endColorstr="#000000", GradientType=1);
+    text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 
     z-index: 10000;
 }
@@ -34,6 +16,43 @@
     padding: 0;
 }
 
+/* fade theme */
+.clock--theme-fade::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 150%;
+    height: 200%;
+    background-image: radial-gradient(
+        100% 100% at 0% 100%,
+        hsla(0, 0%, 0%, 0.59) 0%,
+        hsla(0, 0%, 0%, 0.582) 5.2%,
+        hsla(0, 0%, 0%, 0.561) 10.9%,
+        hsla(0, 0%, 0%, 0.529) 16.9%,
+        hsla(0, 0%, 0%, 0.487) 23.3%,
+        hsla(0, 0%, 0%, 0.437) 29.9%,
+        hsla(0, 0%, 0%, 0.382) 36.8%,
+        hsla(0, 0%, 0%, 0.324) 43.8%,
+        hsla(0, 0%, 0%, 0.266) 51%,
+        hsla(0, 0%, 0%, 0.208) 58.2%,
+        hsla(0, 0%, 0%, 0.153) 65.4%,
+        hsla(0, 0%, 0%, 0.103) 72.6%,
+        hsla(0, 0%, 0%, 0.061) 79.7%,
+        hsla(0, 0%, 0%, 0.029) 86.7%,
+        hsla(0, 0%, 0%, 0.008) 93.5%,
+        hsla(0, 0%, 0%, 0) 100%
+    );
+    z-index: 0;
+}
+
+/* solid theme */
+.clock--theme-solid {
+    padding-left: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 0 2rem 0 0;
+}
+
 @media screen and (max-width: 31.25rem) {
     #clock {
         padding: 0.5rem;
@@ -41,11 +60,14 @@
 }
 
 .clock--date {
+    position: relative;
     font-size: 1.5rem;
-    opacity: 0.8;
+    z-index: 1;
 }
 
 .clock--time {
+    position: relative;
     padding-right: 3rem;
     font-size: 3rem;
+    z-index: 1;
 }

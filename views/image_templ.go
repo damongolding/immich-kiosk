@@ -135,45 +135,54 @@ func ImageFitContain(ImageData, imageFit string) templ.Component {
 }
 
 func ImageLocation(info immich.ExifInfo) string {
-
-	var location string
+	var location strings.Builder
 
 	if info.City != "" {
-		location += info.City
+		location.WriteString(info.City)
 	}
 
 	if info.State != "" {
-		location += ", " + info.State
+		location.WriteString(", ")
+		location.WriteString(info.State)
 	}
 
 	if info.Country != "" {
-		location += "<span>, </span><br class=\"responsive-break\"/>" + info.Country
+		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
+		location.WriteString(info.Country)
 	}
 
-	return location
+	return location.String()
 }
 
 func ImageExif(info immich.ExifInfo) string {
-
-	var stats []string
+	var stats strings.Builder
 
 	if info.FNumber != 0 {
-		stats = append(stats, fmt.Sprintf("<span class=\"image--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
+		stats.WriteString(fmt.Sprintf("<span class=\"image--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
 	}
 
 	if info.ExposureTime != "" {
-		stats = append(stats, fmt.Sprintf("%s <small>s<small>", info.ExposureTime))
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("%s <small>s<small>", info.ExposureTime))
 	}
 
 	if info.FocalLength != 0 {
-		stats = append(stats, fmt.Sprintf("%vmm", info.FocalLength))
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("%vmm", info.FocalLength))
 	}
 
 	if info.Iso != 0 {
-		stats = append(stats, fmt.Sprintf("ISO %v", info.Iso))
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("ISO %v", info.Iso))
 	}
 
-	return strings.Join(stats, "<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+	return stats.String()
 }
 
 func ImageDateTime(data PageData) string {
@@ -251,7 +260,7 @@ func Image(data PageData) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.ImageBlurData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 108, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 117, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -288,7 +297,25 @@ func Image(data PageData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if !data.Config.DisableUi {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"image--metadata\">")
+			var templ_7745c5c3_Var11 = []any{"image--metadata", fmt.Sprintf("image--metadata--theme-%s", data.Theme)}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var11...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var11).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -297,12 +324,12 @@ func Image(data PageData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(ImageDateTime(data))
+				var templ_7745c5c3_Var13 string
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(ImageDateTime(data))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 125, Col: 27}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 134, Col: 27}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -353,12 +380,12 @@ func Image(data PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(entry)
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(entry)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 143, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 152, Col: 81}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -371,12 +398,12 @@ func Image(data PageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(data.ImmichImage.ID)
+		var templ_7745c5c3_Var15 string
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(data.ImmichImage.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 145, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 154, Col: 94}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
