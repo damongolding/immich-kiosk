@@ -505,6 +505,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - Whitelist for people and albums
 - Exclude list
 - Use favourites as image pool source
+- PWA
 
 ------
 
