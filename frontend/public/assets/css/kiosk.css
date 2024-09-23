@@ -149,6 +149,7 @@ body {
   right: 0;
   bottom: 0;
   overflow: hidden;
+  z-index: 0;
 }
 .frame-black-bg {
   background-color: #000;
@@ -200,21 +201,22 @@ body {
   bottom: 0;
   right: 0;
   max-width: 70vw;
-  padding: 1rem;
+  padding: 1rem 1rem 1.375rem 1rem;
   color: #fff;
   font-size: 1.1rem;
   text-align: right;
-  text-shadow: 0 0 1.25rem black;
+  text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 }
-.image--metadata-shadow {
+.image--metadata--theme-fade::before {
+  content: "";
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 100vw;
-  height: 50vh;
+  width: 150%;
+  height: 200%;
   background-image:
     radial-gradient(
-      50rem 17rem at 100% 100%,
+      100% 100% at 100% 100%,
       hsla(0, 0%, 0%, 0.59) 0%,
       hsla(0, 0%, 0%, 0.582) 5.2%,
       hsla(0, 0%, 0%, 0.561) 10.9%,
@@ -231,6 +233,12 @@ body {
       hsla(0, 0%, 0%, 0.029) 86.7%,
       hsla(0, 0%, 0%, 0.008) 93.5%,
       hsla(0, 0%, 0%, 0) 100%);
+  z-index: 0;
+}
+.image--metadata--theme-solid {
+  padding-left: 1.5rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 2rem 0 0 0;
 }
 .image--metadata .responsive-break {
   display: none;
@@ -244,23 +252,25 @@ body {
 }
 .image--metadata--date {
   font-size: 1.3rem;
-  padding-left: 3rem;
+  z-index: 1;
 }
 .image--metadata--exif {
-  padding-left: 3rem;
+  z-index: 1;
 }
 .image--metadata--exif--fnumber {
   display: inline-block;
   font-size: 0.84rem;
   font-weight: bold;
   transform: translate(0.0625rem, -0.1875rem);
+  z-index: 1;
 }
 .image--metadata--exif--seperator {
   opacity: 0.3;
   padding: 0 0.5rem;
+  z-index: 1;
 }
 .image--metadata--location {
-  padding-left: 3rem;
+  z-index: 1;
 }
 @media screen and (max-width: 31.25rem) {
   .image--metadata {
@@ -356,18 +366,23 @@ body {
   color: #fff;
   font-size: 3rem;
   padding: 1rem;
-  text-shadow: 0 0 1.25rem black;
+  text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
   z-index: 10000;
 }
-.clock-shadow {
+#clock:empty {
+  display: none;
+  padding: 0;
+}
+.clock--theme-fade::before {
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 100vw;
-  height: 50vh;
+  width: 150%;
+  height: 200%;
   background-image:
     radial-gradient(
-      23rem 13rem at 0% 100%,
+      100% 100% at 0% 100%,
       hsla(0, 0%, 0%, 0.59) 0%,
       hsla(0, 0%, 0%, 0.582) 5.2%,
       hsla(0, 0%, 0%, 0.561) 10.9%,
@@ -384,43 +399,28 @@ body {
       hsla(0, 0%, 0%, 0.029) 86.7%,
       hsla(0, 0%, 0%, 0.008) 93.5%,
       hsla(0, 0%, 0%, 0) 100%);
+  z-index: 0;
 }
-#clock:empty {
-  display: none;
-  padding: 0;
+.clock--theme-solid {
+  padding-left: 1.5rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 0 2rem 0 0;
 }
 @media screen and (max-width: 31.25rem) {
   #clock {
     padding: 0.5rem;
   }
-  .clock-shadow {
-    background-image:
-      radial-gradient(
-        13rem 13rem at 0% 100%,
-        hsla(0, 0%, 0%, 0.59) 0%,
-        hsla(0, 0%, 0%, 0.582) 5.2%,
-        hsla(0, 0%, 0%, 0.561) 10.9%,
-        hsla(0, 0%, 0%, 0.529) 16.9%,
-        hsla(0, 0%, 0%, 0.487) 23.3%,
-        hsla(0, 0%, 0%, 0.437) 29.9%,
-        hsla(0, 0%, 0%, 0.382) 36.8%,
-        hsla(0, 0%, 0%, 0.324) 43.8%,
-        hsla(0, 0%, 0%, 0.266) 51%,
-        hsla(0, 0%, 0%, 0.208) 58.2%,
-        hsla(0, 0%, 0%, 0.153) 65.4%,
-        hsla(0, 0%, 0%, 0.103) 72.6%,
-        hsla(0, 0%, 0%, 0.061) 79.7%,
-        hsla(0, 0%, 0%, 0.029) 86.7%,
-        hsla(0, 0%, 0%, 0.008) 93.5%,
-        hsla(0, 0%, 0%, 0) 100%);
-  }
 }
 .clock--date {
+  position: relative;
   font-size: 1.5rem;
+  z-index: 1;
 }
 .clock--time {
+  position: relative;
   padding-right: 3rem;
   font-size: 3rem;
+  z-index: 1;
 }
 
 /* src/css/menu.css */

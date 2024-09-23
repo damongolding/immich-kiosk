@@ -66,6 +66,8 @@ type Config struct {
 	HideCursor bool `mapstructure:"hide_cursor" query:"hide_cursor" form:"hide_cursor" default:"false"`
 	// FontSize the base font size as a percentage
 	FontSize int `mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
+	// Theme which theme to use
+	Theme string `mapstructure:"theme" query:"theme" form:"theme" default:"fade"`
 
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`

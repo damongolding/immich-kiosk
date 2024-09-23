@@ -37,7 +37,7 @@ var kiosk = (() => {
     });
   };
 
-  // src/js/kiosk.ts
+  // src/ts/kiosk.ts
   var kiosk_exports = {};
   __export(kiosk_exports, {
     cleanupFrames: () => cleanupFrames,
@@ -3570,7 +3570,7 @@ var kiosk = (() => {
   }();
   var htmx_esm_default = htmx2;
 
-  // src/js/fullscreen.ts
+  // src/ts/fullscreen.ts
   var isFullscreen = false;
   var fullscreenAPI = getFullscreenAPI();
   function getFullscreenAPI() {
@@ -3639,7 +3639,7 @@ var kiosk = (() => {
     });
   }
 
-  // src/js/polling.ts
+  // src/ts/polling.ts
   var animationFrameId = null;
   var progressBarElement;
   var lastPollTime = null;
@@ -3708,7 +3708,7 @@ var kiosk = (() => {
     isPaused ? resumePolling() : pausePolling();
   }
 
-  // src/js/wakelock.ts
+  // src/ts/wakelock.ts
   var wakeLock = () => __async(void 0, null, function* () {
     if ("wakeLock" in navigator) {
       let wakeLock2 = null;
@@ -3728,7 +3728,7 @@ var kiosk = (() => {
     }
   });
 
-  // src/js/kiosk.ts
+  // src/ts/kiosk.ts
   var _a;
   var kioskData = JSON.parse(
     ((_a = document.getElementById("kiosk-data")) == null ? void 0 : _a.textContent) || "{}"
