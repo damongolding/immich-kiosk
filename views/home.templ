@@ -162,10 +162,10 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-templ clock(queries url.Values, kioskVersion string, deviceID string, theme string, splitView bool) {
+templ clock(queries url.Values, kioskVersion string, deviceID string, theme string) {
 	<div
 		id="clock"
-		class={ fmt.Sprintf("clock--theme-%s", theme), templ.KV("clock-splitview", splitView) }
+		class={ fmt.Sprintf("clock--theme-%s", theme) }
 		hx-get="/clock"
 		if len(queries) > 0 {
 			hx-include=".kiosk-param"
@@ -220,7 +220,7 @@ templ Home(data PageData) {
 			}
 			@templ.Raw(baseFontSizeMobile(data.FontSize))
 		</head>
-		<body>
+		<body class={ templ.KV("splitview", data.SplitView) }>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
 					@kioskCrossFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.CrossFadeTransitionDuration)
@@ -233,7 +233,7 @@ templ Home(data PageData) {
 				@progressBar(data.Config.Refresh)
 			}
 			if !data.Config.DisableUi && data.Config.ShowTime {
-				@clock(data.Queries, data.KioskVersion, data.DeviceID, data.Theme, data.SplitView)
+				@clock(data.Queries, data.KioskVersion, data.DeviceID, data.Theme)
 			}
 			@menu()
 			@paramForm(data.Queries)
