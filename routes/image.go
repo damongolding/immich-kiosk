@@ -31,6 +31,7 @@ import (
 //   - []byte: The processed image bytes.
 //   - error: An error if any occurred during processing.
 func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestId string, kioskDeviceId string, isPrefetch bool) ([]byte, error) {
+
 	var imgBytes []byte
 
 	peopleAndAlbums := []immich.AssetWithWeighting{}
@@ -126,10 +127,13 @@ func processPageData(requestConfig config.Config, c echo.Context, isPrefetch boo
 	if err != nil {
 		return views.PageData{}, fmt.Errorf("converting image to base64: %w", err)
 	}
-	if isPrefetch {
-		log.Debug(requestId, "PREFETCH", kioskDeviceId, "Converted image in", time.Since(imageConvertTime).Seconds())
-	} else {
-		log.Debug(requestId, "Converted image in", time.Since(imageConvertTime).Seconds())
+
+	if requestConfig.Kiosk.DebugVerbose {
+		if isPrefetch {
+			log.Debug(requestId, "PREFETCH", kioskDeviceId, "Converted image in", time.Since(imageConvertTime).Seconds())
+		} else {
+			log.Debug(requestId, "Converted image in", time.Since(imageConvertTime).Seconds())
+		}
 	}
 
 	var imgBlur string
@@ -143,10 +147,12 @@ func processPageData(requestConfig config.Config, c echo.Context, isPrefetch boo
 		if err != nil {
 			return views.PageData{}, fmt.Errorf("converting blurred image to base64: %w", err)
 		}
-		if isPrefetch {
-			log.Debug(requestId, "PREFETCH", kioskDeviceId, "Blurred image in", time.Since(imageBlurTime).Seconds())
-		} else {
-			log.Debug(requestId, "Blurred image in", time.Since(imageBlurTime).Seconds())
+		if requestConfig.Kiosk.DebugVerbose {
+			if isPrefetch {
+				log.Debug(requestId, "PREFETCH", kioskDeviceId, "Blurred image in", time.Since(imageBlurTime).Seconds())
+			} else {
+				log.Debug(requestId, "Blurred image in", time.Since(imageBlurTime).Seconds())
+			}
 		}
 	}
 
@@ -179,8 +185,14 @@ func imagePreFetch(numberOfImages int, requestConfig config.Config, c echo.Conte
 
 	wg.Add(numberOfImages)
 
-	for range make([]struct{}, numberOfImages) {
-		go func(wg *sync.WaitGroup) {
+	cacheKey := c.Request().URL.String() + kioskDeviceId
+
+	for i := 0; i < numberOfImages; i++ {
+
+		go func() {
+			pageDataCacheMutex.Lock()
+
+			defer pageDataCacheMutex.Unlock()
 			defer wg.Done()
 
 			pageData, err := processPageData(requestConfig, c, true)
@@ -188,8 +200,6 @@ func imagePreFetch(numberOfImages int, requestConfig config.Config, c echo.Conte
 				log.Error("prefetch", "err", err)
 				return
 			}
-
-			cacheKey := c.Request().URL.String() + kioskDeviceId
 
 			cachedPageData := []views.PageData{}
 
@@ -200,7 +210,7 @@ func imagePreFetch(numberOfImages int, requestConfig config.Config, c echo.Conte
 			cachedPageData = append(cachedPageData, pageData)
 
 			pageDataCache.Set(cacheKey, cachedPageData, cache.DefaultExpiration)
-		}(&wg)
+		}()
 
 	}
 
@@ -252,31 +262,27 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		if requestConfig.Kiosk.PreFetch {
 			cacheKey := c.Request().URL.String() + kioskDeviceId
 			if data, found := pageDataCache.Get(cacheKey); found {
-				log.Debug(
-					requestId,
-					"deviceID", kioskDeviceId,
-					"cache hit for new image", true,
-				)
 				cachedPageData := data.([]views.PageData)
-				if len(cachedPageData) != 0 {
+				if len(cachedPageData) >= 2 {
+					log.Debug(
+						requestId,
+						"deviceID", kioskDeviceId,
+						"cache hit for new image", true,
+					)
 					switch requestConfig.SplitView {
 					case true:
 						nextPageData := cachedPageData[:2]
 						pageDataCache.Set(cacheKey, cachedPageData[2:], cache.DefaultExpiration)
-						log.Debug("cached items remaining", "items", len(cachedPageData[2:]))
-						if len(cachedPageData) < 4 {
-							go imagePreFetch(requestConfig.Kiosk.CacheImageLimit, requestConfig, c, kioskDeviceId)
-						}
+						go imagePreFetch(2, requestConfig, c, kioskDeviceId)
 						return Render(c, http.StatusOK, views.ImageSplit(nextPageData...))
 					default:
 						nextPageData := cachedPageData[0]
 						pageDataCache.Set(cacheKey, cachedPageData[1:], cache.DefaultExpiration)
-						log.Debug("cached items remaining", "items", len(cachedPageData[1:]))
-						if len(cachedPageData) < 4 {
-							go imagePreFetch(requestConfig.Kiosk.CacheImageLimit, requestConfig, c, kioskDeviceId)
-						}
+						go imagePreFetch(1, requestConfig, c, kioskDeviceId)
 						return Render(c, http.StatusOK, views.Image(nextPageData))
 					}
+				} else {
+					pageDataCache.Delete(cacheKey)
 				}
 			}
 			log.Debug(
@@ -293,7 +299,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			go imagePreFetch(requestConfig.Kiosk.CacheImageLimit, requestConfig, c, kioskDeviceId)
+			go imagePreFetch(2, requestConfig, c, kioskDeviceId)
 		}
 
 		return Render(c, http.StatusOK, views.ImageSplit(pageData))

@@ -2,7 +2,8 @@
 #offline {
     position: absolute;
     top: 1rem;
-    left: 1rem;
+    left: 50%;
+    margin-left: -1.5rem;
     width: 3rem;
     height: 3rem;
     display: none;

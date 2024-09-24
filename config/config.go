@@ -25,8 +25,6 @@ const (
 type KioskSettings struct {
 	// Cache enable/disable api call and image caching
 	Cache bool `mapstructure:"cache" default:"true"`
-	// CacheImageLimit the amount of images allowed to be cached
-	CacheImageLimit int `mapstructure:"cache_image_limit" default:"10"`
 
 	// PreFetch fetch and cache an image in the background
 	PreFetch bool `mapstructure:"pre_fetch" default:"true"`

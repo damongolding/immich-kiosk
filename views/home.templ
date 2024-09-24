@@ -162,10 +162,10 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-templ clock(queries url.Values, kioskVersion string, deviceID string, theme string) {
+templ clock(queries url.Values, kioskVersion string, deviceID string, theme string, splitView bool) {
 	<div
 		id="clock"
-		class={ fmt.Sprintf("clock--theme-%s", theme) }
+		class={ fmt.Sprintf("clock--theme-%s", theme), templ.KV("clock-splitview", splitView) }
 		hx-get="/clock"
 		if len(queries) > 0 {
 			hx-include=".kiosk-param"
@@ -233,7 +233,7 @@ templ Home(data PageData) {
 				@progressBar(data.Config.Refresh)
 			}
 			if !data.Config.DisableUi && data.Config.ShowTime {
-				@clock(data.Queries, data.KioskVersion, data.DeviceID, data.Theme)
+				@clock(data.Queries, data.KioskVersion, data.DeviceID, data.Theme, data.SplitView)
 			}
 			@menu()
 			@paramForm(data.Queries)

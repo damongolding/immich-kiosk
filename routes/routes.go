@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"sync"
 	"time"
 
 	"github.com/a-h/templ"
@@ -14,7 +15,8 @@ import (
 var (
 	KioskVersion string
 
-	pageDataCache *cache.Cache
+	pageDataCache      *cache.Cache
+	pageDataCacheMutex sync.Mutex
 )
 
 type PersonOrAlbum struct {

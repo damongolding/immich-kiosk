@@ -460,7 +460,7 @@ func paramForm(queries url.Values) templ.Component {
 	})
 }
 
-func clock(queries url.Values, kioskVersion string, deviceID string, theme string) templ.Component {
+func clock(queries url.Values, kioskVersion string, deviceID string, theme string, splitView bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -478,7 +478,7 @@ func clock(queries url.Values, kioskVersion string, deviceID string, theme strin
 			templ_7745c5c3_Var16 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var17 = []any{fmt.Sprintf("clock--theme-%s", theme)}
+		var templ_7745c5c3_Var17 = []any{fmt.Sprintf("clock--theme-%s", theme), templ.KV("clock-splitview", splitView)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var17...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -683,7 +683,7 @@ func Home(data PageData) templ.Component {
 			}
 		}
 		if !data.Config.DisableUi && data.Config.ShowTime {
-			templ_7745c5c3_Err = clock(data.Queries, data.KioskVersion, data.DeviceID, data.Theme).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = clock(data.Queries, data.KioskVersion, data.DeviceID, data.Theme, data.SplitView).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

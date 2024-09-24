@@ -402,6 +402,7 @@ body {
   top: 0;
   width: 100%;
   height: 0.18rem;
+  z-index: 10001;
 }
 .progress--bar {
   position: absolute;
@@ -419,7 +420,8 @@ body {
 #offline {
   position: absolute;
   top: 1rem;
-  left: 1rem;
+  left: 50%;
+  margin-left: -1.5rem;
   width: 3rem;
   height: 3rem;
   display: none;
@@ -441,6 +443,10 @@ body {
   padding: 1rem;
   text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
   z-index: 10000;
+}
+#clock.clock-splitview {
+  bottom: unset;
+  top: 0;
 }
 #clock:empty {
   display: none;
@@ -474,10 +480,42 @@ body {
       hsla(0, 0%, 0%, 0) 100%);
   z-index: 0;
 }
+.clock--theme-fade.clock-splitview::before {
+  content: "";
+  position: absolute;
+  bottom: unset;
+  top: 0;
+  left: 0;
+  width: 150%;
+  height: 200%;
+  background-image:
+    radial-gradient(
+      100% 100% at 0% 0%,
+      hsla(0, 0%, 0%, 0.59) 0%,
+      hsla(0, 0%, 0%, 0.582) 5.2%,
+      hsla(0, 0%, 0%, 0.561) 10.9%,
+      hsla(0, 0%, 0%, 0.529) 16.9%,
+      hsla(0, 0%, 0%, 0.487) 23.3%,
+      hsla(0, 0%, 0%, 0.437) 29.9%,
+      hsla(0, 0%, 0%, 0.382) 36.8%,
+      hsla(0, 0%, 0%, 0.324) 43.8%,
+      hsla(0, 0%, 0%, 0.266) 51%,
+      hsla(0, 0%, 0%, 0.208) 58.2%,
+      hsla(0, 0%, 0%, 0.153) 65.4%,
+      hsla(0, 0%, 0%, 0.103) 72.6%,
+      hsla(0, 0%, 0%, 0.061) 79.7%,
+      hsla(0, 0%, 0%, 0.029) 86.7%,
+      hsla(0, 0%, 0%, 0.008) 93.5%,
+      hsla(0, 0%, 0%, 0) 100%);
+  z-index: 0;
+}
 .clock--theme-solid {
   padding-left: 1.5rem;
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 0 2rem 0 0;
+}
+.clock--theme-solid.clock-splitview {
+  border-radius: 0 0 2rem 0;
 }
 @media screen and (max-width: 31.25rem) {
   #clock {

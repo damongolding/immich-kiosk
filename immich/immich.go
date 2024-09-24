@@ -81,7 +81,6 @@ type Faces []struct {
 }
 
 type ImmichAsset struct {
-	Retries          int
 	ID               string    `json:"id"`
 	DeviceAssetID    string    `json:"-"` // `json:"deviceAssetId"`
 	OwnerID          string    `json:"-"` // `json:"ownerId"`
@@ -147,6 +146,17 @@ type ImmichApiResponse interface {
 	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichPersonStatistics | int
 }
 
+func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl string) (T, error) {
+	var immichError ImmichError
+	errorUnmarshalErr := json.Unmarshal(body, &immichError)
+	if errorUnmarshalErr != nil {
+		log.Error("couln't read error", "body", string(body), "url", apiUrl)
+		return value, err
+	}
+	log.Errorf("%s : %v", immichError.Error, immichError.Message)
+	return value, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
+}
+
 // immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
 func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestId string, jsonShape T) ImmichApiCall {
 	return func(apiUrl string) ([]byte, error) {
@@ -159,6 +169,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 			if requestConfig.Kiosk.DebugVerbose {
 				log.Debug(requestId+" Cache hit", "url", apiUrl)
 			}
+			log.Debug(requestId+" Cache hit", "url", apiUrl)
 			return apiData.([]byte), nil
 		}
 
@@ -223,17 +234,6 @@ func (i *ImmichAsset) immichApiCall(apiUrl string) ([]byte, error) {
 	}
 
 	return responseBody, err
-}
-
-func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl string) (T, error) {
-	var immichError ImmichError
-	errorUnmarshalErr := json.Unmarshal(body, &immichError)
-	if errorUnmarshalErr != nil {
-		log.Error("couln't read error", "body", string(body), "url", apiUrl)
-		return value, err
-	}
-	log.Errorf("%s : %v", immichError.Error, immichError.Message)
-	return value, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 }
 
 // personAssets retrieves all assets associated with a specific person from Immich.
@@ -340,17 +340,18 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceId string, isPrefetch bo
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("parsing url", err)
 	}
 
 	apiUrl := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     "api/assets/random",
-		RawQuery: "count=6",
+		RawQuery: "count=100",
 	}
 
-	body, err := i.immichApiCall(apiUrl.String())
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId, immichAssets)
+	body, err := immichApiCall(apiUrl.String())
 	if err != nil {
 		_, err = immichApiFail(immichAssets, err, body, apiUrl.String())
 		return err
@@ -363,29 +364,38 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceId string, isPrefetch bo
 	}
 
 	if len(immichAssets) == 0 {
-		log.Error("no assets found")
-		return fmt.Errorf("no assets found")
+		log.Debug(requestId + " No images left in cache. Refreshing and trying again")
+		apiCache.Delete(apiUrl.String())
+		return i.RandomImage(requestId, kioskDeviceId, isPrefetch)
 	}
 
-	for _, img := range immichAssets {
+	for immichAssetIndex, img := range immichAssets {
 		// We only want images and that are not trashed or archived (unless wanted by user)
 		if img.Type != "IMAGE" || img.IsTrashed || (img.IsArchived && !requestConfig.ShowArchived) {
 			continue
+		}
+
+		if requestConfig.Kiosk.Cache {
+			// Remove the current image from the slice
+			immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
+			jsonBytes, err := json.Marshal(immichAssetsToCache)
+			if err != nil {
+				log.Error("Failed to marshal immichAssetsToCache", "error", err)
+				return err
+			}
+			// replace cwith cache minus used image
+			err = apiCache.Replace(apiUrl.String(), jsonBytes, cache.DefaultExpiration)
+			if err != nil {
+				log.Debug("cache not found!")
+			}
 		}
 
 		*i = img
 		return nil
 	}
 
-	// No images found
-	i.Retries++
-	log.Debug(requestId+" Not a image. Trying again", "retry", i.Retries)
-
-	if i.Retries >= maxRetries {
-		log.Error("no images found")
-		return fmt.Errorf("no images found")
-	}
-
+	log.Debug(requestId + " No viable images left in cache. Refreshing and trying again")
+	apiCache.Delete(apiUrl.String())
 	return i.RandomImage(requestId, kioskDeviceId, isPrefetch)
 }
 
