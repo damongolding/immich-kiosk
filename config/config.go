@@ -47,7 +47,7 @@ type KioskSettings struct {
 	Cache bool `mapstructure:"cache" default:"true"`
 
 	// PreFetch fetch and cache an image in the background
-	PreFetch bool `mapstructure:"pre_fetch" default:"true"`
+	PreFetch bool `mapstructure:"prefetch" default:"true"`
 
 	// Password the password used to add authentication to the frontend
 	Password string `mapstructure:"password" default:""`
@@ -187,7 +187,7 @@ func (c *Config) load(configFile string) error {
 
 	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
 	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
-	v.BindEnv("kiosk.pre_fetch", "KIOSK_PRE_FETCH")
+	v.BindEnv("kiosk.prefetch", "KIOSK_PREFETCH")
 	v.BindEnv("kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING")
 
 	v.BindEnv("kiosk.debug", "KIOSK_DEBUG")

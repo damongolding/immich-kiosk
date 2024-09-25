@@ -168,7 +168,7 @@ services:
       # Kiosk settings
       KIOSK_PASSWORD: ""
       KIOSK_CACHE: TRUE
-      KIOSK_PRE_FETCH: TRUE
+      KIOSK_PREFETCH: TRUE
       KIOSK_ASSET_WEIGHTING: TRUE
     ports:
       - 3000:3000
@@ -222,7 +222,7 @@ immich_api_key: "****"
 kiosk:
   password: ""
   cache: true
-  pre_fetch: true
+  prefetch: true
 
 ```
 
@@ -231,7 +231,7 @@ kiosk:
 |-------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
 | password          | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
 | cache             | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
-| pre_fetch         | KIOSK_PRE_FETCH         | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |
+| prefetch          | KIOSK_PREFETCH          | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |
 | asset_weighting   | KIOSK_ASSET_WEIGHTING   | bool         | true        | Balances asset selection when multiple sources are used e.g. multiple people and albums. When enabled, sources with fewer assets will show less often. |
 
 
