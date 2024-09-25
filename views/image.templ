@@ -110,7 +110,7 @@ func ImageDateTime(data PageData) string {
 	return imageDate
 }
 
-templ Image(data PageData) {
+templ singleView(data PageData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !data.Config.BackgroundBlur) }>
 		if data.Config.BackgroundBlur && strings.ToLower(data.Config.ImageFit) != "cover" {
 			<div class="frame--background">
@@ -147,64 +147,63 @@ templ Image(data PageData) {
 			</div>
 		}
 	</div>
-	<form id="kiosk-history" hx-swap-oob="true">
-		for _, entry := range data.Config.History {
-			<input type="hidden" class="kiosk-history--entry" name="history" value={ entry }/>
-		}
-		<input type="hidden" class="kiosk-history--entry" name="history" value={ data.ImmichImage.ID }/>
-	</form>
 }
 
-templ ImageSplit(data ...PageData) {
-	switch len(data) < 2 {
-		case true:
-			@Image(data[0])
-		default:
-			<div class={ "frame", templ.KV("frame-black-bg", !data[0].Config.BackgroundBlur) }>
-				for _, imageData := range data {
-					<div class="frame--split">
-						if imageData.Config.BackgroundBlur && strings.ToLower(imageData.Config.ImageFit) != "cover" {
-							<div class="frame--background">
-								<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
+templ splitView(data ...PageData) {
+	<div class={ "frame", templ.KV("frame-black-bg", !data[0].Config.BackgroundBlur) }>
+		for _, imageData := range data {
+			<div class="frame--split">
+				if imageData.Config.BackgroundBlur && strings.ToLower(imageData.Config.ImageFit) != "cover" {
+					<div class="frame--background">
+						<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
+					</div>
+				}
+				<div class="frame--image">
+					switch strings.ToLower(imageData.Config.ImageFit) {
+						case "cover":
+							@ImageFitCover(imageData.ImageData, imageData.Config.ImageFit)
+						case "none":
+							@ImageFitNone(imageData.ImageData, imageData.Config.ImageFit)
+						default:
+							@ImageFitContain(imageData.ImageData, imageData.Config.ImageFit)
+					}
+				</div>
+				if !imageData.Config.DisableUi {
+					<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", imageData.Theme) }>
+						if imageData.Config.ShowImageDate || imageData.Config.ShowImageTime {
+							<div class="image--metadata--date">
+								{ ImageDateTime(imageData) }
 							</div>
 						}
-						<div class="frame--image">
-							switch strings.ToLower(imageData.Config.ImageFit) {
-								case "cover":
-									@ImageFitCover(imageData.ImageData, imageData.Config.ImageFit)
-								case "none":
-									@ImageFitNone(imageData.ImageData, imageData.Config.ImageFit)
-								default:
-									@ImageFitContain(imageData.ImageData, imageData.Config.ImageFit)
-							}
-						</div>
-						if !imageData.Config.DisableUi {
-							<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", imageData.Theme) }>
-								if imageData.Config.ShowImageDate || imageData.Config.ShowImageTime {
-									<div class="image--metadata--date">
-										{ ImageDateTime(imageData) }
-									</div>
-								}
-								if imageData.Config.ShowImageExif {
-									<div class="image--metadata--exif">
-										@templ.Raw(ImageExif(imageData.ImmichImage.ExifInfo))
-									</div>
-								}
-								if imageData.Config.ShowImageLocation {
-									<div class="image--metadata--location">
-										@templ.Raw(ImageLocation(imageData.ImmichImage.ExifInfo))
-									</div>
-								}
+						if imageData.Config.ShowImageExif {
+							<div class="image--metadata--exif">
+								@templ.Raw(ImageExif(imageData.ImmichImage.ExifInfo))
+							</div>
+						}
+						if imageData.Config.ShowImageLocation {
+							<div class="image--metadata--location">
+								@templ.Raw(ImageLocation(imageData.ImmichImage.ExifInfo))
 							</div>
 						}
 					</div>
 				}
 			</div>
+		}
+	</div>
+}
+
+templ Image(data ...PageData) {
+	if len(data) < 2 {
+		@singleView(data[0])
+	} else {
+		@splitView(data...)
 	}
 	<form id="kiosk-history" hx-swap-oob="true">
-		for _, entry := range data[0].Config.History {
-			<input type="hidden" class="kiosk-history--entry" name="history" value={ entry }/>
+		for _, historyEntry := range data[0].Config.History {
+			<input type="hidden" class="kiosk-history--entry" name="history" data="OLD" value={ historyEntry }/>
 		}
-		<input type="hidden" class="kiosk-history--entry" name="history" value={ data[0].ImmichImage.ID }/>
+		for newHistoryEntryIndex, newHistoryEntry := range data {
+			<input type="hidden" class="kiosk-history--entry" name="history" data="NEW" data-index={ fmt.Sprintf("%v", newHistoryEntryIndex) } value={ newHistoryEntry.ImmichImage.ID }/>
+		}
 	</form>
 }

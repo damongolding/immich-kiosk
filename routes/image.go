@@ -71,11 +71,21 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 						nextPageData := cachedPageData[:2]
 						pageDataCache.Set(cacheKey, cachedPageData[2:], cache.DefaultExpiration)
 						go imagePreFetch(2, requestConfig, c, kioskDeviceId)
-						return Render(c, http.StatusOK, views.ImageSplit(nextPageData...))
+
+						// Update history which will be outdated in cache
+						trimHistory(&requestConfig.History, 10)
+						nextPageData[0].History = requestConfig.History
+
+						return Render(c, http.StatusOK, views.Image(nextPageData...))
 					default:
 						nextPageData := cachedPageData[0]
 						pageDataCache.Set(cacheKey, cachedPageData[1:], cache.DefaultExpiration)
 						go imagePreFetch(1, requestConfig, c, kioskDeviceId)
+
+						// Update history which will be outdated in cache
+						trimHistory(&requestConfig.History, 10)
+						nextPageData.History = requestConfig.History
+
 						return Render(c, http.StatusOK, views.Image(nextPageData))
 					}
 				} else {
@@ -99,7 +109,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			go imagePreFetch(2, requestConfig, c, kioskDeviceId)
 		}
 
-		return Render(c, http.StatusOK, views.ImageSplit(pageData))
+		return Render(c, http.StatusOK, views.Image(pageData))
 	}
 }
 
