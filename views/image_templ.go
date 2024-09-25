@@ -252,7 +252,7 @@ func singleView(data PageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if data.Config.BackgroundBlur && strings.ToLower(data.Config.ImageFit) != "cover" {
+		if data.Config.BackgroundBlur && !strings.EqualFold(data.Config.ImageFit, "cover") {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"frame--background\"><img src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -424,7 +424,7 @@ func splitView(data ...PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if imageData.Config.BackgroundBlur && strings.ToLower(imageData.Config.ImageFit) != "cover" {
+			if imageData.Config.BackgroundBlur && !strings.EqualFold(imageData.Config.ImageFit, "cover") {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"frame--background\"><img src=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

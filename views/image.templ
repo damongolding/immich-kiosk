@@ -112,7 +112,7 @@ func ImageDateTime(data PageData) string {
 
 templ singleView(data PageData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !data.Config.BackgroundBlur) }>
-		if data.Config.BackgroundBlur && strings.ToLower(data.Config.ImageFit) != "cover" {
+		if data.Config.BackgroundBlur && !strings.EqualFold(data.Config.ImageFit, "cover") {
 			<div class="frame--background">
 				<img src={ data.ImageBlurData } alt="Blurred image background"/>
 			</div>
@@ -153,7 +153,7 @@ templ splitView(data ...PageData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !data[0].Config.BackgroundBlur) }>
 		for _, imageData := range data {
 			<div class="frame--split">
-				if imageData.Config.BackgroundBlur && strings.ToLower(imageData.Config.ImageFit) != "cover" {
+				if imageData.Config.BackgroundBlur && !strings.EqualFold(imageData.Config.ImageFit, "cover") {
 					<div class="frame--background">
 						<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
 					</div>
