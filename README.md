@@ -151,6 +151,7 @@ services:
       KIOSK_FONT_SIZE: 100
       KIOSK_BACKGROUND_BLUR: TRUE
       KIOSK_THEME: FADE
+      KIOSK_SPLITVIEW: FALSE
       # Transistion options
       KIOSK_TRANSITION: NONE
       KIOSK_FADE_TRANSITION_DURATION: 1
@@ -198,6 +199,7 @@ See the file config.example.yaml for an example config file
 | font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
 | theme                             | KIOSK_THEME             | fade \| solid              | fade        | Which Kiosk theme to use. See [Themes](#themes) for more information.                      |
+| splitview                         | KIOSK_SPLITVIEW         | bool                       | false       | Display two images side by side vertically.                                                |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
