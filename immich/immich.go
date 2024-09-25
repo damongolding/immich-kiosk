@@ -339,10 +339,10 @@ func (i *ImmichAsset) PersonImageCount(personId, requestId string) (int, error) 
 }
 
 // GetRandomImage retrieve a random image from Immich
-func (i *ImmichAsset) RandomImage(requestId, kioskDeviceId string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestId, "PREFETCH", kioskDeviceId, "Getting Random image", true)
+		log.Debug(requestId, "PREFETCH", kioskDeviceID, "Getting Random image", true)
 	} else {
 		log.Debug(requestId + " Getting Random image")
 	}
@@ -377,7 +377,7 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceId string, isPrefetch bo
 	if len(immichAssets) == 0 {
 		log.Debug(requestId + " No images left in cache. Refreshing and trying again")
 		apiCache.Delete(apiUrl.String())
-		return i.RandomImage(requestId, kioskDeviceId, isPrefetch)
+		return i.RandomImage(requestId, kioskDeviceID, isPrefetch)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -407,11 +407,11 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceId string, isPrefetch bo
 
 	log.Debug(requestId + " No viable images left in cache. Refreshing and trying again")
 	apiCache.Delete(apiUrl.String())
-	return i.RandomImage(requestId, kioskDeviceId, isPrefetch)
+	return i.RandomImage(requestId, kioskDeviceID, isPrefetch)
 }
 
 // RandomImageOfPerson retrieve random image of person from Immich
-func (i *ImmichAsset) RandomImageOfPerson(personId, requestId, kioskDeviceId string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImageOfPerson(personId, requestId, kioskDeviceID string, isPrefetch bool) error {
 
 	images, err := i.personAssets(personId, requestId)
 	if err != nil {
@@ -447,7 +447,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personId, requestId, kioskDeviceId str
 			if per.ID == personId {
 
 				if isPrefetch {
-					log.Debug(requestId, "PREFETCH", kioskDeviceId, "Got image of person", per.Name)
+					log.Debug(requestId, "PREFETCH", kioskDeviceID, "Got image of person", per.Name)
 				} else {
 					log.Debug(requestId, "Got image of person", per.Name)
 				}
@@ -461,7 +461,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personId, requestId, kioskDeviceId str
 }
 
 // RandomImageFromAlbum retrieve random image within a specified album from Immich
-func (i *ImmichAsset) RandomImageFromAlbum(albumId, requestId, kioskDeviceId string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImageFromAlbum(albumId, requestId, kioskDeviceID string, isPrefetch bool) error {
 	album, err := i.albumAssets(albumId, requestId)
 	if err != nil {
 		return err

@@ -200,10 +200,10 @@ templ Image(data ...PageData) {
 	}
 	<form id="kiosk-history" hx-swap-oob="true">
 		for _, historyEntry := range data[0].Config.History {
-			<input type="hidden" class="kiosk-history--entry" name="history" data="OLD" value={ historyEntry }/>
+			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
 		}
-		for newHistoryEntryIndex, newHistoryEntry := range data {
-			<input type="hidden" class="kiosk-history--entry" name="history" data="NEW" data-index={ fmt.Sprintf("%v", newHistoryEntryIndex) } value={ newHistoryEntry.ImmichImage.ID }/>
+		for _, newHistoryEntry := range data {
+			<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry.ImmichImage.ID }/>
 		}
 	</form>
 }
