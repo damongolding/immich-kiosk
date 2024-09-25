@@ -540,7 +540,7 @@ body {
   inset: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 99999;
+  z-index: 99998;
 }
 .navigation {
   display: flex;
@@ -556,7 +556,7 @@ body {
   transition: opacity 0.5s ease;
   will-change: opacity;
   box-shadow: rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem, rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
-  z-index: 99998;
+  z-index: 99999;
 }
 .navigation--item {
   width: 3.62rem;
