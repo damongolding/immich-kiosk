@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -240,4 +241,65 @@ func imagePreFetch(numberOfImages int, requestConfig config.Config, c echo.Conte
 	}
 
 	wg.Wait()
+}
+
+// fromCache retrieves cached page data for a given request and device ID.
+func fromCache(c echo.Context, kioskDeviceID string) []views.PageData {
+	pageDataCacheMutex.Lock()
+	defer pageDataCacheMutex.Unlock()
+
+	cacheKey := c.Request().URL.String() + kioskDeviceID
+	if data, found := pageDataCache.Get(cacheKey); found {
+		cachedPageData := data.([]views.PageData)
+		if len(cachedPageData) >= 2 {
+			return cachedPageData
+		}
+		pageDataCache.Delete(cacheKey)
+	}
+	return nil
+}
+
+// renderCachedPageData renders cached page data and updates the cache.
+func renderCachedPageData(c echo.Context, cachedPageData []views.PageData, requestConfig *config.Config, requestID string, kioskDeviceID string) error {
+	pageDataCacheMutex.Lock()
+	defer pageDataCacheMutex.Unlock()
+
+	log.Debug(requestID, "deviceID", kioskDeviceID, "cache hit for new image", true)
+
+	cacheKey := c.Request().URL.String() + kioskDeviceID
+
+	var pageDataToRender []views.PageData
+	if requestConfig.SplitView {
+		pageDataToRender = cachedPageData[:2]
+		pageDataCache.Set(cacheKey, cachedPageData[2:], cache.DefaultExpiration)
+		go imagePreFetch(2, *requestConfig, c, kioskDeviceID)
+	} else {
+		pageDataToRender = []views.PageData{cachedPageData[0]}
+		pageDataCache.Set(cacheKey, cachedPageData[1:], cache.DefaultExpiration)
+		go imagePreFetch(1, *requestConfig, c, kioskDeviceID)
+	}
+
+	// Update history which will be outdated in cache
+	trimHistory(&requestConfig.History, 10)
+	pageDataToRender[0].History = requestConfig.History
+
+	return Render(c, http.StatusOK, views.Image(pageDataToRender...))
+}
+
+// generatePageData generates page data for the current request.
+func generatePageData(requestConfig config.Config, c echo.Context) ([]views.PageData, error) {
+	imagesNeeded := 1
+	if requestConfig.SplitView {
+		imagesNeeded = 2
+	}
+
+	pageData := make([]views.PageData, imagesNeeded)
+	for i := range pageData {
+		pageDataSingle, err := processPageData(requestConfig, c, false)
+		if err != nil {
+			return nil, err
+		}
+		pageData[i] = pageDataSingle
+	}
+	return pageData, nil
 }

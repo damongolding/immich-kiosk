@@ -40,5 +40,46 @@ func TestNewRawImage(t *testing.T) {
 	if assert.NoError(t, h(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	}
+}
 
+func TestTrimHistory(t *testing.T) {
+	testCases := []struct {
+		name      string
+		history   []string
+		maxLength int
+		expected  []string
+	}{
+		{
+			name:      "Empty history",
+			history:   []string{},
+			maxLength: 5,
+			expected:  []string{},
+		},
+		{
+			name:      "History shorter than maxLength",
+			history:   []string{"a", "b", "c"},
+			maxLength: 5,
+			expected:  []string{"a", "b", "c"},
+		},
+		{
+			name:      "History equal to maxLength",
+			history:   []string{"a", "b", "c", "d", "e"},
+			maxLength: 5,
+			expected:  []string{"a", "b", "c", "d", "e"},
+		},
+		{
+			name:      "History longer than maxLength",
+			history:   []string{"a", "b", "c", "d", "e", "f", "g"},
+			maxLength: 5,
+			expected:  []string{"c", "d", "e", "f", "g"},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			history := tc.history
+			trimHistory(&history, tc.maxLength)
+			assert.Equal(t, tc.expected, history, "Trimmed history does not match expected result")
+		})
+	}
 }

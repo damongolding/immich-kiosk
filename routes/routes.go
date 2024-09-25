@@ -6,6 +6,7 @@
 package routes
 
 import (
+	"net/http"
 	"sync"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/config"
+	"github.com/damongolding/immich-kiosk/views"
 )
 
 var (
@@ -37,6 +39,14 @@ type RequestData struct {
 func init() {
 	// Setting up Immich api cache
 	pageDataCache = cache.New(5*time.Minute, 10*time.Minute)
+}
+
+func RenderError(c echo.Context, err error, message string) error {
+	log.Error(message, "err", err)
+	return Render(c, http.StatusOK, views.Error(views.ErrorData{
+		Title:   "Error " + message,
+		Message: err.Error(),
+	}))
 }
 
 // This custom Render replaces Echo's echo.Context.Render() with templ's templ.Component.Render().

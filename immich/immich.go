@@ -154,6 +154,8 @@ type ImmichApiResponse interface {
 	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichPersonStatistics | int
 }
 
+// immichApiFail handles failures in Immich API calls by unmarshaling the error response,
+// logging the error, and returning a formatted error along with the original value.
 func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl string) (T, error) {
 	var immichError ImmichError
 	errorUnmarshalErr := json.Unmarshal(body, &immichError)
