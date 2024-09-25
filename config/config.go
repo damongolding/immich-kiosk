@@ -1,3 +1,23 @@
+// Package config provides configuration management for the Immich Kiosk application.
+//
+// It includes structures and methods for loading, parsing, and managing
+// configuration settings from various sources including YAML files,
+// environment variables, and URL query parameters.
+//
+// The package offers functionality to:
+// - Define default configuration values
+// - Load configuration from files and environment variables
+// - Override configuration with URL query parameters
+// - Validate and process configuration settings
+//
+// Key types:
+// - Config: The main configuration structure
+// - KioskSettings: Settings specific to kiosk mode
+//
+// Key functions:
+// - New: Creates a new Config instance with default values
+// - Load: Loads configuration from a file and environment variables
+// - ConfigWithOverrides: Applies overrides from URL queries to the configuration
 package config
 
 import (

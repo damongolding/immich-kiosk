@@ -1,3 +1,9 @@
+// Package utils provides a collection of helper functions for various tasks.
+//
+// This package includes utilities for UUID generation, date formatting,
+// image processing, URL query manipulation, random selection, color operations,
+// and request ID colorization. It's designed to support common operations
+// across different parts of the application.
 package utils
 
 import (

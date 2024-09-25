@@ -1,3 +1,8 @@
+// Package views provides HTML templates and view-related functionality
+// for rendering web pages in the Immich Kiosk application.
+//
+// It includes structures and utilities for managing page data,
+// handling URL queries, and preparing content for browser display.
 package views
 
 import (

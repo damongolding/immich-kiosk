@@ -1,3 +1,8 @@
+// Package immich provides functions to interact with the Immich API.
+//
+// It includes functionality for retrieving random images, fetching images
+// associated with specific people or albums, and getting image statistics.
+// The package also implements caching mechanisms to optimize API calls.
 package immich
 
 import (
@@ -6,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	"math/rand/v2"
@@ -24,6 +30,8 @@ var (
 	requestConfig config.Config
 	// apiCache cache store for immich api call(s)
 	apiCache *cache.Cache
+	// apiCacheLock is used to synchronize access to the apiCache
+	apiCacheLock sync.Mutex
 )
 
 type ImmichPersonStatistics struct {
@@ -164,6 +172,9 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 		if !requestConfig.Kiosk.Cache {
 			return immichApiCall(apiUrl)
 		}
+
+		apiCacheLock.Lock()
+		defer apiCacheLock.Unlock()
 
 		if apiData, found := apiCache.Get(apiUrl); found {
 			if requestConfig.Kiosk.DebugVerbose {

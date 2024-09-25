@@ -1,3 +1,8 @@
+// Package routes provides HTTP endpoint handlers for the Kiosk application.
+//
+// It includes functions for rendering pages, handling API requests,
+// and managing caching of page data. This package is responsible for
+// defining the web routes and their corresponding handler functions.
 package routes
 
 import (
@@ -36,6 +41,7 @@ func init() {
 
 // This custom Render replaces Echo's echo.Context.Render() with templ's templ.Component.Render().
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
+
 	buf := templ.GetBuffer()
 	defer templ.ReleaseBuffer(buf)
 

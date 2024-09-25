@@ -1,3 +1,9 @@
+// Package main is the entry point for the Immich Kiosk application.
+//
+// It sets up the web server, configures routes, and handles the main
+// application logic for displaying and managing images in a kiosk mode.
+// The package includes functionality for loading configurations, setting up
+// middleware, and serving both dynamic content and static assets.
 package main
 
 import (
