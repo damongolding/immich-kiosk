@@ -360,7 +360,7 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     "api/assets/random",
-		RawQuery: "count=100",
+		RawQuery: "count=1000",
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId, immichAssets)
