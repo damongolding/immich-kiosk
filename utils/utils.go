@@ -31,9 +31,17 @@ import (
 	"github.com/disintegration/imaging"
 
 	"github.com/google/uuid"
-
-	"github.com/damongolding/immich-kiosk/immich"
 )
+
+type WeightedAsset struct {
+	Type string
+	ID   string
+}
+
+type AssetWithWeighting struct {
+	Asset  WeightedAsset
+	Weight int
+}
 
 // GenerateUUID generates as UUID
 func GenerateUUID() string {
@@ -162,7 +170,7 @@ func RandomItem[T any](s []T) T {
 
 // calculateTotalWeight calculates the sum of logarithmic weights for all assets in the given slice.
 // It uses natural logarithm (base e) and adds 1 to avoid log(0).
-func calculateTotalWeight(assets []immich.AssetWithWeighting) int {
+func calculateTotalWeight(assets []AssetWithWeighting) int {
 	total := 0
 	for _, asset := range assets {
 		logWeight := int(math.Log(float64(asset.Weight) + 1))
@@ -176,12 +184,12 @@ func calculateTotalWeight(assets []immich.AssetWithWeighting) int {
 
 // WeightedRandomItem selects a random asset from the given slice of WeightedAsset(s)
 // based on their logarithmic weights. It uses a weighted random selection algorithm.
-func WeightedRandomItem(assets []immich.AssetWithWeighting) immich.WeightedAsset {
+func WeightedRandomItem(assets []AssetWithWeighting) WeightedAsset {
 
 	// guards
 	switch len(assets) {
 	case 0:
-		return immich.WeightedAsset{}
+		return WeightedAsset{}
 	case 1:
 		return assets[0].Asset
 	}
@@ -203,7 +211,7 @@ func WeightedRandomItem(assets []immich.AssetWithWeighting) immich.WeightedAsset
 	if len(assets) > 0 {
 		return assets[0].Asset
 	}
-	return immich.WeightedAsset{}
+	return WeightedAsset{}
 }
 
 type Color struct {
@@ -281,4 +289,23 @@ func linearize(value float64) float64 {
 		return value / 12.92
 	}
 	return math.Pow((value+0.055)/1.055, 2.4)
+}
+
+// PickRandomImageType selects a random image type based on the given configuration and weightings.
+// It returns a WeightedAsset representing the picked image type.
+func PickRandomImageType(useWeighting bool, peopleAndAlbums []AssetWithWeighting) WeightedAsset {
+
+	var pickedImage WeightedAsset
+
+	if useWeighting {
+		pickedImage = WeightedRandomItem(peopleAndAlbums)
+	} else {
+		var assetsOnly []WeightedAsset
+		for _, item := range peopleAndAlbums {
+			assetsOnly = append(assetsOnly, item.Asset)
+		}
+		pickedImage = RandomItem(assetsOnly)
+	}
+
+	return pickedImage
 }

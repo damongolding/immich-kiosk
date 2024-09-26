@@ -53,7 +53,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			if pageData := fromCache(c, kioskDeviceID); pageData != nil {
 				return renderCachedPageData(c, pageData, &requestConfig, requestID, kioskDeviceID)
 			}
-			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image", false)
+			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image")
 		}
 
 		pageData, err := generatePageData(requestConfig, c)

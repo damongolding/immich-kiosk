@@ -395,6 +395,9 @@ body {
   max-width: 2rem;
   fill: #fff;
 }
+.error ul li {
+  padding-bottom: 0.5rem;
+}
 
 /* src/css/progress.css */
 .progress {
