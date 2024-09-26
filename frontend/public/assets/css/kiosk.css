@@ -140,6 +140,7 @@ body {
 /* src/css/frame.css */
 .frame {
   position: absolute;
+  display: flex;
   width: 100%;
   height: 100%;
   width: 100vw;
@@ -190,6 +191,28 @@ body {
   width: 100%;
   height: 100%;
 }
+.frame--layout-splitview {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  width: 50vw;
+  height: 100vh;
+  overflow: hidden;
+}
+.frame--layout-splitview:nth-child(1) {
+  border-right: 0.125rem solid black;
+}
+.frame--layout-splitview:nth-child(2) {
+  border-left: 0.125rem solid black;
+}
+.frame--layout-splitview .frame--image {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50vw;
+  height: 100vh;
+}
 
 /* src/css/image.css */
 .image--metadata {
@@ -235,10 +258,44 @@ body {
       hsla(0, 0%, 0%, 0) 100%);
   z-index: 0;
 }
+.frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: unset;
+  left: 0;
+  width: 150%;
+  height: 200%;
+  background-image:
+    radial-gradient(
+      100% 100% at 0% 100%,
+      hsla(0, 0%, 0%, 0.59) 0%,
+      hsla(0, 0%, 0%, 0.582) 5.2%,
+      hsla(0, 0%, 0%, 0.561) 10.9%,
+      hsla(0, 0%, 0%, 0.529) 16.9%,
+      hsla(0, 0%, 0%, 0.487) 23.3%,
+      hsla(0, 0%, 0%, 0.437) 29.9%,
+      hsla(0, 0%, 0%, 0.382) 36.8%,
+      hsla(0, 0%, 0%, 0.324) 43.8%,
+      hsla(0, 0%, 0%, 0.266) 51%,
+      hsla(0, 0%, 0%, 0.208) 58.2%,
+      hsla(0, 0%, 0%, 0.153) 65.4%,
+      hsla(0, 0%, 0%, 0.103) 72.6%,
+      hsla(0, 0%, 0%, 0.061) 79.7%,
+      hsla(0, 0%, 0%, 0.029) 86.7%,
+      hsla(0, 0%, 0%, 0.008) 93.5%,
+      hsla(0, 0%, 0%, 0) 100%);
+  z-index: 0;
+}
 .image--metadata--theme-solid {
   padding-left: 1.5rem;
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 2rem 0 0 0;
+}
+.frame--layout-splitview:nth-child(1) .image--metadata--theme-solid {
+  padding-right: 1.5rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 0 2rem 0 0;
 }
 .image--metadata .responsive-break {
   display: none;
@@ -289,6 +346,22 @@ body {
     display: inline;
   }
 }
+.frame--layout-splitview:nth-child(1) .image--metadata {
+  position: absolute;
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  bottom: 0;
+  left: 0;
+  right: unset;
+  max-width: 70vw;
+  padding: 1rem 1.375rem 1rem 1rem;
+  color: #fff;
+  font-size: 1.1rem;
+  text-align: left;
+  text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+}
 
 /* src/css/error.css */
 .error-container {
@@ -329,6 +402,7 @@ body {
   top: 0;
   width: 100%;
   height: 0.18rem;
+  z-index: 10001;
 }
 .progress--bar {
   position: absolute;
@@ -346,7 +420,8 @@ body {
 #offline {
   position: absolute;
   top: 1rem;
-  left: 1rem;
+  left: 50%;
+  margin-left: -1.5rem;
   width: 3rem;
   height: 3rem;
   display: none;
@@ -368,6 +443,10 @@ body {
   padding: 1rem;
   text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
   z-index: 10000;
+}
+.layout-splitview #clock {
+  bottom: unset;
+  top: 0;
 }
 #clock:empty {
   display: none;
@@ -401,10 +480,42 @@ body {
       hsla(0, 0%, 0%, 0) 100%);
   z-index: 0;
 }
+.layout-splitview .clock--theme-fade::before {
+  content: "";
+  position: absolute;
+  bottom: unset;
+  top: 0;
+  left: 0;
+  width: 150%;
+  height: 200%;
+  background-image:
+    radial-gradient(
+      100% 100% at 0% 0%,
+      hsla(0, 0%, 0%, 0.59) 0%,
+      hsla(0, 0%, 0%, 0.582) 5.2%,
+      hsla(0, 0%, 0%, 0.561) 10.9%,
+      hsla(0, 0%, 0%, 0.529) 16.9%,
+      hsla(0, 0%, 0%, 0.487) 23.3%,
+      hsla(0, 0%, 0%, 0.437) 29.9%,
+      hsla(0, 0%, 0%, 0.382) 36.8%,
+      hsla(0, 0%, 0%, 0.324) 43.8%,
+      hsla(0, 0%, 0%, 0.266) 51%,
+      hsla(0, 0%, 0%, 0.208) 58.2%,
+      hsla(0, 0%, 0%, 0.153) 65.4%,
+      hsla(0, 0%, 0%, 0.103) 72.6%,
+      hsla(0, 0%, 0%, 0.061) 79.7%,
+      hsla(0, 0%, 0%, 0.029) 86.7%,
+      hsla(0, 0%, 0%, 0.008) 93.5%,
+      hsla(0, 0%, 0%, 0) 100%);
+  z-index: 0;
+}
 .clock--theme-solid {
   padding-left: 1.5rem;
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 0 2rem 0 0;
+}
+.layout-splitview .clock--theme-solid {
+  border-radius: 0 0 2rem 0;
 }
 @media screen and (max-width: 31.25rem) {
   #clock {
@@ -429,7 +540,7 @@ body {
   inset: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 99999;
+  z-index: 99998;
 }
 .navigation {
   display: flex;
@@ -445,7 +556,7 @@ body {
   transition: opacity 0.5s ease;
   will-change: opacity;
   box-shadow: rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem, rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
-  z-index: 99998;
+  z-index: 99999;
 }
 .navigation--item {
   width: 3.62rem;

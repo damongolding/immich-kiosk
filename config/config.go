@@ -1,17 +1,32 @@
+// Package config provides configuration management for the Immich Kiosk application.
+//
+// It includes structures and methods for loading, parsing, and managing
+// configuration settings from various sources including YAML files,
+// environment variables, and URL query parameters.
+//
+// The package offers functionality to:
+// - Define default configuration values
+// - Load configuration from files and environment variables
+// - Override configuration with URL query parameters
+// - Validate and process configuration settings
+//
+// Key types:
+// - Config: The main configuration structure
+// - KioskSettings: Settings specific to kiosk mode
+//
+// Key functions:
+// - New: Creates a new Config instance with default values
+// - Load: Loads configuration from a file and environment variables
+// - ConfigWithOverrides: Applies overrides from URL queries to the configuration
 package config
 
 import (
 	"encoding/json"
-	"net/url"
-	"reflect"
-	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 
 	"github.com/labstack/echo/v4"
 )
@@ -23,11 +38,11 @@ const (
 )
 
 type KioskSettings struct {
-	// Cache enable/disable api call caching
+	// Cache enable/disable api call and image caching
 	Cache bool `mapstructure:"cache" default:"true"`
 
 	// PreFetch fetch and cache an image in the background
-	PreFetch bool `mapstructure:"pre_fetch" default:"true"`
+	PreFetch bool `mapstructure:"prefetch" default:"true"`
 
 	// Password the password used to add authentication to the frontend
 	Password string `mapstructure:"password" default:""`
@@ -68,6 +83,8 @@ type Config struct {
 	FontSize int `mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
 	// Theme which theme to use
 	Theme string `mapstructure:"theme" query:"theme" form:"theme" default:"fade"`
+	// Layout which layout to use
+	Layout string `mapstructure:"layout" query:"layout" form:"layout" default:"single"`
 
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
@@ -165,7 +182,7 @@ func (c *Config) load(configFile string) error {
 
 	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
 	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
-	v.BindEnv("kiosk.pre_fetch", "KIOSK_PRE_FETCH")
+	v.BindEnv("kiosk.prefetch", "KIOSK_PREFETCH")
 	v.BindEnv("kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING")
 
 	v.BindEnv("kiosk.debug", "KIOSK_DEBUG")
@@ -196,88 +213,6 @@ func (c *Config) load(configFile string) error {
 
 	return nil
 
-}
-
-// ConfigWithOverridesOld overwrites base config with ones supplied via URL queries
-//
-// Deprecated: Keeping for legancy for now
-func (c *Config) ConfigWithOverridesOld(queries url.Values) Config {
-
-	configWithOverrides := c
-
-	// check for person or album in quries and empty baseconfig slice if found
-	if queries.Has("person") {
-		configWithOverrides.Person = []string{}
-	}
-
-	if queries.Has("album") {
-		configWithOverrides.Album = []string{}
-	}
-
-	v := reflect.ValueOf(configWithOverrides).Elem()
-
-	// Loop through the queries and update struct fields
-	for key, values := range queries {
-		// Disble setting api and url for now
-		if strings.ToLower(key) == "immich_api_key" || strings.ToLower(key) == "immich_url" {
-			log.Error("tried to set Immich url or Immich api via queries")
-			continue
-		}
-
-		if len(values) > 0 {
-			// format to match field names
-			key = strings.ReplaceAll(key, "_", " ")
-			key = cases.Title(language.English, cases.Compact).String(key)
-			key = strings.ReplaceAll(key, " ", "")
-
-			// Get the field by name
-			field := v.FieldByName(key)
-			if field.IsValid() && field.CanSet() {
-
-				// Loop values as queries are []string{}
-				for _, value := range values {
-
-					// We only want set values
-					if value == "" {
-						continue
-					}
-
-					// Set field (covert to correct type if needed)
-					switch field.Kind() {
-					case reflect.String: // all string values should be lowercase
-						lowercaseValue := strings.ToLower(value)
-						field.SetString(lowercaseValue)
-					case reflect.Int:
-						if n, err := strconv.Atoi(value); err == nil {
-							field.SetInt(int64(n))
-						}
-					case reflect.Bool:
-						if b, err := strconv.ParseBool(value); err == nil {
-							field.SetBool(b)
-						}
-
-					// field type is a string e.g. Person is []string
-					case reflect.Slice:
-						elemType := field.Type().Elem()
-						switch elemType.Kind() {
-						case reflect.String:
-							field.Set(reflect.Append(field, reflect.ValueOf(value)))
-						case reflect.Int:
-							if n, err := strconv.Atoi(value); err == nil {
-								field.Set(reflect.Append(field, reflect.ValueOf(n)))
-							}
-						case reflect.Bool:
-							if b, err := strconv.ParseBool(value); err == nil {
-								field.Set(reflect.Append(field, reflect.ValueOf(b)))
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return *configWithOverrides
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
