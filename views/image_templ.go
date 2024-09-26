@@ -577,8 +577,8 @@ func Image(data ...PageData) templ.Component {
 		switch {
 		case len(data) == 0:
 			templ_7745c5c3_Err = Error(ErrorData{
-				Title:   "No images found",
-				Message: "",
+				Title:   "No assets found",
+				Message: "Could not get any usable assets from data source.",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
