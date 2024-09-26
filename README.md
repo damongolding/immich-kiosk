@@ -290,11 +290,11 @@ http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID
 
 ### Special album keywords
 
-#### all
+#### `all`
 Will use all albums
 e.g. `http://{URL}?album=all`
 
-#### shared
+#### `shared`
 Will use shared albums
 e.g. `http://{URL}?album=shared`
 
