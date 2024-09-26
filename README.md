@@ -55,6 +55,7 @@
   - [Image fit](#image-fit)
   - [Date format](#date-format)
   - [Themes](#themes)
+  - [Layouts](#layouts)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -151,7 +152,7 @@ services:
       KIOSK_FONT_SIZE: 100
       KIOSK_BACKGROUND_BLUR: TRUE
       KIOSK_THEME: FADE
-      KIOSK_SPLITVIEW: FALSE
+      KIOSK_LAYOUT: single
       # Transistion options
       KIOSK_TRANSITION: NONE
       KIOSK_FADE_TRANSITION_DURATION: 1
@@ -198,8 +199,8 @@ See the file config.example.yaml for an example config file
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
-| theme                             | KIOSK_THEME             | fade \| solid              | fade        | Which Kiosk theme to use. See [Themes](#themes) for more information.                      |
-| splitview                         | KIOSK_SPLITVIEW         | bool                       | false       | Display two images side by side vertically.                                                |
+| theme                             | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. See [Themes](#themes) for more information.                            |
+| layout                            | KIOSK_LAYOUT            | single \| splitview        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
@@ -382,14 +383,28 @@ These examples assume that today's date is the 22nd of August 2024.
 ## Themes
 
 ### Fade (the default)
-Soft gradient background for the clock and image metadata
+Soft gradient background for the clock and image metadata.
 
 ![Kiosk theme fade](/assets/theme-fade.jpeg)
 
 ### Solid
-Solid background for the clock and image metadata
+Solid background for the clock and image metadata.
 
 ![Kiosk theme solid](/assets/theme-solid.jpeg)
+
+------
+
+## Layouts
+
+### Single (the default)
+Display one image.
+
+![Kiosk theme fade](/assets/theme-fade.jpeg)
+
+### Splitview
+Display two images side by side vertically.
+
+![Kiosk layout splitview](/assets/layout-splitview.jpg)
 
 ------
 

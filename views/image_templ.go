@@ -212,7 +212,7 @@ func ImageDateTime(data PageData) string {
 	return imageDate
 }
 
-func singleView(data PageData) templ.Component {
+func layoutSingleView(data PageData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -379,7 +379,7 @@ func singleView(data PageData) templ.Component {
 	})
 }
 
-func splitView(data ...PageData) templ.Component {
+func layoutSplitView(data ...PageData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -420,7 +420,7 @@ func splitView(data ...PageData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		for _, imageData := range data {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"frame--split\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"frame--layout-splitview\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -575,12 +575,12 @@ func Image(data ...PageData) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(data) < 2 {
-			templ_7745c5c3_Err = singleView(data[0]).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layoutSingleView(data[0]).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = splitView(data...).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layoutSplitView(data...).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

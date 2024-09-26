@@ -65,8 +65,8 @@
     height: 100%;
 }
 
-/* Split images */
-.frame--split {
+/* Splitview layout */
+.frame--layout-splitview {
     position: relative;
     width: 50%;
     height: 100%;
@@ -76,15 +76,15 @@
     overflow: hidden;
 }
 
-.frame--split:nth-child(1) {
+.frame--layout-splitview:nth-child(1) {
     border-right: 0.125rem solid black;
 }
 
-.frame--split:nth-child(2) {
+.frame--layout-splitview:nth-child(2) {
     border-left: 0.125rem solid black;
 }
 
-.frame--split .frame--image {
+.frame--layout-splitview .frame--image {
     position: absolute;
     display: flex;
     justify-content: center;

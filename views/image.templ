@@ -110,7 +110,7 @@ func ImageDateTime(data PageData) string {
 	return imageDate
 }
 
-templ singleView(data PageData) {
+templ layoutSingleView(data PageData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !data.Config.BackgroundBlur) }>
 		if data.Config.BackgroundBlur && !strings.EqualFold(data.Config.ImageFit, "cover") {
 			<div class="frame--background">
@@ -149,10 +149,10 @@ templ singleView(data PageData) {
 	</div>
 }
 
-templ splitView(data ...PageData) {
+templ layoutSplitView(data ...PageData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !data[0].Config.BackgroundBlur) }>
 		for _, imageData := range data {
-			<div class="frame--split">
+			<div class="frame--layout-splitview">
 				if imageData.Config.BackgroundBlur && !strings.EqualFold(imageData.Config.ImageFit, "cover") {
 					<div class="frame--background">
 						<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
@@ -194,9 +194,9 @@ templ splitView(data ...PageData) {
 
 templ Image(data ...PageData) {
 	if len(data) < 2 {
-		@singleView(data[0])
+		@layoutSingleView(data[0])
 	} else {
-		@splitView(data...)
+		@layoutSplitView(data...)
 	}
 	<form id="kiosk-history" hx-swap-oob="true">
 		for _, historyEntry := range data[0].Config.History {

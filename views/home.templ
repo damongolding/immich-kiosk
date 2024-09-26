@@ -220,7 +220,7 @@ templ Home(data PageData) {
 			}
 			@templ.Raw(baseFontSizeMobile(data.FontSize))
 		</head>
-		<body class={ templ.KV("splitview", data.SplitView) }>
+		<body class={ templ.KV("layout-splitview", strings.EqualFold(data.Layout, "splitview")) }>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
 					@kioskCrossFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.CrossFadeTransitionDuration)

@@ -191,7 +191,7 @@ body {
   width: 100%;
   height: 100%;
 }
-.frame--split {
+.frame--layout-splitview {
   position: relative;
   width: 50%;
   height: 100%;
@@ -199,13 +199,13 @@ body {
   height: 100vh;
   overflow: hidden;
 }
-.frame--split:nth-child(1) {
+.frame--layout-splitview:nth-child(1) {
   border-right: 0.125rem solid black;
 }
-.frame--split:nth-child(2) {
+.frame--layout-splitview:nth-child(2) {
   border-left: 0.125rem solid black;
 }
-.frame--split .frame--image {
+.frame--layout-splitview .frame--image {
   position: absolute;
   display: flex;
   justify-content: center;
@@ -258,7 +258,7 @@ body {
       hsla(0, 0%, 0%, 0) 100%);
   z-index: 0;
 }
-.frame--split:nth-child(1) .image--metadata--theme-fade::before {
+.frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before {
   content: "";
   position: absolute;
   bottom: 0;
@@ -292,7 +292,7 @@ body {
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 2rem 0 0 0;
 }
-.frame--split:nth-child(1) .image--metadata--theme-solid {
+.frame--layout-splitview:nth-child(1) .image--metadata--theme-solid {
   padding-right: 1.5rem;
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 0 2rem 0 0;
@@ -346,7 +346,7 @@ body {
     display: inline;
   }
 }
-.frame--split:nth-child(1) .image--metadata {
+.frame--layout-splitview:nth-child(1) .image--metadata {
   position: absolute;
   display: flex;
   gap: 0.5rem;
@@ -444,7 +444,7 @@ body {
   text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
   z-index: 10000;
 }
-.splitview #clock {
+.layout-splitview #clock {
   bottom: unset;
   top: 0;
 }
@@ -480,7 +480,7 @@ body {
       hsla(0, 0%, 0%, 0) 100%);
   z-index: 0;
 }
-.splitview .clock--theme-fade::before {
+.layout-splitview .clock--theme-fade::before {
   content: "";
   position: absolute;
   bottom: unset;
@@ -514,7 +514,7 @@ body {
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 0 2rem 0 0;
 }
-.splitview .clock--theme-solid {
+.layout-splitview .clock--theme-solid {
   border-radius: 0 0 2rem 0;
 }
 @media screen and (max-width: 31.25rem) {

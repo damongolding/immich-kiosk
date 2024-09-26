@@ -45,7 +45,7 @@
     z-index: 0;
 }
 
-.frame--split:nth-child(1) .image--metadata--theme-fade::before {
+.frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before {
     content: "";
     position: absolute;
     bottom: 0;
@@ -82,7 +82,7 @@
     border-radius: 2rem 0 0 0;
 }
 
-.frame--split:nth-child(1) .image--metadata--theme-solid {
+.frame--layout-splitview:nth-child(1) .image--metadata--theme-solid {
     padding-right: 1.5rem;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 0 2rem 0 0;
@@ -144,7 +144,7 @@
     }
 }
 
-.frame--split:nth-child(1) .image--metadata {
+.frame--layout-splitview:nth-child(1) .image--metadata {
     position: absolute;
     display: flex;
     gap: 0.5rem;

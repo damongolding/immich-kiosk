@@ -269,7 +269,7 @@ func renderCachedPageData(c echo.Context, cachedPageData []views.PageData, reque
 	cacheKey := c.Request().URL.String() + kioskDeviceID
 
 	var pageDataToRender []views.PageData
-	if requestConfig.SplitView {
+	if strings.EqualFold(requestConfig.Layout, "splitview") {
 		pageDataToRender = cachedPageData[:2]
 		pageDataCache.Set(cacheKey, cachedPageData[2:], cache.DefaultExpiration)
 		go imagePreFetch(2, *requestConfig, c, kioskDeviceID)
@@ -289,7 +289,7 @@ func renderCachedPageData(c echo.Context, cachedPageData []views.PageData, reque
 // generatePageData generates page data for the current request.
 func generatePageData(requestConfig config.Config, c echo.Context) ([]views.PageData, error) {
 	imagesNeeded := 1
-	if requestConfig.SplitView {
+	if strings.EqualFold(requestConfig.Layout, "splitview") {
 		imagesNeeded = 2
 	}
 

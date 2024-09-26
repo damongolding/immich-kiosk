@@ -11,7 +11,7 @@
     z-index: 10000;
 }
 
-.splitview #clock {
+.layout-splitview #clock {
     bottom: unset;
     top: 0;
 }
@@ -51,7 +51,7 @@
     z-index: 0;
 }
 
-.splitview .clock--theme-fade::before {
+.layout-splitview .clock--theme-fade::before {
     content: "";
     position: absolute;
     bottom: unset;
@@ -88,7 +88,7 @@
     border-radius: 0 2rem 0 0;
 }
 
-.splitview .clock--theme-solid {
+.layout-splitview .clock--theme-solid {
     border-radius: 0 0 2rem 0;
 }
 
