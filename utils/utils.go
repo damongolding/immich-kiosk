@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	_ "image/gif"
 	_ "image/jpeg"
@@ -281,4 +282,41 @@ func linearize(value float64) float64 {
 		return value / 12.92
 	}
 	return math.Pow((value+0.055)/1.055, 2.4)
+}
+
+func parseTimeString(timeStr string) (time.Time, error) {
+	return time.Parse("1504", timeStr)
+}
+
+func IsSleepTime(sleepStartTime, sleepEndTime string, currentTime time.Time) (bool, error) {
+	// Parse start and end times
+	startTime, err := parseTimeString(sleepStartTime)
+	if err != nil {
+		log.Error("parsing sleep start time:", err)
+		return false, err
+	}
+
+	endTime, err := parseTimeString(sleepEndTime)
+	if err != nil {
+		log.Error("parsing sleep end time:", err)
+		return false, err
+	}
+
+	// Set the date of startTime and endTime to the same as currentTime
+	year, month, day := currentTime.Date()
+	startTime = time.Date(year, month, day, startTime.Hour(), startTime.Minute(), 0, 0, currentTime.Location())
+	endTime = time.Date(year, month, day, endTime.Hour(), endTime.Minute(), 0, 0, currentTime.Location())
+
+	// If end time is before start time, it means the period crosses midnight
+	if endTime.Before(startTime) {
+		endTime = endTime.Add(24 * time.Hour)
+	}
+
+	// Check if current time is between start and end times
+	if currentTime.Before(startTime) {
+		currentTime = currentTime.Add(24 * time.Hour)
+	}
+
+	return (currentTime.After(startTime) || currentTime.Equal(startTime)) &&
+		currentTime.Before(endTime), nil
 }

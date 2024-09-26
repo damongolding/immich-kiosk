@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/stretchr/testify/assert"
@@ -233,5 +234,77 @@ func TestWeightedRandomItem(t *testing.T) {
 	for id, expectedRatio := range expectedRatios {
 		actualRatio := float64(counts[id]) / float64(iterations)
 		assert.InDelta(t, expectedRatio, actualRatio, tolerance, "Distribution for asset %s: got %.4f, want %.4f (±%.4f)", id, actualRatio, expectedRatio, tolerance)
+	}
+}
+
+func TestIsSleepTime(t *testing.T) {
+	tests := []struct {
+		name           string
+		sleepStartTime string
+		sleepEndTime   string
+		currentTime    time.Time
+		want           bool
+		wantErr        bool
+	}{
+		{
+			name:           "Within sleep time",
+			sleepStartTime: "2200",
+			sleepEndTime:   "0600",
+			currentTime:    time.Date(2023, 1, 1, 23, 0, 0, 0, time.UTC), // 23:00
+			want:           true,
+			wantErr:        false,
+		},
+		{
+			name:           "Outside sleep time",
+			sleepStartTime: "2200",
+			sleepEndTime:   "0600",
+			currentTime:    time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC), // 12:00
+			want:           false,
+			wantErr:        false,
+		},
+		{
+			name:           "Invalid start time",
+			sleepStartTime: "2500",
+			sleepEndTime:   "0600",
+			currentTime:    time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC),
+			want:           false,
+			wantErr:        true,
+		},
+		{
+			name:           "Invalid end time",
+			sleepStartTime: "2200",
+			sleepEndTime:   "2500",
+			currentTime:    time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC),
+			want:           false,
+			wantErr:        true,
+		},
+		{
+			name:           "At start time",
+			sleepStartTime: "2200",
+			sleepEndTime:   "0600",
+			currentTime:    time.Date(2023, 1, 1, 22, 0, 0, 0, time.UTC), // 22:00
+			want:           true,
+			wantErr:        false,
+		},
+		{
+			name:           "At end time",
+			sleepStartTime: "2200",
+			sleepEndTime:   "0600",
+			currentTime:    time.Date(2023, 1, 2, 6, 0, 0, 0, time.UTC), // 06:00 next day
+			want:           false,
+			wantErr:        false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got, err := IsSleepTime(test.sleepStartTime, test.sleepEndTime, test.currentTime)
+			if test.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, test.want, got)
+		})
 	}
 }
