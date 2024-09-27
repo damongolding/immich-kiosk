@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -142,8 +141,8 @@ func TestColorContrast(t *testing.T) {
 // 2. The returned total weight matches the expected value.
 func TestCalculateTotalWeight(t *testing.T) {
 
-	in := []immich.AssetWithWeighting{
-		{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
+	in := []AssetWithWeighting{
+		{Asset: WeightedAsset{ID: "1"}, Weight: 1},
 	}
 
 	total := calculateTotalWeight(in)
@@ -162,29 +161,29 @@ func TestWeightedRandomItem(t *testing.T) {
 	// Define test cases
 	testCases := []struct {
 		name   string
-		assets []immich.AssetWithWeighting
-		want   immich.WeightedAsset
+		assets []AssetWithWeighting
+		want   WeightedAsset
 	}{
 		{
 			name:   "Empty slice",
-			assets: []immich.AssetWithWeighting{},
-			want:   immich.WeightedAsset{},
+			assets: []AssetWithWeighting{},
+			want:   WeightedAsset{},
 		},
 		{
 			name: "Single asset",
-			assets: []immich.AssetWithWeighting{
-				{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
+			assets: []AssetWithWeighting{
+				{Asset: WeightedAsset{ID: "1"}, Weight: 1},
 			},
-			want: immich.WeightedAsset{ID: "1"},
+			want: WeightedAsset{ID: "1"},
 		},
 		{
 			name: "Multiple assets",
-			assets: []immich.AssetWithWeighting{
-				{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
-				{Asset: immich.WeightedAsset{ID: "2"}, Weight: 2},
-				{Asset: immich.WeightedAsset{ID: "3"}, Weight: 3},
+			assets: []AssetWithWeighting{
+				{Asset: WeightedAsset{ID: "1"}, Weight: 1},
+				{Asset: WeightedAsset{ID: "2"}, Weight: 2},
+				{Asset: WeightedAsset{ID: "3"}, Weight: 3},
 			},
-			want: immich.WeightedAsset{}, // We'll check for non-empty result
+			want: WeightedAsset{}, // We'll check for non-empty result
 		},
 	}
 	for _, tc := range testCases {
@@ -208,10 +207,10 @@ func TestWeightedRandomItem(t *testing.T) {
 	}
 
 	// Test for distribution
-	assets := []immich.AssetWithWeighting{
-		{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
-		{Asset: immich.WeightedAsset{ID: "2"}, Weight: 2},
-		{Asset: immich.WeightedAsset{ID: "3"}, Weight: 3},
+	assets := []AssetWithWeighting{
+		{Asset: WeightedAsset{ID: "1"}, Weight: 1},
+		{Asset: WeightedAsset{ID: "2"}, Weight: 2},
+		{Asset: WeightedAsset{ID: "3"}, Weight: 3},
 	}
 
 	counts := make(map[string]int)
