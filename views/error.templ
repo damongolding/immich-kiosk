@@ -17,7 +17,9 @@ templ Error(data ErrorData) {
 				if data.Title != "" {
 					<h2 class="error--title">{ data.Title }</h2>
 				}
-				<p class="error--message">{ data.Message }</p>
+				<p class="error--message">
+					@templ.Raw(data.Message)
+				</p>
 			</div>
 		</div>
 	</div>

@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -48,12 +49,16 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
+		if isSleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now()); isSleepTime {
+			return nil
+		}
+
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
 			if pageData := fromCache(c, kioskDeviceID); pageData != nil {
 				return renderCachedPageData(c, pageData, &requestConfig, requestID, kioskDeviceID)
 			}
-			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image", false)
+			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image")
 		}
 
 		pageData, err := generatePageData(requestConfig, c)

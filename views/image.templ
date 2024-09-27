@@ -193,10 +193,16 @@ templ layoutSplitView(data ...PageData) {
 }
 
 templ Image(data ...PageData) {
-	if len(data) < 2 {
-		@layoutSingleView(data[0])
-	} else {
-		@layoutSplitView(data...)
+	switch  {
+		case len(data) == 0:
+			@Error(ErrorData{
+				Title:   "No assets found",
+				Message: "Could not get any usable assets from data source.",
+			})
+		case len(data) < 2 :
+			@layoutSingleView(data[0])
+		default:
+			@layoutSplitView(data...)
 	}
 	<form id="kiosk-history" hx-swap-oob="true">
 		for _, historyEntry := range data[0].Config.History {

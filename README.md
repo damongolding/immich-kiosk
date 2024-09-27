@@ -56,6 +56,7 @@
   - [Date format](#date-format)
   - [Themes](#themes)
   - [Layouts](#layouts)
+  - [Sleep mode](#sleep-mode)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -73,11 +74,8 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 - Define default settings for all devices through environment variables or YAML config files.
 - Configure device-specific settings using URL parameters.
 
-![preview 1](/assets/demo_1.jpg)
+![Kiosk theme fade](/assets/theme-fade.jpeg)
 **Image shot by Damon Golding**
-
-![preview 2](/assets/demo_2.jpg)
-**[Image shot by @insungpandora](https://unsplash.com/@insungpandora)**
 
 ## Example 1
 You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
@@ -153,6 +151,9 @@ services:
       KIOSK_BACKGROUND_BLUR: TRUE
       KIOSK_THEME: FADE
       KIOSK_LAYOUT: single
+      # Sleep mode
+      KIOSK_SLEEP_START: 22
+      KIOSK_SLEEP_END: 7
       # Transistion options
       KIOSK_TRANSITION: NONE
       KIOSK_FADE_TRANSITION_DURATION: 1
@@ -199,8 +200,10 @@ See the file config.example.yaml for an example config file
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
-| theme                             | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. See [Themes](#themes) for more information.                            |
-| layout                            | KIOSK_LAYOUT            | single \| splitview        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
+| [theme](#themes)                  | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. See [Themes](#themes) for more information.                            |
+| [layout](#layouts)                | KIOSK_LAYOUT            | single \| splitview        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
+| [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
@@ -287,6 +290,16 @@ environment:
 ```
 http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID
 ```
+
+### Special album keywords
+
+#### ` all `
+Will use all albums
+e.g. `http://{URL}?album=all`
+
+#### ` shared `
+Will use only shared albums
+e.g. `http://{URL}?album=shared`
 
 ------
 
@@ -405,6 +418,20 @@ Display one image.
 Display two images side by side vertically.
 
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
+
+------
+
+## Sleep mode
+
+### Enabling Sleep Mode:
+Setting both `sleep_start` and `sleep_end` using the 24 hour format will enable sleep mode.
+
+### During Sleep Mode:
+Kiosk will display a black screen and can optionally shows a faint clock if `show_time` or `show_date` and enabled.
+
+### Examples
+- Setting `sleep_start=22` and `sleep_end=7` will enable sleep mode from 22:00 (10pm) to 07:00 (7am).
+- Setting `sleep_start=1332` and `sleep_end=1508` will enable sleep mode from 13:32 (1:32pm) to 15:08 (3:08pm).
 
 ------
 

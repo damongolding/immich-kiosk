@@ -5,6 +5,8 @@
     width: 100vw;
     height: 100vh;
     z-index: 99998;
+    background-color: transparent;
+    transition: background-color 3s ease;
 }
 
 /* --- menu --- */
@@ -82,4 +84,9 @@
 .navigation--control--paused .navigation--control--pause {
     display: none;
     visibility: hidden;
+}
+
+/* sleep mode */
+.sleep #navigation-interaction-area {
+    background-color: black;
 }

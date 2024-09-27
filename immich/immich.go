@@ -20,10 +20,13 @@ import (
 	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/config"
+	"github.com/damongolding/immich-kiosk/utils"
 )
 
-// maxRetries the maximum amount of retries to find a IMAGE type
-const maxRetries int = 10
+const (
+	AllAlbumsID    = "all"
+	SharedAlbumsID = "shared"
+)
 
 var (
 	// requestConfig the config for this request
@@ -118,24 +121,18 @@ type ImmichAsset struct {
 	DuplicateID      any       `json:"-"`        // `json:"duplicateId"`
 }
 
-type WeightedAsset struct {
-	Type string
-	ID   string
-}
-
-type AssetWithWeighting struct {
-	Asset  WeightedAsset
-	Weight int
-}
-
 type ImmichBuckets []struct {
 	Count      int       `json:"count"`
 	TimeBucket time.Time `json:"timeBucket"`
 }
 
 type ImmichAlbum struct {
-	Assets []ImmichAsset `json:"assets"`
+	ID         string        `json:"id"`
+	Assets     []ImmichAsset `json:"assets"`
+	AssetCount int           `json:"assetCount"`
 }
+
+type ImmichAlbums []ImmichAlbum
 
 func init() {
 	// Setting up Immich api cache
@@ -151,7 +148,7 @@ func NewImage(base config.Config) ImmichAsset {
 type ImmichApiCall func(string) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichPersonStatistics | int
+	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int
 }
 
 // immichApiFail handles failures in Immich API calls by unmarshaling the error response,
@@ -160,15 +157,25 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 	var immichError ImmichError
 	errorUnmarshalErr := json.Unmarshal(body, &immichError)
 	if errorUnmarshalErr != nil {
-		log.Error("couln't read error", "body", string(body), "url", apiUrl)
-		return value, err
+		log.Error("Couldn't ready error", "body", string(body), "url", apiUrl)
+		return value, fmt.Errorf(`
+			No data or error returned from Immich API.
+			<ul>
+				<li>Are your data source ID's correct (albumID, personID)?</li>
+				<li>Do those data sources have assets?</li>
+				<li>Is Immich online?</li>
+			</ul>
+			<p>
+				Full error:<br/><br/>
+				<code>%w</code>
+			</p>`, err)
 	}
 	log.Errorf("%s : %v", immichError.Error, immichError.Message)
 	return value, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 }
 
 // immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
-func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestId string, jsonShape T) ImmichApiCall {
+func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID string, jsonShape T) ImmichApiCall {
 	return func(apiUrl string) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
@@ -180,14 +187,13 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 
 		if apiData, found := apiCache.Get(apiUrl); found {
 			if requestConfig.Kiosk.DebugVerbose {
-				log.Debug(requestId+" Cache hit", "url", apiUrl)
+				log.Debug(requestID+" Cache hit", "url", apiUrl)
 			}
-			log.Debug(requestId+" Cache hit", "url", apiUrl)
 			return apiData.([]byte), nil
 		}
 
 		if requestConfig.Kiosk.DebugVerbose {
-			log.Debug(requestId+" Cache miss", "url", apiUrl)
+			log.Debug(requestID+" Cache miss", "url", apiUrl)
 		}
 		body, err := immichApiCall(apiUrl)
 		if err != nil {
@@ -211,7 +217,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 
 		apiCache.Set(apiUrl, jsonBytes, cache.DefaultExpiration)
 		if requestConfig.Kiosk.DebugVerbose {
-			log.Debug(requestId+" Cache saved", "url", apiUrl)
+			log.Debug(requestID+" Cache saved", "url", apiUrl)
 		}
 
 		return jsonBytes, nil
@@ -249,8 +255,40 @@ func (i *ImmichAsset) immichApiCall(apiUrl string) ([]byte, error) {
 	return responseBody, err
 }
 
+func (i *ImmichAsset) people(requestID string, shared bool) (ImmichAlbums, error) {
+	var albums ImmichAlbums
+
+	u, err := url.Parse(requestConfig.ImmichUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	apiUrl := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   "api/people",
+	}
+
+	if shared {
+		apiUrl.RawQuery = "shared=true"
+	}
+
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, albums)
+	body, err := immichApiCall(apiUrl.String())
+	if err != nil {
+		return immichApiFail(albums, err, body, apiUrl.String())
+	}
+
+	err = json.Unmarshal(body, &albums)
+	if err != nil {
+		return immichApiFail(albums, err, body, apiUrl.String())
+	}
+
+	return albums, nil
+}
+
 // personAssets retrieves all assets associated with a specific person from Immich.
-func (i *ImmichAsset) personAssets(personId, requestId string) ([]ImmichAsset, error) {
+func (i *ImmichAsset) personAssets(personID, requestID string) ([]ImmichAsset, error) {
 
 	var images []ImmichAsset
 
@@ -262,10 +300,10 @@ func (i *ImmichAsset) personAssets(personId, requestId string) ([]ImmichAsset, e
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "api/people/" + personId + "/assets",
+		Path:   "api/people/" + personID + "/assets",
 	}
 
-	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestId, images)
+	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestID, images)
 	body, err := immichApiCal(apiUrl.String())
 	if err != nil {
 		return immichApiFail(images, err, body, apiUrl.String())
@@ -279,8 +317,52 @@ func (i *ImmichAsset) personAssets(personId, requestId string) ([]ImmichAsset, e
 	return images, nil
 }
 
+// albums retrieves albums from Immich based on the shared parameter.
+// It constructs the API URL, makes the API call, and returns the albums.
+func (i *ImmichAsset) albums(requestID string, shared bool) (ImmichAlbums, error) {
+	var albums ImmichAlbums
+
+	u, err := url.Parse(requestConfig.ImmichUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	apiUrl := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   "api/albums/",
+	}
+
+	if shared {
+		apiUrl.RawQuery = "shared=true"
+	}
+
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, albums)
+	body, err := immichApiCall(apiUrl.String())
+	if err != nil {
+		return immichApiFail(albums, err, body, apiUrl.String())
+	}
+
+	err = json.Unmarshal(body, &albums)
+	if err != nil {
+		return immichApiFail(albums, err, body, apiUrl.String())
+	}
+
+	return albums, nil
+}
+
+// allSharedAlbums retrieves all shared albums from Immich.
+func (i *ImmichAsset) allSharedAlbums(requestID string) (ImmichAlbums, error) {
+	return i.albums(requestID, true)
+}
+
+// allAlbums retrieves all non-shared albums from Immich.
+func (i *ImmichAsset) allAlbums(requestID string) (ImmichAlbums, error) {
+	return i.albums(requestID, false)
+}
+
 // albumAssets retrieves all assets associated with a specific album from Immich.
-func (i *ImmichAsset) albumAssets(albumId, requestId string) (ImmichAlbum, error) {
+func (i *ImmichAsset) albumAssets(albumID, requestID string) (ImmichAlbum, error) {
 	var album ImmichAlbum
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
@@ -291,10 +373,10 @@ func (i *ImmichAsset) albumAssets(albumId, requestId string) (ImmichAlbum, error
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "api/albums/" + albumId,
+		Path:   "api/albums/" + albumID,
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId, album)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, album)
 	body, err := immichApiCall(apiUrl.String())
 	if err != nil {
 		return immichApiFail(album, err, body, apiUrl.String())
@@ -309,7 +391,7 @@ func (i *ImmichAsset) albumAssets(albumId, requestId string) (ImmichAlbum, error
 }
 
 // PersonImageCount returns the number of images associated with a specific person in Immich.
-func (i *ImmichAsset) PersonImageCount(personId, requestId string) (int, error) {
+func (i *ImmichAsset) PersonImageCount(personID, requestID string) (int, error) {
 
 	var personStatistics ImmichPersonStatistics
 
@@ -321,10 +403,10 @@ func (i *ImmichAsset) PersonImageCount(personId, requestId string) (int, error) 
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "api/people/" + personId + "/statistics",
+		Path:   "api/people/" + personID + "/statistics",
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId, personStatistics)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, personStatistics)
 	body, err := immichApiCall(apiUrl.String())
 	if err != nil {
 		_, err = immichApiFail(personStatistics, err, body, apiUrl.String())
@@ -341,12 +423,12 @@ func (i *ImmichAsset) PersonImageCount(personId, requestId string) (int, error) 
 }
 
 // GetRandomImage retrieve a random image from Immich
-func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestId, "PREFETCH", kioskDeviceID, "Getting Random image", true)
+		log.Debug(requestID, "PREFETCH", kioskDeviceID, "Getting Random image", true)
 	} else {
-		log.Debug(requestId + " Getting Random image")
+		log.Debug(requestID + " Getting Random image")
 	}
 
 	var immichAssets []ImmichAsset
@@ -363,7 +445,7 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 		RawQuery: "count=1000",
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId, immichAssets)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAssets)
 	body, err := immichApiCall(apiUrl.String())
 	if err != nil {
 		_, err = immichApiFail(immichAssets, err, body, apiUrl.String())
@@ -377,9 +459,9 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 	}
 
 	if len(immichAssets) == 0 {
-		log.Debug(requestId + " No images left in cache. Refreshing and trying again")
+		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 		apiCache.Delete(apiUrl.String())
-		return i.RandomImage(requestId, kioskDeviceID, isPrefetch)
+		return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -407,22 +489,22 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 		return nil
 	}
 
-	log.Debug(requestId + " No viable images left in cache. Refreshing and trying again")
+	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	apiCache.Delete(apiUrl.String())
-	return i.RandomImage(requestId, kioskDeviceID, isPrefetch)
+	return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
 }
 
 // RandomImageOfPerson retrieve random image of person from Immich
-func (i *ImmichAsset) RandomImageOfPerson(personId, requestId, kioskDeviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID string, isPrefetch bool) error {
 
-	images, err := i.personAssets(personId, requestId)
+	images, err := i.personAssets(personID, requestID)
 	if err != nil {
 		return err
 	}
 
 	if len(images) == 0 {
-		log.Error("no images found")
-		return fmt.Errorf("no images found")
+		log.Error("no images found", "for person", personID)
+		return fmt.Errorf("no images found for person %s", personID)
 	}
 
 	rand.Shuffle(len(images), func(i, j int) {
@@ -440,18 +522,18 @@ func (i *ImmichAsset) RandomImageOfPerson(personId, requestId, kioskDeviceID str
 	}
 
 	if i.ID == "" {
-		log.Error("no images found")
-		return fmt.Errorf("no images found")
+		log.Error("no images found", "for person", personID)
+		return fmt.Errorf("no images found for person %s", personID)
 	}
 
 	if log.GetLevel() == log.DebugLevel {
 		for _, per := range i.People {
-			if per.ID == personId {
+			if per.ID == personID {
 
 				if isPrefetch {
-					log.Debug(requestId, "PREFETCH", kioskDeviceID, "Got image of person", per.Name)
+					log.Debug(requestID, "PREFETCH", kioskDeviceID, "Got image of person", per.Name)
 				} else {
-					log.Debug(requestId, "Got image of person", per.Name)
+					log.Debug(requestID, "Got image of person", per.Name)
 				}
 
 				break
@@ -462,16 +544,56 @@ func (i *ImmichAsset) RandomImageOfPerson(personId, requestId, kioskDeviceID str
 	return nil
 }
 
+func (i *ImmichAsset) RandomAlbumFromAllAlbums(requestID string) (string, error) {
+	albums, err := i.allAlbums(requestID)
+	if err != nil {
+		return "", err
+	}
+
+	albumsWithWeighting := []utils.AssetWithWeighting{}
+
+	for _, album := range albums {
+		albumsWithWeighting = append(albumsWithWeighting, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: "ALBUM", ID: album.ID},
+			Weight: album.AssetCount,
+		})
+	}
+
+	pickedAlbum := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
+
+	return pickedAlbum.ID, nil
+}
+
+func (i *ImmichAsset) RandomAlbumFromSharedAlbums(requestID string) (string, error) {
+	albums, err := i.allSharedAlbums(requestID)
+	if err != nil {
+		return "", err
+	}
+
+	albumsWithWeighting := []utils.AssetWithWeighting{}
+
+	for _, album := range albums {
+		albumsWithWeighting = append(albumsWithWeighting, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: "ALBUM", ID: album.ID},
+			Weight: album.AssetCount,
+		})
+	}
+
+	pickedAlbum := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
+
+	return pickedAlbum.ID, nil
+}
+
 // RandomImageFromAlbum retrieve random image within a specified album from Immich
-func (i *ImmichAsset) RandomImageFromAlbum(albumId, requestId, kioskDeviceID string, isPrefetch bool) error {
-	album, err := i.albumAssets(albumId, requestId)
+func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, kioskDeviceID string, isPrefetch bool) error {
+	album, err := i.albumAssets(albumID, requestID)
 	if err != nil {
 		return err
 	}
 
 	if len(album.Assets) == 0 {
-		log.Error("no images found")
-		return fmt.Errorf("no images found")
+		log.Error("no images found", "for album", albumID)
+		return fmt.Errorf("no images found for album %s", albumID)
 	}
 
 	rand.Shuffle(len(album.Assets), func(i, j int) {
@@ -489,8 +611,8 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumId, requestId, kioskDeviceID str
 	}
 
 	if i.ID == "" {
-		log.Error("no images found")
-		return fmt.Errorf("no images found")
+		log.Error("no images found", "for album", albumID)
+		return fmt.Errorf("no images found for album %s", albumID)
 	}
 
 	return nil
@@ -517,7 +639,33 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 	return i.immichApiCall(apiUrl.String())
 }
 
-func (i *ImmichAsset) AlbumImageCount(albumId, requestId string) (int, error) {
-	album, err := i.albumAssets(albumId, requestId)
-	return len(album.Assets), err
+func (i *ImmichAsset) countAssetsInAlbums(albums ImmichAlbums) int {
+	total := 0
+	for _, album := range albums {
+		total += album.AssetCount
+	}
+	return total
+}
+
+func (i *ImmichAsset) AlbumImageCount(albumID, requestID string) (int, error) {
+	switch albumID {
+	case AllAlbumsID:
+		albums, err := i.allAlbums(requestID)
+		if err != nil {
+			return 0, fmt.Errorf("failed to get all albums: %w", err)
+		}
+		return i.countAssetsInAlbums(albums), nil
+	case SharedAlbumsID:
+		albums, err := i.allSharedAlbums(requestID)
+		if err != nil {
+			return 0, fmt.Errorf("failed to get shared albums: %w", err)
+		}
+		return i.countAssetsInAlbums(albums), nil
+	default:
+		album, err := i.albumAssets(albumID, requestID)
+		if err != nil {
+			return 0, fmt.Errorf("failed to get album assets for album %s: %w", albumID, err)
+		}
+		return len(album.Assets), nil
+	}
 }

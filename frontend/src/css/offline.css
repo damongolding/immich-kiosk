@@ -7,6 +7,8 @@
     width: 3rem;
     height: 3rem;
     display: none;
+
+    z-index: 999999999;
 }
 
 #offline svg {
@@ -15,4 +17,9 @@
 
 .offline {
     display: block !important;
+}
+
+/* In sleep mode */
+.sleep #offline {
+    opacity: 0.5;
 }

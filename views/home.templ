@@ -25,7 +25,7 @@ func crossFadeDurationCSS(crossFadeDuration float32) string {
     `, crossFadeDuration)
 }
 
-templ kioskCrossFade(showProgress bool, kioskVersion string, deviceID string, queries url.Values, crossFadeDuration float32) {
+templ kioskCrossFade(kioskVersion string, deviceID string, queries url.Values, crossFadeDuration float32) {
 	@templ.Raw(crossFadeDurationCSS(crossFadeDuration))
 	<div
 		id="kiosk"
@@ -55,7 +55,7 @@ func fadeDurationCSS(fadeDuration float32) string {
         `, fadeDuration)
 }
 
-templ kioskFade(showProgress bool, kioskVersion string, deviceID string, queries url.Values, fadeDuration float32) {
+templ kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDuration float32) {
 	@templ.Raw(fadeDurationCSS(fadeDuration / 2))
 	<div
 		id="kiosk"
@@ -74,7 +74,7 @@ templ kioskFade(showProgress bool, kioskVersion string, deviceID string, queries
 	</div>
 }
 
-templ kioskNone(showProgress bool, kioskVersion string, deviceID string, queries url.Values) {
+templ kioskNone(kioskVersion string, deviceID string, queries url.Values) {
 	<div
 		id="kiosk"
 		hx-post="/image"
@@ -184,6 +184,17 @@ templ progressBar(refresh int) {
 	</div>
 }
 
+templ sleepMode(sleepStart, sleepEnd string) {
+	if sleepStart != "" && sleepEnd != "" {
+		<form
+			hx-get="/sleep"
+			hx-trigger="load, every 13s"
+			hx-include=".kiosk-param"
+			hx-target="#navigation-interaction-area"
+		></form>
+	}
+}
+
 templ Home(data PageData) {
 	<!DOCTYPE html>
 	<html lang="en" class={ baseFontSize(data.Config.FontSize) }>
@@ -223,11 +234,11 @@ templ Home(data PageData) {
 		<body class={ templ.KV("layout-splitview", strings.EqualFold(data.Layout, "splitview")) }>
 			switch strings.ToLower(data.Config.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.CrossFadeTransitionDuration)
+					@kioskCrossFade(data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.CrossFadeTransitionDuration)
 				case "fade":
-					@kioskFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.FadeTransitionDuration)
+					@kioskFade(data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.FadeTransitionDuration)
 				default:
-					@kioskNone(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries)
+					@kioskNone(data.KioskVersion, utils.GenerateUUID(), data.Queries)
 			}
 			if data.Config.ShowProgress {
 				@progressBar(data.Config.Refresh)
@@ -236,6 +247,7 @@ templ Home(data PageData) {
 				@clock(data.Queries, data.KioskVersion, data.DeviceID, data.Theme)
 			}
 			@menu()
+			@sleepMode(data.SleepStart, data.SleepEnd)
 			@paramForm(data.Queries)
 			@historyForm()
 			@offlineIcon()
