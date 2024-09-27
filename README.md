@@ -56,6 +56,7 @@
   - [Date format](#date-format)
   - [Themes](#themes)
   - [Layouts](#layouts)
+  - [Sleep mode](#sleep-mode)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -153,6 +154,9 @@ services:
       KIOSK_BACKGROUND_BLUR: TRUE
       KIOSK_THEME: FADE
       KIOSK_LAYOUT: single
+      # Sleep mode
+      KIOSK_SLEEP_START: 22
+      KIOSK_SLEEP_END: 7
       # Transistion options
       KIOSK_TRANSITION: NONE
       KIOSK_FADE_TRANSITION_DURATION: 1
@@ -199,8 +203,10 @@ See the file config.example.yaml for an example config file
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
-| theme                             | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. See [Themes](#themes) for more information.                            |
-| layout                            | KIOSK_LAYOUT            | single \| splitview        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
+| [theme](#themes)                  | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. See [Themes](#themes) for more information.                            |
+| [layout](#layouts)                | KIOSK_LAYOUT            | single \| splitview        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
+| [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr formate) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr formate) to end sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
@@ -415,6 +421,10 @@ Display one image.
 Display two images side by side vertically.
 
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
+
+------
+
+## Sleep mode
 
 ------
 
