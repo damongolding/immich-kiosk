@@ -46,6 +46,18 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 	return peopleAndAlbums, nil
 }
 
+func isSleepMode(requestConfig config.Config) bool {
+	if requestConfig.SleepStart == "" || requestConfig.SleepEnd == "" {
+		return false
+	}
+
+	if isSleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now()); isSleepTime {
+		return isSleepTime
+	}
+
+	return false
+}
+
 // retrieveImage fetches a random image based on the picked image type.
 // It returns an error if the image retrieval fails.
 func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAsset, requestID, kioskDeviceID string, isPrefetch bool) error {
