@@ -101,6 +101,8 @@ func main() {
 
 	e.GET("/clock", routes.Clock(baseConfig))
 
+	e.GET("/sleep", routes.Sleep(baseConfig))
+
 	err = e.Start(":3000")
 	if err != nil {
 		log.Fatal(err)

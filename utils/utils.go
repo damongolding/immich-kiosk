@@ -17,6 +17,8 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -312,7 +314,60 @@ func PickRandomImageType(useWeighting bool, peopleAndAlbums []AssetWithWeighting
 }
 
 func parseTimeString(timeStr string) (time.Time, error) {
-	return time.Parse("1504", timeStr)
+	// Extract only the digits
+	digits := regexp.MustCompile(`\d`).FindAllString(timeStr, -1)
+
+	if len(digits) == 0 {
+		return time.Time{}, fmt.Errorf("invalid time format: no digits found in %s", timeStr)
+	}
+
+	// Join the digits
+	timeStr = strings.Join(digits, "")
+
+	var hours, minutes int
+	var err error
+
+	switch len(timeStr) {
+	case 1, 2:
+		// Interpret as hours
+		hours, err = strconv.Atoi(timeStr)
+		if err != nil || hours >= 24 {
+			return time.Time{}, fmt.Errorf("invalid hours: %s", timeStr)
+		}
+	case 3:
+		// Interpret as 1 digit hour and 2 digit minute
+		hours, err = strconv.Atoi(timeStr[:1])
+		if err != nil {
+			return time.Time{}, fmt.Errorf("invalid hours: %s", timeStr[:1])
+		}
+		minutes, err = strconv.Atoi(timeStr[1:])
+		if err != nil || minutes >= 60 {
+			return time.Time{}, fmt.Errorf("invalid minutes: %s", timeStr[1:])
+		}
+	case 4:
+		// Interpret as 2 digit hour and 2 digit minute
+		hours, err = strconv.Atoi(timeStr[:2])
+		if err != nil || hours >= 24 {
+			return time.Time{}, fmt.Errorf("invalid hours: %s", timeStr[:2])
+		}
+		minutes, err = strconv.Atoi(timeStr[2:])
+		if err != nil || minutes >= 60 {
+			return time.Time{}, fmt.Errorf("invalid minutes: %s", timeStr[2:])
+		}
+	default:
+		// Truncate to 4 digits if longer
+		hours, err = strconv.Atoi(timeStr[:2])
+		if err != nil || hours >= 24 {
+			return time.Time{}, fmt.Errorf("invalid hours: %s", timeStr[:2])
+		}
+		minutes, err = strconv.Atoi(timeStr[2:4])
+		if err != nil || minutes >= 60 {
+			return time.Time{}, fmt.Errorf("invalid minutes: %s", timeStr[2:4])
+		}
+	}
+
+	// Create time.Time object
+	return time.Date(0, 1, 1, hours, minutes, 0, 0, time.UTC), nil
 }
 
 func IsSleepTime(sleepStartTime, sleepEndTime string, currentTime time.Time) (bool, error) {

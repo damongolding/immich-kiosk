@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -47,6 +48,10 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			"path", c.Request().URL.String(),
 			"requestConfig", requestConfig.String(),
 		)
+
+		if isSleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now()); isSleepTime {
+			return nil
+		}
 
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {

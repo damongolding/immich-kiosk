@@ -293,6 +293,39 @@ func TestIsSleepTime(t *testing.T) {
 			want:           false,
 			wantErr:        false,
 		},
+		{
+			name:           "outside of sleep time",
+			sleepStartTime: "1000",
+			sleepEndTime:   "1022",
+			currentTime:    time.Date(2023, 1, 2, 10, 23, 0, 0, time.UTC), // 10:23
+			want:           false,
+			wantErr:        false,
+		},
+		{
+			name:           "inside of sleep time",
+			sleepStartTime: "1000",
+			sleepEndTime:   "1022",
+			currentTime:    time.Date(2023, 1, 2, 10, 21, 0, 0, time.UTC), // 10:21
+			want:           true,
+			wantErr:        false,
+		},
+		{
+			name:           "overnight: in sleep time",
+			sleepStartTime: "22",
+			sleepEndTime:   "7",
+			currentTime:    time.Date(2023, 1, 2, 2, 00, 0, 0, time.UTC), // 02:00
+			want:           true,
+			wantErr:        false,
+		},
+
+		{
+			name:           "overnight: out of sleep time",
+			sleepStartTime: "22",
+			sleepEndTime:   "7",
+			currentTime:    time.Date(2023, 1, 2, 8, 00, 0, 0, time.UTC), // 08:00
+			want:           false,
+			wantErr:        false,
+		},
 	}
 
 	for _, test := range tests {
@@ -305,5 +338,51 @@ func TestIsSleepTime(t *testing.T) {
 			}
 			assert.Equal(t, test.want, got)
 		})
+	}
+}
+
+func TestParseTimeString(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+		hasError bool
+	}{
+		{"1230", "12:30", false},
+		{"0130", "01:30", false},
+		{"2359", "23:59", false},
+		{"0000", "00:00", false},
+		{"130", "01:30", false},
+		{"12:30", "12:30", false},
+		{"1-30", "01:30", false},
+		{"25:00", "", true},
+		{"12:60", "", true},
+		{"abcd", "", true},
+		{"", "", true},
+		{" ", "", true},
+		{"9:30", "09:30", false},
+		{"19:30", "19:30", false},
+		{"0930", "09:30", false},
+		{"18", "18:00", false},
+		{"5", "05:00", false},
+		{"23", "23:00", false},
+		{"9", "09:00", false},
+		{"93015", "09:30", true},
+		{"24", "", true},
+		{"960", "09:60", true},
+	}
+
+	for _, test := range tests {
+		parsed, err := parseTimeString(test.input)
+		if test.hasError {
+			if err == nil {
+				t.Errorf("Expected error for input %s, but got none", test.input)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("Unexpected error for input %s: %v", test.input, err)
+			} else if parsed.Format("15:04") != test.expected {
+				t.Errorf("For input %s, expected %s, but got %s", test.input, test.expected, parsed.Format("15:04"))
+			}
+		}
 	}
 }

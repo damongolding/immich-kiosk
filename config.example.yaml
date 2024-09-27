@@ -25,6 +25,7 @@ font_size: 100 # the base font size as a percentage. OMIT the % character
 background_blur: true # display a blurred version of image as background
 theme: fade # which theme to use. fade or solid
 layout: single # which layout to use. single or splitview
+
 # Transition options
 transition: none # cross-fade, fade or none
 fade_transition_duration: 1 # in seconds

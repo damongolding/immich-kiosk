@@ -184,6 +184,17 @@ templ progressBar(refresh int) {
 	</div>
 }
 
+templ sleepMode(sleepStart, sleepEnd string) {
+	if sleepStart != "" && sleepEnd != "" {
+		<form
+			hx-get="/sleep"
+			hx-trigger="load, every 13s"
+			hx-include=".kiosk-param"
+			hx-target="#navigation-interaction-area"
+		></form>
+	}
+}
+
 templ Home(data PageData) {
 	<!DOCTYPE html>
 	<html lang="en" class={ baseFontSize(data.Config.FontSize) }>
@@ -236,6 +247,7 @@ templ Home(data PageData) {
 				@clock(data.Queries, data.KioskVersion, data.DeviceID, data.Theme)
 			}
 			@menu()
+			@sleepMode(data.SleepStart, data.SleepEnd)
 			@paramForm(data.Queries)
 			@historyForm()
 			@offlineIcon()
