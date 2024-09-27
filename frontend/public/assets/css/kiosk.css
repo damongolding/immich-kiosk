@@ -568,6 +568,8 @@ body {
   width: 100vw;
   height: 100vh;
   z-index: 99998;
+  background-color: transparent;
+  transition: background-color 3s ease;
 }
 .navigation {
   display: flex;
@@ -631,8 +633,6 @@ body {
   visibility: hidden;
 }
 .sleep #navigation-interaction-area {
-  width: 100%;
-  height: 100%;
   background-color: black;
 }
 
