@@ -327,7 +327,7 @@ func generateViewData(numberOfImages int, requestConfig config.Config, c echo.Co
 
 		if viewDataSplitView.ImmichImage.ExifInfo.Ratio == immich.Landscape {
 			log.Info("Got a landscape image")
-			break
+			return viewData, nil
 		}
 
 		log.Info("want a portrait image")
