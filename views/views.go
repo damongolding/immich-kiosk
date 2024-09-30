@@ -12,11 +12,7 @@ import (
 	"github.com/damongolding/immich-kiosk/immich"
 )
 
-type PageData struct {
-	// KioskVersion the current build version of Kiosk
-	KioskVersion string
-	// DeviceID unique id for device
-	DeviceID string
+type ImageData struct {
 	// ImmichImage immich asset data
 	ImmichImage immich.ImmichAsset
 	// ImageData image as base64 data
@@ -25,6 +21,15 @@ type PageData struct {
 	ImageBlurData string
 	// Date image date
 	ImageDate string
+}
+
+type ViewData struct {
+	// KioskVersion the current build version of Kiosk
+	KioskVersion string
+	// DeviceID unique id for device
+	DeviceID string
+	// Images the images to display in view
+	Images []ImageData
 	// URL queries
 	Queries url.Values
 	// instance config

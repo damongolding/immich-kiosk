@@ -23,7 +23,11 @@ import (
 )
 
 // maxRetries the maximum amount of retries to find a IMAGE type
-const maxRetries int = 10
+const (
+	maxRetries int = 10
+	Portrait       = "PORTRAIT"
+	Landscape      = "LANDSCAPE"
+)
 
 var (
 	// requestConfig the config for this request
@@ -47,10 +51,10 @@ type ImmichError struct {
 type ExifInfo struct {
 	Make             string    `json:"-"` // `json:"make"`
 	Model            string    `json:"-"` // `json:"model"`
-	ExifImageWidth   int       `json:"-"` // `json:"exifImageWidth"`
-	ExifImageHeight  int       `json:"-"` // `json:"exifImageHeight"`
+	ExifImageWidth   int       `json:"exifImageWidth"`
+	ExifImageHeight  int       `json:"exifImageHeight"`
 	FileSizeInByte   int       `json:"-"` // `json:"fileSizeInByte"`
-	Orientation      any       `json:"-"` // `json:"orientation"`
+	Orientation      string    `json:"orientation"`
 	DateTimeOriginal time.Time `json:"dateTimeOriginal"`
 	ModifyDate       time.Time `json:"-"` // `json:"modifyDate"`
 	TimeZone         string    `json:"-"` // `json:"timeZone"`
@@ -66,6 +70,7 @@ type ExifInfo struct {
 	Country          string    `json:"country"`
 	Description      string    `json:"-"` // `json:"description"`
 	ProjectionType   any       `json:"-"` // `json:"projectionType"`
+	Ratio            string
 }
 
 type People []struct {
@@ -116,6 +121,7 @@ type ImmichAsset struct {
 	IsOffline        bool      `json:"-"`        // `json:"isOffline"`
 	HasMetadata      bool      `json:"-"`        // `json:"hasMetadata"`
 	DuplicateID      any       `json:"-"`        // `json:"duplicateId"`
+	RatioWanted      string
 }
 
 type WeightedAsset struct {
@@ -249,36 +255,6 @@ func (i *ImmichAsset) immichApiCall(apiUrl string) ([]byte, error) {
 	return responseBody, err
 }
 
-// personAssets retrieves all assets associated with a specific person from Immich.
-func (i *ImmichAsset) personAssets(personId, requestId string) ([]ImmichAsset, error) {
-
-	var images []ImmichAsset
-
-	u, err := url.Parse(requestConfig.ImmichUrl)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	apiUrl := url.URL{
-		Scheme: u.Scheme,
-		Host:   u.Host,
-		Path:   "api/people/" + personId + "/assets",
-	}
-
-	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestId, images)
-	body, err := immichApiCal(apiUrl.String())
-	if err != nil {
-		return immichApiFail(images, err, body, apiUrl.String())
-	}
-
-	err = json.Unmarshal(body, &images)
-	if err != nil {
-		return immichApiFail(images, err, body, apiUrl.String())
-	}
-
-	return images, nil
-}
-
 // albumAssets retrieves all assets associated with a specific album from Immich.
 func (i *ImmichAsset) albumAssets(albumId, requestId string) (ImmichAlbum, error) {
 	var album ImmichAlbum
@@ -388,6 +364,11 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 			continue
 		}
 
+		// is a specific ratio wanted?
+		if i.RatioWanted == "" && i.RatioWanted != i.ExifInfo.Ratio {
+			continue
+		}
+
 		if requestConfig.Kiosk.Cache {
 			// Remove the current image from the slice
 			immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
@@ -410,56 +391,6 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 	log.Debug(requestId + " No viable images left in cache. Refreshing and trying again")
 	apiCache.Delete(apiUrl.String())
 	return i.RandomImage(requestId, kioskDeviceID, isPrefetch)
-}
-
-// RandomImageOfPerson retrieve random image of person from Immich
-func (i *ImmichAsset) RandomImageOfPerson(personId, requestId, kioskDeviceID string, isPrefetch bool) error {
-
-	images, err := i.personAssets(personId, requestId)
-	if err != nil {
-		return err
-	}
-
-	if len(images) == 0 {
-		log.Error("no images found")
-		return fmt.Errorf("no images found")
-	}
-
-	rand.Shuffle(len(images), func(i, j int) {
-		images[i], images[j] = images[j], images[i]
-	})
-
-	for _, pick := range images {
-		// We only want images and that are not trashed or archived (unless wanted by user)
-		if pick.Type != "IMAGE" || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) {
-			continue
-		}
-
-		*i = pick
-		break
-	}
-
-	if i.ID == "" {
-		log.Error("no images found")
-		return fmt.Errorf("no images found")
-	}
-
-	if log.GetLevel() == log.DebugLevel {
-		for _, per := range i.People {
-			if per.ID == personId {
-
-				if isPrefetch {
-					log.Debug(requestId, "PREFETCH", kioskDeviceID, "Got image of person", per.Name)
-				} else {
-					log.Debug(requestId, "Got image of person", per.Name)
-				}
-
-				break
-			}
-		}
-	}
-
-	return nil
 }
 
 // RandomImageFromAlbum retrieve random image within a specified album from Immich
@@ -520,4 +451,24 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 func (i *ImmichAsset) AlbumImageCount(albumId, requestId string) (int, error) {
 	album, err := i.albumAssets(albumId, requestId)
 	return len(album.Assets), err
+}
+
+// AddRatio sets the Ratio field of the ExifInfo struct based on the image dimensions.
+// If the image height is greater than the width, it sets the ratio to "portrait".
+// Otherwise, it sets the ratio to "landscape".
+func (i *ImmichAsset) AddRatio() {
+	switch i.ExifInfo.Orientation {
+	case "5", "6", "7", "8":
+		if i.ExifInfo.ExifImageHeight < i.ExifInfo.ExifImageWidth {
+			i.ExifInfo.Ratio = Portrait
+		} else {
+			i.ExifInfo.Ratio = Landscape
+		}
+	default:
+		if i.ExifInfo.ExifImageHeight > i.ExifInfo.ExifImageWidth {
+			i.ExifInfo.Ratio = Portrait
+		} else {
+			i.ExifInfo.Ratio = Landscape
+		}
+	}
 }

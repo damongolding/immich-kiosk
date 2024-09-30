@@ -185,34 +185,34 @@ func ImageExif(info immich.ExifInfo) string {
 	return stats.String()
 }
 
-func ImageDateTime(data PageData) string {
+func ImageDateTime(viewData ViewData, imageIndex int) string {
 	var imageDate string
 
 	var imageTimeFormat string
-	if data.Config.ImageTimeFormat == "12" {
+	if viewData.ImageTimeFormat == "12" {
 		imageTimeFormat = time.Kitchen
 	} else {
 		imageTimeFormat = time.TimeOnly
 	}
 
-	imageDateFormat := utils.DateToLayout(data.Config.ImageDateFormat)
+	imageDateFormat := utils.DateToLayout(viewData.ImageDateFormat)
 	if imageDateFormat == "" {
 		imageDateFormat = config.DefaultDateLayout
 	}
 
 	switch {
-	case (data.Config.ShowImageDate && data.Config.ShowImageTime):
-		imageDate = fmt.Sprintf("%s %s", data.ImmichImage.LocalDateTime.Format(imageTimeFormat), data.ImmichImage.LocalDateTime.Format(imageDateFormat))
-	case data.Config.ShowImageDate:
-		imageDate = fmt.Sprintf("%s", data.ImmichImage.LocalDateTime.Format(imageDateFormat))
-	case data.Config.ShowImageTime:
-		imageDate = fmt.Sprintf("%s", data.ImmichImage.LocalDateTime.Format(imageTimeFormat))
+	case (viewData.ShowImageDate && viewData.ShowImageTime):
+		imageDate = fmt.Sprintf("%s %s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageTimeFormat), viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageDateFormat))
+	case viewData.ShowImageDate:
+		imageDate = fmt.Sprintf("%s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageDateFormat))
+	case viewData.ShowImageTime:
+		imageDate = fmt.Sprintf("%s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageTimeFormat))
 	}
 
 	return imageDate
 }
 
-func layoutSingleView(data PageData) templ.Component {
+func layoutSingleView(viewData ViewData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -230,7 +230,7 @@ func layoutSingleView(data PageData) templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var8 = []any{"frame", templ.KV("frame-black-bg", !data.Config.BackgroundBlur)}
+		var templ_7745c5c3_Var8 = []any{"frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -252,15 +252,15 @@ func layoutSingleView(data PageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if data.Config.BackgroundBlur && !strings.EqualFold(data.Config.ImageFit, "cover") {
+		if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"frame--background\"><img src=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.ImageBlurData)
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(viewData.Images[0].ImageBlurData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 117, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 117, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -275,19 +275,19 @@ func layoutSingleView(data PageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		switch strings.ToLower(data.Config.ImageFit) {
+		switch strings.ToLower(viewData.ImageFit) {
 		case "cover":
-			templ_7745c5c3_Err = ImageFitCover(data.ImageData, data.Config.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case "none":
-			templ_7745c5c3_Err = ImageFitNone(data.ImageData, data.Config.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ImageFitNone(viewData.Images[0].ImageData, viewData.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		default:
-			templ_7745c5c3_Err = ImageFitContain(data.ImageData, data.Config.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ImageFitContain(viewData.Images[0].ImageData, viewData.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -296,8 +296,8 @@ func layoutSingleView(data PageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if !data.Config.DisableUi {
-			var templ_7745c5c3_Var11 = []any{"image--metadata", fmt.Sprintf("image--metadata--theme-%s", data.Theme)}
+		if !viewData.DisableUi {
+			var templ_7745c5c3_Var11 = []any{"image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme)}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var11...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -319,15 +319,15 @@ func layoutSingleView(data PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.Config.ShowImageDate || data.Config.ShowImageTime {
+			if viewData.ShowImageDate || viewData.ShowImageTime {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"image--metadata--date\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var13 string
-				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(ImageDateTime(data))
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(ImageDateTime(viewData, 0))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 134, Col: 27}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 134, Col: 34}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -338,12 +338,12 @@ func layoutSingleView(data PageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			if data.Config.ShowImageExif {
+			if viewData.ShowImageExif {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"image--metadata--exif\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templ.Raw(ImageExif(data.ImmichImage.ExifInfo)).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = templ.Raw(ImageExif(viewData.Images[0].ImmichImage.ExifInfo)).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -352,12 +352,12 @@ func layoutSingleView(data PageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			if data.Config.ShowImageLocation {
+			if viewData.ShowImageLocation {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"image--metadata--location\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templ.Raw(ImageLocation(data.ImmichImage.ExifInfo)).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = templ.Raw(ImageLocation(viewData.Images[0].ImmichImage.ExifInfo)).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -379,7 +379,7 @@ func layoutSingleView(data PageData) templ.Component {
 	})
 }
 
-func layoutSplitView(data ...PageData) templ.Component {
+func layoutSplitView(viewData ViewData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -397,7 +397,7 @@ func layoutSplitView(data ...PageData) templ.Component {
 			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var15 = []any{"frame", templ.KV("frame-black-bg", !data[0].Config.BackgroundBlur)}
+		var templ_7745c5c3_Var15 = []any{"frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var15...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -419,12 +419,12 @@ func layoutSplitView(data ...PageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, imageData := range data {
+		for imageIndex, imageData := range viewData.Images {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"frame--layout-splitview\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if imageData.Config.BackgroundBlur && !strings.EqualFold(imageData.Config.ImageFit, "cover") {
+			if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") {
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"frame--background\"><img src=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -447,19 +447,19 @@ func layoutSplitView(data ...PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			switch strings.ToLower(imageData.Config.ImageFit) {
+			switch strings.ToLower(viewData.ImageFit) {
 			case "cover":
-				templ_7745c5c3_Err = ImageFitCover(imageData.ImageData, imageData.Config.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = ImageFitCover(imageData.ImageData, viewData.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			case "none":
-				templ_7745c5c3_Err = ImageFitNone(imageData.ImageData, imageData.Config.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = ImageFitNone(imageData.ImageData, viewData.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			default:
-				templ_7745c5c3_Err = ImageFitContain(imageData.ImageData, imageData.Config.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = ImageFitContain(imageData.ImageData, viewData.ImageFit).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -468,8 +468,8 @@ func layoutSplitView(data ...PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if !imageData.Config.DisableUi {
-				var templ_7745c5c3_Var18 = []any{"image--metadata", fmt.Sprintf("image--metadata--theme-%s", imageData.Theme)}
+			if !viewData.DisableUi {
+				var templ_7745c5c3_Var18 = []any{"image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme)}
 				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var18...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -491,15 +491,15 @@ func layoutSplitView(data ...PageData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if imageData.Config.ShowImageDate || imageData.Config.ShowImageTime {
+				if viewData.ShowImageDate || viewData.ShowImageTime {
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"image--metadata--date\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var20 string
-					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(ImageDateTime(imageData))
+					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(ImageDateTime(viewData, imageIndex))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 175, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/image.templ`, Line: 175, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -510,7 +510,7 @@ func layoutSplitView(data ...PageData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				if imageData.Config.ShowImageExif {
+				if viewData.ShowImageExif {
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"image--metadata--exif\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -524,7 +524,7 @@ func layoutSplitView(data ...PageData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				if imageData.Config.ShowImageLocation {
+				if viewData.ShowImageLocation {
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"image--metadata--location\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -556,7 +556,7 @@ func layoutSplitView(data ...PageData) templ.Component {
 	})
 }
 
-func Image(data ...PageData) templ.Component {
+func Image(viewData ViewData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -574,13 +574,13 @@ func Image(data ...PageData) templ.Component {
 			templ_7745c5c3_Var21 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if len(data) < 2 {
-			templ_7745c5c3_Err = layoutSingleView(data[0]).Render(ctx, templ_7745c5c3_Buffer)
+		if len(viewData.Images) < 2 {
+			templ_7745c5c3_Err = layoutSingleView(viewData).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = layoutSplitView(data...).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layoutSplitView(viewData).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -589,7 +589,7 @@ func Image(data ...PageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for _, historyEntry := range data[0].Config.History {
+		for _, historyEntry := range viewData.History {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input type=\"hidden\" class=\"kiosk-history--entry\" name=\"history\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -608,7 +608,7 @@ func Image(data ...PageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		for _, newHistoryEntry := range data {
+		for _, newHistoryEntry := range viewData.Images {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input type=\"hidden\" class=\"kiosk-history--entry\" name=\"history\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
