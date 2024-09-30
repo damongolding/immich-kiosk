@@ -323,7 +323,7 @@ func generateViewData(numberOfImages int, requestConfig config.Config, c echo.Co
 
 	switch requestConfig.Layout {
 	case "splitview":
-		viewDataSplitView, err := ProcessViewImageDat(requestConfig, c, isPrefetch)
+		viewDataSplitView, err := ProcessViewImageData(requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
 		}
