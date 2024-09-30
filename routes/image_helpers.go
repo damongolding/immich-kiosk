@@ -326,9 +326,11 @@ func generateViewData(numberOfImages int, requestConfig config.Config, c echo.Co
 		viewData.Images = append(viewData.Images, viewDataSplitView)
 
 		if viewDataSplitView.ImmichImage.ExifInfo.Ratio == immich.Landscape {
+			log.Info("Got a landscape image")
 			break
 		}
 
+		log.Info("want a portrait image")
 		viewDataSplitView, err = processViewImageData(immich.Portrait, requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err

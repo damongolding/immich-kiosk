@@ -366,8 +366,11 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 
 		// is a specific ratio wanted?
 		if i.RatioWanted == "" && i.RatioWanted != i.ExifInfo.Ratio {
+			log.Info("image is not the ratio we want", "ratio", i.RatioWanted)
 			continue
 		}
+
+		log.Info("image is what we want", "ratio", i.RatioWanted)
 
 		if requestConfig.Kiosk.Cache {
 			// Remove the current image from the slice
