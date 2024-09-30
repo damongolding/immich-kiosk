@@ -206,6 +206,10 @@ func ProcessViewImageData(requestConfig config.Config, c echo.Context, isPrefetc
 	return processViewImageData("", requestConfig, c, isPrefetch)
 }
 
+func ProcessViewImageDataWithRatio(ratio string, requestConfig config.Config, c echo.Context, isPrefetch bool) (views.ImageData, error) {
+	return processViewImageData(ratio, requestConfig, c, isPrefetch)
+}
+
 func imagePreFetch(numberOfImages int, requestConfig config.Config, c echo.Context, kioskDeviceID string) {
 
 	viewDataToAdd, err := generateViewData(numberOfImages, requestConfig, c, kioskDeviceID, true)
@@ -319,7 +323,7 @@ func generateViewData(numberOfImages int, requestConfig config.Config, c echo.Co
 
 	switch requestConfig.Layout {
 	case "splitview":
-		viewDataSplitView, err := processViewImageData("", requestConfig, c, isPrefetch)
+		viewDataSplitView, err := ProcessViewImageDat(requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
 		}
@@ -331,7 +335,7 @@ func generateViewData(numberOfImages int, requestConfig config.Config, c echo.Co
 		}
 
 		log.Info("want a portrait image")
-		viewDataSplitView, err = processViewImageData(immich.Portrait, requestConfig, c, isPrefetch)
+		viewDataSplitView, err = ProcessViewImageDataWithRatio(immich.Portrait, requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
 		}
