@@ -86,6 +86,9 @@ type Config struct {
 	// Layout which layout to use
 	Layout string `mapstructure:"layout" query:"layout" form:"layout" default:"single"`
 
+	SleepStart string `mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
+	SleepEnd   string `mapstructure:"sleep_end" query:"sleep_end" form:"sleep_end" default:""`
+
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display

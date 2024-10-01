@@ -395,6 +395,9 @@ body {
   max-width: 2rem;
   fill: #fff;
 }
+.error ul li {
+  padding-bottom: 0.5rem;
+}
 
 /* src/css/progress.css */
 .progress {
@@ -425,12 +428,16 @@ body {
   width: 3rem;
   height: 3rem;
   display: none;
+  z-index: 999999999;
 }
 #offline svg {
   filter: drop-shadow(0rem 0rem 1rem black);
 }
 .offline {
   display: block !important;
+}
+.sleep #offline {
+  opacity: 0.5;
 }
 
 /* src/css/clock.css */
@@ -533,6 +540,26 @@ body {
   font-size: 3rem;
   z-index: 1;
 }
+.sleep #clock {
+  top: 50%;
+  left: 50%;
+  bottom: unset;
+  right: unset;
+  transform: translate(-50%, -50%);
+  opacity: 0.1;
+  z-index: 99999;
+  line-height: 1;
+}
+.sleep .clock--date {
+  font-size: 8vw;
+}
+.sleep .clock--time {
+  padding-right: 0;
+  font-size: 18vw;
+}
+.sleep #clock::before {
+  display: none;
+}
 
 /* src/css/menu.css */
 #navigation-interaction-area {
@@ -541,6 +568,8 @@ body {
   width: 100vw;
   height: 100vh;
   z-index: 99998;
+  background-color: transparent;
+  transition: background-color 3s ease;
 }
 .navigation {
   display: flex;
@@ -602,6 +631,9 @@ body {
 .navigation--control--paused .navigation--control--pause {
   display: none;
   visibility: hidden;
+}
+.sleep #navigation-interaction-area {
+  background-color: black;
 }
 
 /* src/css/kiosk.css */

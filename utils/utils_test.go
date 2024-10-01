@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
+	"time"
 
-	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -141,8 +141,8 @@ func TestColorContrast(t *testing.T) {
 // 2. The returned total weight matches the expected value.
 func TestCalculateTotalWeight(t *testing.T) {
 
-	in := []immich.AssetWithWeighting{
-		{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
+	in := []AssetWithWeighting{
+		{Asset: WeightedAsset{ID: "1"}, Weight: 1},
 	}
 
 	total := calculateTotalWeight(in)
@@ -161,29 +161,29 @@ func TestWeightedRandomItem(t *testing.T) {
 	// Define test cases
 	testCases := []struct {
 		name   string
-		assets []immich.AssetWithWeighting
-		want   immich.WeightedAsset
+		assets []AssetWithWeighting
+		want   WeightedAsset
 	}{
 		{
 			name:   "Empty slice",
-			assets: []immich.AssetWithWeighting{},
-			want:   immich.WeightedAsset{},
+			assets: []AssetWithWeighting{},
+			want:   WeightedAsset{},
 		},
 		{
 			name: "Single asset",
-			assets: []immich.AssetWithWeighting{
-				{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
+			assets: []AssetWithWeighting{
+				{Asset: WeightedAsset{ID: "1"}, Weight: 1},
 			},
-			want: immich.WeightedAsset{ID: "1"},
+			want: WeightedAsset{ID: "1"},
 		},
 		{
 			name: "Multiple assets",
-			assets: []immich.AssetWithWeighting{
-				{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
-				{Asset: immich.WeightedAsset{ID: "2"}, Weight: 2},
-				{Asset: immich.WeightedAsset{ID: "3"}, Weight: 3},
+			assets: []AssetWithWeighting{
+				{Asset: WeightedAsset{ID: "1"}, Weight: 1},
+				{Asset: WeightedAsset{ID: "2"}, Weight: 2},
+				{Asset: WeightedAsset{ID: "3"}, Weight: 3},
 			},
-			want: immich.WeightedAsset{}, // We'll check for non-empty result
+			want: WeightedAsset{}, // We'll check for non-empty result
 		},
 	}
 	for _, tc := range testCases {
@@ -207,10 +207,10 @@ func TestWeightedRandomItem(t *testing.T) {
 	}
 
 	// Test for distribution
-	assets := []immich.AssetWithWeighting{
-		{Asset: immich.WeightedAsset{ID: "1"}, Weight: 1},
-		{Asset: immich.WeightedAsset{ID: "2"}, Weight: 2},
-		{Asset: immich.WeightedAsset{ID: "3"}, Weight: 3},
+	assets := []AssetWithWeighting{
+		{Asset: WeightedAsset{ID: "1"}, Weight: 1},
+		{Asset: WeightedAsset{ID: "2"}, Weight: 2},
+		{Asset: WeightedAsset{ID: "3"}, Weight: 3},
 	}
 
 	counts := make(map[string]int)
@@ -233,5 +233,156 @@ func TestWeightedRandomItem(t *testing.T) {
 	for id, expectedRatio := range expectedRatios {
 		actualRatio := float64(counts[id]) / float64(iterations)
 		assert.InDelta(t, expectedRatio, actualRatio, tolerance, "Distribution for asset %s: got %.4f, want %.4f (±%.4f)", id, actualRatio, expectedRatio, tolerance)
+	}
+}
+
+func TestIsSleepTime(t *testing.T) {
+	tests := []struct {
+		name           string
+		sleepStartTime string
+		sleepEndTime   string
+		currentTime    time.Time
+		want           bool
+		wantErr        bool
+	}{
+		{
+			name:           "Within sleep time",
+			sleepStartTime: "2200",
+			sleepEndTime:   "0600",
+			currentTime:    time.Date(2023, 1, 1, 23, 0, 0, 0, time.UTC), // 23:00
+			want:           true,
+			wantErr:        false,
+		},
+		{
+			name:           "Outside sleep time",
+			sleepStartTime: "2200",
+			sleepEndTime:   "0600",
+			currentTime:    time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC), // 12:00
+			want:           false,
+			wantErr:        false,
+		},
+		{
+			name:           "Invalid start time",
+			sleepStartTime: "2500",
+			sleepEndTime:   "0600",
+			currentTime:    time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC),
+			want:           false,
+			wantErr:        true,
+		},
+		{
+			name:           "Invalid end time",
+			sleepStartTime: "2200",
+			sleepEndTime:   "2500",
+			currentTime:    time.Date(2023, 1, 1, 12, 0, 0, 0, time.UTC),
+			want:           false,
+			wantErr:        true,
+		},
+		{
+			name:           "At start time",
+			sleepStartTime: "2200",
+			sleepEndTime:   "0600",
+			currentTime:    time.Date(2023, 1, 1, 22, 0, 0, 0, time.UTC), // 22:00
+			want:           true,
+			wantErr:        false,
+		},
+		{
+			name:           "At end time",
+			sleepStartTime: "2200",
+			sleepEndTime:   "0600",
+			currentTime:    time.Date(2023, 1, 2, 6, 0, 0, 0, time.UTC), // 06:00 next day
+			want:           false,
+			wantErr:        false,
+		},
+		{
+			name:           "outside of sleep time",
+			sleepStartTime: "1000",
+			sleepEndTime:   "1022",
+			currentTime:    time.Date(2023, 1, 2, 10, 23, 0, 0, time.UTC), // 10:23
+			want:           false,
+			wantErr:        false,
+		},
+		{
+			name:           "inside of sleep time",
+			sleepStartTime: "1000",
+			sleepEndTime:   "1022",
+			currentTime:    time.Date(2023, 1, 2, 10, 21, 0, 0, time.UTC), // 10:21
+			want:           true,
+			wantErr:        false,
+		},
+		{
+			name:           "overnight: in sleep time",
+			sleepStartTime: "22",
+			sleepEndTime:   "7",
+			currentTime:    time.Date(2023, 1, 2, 2, 00, 0, 0, time.UTC), // 02:00
+			want:           true,
+			wantErr:        false,
+		},
+
+		{
+			name:           "overnight: out of sleep time",
+			sleepStartTime: "22",
+			sleepEndTime:   "7",
+			currentTime:    time.Date(2023, 1, 2, 8, 00, 0, 0, time.UTC), // 08:00
+			want:           false,
+			wantErr:        false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got, err := IsSleepTime(test.sleepStartTime, test.sleepEndTime, test.currentTime)
+			if test.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, test.want, got)
+		})
+	}
+}
+
+func TestParseTimeString(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+		hasError bool
+	}{
+		{"1230", "12:30", false},
+		{"0130", "01:30", false},
+		{"2359", "23:59", false},
+		{"0000", "00:00", false},
+		{"130", "01:30", false},
+		{"12:30", "12:30", false},
+		{"1-30", "01:30", false},
+		{"25:00", "", true},
+		{"12:60", "", true},
+		{"abcd", "", true},
+		{"", "", true},
+		{" ", "", true},
+		{"9:30", "09:30", false},
+		{"19:30", "19:30", false},
+		{"0930", "09:30", false},
+		{"18", "18:00", false},
+		{"5", "05:00", false},
+		{"23", "23:00", false},
+		{"9", "09:00", false},
+		{"93015", "09:30", true},
+		{"24", "", true},
+		{"960", "09:60", true},
+	}
+
+	for _, test := range tests {
+		parsed, err := parseTimeString(test.input)
+		if test.hasError {
+			if err == nil {
+				t.Errorf("Expected error for input %s, but got none", test.input)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("Unexpected error for input %s: %v", test.input, err)
+			} else if parsed.Format("15:04") != test.expected {
+				t.Errorf("For input %s, expected %s, but got %s", test.input, test.expected, parsed.Format("15:04"))
+			}
+		}
 	}
 }

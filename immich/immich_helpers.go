@@ -16,8 +16,18 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 	var immichError ImmichError
 	errorUnmarshalErr := json.Unmarshal(body, &immichError)
 	if errorUnmarshalErr != nil {
-		log.Error("couln't read error", "body", string(body), "url", apiUrl)
-		return value, err
+		log.Error("Couldn't ready error", "body", string(body), "url", apiUrl)
+		return value, fmt.Errorf(`
+			No data or error returned from Immich API.
+			<ul>
+				<li>Are your data source ID's correct (albumID, personID)?</li>
+				<li>Do those data sources have assets?</li>
+				<li>Is Immich online?</li>
+			</ul>
+			<p>
+				Full error:<br/><br/>
+				<code>%w</code>
+			</p>`, err)
 	}
 	log.Errorf("%s : %v", immichError.Error, immichError.Message)
 	return value, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)

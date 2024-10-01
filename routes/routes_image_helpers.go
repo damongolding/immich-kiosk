@@ -17,28 +17,27 @@ import (
 
 // gatherPeopleAndAlbums collects asset weightings for people and albums.
 // It returns a slice of AssetWithWeighting and an error if any occurs during the process.
-func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config.Config, requestId string) ([]immich.AssetWithWeighting, error) {
-
-	peopleAndAlbums := []immich.AssetWithWeighting{}
+func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID string) ([]utils.AssetWithWeighting, error) {
+	peopleAndAlbums := []utils.AssetWithWeighting{}
 
 	for _, person := range requestConfig.Person {
-		personAssetCount, err := immichImage.PersonImageCount(person, requestId)
+		personAssetCount, err := immichImage.PersonImageCount(person, requestID)
 		if err != nil {
 			return nil, fmt.Errorf("getting person image count: %w", err)
 		}
-		peopleAndAlbums = append(peopleAndAlbums, immich.AssetWithWeighting{
-			Asset:  immich.WeightedAsset{Type: "PERSON", ID: person},
+		peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: "PERSON", ID: person},
 			Weight: personAssetCount,
 		})
 	}
 
 	for _, album := range requestConfig.Album {
-		albumAssetCount, err := immichImage.AlbumImageCount(album, requestId)
+		albumAssetCount, err := immichImage.AlbumImageCount(album, requestID)
 		if err != nil {
 			return nil, fmt.Errorf("getting album asset count: %w", err)
 		}
-		peopleAndAlbums = append(peopleAndAlbums, immich.AssetWithWeighting{
-			Asset:  immich.WeightedAsset{Type: "ALBUM", ID: album},
+		peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: "ALBUM", ID: album},
 			Weight: albumAssetCount,
 		})
 	}
@@ -46,37 +45,44 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 	return peopleAndAlbums, nil
 }
 
-// pickRandomImageType selects a random image type based on the given configuration and weightings.
-// It returns a WeightedAsset representing the picked image type.
-func pickRandomImageType(requestConfig config.Config, peopleAndAlbums []immich.AssetWithWeighting) immich.WeightedAsset {
-
-	var pickedImage immich.WeightedAsset
-
-	if requestConfig.Kiosk.AssetWeighting {
-		pickedImage = utils.WeightedRandomItem(peopleAndAlbums)
-	} else {
-		var assetsOnly []immich.WeightedAsset
-		for _, item := range peopleAndAlbums {
-			assetsOnly = append(assetsOnly, item.Asset)
-		}
-		pickedImage = utils.RandomItem(assetsOnly)
+func isSleepMode(requestConfig config.Config) bool {
+	if requestConfig.SleepStart == "" || requestConfig.SleepEnd == "" {
+		return false
 	}
 
-	return pickedImage
+	if isSleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now()); isSleepTime {
+		return isSleepTime
+	}
+
+	return false
 }
 
 // retrieveImage fetches a random image based on the picked image type.
 // It returns an error if the image retrieval fails.
-func retrieveImage(immichImage *immich.ImmichAsset, pickedImage immich.WeightedAsset, requestID, kioskDeviceID string, isPrefetch bool) error {
+func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAsset, requestID, kioskDeviceID string, isPrefetch bool) error {
 
 	viewDataCacheMutex.Lock()
 	defer viewDataCacheMutex.Unlock()
 
-	switch pickedImage.Type {
+	switch pickedAsset.Type {
 	case "ALBUM":
-		return immichImage.RandomImageFromAlbum(pickedImage.ID, requestID, kioskDeviceID, isPrefetch)
+		switch pickedAsset.ID {
+		case "all":
+			pickedAlbumID, err := immichImage.RandomAlbumFromAllAlbums(requestID)
+			if err != nil {
+				return err
+			}
+			pickedAsset.ID = pickedAlbumID
+		case "shared":
+			pickedAlbumID, err := immichImage.RandomAlbumFromSharedAlbums(requestID)
+			if err != nil {
+				return err
+			}
+			pickedAsset.ID = pickedAlbumID
+		}
+		return immichImage.RandomImageFromAlbum(pickedAsset.ID, requestID, kioskDeviceID, isPrefetch)
 	case "PERSON":
-		return immichImage.RandomImageOfPerson(pickedImage.ID, requestID, kioskDeviceID, isPrefetch)
+		return immichImage.RandomImageOfPerson(pickedAsset.ID, requestID, kioskDeviceID, isPrefetch)
 	default:
 		return immichImage.RandomImage(requestID, kioskDeviceID, isPrefetch)
 	}
@@ -84,8 +90,7 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedImage immich.WeightedA
 
 // fetchImagePreview retrieves the preview of an image and logs the time taken.
 // It returns the image bytes and an error if any occurs.
-func fetchImagePreview(immichImage *immich.ImmichAsset, requestId, kioskDeviceID string, isPrefetch bool) ([]byte, error) {
-
+func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, kioskDeviceID string, isPrefetch bool) ([]byte, error) {
 	imageGet := time.Now()
 	imgBytes, err := immichImage.ImagePreview()
 	if err != nil {
@@ -93,9 +98,9 @@ func fetchImagePreview(immichImage *immich.ImmichAsset, requestId, kioskDeviceID
 	}
 
 	if isPrefetch {
-		log.Debug(requestId, "PREFETCH", kioskDeviceID, "Got image in", time.Since(imageGet).Seconds())
+		log.Debug(requestID, "PREFETCH", kioskDeviceID, "Got image in", time.Since(imageGet).Seconds())
 	} else {
-		log.Debug(requestId, "Got image in", time.Since(imageGet).Seconds())
+		log.Debug(requestID, "Got image in", time.Since(imageGet).Seconds())
 	}
 
 	return imgBytes, nil
@@ -103,38 +108,38 @@ func fetchImagePreview(immichImage *immich.ImmichAsset, requestId, kioskDeviceID
 
 // processImage handles the entire process of selecting and retrieving an image.
 // It returns the image bytes and an error if any step fails.
-func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestId string, kioskDeviceID string, isPrefetch bool) ([]byte, error) {
+func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID string, kioskDeviceID string, isPrefetch bool) ([]byte, error) {
 
-	peopleAndAlbums, err := gatherPeopleAndAlbums(immichImage, requestConfig, requestId)
+	peopleAndAlbums, err := gatherPeopleAndAlbums(immichImage, requestConfig, requestID)
 	if err != nil {
 		return nil, err
 	}
 
-	pickedImage := pickRandomImageType(requestConfig, peopleAndAlbums)
+	pickedImage := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, peopleAndAlbums)
 
-	if err := retrieveImage(immichImage, pickedImage, requestId, kioskDeviceID, isPrefetch); err != nil {
+	if err := retrieveImage(immichImage, pickedImage, requestID, kioskDeviceID, isPrefetch); err != nil {
 		return nil, err
 	}
 
-	return fetchImagePreview(immichImage, requestId, kioskDeviceID, isPrefetch)
+	return fetchImagePreview(immichImage, requestID, kioskDeviceID, isPrefetch)
 }
 
 // imageToBase64 converts image bytes to a base64 string and logs the processing time.
 // It returns the base64 string and an error if conversion fails.
-func imageToBase64(imgBytes []byte, config config.Config, requestId, kioskDeviceID string, isPrefetch bool) (string, error) {
+func imageToBase64(imgBytes []byte, config config.Config, requestID, kioskDeviceID string, action string, isPrefetch bool) (string, error) {
 	startTime := time.Now()
 	img, err := utils.ImageToBase64(imgBytes)
 	if err != nil {
 		return "", fmt.Errorf("converting image to base64: %w", err)
 	}
 
-	logImageProcessing(config, requestId, kioskDeviceID, isPrefetch, "Converted", startTime)
+	logImageProcessing(config, requestID, kioskDeviceID, isPrefetch, action, startTime)
 	return img, nil
 }
 
 // processBlurredImage applies a blur effect to the image if required by the configuration.
 // It returns the blurred image as a base64 string and an error if any occurs.
-func processBlurredImage(imgBytes []byte, config config.Config, requestId, kioskDeviceID string, isPrefetch bool) (string, error) {
+func processBlurredImage(imgBytes []byte, config config.Config, requestID, kioskDeviceID string, isPrefetch bool) (string, error) {
 	if !config.BackgroundBlur || strings.EqualFold(config.ImageFit, "cover") {
 		return "", nil
 	}
@@ -145,22 +150,22 @@ func processBlurredImage(imgBytes []byte, config config.Config, requestId, kiosk
 		return "", fmt.Errorf("blurring image: %w", err)
 	}
 
-	logImageProcessing(config, requestId, kioskDeviceID, isPrefetch, "Blurred", startTime)
+	logImageProcessing(config, requestID, kioskDeviceID, isPrefetch, "Blurred", startTime)
 
-	return imageToBase64(imgBlurBytes, config, requestId, kioskDeviceID, isPrefetch)
+	return imageToBase64(imgBlurBytes, config, requestID, kioskDeviceID, "Coverted blurred", isPrefetch)
 }
 
 // logImageProcessing logs the time taken for image processing if debug verbose is enabled.
-func logImageProcessing(config config.Config, requestId, kioskDeviceID string, isPrefetch bool, action string, startTime time.Time) {
+func logImageProcessing(config config.Config, requestID, kioskDeviceID string, isPrefetch bool, action string, startTime time.Time) {
 	if !config.Kiosk.DebugVerbose {
 		return
 	}
 
 	duration := time.Since(startTime).Seconds()
 	if isPrefetch {
-		log.Debug(requestId, "PREFETCH", kioskDeviceID, action, "image in", duration)
+		log.Debug(requestID, "PREFETCH", kioskDeviceID, action+" image in", duration)
 	} else {
-		log.Debug(requestId, action, "image in", duration)
+		log.Debug(requestID, action+" image in", duration)
 	}
 }
 
@@ -191,7 +196,7 @@ func processViewImageData(ratio string, requestConfig config.Config, c echo.Cont
 		return views.ImageData{}, fmt.Errorf("selecting image: %w", err)
 	}
 
-	img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, isPrefetch)
+	img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, "Coverted", isPrefetch)
 	if err != nil {
 		return views.ImageData{}, err
 	}

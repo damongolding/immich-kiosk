@@ -48,13 +48,17 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
+		if isSleepMode(requestConfig) {
+			return c.NoContent(http.StatusOK)
+		}
+
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
 			if viewData := fromCache(c, kioskDeviceID); viewData != nil {
 				go imagePreFetch(requestConfig, c, kioskDeviceID)
 				return renderCachedViewData(c, viewData, &requestConfig, requestID, kioskDeviceID)
 			}
-			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image", false)
+			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image")
 		}
 
 		ViewData, err := generateViewData(requestConfig, c, kioskDeviceID, false)

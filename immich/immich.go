@@ -16,11 +16,11 @@ import (
 	"github.com/damongolding/immich-kiosk/config"
 )
 
-// maxRetries the maximum amount of retries to find a IMAGE type
 const (
-	maxRetries int = 10
 	Portrait       = "PORTRAIT"
 	Landscape      = "LANDSCAPE"
+	AllAlbumsID    = "all"
+	SharedAlbumsID = "shared"
 )
 
 var (
@@ -120,24 +120,18 @@ type ImmichAsset struct {
 	IsLandscape      bool
 }
 
-type WeightedAsset struct {
-	Type string
-	ID   string
-}
-
-type AssetWithWeighting struct {
-	Asset  WeightedAsset
-	Weight int
-}
-
 type ImmichBuckets []struct {
 	Count      int       `json:"count"`
 	TimeBucket time.Time `json:"timeBucket"`
 }
 
 type ImmichAlbum struct {
-	Assets []ImmichAsset `json:"assets"`
+	ID         string        `json:"id"`
+	Assets     []ImmichAsset `json:"assets"`
+	AssetCount int           `json:"assetCount"`
 }
+
+type ImmichAlbums []ImmichAlbum
 
 func init() {
 	// Setting up Immich api cache
@@ -153,7 +147,7 @@ func NewImage(base config.Config) ImmichAsset {
 type ImmichApiCall func(string) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichPersonStatistics | int
+	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int
 }
 
 // ImagePreview fetches the raw image data from Immich

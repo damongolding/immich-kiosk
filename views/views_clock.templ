@@ -1,5 +1,7 @@
 package views
 
+import "strings"
+
 type ClockData struct {
 	ClockTime string
 	ClockDate string
@@ -10,6 +12,6 @@ templ Clock(data ClockData) {
 		<div class="clock--date">{ data.ClockDate }</div>
 	}
 	if data.ClockTime != "" {
-		<div class="clock--time">{ data.ClockTime }</div>
+		<div class="clock--time">{ strings.ToLower(data.ClockTime) }</div>
 	}
 }
