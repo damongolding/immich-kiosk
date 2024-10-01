@@ -196,7 +196,7 @@ func processViewImageData(ratio string, requestConfig config.Config, c echo.Cont
 		return views.ImageData{}, fmt.Errorf("selecting image: %w", err)
 	}
 
-	img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, "Coverted", isPrefetch)
+	img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, "Converted", isPrefetch)
 	if err != nil {
 		return views.ImageData{}, err
 	}
