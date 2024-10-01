@@ -336,11 +336,9 @@ func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID
 		viewData.Images = append(viewData.Images, viewDataSplitView)
 
 		if viewDataSplitView.ImmichImage.IsLandscape {
-			log.Info("Got a landscape image", "IsLandscape", viewDataSplitView.ImmichImage.IsLandscape, "O", viewDataSplitView.ImmichImage.ExifInfo.Orientation, "W", viewDataSplitView.ImmichImage.ExifInfo.ExifImageWidth, "H", viewDataSplitView.ImmichImage.ExifInfo.ExifImageHeight)
 			return viewData, nil
 		}
 
-		log.Info("want a portrait image", "IsLandscape", viewDataSplitView.ImmichImage.IsLandscape, "IsPortrati", viewDataSplitView.ImmichImage.IsPortrait)
 		viewDataSplitView, err = ProcessViewImageDataWithRatio(immich.Portrait, requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
