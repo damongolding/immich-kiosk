@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -37,10 +38,20 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
+		var customCss []byte
+
+		if utils.FileExists("./custom.css") {
+			customCss, err = os.ReadFile("./custom.css")
+			if err != nil {
+				log.Error("reading custom css", "err", err)
+			}
+		}
+
 		viewData := views.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     utils.GenerateUUID(),
 			Queries:      c.Request().URL.Query(),
+			CustomCss:    customCss,
 			Config:       requestConfig,
 		}
 

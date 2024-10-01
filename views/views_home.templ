@@ -1,10 +1,12 @@
 package views
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/damongolding/immich-kiosk/utils"
 	"net/url"
 	"strings"
+	"text/template"
 )
 
 templ spinner() {
@@ -107,6 +109,13 @@ func baseFontSizeMobile(fontSize int) string {
             }
         }
 		</style>`, fontSize-20)
+}
+
+func customCss(css []byte) string {
+	// Remove null bytes
+	css = bytes.Replace(css, []byte{0}, []byte{}, -1)
+	escapedCSS := template.HTMLEscapeString(string(css))
+	return fmt.Sprintf("<style>%s</style>", escapedCSS)
 }
 
 css animationDuration(duration int) {
@@ -230,6 +239,9 @@ templ Home(viewData ViewData) {
 				</style>
 			}
 			@templ.Raw(baseFontSizeMobile(viewData.FontSize))
+			if len(viewData.CustomCss) > 0 {
+				@templ.Raw(customCss(viewData.CustomCss))
+			}
 		</head>
 		<body class={ templ.KV("layout-splitview", strings.EqualFold(viewData.Layout, "splitview")) }>
 			switch strings.ToLower(viewData.Transition) {
