@@ -122,6 +122,8 @@ type ImmichAsset struct {
 	HasMetadata      bool      `json:"-"`        // `json:"hasMetadata"`
 	DuplicateID      any       `json:"-"`        // `json:"duplicateId"`
 	RatioWanted      string
+	IsPortrait       bool
+ IsLandscape      book
 }
 
 type WeightedAsset struct {
@@ -464,14 +466,18 @@ func (i *ImmichAsset) AddRatio() {
 	case "5", "6", "7", "8":
 		if i.ExifInfo.ExifImageHeight < i.ExifInfo.ExifImageWidth {
 			i.ExifInfo.Ratio = Portrait
+   i.IsPortrait = true
 		} else {
 			i.ExifInfo.Ratio = Landscape
+   i.IsLandscape = true
 		}
 	default:
 		if i.ExifInfo.ExifImageHeight > i.ExifInfo.ExifImageWidth {
 			i.ExifInfo.Ratio = Portrait
+   i.IsPortrait = true
 		} else {
 			i.ExifInfo.Ratio = Landscape
+   i.IsLandscape = true
 		}
 	}
 }
