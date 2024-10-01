@@ -36,11 +36,39 @@ func (i *ImmichAsset) personAssets(personId, requestId string) ([]ImmichAsset, e
 		return immichApiFail(images, err, body, apiUrl.String())
 	}
 
-	for _, image := range images {
-		image.AddRatio()
+	return images, nil
+}
+
+// PersonImageCount returns the number of images associated with a specific person in Immich.
+func (i *ImmichAsset) PersonImageCount(personId, requestId string) (int, error) {
+
+	var personStatistics ImmichPersonStatistics
+
+	u, err := url.Parse(requestConfig.ImmichUrl)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	return images, nil
+	apiUrl := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   "api/people/" + personId + "/statistics",
+	}
+
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId, personStatistics)
+	body, err := immichApiCall(apiUrl.String())
+	if err != nil {
+		_, err = immichApiFail(personStatistics, err, body, apiUrl.String())
+		return 0, err
+	}
+
+	err = json.Unmarshal(body, &personStatistics)
+	if err != nil {
+		_, err = immichApiFail(personStatistics, err, body, apiUrl.String())
+		return 0, err
+	}
+
+	return personStatistics.Assets, err
 }
 
 // RandomImageOfPerson retrieve random image of person from Immich
@@ -61,13 +89,8 @@ func (i *ImmichAsset) RandomImageOfPerson(personId, requestId, kioskDeviceID str
 	})
 
 	for _, pick := range images {
-		// We only want images and that are not trashed or archived (unless wanted by user)
-		if pick.Type != "IMAGE" || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) {
-			continue
-		}
-
-		// is a specific ratio wanted?
-		if i.RatioWanted == "" && i.RatioWanted != i.ExifInfo.Ratio {
+		// Filter out non-image assets, trashed, archived (unless configured), and incorrect ratio
+		if pick.Type != "IMAGE" || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&pick) {
 			continue
 		}
 

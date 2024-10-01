@@ -3,7 +3,6 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -49,27 +48,22 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		imagesToPreFectch := 1
-		if strings.EqualFold(requestConfig.Layout, "splitview") {
-			imagesToPreFectch = 2
-		}
-
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
 			if viewData := fromCache(c, kioskDeviceID); viewData != nil {
-				go imagePreFetch(imagesToPreFectch, requestConfig, c, kioskDeviceID)
+				go imagePreFetch(requestConfig, c, kioskDeviceID)
 				return renderCachedViewData(c, viewData, &requestConfig, requestID, kioskDeviceID)
 			}
 			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image", false)
 		}
 
-		ViewData, err := generateViewData(imagesToPreFectch, requestConfig, c, kioskDeviceID, false)
+		ViewData, err := generateViewData(requestConfig, c, kioskDeviceID, false)
 		if err != nil {
 			RenderError(c, err, "processing image")
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			go imagePreFetch(imagesToPreFectch, requestConfig, c, kioskDeviceID)
+			go imagePreFetch(requestConfig, c, kioskDeviceID)
 		}
 
 		return Render(c, http.StatusOK, views.Image(ViewData))

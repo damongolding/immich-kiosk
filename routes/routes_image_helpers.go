@@ -178,7 +178,13 @@ func processViewImageData(ratio string, requestConfig config.Config, c echo.Cont
 	kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
 
 	immichImage := immich.NewImage(requestConfig)
-	immichImage.RatioWanted = ratio
+
+	switch ratio {
+	case immich.Portrait:
+		immichImage.RatioWanted = ratio
+	case immich.Landscape:
+		immichImage.RatioWanted = ratio
+	}
 
 	imgBytes, err := processImage(&immichImage, requestConfig, requestID, kioskDeviceID, isPrefetch)
 	if err != nil {
@@ -210,9 +216,9 @@ func ProcessViewImageDataWithRatio(ratio string, requestConfig config.Config, c 
 	return processViewImageData(ratio, requestConfig, c, isPrefetch)
 }
 
-func imagePreFetch(numberOfImages int, requestConfig config.Config, c echo.Context, kioskDeviceID string) {
+func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceID string) {
 
-	viewDataToAdd, err := generateViewData(numberOfImages, requestConfig, c, kioskDeviceID, true)
+	viewDataToAdd, err := generateViewData(requestConfig, c, kioskDeviceID, true)
 	if err != nil {
 		log.Error("prefetch", "err", err)
 		return
@@ -314,7 +320,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []views.ViewData, reque
 }
 
 // generateViewData generates page data for the current request.
-func generateViewData(numberOfImages int, requestConfig config.Config, c echo.Context, kioskDeviceID string, isPrefetch bool) (views.ViewData, error) {
+func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID string, isPrefetch bool) (views.ViewData, error) {
 
 	viewData := views.ViewData{
 		DeviceID: kioskDeviceID,
@@ -330,11 +336,11 @@ func generateViewData(numberOfImages int, requestConfig config.Config, c echo.Co
 		viewData.Images = append(viewData.Images, viewDataSplitView)
 
 		if viewDataSplitView.ImmichImage.IsLandscape {
-			log.Info("Got a landscape image")
+			log.Info("Got a landscape image", "IsLandscape", viewDataSplitView.ImmichImage.IsLandscape, "O", viewDataSplitView.ImmichImage.ExifInfo.Orientation, "W", viewDataSplitView.ImmichImage.ExifInfo.ExifImageWidth, "H", viewDataSplitView.ImmichImage.ExifInfo.ExifImageHeight)
 			return viewData, nil
 		}
 
-		log.Info("want a portrait image")
+		log.Info("want a portrait image", "IsLandscape", viewDataSplitView.ImmichImage.IsLandscape, "IsPortrati", viewDataSplitView.ImmichImage.IsPortrait)
 		viewDataSplitView, err = ProcessViewImageDataWithRatio(immich.Portrait, requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
