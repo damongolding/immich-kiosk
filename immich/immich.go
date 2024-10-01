@@ -123,7 +123,7 @@ type ImmichAsset struct {
 	DuplicateID      any       `json:"-"`        // `json:"duplicateId"`
 	RatioWanted      string
 	IsPortrait       bool
- IsLandscape      book
+	IsLandscape      bool
 }
 
 type WeightedAsset struct {
