@@ -415,7 +415,11 @@ Display one image.
 ![Kiosk theme fade](/assets/theme-fade.jpeg)
 
 ### Splitview
-Display two images side by side vertically.
+> ![NOTE]
+> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
+> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
+
+When a portrait image is fetched, Kiosk automatically retrieves a second portrait image and displays them side by side vertically. Landscape and square images are displayed individually.
 
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
 

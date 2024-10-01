@@ -37,13 +37,13 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		pageData := views.PageData{
+		viewData := views.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     utils.GenerateUUID(),
 			Queries:      c.Request().URL.Query(),
 			Config:       requestConfig,
 		}
 
-		return Render(c, http.StatusOK, views.Home(pageData))
+		return Render(c, http.StatusOK, views.Home(viewData))
 	}
 }

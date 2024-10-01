@@ -195,16 +195,16 @@ templ sleepMode(sleepStart, sleepEnd string) {
 	}
 }
 
-templ Home(data PageData) {
+templ Home(viewData ViewData) {
 	<!DOCTYPE html>
-	<html lang="en" class={ baseFontSize(data.Config.FontSize) }>
+	<html lang="en" class={ baseFontSize(viewData.FontSize) }>
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="apple-mobile-web-app-capable" content="yes"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<meta name="version" content={ data.KioskVersion }/>
+			<meta name="version" content={ viewData.KioskVersion }/>
 			<title>Immich Kiosk</title>
-			<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", data.KioskVersion))) }/>
+			<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))) }/>
 			<link
 				rel="apple-touch-icon"
 				sizes="180x180"
@@ -222,44 +222,44 @@ templ Home(data PageData) {
 				sizes="16x16"
 				href="/assets/images/favicon-16x16.png"
 			/>
-			if data.Config.HideCursor {
+			if viewData.HideCursor {
 				<style>
     				html, body{
     				    cursor: none;
     				}
 				</style>
 			}
-			@templ.Raw(baseFontSizeMobile(data.FontSize))
+			@templ.Raw(baseFontSizeMobile(viewData.FontSize))
 		</head>
-		<body class={ templ.KV("layout-splitview", strings.EqualFold(data.Layout, "splitview")) }>
-			switch strings.ToLower(data.Config.Transition) {
+		<body class={ templ.KV("layout-splitview", strings.EqualFold(viewData.Layout, "splitview")) }>
+			switch strings.ToLower(viewData.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.CrossFadeTransitionDuration)
+					@kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.CrossFadeTransitionDuration)
 				case "fade":
-					@kioskFade(data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.FadeTransitionDuration)
+					@kioskFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.FadeTransitionDuration)
 				default:
-					@kioskNone(data.KioskVersion, utils.GenerateUUID(), data.Queries)
+					@kioskNone(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries)
 			}
-			if data.Config.ShowProgress {
-				@progressBar(data.Config.Refresh)
+			if viewData.ShowProgress {
+				@progressBar(viewData.Refresh)
 			}
-			if !data.Config.DisableUi && data.Config.ShowTime {
-				@clock(data.Queries, data.KioskVersion, data.DeviceID, data.Theme)
+			if !viewData.DisableUi && viewData.ShowTime {
+				@clock(viewData.Queries, viewData.KioskVersion, viewData.DeviceID, viewData.Theme)
 			}
 			@menu()
-			@sleepMode(data.SleepStart, data.SleepEnd)
-			@paramForm(data.Queries)
+			@paramForm(viewData.Queries)
+			@sleepMode(viewData.SleepStart, viewData.SleepEnd)
 			@historyForm()
 			@offlineIcon()
 			@kioskData(map[string]any{
-				"debug":              data.Config.Kiosk.Debug,
-				"debugVerbose":       data.Config.Kiosk.DebugVerbose,
-				"version":            data.KioskVersion,
-				"params":             quriesToJson(data.Queries),
-				"refresh":            data.Config.Refresh,
-				"disableScreensaver": data.Config.DisableScreensaver,
+				"debug":              viewData.Kiosk.Debug,
+				"debugVerbose":       viewData.Kiosk.DebugVerbose,
+				"version":            viewData.KioskVersion,
+				"params":             quriesToJson(viewData.Queries),
+				"refresh":            viewData.Refresh,
+				"disableScreensaver": viewData.DisableScreensaver,
 			})
-			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", data.KioskVersion))) }></script>
+			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 		</body>
 	</html>
 }
