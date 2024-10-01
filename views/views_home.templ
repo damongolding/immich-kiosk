@@ -239,7 +239,7 @@ templ Home(viewData ViewData) {
 				</style>
 			}
 			@templ.Raw(baseFontSizeMobile(viewData.FontSize))
-			if len(viewData.CustomCss) > 0 {
+			if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
 				@templ.Raw(customCss(viewData.CustomCss))
 			}
 		</head>

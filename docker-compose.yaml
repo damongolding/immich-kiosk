@@ -9,4 +9,5 @@ services:
       - 3000:3000
     volumes:
       - ./config.yaml:/config.yaml
+      - ./custom.css:/custom.css
     restart: always

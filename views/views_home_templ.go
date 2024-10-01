@@ -728,7 +728,7 @@ func Home(viewData ViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if len(viewData.CustomCss) > 0 {
+		if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
 			templ_7745c5c3_Err = templ.Raw(customCss(viewData.CustomCss)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
