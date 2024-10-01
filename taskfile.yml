@@ -67,3 +67,7 @@ tasks:
     cmds:
       - go list -m -u all
       - cd frontend && pnpm outdated
+
+  update-templ:
+    cmds:
+      - go install github.com/a-h/templ/cmd/templ@latest

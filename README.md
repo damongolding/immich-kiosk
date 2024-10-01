@@ -415,7 +415,7 @@ Display one image.
 ![Kiosk theme fade](/assets/theme-fade.jpeg)
 
 ### Splitview
-> ![NOTE]
+> [!NOTE]
 > Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
 > it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
 

@@ -17,7 +17,7 @@
     "node": "20.17.0"
   },
   "devDependencies": {
-    "browserslist": "^4.23.3",
+    "browserslist": "^4.24.0",
     "esbuild": "^0.24.0",
     "eslint": "^9.11.1",
     "eslint-plugin-compat": "^6.0.1",
