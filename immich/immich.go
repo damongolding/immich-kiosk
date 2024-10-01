@@ -466,18 +466,18 @@ func (i *ImmichAsset) AddRatio() {
 	case "5", "6", "7", "8":
 		if i.ExifInfo.ExifImageHeight < i.ExifInfo.ExifImageWidth {
 			i.ExifInfo.Ratio = Portrait
-   i.IsPortrait = true
+			i.IsPortrait = true
 		} else {
 			i.ExifInfo.Ratio = Landscape
-   i.IsLandscape = true
+			i.IsLandscape = true
 		}
 	default:
 		if i.ExifInfo.ExifImageHeight > i.ExifInfo.ExifImageWidth {
 			i.ExifInfo.Ratio = Portrait
-   i.IsPortrait = true
+			i.IsPortrait = true
 		} else {
 			i.ExifInfo.Ratio = Landscape
-   i.IsLandscape = true
+			i.IsLandscape = true
 		}
 	}
 }
