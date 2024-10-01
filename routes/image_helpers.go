@@ -329,7 +329,7 @@ func generateViewData(numberOfImages int, requestConfig config.Config, c echo.Co
 		}
 		viewData.Images = append(viewData.Images, viewDataSplitView)
 
-		if viewDataSplitView.ImmichImage.ExifInfo.Ratio == immich.Landscape {
+		if viewDataSplitView.ImmichImage.IsLandscape {
 			log.Info("Got a landscape image")
 			return viewData, nil
 		}
