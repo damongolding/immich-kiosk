@@ -16,9 +16,11 @@ import (
 	"github.com/damongolding/immich-kiosk/config"
 )
 
+type Orientation string
+
 const (
-	Portrait       = "PORTRAIT"
-	Landscape      = "LANDSCAPE"
+	Portrait Orientation  = "PORTRAIT"
+	Landscape Orientation = "LANDSCAPE"
 	AllAlbumsID    = "all"
 	SharedAlbumsID = "shared"
 )
