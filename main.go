@@ -4,6 +4,11 @@
 // application logic for displaying and managing images in a kiosk mode.
 // The package includes functionality for loading configurations, setting up
 // middleware, and serving both dynamic content and static assets.
+
+//go:generate go run main_build_time.go
+//go:build !generate
+// +build !generate
+
 package main
 
 import (

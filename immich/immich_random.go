@@ -52,7 +52,7 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 
 	for immichAssetIndex, img := range immichAssets {
 		// We only want images and that are not trashed or archived (unless wanted by user)
-		if img.Type != "IMAGE" || img.IsTrashed || (img.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&img) {
+		if img.Type != ImageType || img.IsTrashed || (img.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&img) {
 			continue
 		}
 

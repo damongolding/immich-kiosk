@@ -455,6 +455,8 @@ To use custom CSS:
 1. Create a file named `custom.css` in the same directory as your `config.yaml` file.
 2. Add your custom CSS rules to this file.
 
+There is a `custom.example.css` file included that contains all the CSS selectors used by Kiosk, which you can use as a reference for your customizations.
+
 The custom CSS will apply to all devices connected to Kiosk by default.
 
 To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?cusom_css=false`

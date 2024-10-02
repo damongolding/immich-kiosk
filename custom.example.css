@@ -1,0 +1,81 @@
+/* src/css/fonts.css */
+/* src/css/globals.css */
+*{}
+body{}
+/* src/css/container.css */
+#kiosk{}
+#kiosk.htmx-swapping{}
+#kiosk.htmx-settling .htmx-added{}
+/* src/css/spinner.css */
+.kiosk--spinner{}
+/* src/css/frame.css */
+.frame{}
+.frame-black-bg{}
+.frame--image{}
+.frame--image img{}
+.frame--image-fit-contain{}
+.frame--image-fit-cover{}
+.frame--background{}
+.frame--background img{}
+.frame--layout-splitview{}
+.frame--layout-splitview:nth-child(1){}
+.frame--layout-splitview:nth-child(2){}
+.frame--layout-splitview .frame--image{}
+/* src/css/image.css */
+.image--metadata{}
+.image--metadata--theme-fade::before{}
+.frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before{}
+.image--metadata--theme-solid{}
+.frame--layout-splitview:nth-child(1) .image--metadata--theme-solid{}
+.image--metadata .responsive-break{}
+.image--metadata--location:empty{}
+.image--metadata--date{}
+.image--metadata--exif{}
+.image--metadata--exif--fnumber{}
+.image--metadata--exif--seperator{}
+.image--metadata--location{}
+.frame--layout-splitview:nth-child(1) .image--metadata{}
+/* src/css/error.css */
+.error-container{}
+.error{}
+.error--title{}
+.error--message{}
+.error svg{}
+.error ul li{}
+/* src/css/progress.css */
+.progress{}
+.progress--bar{}
+/* src/css/offline.css */
+#offline{}
+#offline svg{}
+.offline{}
+.sleep #offline{}
+/* src/css/clock.css */
+#clock{}
+.layout-splitview #clock{}
+#clock:empty{}
+.clock--theme-fade::before{}
+.layout-splitview .clock--theme-fade::before{}
+.clock--theme-solid{}
+.layout-splitview .clock--theme-solid{}
+.clock--date{}
+.clock--time{}
+.sleep #clock{}
+.sleep .clock--date{}
+.sleep .clock--time{}
+.sleep #clock::before{}
+/* src/css/menu.css */
+#navigation-interaction-area{}
+.navigation{}
+.navigation--item{}
+.navigation--item--separator{}
+.navigation-hidden{}
+.navigation svg{}
+.navigation--fullscreen--exit{}
+.navigation--fullscreen-enabled .navigation--fullscreen--exit{}
+.navigation--fullscreen-enabled .navigation--fullscreen--enter{}
+.navigation--control--play{}
+.navigation--control--paused .navigation--control--play{}
+.navigation--control--paused .navigation--control--pause{}
+.sleep #navigation-interaction-area{}
+/* src/css/kiosk.css */

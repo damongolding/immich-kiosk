@@ -185,9 +185,9 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	immichImage := immich.NewImage(requestConfig)
 
 	switch imageOrientation {
-	case immich.Portrait:
+	case immich.PortraitOrientation:
 		immichImage.RatioWanted = imageOrientation
-	case immich.Landscape:
+	case immich.LandscapeOrientation:
 		immichImage.RatioWanted = imageOrientation
 	}
 
@@ -344,7 +344,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID
 			return viewData, nil
 		}
 
-		viewDataSplitView, err = ProcessViewImageDataWithRatio(immich.Portrait, requestConfig, c, isPrefetch)
+		viewDataSplitView, err = ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
 		}

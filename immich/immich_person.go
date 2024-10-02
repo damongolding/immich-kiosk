@@ -122,7 +122,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestId, kioskDeviceID str
 
 	for _, pick := range images {
 		// Filter out non-image assets, trashed, archived (unless configured), and incorrect ratio
-		if pick.Type != "IMAGE" || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&pick) {
+		if pick.Type != ImageType || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&pick) {
 			continue
 		}
 
