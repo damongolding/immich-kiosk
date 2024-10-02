@@ -57,6 +57,7 @@
   - [Themes](#themes)
   - [Layouts](#layouts)
   - [Sleep mode](#sleep-mode)
+  - [Cusom CSS](#custom-css)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -204,6 +205,7 @@ See the file config.example.yaml for an example config file
 | [layout](#layouts)                | KIOSK_LAYOUT            | single \| splitview        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
 | [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [custom_css](#custom-css)         | N/A                     | bool                       | true        | Allow custom CSS to be used. See [Custom CSS](#custom-css) for more information.           |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
@@ -436,6 +438,27 @@ Kiosk will display a black screen and can optionally shows a faint clock if `sho
 ### Examples
 - Setting `sleep_start=22` and `sleep_end=7` will enable sleep mode from 22:00 (10pm) to 07:00 (7am).
 - Setting `sleep_start=1332` and `sleep_end=1508` will enable sleep mode from 13:32 (1:32pm) to 15:08 (3:08pm).
+
+------
+
+# Custom CSS
+> [!NOTE]
+> Custom CSS is applied after all other styles, allowing you to override any default styles.
+
+> [!WARNING]
+> Be cautious when using custom CSS, as it may interfere with the normal functioning of Kiosk if not implemented correctly.
+> While I'm happy to help with general Kiosk issues, I may not be able to provide specific support for problems related to custom CSS implementations.
+
+Custom CSS allows you to further customize Kiosk's appearance beyond the built-in themes and settings.
+
+To use custom CSS:
+1. Create a file named `custom.css` in the same directory as your `config.yaml` file.
+2. Add your custom CSS rules to this file.
+
+The custom CSS will apply to all devices connected to Kiosk by default.
+
+To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?cusom_css=false`
+
 
 ------
 
