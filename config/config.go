@@ -109,6 +109,8 @@ type Config struct {
 
 	// ShowProgress display a progress bar
 	ShowProgress bool `mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
+	// CustomCSS use custom css file
+	CustomCSS bool `mapstructure:"custom_css" query:"custom_css" form:"custom_css" default:"true"`
 
 	// ShowImageTime whether to display image time
 	ShowImageTime bool `mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`

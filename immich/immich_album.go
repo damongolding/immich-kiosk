@@ -125,7 +125,7 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, kioskDeviceID str
 
 	for _, pick := range album.Assets {
 		// We only want images and that are not trashed or archived (unless wanted by user)
-		if pick.Type != "IMAGE" || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&pick) {
+		if pick.Type != ImageType || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&pick) {
 			continue
 		}
 

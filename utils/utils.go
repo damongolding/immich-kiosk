@@ -17,6 +17,7 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -401,4 +402,9 @@ func IsSleepTime(sleepStartTime, sleepEndTime string, currentTime time.Time) (bo
 
 	return (currentTime.After(startTime) || currentTime.Equal(startTime)) &&
 		currentTime.Before(endTime), nil
+}
+
+func FileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return !os.IsNotExist(err)
 }

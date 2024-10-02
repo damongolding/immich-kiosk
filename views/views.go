@@ -32,6 +32,8 @@ type ViewData struct {
 	Images []ImageData
 	// URL queries
 	Queries url.Values
+	// CustomCss
+	CustomCss []byte
 	// instance config
 	config.Config
 }

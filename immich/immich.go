@@ -17,12 +17,20 @@ import (
 )
 
 type ImageOrientation string
+type ImmichAssetType string
 
 const (
-	Portrait ImageOrientation  = "PORTRAIT"
-	Landscape ImageOrientation = "LANDSCAPE"
-	AllAlbumsID                = "all"
-	SharedAlbumsID             = "shared"
+	PortraitOrientation  ImageOrientation = "PORTRAIT"
+	LandscapeOrientation ImageOrientation = "LANDSCAPE"
+	SquareOrientation    ImageOrientation = "SQUARE"
+
+	ImageType ImmichAssetType = "IMAGE"
+	VideoType ImmichAssetType = "VIDEO"
+	AudioType ImmichAssetType = "AUDIO"
+	OtherType ImmichAssetType = "OTHER"
+
+	AllAlbumsID    = "all"
+	SharedAlbumsID = "shared"
 )
 
 var (
@@ -66,7 +74,7 @@ type ExifInfo struct {
 	Country          string    `json:"country"`
 	Description      string    `json:"-"` // `json:"description"`
 	ProjectionType   any       `json:"-"` // `json:"projectionType"`
-	Ratio            string
+	ImageOrientation ImageOrientation
 }
 
 type People []struct {
@@ -90,34 +98,34 @@ type Faces []struct {
 }
 
 type ImmichAsset struct {
-	ID               string    `json:"id"`
-	DeviceAssetID    string    `json:"-"` // `json:"deviceAssetId"`
-	OwnerID          string    `json:"-"` // `json:"ownerId"`
-	DeviceID         string    `json:"-"` // `json:"deviceId"`
-	LibraryID        string    `json:"-"` // `json:"libraryId"`
-	Type             string    `json:"type"`
-	OriginalPath     string    `json:"-"`                // `json:"originalPath"`
-	OriginalFileName string    `json:"-"`                // `json:"originalFileName"`
-	OriginalMimeType string    `json:"originalMimeType"` // `json:"originalMimeType"`
-	Resized          bool      `json:"-"`                // `json:"resized"`
-	Thumbhash        string    `json:"-"`                // `json:"thumbhash"`
-	FileCreatedAt    time.Time `json:"-"`                // `json:"fileCreatedAt"`
-	FileModifiedAt   time.Time `json:"-"`                // `json:"fileModifiedAt"`
-	LocalDateTime    time.Time `json:"localDateTime"`    // `json:"localDateTime"`
-	UpdatedAt        time.Time `json:"-"`                // `json:"updatedAt"`
-	IsFavorite       bool      `json:"isFavorite"`
-	IsArchived       bool      `json:"isArchived"`
-	IsTrashed        bool      `json:"isTrashed"`
-	Duration         string    `json:"-"` // `json:"duration"`
-	ExifInfo         ExifInfo  `json:"exifInfo"`
-	LivePhotoVideoID any       `json:"-"`        // `json:"livePhotoVideoId"`
-	People           People    `json:"people"`   // `json:"people"`
-	Checksum         string    `json:"checksum"` // `json:"checksum"`
-	StackCount       any       `json:"-"`        // `json:"stackCount"`
-	IsOffline        bool      `json:"-"`        // `json:"isOffline"`
-	HasMetadata      bool      `json:"-"`        // `json:"hasMetadata"`
-	DuplicateID      any       `json:"-"`        // `json:"duplicateId"`
-	RatioWanted      string
+	ID               string          `json:"id"`
+	DeviceAssetID    string          `json:"-"` // `json:"deviceAssetId"`
+	OwnerID          string          `json:"-"` // `json:"ownerId"`
+	DeviceID         string          `json:"-"` // `json:"deviceId"`
+	LibraryID        string          `json:"-"` // `json:"libraryId"`
+	Type             ImmichAssetType `json:"type"`
+	OriginalPath     string          `json:"-"`                // `json:"originalPath"`
+	OriginalFileName string          `json:"-"`                // `json:"originalFileName"`
+	OriginalMimeType string          `json:"originalMimeType"` // `json:"originalMimeType"`
+	Resized          bool            `json:"-"`                // `json:"resized"`
+	Thumbhash        string          `json:"-"`                // `json:"thumbhash"`
+	FileCreatedAt    time.Time       `json:"-"`                // `json:"fileCreatedAt"`
+	FileModifiedAt   time.Time       `json:"-"`                // `json:"fileModifiedAt"`
+	LocalDateTime    time.Time       `json:"localDateTime"`    // `json:"localDateTime"`
+	UpdatedAt        time.Time       `json:"-"`                // `json:"updatedAt"`
+	IsFavorite       bool            `json:"isFavorite"`
+	IsArchived       bool            `json:"isArchived"`
+	IsTrashed        bool            `json:"isTrashed"`
+	Duration         string          `json:"-"` // `json:"duration"`
+	ExifInfo         ExifInfo        `json:"exifInfo"`
+	LivePhotoVideoID any             `json:"-"`        // `json:"livePhotoVideoId"`
+	People           People          `json:"people"`   // `json:"people"`
+	Checksum         string          `json:"checksum"` // `json:"checksum"`
+	StackCount       any             `json:"-"`        // `json:"stackCount"`
+	IsOffline        bool            `json:"-"`        // `json:"isOffline"`
+	HasMetadata      bool            `json:"-"`        // `json:"hasMetadata"`
+	DuplicateID      any             `json:"-"`        // `json:"duplicateId"`
+	RatioWanted      ImageOrientation
 	IsPortrait       bool
 	IsLandscape      bool
 }
