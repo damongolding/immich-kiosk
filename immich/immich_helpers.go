@@ -145,19 +145,19 @@ func (i *ImmichAsset) addRatio() {
 	case "5", "6", "7", "8":
 		// For these orientations, the image is rotated, so we invert the height/width comparison
 		if i.ExifInfo.ExifImageHeight < i.ExifInfo.ExifImageWidth {
-			i.ExifInfo.Ratio = Portrait
+			i.ExifInfo.ImageOrientation = Portrait
 			i.IsPortrait = true
 		} else {
-			i.ExifInfo.Ratio = Landscape
+			i.ExifInfo.ImageOrientation = Landscape
 			i.IsLandscape = true
 		}
 	default:
 		// For all other orientations, including 1, 2, 3, 4, and any unknown orientations
 		if i.ExifInfo.ExifImageHeight > i.ExifInfo.ExifImageWidth {
-			i.ExifInfo.Ratio = Portrait
+			i.ExifInfo.ImageOrientation = Portrait
 			i.IsPortrait = true
 		} else {
-			i.ExifInfo.Ratio = Landscape
+			i.ExifInfo.ImageOrientation = Landscape
 			i.IsLandscape = true
 		}
 	}

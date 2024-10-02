@@ -6,7 +6,6 @@ import (
 	"github.com/damongolding/immich-kiosk/utils"
 	"net/url"
 	"strings"
-	"text/template"
 )
 
 templ spinner() {
@@ -114,8 +113,7 @@ func baseFontSizeMobile(fontSize int) string {
 func customCss(css []byte) string {
 	// Remove null bytes
 	css = bytes.Replace(css, []byte{0}, []byte{}, -1)
-	escapedCSS := template.HTMLEscapeString(string(css))
-	return fmt.Sprintf("<style>%s</style>", escapedCSS)
+	return fmt.Sprintf("<style>%s</style>", css)
 }
 
 css animationDuration(duration int) {

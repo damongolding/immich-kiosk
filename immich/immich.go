@@ -19,10 +19,10 @@ import (
 type ImageOrientation string
 
 const (
-	Portrait ImageOrientation  = "PORTRAIT"
-	Landscape ImageOrientation = "LANDSCAPE"
-	AllAlbumsID                = "all"
-	SharedAlbumsID             = "shared"
+	Portrait       ImageOrientation = "PORTRAIT"
+	Landscape      ImageOrientation = "LANDSCAPE"
+	AllAlbumsID                     = "all"
+	SharedAlbumsID                  = "shared"
 )
 
 var (
@@ -66,7 +66,7 @@ type ExifInfo struct {
 	Country          string    `json:"country"`
 	Description      string    `json:"-"` // `json:"description"`
 	ProjectionType   any       `json:"-"` // `json:"projectionType"`
-	Ratio            string
+	ImageOrientation ImageOrientation
 }
 
 type People []struct {
@@ -117,7 +117,7 @@ type ImmichAsset struct {
 	IsOffline        bool      `json:"-"`        // `json:"isOffline"`
 	HasMetadata      bool      `json:"-"`        // `json:"hasMetadata"`
 	DuplicateID      any       `json:"-"`        // `json:"duplicateId"`
-	RatioWanted      string
+	RatioWanted      ImageOrientation
 	IsPortrait       bool
 	IsLandscape      bool
 }

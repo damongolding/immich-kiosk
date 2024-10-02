@@ -178,17 +178,17 @@ func trimHistory(history *[]string, maxLength int) {
 
 // processViewImageData handles the entire process of preparing page data including image processing.
 // It returns the ImageData and an error if any step fails.
-func processViewImageData(ratio string, requestConfig config.Config, c echo.Context, isPrefetch bool) (views.ImageData, error) {
+func processViewImageData(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (views.ImageData, error) {
 	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
 
 	immichImage := immich.NewImage(requestConfig)
 
-	switch ratio {
+	switch imageOrientation {
 	case immich.Portrait:
-		immichImage.RatioWanted = ratio
+		immichImage.RatioWanted = imageOrientation
 	case immich.Landscape:
-		immichImage.RatioWanted = ratio
+		immichImage.RatioWanted = imageOrientation
 	}
 
 	imgBytes, err := processImage(&immichImage, requestConfig, requestID, kioskDeviceID, isPrefetch)
@@ -217,8 +217,8 @@ func ProcessViewImageData(requestConfig config.Config, c echo.Context, isPrefetc
 	return processViewImageData("", requestConfig, c, isPrefetch)
 }
 
-func ProcessViewImageDataWithRatio(ratio string, requestConfig config.Config, c echo.Context, isPrefetch bool) (views.ImageData, error) {
-	return processViewImageData(ratio, requestConfig, c, isPrefetch)
+func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (views.ImageData, error) {
+	return processViewImageData(imageOrientation, requestConfig, c, isPrefetch)
 }
 
 func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceID string) {
