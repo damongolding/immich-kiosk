@@ -6,6 +6,7 @@
 package immich
 
 import (
+	"io"
 	"net/url"
 	"sync"
 	"time"
@@ -141,6 +142,18 @@ type ImmichAlbum struct {
 	AssetCount int           `json:"assetCount"`
 }
 
+type ImmichSearchResultAssets struct {
+	Total    int           `json:"total"`
+	Count    int           `json:"count"`
+	Items    []ImmichAsset `json:"items"`
+	Facets   []any         `json:"facets"`
+	NextPage any           `json:"nextPage"`
+}
+
+type ImmichSearchResult struct {
+	Assets ImmichSearchResultAssets `json:"assets"`
+}
+
 type ImmichAlbums []ImmichAlbum
 
 func init() {
@@ -154,10 +167,10 @@ func NewImage(base config.Config) ImmichAsset {
 	return ImmichAsset{}
 }
 
-type ImmichApiCall func(string) ([]byte, error)
+type ImmichApiCall func(string, string, io.Reader) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int
+	ImmichAsset | []ImmichAsset | ImmichSearchResult | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int
 }
 
 // ImagePreview fetches the raw image data from Immich
@@ -178,5 +191,5 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 		RawQuery: "size=preview",
 	}
 
-	return i.immichApiCall(apiUrl.String())
+	return i.immichApiCall("GET", apiUrl.String(), nil)
 }

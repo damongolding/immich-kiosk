@@ -31,7 +31,7 @@ func (i *ImmichAsset) albums(requestID string, shared bool) (ImmichAlbums, error
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, albums)
-	body, err := immichApiCall(apiUrl.String())
+	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(albums, err, body, apiUrl.String())
 	}
@@ -70,7 +70,7 @@ func (i *ImmichAsset) albumAssets(albumID, requestID string) (ImmichAlbum, error
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, album)
-	body, err := immichApiCall(apiUrl.String())
+	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(album, err, body, apiUrl.String())
 	}

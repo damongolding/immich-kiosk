@@ -28,7 +28,7 @@ func (i *ImmichAsset) people(requestID string, shared bool) (ImmichAlbums, error
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, albums)
-	body, err := immichApiCall(apiUrl.String())
+	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(albums, err, body, apiUrl.String())
 	}
@@ -58,7 +58,7 @@ func (i *ImmichAsset) personAssets(personID, requestID string) ([]ImmichAsset, e
 	}
 
 	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestID, images)
-	body, err := immichApiCal(apiUrl.String())
+	body, err := immichApiCal("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(images, err, body, apiUrl.String())
 	}
@@ -88,7 +88,7 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID string) (int, error) 
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, personStatistics)
-	body, err := immichApiCall(apiUrl.String())
+	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, err = immichApiFail(personStatistics, err, body, apiUrl.String())
 		return 0, err
@@ -104,9 +104,9 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID string) (int, error) 
 }
 
 // RandomImageOfPerson retrieve random image of person from Immich
-func (i *ImmichAsset) RandomImageOfPerson(personID, requestId, kioskDeviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID string, isPrefetch bool) error {
 
-	images, err := i.personAssets(personID, requestId)
+	images, err := i.personAssets(personID, requestID)
 	if err != nil {
 		return err
 	}
@@ -140,9 +140,9 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestId, kioskDeviceID str
 			if per.ID == personID {
 
 				if isPrefetch {
-					log.Debug(requestId, "PREFETCH", kioskDeviceID, "Got image of person", per.Name)
+					log.Debug(requestID, "PREFETCH", kioskDeviceID, "Got image of person", per.Name)
 				} else {
-					log.Debug(requestId, "Got image of person", per.Name)
+					log.Debug(requestID, "Got image of person", per.Name)
 				}
 
 				break

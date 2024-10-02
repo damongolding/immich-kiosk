@@ -21,7 +21,7 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		kioskVersionHeader := c.Request().Header.Get("kiosk-version")
-		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
@@ -38,7 +38,7 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		log.Debug(
-			requestId,
+			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
 			"ShowTime", requestConfig.ShowTime,
