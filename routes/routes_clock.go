@@ -29,7 +29,7 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 		// If kiosk version on client and server do not match refresh client.
 		if kioskVersionHeader != "" && KioskVersion != kioskVersionHeader {
 			c.Response().Header().Set("HX-Refresh", "true")
-			return c.String(http.StatusTemporaryRedirect, "")
+			return c.NoContent(http.StatusOK)
 		}
 
 		err := requestConfig.ConfigWithOverrides(c)

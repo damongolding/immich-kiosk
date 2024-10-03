@@ -91,4 +91,4 @@ function addFullscreenEventListener(fullscreenButton: HTMLElement | null) {
   });
 }
 
-export { fullscreenAPI, toggleFullscreen, addFullscreenEventListener };
+export { addFullscreenEventListener, fullscreenAPI, toggleFullscreen };

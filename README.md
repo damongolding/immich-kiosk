@@ -44,6 +44,7 @@
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
+  - [Requirements](#requirements)
   - [Key features](#key-features)
   - [Example 1: Raspberry Pi](#example-1)
 - [Installation](#installation)
@@ -65,6 +66,9 @@
 
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
+
+## Requirements
+- A reachable Immich server that is running version v1.117.0 or above.
 
 ## Key features
 - Simple installation and updates via Docker.
@@ -534,7 +538,11 @@ In short, ImmichFrame is a 'one device, one installation, direct connection' set
 
 ![no-wifi icon](/assets/offline.svg)\
 **Q: What is the no wifi icon?**\
-**A**: This icon shows when the front end can't connect to the back end .
+**A**: This icon shows when the front end can't connect to the back end.
+
+![no-wifi icon](/assets/flush-cache.svg)\
+**Q: What is this icon?**\
+**A**: Clicking this icon tells Kiosk to delete all cached data and refresh the current device.
 
 **Q: Can I use this to set Immich images as my Home Assistant dashboard background?**\
 **A**: Yes! Just navigate to the dashboard with the view you wish to add the image background to.

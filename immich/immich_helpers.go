@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	"github.com/charmbracelet/log"
 	"github.com/patrickmn/go-cache"
@@ -27,7 +28,8 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 			<p>
 				Full error:<br/><br/>
 				<code>%w</code>
-			</p>`, err)
+			</p>
+			`, err)
 	}
 	log.Errorf("%s : %v", immichError.Error, immichError.Message)
 	return value, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
@@ -166,4 +168,25 @@ func (i *ImmichAsset) addRatio() {
 			i.IsLandscape = true
 		}
 	}
+}
+
+// ImagePreview fetches the raw image data from Immich
+func (i *ImmichAsset) ImagePreview() ([]byte, error) {
+
+	var bytes []byte
+
+	u, err := url.Parse(requestConfig.ImmichUrl)
+	if err != nil {
+		log.Error(err)
+		return bytes, err
+	}
+
+	apiUrl := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     "/api/assets/" + i.ID + "/thumbnail",
+		RawQuery: "size=preview",
+	}
+
+	return i.immichApiCall("GET", apiUrl.String(), nil)
 }

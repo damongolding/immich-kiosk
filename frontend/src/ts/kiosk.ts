@@ -1,8 +1,8 @@
 import htmx from "htmx.org";
 import {
+  addFullscreenEventListener,
   fullscreenAPI,
   toggleFullscreen,
-  addFullscreenEventListener,
 } from "./fullscreen";
 import { initPolling, startPolling, togglePolling } from "./polling";
 import { wakeLock } from "./wakelock";
@@ -102,4 +102,4 @@ function cleanupFrames() {
 // Initialize Kiosk when the DOM is fully loaded
 htmx.onLoad(init);
 
-export { startPolling, cleanupFrames };
+export { cleanupFrames, startPolling };

@@ -108,6 +108,8 @@ func main() {
 
 	e.GET("/sleep", routes.Sleep(baseConfig))
 
+	e.GET("/flush-cache", routes.FlushCache)
+
 	err = e.Start(":3000")
 	if err != nil {
 		log.Fatal(err)
