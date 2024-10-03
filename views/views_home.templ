@@ -191,12 +191,14 @@ templ progressBar(refresh int) {
 	</div>
 }
 
-templ sleepMode(sleepStart, sleepEnd string) {
+templ sleepMode(sleepStart, sleepEnd string, queries url.Values) {
 	if sleepStart != "" && sleepEnd != "" {
 		<form
 			hx-get="/sleep"
 			hx-trigger="load, every 13s"
-			hx-include=".kiosk-param"
+			if len(queries) > 0 {
+				hx-include=".kiosk-param"
+			}
 			hx-target="#navigation-interaction-area"
 		></form>
 	}
@@ -258,7 +260,7 @@ templ Home(viewData ViewData) {
 			}
 			@menu()
 			@paramForm(viewData.Queries)
-			@sleepMode(viewData.SleepStart, viewData.SleepEnd)
+			@sleepMode(viewData.SleepStart, viewData.SleepEnd, viewData.Queries)
 			@historyForm()
 			@offlineIcon()
 			@kioskData(map[string]any{
