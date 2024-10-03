@@ -232,7 +232,6 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 				return err
 			}
 
-			log.Info("items in cache", "items", len(immichAssetsToCache), "for", personID)
 			// replace cwith cache minus used image
 			err = apiCache.Replace(apiUrl.String(), jsonBytes, cache.DefaultExpiration)
 			if err != nil {

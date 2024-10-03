@@ -87,7 +87,6 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 				return err
 			}
 
-			log.Info("items in cache", "items", len(immichAssetsToCache))
 			// replace cwith cache minus used image
 			err = apiCache.Replace(apiUrl.String(), jsonBytes, cache.DefaultExpiration)
 			if err != nil {
