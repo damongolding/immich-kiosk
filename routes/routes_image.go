@@ -32,7 +32,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		// If kiosk version on client and server do not match refresh client.
 		if kioskDeviceVersion != "" && KioskVersion != kioskDeviceVersion {
 			c.Response().Header().Set("HX-Refresh", "true")
-			return c.String(http.StatusTemporaryRedirect, "")
+			return c.NoContent(http.StatusOK)
 		}
 
 		err := requestConfig.ConfigWithOverrides(c)
@@ -83,7 +83,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 			fmt.Println()
 		}
 
-		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
@@ -94,7 +94,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		log.Debug(
-			requestId,
+			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
 			"requestConfig", requestConfig.String(),
@@ -102,7 +102,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		immichImage := immich.NewImage(requestConfig)
 
-		imgBytes, err := processImage(&immichImage, requestConfig, requestId, "", false)
+		imgBytes, err := processImage(&immichImage, requestConfig, requestID, "", false)
 		if err != nil {
 			return err
 		}

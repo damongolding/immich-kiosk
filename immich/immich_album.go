@@ -31,7 +31,7 @@ func (i *ImmichAsset) albums(requestID string, shared bool) (ImmichAlbums, error
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, albums)
-	body, err := immichApiCall(apiUrl.String())
+	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(albums, err, body, apiUrl.String())
 	}
@@ -70,7 +70,7 @@ func (i *ImmichAsset) albumAssets(albumID, requestID string) (ImmichAlbum, error
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, album)
-	body, err := immichApiCall(apiUrl.String())
+	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(album, err, body, apiUrl.String())
 	}
@@ -81,6 +81,14 @@ func (i *ImmichAsset) albumAssets(albumID, requestID string) (ImmichAlbum, error
 	}
 
 	return album, nil
+}
+
+func (i *ImmichAsset) countAssetsInAlbums(albums ImmichAlbums) int {
+	total := 0
+	for _, album := range albums {
+		total += album.AssetCount
+	}
+	return total
 }
 
 // AlbumImageCount retrieves the number of images in a specific album from Immich.
@@ -179,12 +187,4 @@ func (i *ImmichAsset) RandomAlbumFromAllAlbums(requestID string) (string, error)
 	pickedAlbum := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
 
 	return pickedAlbum.ID, nil
-}
-
-func (i *ImmichAsset) countAssetsInAlbums(albums ImmichAlbums) int {
-	total := 0
-	for _, album := range albums {
-		total += album.AssetCount
-	}
-	return total
 }

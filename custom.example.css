@@ -71,6 +71,7 @@ body{}
 .navigation--item--separator{}
 .navigation-hidden{}
 .navigation svg{}
+.navigation--flush-cache svg{}
 .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--enter{}

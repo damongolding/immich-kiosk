@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	"github.com/charmbracelet/log"
 	"github.com/patrickmn/go-cache"
@@ -27,18 +28,19 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 			<p>
 				Full error:<br/><br/>
 				<code>%w</code>
-			</p>`, err)
+			</p>
+			`, err)
 	}
 	log.Errorf("%s : %v", immichError.Error, immichError.Message)
 	return value, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 }
 
 // immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
-func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestId string, jsonShape T) ImmichApiCall {
-	return func(apiUrl string) ([]byte, error) {
+func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID string, jsonShape T) ImmichApiCall {
+	return func(method, apiUrl string, body io.Reader) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
-			return immichApiCall(apiUrl)
+			return immichApiCall(method, apiUrl, body)
 		}
 
 		apiCacheLock.Lock()
@@ -46,23 +48,24 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 
 		if apiData, found := apiCache.Get(apiUrl); found {
 			if requestConfig.Kiosk.DebugVerbose {
-				log.Debug(requestId+" Cache hit", "url", apiUrl)
+				log.Debug(requestID+" Cache hit", "url", apiUrl)
 			}
-			log.Debug(requestId+" Cache hit", "url", apiUrl)
+			log.Debug(requestID+" Cache hit", "url", apiUrl)
 			return apiData.([]byte), nil
 		}
 
 		if requestConfig.Kiosk.DebugVerbose {
-			log.Debug(requestId+" Cache miss", "url", apiUrl)
+			log.Debug(requestID+" Cache miss", "url", apiUrl)
 		}
-		body, err := immichApiCall(apiUrl)
+
+		apiBody, err := immichApiCall(method, apiUrl, body)
 		if err != nil {
 			log.Error(err)
 			return nil, err
 		}
 
 		// Unpack api json into struct which discards data we don't use (for smaller cache size)
-		err = json.Unmarshal(body, &jsonShape)
+		err = json.Unmarshal(apiBody, &jsonShape)
 		if err != nil {
 			log.Error(err)
 			return nil, err
@@ -77,7 +80,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 
 		apiCache.Set(apiUrl, jsonBytes, cache.DefaultExpiration)
 		if requestConfig.Kiosk.DebugVerbose {
-			log.Debug(requestId+" Cache saved", "url", apiUrl)
+			log.Debug(requestID+" Cache saved", "url", apiUrl)
 		}
 
 		return jsonBytes, nil
@@ -85,12 +88,12 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 }
 
 // immichApiCall bootstrap for immich api call
-func (i *ImmichAsset) immichApiCall(apiUrl string) ([]byte, error) {
+func (i *ImmichAsset) immichApiCall(method, apiUrl string, body io.Reader) ([]byte, error) {
 
 	var responseBody []byte
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", apiUrl, nil)
+	req, err := http.NewRequest(method, apiUrl, body)
 	if err != nil {
 		log.Error(err)
 		return responseBody, err
@@ -98,6 +101,10 @@ func (i *ImmichAsset) immichApiCall(apiUrl string) ([]byte, error) {
 
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("x-api-key", requestConfig.ImmichApiKey)
+
+	if method == "POST" {
+		req.Header.Add("Content-Type", "application/json")
+	}
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -161,4 +168,25 @@ func (i *ImmichAsset) addRatio() {
 			i.IsLandscape = true
 		}
 	}
+}
+
+// ImagePreview fetches the raw image data from Immich
+func (i *ImmichAsset) ImagePreview() ([]byte, error) {
+
+	var bytes []byte
+
+	u, err := url.Parse(requestConfig.ImmichUrl)
+	if err != nil {
+		log.Error(err)
+		return bytes, err
+	}
+
+	apiUrl := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     "/api/assets/" + i.ID + "/thumbnail",
+		RawQuery: "size=preview",
+	}
+
+	return i.immichApiCall("GET", apiUrl.String(), nil)
 }

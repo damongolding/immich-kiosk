@@ -252,9 +252,9 @@ func StringToColor(inputString string) Color {
 // ColorizeRequestId takes a request ID string and returns a colorized string representation.
 // It generates a color based on the input string, determines the best contrasting text color,
 // and applies styling using lipgloss to create a visually distinct, colored representation of the request ID.
-func ColorizeRequestId(requestId string) string {
+func ColorizeRequestId(requestID string) string {
 
-	c := StringToColor(requestId)
+	c := StringToColor(requestID)
 
 	textWhite := calculateContrastRatio(Color{R: 255, G: 255, B: 255}, c)
 	textBlack := calculateContrastRatio(Color{R: 0, G: 0, B: 0}, c)
@@ -264,7 +264,7 @@ func ColorizeRequestId(requestId string) string {
 		textColor = lipgloss.Color("#ffffff")
 	}
 
-	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestId)
+	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestID)
 }
 
 // calculateContrastRatio computes the contrast ratio between two RGB colors.

@@ -608,6 +608,9 @@ body {
   width: 2rem;
   height: 2rem;
 }
+.navigation--flush-cache svg {
+  fill: white;
+}
 .navigation--fullscreen--exit {
   display: none;
   visibility: hidden;

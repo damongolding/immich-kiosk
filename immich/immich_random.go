@@ -1,20 +1,22 @@
 package immich
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/url"
 
 	"github.com/charmbracelet/log"
+	"github.com/google/go-querystring/query"
 	"github.com/patrickmn/go-cache"
 )
 
 // GetRandomImage retrieve a random image from Immich
-func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestId, "PREFETCH", kioskDeviceID, "Getting Random image", true)
+		log.Debug(requestID, "PREFETCH", kioskDeviceID, "Getting Random image", true)
 	} else {
-		log.Debug(requestId + " Getting Random image")
+		log.Debug(requestID + " Getting Random image")
 	}
 
 	var immichAssets []ImmichAsset
@@ -24,30 +26,50 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 		log.Fatal("parsing url", err)
 	}
 
+	requestBody := ImmichSearchBody{
+		Type:     string(ImageType),
+		WithExif: true,
+		Size:     1000,
+	}
+
+	if requestConfig.ShowArchived {
+		requestBody.WithArchived = true
+	}
+
+	// convert body to queries so url is unique and can be cached
+	queries, _ := query.Values(requestBody)
+
 	apiUrl := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
-		Path:     "api/assets/random",
-		RawQuery: "count=1000",
+		Path:     "api/search/random",
+		RawQuery: queries.Encode(),
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestId, immichAssets)
-	body, err := immichApiCall(apiUrl.String())
+	jsonBody, err := json.Marshal(requestBody)
 	if err != nil {
-		_, err = immichApiFail(immichAssets, err, body, apiUrl.String())
+		log.Fatal("marshaling request body", err)
+	}
+
+	requestBodyReader := bytes.NewReader(jsonBody)
+
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAssets)
+	apiBody, err := immichApiCall("POST", apiUrl.String(), requestBodyReader)
+	if err != nil {
+		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err
 	}
 
-	err = json.Unmarshal(body, &immichAssets)
+	err = json.Unmarshal(apiBody, &immichAssets)
 	if err != nil {
-		_, err = immichApiFail(immichAssets, err, body, apiUrl.String())
+		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err
 	}
 
 	if len(immichAssets) == 0 {
-		log.Debug(requestId + " No images left in cache. Refreshing and trying again")
+		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 		apiCache.Delete(apiUrl.String())
-		return i.RandomImage(requestId, kioskDeviceID, isPrefetch)
+		return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -64,6 +86,7 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 				log.Error("Failed to marshal immichAssetsToCache", "error", err)
 				return err
 			}
+
 			// replace cwith cache minus used image
 			err = apiCache.Replace(apiUrl.String(), jsonBytes, cache.DefaultExpiration)
 			if err != nil {
@@ -75,7 +98,7 @@ func (i *ImmichAsset) RandomImage(requestId, kioskDeviceID string, isPrefetch bo
 		return nil
 	}
 
-	log.Debug(requestId + " No viable images left in cache. Refreshing and trying again")
+	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	apiCache.Delete(apiUrl.String())
-	return i.RandomImage(requestId, kioskDeviceID, isPrefetch)
+	return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
 }

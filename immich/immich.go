@@ -6,11 +6,10 @@
 package immich
 
 import (
-	"net/url"
+	"io"
 	"sync"
 	"time"
 
-	"github.com/charmbracelet/log"
 	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/config"
@@ -143,6 +142,40 @@ type ImmichAlbum struct {
 
 type ImmichAlbums []ImmichAlbum
 
+type ImmichSearchBody struct {
+	City          string   `url:"city,omitempty" json:"city,omitempty"`
+	Country       string   `url:"country,omitempty" json:"country,omitempty"`
+	CreatedAfter  string   `url:"createdAfter,omitempty" json:"createdAfter,omitempty"`
+	CreatedBefore string   `url:"createdBefore,omitempty" json:"createdBefore,omitempty"`
+	DeviceID      string   `url:"deviceId,omitempty" json:"deviceId,omitempty"`
+	IsArchived    bool     `url:"isArchived,omitempty" json:"isArchived,omitempty"`
+	IsEncoded     bool     `url:"isEncoded,omitempty" json:"isEncoded,omitempty"`
+	IsFavorite    bool     `url:"isFavorite,omitempty" json:"isFavorite,omitempty"`
+	IsMotion      bool     `url:"isMotion,omitempty" json:"isMotion,omitempty"`
+	IsNotInAlbum  bool     `url:"isNotInAlbum,omitempty" json:"isNotInAlbum,omitempty"`
+	IsOffline     bool     `url:"isOffline,omitempty" json:"isOffline,omitempty"`
+	IsVisible     bool     `url:"isVisible,omitempty" json:"isVisible,omitempty"`
+	LensModel     string   `url:"lensModel,omitempty" json:"lensModel,omitempty"`
+	LibraryID     string   `url:"libraryId,omitempty" json:"libraryId,omitempty"`
+	Make          string   `url:"make,omitempty" json:"make,omitempty"`
+	Model         string   `url:"model,omitempty" json:"model,omitempty"`
+	PersonIds     []string `url:"personIds,omitempty" json:"personIds,omitempty"`
+	Size          int      `url:"size,omitempty" json:"size,omitempty"`
+	State         string   `url:"state,omitempty" json:"state,omitempty"`
+	TakenAfter    string   `url:"takenAfter,omitempty" json:"takenAfter,omitempty"`
+	TakenBefore   string   `url:"takenBefore,omitempty" json:"takenBefore,omitempty"`
+	TrashedAfter  string   `url:"trashedAfter,omitempty" json:"trashedAfter,omitempty"`
+	TrashedBefore string   `url:"trashedBefore,omitempty" json:"trashedBefore,omitempty"`
+	Type          string   `url:"type,omitempty" json:"type,omitempty"`
+	UpdatedAfter  string   `url:"updatedAfter,omitempty" json:"updatedAfter,omitempty"`
+	UpdatedBefore string   `url:"updatedBefore,omitempty" json:"updatedBefore,omitempty"`
+	WithArchived  bool     `url:"withArchived,omitempty" json:"withArchived,omitempty"`
+	WithDeleted   bool     `url:"withDeleted,omitempty" json:"withDeleted,omitempty"`
+	WithExif      bool     `url:"withExif,omitempty" json:"withExif,omitempty"`
+	WithPeople    bool     `url:"withPeople,omitempty" json:"withPeople,omitempty"`
+	WithStacked   bool     `url:"withStacked,omitempty" json:"withStacked,omitempty"`
+}
+
 func init() {
 	// Setting up Immich api cache
 	apiCache = cache.New(5*time.Minute, 10*time.Minute)
@@ -154,29 +187,16 @@ func NewImage(base config.Config) ImmichAsset {
 	return ImmichAsset{}
 }
 
-type ImmichApiCall func(string) ([]byte, error)
+type ImmichApiCall func(string, string, io.Reader) ([]byte, error)
 
 type ImmichApiResponse interface {
 	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int
 }
 
-// ImagePreview fetches the raw image data from Immich
-func (i *ImmichAsset) ImagePreview() ([]byte, error) {
+func FluchApiCache() {
+	apiCache.Flush()
+}
 
-	var bytes []byte
-
-	u, err := url.Parse(requestConfig.ImmichUrl)
-	if err != nil {
-		log.Error(err)
-		return bytes, err
-	}
-
-	apiUrl := url.URL{
-		Scheme:   u.Scheme,
-		Host:     u.Host,
-		Path:     "/api/assets/" + i.ID + "/thumbnail",
-		RawQuery: "size=preview",
-	}
-
-	return i.immichApiCall(apiUrl.String())
+func ApiCacheCount() int {
+	return apiCache.ItemCount()
 }

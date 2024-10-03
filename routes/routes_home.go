@@ -21,7 +21,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			fmt.Println()
 		}
 
-		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
@@ -32,7 +32,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		log.Debug(
-			requestId,
+			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
 			"requestConfig", requestConfig.String(),
