@@ -541,7 +541,7 @@ In short, ImmichFrame is a 'one device, one installation, direct connection' set
 **A**: This icon shows when the front end can't connect to the back end.
 
 ![flush cache icon](/assets/flush-cache.svg)\
-**Q: What is this icon?**\
+**Q: What is this icon in the menu?**\
 **A**: Clicking this icon tells Kiosk to delete all cached data and refresh the current device.
 
 **Q: Can I use this to set Immich images as my Home Assistant dashboard background?**\
