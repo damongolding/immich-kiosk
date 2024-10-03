@@ -540,7 +540,7 @@ In short, ImmichFrame is a 'one device, one installation, direct connection' set
 **Q: What is the no wifi icon?**\
 **A**: This icon shows when the front end can't connect to the back end.
 
-![no-wifi icon](/assets/flush-cache.svg)\
+![flush cache icon](/assets/flush-cache.svg)\
 **Q: What is this icon?**\
 **A**: Clicking this icon tells Kiosk to delete all cached data and refresh the current device.
 
