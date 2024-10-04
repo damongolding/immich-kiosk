@@ -67,13 +67,13 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 	switch pickedAsset.Type {
 	case "ALBUM":
 		switch pickedAsset.ID {
-		case immich.AllAlbumsID:
+		case immich.AlbumKeywordAll:
 			pickedAlbumID, err := immichImage.RandomAlbumFromAllAlbums(requestID)
 			if err != nil {
 				return err
 			}
 			pickedAsset.ID = pickedAlbumID
-		case immich.SharedAlbumsID:
+		case immich.AlbumKeywordShared:
 			pickedAlbumID, err := immichImage.RandomAlbumFromSharedAlbums(requestID)
 			if err != nil {
 				return err
