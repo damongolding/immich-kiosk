@@ -92,7 +92,7 @@ func (i *ImmichAsset) countAssetsInAlbums(albums ImmichAlbums) int {
 }
 
 // AlbumImageCount retrieves the number of images in a specific album from Immich.
-func (i *ImmichAsset) AlbumImageCount[T string | AlbumKeyword](albumID T, requestID string) (int, error) {
+func (i *ImmichAsset) AlbumImageCount(albumID string, requestID string) (int, error) {
 	switch albumID {
 	case AlbumKeywordAll:
 		albums, err := i.allAlbums(requestID)
