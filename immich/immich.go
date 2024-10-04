@@ -17,7 +17,6 @@ import (
 
 type ImageOrientation string
 type ImmichAssetType string
-type ImmichAlbumKeyword string
 
 const (
 	PortraitOrientation  ImageOrientation = "PORTRAIT"
@@ -29,8 +28,8 @@ const (
 	AudioType ImmichAssetType = "AUDIO"
 	OtherType ImmichAssetType = "OTHER"
 
-	AlbumKeywordAll    ImmichAlbumKeyword = "all"
-	AlbumKeywordShared ImmichAlbumKeyword = "shared"
+	AlbumKeywordAll    string = "all"
+	AlbumKeywordShared string = "shared"
 )
 
 var (
