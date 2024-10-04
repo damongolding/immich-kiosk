@@ -76,7 +76,6 @@ func (i *ImmichAsset) personAssets(personID, requestID string) ([]ImmichAsset, e
 	return images, nil
 }
 
-// DEPRECIATED
 // PersonImageCount returns the number of images associated with a specific person in Immich.
 func (i *ImmichAsset) PersonImageCount(personID, requestID string) (int, error) {
 
