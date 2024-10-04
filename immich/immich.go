@@ -29,8 +29,8 @@ const (
 	AudioType ImmichAssetType = "AUDIO"
 	OtherType ImmichAssetType = "OTHER"
 
-	AllAlbumsID    ImmichAlbumKeyword = "all"
-	SharedAlbumsID ImmichAlbumKeyword = "shared"
+	AlbumKeywordAll    ImmichAlbumKeyword = "all"
+	AlbumKeywordShared ImmichAlbumKeyword = "shared"
 )
 
 var (
