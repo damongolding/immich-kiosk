@@ -94,13 +94,13 @@ func (i *ImmichAsset) countAssetsInAlbums(albums ImmichAlbums) int {
 // AlbumImageCount retrieves the number of images in a specific album from Immich.
 func (i *ImmichAsset) AlbumImageCount(albumID, requestID string) (int, error) {
 	switch albumID {
-	case AllAlbumsID:
+	case AlbumKeywordAll:
 		albums, err := i.allAlbums(requestID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get all albums: %w", err)
 		}
 		return i.countAssetsInAlbums(albums), nil
-	case SharedAlbumsID:
+	case AlbumKeywordShared:
 		albums, err := i.allSharedAlbums(requestID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get shared albums: %w", err)
