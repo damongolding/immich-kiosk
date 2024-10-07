@@ -111,7 +111,7 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID string) (int, er
 	case AlbumKeywordFavourites:
 		favouriteImagesCount, err := i.favouriteImagesCount(requestID)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get shared albums: %w", err)
+			return 0, fmt.Errorf("failed to get facurite images: %w", err)
 		}
 		return favouriteImagesCount, nil
 

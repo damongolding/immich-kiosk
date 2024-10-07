@@ -215,6 +215,8 @@ See the file config.example.yaml for an example config file
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
 | [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | contain     | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
+| image_zoom                        | KIOSK_IMAGE_ZOOM        | bool                       | false       | Add a zoom effect to images.                                                               |
+| image_zoom_amount                 | KIOSK_IMAGE_ZOOM_AMOUNT | int                        | 120         | The amount to zoom out/in on an image as a percentage. DO NOT include the % character. 100 is the minimum. |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |

@@ -38,6 +38,8 @@ cross_fade_transition_duration: 1 # in seconds
 # Image display settings
 show_progress: false # display a progress bar
 image_fit: contain # how the image fits the screen. Options are none, contain and cover
+image_zoom: false # add a zoom effect to images
+image_zoom_amount: 120 # The amount zoomed as a percentage
 
 # Image METADATA
 show_image_time: false # true or false

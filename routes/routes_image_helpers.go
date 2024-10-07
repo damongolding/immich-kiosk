@@ -25,6 +25,12 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 		if err != nil {
 			return nil, fmt.Errorf("getting person image count: %w", err)
 		}
+
+		if personAssetCount == 0 {
+			log.Error("No assets found for", "person", person)
+			continue
+		}
+
 		peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: "PERSON", ID: person},
 			Weight: personAssetCount,
@@ -36,6 +42,12 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 		if err != nil {
 			return nil, fmt.Errorf("getting album asset count: %w", err)
 		}
+
+		if albumAssetCount == 0 {
+			log.Error("No assets found for", "album", album)
+			continue
+		}
+
 		peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: "ALBUM", ID: album},
 			Weight: albumAssetCount,
@@ -142,7 +154,7 @@ func imageToBase64(imgBytes []byte, config config.Config, requestID, kioskDevice
 // processBlurredImage applies a blur effect to the image if required by the configuration.
 // It returns the blurred image as a base64 string and an error if any occurs.
 func processBlurredImage(imgBytes []byte, config config.Config, requestID, kioskDeviceID string, isPrefetch bool) (string, error) {
-	if !config.BackgroundBlur || strings.EqualFold(config.ImageFit, "cover") {
+	if !config.BackgroundBlur || strings.EqualFold(config.ImageFit, "cover") || config.ImageZoom {
 		return "", nil
 	}
 

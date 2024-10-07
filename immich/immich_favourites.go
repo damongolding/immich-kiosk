@@ -141,7 +141,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 		apiCache.Delete(apiUrl.String())
-		return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
+		return i.RandomImageFromFavourites(requestID, kioskDeviceID, isPrefetch)
 	}
 
 	for immichAssetIndex, img := range immichAssets {

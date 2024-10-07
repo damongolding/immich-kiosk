@@ -160,3 +160,19 @@
     text-align: left;
     text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 }
+
+/* Image zoom effect  */
+
+.frame--image-zoom img {
+    animation-direction: normal;
+    animation-duration: inherit;
+    transition-timing-function: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+    animation-fill-mode: forwards;
+}
+
+.frame--image-zoom-in img {
+    animation-name: image-zoom-in;
+}
+.frame--image-zoom-out img {
+    animation-name: image-zoom-out;
+}

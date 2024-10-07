@@ -98,6 +98,10 @@ type Config struct {
 
 	// ImageFit the fit style for main image
 	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain"`
+	// ImageZoom add a zoom effect to images
+	ImageZoom bool `mapstructure:"image_zoom" query:"image_zoom" form:"image_zoom" default:"false"`
+	// ImageZoomAmount the amount to zoom in/out of images
+	ImageZoomAmount int `mapstructure:"image_zoom_amount" query:"image_zoom_amount" form:"image_zoom_amount" default:"120"`
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
