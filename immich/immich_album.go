@@ -108,7 +108,7 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID string) (int, er
 		}
 		return i.countAssetsInAlbums(albums), nil
 
-	case AlbumKeywordFavourites:
+	case AlbumKeywordFavourites, AlbumKeywordFavorites:
 		favouriteImagesCount, err := i.favouriteImagesCount(requestID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get favorite images: %w", err)
