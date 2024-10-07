@@ -79,6 +79,8 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 				return err
 			}
 			pickedAsset.ID = pickedAlbumID
+		case immich.AlbumKeywordFavourites:
+			return immichImage.RandomImageFromFavourites(requestID, kioskDeviceID, isPrefetch)
 		}
 		return immichImage.RandomImageFromAlbum(pickedAsset.ID, requestID, kioskDeviceID, isPrefetch)
 	case "PERSON":
@@ -351,7 +353,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID
 		viewData.Images = append(viewData.Images, viewDataSplitView)
 
 	default:
-		viewDataSingle, err := processViewImageData("", requestConfig, c, isPrefetch)
+		viewDataSingle, err := ProcessViewImageData(requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
 		}

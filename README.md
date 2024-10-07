@@ -300,12 +300,16 @@ http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID
 ### Special album keywords
 
 #### ` all `
-Will use all albums
+Will use all albums.
 e.g. `http://{URL}?album=all`
 
 #### ` shared `
-Will use only shared albums
+Will use only shared albums.
 e.g. `http://{URL}?album=shared`
+
+#### ` favourites `
+Will use only favourited assets.
+e.g. `http://{URL}?album=favourites`
 
 ------
 

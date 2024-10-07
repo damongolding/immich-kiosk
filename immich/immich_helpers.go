@@ -17,7 +17,7 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 	var immichError ImmichError
 	errorUnmarshalErr := json.Unmarshal(body, &immichError)
 	if errorUnmarshalErr != nil {
-		log.Error("Couldn't ready error", "body", string(body), "url", apiUrl)
+		log.Error("Couldn't read error", "body", string(body), "url", apiUrl)
 		return value, fmt.Errorf(`
 			No data or error returned from Immich API.
 			<ul>

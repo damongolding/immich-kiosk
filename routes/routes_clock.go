@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -16,9 +15,6 @@ import (
 // Clock clock endpoint
 func Clock(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if log.GetLevel() == log.DebugLevel {
-			fmt.Println()
-		}
 
 		kioskVersionHeader := c.Request().Header.Get("kiosk-version")
 		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
