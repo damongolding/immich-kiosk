@@ -154,7 +154,7 @@ func imageToBase64(imgBytes []byte, config config.Config, requestID, kioskDevice
 // processBlurredImage applies a blur effect to the image if required by the configuration.
 // It returns the blurred image as a base64 string and an error if any occurs.
 func processBlurredImage(imgBytes []byte, config config.Config, requestID, kioskDeviceID string, isPrefetch bool) (string, error) {
-	if !config.BackgroundBlur || strings.EqualFold(config.ImageFit, "cover") {
+	if !config.BackgroundBlur || strings.EqualFold(config.ImageFit, "cover") || config.ImageZoom {
 		return "", nil
 	}
 

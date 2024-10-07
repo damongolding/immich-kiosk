@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/damongolding/immich-kiosk/utils"
+	"math"
 	"net/url"
 	"strings"
 )
@@ -98,7 +99,6 @@ css baseFontSize(fontSize int) {
 }
 
 func baseFontSizeMobile(fontSize int) string {
-
 	return fmt.Sprintf(`
 	   <style>
 		@media screen and (max-width: 31.25rem) {
@@ -108,6 +108,34 @@ func baseFontSizeMobile(fontSize int) string {
             }
         }
 		</style>`, fontSize-20)
+}
+
+func imageZoomKeyframes(zoomAmount int) string {
+
+	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
+
+	return fmt.Sprintf(`
+	   <style>
+			@keyframes image-zoom-in {
+                from {
+                    transform: scale(1);
+                }
+
+                to {
+                    transform: scale(%.2f);
+                }
+            }
+
+            @keyframes image-zoom-out {
+                from {
+                    transform: scale(%.2f);
+                }
+
+                to {
+                    transform: scale(1);
+                }
+            }
+		</style>`, zoom, zoom)
 }
 
 func customCss(css []byte) string {
@@ -242,6 +270,7 @@ templ Home(viewData ViewData) {
     				}
 				</style>
 			}
+			@templ.Raw(imageZoomKeyframes(viewData.ImageZoomAmount))
 			@templ.Raw(baseFontSizeMobile(viewData.FontSize))
 			if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
 				@templ.Raw(customCss(viewData.CustomCss))

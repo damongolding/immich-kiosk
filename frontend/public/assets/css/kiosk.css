@@ -358,22 +358,6 @@ body {
   text-align: left;
   text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 }
-@keyframes image-zoom-in {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.3);
-  }
-}
-@keyframes image-zoom-out {
-  from {
-    transform: scale(1.3);
-  }
-  to {
-    transform: scale(1);
-  }
-}
 .frame--image-zoom img {
   animation-direction: normal;
   animation-duration: inherit;
