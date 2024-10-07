@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 
@@ -16,10 +15,6 @@ import (
 // Home home endpoint
 func Home(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		if log.GetLevel() == log.DebugLevel {
-			fmt.Println()
-		}
 
 		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 

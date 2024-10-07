@@ -28,8 +28,9 @@ const (
 	AudioType ImmichAssetType = "AUDIO"
 	OtherType ImmichAssetType = "OTHER"
 
-	AlbumKeywordAll    string = "all"
-	AlbumKeywordShared string = "shared"
+	AlbumKeywordAll        string = "all"
+	AlbumKeywordShared     string = "shared"
+	AlbumKeywordFavourites string = "favourites"
 )
 
 var (
@@ -142,7 +143,7 @@ type ImmichAlbum struct {
 
 type ImmichAlbums []ImmichAlbum
 
-type ImmichSearchBody struct {
+type ImmichSearchRandomBody struct {
 	City          string   `url:"city,omitempty" json:"city,omitempty"`
 	Country       string   `url:"country,omitempty" json:"country,omitempty"`
 	CreatedAfter  string   `url:"createdAfter,omitempty" json:"createdAfter,omitempty"`
@@ -174,6 +175,14 @@ type ImmichSearchBody struct {
 	WithExif      bool     `url:"withExif,omitempty" json:"withExif,omitempty"`
 	WithPeople    bool     `url:"withPeople,omitempty" json:"withPeople,omitempty"`
 	WithStacked   bool     `url:"withStacked,omitempty" json:"withStacked,omitempty"`
+	Page          int      `url:"page,omitempty" json:"page,omitempty"`
+}
+
+type ImmichSearchMetadataResponse struct {
+	Assets struct {
+		Total    int    `json:"total"`
+		NextPage string `json:"nextPage"`
+	} `json:"assets"`
 }
 
 func init() {
@@ -190,7 +199,7 @@ func NewImage(base config.Config) ImmichAsset {
 type ImmichApiCall func(string, string, io.Reader) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int
+	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse
 }
 
 func FluchApiCache() {

@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/charmbracelet/log"
@@ -17,10 +16,6 @@ import (
 // It manages image processing, caching, and prefetching based on the configuration.
 func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		if log.GetLevel() == log.DebugLevel {
-			fmt.Println()
-		}
 
 		kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
 		kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
@@ -78,10 +73,6 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 // It processes the image without any additional transformations and returns it as a blob.
 func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		if log.GetLevel() == log.DebugLevel {
-			fmt.Println()
-		}
 
 		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 

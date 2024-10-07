@@ -169,7 +169,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 		log.Fatal("parsing url", err)
 	}
 
-	requestBody := ImmichSearchBody{
+	requestBody := ImmichSearchRandomBody{
 		PersonIds: []string{personID},
 		Type:      string(ImageType),
 		WithExif:  true,
