@@ -117,14 +117,18 @@ templ layoutSingleView(viewData ViewData) {
 				<img src={ viewData.Images[0].ImageBlurData } alt="Blurred image background"/>
 			</div>
 		}
-		<div class="frame--image">
-			switch strings.ToLower(viewData.ImageFit) {
-				case "cover":
-					@ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit)
-				case "none":
-					@ImageFitNone(viewData.Images[0].ImageData, viewData.ImageFit)
-				default:
-					@ImageFitContain(viewData.Images[0].ImageData, viewData.ImageFit)
+		<div class={ "frame--image", templ.KV("frame--image-zoom", viewData.ImageZoom), animationDuration(viewData.Refresh), zoomInOrOut() }>
+			if viewData.ImageZoom {
+				@ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit)
+			} else {
+				switch strings.ToLower(viewData.ImageFit) {
+					case "cover":
+						@ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit)
+					case "none":
+						@ImageFitNone(viewData.Images[0].ImageData, viewData.ImageFit)
+					default:
+						@ImageFitContain(viewData.Images[0].ImageData, viewData.ImageFit)
+				}
 			}
 		</div>
 		if !viewData.DisableUi {
@@ -158,14 +162,18 @@ templ layoutSplitView(viewData ViewData) {
 						<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
 					</div>
 				}
-				<div class="frame--image">
-					switch strings.ToLower(viewData.ImageFit) {
-						case "cover":
-							@ImageFitCover(imageData.ImageData, viewData.ImageFit)
-						case "none":
-							@ImageFitNone(imageData.ImageData, viewData.ImageFit)
-						default:
-							@ImageFitContain(imageData.ImageData, viewData.ImageFit)
+				<div class={ "frame--image", templ.KV("frame--image-zoom", viewData.ImageZoom), animationDuration(viewData.Refresh), zoomInOrOut() }>
+					if viewData.ImageZoom {
+						@ImageFitCover(imageData.ImageData, viewData.ImageFit)
+					} else {
+						switch strings.ToLower(viewData.ImageFit) {
+							case "cover":
+								@ImageFitCover(imageData.ImageData, viewData.ImageFit)
+							case "none":
+								@ImageFitNone(imageData.ImageData, viewData.ImageFit)
+							default:
+								@ImageFitContain(imageData.ImageData, viewData.ImageFit)
+						}
 					}
 				</div>
 				if !viewData.DisableUi {

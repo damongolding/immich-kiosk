@@ -25,6 +25,12 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 		if err != nil {
 			return nil, fmt.Errorf("getting person image count: %w", err)
 		}
+
+		if personAssetCount == 0 {
+			log.Error("No assets found for", "person", person)
+			continue
+		}
+
 		peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: "PERSON", ID: person},
 			Weight: personAssetCount,
@@ -36,6 +42,12 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 		if err != nil {
 			return nil, fmt.Errorf("getting album asset count: %w", err)
 		}
+
+		if albumAssetCount == 0 {
+			log.Error("No assets found for", "album", album)
+			continue
+		}
+
 		peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: "ALBUM", ID: album},
 			Weight: albumAssetCount,

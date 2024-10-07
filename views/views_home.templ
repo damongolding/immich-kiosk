@@ -120,6 +120,10 @@ css animationDuration(duration int) {
 	animation-duration: { fmt.Sprintf("%ds", duration) };
 }
 
+func zoomInOrOut() string {
+	return fmt.Sprintf("frame--image-zoom-%s", utils.RandomItem([]string{"in", "out"}))
+}
+
 templ kioskData(data any) {
 	@templ.JSONScript("kiosk-data", data)
 	<script>
@@ -183,10 +187,10 @@ templ clock(queries url.Values, kioskVersion string, deviceID string, theme stri
 	></div>
 }
 
-templ progressBar(refresh int) {
+templ progressBar() {
 	<div class="progress">
 		<div
-			class={ "progress--bar", animationDuration(refresh) }
+			class="progress--bar"
 		></div>
 	</div>
 }
@@ -253,7 +257,7 @@ templ Home(viewData ViewData) {
 					@kioskNone(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries)
 			}
 			if viewData.ShowProgress {
-				@progressBar(viewData.Refresh)
+				@progressBar()
 			}
 			if !viewData.DisableUi && viewData.ShowTime {
 				@clock(viewData.Queries, viewData.KioskVersion, viewData.DeviceID, viewData.Theme)
