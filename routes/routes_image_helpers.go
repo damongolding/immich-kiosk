@@ -91,7 +91,7 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 				return err
 			}
 			pickedAsset.ID = pickedAlbumID
-		case immich.AlbumKeywordFavourites:
+		case immich.AlbumKeywordFavourites, immich.AlbumKeywordFavorites:
 			return immichImage.RandomImageFromFavourites(requestID, kioskDeviceID, isPrefetch)
 		}
 		return immichImage.RandomImageFromAlbum(pickedAsset.ID, requestID, kioskDeviceID, isPrefetch)
