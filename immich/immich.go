@@ -31,6 +31,7 @@ const (
 	AlbumKeywordAll        string = "all"
 	AlbumKeywordShared     string = "shared"
 	AlbumKeywordFavourites string = "favourites"
+	AlbumKeywordFavorites   string = "favorites"
 )
 
 var (
