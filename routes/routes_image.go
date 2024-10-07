@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/charmbracelet/log"
@@ -18,10 +17,6 @@ import (
 func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		if log.GetLevel() == log.DebugLevel {
-			fmt.Println()
-		}
-
 		kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
 		kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
 		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
@@ -32,7 +27,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		// If kiosk version on client and server do not match refresh client.
 		if kioskDeviceVersion != "" && KioskVersion != kioskDeviceVersion {
 			c.Response().Header().Set("HX-Refresh", "true")
-			return c.String(http.StatusTemporaryRedirect, "")
+			return c.NoContent(http.StatusOK)
 		}
 
 		err := requestConfig.ConfigWithOverrides(c)
@@ -48,24 +43,29 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		// get and use prefetch data (if found)
-		if requestConfig.Kiosk.PreFetch {
-			if pageData := fromCache(c, kioskDeviceID); pageData != nil {
-				return renderCachedPageData(c, pageData, &requestConfig, requestID, kioskDeviceID)
-			}
-			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image", false)
+		if isSleepMode(requestConfig) {
+			return c.NoContent(http.StatusOK)
 		}
 
-		pageData, err := generatePageData(requestConfig, c)
+		// get and use prefetch data (if found)
+		if requestConfig.Kiosk.PreFetch {
+			if viewData := fromCache(c, kioskDeviceID); viewData != nil {
+				go imagePreFetch(requestConfig, c, kioskDeviceID)
+				return renderCachedViewData(c, viewData, &requestConfig, requestID, kioskDeviceID)
+			}
+			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image")
+		}
+
+		ViewData, err := generateViewData(requestConfig, c, kioskDeviceID, false)
 		if err != nil {
 			RenderError(c, err, "processing image")
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			go imagePreFetch(2, requestConfig, c, kioskDeviceID)
+			go imagePreFetch(requestConfig, c, kioskDeviceID)
 		}
 
-		return Render(c, http.StatusOK, views.Image(pageData...))
+		return Render(c, http.StatusOK, views.Image(ViewData))
 	}
 }
 
@@ -74,11 +74,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		if log.GetLevel() == log.DebugLevel {
-			fmt.Println()
-		}
-
-		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
@@ -89,7 +85,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		log.Debug(
-			requestId,
+			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
 			"requestConfig", requestConfig.String(),
@@ -97,7 +93,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		immichImage := immich.NewImage(requestConfig)
 
-		imgBytes, err := processImage(&immichImage, requestConfig, requestId, "", false)
+		imgBytes, err := processImage(&immichImage, requestConfig, requestID, "", false)
 		if err != nil {
 			return err
 		}

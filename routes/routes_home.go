@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -16,11 +16,7 @@ import (
 func Home(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		if log.GetLevel() == log.DebugLevel {
-			fmt.Println()
-		}
-
-		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
@@ -31,19 +27,29 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		log.Debug(
-			requestId,
+			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
 			"requestConfig", requestConfig.String(),
 		)
 
-		pageData := views.PageData{
+		var customCss []byte
+
+		if utils.FileExists("./custom.css") {
+			customCss, err = os.ReadFile("./custom.css")
+			if err != nil {
+				log.Error("reading custom css", "err", err)
+			}
+		}
+
+		viewData := views.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     utils.GenerateUUID(),
 			Queries:      c.Request().URL.Query(),
+			CustomCss:    customCss,
 			Config:       requestConfig,
 		}
 
-		return Render(c, http.StatusOK, views.Home(pageData))
+		return Render(c, http.StatusOK, views.Home(viewData))
 	}
 }

@@ -6,7 +6,7 @@ type ErrorData struct {
 }
 
 templ Error(data ErrorData) {
-	<div class="frame">
+	<div class="frame frame-error">
 		<div class="error-container">
 			<div class="error">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -17,7 +17,9 @@ templ Error(data ErrorData) {
 				if data.Title != "" {
 					<h2 class="error--title">{ data.Title }</h2>
 				}
-				<p class="error--message">{ data.Message }</p>
+				<p class="error--message">
+					@templ.Raw(data.Message)
+				</p>
 			</div>
 		</div>
 	</div>

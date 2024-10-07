@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -16,12 +15,9 @@ import (
 // Clock clock endpoint
 func Clock(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if log.GetLevel() == log.DebugLevel {
-			fmt.Println()
-		}
 
 		kioskVersionHeader := c.Request().Header.Get("kiosk-version")
-		requestId := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
@@ -29,7 +25,7 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 		// If kiosk version on client and server do not match refresh client.
 		if kioskVersionHeader != "" && KioskVersion != kioskVersionHeader {
 			c.Response().Header().Set("HX-Refresh", "true")
-			return c.String(http.StatusTemporaryRedirect, "")
+			return c.NoContent(http.StatusOK)
 		}
 
 		err := requestConfig.ConfigWithOverrides(c)
@@ -38,7 +34,7 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		log.Debug(
-			requestId,
+			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
 			"ShowTime", requestConfig.ShowTime,

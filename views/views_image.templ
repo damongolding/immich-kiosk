@@ -83,65 +83,65 @@ func ImageExif(info immich.ExifInfo) string {
 	return stats.String()
 }
 
-func ImageDateTime(data PageData) string {
+func ImageDateTime(viewData ViewData, imageIndex int) string {
 	var imageDate string
 
 	var imageTimeFormat string
-	if data.Config.ImageTimeFormat == "12" {
+	if viewData.ImageTimeFormat == "12" {
 		imageTimeFormat = time.Kitchen
 	} else {
 		imageTimeFormat = time.TimeOnly
 	}
 
-	imageDateFormat := utils.DateToLayout(data.Config.ImageDateFormat)
+	imageDateFormat := utils.DateToLayout(viewData.ImageDateFormat)
 	if imageDateFormat == "" {
 		imageDateFormat = config.DefaultDateLayout
 	}
 
 	switch {
-	case (data.Config.ShowImageDate && data.Config.ShowImageTime):
-		imageDate = fmt.Sprintf("%s %s", data.ImmichImage.LocalDateTime.Format(imageTimeFormat), data.ImmichImage.LocalDateTime.Format(imageDateFormat))
-	case data.Config.ShowImageDate:
-		imageDate = fmt.Sprintf("%s", data.ImmichImage.LocalDateTime.Format(imageDateFormat))
-	case data.Config.ShowImageTime:
-		imageDate = fmt.Sprintf("%s", data.ImmichImage.LocalDateTime.Format(imageTimeFormat))
+	case (viewData.ShowImageDate && viewData.ShowImageTime):
+		imageDate = fmt.Sprintf("%s %s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageTimeFormat), viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageDateFormat))
+	case viewData.ShowImageDate:
+		imageDate = fmt.Sprintf("%s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageDateFormat))
+	case viewData.ShowImageTime:
+		imageDate = fmt.Sprintf("%s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageTimeFormat))
 	}
 
 	return imageDate
 }
 
-templ layoutSingleView(data PageData) {
-	<div class={ "frame", templ.KV("frame-black-bg", !data.Config.BackgroundBlur) }>
-		if data.Config.BackgroundBlur && !strings.EqualFold(data.Config.ImageFit, "cover") {
+templ layoutSingleView(viewData ViewData) {
+	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
+		if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") {
 			<div class="frame--background">
-				<img src={ data.ImageBlurData } alt="Blurred image background"/>
+				<img src={ viewData.Images[0].ImageBlurData } alt="Blurred image background"/>
 			</div>
 		}
 		<div class="frame--image">
-			switch strings.ToLower(data.Config.ImageFit) {
+			switch strings.ToLower(viewData.ImageFit) {
 				case "cover":
-					@ImageFitCover(data.ImageData, data.Config.ImageFit)
+					@ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit)
 				case "none":
-					@ImageFitNone(data.ImageData, data.Config.ImageFit)
+					@ImageFitNone(viewData.Images[0].ImageData, viewData.ImageFit)
 				default:
-					@ImageFitContain(data.ImageData, data.Config.ImageFit)
+					@ImageFitContain(viewData.Images[0].ImageData, viewData.ImageFit)
 			}
 		</div>
-		if !data.Config.DisableUi {
-			<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", data.Theme) }>
-				if data.Config.ShowImageDate || data.Config.ShowImageTime {
+		if !viewData.DisableUi {
+			<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
+				if viewData.ShowImageDate || viewData.ShowImageTime {
 					<div class="image--metadata--date">
-						{ ImageDateTime(data) }
+						{ ImageDateTime(viewData, 0) }
 					</div>
 				}
-				if data.Config.ShowImageExif {
+				if viewData.ShowImageExif {
 					<div class="image--metadata--exif">
-						@templ.Raw(ImageExif(data.ImmichImage.ExifInfo))
+						@templ.Raw(ImageExif(viewData.Images[0].ImmichImage.ExifInfo))
 					</div>
 				}
-				if data.Config.ShowImageLocation {
+				if viewData.ShowImageLocation {
 					<div class="image--metadata--location">
-						@templ.Raw(ImageLocation(data.ImmichImage.ExifInfo))
+						@templ.Raw(ImageLocation(viewData.Images[0].ImmichImage.ExifInfo))
 					</div>
 				}
 			</div>
@@ -149,38 +149,38 @@ templ layoutSingleView(data PageData) {
 	</div>
 }
 
-templ layoutSplitView(data ...PageData) {
-	<div class={ "frame", templ.KV("frame-black-bg", !data[0].Config.BackgroundBlur) }>
-		for _, imageData := range data {
+templ layoutSplitView(viewData ViewData) {
+	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
+		for imageIndex, imageData := range viewData.Images {
 			<div class="frame--layout-splitview">
-				if imageData.Config.BackgroundBlur && !strings.EqualFold(imageData.Config.ImageFit, "cover") {
+				if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") {
 					<div class="frame--background">
 						<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
 					</div>
 				}
 				<div class="frame--image">
-					switch strings.ToLower(imageData.Config.ImageFit) {
+					switch strings.ToLower(viewData.ImageFit) {
 						case "cover":
-							@ImageFitCover(imageData.ImageData, imageData.Config.ImageFit)
+							@ImageFitCover(imageData.ImageData, viewData.ImageFit)
 						case "none":
-							@ImageFitNone(imageData.ImageData, imageData.Config.ImageFit)
+							@ImageFitNone(imageData.ImageData, viewData.ImageFit)
 						default:
-							@ImageFitContain(imageData.ImageData, imageData.Config.ImageFit)
+							@ImageFitContain(imageData.ImageData, viewData.ImageFit)
 					}
 				</div>
-				if !imageData.Config.DisableUi {
-					<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", imageData.Theme) }>
-						if imageData.Config.ShowImageDate || imageData.Config.ShowImageTime {
+				if !viewData.DisableUi {
+					<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
+						if viewData.ShowImageDate || viewData.ShowImageTime {
 							<div class="image--metadata--date">
-								{ ImageDateTime(imageData) }
+								{ ImageDateTime(viewData, imageIndex) }
 							</div>
 						}
-						if imageData.Config.ShowImageExif {
+						if viewData.ShowImageExif {
 							<div class="image--metadata--exif">
 								@templ.Raw(ImageExif(imageData.ImmichImage.ExifInfo))
 							</div>
 						}
-						if imageData.Config.ShowImageLocation {
+						if viewData.ShowImageLocation {
 							<div class="image--metadata--location">
 								@templ.Raw(ImageLocation(imageData.ImmichImage.ExifInfo))
 							</div>
@@ -192,17 +192,17 @@ templ layoutSplitView(data ...PageData) {
 	</div>
 }
 
-templ Image(data ...PageData) {
-	if len(data) < 2 {
-		@layoutSingleView(data[0])
+templ Image(viewData ViewData) {
+	if len(viewData.Images) < 2 {
+		@layoutSingleView(viewData)
 	} else {
-		@layoutSplitView(data...)
+		@layoutSplitView(viewData)
 	}
 	<form id="kiosk-history" hx-swap-oob="true">
-		for _, historyEntry := range data[0].Config.History {
+		for _, historyEntry := range viewData.History {
 			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
 		}
-		for _, newHistoryEntry := range data {
+		for _, newHistoryEntry := range viewData.Images {
 			<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry.ImmichImage.ID }/>
 		}
 	</form>

@@ -22,8 +22,8 @@ import (
 var (
 	KioskVersion string
 
-	pageDataCache      *cache.Cache
-	pageDataCacheMutex sync.Mutex
+	viewDataCache      *cache.Cache
+	viewDataCacheMutex sync.Mutex
 )
 
 type PersonOrAlbum struct {
@@ -38,7 +38,7 @@ type RequestData struct {
 
 func init() {
 	// Setting up Immich api cache
-	pageDataCache = cache.New(5*time.Minute, 10*time.Minute)
+	viewDataCache = cache.New(5*time.Minute, 10*time.Minute)
 }
 
 func RenderError(c echo.Context, err error, message string) error {

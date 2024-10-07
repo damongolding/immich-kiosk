@@ -44,6 +44,7 @@
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
+  - [Requirements](#requirements)
   - [Key features](#key-features)
   - [Example 1: Raspberry Pi](#example-1)
 - [Installation](#installation)
@@ -56,6 +57,8 @@
   - [Date format](#date-format)
   - [Themes](#themes)
   - [Layouts](#layouts)
+  - [Sleep mode](#sleep-mode)
+  - [Cusom CSS](#custom-css)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -63,6 +66,9 @@
 
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
+
+## Requirements
+- A reachable Immich server that is running version v1.117.0 or above.
 
 ## Key features
 - Simple installation and updates via Docker.
@@ -73,11 +79,8 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 - Define default settings for all devices through environment variables or YAML config files.
 - Configure device-specific settings using URL parameters.
 
-![preview 1](/assets/demo_1.jpg)
+![Kiosk theme fade](/assets/theme-fade.jpeg)
 **Image shot by Damon Golding**
-
-![preview 2](/assets/demo_2.jpg)
-**[Image shot by @insungpandora](https://unsplash.com/@insungpandora)**
 
 ## Example 1
 You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
@@ -153,6 +156,9 @@ services:
       KIOSK_BACKGROUND_BLUR: TRUE
       KIOSK_THEME: FADE
       KIOSK_LAYOUT: single
+      # Sleep mode
+      KIOSK_SLEEP_START: 22
+      KIOSK_SLEEP_END: 7
       # Transistion options
       KIOSK_TRANSITION: NONE
       KIOSK_FADE_TRANSITION_DURATION: 1
@@ -199,8 +205,11 @@ See the file config.example.yaml for an example config file
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
-| theme                             | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. See [Themes](#themes) for more information.                            |
-| layout                            | KIOSK_LAYOUT            | single \| splitview        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
+| [theme](#themes)                  | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. See [Themes](#themes) for more information.                            |
+| [layout](#layouts)                | KIOSK_LAYOUT            | single \| splitview        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
+| [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [custom_css](#custom-css)         | N/A                     | bool                       | true        | Allow custom CSS to be used. See [Custom CSS](#custom-css) for more information.           |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
@@ -287,6 +296,20 @@ environment:
 ```
 http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID
 ```
+
+### Special album keywords
+
+#### ` all `
+Will use all albums.
+e.g. `http://{URL}?album=all`
+
+#### ` shared `
+Will use only shared albums.
+e.g. `http://{URL}?album=shared`
+
+#### ` favourites `
+Will use only favourited assets.
+e.g. `http://{URL}?album=favourites`
 
 ------
 
@@ -402,9 +425,50 @@ Display one image.
 ![Kiosk theme fade](/assets/theme-fade.jpeg)
 
 ### Splitview
-Display two images side by side vertically.
+> [!NOTE]
+> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
+> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
+
+When a portrait image is fetched, Kiosk automatically retrieves a second portrait image and displays them side by side vertically. Landscape and square images are displayed individually.
 
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
+
+------
+
+## Sleep mode
+
+### Enabling Sleep Mode:
+Setting both `sleep_start` and `sleep_end` using the 24 hour format will enable sleep mode.
+
+### During Sleep Mode:
+Kiosk will display a black screen and can optionally shows a faint clock if `show_time` or `show_date` and enabled.
+
+### Examples
+- Setting `sleep_start=22` and `sleep_end=7` will enable sleep mode from 22:00 (10pm) to 07:00 (7am).
+- Setting `sleep_start=1332` and `sleep_end=1508` will enable sleep mode from 13:32 (1:32pm) to 15:08 (3:08pm).
+
+------
+
+# Custom CSS
+> [!NOTE]
+> Custom CSS is applied after all other styles, allowing you to override any default styles.
+
+> [!WARNING]
+> Be cautious when using custom CSS, as it may interfere with the normal functioning of Kiosk if not implemented correctly.
+> While I'm happy to help with general Kiosk issues, I may not be able to provide specific support for problems related to custom CSS implementations.
+
+Custom CSS allows you to further customize Kiosk's appearance beyond the built-in themes and settings.
+
+To use custom CSS:
+1. Create a file named `custom.css` in the same directory as your `config.yaml` file.
+2. Add your custom CSS rules to this file.
+
+There is a `custom.example.css` file included that contains all the CSS selectors used by Kiosk, which you can use as a reference for your customizations.
+
+The custom CSS will apply to all devices connected to Kiosk by default.
+
+To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?cusom_css=false`
+
 
 ------
 
@@ -478,7 +542,11 @@ In short, ImmichFrame is a 'one device, one installation, direct connection' set
 
 ![no-wifi icon](/assets/offline.svg)\
 **Q: What is the no wifi icon?**\
-**A**: This icon shows when the front end can't connect to the back end .
+**A**: This icon shows when the front end can't connect to the back end.
+
+![flush cache icon](/assets/flush-cache.svg)\
+**Q: What is this icon in the menu?**\
+**A**: Clicking this icon tells Kiosk to delete all cached data and refresh the current device.
 
 **Q: Can I use this to set Immich images as my Home Assistant dashboard background?**\
 **A**: Yes! Just navigate to the dashboard with the view you wish to add the image background to.

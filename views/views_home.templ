@@ -1,6 +1,7 @@
 package views
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/damongolding/immich-kiosk/utils"
 	"net/url"
@@ -25,7 +26,7 @@ func crossFadeDurationCSS(crossFadeDuration float32) string {
     `, crossFadeDuration)
 }
 
-templ kioskCrossFade(showProgress bool, kioskVersion string, deviceID string, queries url.Values, crossFadeDuration float32) {
+templ kioskCrossFade(kioskVersion string, deviceID string, queries url.Values, crossFadeDuration float32) {
 	@templ.Raw(crossFadeDurationCSS(crossFadeDuration))
 	<div
 		id="kiosk"
@@ -55,7 +56,7 @@ func fadeDurationCSS(fadeDuration float32) string {
         `, fadeDuration)
 }
 
-templ kioskFade(showProgress bool, kioskVersion string, deviceID string, queries url.Values, fadeDuration float32) {
+templ kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDuration float32) {
 	@templ.Raw(fadeDurationCSS(fadeDuration / 2))
 	<div
 		id="kiosk"
@@ -74,7 +75,7 @@ templ kioskFade(showProgress bool, kioskVersion string, deviceID string, queries
 	</div>
 }
 
-templ kioskNone(showProgress bool, kioskVersion string, deviceID string, queries url.Values) {
+templ kioskNone(kioskVersion string, deviceID string, queries url.Values) {
 	<div
 		id="kiosk"
 		hx-post="/image"
@@ -107,6 +108,12 @@ func baseFontSizeMobile(fontSize int) string {
             }
         }
 		</style>`, fontSize-20)
+}
+
+func customCss(css []byte) string {
+	// Remove null bytes
+	css = bytes.Replace(css, []byte{0}, []byte{}, -1)
+	return fmt.Sprintf("<style>%s</style>", css)
 }
 
 css animationDuration(duration int) {
@@ -184,16 +191,29 @@ templ progressBar(refresh int) {
 	</div>
 }
 
-templ Home(data PageData) {
+templ sleepMode(sleepStart, sleepEnd string, queries url.Values) {
+	if sleepStart != "" && sleepEnd != "" {
+		<form
+			hx-get="/sleep"
+			hx-trigger="load, every 13s"
+			if len(queries) > 0 {
+				hx-include=".kiosk-param"
+			}
+			hx-target="#navigation-interaction-area"
+		></form>
+	}
+}
+
+templ Home(viewData ViewData) {
 	<!DOCTYPE html>
-	<html lang="en" class={ baseFontSize(data.Config.FontSize) }>
+	<html lang="en" class={ baseFontSize(viewData.FontSize) }>
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="apple-mobile-web-app-capable" content="yes"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<meta name="version" content={ data.KioskVersion }/>
+			<meta name="version" content={ viewData.KioskVersion }/>
 			<title>Immich Kiosk</title>
-			<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", data.KioskVersion))) }/>
+			<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))) }/>
 			<link
 				rel="apple-touch-icon"
 				sizes="180x180"
@@ -211,43 +231,47 @@ templ Home(data PageData) {
 				sizes="16x16"
 				href="/assets/images/favicon-16x16.png"
 			/>
-			if data.Config.HideCursor {
+			if viewData.HideCursor {
 				<style>
     				html, body{
     				    cursor: none;
     				}
 				</style>
 			}
-			@templ.Raw(baseFontSizeMobile(data.FontSize))
+			@templ.Raw(baseFontSizeMobile(viewData.FontSize))
+			if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
+				@templ.Raw(customCss(viewData.CustomCss))
+			}
 		</head>
-		<body class={ templ.KV("layout-splitview", strings.EqualFold(data.Layout, "splitview")) }>
-			switch strings.ToLower(data.Config.Transition) {
+		<body class={ templ.KV("layout-splitview", strings.EqualFold(viewData.Layout, "splitview")) }>
+			switch strings.ToLower(viewData.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.CrossFadeTransitionDuration)
+					@kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.CrossFadeTransitionDuration)
 				case "fade":
-					@kioskFade(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries, data.Config.FadeTransitionDuration)
+					@kioskFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.FadeTransitionDuration)
 				default:
-					@kioskNone(data.Config.ShowProgress, data.KioskVersion, utils.GenerateUUID(), data.Queries)
+					@kioskNone(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries)
 			}
-			if data.Config.ShowProgress {
-				@progressBar(data.Config.Refresh)
+			if viewData.ShowProgress {
+				@progressBar(viewData.Refresh)
 			}
-			if !data.Config.DisableUi && data.Config.ShowTime {
-				@clock(data.Queries, data.KioskVersion, data.DeviceID, data.Theme)
+			if !viewData.DisableUi && viewData.ShowTime {
+				@clock(viewData.Queries, viewData.KioskVersion, viewData.DeviceID, viewData.Theme)
 			}
 			@menu()
-			@paramForm(data.Queries)
+			@paramForm(viewData.Queries)
+			@sleepMode(viewData.SleepStart, viewData.SleepEnd, viewData.Queries)
 			@historyForm()
 			@offlineIcon()
 			@kioskData(map[string]any{
-				"debug":              data.Config.Kiosk.Debug,
-				"debugVerbose":       data.Config.Kiosk.DebugVerbose,
-				"version":            data.KioskVersion,
-				"params":             quriesToJson(data.Queries),
-				"refresh":            data.Config.Refresh,
-				"disableScreensaver": data.Config.DisableScreensaver,
+				"debug":              viewData.Kiosk.Debug,
+				"debugVerbose":       viewData.Kiosk.DebugVerbose,
+				"version":            viewData.KioskVersion,
+				"params":             quriesToJson(viewData.Queries),
+				"refresh":            viewData.Refresh,
+				"disableScreensaver": viewData.DisableScreensaver,
 			})
-			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", data.KioskVersion))) }></script>
+			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 		</body>
 	</html>
 }

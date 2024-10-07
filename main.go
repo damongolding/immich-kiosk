@@ -4,6 +4,11 @@
 // application logic for displaying and managing images in a kiosk mode.
 // The package includes functionality for loading configurations, setting up
 // middleware, and serving both dynamic content and static assets.
+
+//go:generate go run main_build_time.go
+//go:build !generate
+// +build !generate
+
 package main
 
 import (
@@ -100,6 +105,10 @@ func main() {
 	e.POST("/image", routes.NewImage(baseConfig))
 
 	e.GET("/clock", routes.Clock(baseConfig))
+
+	e.GET("/sleep", routes.Sleep(baseConfig))
+
+	e.GET("/flush-cache", routes.FlushCache)
 
 	err = e.Start(":3000")
 	if err != nil {

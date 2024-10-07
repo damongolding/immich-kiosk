@@ -17,7 +17,11 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
+	"os"
+	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	_ "image/gif"
 	_ "image/jpeg"
@@ -31,9 +35,17 @@ import (
 	"github.com/disintegration/imaging"
 
 	"github.com/google/uuid"
-
-	"github.com/damongolding/immich-kiosk/immich"
 )
+
+type WeightedAsset struct {
+	Type string
+	ID   string
+}
+
+type AssetWithWeighting struct {
+	Asset  WeightedAsset
+	Weight int
+}
 
 // GenerateUUID generates as UUID
 func GenerateUUID() string {
@@ -162,7 +174,7 @@ func RandomItem[T any](s []T) T {
 
 // calculateTotalWeight calculates the sum of logarithmic weights for all assets in the given slice.
 // It uses natural logarithm (base e) and adds 1 to avoid log(0).
-func calculateTotalWeight(assets []immich.AssetWithWeighting) int {
+func calculateTotalWeight(assets []AssetWithWeighting) int {
 	total := 0
 	for _, asset := range assets {
 		logWeight := int(math.Log(float64(asset.Weight) + 1))
@@ -176,12 +188,12 @@ func calculateTotalWeight(assets []immich.AssetWithWeighting) int {
 
 // WeightedRandomItem selects a random asset from the given slice of WeightedAsset(s)
 // based on their logarithmic weights. It uses a weighted random selection algorithm.
-func WeightedRandomItem(assets []immich.AssetWithWeighting) immich.WeightedAsset {
+func WeightedRandomItem(assets []AssetWithWeighting) WeightedAsset {
 
 	// guards
 	switch len(assets) {
 	case 0:
-		return immich.WeightedAsset{}
+		return WeightedAsset{}
 	case 1:
 		return assets[0].Asset
 	}
@@ -203,7 +215,7 @@ func WeightedRandomItem(assets []immich.AssetWithWeighting) immich.WeightedAsset
 	if len(assets) > 0 {
 		return assets[0].Asset
 	}
-	return immich.WeightedAsset{}
+	return WeightedAsset{}
 }
 
 type Color struct {
@@ -240,9 +252,9 @@ func StringToColor(inputString string) Color {
 // ColorizeRequestId takes a request ID string and returns a colorized string representation.
 // It generates a color based on the input string, determines the best contrasting text color,
 // and applies styling using lipgloss to create a visually distinct, colored representation of the request ID.
-func ColorizeRequestId(requestId string) string {
+func ColorizeRequestId(requestID string) string {
 
-	c := StringToColor(requestId)
+	c := StringToColor(requestID)
 
 	textWhite := calculateContrastRatio(Color{R: 255, G: 255, B: 255}, c)
 	textBlack := calculateContrastRatio(Color{R: 0, G: 0, B: 0}, c)
@@ -252,7 +264,7 @@ func ColorizeRequestId(requestId string) string {
 		textColor = lipgloss.Color("#ffffff")
 	}
 
-	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestId)
+	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestID)
 }
 
 // calculateContrastRatio computes the contrast ratio between two RGB colors.
@@ -281,4 +293,118 @@ func linearize(value float64) float64 {
 		return value / 12.92
 	}
 	return math.Pow((value+0.055)/1.055, 2.4)
+}
+
+// PickRandomImageType selects a random image type based on the given configuration and weightings.
+// It returns a WeightedAsset representing the picked image type.
+func PickRandomImageType(useWeighting bool, peopleAndAlbums []AssetWithWeighting) WeightedAsset {
+
+	var pickedImage WeightedAsset
+
+	if useWeighting {
+		pickedImage = WeightedRandomItem(peopleAndAlbums)
+	} else {
+		var assetsOnly []WeightedAsset
+		for _, item := range peopleAndAlbums {
+			assetsOnly = append(assetsOnly, item.Asset)
+		}
+		pickedImage = RandomItem(assetsOnly)
+	}
+
+	return pickedImage
+}
+
+func parseTimeString(timeStr string) (time.Time, error) {
+	// Extract only the digits
+	digits := regexp.MustCompile(`\d`).FindAllString(timeStr, -1)
+
+	if len(digits) == 0 {
+		return time.Time{}, fmt.Errorf("invalid time format: no digits found in %s", timeStr)
+	}
+
+	// Join the digits
+	timeStr = strings.Join(digits, "")
+
+	var hours, minutes int
+	var err error
+
+	switch len(timeStr) {
+	case 1, 2:
+		// Interpret as hours
+		hours, err = strconv.Atoi(timeStr)
+		if err != nil || hours >= 24 {
+			return time.Time{}, fmt.Errorf("invalid hours: %s", timeStr)
+		}
+	case 3:
+		// Interpret as 1 digit hour and 2 digit minute
+		hours, err = strconv.Atoi(timeStr[:1])
+		if err != nil {
+			return time.Time{}, fmt.Errorf("invalid hours: %s", timeStr[:1])
+		}
+		minutes, err = strconv.Atoi(timeStr[1:])
+		if err != nil || minutes >= 60 {
+			return time.Time{}, fmt.Errorf("invalid minutes: %s", timeStr[1:])
+		}
+	case 4:
+		// Interpret as 2 digit hour and 2 digit minute
+		hours, err = strconv.Atoi(timeStr[:2])
+		if err != nil || hours >= 24 {
+			return time.Time{}, fmt.Errorf("invalid hours: %s", timeStr[:2])
+		}
+		minutes, err = strconv.Atoi(timeStr[2:])
+		if err != nil || minutes >= 60 {
+			return time.Time{}, fmt.Errorf("invalid minutes: %s", timeStr[2:])
+		}
+	default:
+		// Truncate to 4 digits if longer
+		hours, err = strconv.Atoi(timeStr[:2])
+		if err != nil || hours >= 24 {
+			return time.Time{}, fmt.Errorf("invalid hours: %s", timeStr[:2])
+		}
+		minutes, err = strconv.Atoi(timeStr[2:4])
+		if err != nil || minutes >= 60 {
+			return time.Time{}, fmt.Errorf("invalid minutes: %s", timeStr[2:4])
+		}
+	}
+
+	// Create time.Time object
+	return time.Date(0, 1, 1, hours, minutes, 0, 0, time.UTC), nil
+}
+
+func IsSleepTime(sleepStartTime, sleepEndTime string, currentTime time.Time) (bool, error) {
+	// Parse start and end times
+	startTime, err := parseTimeString(sleepStartTime)
+	if err != nil {
+		log.Error("parsing sleep start time:", err)
+		return false, err
+	}
+
+	endTime, err := parseTimeString(sleepEndTime)
+	if err != nil {
+		log.Error("parsing sleep end time:", err)
+		return false, err
+	}
+
+	// Set the date of startTime and endTime to the same as currentTime
+	year, month, day := currentTime.Date()
+	startTime = time.Date(year, month, day, startTime.Hour(), startTime.Minute(), 0, 0, currentTime.Location())
+	endTime = time.Date(year, month, day, endTime.Hour(), endTime.Minute(), 0, 0, currentTime.Location())
+
+	// If end time is before start time, it means the period crosses midnight
+	if endTime.Before(startTime) {
+		endTime = endTime.Add(24 * time.Hour)
+	}
+
+	// Check if current time is between start and end times
+	if currentTime.Before(startTime) {
+		currentTime = currentTime.Add(24 * time.Hour)
+	}
+
+	return (currentTime.After(startTime) || currentTime.Equal(startTime)) &&
+		currentTime.Before(endTime), nil
+}
+
+func FileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return !os.IsNotExist(err)
 }

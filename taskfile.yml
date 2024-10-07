@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.10.0
+  VERSION: 0.11.0
 tasks:
   default:
     deps: [build]
@@ -44,6 +44,7 @@ tasks:
   build:
     deps: [frontend, templ]
     cmds:
+      - go generate *.go
       - CGO_ENABLED=0 go build -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
 
   docker-image:
@@ -67,3 +68,7 @@ tasks:
     cmds:
       - go list -m -u all
       - cd frontend && pnpm outdated
+
+  update-templ:
+    cmds:
+      - go install github.com/a-h/templ/cmd/templ@latest

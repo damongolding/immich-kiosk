@@ -5,6 +5,8 @@
     width: 100vw;
     height: 100vh;
     z-index: 99998;
+    background-color: transparent;
+    transition: background-color 3s ease;
 }
 
 /* --- menu --- */
@@ -52,6 +54,10 @@
     height: 2rem;
 }
 
+.navigation--flush-cache svg {
+    fill: white;
+}
+
 /* nav fullscreen */
 .navigation--fullscreen--exit {
     display: none;
@@ -82,4 +88,9 @@
 .navigation--control--paused .navigation--control--pause {
     display: none;
     visibility: hidden;
+}
+
+/* sleep mode */
+.sleep #navigation-interaction-area {
+    background-color: black;
 }
