@@ -167,6 +167,8 @@ services:
       # Image display settings
       KIOSK_SHOW_PROGRESS: FALSE
       KIOSK_IMAGE_FIT: CONTAIN
+      KIOSK_IMAGE_ZOOM: FALSE
+      KIOSK_IMAGE_ZOOM_AMOUNT: 120
       # Image metadata
       KIOSK_SHOW_IMAGE_TIME: FALSE
       KIOSK_IMAGE_TIME_FORMAT: 24
