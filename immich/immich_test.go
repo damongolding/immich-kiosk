@@ -56,5 +56,4 @@ func TestArchiveLogic(t *testing.T) {
 			assert.Equal(t, test.WantSimulatedContinue, simulatedContinueTriggered, "Unexpected simulatedContinueTriggered value")
 		})
 	}
-
 }
