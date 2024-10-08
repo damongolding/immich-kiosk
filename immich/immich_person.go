@@ -13,39 +13,6 @@ import (
 )
 
 // DEPRECIATED
-func (i *ImmichAsset) people(requestID string, shared bool) (ImmichAlbums, error) {
-	var albums ImmichAlbums
-
-	u, err := url.Parse(requestConfig.ImmichUrl)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	apiUrl := url.URL{
-		Scheme: u.Scheme,
-		Host:   u.Host,
-		Path:   "api/people",
-	}
-
-	if shared {
-		apiUrl.RawQuery = "shared=true"
-	}
-
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, albums)
-	body, err := immichApiCall("GET", apiUrl.String(), nil)
-	if err != nil {
-		return immichApiFail(albums, err, body, apiUrl.String())
-	}
-
-	err = json.Unmarshal(body, &albums)
-	if err != nil {
-		return immichApiFail(albums, err, body, apiUrl.String())
-	}
-
-	return albums, nil
-}
-
-// DEPRECIATED
 // personAssets retrieves all assets associated with a specific person from Immich.
 func (i *ImmichAsset) personAssets(personID, requestID string) ([]ImmichAsset, error) {
 

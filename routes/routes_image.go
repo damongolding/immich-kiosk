@@ -58,7 +58,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		ViewData, err := generateViewData(requestConfig, c, kioskDeviceID, false)
 		if err != nil {
-			RenderError(c, err, "processing image")
+			return RenderError(c, err, "processing image")
 		}
 
 		if requestConfig.Kiosk.PreFetch {

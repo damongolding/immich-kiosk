@@ -22,6 +22,7 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -143,6 +144,49 @@ func New() *Config {
 	return c
 }
 
+// bindEnvironmentVariables binds specific environment variables to their corresponding
+// configuration keys in the Viper instance. This function allows for easy mapping
+// between environment variables and configuration settings.
+//
+// It iterates through a predefined list of mappings between config keys and
+// environment variable names, binding each pair using Viper's BindEnv method.
+//
+// If any errors occur during the binding process, they are collected and
+// returned as a single combined error.
+//
+// Parameters:
+//   - v: A pointer to a viper.Viper instance to which the environment variables will be bound.
+//
+// Returns:
+//   - An error if any binding operations fail, or nil if all bindings are successful.
+func bindEnvironmentVariables(v *viper.Viper) error {
+	var errs []error
+
+	bindVars := []struct {
+		configKey string
+		envVar    string
+	}{
+		{"kiosk.password", "KIOSK_PASSWORD"},
+		{"kiosk.cache", "KIOSK_CACHE"},
+		{"kiosk.prefetch", "KIOSK_PREFETCH"},
+		{"kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING"},
+		{"kiosk.debug", "KIOSK_DEBUG"},
+		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
+	}
+
+	for _, bv := range bindVars {
+		if err := v.BindEnv(bv.configKey, bv.envVar); err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	if len(errs) > 0 {
+		return errors.Join(errs...)
+	}
+
+	return nil
+}
+
 // checkUrlScheme checks given url has correct scheme and adds http:// if non if found
 func (c *Config) checkUrlScheme() {
 
@@ -189,13 +233,9 @@ func (c *Config) load(configFile string) error {
 
 	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
 
-	v.BindEnv("kiosk.password", "KIOSK_PASSWORD")
-	v.BindEnv("kiosk.cache", "KIOSK_CACHE")
-	v.BindEnv("kiosk.prefetch", "KIOSK_PREFETCH")
-	v.BindEnv("kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING")
-
-	v.BindEnv("kiosk.debug", "KIOSK_DEBUG")
-	v.BindEnv("kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE")
+	if err := bindEnvironmentVariables(v); err != nil {
+		log.Errorf("binding environment variables: %v", err)
+	}
 
 	v.AddConfigPath(".")
 

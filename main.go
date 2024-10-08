@@ -74,10 +74,7 @@ func main() {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 			Skipper: func(c echo.Context) bool {
 				// skip auth for assets
-				if strings.HasPrefix(c.Request().URL.String(), "/assets") {
-					return true
-				}
-				return false
+				return strings.HasPrefix(c.Request().URL.String(), "/assets")
 			},
 			KeyLookup: "query:password,form:password",
 			Validator: func(queryPassword string, c echo.Context) (bool, error) {

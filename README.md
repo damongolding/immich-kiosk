@@ -309,9 +309,9 @@ e.g. `http://{URL}?album=all`
 Will use only shared albums.
 e.g. `http://{URL}?album=shared`
 
-#### ` favourites `
+####  ` favorites ` or ` favourites `
 Will use only favourited assets.
-e.g. `http://{URL}?album=favourites`
+e.g. `http://{URL}?album=favorites` or `http://{URL}?album=favourites`
 
 ------
 

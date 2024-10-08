@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.11.0
+  VERSION: 0.11.1
 tasks:
   default:
     deps: [build]
@@ -40,6 +40,10 @@ tasks:
   test:
     cmds:
       - go test ./...
+
+  lint:
+    cmds:
+      - golangci-lint run
 
   build:
     deps: [frontend, templ]

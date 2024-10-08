@@ -23,14 +23,18 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 
-	req.URL.Query().Add("immich_url", "https://my-new-server.com")
-	req.URL.Query().Add("immich_api_key", "9999")
+	q := req.URL.Query()
+	q.Add("immich_url", "https://my-new-server.com")
+	q.Add("immich_api_key", "9999")
+
+	req.URL.RawQuery = q.Encode()
 
 	rec := httptest.NewRecorder()
 
 	echoContenx := e.NewContext(req, rec)
 
-	c.ConfigWithOverrides(echoContenx)
+	err := c.ConfigWithOverrides(echoContenx)
+	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
 	assert.Equal(t, originalUrl, c.ImmichUrl, "ImmichUrl field was allowed to be changed")
 	assert.Equal(t, originalApi, c.ImmichApiKey, "ImmichApiKey field was allowed to be changed")
@@ -153,7 +157,8 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 
 	echoContenx = e.NewContext(req, rec)
 
-	configWithBaseOnly.ConfigWithOverrides(echoContenx)
+	err = configWithBaseOnly.ConfigWithOverrides(echoContenx)
+	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
 	t.Log("album", configWithBaseOnly.Album)
 
