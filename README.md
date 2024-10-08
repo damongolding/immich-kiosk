@@ -63,6 +63,7 @@
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
 - [Support](#support)
+- [Help](#help)
 
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
@@ -83,7 +84,7 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 **Image shot by Damon Golding**
 
 ## Example 1
-You have a two spare Raspberry Pi's laying around. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
+You have a two Raspberry Pi's. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
 
 You want the pi connected to the LCD screen to only show images from your recent holiday, which are stored in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
 
@@ -588,10 +589,8 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ------
 
 ## TODO / Roadmap
-- Clock/timestamp shadow redesign
 - Whitelist for people and albums
 - Exclude list
-- Use favourites as image pool source
 - PWA
 
 ------
@@ -600,6 +599,16 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 If this project has been helpful to you and you wish to support me, you can do so with the button below 🙂.
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/damongolding)
+
+------
+
+## Help
+
+If you have found a bug or have an issue you can submit it [here](https://github.com/damongolding/immich-kiosk/issues/new/choose).
+
+If you'd like to chat or need some informal help, feel free to find me in the Kiosk channel on the Immich discord server.
+
+![Static Badge](https://img.shields.io/badge/Immich%20Kiosk-Kiosk%20Discord?style=flat&logo=discord&logoColor=%23fff&labelColor=%235865F2&color=%235865F2&link=https%3A%2F%2Fdiscord.com%2Fchannels%2F979116623879368755%2F1293191523927851099)
 
 
 <!-- LINKS & IMAGES -->
