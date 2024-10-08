@@ -56,7 +56,11 @@ function init() {
     fullscreenButton && htmx.remove(fullscreenButton);
   }
 
-  initPolling(pollInterval, kiosk, menu, menuPausePlayButton);
+  if (pollInterval) {
+    initPolling(pollInterval, kiosk, menu, menuPausePlayButton);
+  } else {
+    console.error("Could not start polling");
+  }
 
   addEventListeners();
 }
@@ -79,12 +83,17 @@ function addEventListeners() {
 
   // Server online check. Fires after every AJAX request.
   htmx.on("htmx:afterRequest", function (e: any) {
-    const offline = htmx.find("#offline");
+    const offlineSVG = htmx.find("#offline");
+
+    if (!offlineSVG) {
+      console.error("offline svg missing");
+      return;
+    }
 
     if (e.detail.successful) {
-      htmx.removeClass(offline, "offline");
+      htmx.removeClass(offlineSVG, "offline");
     } else {
-      htmx.addClass(offline, "offline");
+      htmx.addClass(offlineSVG, "offline");
     }
   });
 }
