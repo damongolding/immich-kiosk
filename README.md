@@ -608,8 +608,9 @@ If you have found a bug or have an issue you can submit it [here](https://github
 
 If you'd like to chat or need some informal help, feel free to find me in the Kiosk channel on the Immich discord server.
 
-![Static Badge](https://img.shields.io/badge/Immich%20Kiosk-Kiosk%20Discord?style=flat&logo=discord&logoColor=%23fff&labelColor=%235865F2&color=%235865F2&link=https%3A%2F%2Fdiscord.com%2Fchannels%2F979116623879368755%2F1293191523927851099)
-
+<a href="https://discord.com/channels/979116623879368755/1293191523927851099">
+  <img src="https://img.shields.io/badge/Immich%20Kiosk-Kiosk%20Discord?style=flat&logo=discord&logoColor=%23fff&labelColor=%235865F2&color=%235865F2">
+</a>
 
 <!-- LINKS & IMAGES -->
 [immich-github-url]: https://github.com/immich-app/immich
