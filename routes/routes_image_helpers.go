@@ -198,12 +198,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 
 	immichImage := immich.NewImage(requestConfig)
 
-	switch imageOrientation {
-	case immich.PortraitOrientation:
-		immichImage.RatioWanted = imageOrientation
-	case immich.LandscapeOrientation:
-		immichImage.RatioWanted = imageOrientation
-	}
+	immichImage.RatioWanted = imageOrientation
 
 	imgBytes, err := processImage(&immichImage, requestConfig, requestID, kioskDeviceID, isPrefetch)
 	if err != nil {

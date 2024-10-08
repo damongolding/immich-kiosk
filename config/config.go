@@ -51,6 +51,8 @@ type KioskSettings struct {
 	// AssetWeighting use weighting when picking assets
 	AssetWeighting bool `mapstructure:"asset_weighting" default:"true"`
 
+	Exclude []string `mapstructure:"exclude" default:"[]"`
+
 	// debug modes
 	Debug        bool `mapstructure:"debug" default:"false"`
 	DebugVerbose bool `mapstructure:"debug_verbose" default:"false"`
