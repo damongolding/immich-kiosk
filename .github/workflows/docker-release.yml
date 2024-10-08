@@ -35,3 +35,10 @@ jobs:
           --platform linux/amd64,linux/arm64 \
           --push -t damongolding/immich-kiosk:${{ env.VERSION }} \
           -t damongolding/immich-kiosk:latest .
+
+      - name: Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: "Immich Kiosk {{ EVENT_PAYLOAD.release.tag_name }} has been release! Check it out: {{ EVENT_PAYLOAD.release.html_url }}"
