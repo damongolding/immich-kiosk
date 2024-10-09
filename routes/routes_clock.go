@@ -2,7 +2,6 @@ package routes
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -43,30 +42,6 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 			"DateFormat", requestConfig.DateFormat,
 		)
 
-		clockTimeFormat := "15:04"
-		if requestConfig.TimeFormat == "12" {
-			clockTimeFormat = time.Kitchen
-		}
-
-		clockDateFormat := utils.DateToLayout(requestConfig.DateFormat)
-		if clockDateFormat == "" {
-			clockDateFormat = config.DefaultDateLayout
-		}
-
-		var data views.ClockData
-
-		t := time.Now()
-
-		switch {
-		case (requestConfig.ShowTime && requestConfig.ShowDate):
-			data.ClockTime = t.Format(clockTimeFormat)
-			data.ClockDate = t.Format(clockDateFormat)
-		case requestConfig.ShowTime:
-			data.ClockTime = t.Format(clockTimeFormat)
-		case requestConfig.ShowDate:
-			data.ClockDate = t.Format(clockDateFormat)
-		}
-
-		return Render(c, http.StatusOK, views.Clock(data))
+		return Render(c, http.StatusOK, views.Clock(requestConfig))
 	}
 }
