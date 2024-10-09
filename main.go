@@ -39,6 +39,8 @@ func init() {
 
 func main() {
 
+	log.SetTimeFormat("15:04:05")
+
 	baseConfig := config.New()
 
 	err := baseConfig.Load()
@@ -49,7 +51,6 @@ func main() {
 	baseConfig.WatchConfig()
 
 	if baseConfig.Kiosk.Debug {
-		log.SetTimeFormat("15:04:05")
 
 		log.SetLevel(log.DebugLevel)
 		if baseConfig.Kiosk.DebugVerbose {

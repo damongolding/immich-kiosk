@@ -31,6 +31,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 
 	"github.com/labstack/echo/v4"
 )
@@ -236,6 +237,24 @@ func (c *Config) checkUrlScheme() {
 
 }
 
+// isValidYAML checks if the given file is a valid YAML file.
+func isValidYAML(filename string) bool {
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		log.Errorf("Error reading file: %v", err)
+		return false
+	}
+
+	var data interface{}
+	err = yaml.Unmarshal(content, &data)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+
+	return true
+}
+
 // checkRequiredFields check is required config files are set.
 func (c *Config) checkRequiredFields() {
 	switch {
@@ -332,7 +351,11 @@ func (c *Config) load(configFile string) error {
 
 	err := c.v.ReadInConfig()
 	if err != nil {
-		log.Debug("config.yaml file not being used")
+		if _, err := os.Stat(configFile); os.IsNotExist(err) {
+			log.Infof("Not using %s", configFile)
+		} else if !isValidYAML(configFile) {
+			log.Fatal(err)
+		}
 	}
 
 	err = c.v.Unmarshal(&c)
