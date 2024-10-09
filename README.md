@@ -596,8 +596,9 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - PWA
 - monitor config file changes
 - make apiCalls more resilient
-- Ken Burns 
+- Ken Burns
 - splitview horizontal mode
+- docker/immich healthcheck?
 
 ------
 

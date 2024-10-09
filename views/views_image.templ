@@ -63,7 +63,7 @@ func ImageExif(info immich.ExifInfo) string {
 		if stats.Len() > 0 {
 			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
 		}
-		stats.WriteString(fmt.Sprintf("%s <small>s<small>", info.ExposureTime))
+		stats.WriteString(fmt.Sprintf("%s <small>s</small>", info.ExposureTime))
 	}
 
 	if info.FocalLength != 0 {
