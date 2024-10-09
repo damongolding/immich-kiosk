@@ -201,7 +201,7 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-templ clock(queries url.Values, kioskVersion string, deviceID string, theme string) {
+templ clock(queries url.Values, theme string) {
 	<div
 		id="clock"
 		class={ fmt.Sprintf("clock--theme-%s", theme) }
@@ -211,7 +211,6 @@ templ clock(queries url.Values, kioskVersion string, deviceID string, theme stri
 		}
 		hx-trigger="load, every 13s"
 		hx-swap="innerHTML"
-		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
 	></div>
 }
 
@@ -234,6 +233,14 @@ templ sleepMode(sleepStart, sleepEnd string, queries url.Values) {
 			hx-target="#navigation-interaction-area"
 		></form>
 	}
+}
+
+templ refreshCheckForm(kioskVersion, reloadTimeStamp string) {
+	<form
+		hx-post="/refresh/check"
+		hx-trigger="every 7s"
+		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp) }
+	></form>
 }
 
 templ Home(viewData ViewData) {
@@ -289,12 +296,13 @@ templ Home(viewData ViewData) {
 				@progressBar()
 			}
 			if !viewData.DisableUi && (viewData.ShowTime || viewData.ShowDate) {
-				@clock(viewData.Queries, viewData.KioskVersion, viewData.DeviceID, viewData.Theme)
+				@clock(viewData.Queries, viewData.Theme)
 			}
 			@menu()
 			@paramForm(viewData.Queries)
 			@sleepMode(viewData.SleepStart, viewData.SleepEnd, viewData.Queries)
 			@historyForm()
+			@refreshCheckForm(viewData.KioskVersion, viewData.ReloadTimeStamp)
 			@offlineIcon()
 			@kioskData(map[string]any{
 				"debug":              viewData.Kiosk.Debug,

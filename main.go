@@ -109,6 +109,8 @@ func main() {
 
 	e.GET("/cache/flush", routes.FlushCache)
 
+	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
+
 	err = e.Start(":3000")
 	if err != nil {
 		log.Fatal(err)
