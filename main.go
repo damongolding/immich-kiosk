@@ -46,6 +46,8 @@ func main() {
 		log.Error("Failed to load config", "err", err)
 	}
 
+	baseConfig.WatchConfig()
+
 	if baseConfig.Kiosk.Debug {
 		log.SetTimeFormat("15:04:05")
 
@@ -106,6 +108,8 @@ func main() {
 	e.GET("/sleep", routes.Sleep(baseConfig))
 
 	e.GET("/cache/flush", routes.FlushCache)
+
+	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
 	err = e.Start(":3000")
 	if err != nil {

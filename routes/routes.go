@@ -22,7 +22,7 @@ import (
 var (
 	KioskVersion string
 
-	viewDataCache      *cache.Cache
+	ViewDataCache      *cache.Cache
 	viewDataCacheMutex sync.Mutex
 )
 
@@ -38,7 +38,7 @@ type RequestData struct {
 
 func init() {
 	// Setting up Immich api cache
-	viewDataCache = cache.New(5*time.Minute, 10*time.Minute)
+	ViewDataCache = cache.New(5*time.Minute, 10*time.Minute)
 }
 
 func RenderError(c echo.Context, err error, message string) error {

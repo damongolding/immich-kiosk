@@ -7,7 +7,6 @@ ARG TARGETARCH
 WORKDIR /app
 
 COPY . .
-COPY config.example.yaml /app/config/
 
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags "-X main.version=${VERSION}" -o dist/kiosk .

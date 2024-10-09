@@ -85,7 +85,7 @@ func TestMalformedURLs(t *testing.T) {
 			t.Setenv("KIOSK_IMMICH_URL", test.KIOSK_IMMICH_URL)
 			t.Setenv("KIOSK_IMMICH_API_KEY", "12345")
 
-			var c Config
+			c := New()
 
 			err := c.Load()
 			assert.NoError(t, err, "Config load should not return an error")
