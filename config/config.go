@@ -24,8 +24,11 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/fsnotify/fsnotify"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
 
@@ -57,6 +60,9 @@ type KioskSettings struct {
 }
 
 type Config struct {
+	v  *viper.Viper
+	mu *sync.Mutex
+
 	// ImmichApiKey Immich key to access assets
 	ImmichApiKey string `mapstructure:"immich_api_key" default:""`
 	// ImmichUrl Immuch base url
@@ -141,7 +147,10 @@ type Config struct {
 
 // New returns a new config pointer instance
 func New() *Config {
-	c := &Config{}
+	c := &Config{
+		v:  viper.NewWithOptions(viper.ExperimentalBindStruct()),
+		mu: &sync.Mutex{},
+	}
 	defaults.SetDefaults(c)
 	return c
 }
@@ -230,29 +239,54 @@ func (c *Config) LoadWithConfigLocation(configPath string) error {
 	return c.load(configPath)
 }
 
+func (c *Config) WatchConfig() {
+	c.v.SetConfigFile("config.yaml")
+	c.v.WatchConfig()
+
+	var debounceTimer *time.Timer
+	debounceTimerMutex := &sync.Mutex{}
+
+	c.v.OnConfigChange(func(e fsnotify.Event) {
+		debounceTimerMutex.Lock()
+		defer debounceTimerMutex.Unlock()
+
+		if debounceTimer != nil {
+			debounceTimer.Stop()
+		}
+
+		debounceTimer = time.AfterFunc(200*time.Millisecond, func() {
+			log.Infof("%s changed, reloading config", e.Name)
+			c.mu.Lock()
+			defer c.mu.Unlock()
+			err := c.Load()
+			if err != nil {
+				log.Error("config watch", "err", err)
+			}
+		})
+	})
+}
+
 // load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
 func (c *Config) load(configFile string) error {
 
-	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
-
-	if err := bindEnvironmentVariables(v); err != nil {
+	if err := bindEnvironmentVariables(c.v); err != nil {
 		log.Errorf("binding environment variables: %v", err)
 	}
 
-	v.AddConfigPath(".")
+	c.v.AddConfigPath(".")
 
-	v.SetConfigFile(configFile)
+	c.v.SetConfigFile(configFile)
 
-	v.SetEnvPrefix("kiosk")
+	c.v.SetEnvPrefix("kiosk")
 
-	v.AutomaticEnv()
+	c.v.AutomaticEnv()
 
-	err := v.ReadInConfig()
+	err := c.v.ReadInConfig()
 	if err != nil {
 		log.Debug("config.yaml file not being used")
 	}
 
-	err = v.Unmarshal(&c)
+	err = c.v.Unmarshal(&c)
 	if err != nil {
 		log.Error("Environment can't be loaded", "err", err)
 		return err

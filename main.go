@@ -46,6 +46,8 @@ func main() {
 		log.Error("Failed to load config", "err", err)
 	}
 
+	baseConfig.WatchConfig()
+
 	if baseConfig.Kiosk.Debug {
 		log.SetTimeFormat("15:04:05")
 
