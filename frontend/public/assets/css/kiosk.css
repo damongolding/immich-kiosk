@@ -325,23 +325,6 @@ body {
 .image--metadata--location {
   z-index: 1;
 }
-@media screen and (max-width: 31.25rem) {
-  .image--metadata {
-    padding: 0.5rem;
-    max-width: 50vw;
-  }
-  .image--metadata--date,
-  .image--metadata--exif,
-  .image--metadata--location {
-    padding-left: 0.5rem;
-  }
-  .image--metadata--location span {
-    display: none;
-  }
-  .image--metadata--location .responsive-break {
-    display: inline;
-  }
-}
 .frame--layout-splitview:nth-child(1) .image--metadata {
   position: absolute;
   display: flex;
@@ -352,7 +335,6 @@ body {
   left: 0;
   right: unset;
   max-width: 70vw;
-  padding: 1rem 1.375rem 1rem 1rem;
   color: #fff;
   font-size: 1.1rem;
   text-align: left;
@@ -369,6 +351,23 @@ body {
 }
 .frame--image-zoom-out img {
   animation-name: image-zoom-out;
+}
+@media screen and (max-width: 31.25rem) {
+  .image--metadata {
+    padding: 0.5rem !important;
+    max-width: 50vw;
+  }
+  .image--metadata--date,
+  .image--metadata--exif,
+  .image--metadata--location {
+    padding-left: 0.5rem;
+  }
+  .image--metadata--location span {
+    display: none;
+  }
+  .image--metadata--location .responsive-break {
+    display: inline;
+  }
 }
 
 /* src/css/error.css */
