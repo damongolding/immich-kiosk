@@ -288,7 +288,7 @@ templ Home(viewData ViewData) {
 			if viewData.ShowProgress {
 				@progressBar()
 			}
-			if !viewData.DisableUi && viewData.ShowTime {
+			if !viewData.DisableUi && (viewData.ShowTime || viewData.ShowDate) {
 				@clock(viewData.Queries, viewData.KioskVersion, viewData.DeviceID, viewData.Theme)
 			}
 			@menu()

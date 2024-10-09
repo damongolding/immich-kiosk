@@ -805,7 +805,7 @@ func Home(viewData ViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		if !viewData.DisableUi && viewData.ShowTime {
+		if !viewData.DisableUi && (viewData.ShowTime || viewData.ShowDate) {
 			templ_7745c5c3_Err = clock(viewData.Queries, viewData.KioskVersion, viewData.DeviceID, viewData.Theme).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

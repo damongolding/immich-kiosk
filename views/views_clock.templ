@@ -1,17 +1,42 @@
 package views
 
-import "strings"
+import (
+	"github.com/damongolding/immich-kiosk/config"
+	"github.com/damongolding/immich-kiosk/utils"
+	"strings"
+	"time"
+)
 
-type ClockData struct {
-	ClockTime string
-	ClockDate string
+func clockDate(c config.Config) string {
+	clockDateFormat := utils.DateToLayout(c.DateFormat)
+
+	if clockDateFormat == "" {
+		clockDateFormat = config.DefaultDateLayout
+	}
+
+	t := time.Now()
+
+	return t.Format(clockDateFormat)
 }
 
-templ Clock(data ClockData) {
-	if data.ClockDate != "" {
-		<div class="clock--date">{ data.ClockDate }</div>
+func clockTime(c config.Config) string {
+	clockTimeFormat := "15:04"
+
+	if c.TimeFormat == "12" {
+		clockTimeFormat = time.Kitchen
 	}
-	if data.ClockTime != "" {
-		<div class="clock--time">{ strings.ToLower(data.ClockTime) }</div>
+
+	t := time.Now()
+
+	return strings.ToLower(t.Format(clockTimeFormat))
+
+}
+
+templ Clock(requestConfig config.Config) {
+	if requestConfig.ShowDate {
+		<div class="clock--date">{ clockDate(requestConfig) }</div>
+	}
+	if requestConfig.ShowTime {
+		<div class="clock--time">{ clockTime(requestConfig) }</div>
 	}
 }
