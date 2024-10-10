@@ -14,10 +14,15 @@ disable_screensaver: false # Ask browser to request a lock that prevents device 
 
 # Asset sources
 show_archived: false # Allow assets marked as archived to be displayed.
-person: # ID(s) of person or people to display
-  - ""
-album: # ID(s) of album or albums to display
-  - ""
+
+# ID(s) of person or people to display
+person:
+  - "PERSON_ID"
+
+# ID(s) of album or albums to display
+album:
+  - "ALBUM_ID"
+
 # UI
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
 hide_cursor: false # Hide cursor/mouse via CSS.

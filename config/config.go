@@ -222,21 +222,6 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 	return nil
 }
 
-// checkUrlScheme checks given url has correct scheme and adds http:// if non if found
-func (c *Config) checkUrlScheme() {
-
-	// check for correct scheme
-	switch {
-	case strings.HasPrefix(strings.ToLower(c.ImmichUrl), "http://"):
-		break
-	case strings.HasPrefix(strings.ToLower(c.ImmichUrl), "https://"):
-		break
-	default:
-		c.ImmichUrl = defaultScheme + c.ImmichUrl
-	}
-
-}
-
 // isValidYAML checks if the given file is a valid YAML file.
 func isValidYAML(filename string) bool {
 	content, err := os.ReadFile(filename)
@@ -255,6 +240,21 @@ func isValidYAML(filename string) bool {
 	return true
 }
 
+// checkUrlScheme checks given url has correct scheme and adds http:// if non if found
+func (c *Config) checkUrlScheme() {
+
+	// check for correct scheme
+	switch {
+	case strings.HasPrefix(strings.ToLower(c.ImmichUrl), "http://"):
+		break
+	case strings.HasPrefix(strings.ToLower(c.ImmichUrl), "https://"):
+		break
+	default:
+		c.ImmichUrl = defaultScheme + c.ImmichUrl
+	}
+
+}
+
 // checkRequiredFields check is required config files are set.
 func (c *Config) checkRequiredFields() {
 	switch {
@@ -269,6 +269,25 @@ func (c *Config) checkDebuging() {
 	if c.Kiosk.DebugVerbose {
 		c.Kiosk.Debug = true
 	}
+}
+
+func (c *Config) checkAlbumAndPerson() {
+
+	newAlbum := []string{}
+	for _, album := range c.Album {
+		if album != "" && album != "ALBUM_ID" {
+			newAlbum = append(newAlbum, album)
+		}
+	}
+	c.Album = newAlbum
+
+	newPerson := []string{}
+	for _, person := range c.Person {
+		if person != "" && person != "PERSON_ID" {
+			newPerson = append(newPerson, person)
+		}
+	}
+	c.Person = newPerson
 }
 
 // Load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
@@ -365,11 +384,11 @@ func (c *Config) load(configFile string) error {
 	}
 
 	c.checkRequiredFields()
+	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
 	c.checkDebuging()
 
 	return nil
-
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
