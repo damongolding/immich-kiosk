@@ -167,7 +167,7 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 	assert.Contains(t, configWithBaseOnly.Album, "BASE_ALBUM_2", "BASE_ALBUM_2 should be present")
 }
 
-func TestRemoveEmptyAlbumAndPerson(t *testing.T) {
+func TestAlbumAndPerson(t *testing.T) {
 	testCases := []struct {
 		name           string
 		inputAlbum     []string

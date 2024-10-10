@@ -31,6 +31,9 @@ const documentBody = document.body;
 const fullscreenButton = htmx.find(
   ".navigation--fullscreen",
 ) as HTMLElement | null;
+const fullScreenButtonSeperator = htmx.find(
+  ".navigation--fullscreen-separator",
+) as HTMLElement | null;
 const kiosk = htmx.find("#kiosk") as HTMLElement | null;
 const menu = htmx.find(".navigation") as HTMLElement | null;
 const menuInteraction = htmx.find(
@@ -54,6 +57,7 @@ function init() {
 
   if (!fullscreenAPI.requestFullscreen) {
     fullscreenButton && htmx.remove(fullscreenButton);
+    fullScreenButtonSeperator && htmx.remove(fullScreenButtonSeperator);
   }
 
   if (pollInterval) {

@@ -385,32 +385,12 @@ func (c *Config) load(configFile string) error {
 		return err
 	}
 
-	c.removeEmptyAlbumAndPerson()
 	c.checkRequiredFields()
 	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
 	c.checkDebuging()
 
 	return nil
-}
-
-func (c *Config) removeEmptyAlbumAndPerson() {
-
-	newAlbum := []string{}
-	for _, album := range c.Album {
-		if album != "" {
-			newAlbum = append(newAlbum, album)
-		}
-	}
-	c.Album = newAlbum
-
-	newPerson := []string{}
-	for _, person := range c.Person {
-		if person != "" {
-			newPerson = append(newPerson, person)
-		}
-	}
-	c.Person = newPerson
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
