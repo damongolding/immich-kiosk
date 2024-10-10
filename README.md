@@ -176,6 +176,7 @@ services:
       KIOSK_IMAGE_DATE_FORMAT: YYYY-MM-DD
       KIOSK_SHOW_IMAGE_EXIF: FALSE
       KIOSK_SHOW_IMAGE_LOCATION: FALSE
+      KIOSK_SHOW_IMAGE_ID: FALSE
       # Kiosk settings
       KIOSK_PASSWORD: ""
       KIOSK_CACHE: TRUE
@@ -226,6 +227,8 @@ See the file config.example.yaml for an example config file
 | [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information. |
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF   | bool                       | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION | bool                     | false       | Display the image location from METADATA (if available).                                   |
+| show_image_id                     | KIOSK_SHOW_IMAGE_ID     | bool                       | false       | Display the image Immich ID.                                   |
+
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
