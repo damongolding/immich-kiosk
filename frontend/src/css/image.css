@@ -93,40 +93,70 @@
 }
 
 .image--metadata:empty,
-.image--metadata--date:empty,
-.image--metadata--exif:empty,
-.image--metadata--location:empty {
+.image--metadata div:empty {
     display: none;
     padding: 0;
 }
 
-.image--metadata--date {
-    font-size: 1.3rem;
-
+.image--metadata div {
     z-index: 1;
 }
+
+.image--metadata--date {
+    font-size: 1.3rem;
+}
+
 .image--metadata--exif {
-    z-index: 1;
 }
 .image--metadata--exif--fnumber {
     display: inline-block;
     font-size: 0.84rem;
     font-weight: bold;
     transform: translate(0.0625rem, -0.1875rem);
-    z-index: 1;
 }
+
 .image--metadata--exif--seperator {
     opacity: 0.3;
     padding: 0 0.5rem;
-    z-index: 1;
 }
+
 .image--metadata--location {
-    z-index: 1;
+}
+
+.frame--layout-splitview:nth-child(1) .image--metadata {
+    position: absolute;
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    bottom: 0;
+    left: 0;
+    right: unset;
+    max-width: 70vw;
+    color: #fff;
+    font-size: 1.1rem;
+    text-align: left;
+    text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+}
+
+/* Image zoom effect  */
+
+.frame--image-zoom img {
+    animation-direction: normal;
+    animation-duration: inherit;
+    transition-timing-function: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+    animation-fill-mode: forwards;
+}
+.frame--image-zoom-in img {
+    animation-name: image-zoom-in;
+}
+.frame--image-zoom-out img {
+    animation-name: image-zoom-out;
 }
 
 @media screen and (max-width: 31.25rem) {
     .image--metadata {
-        padding: 0.5rem;
+        padding: 0.5rem !important;
         max-width: 50vw;
     }
 
@@ -142,37 +172,4 @@
     .image--metadata--location .responsive-break {
         display: inline;
     }
-}
-
-.frame--layout-splitview:nth-child(1) .image--metadata {
-    position: absolute;
-    display: flex;
-    gap: 0.5rem;
-    flex-direction: column;
-    align-items: flex-start;
-    bottom: 0;
-    left: 0;
-    right: unset;
-    max-width: 70vw;
-    padding: 1rem 1.375rem 1rem 1rem;
-    color: #fff;
-    font-size: 1.1rem;
-    text-align: left;
-    text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
-}
-
-/* Image zoom effect  */
-
-.frame--image-zoom img {
-    animation-direction: normal;
-    animation-duration: inherit;
-    transition-timing-function: cubic-bezier(0.455, 0.03, 0.515, 0.955);
-    animation-fill-mode: forwards;
-}
-
-.frame--image-zoom-in img {
-    animation-name: image-zoom-in;
-}
-.frame--image-zoom-out img {
-    animation-name: image-zoom-out;
 }

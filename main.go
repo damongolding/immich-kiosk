@@ -39,6 +39,8 @@ func init() {
 
 func main() {
 
+	log.SetTimeFormat("15:04:05")
+
 	baseConfig := config.New()
 
 	err := baseConfig.Load()
@@ -46,8 +48,9 @@ func main() {
 		log.Error("Failed to load config", "err", err)
 	}
 
+	baseConfig.WatchConfig()
+
 	if baseConfig.Kiosk.Debug {
-		log.SetTimeFormat("15:04:05")
 
 		log.SetLevel(log.DebugLevel)
 		if baseConfig.Kiosk.DebugVerbose {
@@ -107,7 +110,9 @@ func main() {
 
 	e.GET("/cache/flush", routes.FlushCache)
 
-	err = e.Start(":3000")
+	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
+
+	err = e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
 	if err != nil {
 		log.Fatal(err)
 	}

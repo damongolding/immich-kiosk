@@ -7,7 +7,6 @@ ARG TARGETARCH
 WORKDIR /app
 
 COPY . .
-COPY config.example.yaml /app/config/
 
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags "-X main.version=${VERSION}" -o dist/kiosk .
@@ -21,12 +20,10 @@ ENV TERM=xterm-256color
 ENV DEBUG_COLORS=true
 ENV COLORTERM=truecolor
 
-RUN apk add --no-cache tzdata
+RUN apk update && apk add --no-cache tzdata ca-certificates && update-ca-certificates
 
 WORKDIR /
 
 COPY --from=build /app/dist/kiosk .
-
-EXPOSE 3000
 
 ENTRYPOINT ["/kiosk"]

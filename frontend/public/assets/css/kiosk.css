@@ -297,50 +297,29 @@ body {
   display: none;
 }
 .image--metadata:empty,
-.image--metadata--date:empty,
-.image--metadata--exif:empty,
-.image--metadata--location:empty {
+.image--metadata div:empty {
   display: none;
   padding: 0;
 }
-.image--metadata--date {
-  font-size: 1.3rem;
+.image--metadata div {
   z-index: 1;
 }
+.image--metadata--date {
+  font-size: 1.3rem;
+}
 .image--metadata--exif {
-  z-index: 1;
 }
 .image--metadata--exif--fnumber {
   display: inline-block;
   font-size: 0.84rem;
   font-weight: bold;
   transform: translate(0.0625rem, -0.1875rem);
-  z-index: 1;
 }
 .image--metadata--exif--seperator {
   opacity: 0.3;
   padding: 0 0.5rem;
-  z-index: 1;
 }
 .image--metadata--location {
-  z-index: 1;
-}
-@media screen and (max-width: 31.25rem) {
-  .image--metadata {
-    padding: 0.5rem;
-    max-width: 50vw;
-  }
-  .image--metadata--date,
-  .image--metadata--exif,
-  .image--metadata--location {
-    padding-left: 0.5rem;
-  }
-  .image--metadata--location span {
-    display: none;
-  }
-  .image--metadata--location .responsive-break {
-    display: inline;
-  }
 }
 .frame--layout-splitview:nth-child(1) .image--metadata {
   position: absolute;
@@ -352,7 +331,6 @@ body {
   left: 0;
   right: unset;
   max-width: 70vw;
-  padding: 1rem 1.375rem 1rem 1rem;
   color: #fff;
   font-size: 1.1rem;
   text-align: left;
@@ -369,6 +347,23 @@ body {
 }
 .frame--image-zoom-out img {
   animation-name: image-zoom-out;
+}
+@media screen and (max-width: 31.25rem) {
+  .image--metadata {
+    padding: 0.5rem !important;
+    max-width: 50vw;
+  }
+  .image--metadata--date,
+  .image--metadata--exif,
+  .image--metadata--location {
+    padding-left: 0.5rem;
+  }
+  .image--metadata--location span {
+    display: none;
+  }
+  .image--metadata--location .responsive-break {
+    display: inline;
+  }
 }
 
 /* src/css/error.css */

@@ -23,11 +23,15 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"os"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 
 	"github.com/labstack/echo/v4"
 )
@@ -36,9 +40,13 @@ const (
 	defaultImmichPort = "2283"
 	defaultScheme     = "http://"
 	DefaultDateLayout = "02/01/2006"
+	defaultConfigFile = "config.yaml"
 )
 
 type KioskSettings struct {
+	// Port which port to use
+	Port int `mapstructure:"port" default:"3000"`
+
 	// Cache enable/disable api call and image caching
 	Cache bool `mapstructure:"cache" default:"true"`
 
@@ -57,6 +65,15 @@ type KioskSettings struct {
 }
 
 type Config struct {
+	// v is the viper instance used for configuration management
+	v *viper.Viper
+	// mu is a mutex used to ensure thread-safe access to the configuration
+	mu *sync.Mutex
+	// ReloadTimeStamp timestamp for when the last client reload was called for
+	ReloadTimeStamp string
+	// configLastModTime stores the last modification time of the configuration file
+	configLastModTime time.Time
+
 	// ImmichApiKey Immich key to access assets
 	ImmichApiKey string `mapstructure:"immich_api_key" default:""`
 	// ImmichUrl Immuch base url
@@ -131,6 +148,8 @@ type Config struct {
 	ShowImageExif bool `mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
 	// ShowImageLocation display image location data
 	ShowImageLocation bool `mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
+	// ShowImageID display image ID
+	ShowImageID bool `mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
@@ -141,9 +160,28 @@ type Config struct {
 
 // New returns a new config pointer instance
 func New() *Config {
-	c := &Config{}
+	c := &Config{
+		v:               viper.NewWithOptions(viper.ExperimentalBindStruct()),
+		mu:              &sync.Mutex{},
+		ReloadTimeStamp: time.Now().Format(time.RFC3339),
+	}
 	defaults.SetDefaults(c)
+	info, err := os.Stat(defaultConfigFile)
+	if err == nil {
+		c.configLastModTime = info.ModTime()
+	}
 	return c
+}
+
+// hasConfigChanged checks if the configuration file has been modified since the last check.
+func (c *Config) hasConfigChanged() bool {
+	info, err := os.Stat(defaultConfigFile)
+	if err != nil {
+		log.Errorf("Checking config file: %v", err)
+		return false
+	}
+
+	return info.ModTime().After(c.configLastModTime)
 }
 
 // bindEnvironmentVariables binds specific environment variables to their corresponding
@@ -168,6 +206,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		configKey string
 		envVar    string
 	}{
+		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.password", "KIOSK_PASSWORD"},
 		{"kiosk.cache", "KIOSK_CACHE"},
 		{"kiosk.prefetch", "KIOSK_PREFETCH"},
@@ -187,6 +226,24 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 	}
 
 	return nil
+}
+
+// isValidYAML checks if the given file is a valid YAML file.
+func isValidYAML(filename string) bool {
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		log.Errorf("Error reading file: %v", err)
+		return false
+	}
+
+	var data interface{}
+	err = yaml.Unmarshal(content, &data)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+
+	return true
 }
 
 // checkUrlScheme checks given url has correct scheme and adds http:// if non if found
@@ -220,9 +277,28 @@ func (c *Config) checkDebuging() {
 	}
 }
 
+func (c *Config) checkAlbumAndPerson() {
+
+	newAlbum := []string{}
+	for _, album := range c.Album {
+		if album != "" && album != "ALBUM_ID" {
+			newAlbum = append(newAlbum, album)
+		}
+	}
+	c.Album = newAlbum
+
+	newPerson := []string{}
+	for _, person := range c.Person {
+		if person != "" && person != "PERSON_ID" {
+			newPerson = append(newPerson, person)
+		}
+	}
+	c.Person = newPerson
+}
+
 // Load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
 func (c *Config) Load() error {
-	return c.load("config.yaml")
+	return c.load(defaultConfigFile)
 }
 
 // Load loads yaml config file into memory with a custom path, then loads ENV vars. ENV vars overwrites yaml settings.
@@ -230,40 +306,95 @@ func (c *Config) LoadWithConfigLocation(configPath string) error {
 	return c.load(configPath)
 }
 
+// WatchConfig starts a goroutine that periodically checks for changes in the configuration file
+// and reloads the configuration if changes are detected.
+//
+// This function performs the following actions:
+// 1. Retrieves the initial modification time of the config file.
+// 2. Starts a goroutine that runs indefinitely.
+// 3. Uses a ticker to check for config changes every 5 seconds.
+// 4. If changes are detected, it reloads the configuration and updates the ReloadTimeStamp.
+func (c *Config) WatchConfig() {
+
+	fileInfo, err := os.Stat(defaultConfigFile)
+	if os.IsNotExist(err) {
+		return
+	}
+
+	if fileInfo.IsDir() {
+		log.Errorf("Config file %s is a directory", defaultConfigFile)
+		return
+	}
+
+	info, err := os.Stat(defaultConfigFile)
+	if err != nil {
+		log.Infof("Error getting initial file info: %v", err)
+	} else {
+		c.configLastModTime = info.ModTime()
+	}
+
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+
+		//nolint:gosimple // Using for-select for ticker and potential future cases
+		for {
+			select {
+			case <-ticker.C:
+				if c.hasConfigChanged() {
+					log.Info("Config file changed, reloading config")
+					c.mu.Lock()
+					err := c.Load()
+					if err != nil {
+						log.Errorf("Reloading config: %v", err)
+					} else {
+						c.ReloadTimeStamp = time.Now().Format(time.RFC3339)
+						info, _ := os.Stat(defaultConfigFile)
+						c.configLastModTime = info.ModTime()
+					}
+					c.mu.Unlock()
+				}
+			}
+		}
+	}()
+}
+
 // load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
 func (c *Config) load(configFile string) error {
 
-	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
-
-	if err := bindEnvironmentVariables(v); err != nil {
+	if err := bindEnvironmentVariables(c.v); err != nil {
 		log.Errorf("binding environment variables: %v", err)
 	}
 
-	v.AddConfigPath(".")
+	c.v.AddConfigPath(".")
 
-	v.SetConfigFile(configFile)
+	c.v.SetConfigFile(configFile)
 
-	v.SetEnvPrefix("kiosk")
+	c.v.SetEnvPrefix("kiosk")
 
-	v.AutomaticEnv()
+	c.v.AutomaticEnv()
 
-	err := v.ReadInConfig()
+	err := c.v.ReadInConfig()
 	if err != nil {
-		log.Debug("config.yaml file not being used")
+		if _, err := os.Stat(configFile); os.IsNotExist(err) {
+			log.Infof("Not using %s", configFile)
+		} else if !isValidYAML(configFile) {
+			log.Fatal(err)
+		}
 	}
 
-	err = v.Unmarshal(&c)
+	err = c.v.Unmarshal(&c)
 	if err != nil {
 		log.Error("Environment can't be loaded", "err", err)
 		return err
 	}
 
 	c.checkRequiredFields()
+	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
 	c.checkDebuging()
 
 	return nil
-
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries

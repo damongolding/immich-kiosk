@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/patrickmn/go-cache"
@@ -18,18 +19,7 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 	errorUnmarshalErr := json.Unmarshal(body, &immichError)
 	if errorUnmarshalErr != nil {
 		log.Error("Couldn't read error", "body", string(body), "url", apiUrl)
-		return value, fmt.Errorf(`
-			No data or error returned from Immich API.
-			<ul>
-				<li>Are your data source ID's correct (albumID, personID)?</li>
-				<li>Do those data sources have assets?</li>
-				<li>Is Immich online?</li>
-			</ul>
-			<p>
-				Full error:<br/><br/>
-				<code>%w</code>
-			</p>
-			`, err)
+		return value, err
 	}
 	log.Errorf("%s : %v", immichError.Error, immichError.Message)
 	return value, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
@@ -92,7 +82,9 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body io.Reader) ([]by
 
 	var responseBody []byte
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
 	req, err := http.NewRequest(method, apiUrl, body)
 	if err != nil {
 		log.Error(err)
@@ -102,20 +94,35 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body io.Reader) ([]by
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("x-api-key", requestConfig.ImmichApiKey)
 
-	if method == "POST" {
+	if method == "POST" || method == "PUT" || method == "PATCH" {
 		req.Header.Add("Content-Type", "application/json")
 	}
 
-	res, err := client.Do(req)
+	var res *http.Response
+	for attempts := 0; attempts < 3; attempts++ {
+		res, err = client.Do(req)
+		if err == nil {
+			break
+		}
+		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiUrl, "err", err)
+		time.Sleep(time.Duration(attempts) * time.Second)
+	}
 	if err != nil {
+		log.Error("Request failed after retries", "err", err)
+		return responseBody, err
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
 		log.Error(err)
 		return responseBody, err
 	}
-	defer res.Body.Close()
 
 	responseBody, err = io.ReadAll(res.Body)
 	if err != nil {
-		log.Error(err)
+		log.Error("reading response body", "url", apiUrl, "err", err)
 		return responseBody, err
 	}
 

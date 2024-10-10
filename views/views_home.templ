@@ -201,7 +201,7 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-templ clock(queries url.Values, kioskVersion string, deviceID string, theme string) {
+templ clock(queries url.Values, theme string) {
 	<div
 		id="clock"
 		class={ fmt.Sprintf("clock--theme-%s", theme) }
@@ -211,7 +211,6 @@ templ clock(queries url.Values, kioskVersion string, deviceID string, theme stri
 		}
 		hx-trigger="load, every 13s"
 		hx-swap="innerHTML"
-		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
 	></div>
 }
 
@@ -236,12 +235,20 @@ templ sleepMode(sleepStart, sleepEnd string, queries url.Values) {
 	}
 }
 
+templ refreshCheckForm(kioskVersion, reloadTimeStamp string) {
+	<form
+		hx-post="/refresh/check"
+		hx-trigger="every 7s"
+		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp) }
+	></form>
+}
+
 templ Home(viewData ViewData) {
 	<!DOCTYPE html>
 	<html lang="en" class={ baseFontSize(viewData.FontSize) }>
 		<head>
 			<meta charset="UTF-8"/>
-			<meta name="apple-mobile-web-app-capable" content="yes"/>
+			<meta name="mobile-web-app-capable" content="yes"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<meta name="version" content={ viewData.KioskVersion }/>
 			<title>Immich Kiosk</title>
@@ -288,13 +295,14 @@ templ Home(viewData ViewData) {
 			if viewData.ShowProgress {
 				@progressBar()
 			}
-			if !viewData.DisableUi && viewData.ShowTime {
-				@clock(viewData.Queries, viewData.KioskVersion, viewData.DeviceID, viewData.Theme)
+			if !viewData.DisableUi && (viewData.ShowTime || viewData.ShowDate) {
+				@clock(viewData.Queries, viewData.Theme)
 			}
 			@menu()
 			@paramForm(viewData.Queries)
 			@sleepMode(viewData.SleepStart, viewData.SleepEnd, viewData.Queries)
 			@historyForm()
+			@refreshCheckForm(viewData.KioskVersion, viewData.ReloadTimeStamp)
 			@offlineIcon()
 			@kioskData(map[string]any{
 				"debug":              viewData.Kiosk.Debug,

@@ -3789,6 +3789,9 @@ var kiosk = (() => {
   var fullscreenButton = htmx_esm_default.find(
     ".navigation--fullscreen"
   );
+  var fullScreenButtonSeperator = htmx_esm_default.find(
+    ".navigation--fullscreen-separator"
+  );
   var kiosk = htmx_esm_default.find("#kiosk");
   var menu = htmx_esm_default.find(".navigation");
   var menuInteraction = htmx_esm_default.find(
@@ -3806,6 +3809,7 @@ var kiosk = (() => {
     }
     if (!fullscreenAPI.requestFullscreen) {
       fullscreenButton && htmx_esm_default.remove(fullscreenButton);
+      fullScreenButtonSeperator && htmx_esm_default.remove(fullScreenButtonSeperator);
     }
     if (pollInterval2) {
       initPolling(pollInterval2, kiosk, menu, menuPausePlayButton2);
