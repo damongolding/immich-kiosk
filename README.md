@@ -246,6 +246,7 @@ kiosk:
 
 | **yaml**          | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
 |-------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
+| port              | KIOSK_PORT              | int          | 3000        | Which port Kiosk should use. NOTE that is port will need to be reflected in your compose file e.g. `KIOSK_PORT:HOST_PORT` |
 | password          | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
 | cache             | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
 | prefetch          | KIOSK_PREFETCH          | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |

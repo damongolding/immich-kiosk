@@ -26,6 +26,4 @@ WORKDIR /
 
 COPY --from=build /app/dist/kiosk .
 
-EXPOSE 3000
-
 ENTRYPOINT ["/kiosk"]
