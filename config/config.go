@@ -384,11 +384,11 @@ func (c *Config) load(configFile string) error {
 	}
 
 	c.checkRequiredFields()
+	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
 	c.checkDebuging()
 
 	return nil
-
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
