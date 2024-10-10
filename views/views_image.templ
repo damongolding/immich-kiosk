@@ -110,6 +110,31 @@ func ImageDateTime(viewData ViewData, imageIndex int) string {
 	return imageDate
 }
 
+templ imageMetadata(viewData ViewData, imageIndex int) {
+	<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
+		if viewData.ShowImageDate || viewData.ShowImageTime {
+			<div class="image--metadata--date">
+				{ ImageDateTime(viewData, imageIndex) }
+			</div>
+		}
+		if viewData.ShowImageExif {
+			<div class="image--metadata--exif">
+				@templ.Raw(ImageExif(viewData.Images[imageIndex].ImmichImage.ExifInfo))
+			</div>
+		}
+		if viewData.ShowImageLocation {
+			<div class="image--metadata--location">
+				@templ.Raw(ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo))
+			</div>
+		}
+		if viewData.ShowImageID {
+			<div class="image--metadata--id">
+				{ viewData.Images[imageIndex].ImmichImage.ID }
+			</div>
+		}
+	</div>
+}
+
 templ layoutSingleView(viewData ViewData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
 		if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(viewData.Images[0].ImageBlurData) > 0 {
@@ -132,28 +157,9 @@ templ layoutSingleView(viewData ViewData) {
 			}
 		</div>
 		if !viewData.DisableUi {
-			<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
-				if viewData.ShowImageDate || viewData.ShowImageTime {
-					<div class="image--metadata--date">
-						{ ImageDateTime(viewData, 0) }
-					</div>
-				}
-				if viewData.ShowImageID {
-					<div class="image--metadata--id">
-						{ viewData.Images[0].ImmichImage.ID }
-					</div>
-				}
-				if viewData.ShowImageExif {
-					<div class="image--metadata--exif">
-						@templ.Raw(ImageExif(viewData.Images[0].ImmichImage.ExifInfo))
-					</div>
-				}
-				if viewData.ShowImageLocation {
-					<div class="image--metadata--location">
-						@templ.Raw(ImageLocation(viewData.Images[0].ImmichImage.ExifInfo))
-					</div>
-				}
-			</div>
+			if !viewData.DisableUi {
+				@imageMetadata(viewData, 0)
+			}
 		}
 	</div>
 }
@@ -182,28 +188,7 @@ templ layoutSplitView(viewData ViewData) {
 					}
 				</div>
 				if !viewData.DisableUi {
-					<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
-						if viewData.ShowImageDate || viewData.ShowImageTime {
-							<div class="image--metadata--date">
-								{ ImageDateTime(viewData, imageIndex) }
-							</div>
-						}
-						if viewData.ShowImageExif {
-							<div class="image--metadata--exif">
-								@templ.Raw(ImageExif(imageData.ImmichImage.ExifInfo))
-							</div>
-						}
-						if viewData.ShowImageLocation {
-							<div class="image--metadata--location">
-								@templ.Raw(ImageLocation(imageData.ImmichImage.ExifInfo))
-							</div>
-						}
-						if viewData.ShowImageID {
-							<div class="image--metadata--id">
-								{ viewData.Images[0].ImmichImage.ID }
-							</div>
-						}
-					</div>
+					@imageMetadata(viewData, imageIndex)
 				}
 			</div>
 		}
