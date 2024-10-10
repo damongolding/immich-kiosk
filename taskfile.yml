@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.11.2-beta.4
+  VERSION: 0.11.2
 tasks:
   default:
     deps: [build]
