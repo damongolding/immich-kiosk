@@ -7,6 +7,11 @@ tasks:
     cmds:
       - KIOSK_DEBUG=true ./dist/kiosk
 
+  verbose:
+    deps: [build]
+    cmds:
+      - KIOSK_DEBUG_VERBOSE=true ./dist/kiosk
+
   frontend:
     deps: [frontend-test, frontend-css, frontend-js]
     dir: ./frontend
