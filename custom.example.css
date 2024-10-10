@@ -28,7 +28,8 @@ body{}
 .image--metadata--theme-solid{}
 .frame--layout-splitview:nth-child(1) .image--metadata--theme-solid{}
 .image--metadata .responsive-break{}
-.image--metadata--location:empty{}
+.image--metadata div:empty{}
+.image--metadata div{}
 .image--metadata--date{}
 .image--metadata--exif{}
 .image--metadata--exif--fnumber{}

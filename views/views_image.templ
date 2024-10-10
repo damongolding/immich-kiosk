@@ -63,7 +63,7 @@ func ImageExif(info immich.ExifInfo) string {
 		if stats.Len() > 0 {
 			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
 		}
-		stats.WriteString(fmt.Sprintf("%s <small>s</small>", info.ExposureTime))
+		stats.WriteString(fmt.Sprintf("%s<small>s</small>", info.ExposureTime))
 	}
 
 	if info.FocalLength != 0 {
@@ -112,7 +112,7 @@ func ImageDateTime(viewData ViewData, imageIndex int) string {
 
 templ layoutSingleView(viewData ViewData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
-		if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") {
+		if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(viewData.Images[0].ImageBlurData) > 0 {
 			<div class="frame--background">
 				<img src={ viewData.Images[0].ImageBlurData } alt="Blurred image background"/>
 			</div>
@@ -138,6 +138,11 @@ templ layoutSingleView(viewData ViewData) {
 						{ ImageDateTime(viewData, 0) }
 					</div>
 				}
+				if viewData.ShowImageID {
+					<div class="image--metadata--id">
+						{ viewData.Images[0].ImmichImage.ID }
+					</div>
+				}
 				if viewData.ShowImageExif {
 					<div class="image--metadata--exif">
 						@templ.Raw(ImageExif(viewData.Images[0].ImmichImage.ExifInfo))
@@ -157,7 +162,7 @@ templ layoutSplitView(viewData ViewData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
 		for imageIndex, imageData := range viewData.Images {
 			<div class="frame--layout-splitview">
-				if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") {
+				if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(imageData.ImageBlurData) > 0 {
 					<div class="frame--background">
 						<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
 					</div>
@@ -191,6 +196,11 @@ templ layoutSplitView(viewData ViewData) {
 						if viewData.ShowImageLocation {
 							<div class="image--metadata--location">
 								@templ.Raw(ImageLocation(imageData.ImmichImage.ExifInfo))
+							</div>
+						}
+						if viewData.ShowImageID {
+							<div class="image--metadata--id">
+								{ viewData.Images[0].ImmichImage.ID }
 							</div>
 						}
 					</div>

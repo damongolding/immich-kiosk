@@ -166,3 +166,63 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 	assert.Contains(t, configWithBaseOnly.Album, "BASE_ALBUM_1", "BASE_ALBUM_1 should be present")
 	assert.Contains(t, configWithBaseOnly.Album, "BASE_ALBUM_2", "BASE_ALBUM_2 should be present")
 }
+
+func TestRemoveEmptyAlbumAndPerson(t *testing.T) {
+	testCases := []struct {
+		name           string
+		inputAlbum     []string
+		inputPerson    []string
+		expectedAlbum  []string
+		expectedPerson []string
+	}{
+		{
+			name:           "No empty values",
+			inputAlbum:     []string{"album1", "album2"},
+			inputPerson:    []string{"person1", "person2"},
+			expectedAlbum:  []string{"album1", "album2"},
+			expectedPerson: []string{"person1", "person2"},
+		},
+		{
+			name:           "Empty values in album",
+			inputAlbum:     []string{"album1", "", "album2", ""},
+			inputPerson:    []string{"person1", "person2"},
+			expectedAlbum:  []string{"album1", "album2"},
+			expectedPerson: []string{"person1", "person2"},
+		},
+		{
+			name:           "Empty values in person",
+			inputAlbum:     []string{"album1", "album2"},
+			inputPerson:    []string{"", "person1", "", "person2"},
+			expectedAlbum:  []string{"album1", "album2"},
+			expectedPerson: []string{"person1", "person2"},
+		},
+		{
+			name:           "Empty values in both",
+			inputAlbum:     []string{"", "album1", "", "album2"},
+			inputPerson:    []string{"person1", "", "", "person2"},
+			expectedAlbum:  []string{"album1", "album2"},
+			expectedPerson: []string{"person1", "person2"},
+		},
+		{
+			name:           "All empty values",
+			inputAlbum:     []string{"", "", ""},
+			inputPerson:    []string{"", "", ""},
+			expectedAlbum:  []string{},
+			expectedPerson: []string{},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			c := &Config{
+				Album:  tc.inputAlbum,
+				Person: tc.inputPerson,
+			}
+
+			c.removeEmptyAlbumAndPerson()
+
+			assert.Equal(t, tc.expectedAlbum, c.Album, "Album mismatch")
+			assert.Equal(t, tc.expectedPerson, c.Person, "Person mismatch")
+		})
+	}
+}
