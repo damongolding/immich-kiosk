@@ -44,6 +44,9 @@ const (
 )
 
 type KioskSettings struct {
+	// Port which port to use
+	Port int `mapstructure:"port" default:"3000"`
+
 	// Cache enable/disable api call and image caching
 	Cache bool `mapstructure:"cache" default:"true"`
 
@@ -203,6 +206,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		configKey string
 		envVar    string
 	}{
+		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.password", "KIOSK_PASSWORD"},
 		{"kiosk.cache", "KIOSK_CACHE"},
 		{"kiosk.prefetch", "KIOSK_PREFETCH"},

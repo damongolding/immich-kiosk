@@ -112,7 +112,7 @@ func main() {
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
-	err = e.Start(":3000")
+	err = e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
 	if err != nil {
 		log.Fatal(err)
 	}
