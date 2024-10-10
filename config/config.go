@@ -145,6 +145,8 @@ type Config struct {
 	ShowImageExif bool `mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
 	// ShowImageLocation display image location data
 	ShowImageLocation bool `mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
+	// ShowImageID display image ID
+	ShowImageID bool `mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
@@ -383,12 +385,32 @@ func (c *Config) load(configFile string) error {
 		return err
 	}
 
+	c.removeEmptyAlbumAndPerson()
 	c.checkRequiredFields()
 	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
 	c.checkDebuging()
 
 	return nil
+}
+
+func (c *Config) removeEmptyAlbumAndPerson() {
+
+	newAlbum := []string{}
+	for _, album := range c.Album {
+		if album != "" {
+			newAlbum = append(newAlbum, album)
+		}
+	}
+	c.Album = newAlbum
+
+	newPerson := []string{}
+	for _, person := range c.Person {
+		if person != "" {
+			newPerson = append(newPerson, person)
+		}
+	}
+	c.Person = newPerson
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
