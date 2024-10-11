@@ -278,11 +278,10 @@ func (c *Config) checkDebuging() {
 }
 
 func (c *Config) checkAlbumAndPerson() {
-
 	newAlbum := []string{}
 	for _, album := range c.Album {
 		if album != "" && album != "ALBUM_ID" {
-			newAlbum = append(newAlbum, album)
+			newAlbum = append(newAlbum, strings.TrimSpace(album))
 		}
 	}
 	c.Album = newAlbum
@@ -290,7 +289,7 @@ func (c *Config) checkAlbumAndPerson() {
 	newPerson := []string{}
 	for _, person := range c.Person {
 		if person != "" && person != "PERSON_ID" {
-			newPerson = append(newPerson, person)
+			newPerson = append(newPerson, strings.TrimSpace(person))
 		}
 	}
 	c.Person = newPerson
