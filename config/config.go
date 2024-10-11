@@ -181,6 +181,8 @@ func (c *Config) hasConfigChanged() bool {
 		return false
 	}
 
+	log.Debug("Config file mod stats", "stored", c.configLastModTime, "live", info.ModTime(), "changed?", info.ModTime().After(c.configLastModTime))
+
 	return info.ModTime().After(c.configLastModTime)
 }
 
@@ -328,7 +330,7 @@ func (c *Config) WatchConfig() {
 
 	info, err := os.Stat(defaultConfigFile)
 	if err != nil {
-		log.Infof("Error getting initial file info: %v", err)
+		log.Errorf("Getting initial file info: %v", err)
 	} else {
 		c.configLastModTime = info.ModTime()
 	}
@@ -400,7 +402,7 @@ func (c *Config) load(configFile string) error {
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(e echo.Context) error {
 
-	queries := e.Request().URL.Query()
+	queries := e.QueryParams()
 
 	// check for person or album in quries and empty baseconfig slice if found
 	if queries.Has("person") {

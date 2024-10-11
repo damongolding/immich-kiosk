@@ -36,7 +36,6 @@ templ kioskCrossFade(kioskVersion string, deviceID string, queries url.Values, c
 			hx-include=".kiosk-param, .kiosk-history--entry"
 		} else {
 			hx-include=".kiosk-history--entry"
-			hx-vals="js:{...getHashParams()}"
 		}
 		hx-trigger="load, kiosk-new-image"
 		hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", crossFadeDuration+1) }
@@ -67,7 +66,6 @@ templ kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDu
 			hx-include=".kiosk-param, .kiosk-history--entry"
 		} else {
 			hx-include=".kiosk-history--entry"
-			hx-vals="js:{...getHashParams()}"
 		}
 		hx-trigger="load, kiosk-new-image"
 		hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration/2) }
@@ -86,7 +84,6 @@ templ kioskNone(kioskVersion string, deviceID string, queries url.Values) {
 			hx-include=".kiosk-param, .kiosk-history--entry"
 		} else {
 			hx-include=".kiosk-history--entry"
-			hx-vals="js:{...getHashParams()}"
 		}
 		hx-trigger="load, kiosk-new-image"
 		hx-swap="innerHTML"
@@ -211,8 +208,6 @@ templ clock(queries url.Values, theme string) {
 		hx-get="/clock"
 		if len(queries) > 0 {
 			hx-include=".kiosk-param"
-		} else {
-			hx-vals="js:{...getHashParams()}"
 		}
 		hx-trigger="load, every 13s"
 		hx-swap="innerHTML"
@@ -234,8 +229,6 @@ templ sleepMode(sleepStart, sleepEnd string, queries url.Values) {
 			hx-trigger="load, every 13s"
 			if len(queries) > 0 {
 				hx-include=".kiosk-param"
-			} else {
-				hx-vals="js:{...getHashParams()}"
 			}
 			hx-target="#navigation-interaction-area"
 		></form>
@@ -325,17 +318,6 @@ templ Home(viewData ViewData) {
 				"disableScreensaver": viewData.DisableScreensaver,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
-			<script>
-                function getHashParams() {
-                    const hash = window.location.hash.substring(2);
-                    const params = {};
-                    hash.split('&').forEach(param => {
-                        const [key, value] = param.split('=');
-                        params[key] = decodeURIComponent(value);
-                    });
-                    return params;
-                }
-            </script>
 		</body>
 	</html>
 }

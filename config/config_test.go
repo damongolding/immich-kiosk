@@ -55,7 +55,7 @@ func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 
 	echoContenx := e.NewContext(req, rec)
 
-	t.Log("Trying to add:", echoContenx.Request().URL.Query())
+	t.Log("Trying to add:", echoContenx.QueryParams())
 
 	err := c.ConfigWithOverrides(echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
@@ -113,7 +113,7 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 
 	echoContenx := e.NewContext(req, rec)
 
-	t.Log("Trying to add:", echoContenx.Request().URL.Query())
+	t.Log("Trying to add:", echoContenx.QueryParams())
 
 	err := configWithBase.ConfigWithOverrides(echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
@@ -137,7 +137,7 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 
 	echoContenx = e.NewContext(req, rec)
 
-	t.Log("Trying to add:", echoContenx.Request().URL.Query())
+	t.Log("Trying to add:", echoContenx.QueryParams())
 
 	err = configWithoutBase.ConfigWithOverrides(echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")

@@ -484,8 +484,8 @@ To disable custom CSS for a specific device, add `custom_css=false` to the URL p
 ## PWA
 
 > [!NOTE]
-> IOS doesn't allow PWA's to prevent the screen from going to sleep.
-> A work around is to lauch Kiosk then enable the [guided access](https://support.apple.com/en-gb/guide/iphone/iph7fad0d10/ios) feature
+> IOS does not allow PWA's to prevent the screen from going to sleep.
+> A work around is to lauch Kiosk then enable the [guided access](https://support.apple.com/en-gb/guide/iphone/iph7fad0d10/ios) feature.
 
 ### IOS
 1. Open Safari and navigate to Kiosk.
