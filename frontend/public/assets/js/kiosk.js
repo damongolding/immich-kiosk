@@ -3767,7 +3767,11 @@ var kiosk = (() => {
         try {
           wakeLock2 = yield navigator.wakeLock.request("screen");
         } catch (err) {
-          console.error(`${err.name}, ${err.message}`);
+          if (err.name === "TypeError") {
+            wakeLock2 = yield navigator.wakeLock.request();
+          } else {
+            console.error(`${err.name}, ${err.message}`);
+          }
         }
       });
       document.addEventListener("visibilitychange", () => {
@@ -3807,6 +3811,16 @@ var kiosk = (() => {
     if (kioskData.disableScreensaver) {
       wakeLock();
     }
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/assets/js/sw.js").then(
+        function(registration) {
+          console.log("ServiceWorker registration successful");
+        },
+        function(err) {
+          console.log("ServiceWorker registration failed: ", err);
+        }
+      );
+    }
     if (!fullscreenAPI.requestFullscreen) {
       fullscreenButton && htmx_esm_default.remove(fullscreenButton);
       fullScreenButtonSeperator && htmx_esm_default.remove(fullScreenButtonSeperator);
@@ -3845,6 +3859,8 @@ var kiosk = (() => {
       htmx_esm_default.remove(frames[0], 3e3);
     }
   }
-  htmx_esm_default.onLoad(init);
+  document.addEventListener("DOMContentLoaded", () => {
+    init();
+  });
   return __toCommonJS(kiosk_exports);
 })();

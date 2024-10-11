@@ -59,6 +59,7 @@
   - [Layouts](#layouts)
   - [Sleep mode](#sleep-mode)
   - [Cusom CSS](#custom-css)
+- [PWA](#pwa)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -477,6 +478,20 @@ There is a `custom.example.css` file included that contains all the CSS selector
 The custom CSS will apply to all devices connected to Kiosk by default.
 
 To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?cusom_css=false`
+
+------
+
+## PWA
+
+> [!NOTE]
+> IOS doesn't allow PWA's to prevent the screen from going to sleep.
+> A work around is to lauch Kiosk then enable the [guided access](https://support.apple.com/en-gb/guide/iphone/iph7fad0d10/ios) feature
+
+### IOS
+1. Open Safari and navigate to Kiosk.
+2. Tap on the share icon in Safari's navigation bar.
+3. Scroll till you see "Add to Home Screen" and tap it.
+4. Tap on the newly added Kiosk icon on your home screen!
 
 
 ------

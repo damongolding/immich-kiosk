@@ -55,6 +55,17 @@ function init() {
     wakeLock();
   }
 
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/assets/js/sw.js").then(
+      function (registration) {
+        console.log("ServiceWorker registration successful");
+      },
+      function (err) {
+        console.log("ServiceWorker registration failed: ", err);
+      },
+    );
+  }
+
   if (!fullscreenAPI.requestFullscreen) {
     fullscreenButton && htmx.remove(fullscreenButton);
     fullScreenButtonSeperator && htmx.remove(fullScreenButtonSeperator);
@@ -113,6 +124,8 @@ function cleanupFrames() {
 }
 
 // Initialize Kiosk when the DOM is fully loaded
-htmx.onLoad(init);
+document.addEventListener("DOMContentLoaded", () => {
+  init();
+});
 
 export { cleanupFrames, startPolling };

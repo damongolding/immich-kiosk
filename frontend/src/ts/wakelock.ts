@@ -7,7 +7,12 @@ export const wakeLock = async () => {
       try {
         wakeLock = await navigator.wakeLock.request("screen");
       } catch (err) {
-        console.error(`${err.name}, ${err.message}`);
+        if (err.name === "TypeError") {
+          // The "screen" parameter is not supported, try without it
+          wakeLock = await navigator.wakeLock.request();
+        } else {
+          console.error(`${err.name}, ${err.message}`);
+        }
       }
     };
 
