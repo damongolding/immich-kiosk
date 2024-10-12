@@ -601,8 +601,9 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - monitor config file changes
 - make apiCalls more resilient
 - Ken Burns
-- splitview horizontal mode
-- docker/immich healthcheck?
+- Splitview related images 
+- Splitview horizontal mode
+- Docker/immich healthcheck?
 
 ------
 
