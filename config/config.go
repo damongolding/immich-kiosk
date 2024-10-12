@@ -365,9 +365,14 @@ func (c *Config) load(configFile string) error {
 		log.Errorf("binding environment variables: %v", err)
 	}
 
-	c.v.AddConfigPath(".")
+	viper.SetConfigName("config")  // Looks for 'config.yaml'
+    
+	// Optionally, specify the config file type (if you want to load from memory)
+	viper.SetConfigType("yaml")
 
-	c.v.SetConfigFile(configFile)
+	// Add potential paths for the configuration file
+	viper.AddConfigPath(".")        // Look in the current directory
+	viper.AddConfigPath("./config") // Look in the 'config/' subdirectory
 
 	c.v.SetEnvPrefix("kiosk")
 
@@ -375,7 +380,7 @@ func (c *Config) load(configFile string) error {
 
 	err := c.v.ReadInConfig()
 	if err != nil {
-		if _, err := os.Stat(configFile); os.IsNotExist(err) {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Infof("Not using %s", configFile)
 		} else if !isValidYAML(configFile) {
 			log.Fatal(err)
