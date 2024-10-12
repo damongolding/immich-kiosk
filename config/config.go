@@ -166,10 +166,6 @@ func New() *Config {
 		ReloadTimeStamp: time.Now().Format(time.RFC3339),
 	}
 	defaults.SetDefaults(c)
-	info, err := os.Stat(defaultConfigFile)
-	if err == nil {
-		c.configLastModTime = info.ModTime()
-	}
 	return c
 }
 
