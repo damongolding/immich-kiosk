@@ -175,7 +175,7 @@ func New() *Config {
 
 // hasConfigChanged checks if the configuration file has been modified since the last check.
 func (c *Config) hasConfigChanged() bool {
-	info, err := os.Stat(defaultConfigFile)
+	info, err := os.Stat(c.v.ConfigFileUsed())
 	if err != nil {
 		log.Errorf("Checking config file: %v", err)
 		return false
@@ -315,7 +315,9 @@ func (c *Config) LoadWithConfigLocation(configPath string) error {
 // 4. If changes are detected, it reloads the configuration and updates the ReloadTimeStamp.
 func (c *Config) WatchConfig() {
 
-	fileInfo, err := os.Stat(defaultConfigFile)
+	configPath := c.v.ConfigFileUsed()
+
+	fileInfo, err := os.Stat(configPath)
 	if os.IsNotExist(err) {
 		return
 	}
@@ -325,7 +327,7 @@ func (c *Config) WatchConfig() {
 		return
 	}
 
-	info, err := os.Stat(defaultConfigFile)
+	info, err := os.Stat(configPath)
 	if err != nil {
 		log.Infof("Error getting initial file info: %v", err)
 	} else {
