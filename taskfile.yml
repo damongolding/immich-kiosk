@@ -54,7 +54,7 @@ tasks:
     deps: [frontend, templ]
     cmds:
       - go generate *.go
-      - CGO_ENABLED=0 go build -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
+      - CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
 
   docker-image:
     deps: [build]
