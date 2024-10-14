@@ -117,6 +117,8 @@ services:
       TZ: "Europe/London"
     volumes:
       - ./config.yaml:/config.yaml
+      # OR you can mount a directory with config.yaml inside
+      - ./config:/config
     restart: on-failure
     ports:
       - 3000:3000
@@ -178,10 +180,12 @@ services:
       KIOSK_SHOW_IMAGE_LOCATION: FALSE
       KIOSK_SHOW_IMAGE_ID: FALSE
       # Kiosk settings
+      KIOSK_WATCH_CONFIG: FALSE
       KIOSK_PASSWORD: ""
       KIOSK_CACHE: TRUE
       KIOSK_PREFETCH: TRUE
       KIOSK_ASSET_WEIGHTING: TRUE
+      KIOSK_PORT: 3000
     ports:
       - 3000:3000
     restart: on-failure
@@ -250,6 +254,7 @@ kiosk:
 | **yaml**          | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
 |-------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
 | port              | KIOSK_PORT              | int          | 3000        | Which port Kiosk should use. NOTE that is port will need to be reflected in your compose file e.g. `KIOSK_PORT:HOST_PORT` |
+| watch_config      | KIOSK_WATCH_CONFIG      | bool         | false       | Should Kiosk watch config.yaml file for changes. Reloads all connect clients if a change is detected. |
 | password          | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
 | cache             | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
 | prefetch          | KIOSK_PREFETCH          | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |
