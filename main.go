@@ -48,7 +48,10 @@ func main() {
 		log.Error("Failed to load config", "err", err)
 	}
 
-	baseConfig.WatchConfig()
+	if baseConfig.Kiosk.WatchConfig {
+		log.Infof("Watching %s for changes", baseConfig.V.ConfigFileUsed())
+		baseConfig.WatchConfig()
+	}
 
 	if baseConfig.Kiosk.Debug {
 
