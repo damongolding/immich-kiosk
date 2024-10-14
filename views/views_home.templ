@@ -283,7 +283,7 @@ templ Home(viewData ViewData) {
 				@templ.Raw(customCss(viewData.CustomCss))
 			}
 		</head>
-		<body class={ templ.KV("layout-splitview", strings.EqualFold(viewData.Layout, "splitview")) }>
+		<body class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
 			switch strings.ToLower(viewData.Transition) {
 				case "cross-fade":
 					@kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.CrossFadeTransitionDuration)
