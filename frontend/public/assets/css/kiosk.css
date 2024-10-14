@@ -209,6 +209,31 @@ body {
   width: 50vw;
   height: 100vh;
 }
+.layout-splitview-landscape .frame {
+  flex-direction: column;
+}
+.frame--layout-splitview-landscape {
+  position: relative;
+  width: 100%;
+  height: 50%;
+  width: 100vw;
+  height: 50vh;
+  overflow: hidden;
+}
+.frame--layout-splitview-landscape:nth-child(1) {
+  border-bottom: 0.125rem solid black;
+}
+.frame--layout-splitview-landscape:nth-child(2) {
+  border-top: 0.125rem solid black;
+}
+.frame--layout-splitview-landscape .frame--image {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 50vh;
+}
 
 /* src/css/image.css */
 .image--metadata {
@@ -454,7 +479,8 @@ body {
   text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
   z-index: 10000;
 }
-.layout-splitview #clock {
+.layout-splitview #clock,
+.layout-splitview-landscape #clock {
   bottom: unset;
   top: 0;
 }
@@ -490,7 +516,8 @@ body {
       hsla(0, 0%, 0%, 0) 100%);
   z-index: 0;
 }
-.layout-splitview .clock--theme-fade::before {
+.layout-splitview .clock--theme-fade::before,
+.layout-splitview-landscape .clock--theme-fade::before {
   content: "";
   position: absolute;
   bottom: unset;
@@ -524,7 +551,8 @@ body {
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 0 2rem 0 0;
 }
-.layout-splitview .clock--theme-solid {
+.layout-splitview .clock--theme-solid,
+.layout-splitview-landscape .clock--theme-solid {
   border-radius: 0 0 2rem 0;
 }
 @media screen and (max-width: 31.25rem) {

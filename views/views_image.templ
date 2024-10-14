@@ -167,7 +167,7 @@ templ layoutSingleView(viewData ViewData) {
 templ layoutSplitView(viewData ViewData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
 		for imageIndex, imageData := range viewData.Images {
-			<div class="frame--layout-splitview">
+			<div class={ fmt.Sprintf("frame--layout-%s", viewData.Layout) }>
 				if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(imageData.ImageBlurData) > 0 {
 					<div class="frame--background">
 						<img src={ imageData.ImageBlurData } alt="Blurred image background"/>

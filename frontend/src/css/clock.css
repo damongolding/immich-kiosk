@@ -11,7 +11,8 @@
     z-index: 10000;
 }
 
-.layout-splitview #clock {
+.layout-splitview #clock,
+.layout-splitview-landscape #clock {
     bottom: unset;
     top: 0;
 }
@@ -51,7 +52,8 @@
     z-index: 0;
 }
 
-.layout-splitview .clock--theme-fade::before {
+.layout-splitview .clock--theme-fade::before,
+.layout-splitview-landscape .clock--theme-fade::before {
     content: "";
     position: absolute;
     bottom: unset;
@@ -88,7 +90,8 @@
     border-radius: 0 2rem 0 0;
 }
 
-.layout-splitview .clock--theme-solid {
+.layout-splitview .clock--theme-solid,
+.layout-splitview-landscape .clock--theme-solid {
     border-radius: 0 0 2rem 0;
 }
 
