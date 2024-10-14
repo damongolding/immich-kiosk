@@ -21,8 +21,11 @@
 package config
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"os"
 	"strings"
 	"sync"
@@ -47,6 +50,9 @@ type KioskSettings struct {
 	// Port which port to use
 	Port int `mapstructure:"port" default:"3000"`
 
+	// WatchConfig if kiosk should watch config file for changes
+	WatchConfig bool `mapstructure:"watch_config" default:"false"`
+
 	// Cache enable/disable api call and image caching
 	Cache bool `mapstructure:"cache" default:"true"`
 
@@ -65,14 +71,16 @@ type KioskSettings struct {
 }
 
 type Config struct {
-	// v is the viper instance used for configuration management
-	v *viper.Viper
+	// V is the viper instance used for configuration management
+	V *viper.Viper
 	// mu is a mutex used to ensure thread-safe access to the configuration
 	mu *sync.Mutex
 	// ReloadTimeStamp timestamp for when the last client reload was called for
 	ReloadTimeStamp string
 	// configLastModTime stores the last modification time of the configuration file
 	configLastModTime time.Time
+	// configHash stores the SHA-256 hash of the configuration file
+	configHash string
 
 	// ImmichApiKey Immich key to access assets
 	ImmichApiKey string `mapstructure:"immich_api_key" default:""`
@@ -161,27 +169,12 @@ type Config struct {
 // New returns a new config pointer instance
 func New() *Config {
 	c := &Config{
-		v:               viper.NewWithOptions(viper.ExperimentalBindStruct()),
+		V:               viper.NewWithOptions(viper.ExperimentalBindStruct()),
 		mu:              &sync.Mutex{},
 		ReloadTimeStamp: time.Now().Format(time.RFC3339),
 	}
 	defaults.SetDefaults(c)
-	info, err := os.Stat(defaultConfigFile)
-	if err == nil {
-		c.configLastModTime = info.ModTime()
-	}
 	return c
-}
-
-// hasConfigChanged checks if the configuration file has been modified since the last check.
-func (c *Config) hasConfigChanged() bool {
-	info, err := os.Stat(defaultConfigFile)
-	if err != nil {
-		log.Errorf("Checking config file: %v", err)
-		return false
-	}
-
-	return info.ModTime().After(c.configLastModTime)
 }
 
 // bindEnvironmentVariables binds specific environment variables to their corresponding
@@ -207,6 +200,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		envVar    string
 	}{
 		{"kiosk.port", "KIOSK_PORT"},
+		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
 		{"kiosk.password", "KIOSK_PASSWORD"},
 		{"kiosk.cache", "KIOSK_CACHE"},
 		{"kiosk.prefetch", "KIOSK_PREFETCH"},
@@ -246,6 +240,46 @@ func isValidYAML(filename string) bool {
 	return true
 }
 
+// validateConfigFile checks if the given file path is valid and not a directory.
+// It returns an error if the file is a directory, and nil if the file doesn't exist.
+func validateConfigFile(path string) error {
+	fileInfo, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if fileInfo.IsDir() {
+		return fmt.Errorf("Config file is a directory: %s", path)
+	}
+	return nil
+}
+
+// hasConfigMtimeChanged checks if the configuration file has been modified since the last check.
+func (c *Config) hasConfigMtimeChanged() bool {
+	info, err := os.Stat(c.V.ConfigFileUsed())
+	if err != nil {
+		log.Errorf("Checking config file: %v", err)
+		return false
+	}
+
+	return info.ModTime().After(c.configLastModTime)
+}
+
+// Function to calculate the SHA-256 hash of a file
+func (c *Config) configFileHash(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	hasher := sha256.New()
+	if _, err := io.Copy(hasher, file); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
+}
+
 // checkUrlScheme checks given url has correct scheme and adds http:// if non if found
 func (c *Config) checkUrlScheme() {
 
@@ -258,7 +292,6 @@ func (c *Config) checkUrlScheme() {
 	default:
 		c.ImmichUrl = defaultScheme + c.ImmichUrl
 	}
-
 }
 
 // checkRequiredFields check is required config files are set.
@@ -295,94 +328,130 @@ func (c *Config) checkAlbumAndPerson() {
 	c.Person = newPerson
 }
 
-// Load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
-func (c *Config) Load() error {
-	return c.load(defaultConfigFile)
-}
-
-// Load loads yaml config file into memory with a custom path, then loads ENV vars. ENV vars overwrites yaml settings.
-func (c *Config) LoadWithConfigLocation(configPath string) error {
-	return c.load(configPath)
-}
-
-// WatchConfig starts a goroutine that periodically checks for changes in the configuration file
-// and reloads the configuration if changes are detected.
-//
-// This function performs the following actions:
-// 1. Retrieves the initial modification time of the config file.
-// 2. Starts a goroutine that runs indefinitely.
-// 3. Uses a ticker to check for config changes every 5 seconds.
-// 4. If changes are detected, it reloads the configuration and updates the ReloadTimeStamp.
+// WatchConfig sets up a configuration file watcher that monitors for changes
+// and reloads the configuration when necessary.
 func (c *Config) WatchConfig() {
+	configPath := c.V.ConfigFileUsed()
 
-	fileInfo, err := os.Stat(defaultConfigFile)
-	if os.IsNotExist(err) {
+	if err := validateConfigFile(configPath); err != nil {
+		log.Error(err)
 		return
 	}
 
-	if fileInfo.IsDir() {
-		log.Errorf("Config file %s is a directory", defaultConfigFile)
+	if err := c.initializeConfigState(); err != nil {
+		log.Error("Failed to initialize config state:", err)
 		return
 	}
 
-	info, err := os.Stat(defaultConfigFile)
+	go c.watchConfigChanges()
+}
+
+// initializeConfigState sets up the initial state of the configuration,
+// including the last modification time and hash of the config file.
+func (c *Config) initializeConfigState() error {
+	info, err := os.Stat(c.V.ConfigFileUsed())
 	if err != nil {
-		log.Infof("Error getting initial file info: %v", err)
-	} else {
-		c.configLastModTime = info.ModTime()
+		return fmt.Errorf("getting initial file mTime: %v", err)
+	}
+	c.configLastModTime = info.ModTime()
+
+	configHash, err := c.configFileHash(c.V.ConfigFileUsed())
+	if err != nil {
+		return fmt.Errorf("getting initial file hash: %v", err)
+	}
+	c.configHash = configHash
+
+	return nil
+}
+
+// watchConfigChanges continuously monitors the configuration file for changes
+// and triggers a reload when necessary.
+func (c *Config) watchConfigChanges() {
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	hashCheckCount := 0
+	const hashCheckInterval = 12
+
+	for range ticker.C {
+		if c.hasConfigMtimeChanged() {
+			c.reloadConfig("mTime changed")
+			hashCheckCount = 0
+			continue
+		}
+
+		if hashCheckCount >= hashCheckInterval {
+			if c.hasConfigHashChanged() {
+				c.reloadConfig("hash changed")
+			}
+			hashCheckCount = 0
+		}
+
+		hashCheckCount++
+	}
+}
+
+// hasConfigHashChanged checks if the hash of the config file has changed.
+func (c *Config) hasConfigHashChanged() bool {
+	configHash, err := c.configFileHash(c.V.ConfigFileUsed())
+	if err != nil {
+		log.Error("configFileHash", "err", err)
+		return false
+	}
+	return c.configHash != configHash
+}
+
+// reloadConfig reloads the configuration when a change is detected.
+func (c *Config) reloadConfig(reason string) {
+	log.Infof("Config file %s, reloading config", reason)
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if err := c.Load(); err != nil {
+		log.Error("Failed to reload config:", err)
 	}
 
-	go func() {
-		ticker := time.NewTicker(5 * time.Second)
-		defer ticker.Stop()
+	c.updateConfigState()
+}
 
-		//nolint:gosimple // Using for-select for ticker and potential future cases
-		for {
-			select {
-			case <-ticker.C:
-				if c.hasConfigChanged() {
-					log.Info("Config file changed, reloading config")
-					c.mu.Lock()
-					err := c.Load()
-					if err != nil {
-						log.Errorf("Reloading config: %v", err)
-					} else {
-						c.ReloadTimeStamp = time.Now().Format(time.RFC3339)
-						info, _ := os.Stat(defaultConfigFile)
-						c.configLastModTime = info.ModTime()
-					}
-					c.mu.Unlock()
-				}
-			}
-		}
-	}()
+// updateConfigState updates the configuration state after a reload.
+func (c *Config) updateConfigState() {
+	configHash, _ := c.configFileHash(c.V.ConfigFileUsed())
+	c.configHash = configHash
+	c.ReloadTimeStamp = time.Now().Format(time.RFC3339)
+	info, _ := os.Stat(c.V.ConfigFileUsed())
+	c.configLastModTime = info.ModTime()
 }
 
 // load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
-func (c *Config) load(configFile string) error {
+func (c *Config) Load() error {
 
-	if err := bindEnvironmentVariables(c.v); err != nil {
+	if err := bindEnvironmentVariables(c.V); err != nil {
 		log.Errorf("binding environment variables: %v", err)
 	}
 
-	c.v.AddConfigPath(".")
+	c.V.SetConfigName("config")
+	c.V.SetConfigType("yaml")
 
-	c.v.SetConfigFile(configFile)
+	// Add potential paths for the configuration file
+	c.V.AddConfigPath(".")         // Look in the current directory
+	c.V.AddConfigPath("./config/") // Look in the 'config/' subdirectory
+	c.V.AddConfigPath("../")       // Look in the parent directory for testing
 
-	c.v.SetEnvPrefix("kiosk")
+	c.V.SetEnvPrefix("kiosk")
 
-	c.v.AutomaticEnv()
+	c.V.AutomaticEnv()
 
-	err := c.v.ReadInConfig()
+	err := c.V.ReadInConfig()
 	if err != nil {
-		if _, err := os.Stat(configFile); os.IsNotExist(err) {
-			log.Infof("Not using %s", configFile)
-		} else if !isValidYAML(configFile) {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Info("Not using config.yaml")
+		} else if !isValidYAML(c.V.ConfigFileUsed()) {
 			log.Fatal(err)
 		}
 	}
 
-	err = c.v.Unmarshal(&c)
+	err = c.V.Unmarshal(&c)
 	if err != nil {
 		log.Error("Environment can't be loaded", "err", err)
 		return err
@@ -419,8 +488,17 @@ func (c *Config) ConfigWithOverrides(e echo.Context) error {
 
 }
 
+// String returns a string representation of the Config structure.
+// If debug_verbose is not enabled, it returns a message prompting to enable it.
+// Otherwise, it returns a JSON-formatted string of the entire Config structure.
+//
+// This method is useful for debugging and logging purposes, providing a
+// detailed view of the current configuration when verbose debugging is enabled.
+//
+// Returns:
+//   - A string containing either a prompt to enable debug_verbose or
+//     the JSON representation of the Config structure.
 func (c *Config) String() string {
-
 	if !c.Kiosk.DebugVerbose {
 		return "use debug_verbose for more info"
 	}

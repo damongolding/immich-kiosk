@@ -29,7 +29,7 @@ func TestNewRawImage(t *testing.T) {
 
 	baseConfig := config.New()
 
-	err := baseConfig.LoadWithConfigLocation("../config.yaml")
+	err := baseConfig.Load()
 	if err != nil {
 		t.Error("Failed to load config", "err", err)
 	}
