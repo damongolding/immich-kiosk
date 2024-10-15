@@ -5,7 +5,7 @@ import {
   toggleFullscreen,
 } from "./fullscreen";
 import { initPolling, startPolling, togglePolling } from "./polling";
-import { wakeLock } from "./wakelock";
+import { preventSleep } from "./wakelock";
 
 ("use strict");
 
@@ -52,7 +52,7 @@ async function init() {
   }
 
   if (kioskData.disableScreensaver) {
-    await wakeLock();
+    await preventSleep();
   }
 
   if ("serviceWorker" in navigator) {

@@ -3760,25 +3760,42 @@ var kiosk = (() => {
   }
 
   // src/ts/wakelock.ts
-  var wakeLock = () => __async(void 0, null, function* () {
-    if ("wakeLock" in navigator) {
-      let wakeLock2 = null;
-      try {
-        wakeLock2 = yield navigator.wakeLock.request("screen");
-        wakeLock2.addEventListener("release", () => {
-          console.log("Screen Wake Lock released:", wakeLock2 == null ? void 0 : wakeLock2.released);
-        });
-      } catch (err) {
-        if (err.name === "TypeError") {
-          wakeLock2 = yield navigator.wakeLock.request();
-          wakeLock2.addEventListener("release", () => {
-            console.log("Screen Wake Lock released:", wakeLock2 == null ? void 0 : wakeLock2.released);
+  var preventSleep = () => __async(void 0, null, function* () {
+    let wakeLock = null;
+    const requestWakeLock = () => __async(void 0, null, function* () {
+      if ("wakeLock" in navigator) {
+        try {
+          wakeLock = yield navigator.wakeLock.request("screen");
+          wakeLock.addEventListener("release", () => {
+            wakeLock = null;
           });
-        } else {
-          console.error(`${err.name}, ${err.message}`);
+        } catch (err) {
+          if (err instanceof TypeError) {
+            try {
+              wakeLock = yield navigator.wakeLock.request();
+              wakeLock.addEventListener("release", () => {
+                wakeLock = null;
+              });
+            } catch (genericErr) {
+              console.error("Failed to acquire Wake Lock:", genericErr);
+            }
+          } else {
+            console.error("Error acquiring Wake Lock:", err);
+          }
         }
       }
-    }
+    });
+    const handleVisibilityChange = () => __async(void 0, null, function* () {
+      if (document.visibilityState === "visible") {
+        yield requestWakeLock();
+      }
+    });
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    yield requestWakeLock();
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      wakeLock == null ? void 0 : wakeLock.release();
+    };
   });
 
   // src/ts/kiosk.ts
@@ -3808,7 +3825,7 @@ var kiosk = (() => {
         htmx_esm_default.logAll();
       }
       if (kioskData.disableScreensaver) {
-        yield wakeLock();
+        yield preventSleep();
       }
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/assets/js/sw.js").then(
