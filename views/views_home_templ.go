@@ -326,20 +326,25 @@ func imageZoomKeyframes(zoomAmount int) string {
 			@keyframes image-zoom-in {
                 from {
                     transform: scale(1);
+                    transform-origin: center;
                 }
 
                 to {
                     transform: scale(%.2f);
+                    transform-origin: bottom left;
                 }
             }
 
             @keyframes image-zoom-out {
                 from {
                     transform: scale(%.2f);
+                    transform-origin: top right;
                 }
 
                 to {
                     transform: scale(1);
+                    transform-origin: center;
+
                 }
             }
 		</style>`, zoom, zoom)
@@ -490,7 +495,7 @@ func paramForm(queries url.Values) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 198, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 203, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -503,7 +508,7 @@ func paramForm(queries url.Values) templ.Component {
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 198, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 203, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -678,7 +683,7 @@ func refreshCheckForm(kioskVersion, reloadTimeStamp string) templ.Component {
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 242, Col: 115}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 247, Col: 115}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -742,7 +747,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(viewData.KioskVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 252, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 257, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
@@ -755,7 +760,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 260, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 265, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -882,7 +887,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var30 string
 		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 320, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 325, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
