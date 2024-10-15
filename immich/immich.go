@@ -85,17 +85,17 @@ type People []struct {
 	ThumbnailPath string    `json:"-"` // `json:"thumbnailPath"`
 	IsHidden      bool      `json:"-"` // `json:"isHidden"`
 	UpdatedAt     time.Time `json:"-"` // `json:"updatedAt"`
-	Faces         Faces     `json:"-"` // `json:"faces"`
+	Faces         Faces     `json:"faces"`
 }
 
 type Faces []struct {
-	ID            string `json:"-"` // `json:"id"`
-	ImageHeight   int    `json:"-"` // `json:"imageHeight"`
-	ImageWidth    int    `json:"-"` // `json:"imageWidth"`
-	BoundingBoxX1 int    `json:"-"` // `json:"boundingBoxX1"`
-	BoundingBoxX2 int    `json:"-"` // `json:"boundingBoxX2"`
-	BoundingBoxY1 int    `json:"-"` // `json:"boundingBoxY1"`
-	BoundingBoxY2 int    `json:"-"` // `json:"boundingBoxY2"`
+	ID            string `json:"id"`
+	ImageHeight   int    `json:"imageHeight"`
+	ImageWidth    int    `json:"imageWidth"`
+	BoundingBoxX1 int    `json:"boundingBoxX1"`
+	BoundingBoxX2 int    `json:"boundingBoxX2"`
+	BoundingBoxY1 int    `json:"boundingBoxY1"`
+	BoundingBoxY2 int    `json:"boundingBoxY2"`
 }
 
 type ImmichAsset struct {
