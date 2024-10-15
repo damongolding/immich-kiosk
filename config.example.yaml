@@ -57,6 +57,8 @@ show_image_id: false
 
 # options that can NOT be changed via url params
 kiosk:
+  port: 3000
+  watch_config: false
   password: ""
   cache: true # cache select api calls
   pre_fetch: true # fetch assets in the background

@@ -789,7 +789,7 @@ func Home(viewData ViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var28 = []any{templ.KV("layout-splitview", strings.EqualFold(viewData.Layout, "splitview"))}
+		var templ_7745c5c3_Var28 = []any{fmt.Sprintf("layout-%s", viewData.Layout)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var28...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

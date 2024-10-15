@@ -21,6 +21,11 @@ body{}
 .frame--layout-splitview:nth-child(1){}
 .frame--layout-splitview:nth-child(2){}
 .frame--layout-splitview .frame--image{}
+.layout-splitview-landscape .frame{}
+.frame--layout-splitview-landscape{}
+.frame--layout-splitview-landscape:nth-child(1){}
+.frame--layout-splitview-landscape:nth-child(2){}
+.frame--layout-splitview-landscape .frame--image{}
 /* src/css/image.css */
 .image--metadata{}
 .image--metadata--theme-fade::before{}
@@ -56,12 +61,12 @@ body{}
 .sleep #offline{}
 /* src/css/clock.css */
 #clock{}
-.layout-splitview #clock{}
+.layout-splitview-landscape #clock{}
 #clock:empty{}
 .clock--theme-fade::before{}
-.layout-splitview .clock--theme-fade::before{}
+.layout-splitview-landscape .clock--theme-fade::before{}
 .clock--theme-solid{}
-.layout-splitview .clock--theme-solid{}
+.layout-splitview-landscape .clock--theme-solid{}
 .clock--date{}
 .clock--time{}
 .sleep #clock{}
