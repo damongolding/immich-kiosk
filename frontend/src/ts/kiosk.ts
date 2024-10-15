@@ -46,13 +46,13 @@ const menuPausePlayButton = htmx.find(
 /**
  * Initialize Kiosk functionality
  */
-function init() {
+async function init() {
   if (kioskData.debugVerbose) {
     htmx.logAll();
   }
 
   if (kioskData.disableScreensaver) {
-    wakeLock();
+    await wakeLock();
   }
 
   if ("serviceWorker" in navigator) {

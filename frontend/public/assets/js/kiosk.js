@@ -3763,23 +3763,21 @@ var kiosk = (() => {
   var wakeLock = () => __async(void 0, null, function* () {
     if ("wakeLock" in navigator) {
       let wakeLock2 = null;
-      const requestWakeLock = () => __async(void 0, null, function* () {
-        try {
-          wakeLock2 = yield navigator.wakeLock.request("screen");
-        } catch (err) {
-          if (err.name === "TypeError") {
-            wakeLock2 = yield navigator.wakeLock.request();
-          } else {
-            console.error(`${err.name}, ${err.message}`);
-          }
+      try {
+        wakeLock2 = yield navigator.wakeLock.request("screen");
+        wakeLock2.addEventListener("release", () => {
+          console.log("Screen Wake Lock released:", wakeLock2 == null ? void 0 : wakeLock2.released);
+        });
+      } catch (err) {
+        if (err.name === "TypeError") {
+          wakeLock2 = yield navigator.wakeLock.request();
+          wakeLock2.addEventListener("release", () => {
+            console.log("Screen Wake Lock released:", wakeLock2 == null ? void 0 : wakeLock2.released);
+          });
+        } else {
+          console.error(`${err.name}, ${err.message}`);
         }
-      });
-      document.addEventListener("visibilitychange", () => {
-        if (wakeLock2 !== null && document.visibilityState === "visible") {
-          requestWakeLock();
-        }
-      });
-      yield requestWakeLock();
+      }
     }
   });
 
@@ -3805,32 +3803,34 @@ var kiosk = (() => {
     ".navigation--control"
   );
   function init() {
-    if (kioskData.debugVerbose) {
-      htmx_esm_default.logAll();
-    }
-    if (kioskData.disableScreensaver) {
-      wakeLock();
-    }
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/assets/js/sw.js").then(
-        function(registration) {
-          console.log("ServiceWorker registration successful");
-        },
-        function(err) {
-          console.log("ServiceWorker registration failed: ", err);
-        }
-      );
-    }
-    if (!fullscreenAPI.requestFullscreen) {
-      fullscreenButton && htmx_esm_default.remove(fullscreenButton);
-      fullScreenButtonSeperator && htmx_esm_default.remove(fullScreenButtonSeperator);
-    }
-    if (pollInterval2) {
-      initPolling(pollInterval2, kiosk, menu, menuPausePlayButton2);
-    } else {
-      console.error("Could not start polling");
-    }
-    addEventListeners();
+    return __async(this, null, function* () {
+      if (kioskData.debugVerbose) {
+        htmx_esm_default.logAll();
+      }
+      if (kioskData.disableScreensaver) {
+        yield wakeLock();
+      }
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/assets/js/sw.js").then(
+          function(registration) {
+            console.log("ServiceWorker registration successful");
+          },
+          function(err) {
+            console.log("ServiceWorker registration failed: ", err);
+          }
+        );
+      }
+      if (!fullscreenAPI.requestFullscreen) {
+        fullscreenButton && htmx_esm_default.remove(fullscreenButton);
+        fullScreenButtonSeperator && htmx_esm_default.remove(fullScreenButtonSeperator);
+      }
+      if (pollInterval2) {
+        initPolling(pollInterval2, kiosk, menu, menuPausePlayButton2);
+      } else {
+        console.error("Could not start polling");
+      }
+      addEventListeners();
+    });
   }
   function handleFullscreenClick() {
     toggleFullscreen(documentBody, fullscreenButton);
