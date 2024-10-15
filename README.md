@@ -443,7 +443,9 @@ Display one image.
 > Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
 > it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
 
-When a portrait image is fetched, Kiosk automatically retrieves a second portrait image and displays them side by side vertically. Landscape and square images are displayed individually.
+When a portrait image is fetched, Kiosk automatically retrieves a second portrait image/* and displays them side by side vertically. Landscape and square images are displayed individually.
+
+/* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
 
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
 
