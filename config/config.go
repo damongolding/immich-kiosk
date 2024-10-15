@@ -177,6 +177,19 @@ func New() *Config {
 	return c
 }
 
+// hasConfigChanged checks if the configuration file has been modified since the last check.
+func (c *Config) hasConfigChanged() bool {
+	info, err := os.Stat(defaultConfigFile)
+	if err != nil {
+		log.Errorf("Checking config file: %v", err)
+		return false
+	}
+
+	log.Debug("Config file mod stats", "stored", c.configLastModTime, "live", info.ModTime(), "changed?", info.ModTime().After(c.configLastModTime))
+
+	return info.ModTime().After(c.configLastModTime)
+}
+
 // bindEnvironmentVariables binds specific environment variables to their corresponding
 // configuration keys in the Viper instance. This function allows for easy mapping
 // between environment variables and configuration settings.
@@ -468,7 +481,7 @@ func (c *Config) Load() error {
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(e echo.Context) error {
 
-	queries := e.Request().URL.Query()
+	queries := e.QueryParams()
 
 	// check for person or album in quries and empty baseconfig slice if found
 	if queries.Has("person") {

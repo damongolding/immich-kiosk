@@ -46,13 +46,24 @@ const menuPausePlayButton = htmx.find(
 /**
  * Initialize Kiosk functionality
  */
-function init() {
+async function init() {
   if (kioskData.debugVerbose) {
     htmx.logAll();
   }
 
   if (kioskData.disableScreensaver) {
-    wakeLock();
+    await wakeLock();
+  }
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/assets/js/sw.js").then(
+      function (registration) {
+        console.log("ServiceWorker registration successful");
+      },
+      function (err) {
+        console.log("ServiceWorker registration failed: ", err);
+      },
+    );
   }
 
   if (!fullscreenAPI.requestFullscreen) {
@@ -113,6 +124,8 @@ function cleanupFrames() {
 }
 
 // Initialize Kiosk when the DOM is fully loaded
-htmx.onLoad(init);
+document.addEventListener("DOMContentLoaded", () => {
+  init();
+});
 
 export { cleanupFrames, startPolling };
