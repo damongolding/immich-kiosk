@@ -439,6 +439,7 @@ Display one image.
 ![Kiosk theme fade](/assets/theme-fade.jpeg)
 
 ### Splitview
+
 > [!NOTE]
 > Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
 > it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
@@ -448,6 +449,16 @@ When a portrait image is fetched, Kiosk automatically retrieves a second portrai
 \* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
 
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
+
+### Splitview landscape
+
+> [!NOTE]
+> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
+> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
+
+When a landscape image is fetched, Kiosk automatically retrieves a second landscape image\* and displays them stacked horizontally. portrait and square images are displayed individually.
+
+\* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
 
 ------
 
@@ -630,7 +641,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - Exclude list
 - PWA (✔ basic implimetion)
 - Ken Burns
-- Splitview related images 
+- Splitview related images
 - Splitview horizontal mode
 - Docker/immich healthcheck?
 
