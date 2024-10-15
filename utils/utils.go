@@ -408,3 +408,36 @@ func FileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	return !os.IsNotExist(err)
 }
+
+func GetCenterPoint(width, height int, faces []Face) (float64, float64) {
+	// Initialize min and max points
+	minX, minY := faces[0].X1, faces[0].Y1
+	maxX, maxY := faces[0].X2, faces[0].Y2
+
+	// Loop through each face to find the bounding box
+	for _, face := range faces {
+		if face.X1 < minX {
+			minX = face.X1
+		}
+		if face.Y1 < minY {
+			minY = face.Y1
+		}
+		if face.X2 > maxX {
+			maxX = face.X2
+		}
+		if face.Y2 > maxY {
+			maxY = face.Y2
+		}
+	}
+
+	// Calculate the center point of the bounding box
+	centerX := (minX + maxX) / 2
+	centerY := (minY + maxY) / 2
+
+	// Convert to percentage relative to image dimensions
+	percentX := float64(centerX) / float64(width) * 100
+	percentY := float64(centerY) / float64(height) * 100
+
+	return percentX, percentY
+}
+
