@@ -341,6 +341,8 @@ func renderCachedViewData(c echo.Context, cachedViewData []views.ViewData, reque
 // generateViewData generates page data for the current request.
 func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID string, isPrefetch bool) (views.ViewData, error) {
 
+	const maxImageRetivalAttepmts = 3
+
 	viewData := views.ViewData{
 		DeviceID: kioskDeviceID,
 		Config:   requestConfig,
@@ -358,11 +360,42 @@ func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID
 			return viewData, nil
 		}
 
-		viewDataSplitView, err = ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
+		// Second image
+		for i := 0; i < maxImageRetivalAttepmts; i++ {
+			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
+			if err != nil {
+				return viewData, err
+			}
+
+			if viewDataSplitView.ImmichImage.ID != viewDataSplitViewSecond.ImmichImage.ID {
+				viewData.Images = append(viewData.Images, viewDataSplitViewSecond)
+				break
+			}
+		}
+
+	case "splitview-landscape":
+		viewDataSplitView, err := ProcessViewImageData(requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
 		}
 		viewData.Images = append(viewData.Images, viewDataSplitView)
+
+		if viewDataSplitView.ImmichImage.IsPortrait {
+			return viewData, nil
+		}
+
+		// Second image
+		for i := 0; i < maxImageRetivalAttepmts; i++ {
+			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
+			if err != nil {
+				return viewData, err
+			}
+
+			if viewDataSplitView.ImmichImage.ID != viewDataSplitViewSecond.ImmichImage.ID {
+				viewData.Images = append(viewData.Images, viewDataSplitViewSecond)
+				break
+			}
+		}
 
 	default:
 		viewDataSingle, err := ProcessViewImageData(requestConfig, c, isPrefetch)

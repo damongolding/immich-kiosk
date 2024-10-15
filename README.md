@@ -59,6 +59,7 @@
   - [Layouts](#layouts)
   - [Sleep mode](#sleep-mode)
   - [Cusom CSS](#custom-css)
+- [PWA](#pwa)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -107,7 +108,7 @@ Use via [docker](#docker-compose) 👇
 > [!NOTE]
 > You can use both a yaml file and environment variables but environment variables will overwrite settings from the yaml file
 
-### When using a yaml config file
+### When using a yaml.yaml config file
 ```yaml
 services:
   immich-kiosk:
@@ -116,7 +117,8 @@ services:
     environment:
       TZ: "Europe/London"
     volumes:
-      - ./config.yaml:/config.yaml
+      # Mount the directory with config.yaml inside
+      - ./config:/config
     restart: on-failure
     ports:
       - 3000:3000
@@ -178,10 +180,12 @@ services:
       KIOSK_SHOW_IMAGE_LOCATION: FALSE
       KIOSK_SHOW_IMAGE_ID: FALSE
       # Kiosk settings
+      KIOSK_WATCH_CONFIG: FALSE
       KIOSK_PASSWORD: ""
       KIOSK_CACHE: TRUE
       KIOSK_PREFETCH: TRUE
       KIOSK_ASSET_WEIGHTING: TRUE
+      KIOSK_PORT: 3000
     ports:
       - 3000:3000
     restart: on-failure
@@ -201,7 +205,7 @@ See the file config.example.yaml for an example config file
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
-| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking.        |
+| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
@@ -250,6 +254,7 @@ kiosk:
 | **yaml**          | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
 |-------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
 | port              | KIOSK_PORT              | int          | 3000        | Which port Kiosk should use. NOTE that is port will need to be reflected in your compose file e.g. `KIOSK_PORT:HOST_PORT` |
+| watch_config      | KIOSK_WATCH_CONFIG      | bool         | false       | Should Kiosk watch config.yaml file for changes. Reloads all connect clients if a change is detected. |
 | password          | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
 | cache             | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
 | prefetch          | KIOSK_PREFETCH          | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |
@@ -438,7 +443,9 @@ Display one image.
 > Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
 > it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
 
-When a portrait image is fetched, Kiosk automatically retrieves a second portrait image and displays them side by side vertically. Landscape and square images are displayed individually.
+When a portrait image is fetched, Kiosk automatically retrieves a second portrait image\* and displays them side by side vertically. Landscape and square images are displayed individually.
+
+\* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
 
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
 
@@ -469,14 +476,38 @@ Kiosk will display a black screen and can optionally shows a faint clock if `sho
 Custom CSS allows you to further customize Kiosk's appearance beyond the built-in themes and settings.
 
 To use custom CSS:
-1. Create a file named `custom.css` in the same directory as your `config.yaml` file.
+1. Create a file named `custom.css` in the same directory as your `docker-compose.yml` file.
 2. Add your custom CSS rules to this file.
+3. Mount the `custom.css` file in your container by adding the following line to the `volumes` section of your `docker-compose.yml`:
+```yaml
+volumes:
+  - ./config:/config
+  - ./custom.css:/custom.css
+```
+4. Restart your Kiosk container for the changes to take effect.
+
+> [!TIP]
+> Ensure that the path to your `custom.css` file is relative to your `docker-compose.yml` file.
 
 There is a `custom.example.css` file included that contains all the CSS selectors used by Kiosk, which you can use as a reference for your customizations.
 
 The custom CSS will apply to all devices connected to Kiosk by default.
 
 To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?cusom_css=false`
+
+------
+
+## PWA
+
+> [!NOTE]
+> IOS does not allow PWA's to prevent the screen from going to sleep.
+> A work around is to lauch Kiosk then enable the [guided access](https://support.apple.com/en-gb/guide/iphone/iph7fad0d10/ios) feature.
+
+### IOS
+1. Open Safari and navigate to Kiosk.
+2. Tap on the share icon in Safari's navigation bar.
+3. Scroll till you see "Add to Home Screen" and tap it.
+4. Tap on the newly added Kiosk icon on your home screen!
 
 
 ------
@@ -597,9 +628,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ## TODO / Roadmap
 - Whitelist for people and albums
 - Exclude list
-- PWA
-- monitor config file changes
-- make apiCalls more resilient
+- PWA (✔ basic implimetion)
 - Ken Burns
 - Splitview related images 
 - Splitview horizontal mode

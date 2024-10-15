@@ -1,6 +1,7 @@
 version: "3"
 env:
-  VERSION: 0.11.2
+  VERSION: 0.11.3-beta.4
+
 tasks:
   default:
     deps: [build]
@@ -54,9 +55,10 @@ tasks:
     deps: [frontend, templ]
     cmds:
       - go generate *.go
-      - CGO_ENABLED=0 go build -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
+      - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
 
   docker-image:
+    deps: [build]
     cmds:
       - docker build --no-cache --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
 
@@ -66,10 +68,12 @@ tasks:
       - docker buildx install
 
   docker-image-push:
+    deps: [build]
     cmds:
       - docker build --build-arg VERSION={{.VERSION}} --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
 
   docker-dev-push:
+    deps: [build]
     cmds:
       - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk-development:{{.VERSION}} -t damongolding/immich-kiosk-development:latest .
 
