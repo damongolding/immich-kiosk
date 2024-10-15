@@ -41,4 +41,4 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: "Immich Kiosk {{ EVENT_PAYLOAD.release.tag_name }} has been release! Check it out: {{ EVENT_PAYLOAD.release.html_url }}"
+          args: "Immich Kiosk ${{ github.event.release.tag_name }} has been released! Check it out: ${{ github.event.release.html_url }}"
