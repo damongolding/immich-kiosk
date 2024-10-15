@@ -630,7 +630,9 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - Exclude list
 - PWA (✔ basic implimetion)
 - Ken Burns
-- docker/immich healthcheck?
+- Splitview related images 
+- Splitview horizontal mode
+- Docker/immich healthcheck?
 
 ------
 
