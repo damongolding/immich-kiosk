@@ -108,7 +108,7 @@ Use via [docker](#docker-compose) 👇
 > [!NOTE]
 > You can use both a yaml file and environment variables but environment variables will overwrite settings from the yaml file
 
-### When using a yaml config file
+### When using a yaml.yaml config file
 ```yaml
 services:
   immich-kiosk:
@@ -117,8 +117,7 @@ services:
     environment:
       TZ: "Europe/London"
     volumes:
-      - ./config.yaml:/config.yaml
-      # OR you can mount a directory with config.yaml inside
+      # Mount the directory with config.yaml inside
       - ./config:/config
     restart: on-failure
     ports:
@@ -477,8 +476,18 @@ Kiosk will display a black screen and can optionally shows a faint clock if `sho
 Custom CSS allows you to further customize Kiosk's appearance beyond the built-in themes and settings.
 
 To use custom CSS:
-1. Create a file named `custom.css` in the same directory as your `config.yaml` file.
+1. Create a file named `custom.css` in the same directory as your `docker-compose.yml` file.
 2. Add your custom CSS rules to this file.
+3. Mount the `custom.css` file in your container by adding the following line to the `volumes` section of your `docker-compose.yml`:
+```yaml
+volumes:
+  - ./config:/config
+  - ./custom.css:/custom.css
+```
+4. Restart your Kiosk container for the changes to take effect.
+
+> [!TIP]
+> Ensure that the path to your `custom.css` file is relative to your `docker-compose.yml` file.
 
 There is a `custom.example.css` file included that contains all the CSS selectors used by Kiosk, which you can use as a reference for your customizations.
 
@@ -619,11 +628,8 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ## TODO / Roadmap
 - Whitelist for people and albums
 - Exclude list
-- PWA
-- monitor config file changes
-- make apiCalls more resilient
+- PWA (✔ basic implimetion)
 - Ken Burns
-- splitview horizontal mode
 - docker/immich healthcheck?
 
 ------
