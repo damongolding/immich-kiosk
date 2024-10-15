@@ -325,29 +325,29 @@ func imageZoomKeyframes(zoomAmount int) string {
 	   <style>
 			@keyframes image-zoom-in {
                 from {
-                    transform: scale(1);
+                    transform: scale3d(1,1,1);
                     transform-origin: center;
                 }
 
                 to {
-                    transform: scale(%.2f);
+                    transform: scale3d(%.2f,%.2f,%.2f);
                     transform-origin: bottom left;
                 }
             }
 
             @keyframes image-zoom-out {
                 from {
-                    transform: scale(%.2f);
+                    transform: scale3d(%.2f,%.2f,%.2f);
                     transform-origin: top right;
                 }
 
                 to {
-                    transform: scale(1);
+                    transform: scale(1,1,1);
                     transform-origin: center;
 
                 }
             }
-		</style>`, zoom, zoom)
+		</style>`, zoom, zoom, zoom, zoom, zoom, zoom)
 }
 
 func customCss(css []byte) string {
