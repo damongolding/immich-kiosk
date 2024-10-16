@@ -317,6 +317,77 @@ func baseFontSizeMobile(fontSize int) string {
 		</style>`, fontSize-20)
 }
 
+func imageSmartZoomKeyframes(zoomAmount int) string {
+
+	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
+	return fmt.Sprintf(`
+	<style>
+	      @keyframes image-smart-zoom-in {
+            from {
+                transform: scale3d(1,1,1);
+                transform-origin: center;
+            }
+
+            to {
+                transform: scale3d(%.2f,%.2f,%.2f);
+                transform-origin: inherit;
+            }
+        }
+
+        @keyframes image-smart-zoom-out {
+            from {
+                transform: scale3d(%.2f,%.2f,%.2f);
+                transform-origin: inherit;
+            }
+
+            to {
+                transform: scale(1,1,1);
+                transform-origin: center;
+            }
+        }
+        </style>`, zoom, zoom, zoom, zoom, zoom, zoom)
+}
+
+func imageKenBurnsframes(zoomAmount int) string {
+
+	s := strings.Builder{}
+
+	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
+
+	zooms := []string{"top left", "top right", "bottom left", "bottom right"}
+
+	s.WriteString("<style>")
+	for i, z := range zooms {
+		s.WriteString(fmt.Sprintf(`
+	       @keyframes image-zoom-in-%v {
+                from {
+                    transform: scale3d(1,1,1);
+                    transform-origin: center;
+                }
+
+                to {
+                    transform: scale3d(%.2f,%.2f,%.2f);
+                    transform-origin: %s;
+                }
+            }
+
+            @keyframes image-zoom-out-%v {
+                from {
+                    transform: scale3d(%.2f,%.2f,%.2f);
+                    transform-origin: %s;
+                }
+
+                to {
+                    transform: scale(1,1,1);
+                    transform-origin: center;
+                }
+            }`, i, zoom, zoom, zoom, z, i, zoom, zoom, zoom, z))
+	}
+	s.WriteString("</style>")
+
+	return s.String()
+}
+
 func imageZoomKeyframes(zoomAmount int) string {
 
 	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
@@ -331,20 +402,19 @@ func imageZoomKeyframes(zoomAmount int) string {
 
                 to {
                     transform: scale3d(%.2f,%.2f,%.2f);
-                    transform-origin: bottom left;
+                    transform-origin: center;
                 }
             }
 
             @keyframes image-zoom-out {
                 from {
                     transform: scale3d(%.2f,%.2f,%.2f);
-                    transform-origin: top right;
+                    transform-origin: center;
                 }
 
                 to {
                     transform: scale(1,1,1);
                     transform-origin: center;
-
                 }
             }
 		</style>`, zoom, zoom, zoom, zoom, zoom, zoom)
@@ -366,8 +436,8 @@ func animationDuration(duration int) templ.CSSClass {
 	}
 }
 
-func zoomInOrOut() string {
-	return fmt.Sprintf("frame--image-zoom-%s", utils.RandomItem([]string{"in", "out"}))
+func zoomInOrOut(zoomType string) string {
+	return fmt.Sprintf("frame--image-%s-%s", zoomType, utils.RandomItem([]string{"in", "out"}))
 }
 
 func kioskData(data any) templ.Component {
@@ -495,7 +565,7 @@ func paramForm(queries url.Values) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 203, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 273, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -508,7 +578,7 @@ func paramForm(queries url.Values) templ.Component {
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 203, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 273, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -683,7 +753,7 @@ func refreshCheckForm(kioskVersion, reloadTimeStamp string) templ.Component {
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 247, Col: 115}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 317, Col: 115}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -747,7 +817,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(viewData.KioskVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 257, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 327, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
@@ -760,7 +830,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 265, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 335, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -776,9 +846,17 @@ func Home(viewData ViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templ.Raw(imageZoomKeyframes(viewData.ImageZoomAmount)).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		switch strings.ToLower(viewData.ImageEffect) {
+		case "zoom":
+			templ_7745c5c3_Err = templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount)).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		case "smart-zoom":
+			templ_7745c5c3_Err = templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount)).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		templ_7745c5c3_Err = templ.Raw(baseFontSizeMobile(viewData.FontSize)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -887,7 +965,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var30 string
 		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 325, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 400, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {

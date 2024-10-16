@@ -197,3 +197,129 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 
 	return i.immichApiCall("GET", apiUrl.String(), nil)
 }
+
+func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
+	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
+		return 0, 0
+	}
+
+	var minX, minY, maxX, maxY int
+	initialized := false
+
+	for _, person := range i.People {
+		for _, face := range person.Faces {
+			if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
+				face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
+				continue
+			}
+
+			if !initialized {
+				minX, minY = face.BoundingBoxX1, face.BoundingBoxY1
+				maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
+				initialized = true
+				continue
+			} else {
+				minX = min(minX, face.BoundingBoxX1)
+				minY = min(minY, face.BoundingBoxY1)
+				maxX = max(maxX, face.BoundingBoxX2)
+				maxY = max(maxY, face.BoundingBoxY2)
+			}
+		}
+	}
+
+	for _, face := range i.UnassignedFaces {
+		if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
+			face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
+			continue
+		}
+
+		if !initialized {
+			minX, minY = face.BoundingBoxX1, face.BoundingBoxY1
+			maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
+			initialized = true
+			continue
+		} else {
+			minX = min(minX, face.BoundingBoxX1)
+			minY = min(minY, face.BoundingBoxY1)
+			maxX = max(maxX, face.BoundingBoxX2)
+			maxY = max(maxY, face.BoundingBoxY2)
+		}
+	}
+
+	if !initialized {
+		return 0, 0
+	}
+
+	centerX := float64(minX+maxX) / 2
+	centerY := float64(minY+maxY) / 2
+
+	var percentX, percentY float64
+
+	if len(i.People) != 0 {
+		percentX = centerX / float64(i.People[0].Faces[0].ImageWidth) * 100
+		percentY = centerY / float64(i.People[0].Faces[0].ImageHeight) * 100
+	} else {
+		percentX = centerX / float64(i.UnassignedFaces[0].ImageWidth) * 100
+		percentY = centerY / float64(i.UnassignedFaces[0].ImageHeight) * 100
+	}
+
+	return percentX, percentY
+}
+
+func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
+	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
+		return 0, 0
+	}
+
+	var minX, minY, maxX, maxY int
+	initialized := false
+
+	for _, person := range i.People {
+		for _, face := range person.Faces {
+			if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
+				face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
+				continue
+			}
+
+			if !initialized {
+				minX, minY = face.BoundingBoxX1, face.BoundingBoxY1
+				maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
+				initialized = true
+				continue
+			} else {
+				minX = min(minX, face.BoundingBoxX1)
+				minY = min(minY, face.BoundingBoxY1)
+				maxX = max(maxX, face.BoundingBoxX2)
+				maxY = max(maxY, face.BoundingBoxY2)
+			}
+		}
+	}
+
+	for _, face := range i.UnassignedFaces {
+		if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
+			face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
+			continue
+		}
+
+		if !initialized {
+			minX, minY = face.BoundingBoxX1, face.BoundingBoxY1
+			maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
+			initialized = true
+			continue
+		} else {
+			minX = min(minX, face.BoundingBoxX1)
+			minY = min(minY, face.BoundingBoxY1)
+			maxX = max(maxX, face.BoundingBoxX2)
+			maxY = max(maxY, face.BoundingBoxY2)
+		}
+	}
+
+	if !initialized {
+		return 0, 0
+	}
+
+	centerX := float64(minX+maxX) / 2
+	centerY := float64(minY+maxY) / 2
+
+	return centerX, centerY
+}

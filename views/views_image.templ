@@ -2,6 +2,7 @@ package views
 
 import (
 	"fmt"
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
@@ -30,6 +31,28 @@ templ ImageFitContain(ImageData, imageFit string) {
 		src={ ImageData }
 		alt="Main image"
 	/>
+}
+
+css transformOrigin(value string) {
+	transform-origin: { value };
+}
+
+func smartZoom(image immich.ImmichAsset) templ.CSSClass {
+
+	if len(image.People) == 0 && len(image.UnassignedFaces) == 0 {
+		log.Info("No FACES", "ID", image.ID)
+		return transformOrigin(fmt.Sprintf("%s %s", utils.RandomItem([]string{"top", "bottom"}), utils.RandomItem([]string{"left", "right"})))
+	}
+
+	x, y := image.FacesCenterPoint()
+
+	if x == 0 || y == 0 {
+		log.Info("No FACES", x, y, "ID", image.ID)
+		return transformOrigin(fmt.Sprintf("%s %s", utils.RandomItem([]string{"top", "bottom"}), utils.RandomItem([]string{"left", "right"})))
+	}
+
+	return transformOrigin(fmt.Sprintf("%f%% %f%%", x, y))
+
 }
 
 func ImageLocation(info immich.ExifInfo) string {
@@ -135,6 +158,25 @@ templ imageMetadata(viewData ViewData, imageIndex int) {
 	</div>
 }
 
+templ frame() {
+	<div class="frame--image">
+		{ children... }
+	</div>
+}
+
+templ frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) {
+	switch imageEffect {
+		case "smart-zoom":
+			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect), smartZoom(img) }>
+				{ children... }
+			</div>
+		default:
+			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect) }>
+				{ children... }
+			</div>
+	}
+}
+
 templ layoutSingleView(viewData ViewData) {
 	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
 		if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(viewData.Images[0].ImageBlurData) > 0 {
@@ -142,20 +184,23 @@ templ layoutSingleView(viewData ViewData) {
 				<img src={ viewData.Images[0].ImageBlurData } alt="Blurred image background"/>
 			</div>
 		}
-		<div class={ "frame--image", templ.KV("frame--image-zoom", viewData.ImageZoom), animationDuration(viewData.Refresh), zoomInOrOut() }>
-			if viewData.ImageZoom {
-				@ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit)
-			} else {
-				switch strings.ToLower(viewData.ImageFit) {
-					case "cover":
-						@ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit)
-					case "none":
-						@ImageFitNone(viewData.Images[0].ImageData, viewData.ImageFit)
-					default:
-						@ImageFitContain(viewData.Images[0].ImageData, viewData.ImageFit)
+		switch strings.ToLower(viewData.ImageEffect) {
+			case "zoom", "smart-zoom":
+				@frameWithZoom(viewData.Refresh, viewData.ImageEffect, viewData.Images[0].ImmichImage) {
+					@ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit)
 				}
-			}
-		</div>
+			default:
+				@frame() {
+					switch strings.ToLower(viewData.ImageFit) {
+						case "cover":
+							@ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit)
+						case "none":
+							@ImageFitNone(viewData.Images[0].ImageData, viewData.ImageFit)
+						default:
+							@ImageFitContain(viewData.Images[0].ImageData, viewData.ImageFit)
+					}
+				}
+		}
 		if !viewData.DisableUi {
 			if !viewData.DisableUi {
 				@imageMetadata(viewData, 0)
@@ -173,20 +218,23 @@ templ layoutSplitView(viewData ViewData) {
 						<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
 					</div>
 				}
-				<div class={ "frame--image", templ.KV("frame--image-zoom", viewData.ImageZoom), animationDuration(viewData.Refresh), zoomInOrOut() }>
-					if viewData.ImageZoom {
-						@ImageFitCover(imageData.ImageData, viewData.ImageFit)
-					} else {
-						switch strings.ToLower(viewData.ImageFit) {
-							case "cover":
-								@ImageFitCover(imageData.ImageData, viewData.ImageFit)
-							case "none":
-								@ImageFitNone(imageData.ImageData, viewData.ImageFit)
-							default:
-								@ImageFitContain(imageData.ImageData, viewData.ImageFit)
+				switch strings.ToLower(viewData.ImageEffect) {
+					case "zoom", "smart-zoom":
+						@frameWithZoom(viewData.Refresh, viewData.ImageEffect, viewData.Images[imageIndex].ImmichImage) {
+							@ImageFitCover(imageData.ImageData, viewData.ImageFit)
 						}
-					}
-				</div>
+					default:
+						@frame() {
+							switch strings.ToLower(viewData.ImageFit) {
+								case "cover":
+									@ImageFitCover(imageData.ImageData, viewData.ImageFit)
+								case "none":
+									@ImageFitNone(imageData.ImageData, viewData.ImageFit)
+								default:
+									@ImageFitContain(imageData.ImageData, viewData.ImageFit)
+							}
+						}
+				}
 				if !viewData.DisableUi {
 					@imageMetadata(viewData, imageIndex)
 				}
