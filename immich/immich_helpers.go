@@ -254,14 +254,22 @@ func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
 	centerY := float64(minY+maxY) / 2
 
 	var percentX, percentY float64
+	var imageWidth, imageHeight int
 
 	if len(i.People) != 0 {
-		percentX = centerX / float64(i.People[0].Faces[0].ImageWidth) * 100
-		percentY = centerY / float64(i.People[0].Faces[0].ImageHeight) * 100
+		imageWidth = i.People[0].Faces[0].ImageWidth
+		imageHeight = i.People[0].Faces[0].ImageHeight
 	} else {
-		percentX = centerX / float64(i.UnassignedFaces[0].ImageWidth) * 100
-		percentY = centerY / float64(i.UnassignedFaces[0].ImageHeight) * 100
+		imageWidth = i.UnassignedFaces[0].ImageWidth
+		imageHeight = i.UnassignedFaces[0].ImageHeight
 	}
+
+	if imageWidth == 0 || imageHeight == 0 {
+		return 0, 0
+	}
+
+	percentX = centerX / float64(imageWidth) * 100
+	percentY = centerY / float64(imageHeight) * 100
 
 	return percentX, percentY
 }

@@ -69,11 +69,8 @@ func TestFacesCenterPoint(t *testing.T) {
 		{
 			name: "No people",
 			asset: ImmichAsset{
-				People: []Person{},
-				ExifInfo: ExifInfo{
-					ExifImageWidth:  1000,
-					ExifImageHeight: 1000,
-				},
+				People:          []Person{},
+				UnassignedFaces: []Face{},
 			},
 			wantX: 0,
 			wantY: 0,
@@ -82,13 +79,10 @@ func TestFacesCenterPoint(t *testing.T) {
 			name: "People but no faces",
 			asset: ImmichAsset{
 				People: []Person{
-					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0}}},
-					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0}}},
+					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0, ImageWidth: 1000, ImageHeight: 1000}}},
+					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0, ImageWidth: 1000, ImageHeight: 1000}}},
 				},
-				ExifInfo: ExifInfo{
-					ExifImageWidth:  1000,
-					ExifImageHeight: 1000,
-				},
+				UnassignedFaces: []Face{},
 			},
 			wantX: 0,
 			wantY: 0,
@@ -97,12 +91,9 @@ func TestFacesCenterPoint(t *testing.T) {
 			name: "Zero dimensions",
 			asset: ImmichAsset{
 				People: []Person{
-					{Faces: []Face{{BoundingBoxX1: 10, BoundingBoxY1: 10, BoundingBoxX2: 20, BoundingBoxY2: 20}}},
+					{Faces: []Face{{BoundingBoxX1: 10, BoundingBoxY1: 10, BoundingBoxX2: 20, BoundingBoxY2: 20, ImageWidth: 0, ImageHeight: 0}}},
 				},
-				ExifInfo: ExifInfo{
-					ExifImageWidth:  0,
-					ExifImageHeight: 0,
-				},
+				UnassignedFaces: []Face{},
 			},
 			wantX: 0,
 			wantY: 0,
@@ -111,12 +102,9 @@ func TestFacesCenterPoint(t *testing.T) {
 			name: "Single face",
 			asset: ImmichAsset{
 				People: []Person{
-					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200}}},
+					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
 				},
-				ExifInfo: ExifInfo{
-					ExifImageWidth:  1000,
-					ExifImageHeight: 1000,
-				},
+				UnassignedFaces: []Face{},
 			},
 			wantX: 15,
 			wantY: 15,
@@ -125,13 +113,10 @@ func TestFacesCenterPoint(t *testing.T) {
 			name: "Multiple faces",
 			asset: ImmichAsset{
 				People: []Person{
-					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200}}},
-					{Faces: []Face{{BoundingBoxX1: 300, BoundingBoxY1: 300, BoundingBoxX2: 400, BoundingBoxY2: 400}}},
+					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
+					{Faces: []Face{{BoundingBoxX1: 300, BoundingBoxY1: 300, BoundingBoxX2: 400, BoundingBoxY2: 400, ImageWidth: 1000, ImageHeight: 1000}}},
 				},
-				ExifInfo: ExifInfo{
-					ExifImageWidth:  1000,
-					ExifImageHeight: 1000,
-				},
+				UnassignedFaces: []Face{},
 			},
 			wantX: 25,
 			wantY: 25,
@@ -140,14 +125,11 @@ func TestFacesCenterPoint(t *testing.T) {
 			name: "Multiple faces but not on the first person",
 			asset: ImmichAsset{
 				People: []Person{
-					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0}}},
-					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200}}},
-					{Faces: []Face{{BoundingBoxX1: 300, BoundingBoxY1: 300, BoundingBoxX2: 400, BoundingBoxY2: 400}}},
+					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0, ImageWidth: 1000, ImageHeight: 1000}}},
+					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
+					{Faces: []Face{{BoundingBoxX1: 300, BoundingBoxY1: 300, BoundingBoxX2: 400, BoundingBoxY2: 400, ImageWidth: 1000, ImageHeight: 1000}}},
 				},
-				ExifInfo: ExifInfo{
-					ExifImageWidth:  1000,
-					ExifImageHeight: 1000,
-				},
+				UnassignedFaces: []Face{},
 			},
 			wantX: 25,
 			wantY: 25,
@@ -156,14 +138,11 @@ func TestFacesCenterPoint(t *testing.T) {
 			name: "Multiple faces but not on the second person",
 			asset: ImmichAsset{
 				People: []Person{
-					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200}}},
-					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0}}},
-					{Faces: []Face{{BoundingBoxX1: 300, BoundingBoxY1: 300, BoundingBoxX2: 400, BoundingBoxY2: 400}}},
+					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
+					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0, ImageWidth: 1000, ImageHeight: 1000}}},
+					{Faces: []Face{{BoundingBoxX1: 300, BoundingBoxY1: 300, BoundingBoxX2: 400, BoundingBoxY2: 400, ImageWidth: 1000, ImageHeight: 1000}}},
 				},
-				ExifInfo: ExifInfo{
-					ExifImageWidth:  1000,
-					ExifImageHeight: 1000,
-				},
+				UnassignedFaces: []Face{},
 			},
 			wantX: 25,
 			wantY: 25,
