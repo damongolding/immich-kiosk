@@ -79,7 +79,7 @@ tasks:
 
   outdated:
     cmds:
-      - go list -m -u all
+      - go list -u -m -json all | go-mod-outdated -direct -update
       - cd frontend && pnpm outdated
 
   update-templ:
