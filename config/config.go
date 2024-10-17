@@ -313,6 +313,46 @@ func (c *Config) WatchConfig() {
 			}
 		}
 	}()
+
+		hashCheckCount++
+	}
+}
+
+// hasConfigHashChanged checks if the hash of the config file has changed.
+func (c *Config) hasConfigHashChanged() bool {
+	configHash, err := c.configFileHash(c.V.ConfigFileUsed())
+	if err != nil {
+		log.Error("configFileHash", "err", err)
+		return false
+	}
+	return c.configHash != configHash
+}
+
+// reloadConfig reloads the configuration when a change is detected.
+func (c *Config) reloadConfig(reason string) {
+	log.Infof("Config file %s, reloading config", reason)
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	newConfig := New()
+
+	if err := newConfig.Load(); err != nil {
+		log.Error("Failed to reload config:", err)
+		return
+	}
+
+	*c = *newConfig
+
+	c.updateConfigState()
+}
+
+// updateConfigState updates the configuration state after a reload.
+func (c *Config) updateConfigState() {
+	configHash, _ := c.configFileHash(c.V.ConfigFileUsed())
+	c.configHash = configHash
+	c.ReloadTimeStamp = time.Now().Format(time.RFC3339)
+	info, _ := os.Stat(c.V.ConfigFileUsed())
+	c.configLastModTime = info.ModTime()
 }
 
 // load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
