@@ -10,7 +10,6 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"strings"
@@ -303,7 +302,7 @@ func renderImageBackground(viewData ViewData, imageData ImageData) templ.Compone
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(imageData.ImageBlurData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 84, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 83, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -485,7 +484,7 @@ func RenderImageWithCoverFit(ImageData, imageFit string) templ.Component {
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(ImageData)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 140, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 139, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -532,7 +531,7 @@ func RenderImageWithoutFit(ImageData, imageFit string) templ.Component {
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(ImageData)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 152, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 151, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -579,7 +578,7 @@ func RenderImageWithContainFit(ImageData, imageFit string) templ.Component {
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(ImageData)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 165, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 164, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
@@ -623,15 +622,13 @@ func transformOrigin(value string) templ.CSSClass {
 //   - templ.CSSClass: A CSS class for the transform-origin property.
 func smartZoom(image immich.ImmichAsset) templ.CSSClass {
 	if len(image.People) == 0 && len(image.UnassignedFaces) == 0 {
-		log.Info("No FACES", "ID", image.ID)
-		return transformOrigin(fmt.Sprintf("%s %s", utils.RandomItem([]string{"top", "bottom"}), utils.RandomItem([]string{"left", "right"})))
+		return transformOrigin(fmt.Sprintf("%s%% %s%%", utils.RandomItem([]string{"30", "70"}), utils.RandomItem([]string{"30", "70"})))
 	}
 
 	x, y := image.FacesCenterPoint()
 
 	if x == 0 || y == 0 {
-		log.Info("No FACES", x, y, "ID", image.ID)
-		return transformOrigin(fmt.Sprintf("%s %s", utils.RandomItem([]string{"top", "bottom"}), utils.RandomItem([]string{"left", "right"})))
+		return transformOrigin(fmt.Sprintf("%s%% %s%%", utils.RandomItem([]string{"30", "70"}), utils.RandomItem([]string{"30", "70"})))
 	}
 
 	return transformOrigin(fmt.Sprintf("%f%% %f%%", x, y))
@@ -674,7 +671,7 @@ func renderHistory(viewData ViewData) templ.Component {
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(historyEntry)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 215, Col: 88}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 213, Col: 88}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -693,7 +690,7 @@ func renderHistory(viewData ViewData) templ.Component {
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(newHistoryEntry.ImmichImage.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 218, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 216, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {

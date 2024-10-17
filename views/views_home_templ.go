@@ -341,7 +341,7 @@ func imageSmartZoomKeyframes(zoomAmount int) string {
             }
 
             to {
-                transform: scale(1,1,1);
+                transform: scale3d(1,1,1);
                 transform-origin: center;
             }
         }
@@ -378,7 +378,7 @@ func imageKenBurnsframes(zoomAmount int) string {
                 }
 
                 to {
-                    transform: scale(1,1,1);
+                    transform: scale3d(1,1,1);
                     transform-origin: center;
                 }
             }`, i, zoom, zoom, zoom, z, i, zoom, zoom, zoom, z))
@@ -413,7 +413,7 @@ func imageZoomKeyframes(zoomAmount int) string {
                 }
 
                 to {
-                    transform: scale(1,1,1);
+                    transform: scale3d(1,1,1);
                     transform-origin: center;
                 }
             }

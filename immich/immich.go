@@ -196,7 +196,7 @@ func NewImage(base config.Config) ImmichAsset {
 type ImmichApiCall func(string, string, io.Reader) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse
+	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face
 }
 
 func FluchApiCache() {

@@ -196,6 +196,7 @@ func trimHistory(history *[]string, maxLength int) {
 func DrawFaceOnImage(imgBytes []byte, i *immich.ImmichAsset) []byte {
 
 	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
+		log.Debug("no people found")
 		return imgBytes
 	}
 
@@ -267,7 +268,14 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		return views.ImageData{}, fmt.Errorf("selecting image: %w", err)
 	}
 
-	imgBytes = DrawFaceOnImage(imgBytes, &immichImage)
+	if strings.EqualFold(requestConfig.ImageEffect, "smart-zoom") && len(immichImage.People)+len(immichImage.UnassignedFaces) == 0 {
+		immichImage.CheckForFaces(requestID)
+	}
+
+	if ShouldDrawFacesOnImages() {
+		log.Debug("Drawing faces")
+		imgBytes = DrawFaceOnImage(imgBytes, &immichImage)
+	}
 
 	img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, "Converted", isPrefetch)
 	if err != nil {

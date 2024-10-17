@@ -2,7 +2,6 @@ package views
 
 import (
 	"fmt"
-	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"strings"
@@ -174,6 +173,7 @@ templ RenderImageWithContainFit(ImageData, imageFit string) {
 //
 // Returns:
 //   - A CSS class for the transform-origin property.
+
 css transformOrigin(value string) {
 	transform-origin: { value };
 }
@@ -191,15 +191,13 @@ css transformOrigin(value string) {
 //   - templ.CSSClass: A CSS class for the transform-origin property.
 func smartZoom(image immich.ImmichAsset) templ.CSSClass {
 	if len(image.People) == 0 && len(image.UnassignedFaces) == 0 {
-		log.Info("No FACES", "ID", image.ID)
-		return transformOrigin(fmt.Sprintf("%s %s", utils.RandomItem([]string{"top", "bottom"}), utils.RandomItem([]string{"left", "right"})))
+		return transformOrigin(fmt.Sprintf("%s%% %s%%", utils.RandomItem([]string{"30", "70"}), utils.RandomItem([]string{"30", "70"})))
 	}
 
 	x, y := image.FacesCenterPoint()
 
 	if x == 0 || y == 0 {
-		log.Info("No FACES", x, y, "ID", image.ID)
-		return transformOrigin(fmt.Sprintf("%s %s", utils.RandomItem([]string{"top", "bottom"}), utils.RandomItem([]string{"left", "right"})))
+		return transformOrigin(fmt.Sprintf("%s%% %s%%", utils.RandomItem([]string{"30", "70"}), utils.RandomItem([]string{"30", "70"})))
 	}
 
 	return transformOrigin(fmt.Sprintf("%f%% %f%%", x, y))
