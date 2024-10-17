@@ -407,9 +407,14 @@ func (c *Config) reloadConfig(reason string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if err := c.Load(); err != nil {
-		log.Error("Failed to reload config:", err)
+	newConfig := New()
+
+	if err := newConfig.Load(); err != nil {
+		log.Error("Reloading config:", err)
+		return
 	}
+
+	*c = *newConfig
 
 	c.updateConfigState()
 }
