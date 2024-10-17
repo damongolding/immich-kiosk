@@ -3,14 +3,138 @@ package views
 import (
 	"fmt"
 	"github.com/charmbracelet/log"
-	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"strings"
-	"time"
 )
 
-templ ImageFitCover(ImageData, imageFit string) {
+// Image is the main entry point for rendering images.
+// It determines whether to use a single or split view layout based on the number of images,
+// and renders the history form.
+//
+// Parameters:
+//   - viewData: ViewData containing all necessary information for rendering the images.
+templ Image(viewData ViewData) {
+	if len(viewData.Images) < 2 {
+		@layoutSingleView(viewData)
+	} else {
+		@layoutSplitView(viewData)
+	}
+	@renderHistory(viewData)
+}
+
+// layoutSingleView renders a single image layout.
+//
+// Parameters:
+//   - viewData: ViewData containing all necessary information for rendering the image.
+templ layoutSingleView(viewData ViewData) {
+	@layoutView(viewData, true)
+}
+
+// layoutSplitView renders a split image layout for multiple images.
+//
+// Parameters:
+//   - viewData: ViewData containing all necessary information for rendering the images.
+templ layoutSplitView(viewData ViewData) {
+	@layoutView(viewData, false)
+}
+
+// layoutView renders the layout for either a single image or multiple images.
+// It applies the appropriate CSS classes and renders each image using renderSingleImage.
+//
+// Parameters:
+//   - viewData: ViewData containing all necessary information for rendering the images.
+//   - isSingle: A boolean indicating whether this is a single image layout.
+templ layoutView(viewData ViewData, isSingle bool) {
+	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
+		if isSingle {
+			@renderSingleImage(viewData, viewData.Images[0], 0)
+		} else {
+			for imageIndex, imageData := range viewData.Images {
+				<div class={ fmt.Sprintf("frame--layout-%s", viewData.Layout) }>
+					@renderSingleImage(viewData, imageData, imageIndex)
+				</div>
+			}
+		}
+	</div>
+}
+
+// renderSingleImage renders a single image with its background and metadata.
+//
+// Parameters:
+//   - viewData: ViewData containing rendering settings.
+//   - imageData: ImageData for the image to be rendered.
+//   - imageIndex: The index of the image in the viewData.Images slice.
+templ renderSingleImage(viewData ViewData, imageData ImageData, imageIndex int) {
+	@renderImageBackground(viewData, imageData)
+	@renderImage(viewData, imageData)
+	if !viewData.DisableUi {
+		@imageMetadata(viewData, imageIndex)
+	}
+}
+
+// renderImageBackground renders a blurred background image if applicable.
+//
+// Parameters:
+//   - viewData: ViewData containing background blur settings.
+//   - imageData: ImageData containing the blur data for the image.
+templ renderImageBackground(viewData ViewData, imageData ImageData) {
+	if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(imageData.ImageBlurData) > 0 {
+		<div class="frame--background">
+			<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
+		</div>
+	}
+}
+
+// renderImage renders an image with the specified effect and fit.
+// It applies zoom effects if specified, otherwise renders the image with the default frame.
+//
+// Parameters:
+//   - viewData: ViewData containing image effect and refresh settings.
+//   - imageData: ImageData containing the image data and ImmichImage.
+//
+// The function uses frameWithZoom for zoom effects and frame for default rendering.
+// It delegates to RenderImageWithCoverFit or renderImageFit based on the image effect.
+templ renderImage(viewData ViewData, imageData ImageData) {
+	switch strings.ToLower(viewData.ImageEffect) {
+		case "zoom", "smart-zoom":
+			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichImage) {
+				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
+			}
+		default:
+			@frame() {
+				@renderImageFit(imageData.ImageData, viewData.ImageFit)
+			}
+	}
+}
+
+// renderImageFit selects and renders the appropriate image fit template based on the imageFit parameter.
+//
+// Parameters:
+//   - imageData: A string containing the image data (typically a URL or base64-encoded image).
+//   - imageFit: A string specifying the desired image fit style ("cover", "none", or any other value for "contain").
+//
+// The function uses a switch statement to determine which template to use:
+//   - "cover": Uses RenderImageWithCoverFit
+//   - "none": Uses RenderImageWithoutFit
+//   - Any other value: Uses RenderImageWithContainFit (default behavior)
+templ renderImageFit(imageData string, imageFit string) {
+	switch strings.ToLower(imageFit) {
+		case "cover":
+			@RenderImageWithCoverFit(imageData, imageFit)
+		case "none":
+			@RenderImageWithoutFit(imageData, imageFit)
+		default:
+			@RenderImageWithContainFit(imageData, imageFit)
+	}
+}
+
+// RenderImageWithCoverFit renders an image with "cover" fit style.
+//
+// Parameters:
+//   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
+//   - imageFit: A string specifying the image fit style (unused in this function).
+templ RenderImageWithCoverFit(ImageData, imageFit string) {
 	<img
 		class="frame--image-fit-cover"
 		src={ ImageData }
@@ -18,14 +142,24 @@ templ ImageFitCover(ImageData, imageFit string) {
 	/>
 }
 
-templ ImageFitNone(ImageData, imageFit string) {
+// RenderImageWithoutFit renders an image without any specific fit style.
+//
+// Parameters:
+//   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
+//   - imageFit: A string specifying the image fit style (unused in this function).
+templ RenderImageWithoutFit(ImageData, imageFit string) {
 	<img
 		src={ ImageData }
 		alt="Main image"
 	/>
 }
 
-templ ImageFitContain(ImageData, imageFit string) {
+// RenderImageWithContainFit renders an image with "contain" fit style.
+//
+// Parameters:
+//   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
+//   - imageFit: A string specifying the image fit style (unused in this function).
+templ RenderImageWithContainFit(ImageData, imageFit string) {
 	<img
 		class="frame--image-fit-contain"
 		src={ ImageData }
@@ -33,12 +167,29 @@ templ ImageFitContain(ImageData, imageFit string) {
 	/>
 }
 
+// transformOrigin generates a CSS class for the transform-origin property.
+//
+// Parameters:
+//   - value: A string representing the desired transform origin value.
+//
+// Returns:
+//   - A CSS class for the transform-origin property.
 css transformOrigin(value string) {
 	transform-origin: { value };
 }
 
+// smartZoom calculates the transform origin for an image based on detected faces.
+// It returns a templ.CSSClass for the transform-origin CSS property.
+//
+// If no faces are detected, it returns a random corner as the transform origin.
+// If faces are detected, it uses the center point of all faces as the transform origin.
+//
+// Parameters:
+//   - image: An immich.ImmichAsset containing information about detected faces.
+//
+// Returns:
+//   - templ.CSSClass: A CSS class for the transform-origin property.
 func smartZoom(image immich.ImmichAsset) templ.CSSClass {
-
 	if len(image.People) == 0 && len(image.UnassignedFaces) == 0 {
 		log.Info("No FACES", "ID", image.ID)
 		return transformOrigin(fmt.Sprintf("%s %s", utils.RandomItem([]string{"top", "bottom"}), utils.RandomItem([]string{"left", "right"})))
@@ -52,203 +203,13 @@ func smartZoom(image immich.ImmichAsset) templ.CSSClass {
 	}
 
 	return transformOrigin(fmt.Sprintf("%f%% %f%%", x, y))
-
 }
 
-func ImageLocation(info immich.ExifInfo) string {
-	var location strings.Builder
-
-	if info.City != "" {
-		location.WriteString(info.City)
-	}
-
-	if info.State != "" {
-		location.WriteString(", ")
-		location.WriteString(info.State)
-	}
-
-	if info.Country != "" {
-		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
-		location.WriteString(info.Country)
-	}
-
-	return location.String()
-}
-
-func ImageExif(info immich.ExifInfo) string {
-	var stats strings.Builder
-
-	if info.FNumber != 0 {
-		stats.WriteString(fmt.Sprintf("<span class=\"image--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
-	}
-
-	if info.ExposureTime != "" {
-		if stats.Len() > 0 {
-			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
-		}
-		stats.WriteString(fmt.Sprintf("%s<small>s</small>", info.ExposureTime))
-	}
-
-	if info.FocalLength != 0 {
-		if stats.Len() > 0 {
-			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
-		}
-		stats.WriteString(fmt.Sprintf("%vmm", info.FocalLength))
-	}
-
-	if info.Iso != 0 {
-		if stats.Len() > 0 {
-			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
-		}
-		stats.WriteString(fmt.Sprintf("ISO %v", info.Iso))
-	}
-
-	return stats.String()
-}
-
-func ImageDateTime(viewData ViewData, imageIndex int) string {
-	var imageDate string
-
-	var imageTimeFormat string
-	if viewData.ImageTimeFormat == "12" {
-		imageTimeFormat = time.Kitchen
-	} else {
-		imageTimeFormat = time.TimeOnly
-	}
-
-	imageDateFormat := utils.DateToLayout(viewData.ImageDateFormat)
-	if imageDateFormat == "" {
-		imageDateFormat = config.DefaultDateLayout
-	}
-
-	switch {
-	case (viewData.ShowImageDate && viewData.ShowImageTime):
-		imageDate = fmt.Sprintf("%s %s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageTimeFormat), viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageDateFormat))
-	case viewData.ShowImageDate:
-		imageDate = fmt.Sprintf("%s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageDateFormat))
-	case viewData.ShowImageTime:
-		imageDate = fmt.Sprintf("%s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageTimeFormat))
-	}
-
-	return imageDate
-}
-
-templ imageMetadata(viewData ViewData, imageIndex int) {
-	<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
-		if viewData.ShowImageDate || viewData.ShowImageTime {
-			<div class="image--metadata--date">
-				{ ImageDateTime(viewData, imageIndex) }
-			</div>
-		}
-		if viewData.ShowImageExif {
-			<div class="image--metadata--exif">
-				@templ.Raw(ImageExif(viewData.Images[imageIndex].ImmichImage.ExifInfo))
-			</div>
-		}
-		if viewData.ShowImageLocation {
-			<div class="image--metadata--location">
-				@templ.Raw(ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo))
-			</div>
-		}
-		if viewData.ShowImageID {
-			<div class="image--metadata--id">
-				{ viewData.Images[imageIndex].ImmichImage.ID }
-			</div>
-		}
-	</div>
-}
-
-templ frame() {
-	<div class="frame--image">
-		{ children... }
-	</div>
-}
-
-templ frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) {
-	switch imageEffect {
-		case "smart-zoom":
-			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect), smartZoom(img) }>
-				{ children... }
-			</div>
-		default:
-			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect) }>
-				{ children... }
-			</div>
-	}
-}
-
-templ layoutSingleView(viewData ViewData) {
-	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
-		if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(viewData.Images[0].ImageBlurData) > 0 {
-			<div class="frame--background">
-				<img src={ viewData.Images[0].ImageBlurData } alt="Blurred image background"/>
-			</div>
-		}
-		switch strings.ToLower(viewData.ImageEffect) {
-			case "zoom", "smart-zoom":
-				@frameWithZoom(viewData.Refresh, viewData.ImageEffect, viewData.Images[0].ImmichImage) {
-					@ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit)
-				}
-			default:
-				@frame() {
-					switch strings.ToLower(viewData.ImageFit) {
-						case "cover":
-							@ImageFitCover(viewData.Images[0].ImageData, viewData.ImageFit)
-						case "none":
-							@ImageFitNone(viewData.Images[0].ImageData, viewData.ImageFit)
-						default:
-							@ImageFitContain(viewData.Images[0].ImageData, viewData.ImageFit)
-					}
-				}
-		}
-		if !viewData.DisableUi {
-			if !viewData.DisableUi {
-				@imageMetadata(viewData, 0)
-			}
-		}
-	</div>
-}
-
-templ layoutSplitView(viewData ViewData) {
-	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
-		for imageIndex, imageData := range viewData.Images {
-			<div class={ fmt.Sprintf("frame--layout-%s", viewData.Layout) }>
-				if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(imageData.ImageBlurData) > 0 {
-					<div class="frame--background">
-						<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
-					</div>
-				}
-				switch strings.ToLower(viewData.ImageEffect) {
-					case "zoom", "smart-zoom":
-						@frameWithZoom(viewData.Refresh, viewData.ImageEffect, viewData.Images[imageIndex].ImmichImage) {
-							@ImageFitCover(imageData.ImageData, viewData.ImageFit)
-						}
-					default:
-						@frame() {
-							switch strings.ToLower(viewData.ImageFit) {
-								case "cover":
-									@ImageFitCover(imageData.ImageData, viewData.ImageFit)
-								case "none":
-									@ImageFitNone(imageData.ImageData, viewData.ImageFit)
-								default:
-									@ImageFitContain(imageData.ImageData, viewData.ImageFit)
-							}
-						}
-				}
-				if !viewData.DisableUi {
-					@imageMetadata(viewData, imageIndex)
-				}
-			</div>
-		}
-	</div>
-}
-
-templ Image(viewData ViewData) {
-	if len(viewData.Images) < 2 {
-		@layoutSingleView(viewData)
-	} else {
-		@layoutSplitView(viewData)
-	}
+// renderHistory renders a form containing the viewing history of images.
+//
+// Parameters:
+//   - viewData: ViewData containing the history and current images.
+templ renderHistory(viewData ViewData) {
 	<form id="kiosk-history" hx-swap-oob="true">
 		for _, historyEntry := range viewData.History {
 			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
