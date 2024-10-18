@@ -106,9 +106,10 @@ Use via [docker](#docker-compose) 👇
 ## Docker Compose
 
 > [!NOTE]
-> You can use both a yaml file and environment variables but environment variables will overwrite settings from the yaml file
+> You can use both a yaml file and environment variables but environment variables will overwrite settings from the yaml file  
+> Set `TZ` to a `TZ identifier` from [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
 
-### When using a yaml.yaml config file
+### When using a `config.yaml` config file
 ```yaml
 services:
   immich-kiosk:
