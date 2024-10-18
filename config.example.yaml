@@ -32,8 +32,8 @@ theme: fade # which theme to use. fade or solid
 layout: single # which layout to use. single or splitview
 
 # Sleep mode
-sleep_start: 22 # sleep mode start time
-sleep_end: 7 # sleep mode end time
+# sleep_start: 22 # sleep mode start time
+# sleep_end: 7 # sleep mode end time
 
 # Transition options
 transition: none # cross-fade, fade or none
