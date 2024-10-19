@@ -157,7 +157,7 @@ type Config struct {
 	// ShowImageLocation display image location data
 	ShowImageLocation bool `mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
 	// HideUSA hide "United States of America" in location information
-	HideUSA bool `mapstructure:"hide_usa" query:"hide_usa" form:"hide_usa" default:"false"`
+	HideCountries []string `mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
 	// ShowImageID display image ID
 	ShowImageID bool `mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
 

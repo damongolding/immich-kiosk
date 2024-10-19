@@ -7,6 +7,7 @@ import (
 	"github.com/damongolding/immich-kiosk/utils"
 	"strings"
 	"time"
+	"slices"
 )
 
 templ ImageFitCover(ImageData, imageFit string) {
@@ -44,7 +45,7 @@ func ImageLocation(viewData ViewData, info immich.ExifInfo) string {
 		location.WriteString(info.State)
 	}
 
-	if info.Country != "" && !(viewData.HideUSA && info.Country == "United States of America") {
+	if info.Country != "" && !slices.Contains(viewData.HideCountries, info.Country) {
 		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
 		location.WriteString(info.Country)
 	}
