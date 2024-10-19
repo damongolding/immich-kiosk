@@ -143,7 +143,7 @@ func ImageFitContain(ImageData, imageFit string) templ.Component {
 	})
 }
 
-func ImageLocation(info immich.ExifInfo) string {
+func ImageLocation(viewData ViewData, info immich.ExifInfo) string {
 	var location strings.Builder
 
 	if info.City != "" {
@@ -155,7 +155,7 @@ func ImageLocation(info immich.ExifInfo) string {
 		location.WriteString(info.State)
 	}
 
-	if info.Country != "" {
+	if info.Country != "" && !(viewData.HideUSA && info.Country == "United States of America") {
 		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
 		location.WriteString(info.Country)
 	}
@@ -302,7 +302,7 @@ func imageMetadata(viewData ViewData, imageIndex int) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.Raw(ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo)).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = templ.Raw(ImageLocation(viewData, viewData.Images[imageIndex].ImmichImage.ExifInfo)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
