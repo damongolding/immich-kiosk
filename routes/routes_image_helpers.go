@@ -231,7 +231,7 @@ func DrawFaceOnImage(imgBytes []byte, i *immich.ImmichAsset) []byte {
 	}
 
 	facesBoundX, facesBoundY := i.FacesCenterPointPX()
-	dc.DrawRectangle(facesBoundX-20, facesBoundY-20, 20, 20)
+	dc.DrawRectangle(facesBoundX-10, facesBoundY-10, 20, 20)
 	dc.SetHexColor("#889900")
 	dc.Fill()
 
