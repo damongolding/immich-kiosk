@@ -119,11 +119,13 @@ func imageSmartZoomKeyframes(zoomAmount int) string {
             from {
                 transform: scale3d(1,1,1);
                 transform-origin: center;
+								object-position: center;
             }
 
             to {
                 transform: scale3d(%.2f,%.2f,%.2f);
                 transform-origin: inherit;
+								object-position: inherit;
             }
         }
 
@@ -131,11 +133,13 @@ func imageSmartZoomKeyframes(zoomAmount int) string {
             from {
                 transform: scale3d(%.2f,%.2f,%.2f);
                 transform-origin: inherit;
+								object-position: inherit;
             }
 
             to {
                 transform: scale3d(1,1,1);
                 transform-origin: center;
+								object-position: center;
             }
         }
         </style>`, zoom, zoom, zoom, zoom, zoom, zoom)
