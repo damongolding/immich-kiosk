@@ -70,6 +70,13 @@ type KioskSettings struct {
 	DebugVerbose bool `mapstructure:"debug_verbose" default:"false"`
 }
 
+type WeatherLocation struct {
+	Name string `mapstructure:"name"`
+	Lat  string `mapstructure:"lat"`
+	Lon  string `mapstructure:"lon"`
+	API  string `mapstructure:"api"`
+}
+
 type Config struct {
 	// V is the viper instance used for configuration management
 	V *viper.Viper
@@ -158,6 +165,8 @@ type Config struct {
 	ShowImageLocation bool `mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
 	// ShowImageID display image ID
 	ShowImageID bool `mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
+
+	WeatherLocations []WeatherLocation `mapstructure:"weather" default:"[]"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
