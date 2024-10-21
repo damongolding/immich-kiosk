@@ -1,0 +1,122 @@
+package views
+
+import (
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/damongolding/immich-kiosk/config"
+	"github.com/damongolding/immich-kiosk/immich"
+	"github.com/damongolding/immich-kiosk/utils"
+)
+
+// ImageLocation generates a formatted string of the image location based on EXIF information.
+// It combines the city, state, and country information if available.
+func ImageLocation(info immich.ExifInfo) string {
+	var location strings.Builder
+
+	if info.City != "" {
+		location.WriteString(info.City)
+	}
+
+	if info.State != "" {
+		location.WriteString(", ")
+		location.WriteString(info.State)
+	}
+
+	if info.Country != "" {
+		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
+		location.WriteString(info.Country)
+	}
+
+	return location.String()
+}
+
+// ImageExif generates a formatted string of EXIF information for an image.
+// It includes f-number, exposure time, focal length, and ISO if available.
+func ImageExif(info immich.ExifInfo) string {
+	var stats strings.Builder
+
+	if info.FNumber != 0 {
+		stats.WriteString(fmt.Sprintf("<span class=\"image--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
+	}
+
+	if info.ExposureTime != "" {
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("%s<small>s</small>", info.ExposureTime))
+	}
+
+	if info.FocalLength != 0 {
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("%vmm", info.FocalLength))
+	}
+
+	if info.Iso != 0 {
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("ISO %v", info.Iso))
+	}
+
+	return stats.String()
+}
+
+// ImageDateTime generates a formatted date and time string for an image based on the view data settings.
+// It can display date, time, or both, in various formats.
+func ImageDateTime(viewData ViewData, imageIndex int) string {
+	var imageDate string
+
+	var imageTimeFormat string
+	if viewData.ImageTimeFormat == "12" {
+		imageTimeFormat = time.Kitchen
+	} else {
+		imageTimeFormat = time.TimeOnly
+	}
+
+	imageDateFormat := utils.DateToLayout(viewData.ImageDateFormat)
+	if imageDateFormat == "" {
+		imageDateFormat = config.DefaultDateLayout
+	}
+
+	switch {
+	case (viewData.ShowImageDate && viewData.ShowImageTime):
+		imageDate = fmt.Sprintf("%s %s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageTimeFormat), viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageDateFormat))
+	case viewData.ShowImageDate:
+		imageDate = fmt.Sprintf("%s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageDateFormat))
+	case viewData.ShowImageTime:
+		imageDate = fmt.Sprintf("%s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageTimeFormat))
+	}
+
+	return imageDate
+}
+
+// imageMetadata renders the metadata for an image, including date, time, EXIF information, location, and ID.
+// The display of each piece of information is controlled by the ViewData settings.
+templ imageMetadata(viewData ViewData, imageIndex int) {
+	<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
+		if viewData.ShowImageDate || viewData.ShowImageTime {
+			<div class="image--metadata--date">
+				{ ImageDateTime(viewData, imageIndex) }
+			</div>
+		}
+		if viewData.ShowImageExif {
+			<div class="image--metadata--exif">
+				@templ.Raw(ImageExif(viewData.Images[imageIndex].ImmichImage.ExifInfo))
+			</div>
+		}
+		if viewData.ShowImageLocation {
+			<div class="image--metadata--location">
+				@templ.Raw(ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo))
+			</div>
+		}
+		if viewData.ShowImageID {
+			<div class="image--metadata--id">
+				{ viewData.Images[imageIndex].ImmichImage.ID }
+			</div>
+		}
+	</div>
+}

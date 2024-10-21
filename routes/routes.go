@@ -24,11 +24,17 @@ var (
 
 	ViewDataCache      *cache.Cache
 	viewDataCacheMutex sync.Mutex
+
+	drawFacesOnImages string
 )
 
 type PersonOrAlbum struct {
 	Type string
 	ID   string
+}
+
+func ShouldDrawFacesOnImages() bool {
+	return drawFacesOnImages == "true"
 }
 
 type RequestData struct {
@@ -39,6 +45,7 @@ type RequestData struct {
 func init() {
 	// Setting up Immich api cache
 	ViewDataCache = cache.New(5*time.Minute, 10*time.Minute)
+
 }
 
 func RenderError(c echo.Context, err error, message string) error {

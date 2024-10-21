@@ -126,10 +126,10 @@ type Config struct {
 
 	// ImageFit the fit style for main image
 	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain"`
-	// ImageZoom add a zoom effect to images
-	ImageZoom bool `mapstructure:"image_zoom" query:"image_zoom" form:"image_zoom" default:"false"`
-	// ImageZoomAmount the amount to zoom in/out of images
-	ImageZoomAmount int `mapstructure:"image_zoom_amount" query:"image_zoom_amount" form:"image_zoom_amount" default:"120"`
+	// ImageEffect which effect to apply to image (if any)
+	ImageEffect string `mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:""`
+	// ImageEffectAmount the amount of effect to apply
+	ImageEffectAmount int `mapstructure:"image_effect_amount" query:"image_effect_amount" form:"image_effect_amount" default:"120"`
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
@@ -407,9 +407,14 @@ func (c *Config) reloadConfig(reason string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if err := c.Load(); err != nil {
-		log.Error("Failed to reload config:", err)
+	newConfig := New()
+
+	if err := newConfig.Load(); err != nil {
+		log.Error("Reloading config:", err)
+		return
 	}
+
+	*c = *newConfig
 
 	c.updateConfigState()
 }
