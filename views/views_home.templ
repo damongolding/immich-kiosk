@@ -27,16 +27,12 @@ func crossFadeDurationCSS(crossFadeDuration float32) string {
     `, crossFadeDuration)
 }
 
-templ kioskCrossFade(kioskVersion string, deviceID string, queries url.Values, crossFadeDuration float32) {
+templ kioskCrossFade(kioskVersion string, deviceID string, crossFadeDuration float32) {
 	@templ.Raw(crossFadeDurationCSS(crossFadeDuration))
 	<div
 		id="kiosk"
 		hx-post="/image"
-		if len(queries) > 0 {
-			hx-include=".kiosk-param, .kiosk-history--entry"
-		} else {
-			hx-include=".kiosk-history--entry"
-		}
+		hx-include=".kiosk-history--entry"
 		hx-trigger="load, kiosk-new-image"
 		hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", crossFadeDuration+1) }
 		hx-on::after-request="kiosk.startPolling()"
@@ -57,16 +53,12 @@ func fadeDurationCSS(fadeDuration float32) string {
         `, fadeDuration)
 }
 
-templ kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDuration float32) {
+templ kioskFade(kioskVersion string, deviceID string, fadeDuration float32) {
 	@templ.Raw(fadeDurationCSS(fadeDuration / 2))
 	<div
 		id="kiosk"
 		hx-post="/image"
-		if len(queries) > 0 {
-			hx-include=".kiosk-param, .kiosk-history--entry"
-		} else {
-			hx-include=".kiosk-history--entry"
-		}
+		hx-include=".kiosk-history--entry"
 		hx-trigger="load, kiosk-new-image"
 		hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration/2) }
 		hx-on::after-request="kiosk.startPolling()"
@@ -76,15 +68,11 @@ templ kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDu
 	</div>
 }
 
-templ kioskNone(kioskVersion string, deviceID string, queries url.Values) {
+templ kioskNone(kioskVersion string, deviceID string) {
 	<div
 		id="kiosk"
 		hx-post="/image"
-		if len(queries) > 0 {
-			hx-include=".kiosk-param, .kiosk-history--entry"
-		} else {
-			hx-include=".kiosk-history--entry"
-		}
+		hx-include=".kiosk-history--entry"
 		hx-trigger="load, kiosk-new-image"
 		hx-swap="innerHTML"
 		hx-on::after-request="kiosk.startPolling()"
@@ -119,13 +107,11 @@ func imageSmartZoomKeyframes(zoomAmount int) string {
             from {
                 transform: scale3d(1,1,1);
                 transform-origin: center;
-								object-position: center;
             }
 
             to {
                 transform: scale3d(%.2f,%.2f,%.2f);
                 transform-origin: inherit;
-								object-position: inherit;
             }
         }
 
@@ -133,56 +119,14 @@ func imageSmartZoomKeyframes(zoomAmount int) string {
             from {
                 transform: scale3d(%.2f,%.2f,%.2f);
                 transform-origin: inherit;
-								object-position: inherit;
             }
 
             to {
                 transform: scale3d(1,1,1);
                 transform-origin: center;
-								object-position: center;
             }
         }
         </style>`, zoom, zoom, zoom, zoom, zoom, zoom)
-}
-
-func imageKenBurnsframes(zoomAmount int) string {
-
-	s := strings.Builder{}
-
-	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
-
-	zooms := []string{"top left", "top right", "bottom left", "bottom right"}
-
-	s.WriteString("<style>")
-	for i, z := range zooms {
-		s.WriteString(fmt.Sprintf(`
-	       @keyframes image-zoom-in-%v {
-                from {
-                    transform: scale3d(1,1,1);
-                    transform-origin: center;
-                }
-
-                to {
-                    transform: scale3d(%.2f,%.2f,%.2f);
-                    transform-origin: %s;
-                }
-            }
-
-            @keyframes image-zoom-out-%v {
-                from {
-                    transform: scale3d(%.2f,%.2f,%.2f);
-                    transform-origin: %s;
-                }
-
-                to {
-                    transform: scale3d(1,1,1);
-                    transform-origin: center;
-                }
-            }`, i, zoom, zoom, zoom, z, i, zoom, zoom, zoom, z))
-	}
-	s.WriteString("</style>")
-
-	return s.String()
 }
 
 func imageZoomKeyframes(zoomAmount int) string {
@@ -280,14 +224,11 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-templ clock(queries url.Values, theme string) {
+templ clock(theme string) {
 	<div
 		id="clock"
 		class={ fmt.Sprintf("clock--theme-%s", theme) }
 		hx-get="/clock"
-		if len(queries) > 0 {
-			hx-include=".kiosk-param"
-		}
 		hx-trigger="load, every 13s"
 		hx-swap="innerHTML"
 	></div>
@@ -301,27 +242,21 @@ templ progressBar() {
 	</div>
 }
 
-templ sleepMode(sleepStart, sleepEnd string, queries url.Values) {
+templ sleepMode(sleepStart, sleepEnd string) {
 	if sleepStart != "" && sleepEnd != "" {
 		<form
 			hx-get="/sleep"
 			hx-trigger="load, every 13s"
-			if len(queries) > 0 {
-				hx-include=".kiosk-param"
-			}
 			hx-target="#navigation-interaction-area"
 		></form>
 	}
 }
 
-templ refreshCheckForm(kioskVersion, reloadTimeStamp string, queries url.Values) {
+templ refreshCheckForm(kioskVersion, reloadTimeStamp string) {
 	<form
 		hx-post="/refresh/check"
 		hx-trigger="every 7s"
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp) }
-		if len(queries) > 0 {
-			hx-include=".kiosk-param"
-		}
 	></form>
 }
 
@@ -378,23 +313,23 @@ templ Home(viewData ViewData) {
 		<body class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
 			switch strings.ToLower(viewData.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.CrossFadeTransitionDuration)
+					@kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.CrossFadeTransitionDuration)
 				case "fade":
-					@kioskFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.FadeTransitionDuration)
+					@kioskFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.FadeTransitionDuration)
 				default:
-					@kioskNone(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries)
+					@kioskNone(viewData.KioskVersion, utils.GenerateUUID())
 			}
 			if viewData.ShowProgress {
 				@progressBar()
 			}
 			if !viewData.DisableUi && (viewData.ShowTime || viewData.ShowDate) {
-				@clock(viewData.Queries, viewData.Theme)
+				@clock(viewData.Theme)
 			}
 			@menu(viewData.Queries)
 			@paramForm(viewData.Queries)
-			@sleepMode(viewData.SleepStart, viewData.SleepEnd, viewData.Queries)
+			@sleepMode(viewData.SleepStart, viewData.SleepEnd)
 			@historyForm()
-			@refreshCheckForm(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
+			@refreshCheckForm(viewData.KioskVersion, viewData.ReloadTimeStamp)
 			@offlineIcon()
 			@kioskData(map[string]any{
 				"debug":              viewData.Kiosk.Debug,
@@ -405,6 +340,16 @@ templ Home(viewData ViewData) {
 				"disableScreensaver": viewData.DisableScreensaver,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
+			if len(viewData.Queries) > 0 {
+				<script>
+				  const kioskQueires = document.body.querySelectorAll(".kiosk-param");
+   		           document.body.addEventListener("htmx:configRequest", (event) => {
+                    kioskQueires.forEach((q) => {
+                      event.detail.parameters[q.name] = q.value;
+                    });
+                  });
+                </script>
+			}
 		</body>
 	</html>
 }
