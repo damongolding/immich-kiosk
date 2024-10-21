@@ -325,7 +325,7 @@ templ Home(viewData ViewData) {
 			if !viewData.DisableUi && (viewData.ShowTime || viewData.ShowDate) {
 				@clock(viewData.Theme)
 			}
-			@menu(viewData.Queries)
+			@menu()
 			@paramForm(viewData.Queries)
 			@sleepMode(viewData.SleepStart, viewData.SleepEnd)
 			@historyForm()

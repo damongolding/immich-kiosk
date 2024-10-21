@@ -818,7 +818,7 @@ func Home(viewData ViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = menu(viewData.Queries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = menu().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
