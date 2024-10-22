@@ -468,6 +468,28 @@ body {
   opacity: 0.5;
 }
 
+/* src/css/clock-weather-container.css */
+#clock-weather-container {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+}
+.layout-splitview #clock-weather-container {
+  flex-direction: row;
+  width: 100vw;
+  height: auto;
+}
+.sleep #clock-weather-container {
+  height: 100vh;
+  width: 100vw;
+  z-index: 99999;
+}
+
 /* src/css/clock.css */
 #clock {
   position: relative;
@@ -527,6 +549,7 @@ body {
   z-index: 1;
 }
 .sleep #clock {
+  position: absolute;
   top: 50%;
   left: 50%;
   bottom: unset;
@@ -548,16 +571,6 @@ body {
 }
 
 /* src/css/weather.css */
-#clock-weather-container {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100vh;
-  top: 0;
-  left: 0;
-  z-index: 10000;
-}
 #weather {
   position: relative;
   color: #fff;
@@ -639,11 +652,6 @@ body {
   fill: #fff;
   opacity: 0.8;
 }
-.layout-splitview #clock-weather-container {
-  flex-direction: row;
-  width: 100vw;
-  height: auto;
-}
 .layout-splitview #weather,
 .layout-splitview .weather {
   text-align: right;
@@ -684,6 +692,9 @@ body {
 }
 .layout-splitview .weather--theme-solid {
   border-radius: 0 0 0 2rem;
+}
+.sleep #weather {
+  display: none;
 }
 
 /* src/css/menu.css */

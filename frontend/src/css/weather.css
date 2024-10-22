@@ -1,15 +1,3 @@
-#clock-weather-container {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100vh;
-    top: 0;
-    left: 0;
-
-    z-index: 10000;
-}
-
 /* --- weather --- */
 #weather {
     position: relative;
@@ -107,12 +95,6 @@
 }
 
 /* Splitview */
-.layout-splitview #clock-weather-container {
-    flex-direction: row;
-    width: 100vw;
-    height: auto;
-}
-
 .layout-splitview #weather,
 .layout-splitview .weather {
     text-align: right;
@@ -157,4 +139,9 @@
 
 .layout-splitview .weather--theme-solid {
     border-radius: 0 0 0 2rem;
+}
+
+/* sleep mode */
+.sleep #weather {
+    display: none;
 }

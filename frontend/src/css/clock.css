@@ -68,6 +68,7 @@
 
 /* In sleep mode */
 .sleep #clock {
+    position: absolute;
     top: 50%;
     left: 50%;
     bottom: unset;

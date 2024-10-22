@@ -59,6 +59,10 @@ body{}
 #offline svg{}
 .offline{}
 .sleep #offline{}
+/* src/css/clock-weather-container.css */
+#clock-weather-container{}
+.layout-splitview #clock-weather-container{}
+.sleep #clock-weather-container{}
 /* src/css/clock.css */
 #clock{}
 .clock--theme-fade::before{}
@@ -70,7 +74,6 @@ body{}
 .sleep .clock--time{}
 .sleep #clock::before{}
 /* src/css/weather.css */
-#clock-weather-container{}
 #weather{}
 .layout-splitview #weather{}
 .weather--theme-fade::before{}
@@ -81,11 +84,11 @@ body{}
 .weather--description{}
 .weather--description--icon{}
 .weather--description--icon svg{}
-.layout-splitview #clock-weather-container{}
 .layout-splitview .weather{}
 .layout-splitview .weather--theme-fade::before{}
 .weather--theme-solid{}
 .layout-splitview .weather--theme-solid{}
+.sleep #weather{}
 /* src/css/menu.css */
 #navigation-interaction-area{}
 .navigation{}
