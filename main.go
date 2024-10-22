@@ -12,6 +12,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"net/http"
@@ -25,6 +26,7 @@ import (
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/routes"
+	"github.com/damongolding/immich-kiosk/weather"
 )
 
 // version current build version number
@@ -92,6 +94,12 @@ func main() {
 		}))
 	}
 
+	weatherCtx := context.Background()
+
+	for _, w := range baseConfig.WeatherLocations {
+		go weather.AddWeatherLocation(weatherCtx, w)
+	}
+
 	// CSS cache busting
 	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public)
 
@@ -108,6 +116,8 @@ func main() {
 	e.POST("/image", routes.NewImage(baseConfig))
 
 	e.GET("/clock", routes.Clock(baseConfig))
+
+	e.GET("/weather", routes.Weather(baseConfig))
 
 	e.GET("/sleep", routes.Sleep(baseConfig))
 

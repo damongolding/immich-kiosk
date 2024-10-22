@@ -75,6 +75,8 @@ type WeatherLocation struct {
 	Lat  string `mapstructure:"lat"`
 	Lon  string `mapstructure:"lon"`
 	API  string `mapstructure:"api"`
+	Unit string `mapstructure:"unit"`
+	Lang string `mapstructure:"lang"`
 }
 
 type Config struct {

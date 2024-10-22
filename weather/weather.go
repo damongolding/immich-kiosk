@@ -1,29 +1,34 @@
 package weather
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/config"
 )
 
-var weatherDataStore []WeatherLocation
+var weatherDataStore sync.Map
 
 type WeatherLocation struct {
-	Name    string
-	Lat     string
-	Lon     string
-	API     string
-	Weather Weather
+	Name string
+	Lat  string
+	Lon  string
+	API  string
+	Unit string
+	Lang string
+	Weather
 }
 
 type Weather struct {
 	Coord      Coord         `json:"coord"`
-	Weather    []WeatherData `json:"weather"`
+	Data       []WeatherData `json:"weather"`
 	Base       string        `json:"base"`
 	Main       Main          `json:"main"`
 	Visibility int           `json:"visibility"`
@@ -78,17 +83,68 @@ type Sys struct {
 	Sunset  int    `json:"sunset"`
 }
 
-func (w *WeatherLocation) Current(name string) {
+func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
+	ticker := time.NewTicker(time.Minute * 10)
+	defer ticker.Stop()
+
+	w := &WeatherLocation{
+		Name: location.Name,
+		Lat:  location.Lat,
+		Lon:  location.Lon,
+		API:  location.API,
+		Unit: location.Unit,
+		Lang: location.Lang,
+	}
+
+	weatherDataStore.Store(w.Name, *w)
+
+	// Run once immediately
+	log.Info("Getting initial weather for", "name", w.Name)
+	newWeather, err := w.updateWeather()
+	if err != nil {
+		log.Error("Failed to update initial weather", "name", w.Name, "error", err)
+	} else {
+		weatherDataStore.Store(w.Name, newWeather)
+		log.Info("Retrieved initial weather for", "name", w.Name)
+	}
+
+	for {
+		select {
+		case <-ticker.C:
+			log.Info("Getting weather for", "name", w.Name)
+			newWeather, err := w.updateWeather()
+			if err != nil {
+				log.Error("Failed to update weather", "name", w.Name, "error", err)
+				continue
+			}
+			weatherDataStore.Store(w.Name, newWeather)
+			log.Info("Retrieved weather for", "name", w.Name)
+
+		case <-ctx.Done():
+			log.Info("Stopping weather updates for", "name", w.Name)
+			return
+		}
+	}
 }
 
-func (w *WeatherLocation) updateWeather() {
+func Current(name string) WeatherLocation {
+	value, ok := weatherDataStore.Load(name)
+	if !ok {
+		return WeatherLocation{}
+	}
+	return value.(WeatherLocation)
+}
+
+func (w *WeatherLocation) updateWeather() (WeatherLocation, error) {
 
 	apiUrl := url.URL{
 		Scheme:   "https",
 		Host:     "api.openweathermap.org",
 		Path:     "data/2.5/weather",
-		RawQuery: fmt.Sprintf("appid=%s&lat=%s&lon=%s", w.API, w.Lat, w.Lon),
+		RawQuery: fmt.Sprintf("appid=%s&lat=%s&lon=%s&units=%s&lang=%s", w.API, w.Lat, w.Lon, w.Unit, w.Lang),
 	}
 
 	client := &http.Client{
@@ -97,7 +153,7 @@ func (w *WeatherLocation) updateWeather() {
 	req, err := http.NewRequest("GET", apiUrl.String(), nil)
 	if err != nil {
 		log.Error(err)
-		return
+		return *w, err
 	}
 
 	req.Header.Add("Accept", "application/json")
@@ -113,7 +169,7 @@ func (w *WeatherLocation) updateWeather() {
 	}
 	if err != nil {
 		log.Error("Request failed after retries", "err", err)
-		return
+		return *w, err
 	}
 
 	defer res.Body.Close()
@@ -121,13 +177,13 @@ func (w *WeatherLocation) updateWeather() {
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
 		log.Error(err)
-		return
+		return *w, err
 	}
 
 	responseBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Error("reading response body", "url", apiUrl, "err", err)
-		return
+		return *w, err
 	}
 
 	var newWeather Weather
@@ -138,4 +194,5 @@ func (w *WeatherLocation) updateWeather() {
 
 	w.Weather = newWeather
 
+	return *w, nil
 }

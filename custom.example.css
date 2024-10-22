@@ -61,18 +61,31 @@ body{}
 .sleep #offline{}
 /* src/css/clock.css */
 #clock{}
-.layout-splitview-landscape #clock{}
-#clock:empty{}
 .clock--theme-fade::before{}
-.layout-splitview-landscape .clock--theme-fade::before{}
 .clock--theme-solid{}
-.layout-splitview-landscape .clock--theme-solid{}
 .clock--date{}
 .clock--time{}
 .sleep #clock{}
 .sleep .clock--date{}
 .sleep .clock--time{}
 .sleep #clock::before{}
+/* src/css/weather.css */
+#clock-weather-container{}
+#weather{}
+.layout-splitview #weather{}
+.weather--theme-fade::before{}
+.weather{}
+.weather--temp{}
+.weather--temp--value{}
+.weather--temp--unit{}
+.weather--description{}
+.weather--description--icon{}
+.weather--description--icon svg{}
+.layout-splitview #clock-weather-container{}
+.layout-splitview .weather{}
+.layout-splitview .weather--theme-fade::before{}
+.weather--theme-solid{}
+.layout-splitview .weather--theme-solid{}
 /* src/css/menu.css */
 #navigation-interaction-area{}
 .navigation{}
@@ -88,4 +101,5 @@ body{}
 .navigation--control--paused .navigation--control--play{}
 .navigation--control--paused .navigation--control--pause{}
 .sleep #navigation-interaction-area{}
+.layout-splitview .navigation{}
 /* src/css/kiosk.css */

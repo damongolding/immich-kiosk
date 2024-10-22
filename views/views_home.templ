@@ -300,8 +300,20 @@ templ Home(viewData ViewData) {
 			if viewData.ShowProgress {
 				@progressBar()
 			}
-			if !viewData.DisableUi && (viewData.ShowTime || viewData.ShowDate) {
-				@clock(viewData.Queries, viewData.Theme)
+			if !viewData.DisableUi {
+				<div id="clock-weather-container">
+					if (viewData.ShowTime || viewData.ShowDate) {
+						@clock(viewData.Queries, viewData.Theme)
+					}
+					<div
+						id="weather"
+						class={ fmt.Sprintf("weather--theme-%s", viewData.Theme) }
+						hx-get="/weather"
+						hx-include=".kiosk-param"
+						hx-trigger="load, every 61s"
+						hx-swap="innerHTML"
+					></div>
+				</div>
 			}
 			@menu()
 			@paramForm(viewData.Queries)
