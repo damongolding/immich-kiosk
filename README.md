@@ -232,7 +232,7 @@ See the file config.example.yaml for an example config file
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF   | bool                       | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION | bool                     | false       | Display the image location from METADATA (if available).                                   |
 | show_image_id                     | KIOSK_SHOW_IMAGE_ID     | bool                       | false       | Display the image Immich ID.                                   |
-
+| weather                           | N/A                     | string                     | ""          | Display the image Immich ID.                                   |
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
