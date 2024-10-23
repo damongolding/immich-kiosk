@@ -10,13 +10,13 @@ body{}
 .kiosk--spinner{}
 /* src/css/frame.css */
 .frame{}
-.frame-black-bg{}
 .frame--image{}
 .frame--image img{}
 .frame--image-fit-contain{}
 .frame--image-fit-cover{}
 .frame--background{}
 .frame--background img{}
+.layout-splitview .frame{}
 .frame--layout-splitview{}
 .frame--layout-splitview:nth-child(1){}
 .frame--layout-splitview:nth-child(2){}
