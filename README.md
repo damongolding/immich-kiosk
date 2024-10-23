@@ -385,7 +385,7 @@ The image is centered and displayed "as is". If the image is larger than your sc
 
 ------
 
-## Image effect
+## Image effects
 
 ### zoom
 > [!NOTE]
