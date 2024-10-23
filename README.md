@@ -160,7 +160,7 @@ services:
       KIOSK_FONT_SIZE: 100
       KIOSK_BACKGROUND_BLUR: TRUE
       KIOSK_THEME: FADE
-      KIOSK_LAYOUT: single
+      KIOSK_LAYOUT: SINGLE
       # Sleep mode
       KIOSK_SLEEP_START: 22
       KIOSK_SLEEP_END: 7
