@@ -54,6 +54,7 @@
   - [Albums](#albums)
   - [People](#people)
   - [Image fit](#image-fit)
+  - [Image effects](#image-effect)
   - [Date format](#date-format)
   - [Themes](#themes)
   - [Layouts](#layouts)
@@ -395,8 +396,6 @@ This effect zooms in or out to add movement to your images, with the center of t
 ### smart-zoom
 > [!NOTE]
 > [Image fit](#image-fit) is set to `cover` automatically when this effect is used.
-
-> [!NOTE]
 > If the image has multiple faces, Kiosk calculates the center of all faces to use as the focal point.
 
 Smart zoom works like the regular zoom but focuses on faces and includes both zooming and panning.
