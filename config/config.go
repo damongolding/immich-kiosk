@@ -321,6 +321,9 @@ func (c *Config) checkDebuging() {
 	}
 }
 
+// checkAlbumAndPerson validates and cleans up the Album and Person slices in the Config.
+// It removes any empty strings or placeholder values ("ALBUM_ID" or "PERSON_ID"),
+// and trims whitespace from the remaining values.
 func (c *Config) checkAlbumAndPerson() {
 	newAlbum := []string{}
 	for _, album := range c.Album {
@@ -337,6 +340,30 @@ func (c *Config) checkAlbumAndPerson() {
 		}
 	}
 	c.Person = newPerson
+}
+
+// checkWeatherLocations validates the WeatherLocations in the Config.
+// It checks each WeatherLocation for required fields (name, latitude, longitude, and API key),
+// and logs an error message if any required fields are missing.
+func (c *Config) checkWeatherLocations() {
+	for _, w := range c.WeatherLocations {
+		missingFields := []string{}
+		if w.Name == "" {
+			missingFields = append(missingFields, "name")
+		}
+		if w.Lat == "" {
+			missingFields = append(missingFields, "latitude")
+		}
+		if w.Lon == "" {
+			missingFields = append(missingFields, "longitude")
+		}
+		if w.API == "" {
+			missingFields = append(missingFields, "API key")
+		}
+		if len(missingFields) > 0 {
+			log.Errorf("Weather location is missing required fields: %s", strings.Join(missingFields, ", "))
+		}
+	}
 }
 
 // WatchConfig sets up a configuration file watcher that monitors for changes
@@ -471,6 +498,7 @@ func (c *Config) Load() error {
 	c.checkRequiredFields()
 	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
+	c.checkWeatherLocations()
 	c.checkDebuging()
 
 	return nil
