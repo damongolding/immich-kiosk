@@ -33,7 +33,7 @@ templ ImageFitContain(ImageData, imageFit string) {
 	/>
 }
 
-func ImageLocation(viewData ViewData, info immich.ExifInfo) string {
+func ImageLocation(hideCountries []string, info immich.ExifInfo) string {
 	var location strings.Builder
 
 	if info.City != "" {
@@ -45,7 +45,7 @@ func ImageLocation(viewData ViewData, info immich.ExifInfo) string {
 		location.WriteString(info.State)
 	}
 
-	if info.Country != "" && !slices.Contains(viewData.HideCountries, info.Country) {
+	if info.Country != "" && !slices.Contains(hideCountries, info.Country) {
 		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
 		location.WriteString(info.Country)
 	}
@@ -125,7 +125,7 @@ templ imageMetadata(viewData ViewData, imageIndex int) {
 		}
 		if viewData.ShowImageLocation {
 			<div class="image--metadata--location">
-				@templ.Raw(ImageLocation(viewData, viewData.Images[imageIndex].ImmichImage.ExifInfo))
+				@templ.Raw(ImageLocation(viewData.HideCountries, viewData.Images[imageIndex].ImmichImage.ExifInfo))
 			</div>
 		}
 		if viewData.ShowImageID {

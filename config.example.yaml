@@ -53,7 +53,8 @@ show_image_date: false # true or false
 image_date_format: YYYY-MM-DD
 show_image_exif: false
 show_image_location: false
-hide_countries: []
+hide_countries:
+  - "country to hide"
 show_image_id: false
 
 # options that can NOT be changed via url params
