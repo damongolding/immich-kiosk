@@ -346,7 +346,8 @@ func (c *Config) checkAlbumAndPerson() {
 // It checks each WeatherLocation for required fields (name, latitude, longitude, and API key),
 // and logs an error message if any required fields are missing.
 func (c *Config) checkWeatherLocations() {
-	for _, w := range c.WeatherLocations {
+	for i := 0; i < len(c.WeatherLocations); i++ {
+		w := c.WeatherLocations[i]
 		missingFields := []string{}
 		if w.Name == "" {
 			missingFields = append(missingFields, "name")
@@ -361,7 +362,9 @@ func (c *Config) checkWeatherLocations() {
 			missingFields = append(missingFields, "API key")
 		}
 		if len(missingFields) > 0 {
-			log.Errorf("Weather location is missing required fields: %s", strings.Join(missingFields, ", "))
+			log.Warn("Weather location is missing required fields. Ignoring this location.", "missing fields", strings.Join(missingFields, ", "), "name", w.Name)
+			c.WeatherLocations = append(c.WeatherLocations[:i], c.WeatherLocations[i+1:]...)
+			i--
 		}
 	}
 }

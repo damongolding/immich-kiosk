@@ -41,6 +41,10 @@ func init() {
 
 func main() {
 
+	fmt.Println(kioskBanner)
+	versionStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#5af78e")).Render
+	fmt.Print("Version ", versionStyle(version), "\n\n")
+
 	log.SetTimeFormat("15:04:05")
 
 	baseConfig := config.New()
@@ -68,12 +72,9 @@ func main() {
 		log.Debug("🕐", "current_time", time.Now().Format(time.Kitchen), "current_zone", zone)
 	}
 
-	fmt.Println(kioskBanner)
-	versionStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#5af78e")).Render(version)
-	fmt.Print("Version ", versionStyle, "\n\n")
-
 	e := echo.New()
 	e.HideBanner = true
+	e.HidePort = true
 
 	// Middleware
 	e.Use(middleware.Recover())
@@ -124,6 +125,8 @@ func main() {
 	e.GET("/cache/flush", routes.FlushCache)
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
+
+	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(fmt.Sprintf("%v", baseConfig.Kiosk.Port)))
 
 	err = e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
 	if err != nil {

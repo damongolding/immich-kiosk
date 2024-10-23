@@ -102,29 +102,29 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 	weatherDataStore.Store(w.Name, *w)
 
 	// Run once immediately
-	log.Info("Getting initial weather for", "name", w.Name)
+	log.Debug("Getting initial weather for", "name", w.Name)
 	newWeather, err := w.updateWeather()
 	if err != nil {
 		log.Error("Failed to update initial weather", "name", w.Name, "error", err)
 	} else {
 		weatherDataStore.Store(w.Name, newWeather)
-		log.Info("Retrieved initial weather for", "name", w.Name)
+		log.Debug("Retrieved initial weather for", "name", w.Name)
 	}
 
 	for {
 		select {
 		case <-ticker.C:
-			log.Info("Getting weather for", "name", w.Name)
+			log.Debug("Getting weather for", "name", w.Name)
 			newWeather, err := w.updateWeather()
 			if err != nil {
 				log.Error("Failed to update weather", "name", w.Name, "error", err)
 				continue
 			}
 			weatherDataStore.Store(w.Name, newWeather)
-			log.Info("Retrieved weather for", "name", w.Name)
+			log.Debug("Retrieved weather for", "name", w.Name)
 
 		case <-ctx.Done():
-			log.Info("Stopping weather updates for", "name", w.Name)
+			log.Debug("Stopping weather updates for", "name", w.Name)
 			return
 		}
 	}
