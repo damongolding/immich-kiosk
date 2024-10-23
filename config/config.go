@@ -70,6 +70,15 @@ type KioskSettings struct {
 	DebugVerbose bool `mapstructure:"debug_verbose" default:"false"`
 }
 
+type WeatherLocation struct {
+	Name string `mapstructure:"name"`
+	Lat  string `mapstructure:"lat"`
+	Lon  string `mapstructure:"lon"`
+	API  string `mapstructure:"api"`
+	Unit string `mapstructure:"unit"`
+	Lang string `mapstructure:"lang"`
+}
+
 type Config struct {
 	// V is the viper instance used for configuration management
 	V *viper.Viper
@@ -158,6 +167,8 @@ type Config struct {
 	ShowImageLocation bool `mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
 	// ShowImageID display image ID
 	ShowImageID bool `mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
+
+	WeatherLocations []WeatherLocation `mapstructure:"weather" default:"[]"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
@@ -310,6 +321,9 @@ func (c *Config) checkDebuging() {
 	}
 }
 
+// checkAlbumAndPerson validates and cleans up the Album and Person slices in the Config.
+// It removes any empty strings or placeholder values ("ALBUM_ID" or "PERSON_ID"),
+// and trims whitespace from the remaining values.
 func (c *Config) checkAlbumAndPerson() {
 	newAlbum := []string{}
 	for _, album := range c.Album {
@@ -326,6 +340,33 @@ func (c *Config) checkAlbumAndPerson() {
 		}
 	}
 	c.Person = newPerson
+}
+
+// checkWeatherLocations validates the WeatherLocations in the Config.
+// It checks each WeatherLocation for required fields (name, latitude, longitude, and API key),
+// and logs an error message if any required fields are missing.
+func (c *Config) checkWeatherLocations() {
+	for i := 0; i < len(c.WeatherLocations); i++ {
+		w := c.WeatherLocations[i]
+		missingFields := []string{}
+		if w.Name == "" {
+			missingFields = append(missingFields, "name")
+		}
+		if w.Lat == "" {
+			missingFields = append(missingFields, "latitude")
+		}
+		if w.Lon == "" {
+			missingFields = append(missingFields, "longitude")
+		}
+		if w.API == "" {
+			missingFields = append(missingFields, "API key")
+		}
+		if len(missingFields) > 0 {
+			log.Warn("Weather location is missing required fields. Ignoring this location.", "missing fields", strings.Join(missingFields, ", "), "name", w.Name)
+			c.WeatherLocations = append(c.WeatherLocations[:i], c.WeatherLocations[i+1:]...)
+			i--
+		}
+	}
 }
 
 // WatchConfig sets up a configuration file watcher that monitors for changes
@@ -465,6 +506,7 @@ func (c *Config) Load() error {
 	c.checkRequiredFields()
 	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
+	c.checkWeatherLocations()
 	c.checkDebuging()
 
 	return nil

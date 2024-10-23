@@ -94,3 +94,8 @@
 .sleep #navigation-interaction-area {
     background-color: black;
 }
+
+.layout-splitview .navigation {
+    right: 50%;
+    transform: translateX(50%);
+}
