@@ -171,7 +171,7 @@ services:
       # Image display settings
       KIOSK_SHOW_PROGRESS: FALSE
       KIOSK_IMAGE_FIT: CONTAIN
-      KIOSK_IMAGE_EFFECT: smart-zoom
+      KIOSK_IMAGE_EFFECT: SMART-ZOOM
       KIOSK_IMAGE_EFFECT_AMOUNT: 120
       # Image metadata
       KIOSK_SHOW_IMAGE_TIME: FALSE
