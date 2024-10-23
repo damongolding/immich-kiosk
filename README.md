@@ -59,6 +59,7 @@
   - [Layouts](#layouts)
   - [Sleep mode](#sleep-mode)
   - [Cusom CSS](#custom-css)
+  - [Weather](#weather)
 - [PWA](#pwa)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
