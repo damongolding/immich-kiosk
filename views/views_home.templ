@@ -235,10 +235,13 @@ templ sleepMode(sleepStart, sleepEnd string, queries url.Values) {
 	}
 }
 
-templ refreshCheckForm(kioskVersion, reloadTimeStamp string) {
+templ refreshCheckForm(kioskVersion, reloadTimeStamp string, queries url.Values) {
 	<form
 		hx-post="/refresh/check"
 		hx-trigger="every 7s"
+		if len(queries) > 0 {
+			hx-include=".kiosk-param, .kiosk-history--entry"
+		}
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp) }
 	></form>
 }
@@ -307,7 +310,7 @@ templ Home(viewData ViewData) {
 			@paramForm(viewData.Queries)
 			@sleepMode(viewData.SleepStart, viewData.SleepEnd, viewData.Queries)
 			@historyForm()
-			@refreshCheckForm(viewData.KioskVersion, viewData.ReloadTimeStamp)
+			@refreshCheckForm(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
 			@offlineIcon()
 			@kioskData(map[string]any{
 				"debug":              viewData.Kiosk.Debug,
