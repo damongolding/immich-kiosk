@@ -101,7 +101,19 @@ Using this URL `http://{URL}?image_fit=cover&transition=fade&person=PERSON_1_ID&
 ------
 
 ## Installation
-Use via [docker](#docker-compose) 👇
+There are two main ways to install Kiosk. 
+
+### Docker (recommended)
+
+1. Adding Kiosk to your exsiting Immich compose stack. 
+
+2. Download/create a compose file for Kiosk
+
+```sh
+curl -O compose url
+```
+
+### Binary 
 
 ------
 
