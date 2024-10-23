@@ -271,7 +271,7 @@ example:
 
 `https://{URL}?refresh=120&background_blur=false&transition=none`
 
-Thos above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
+The above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
 
 ------
 
