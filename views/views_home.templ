@@ -201,7 +201,7 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-templ clock(queries url.Values, theme string) {
+templ clockHtmx(queries url.Values, theme string) {
 	<div
 		id="clock"
 		class={ fmt.Sprintf("clock--theme-%s", theme) }
@@ -210,6 +210,17 @@ templ clock(queries url.Values, theme string) {
 			hx-include=".kiosk-param"
 		}
 		hx-trigger="load, every 13s"
+		hx-swap="innerHTML"
+	></div>
+}
+
+templ weatherHtmx(theme string) {
+	<div
+		id="weather"
+		class={ fmt.Sprintf("weather--theme-%s", theme) }
+		hx-get="/weather"
+		hx-include=".kiosk-param"
+		hx-trigger="load, every 61s"
 		hx-swap="innerHTML"
 	></div>
 }
@@ -302,17 +313,16 @@ templ Home(viewData ViewData) {
 			}
 			if !viewData.DisableUi {
 				<div id="clock-weather-container">
-					if (viewData.ShowTime || viewData.ShowDate) {
-						@clock(viewData.Queries, viewData.Theme)
-					}
-					<div
-						id="weather"
-						class={ fmt.Sprintf("weather--theme-%s", viewData.Theme) }
-						hx-get="/weather"
-						hx-include=".kiosk-param"
-						hx-trigger="load, every 61s"
-						hx-swap="innerHTML"
-					></div>
+					<div>
+						if (viewData.ShowTime || viewData.ShowDate) {
+							@clockHtmx(viewData.Queries, viewData.Theme)
+						}
+					</div>
+					<div>
+						if len(viewData.WeatherLocations) > 0 {
+							@weatherHtmx(viewData.Theme)
+						}
+					</div>
 				</div>
 			}
 			@menu()

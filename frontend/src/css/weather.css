@@ -92,6 +92,11 @@
 .weather--description--icon svg {
     fill: #fff;
     opacity: 0.8;
+    filter: drop-shadow(0 0 1rem rgba(0, 0, 0, 1));
+}
+
+.weather--description--value {
+    z-index: 1;
 }
 
 /* Splitview */
@@ -104,8 +109,10 @@
 .layout-splitview .weather--theme-fade::before {
     content: "";
     position: absolute;
-    bottom: -1rem;
-    left: -1rem;
+    top: -1rem;
+    left: unset;
+    right: -1rem;
+    bottom: unset;
     width: 150%;
     height: 200%;
     background-image: radial-gradient(

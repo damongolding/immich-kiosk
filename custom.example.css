@@ -84,6 +84,7 @@ body{}
 .weather--description{}
 .weather--description--icon{}
 .weather--description--icon svg{}
+.weather--description--value{}
 .layout-splitview .weather{}
 .layout-splitview .weather--theme-fade::before{}
 .weather--theme-solid{}
