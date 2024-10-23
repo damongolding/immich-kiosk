@@ -224,8 +224,8 @@ See the file config.example.yaml for an example config file
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
 | [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | contain     | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
-| image_zoom                        | KIOSK_IMAGE_ZOOM        | bool                       | false       | Add a zoom effect to images.                                                               |
-| image_zoom_amount                 | KIOSK_IMAGE_ZOOM_AMOUNT | int                        | 120         | The amount to zoom out/in on an image as a percentage. DO NOT include the % character. 100 is the minimum. |
+| [image_effect](#image-effect)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom    | ""          | Add an effect to images.                                                               |
+| [image_effect_amount](#image-effect) | KIOSK_IMAGE_EFFECT_AMOUNT | int                   | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
@@ -382,6 +382,27 @@ The image will cover the whole screen. To achieve this the image will mostly lik
 ### None
 The image is centered and displayed "as is". If the image is larger than your screen it will be scaled down to fit your screen.
 
+------
+
+## Image effect
+
+### zoom
+> [!NOTE]
+> [Image fit](#image-fit) is set to `cover` automatically when this effect is used.
+
+This effect zooms in or out to add movement to your images, with the center of the image as the focal point.
+
+### smart-zoom
+> [!NOTE]
+> [Image fit](#image-fit) is set to `cover` automatically when this effect is used.
+
+> [!NOTE]
+> If the image has multiple faces, Kiosk calculates the center of all faces to use as the focal point.
+
+Smart zoom works like the regular zoom but focuses on faces and includes both zooming and panning.
+
+> [!TIP]
+> To achieve a "Ken Burns" style effect change the `image_effect_amount` to somewhere between 200-400.
 
 ------
 
