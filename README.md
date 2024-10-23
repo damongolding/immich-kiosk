@@ -54,7 +54,7 @@
   - [Albums](#albums)
   - [People](#people)
   - [Image fit](#image-fit)
-  - [Image effects](#image-effect)
+  - [Image effects](#image-effects)
   - [Date format](#date-format)
   - [Themes](#themes)
   - [Layouts](#layouts)
@@ -171,8 +171,8 @@ services:
       # Image display settings
       KIOSK_SHOW_PROGRESS: FALSE
       KIOSK_IMAGE_FIT: CONTAIN
-      KIOSK_IMAGE_ZOOM: FALSE
-      KIOSK_IMAGE_ZOOM_AMOUNT: 120
+      KIOSK_IMAGE_EFFECT: smart-zoom
+      KIOSK_IMAGE_EFFECT_AMOUNT: 120
       # Image metadata
       KIOSK_SHOW_IMAGE_TIME: FALSE
       KIOSK_IMAGE_TIME_FORMAT: 24
@@ -225,8 +225,8 @@ See the file config.example.yaml for an example config file
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
 | [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | contain     | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
-| [image_effect](#image-effect)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom    | ""          | Add an effect to images.                                                               |
-| [image_effect_amount](#image-effect) | KIOSK_IMAGE_EFFECT_AMOUNT | int                   | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
+| [image_effect](#image-effects)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom    | ""          | Add an effect to images.                                                               |
+| [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                   | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
