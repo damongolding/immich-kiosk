@@ -105,9 +105,9 @@ There are two main ways to install Kiosk.
 
 ### Docker (recommended)
 
-1. Adding Kiosk to your exsiting Immich compose stack. 
+#### Option 1: Add Kiosk to your exsiting Immich compose stack. 
 
-2. Download/create a compose file for Kiosk
+#### Option 2: Download/create a compose file for Kiosk
 
 ```sh
 curl -O compose url
