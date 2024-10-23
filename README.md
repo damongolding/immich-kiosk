@@ -232,7 +232,7 @@ See the file config.example.yaml for an example config file
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF   | bool                       | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION | bool                     | false       | Display the image location from METADATA (if available).                                   |
 | show_image_id                     | KIOSK_SHOW_IMAGE_ID     | bool                       | false       | Display the image Immich ID.                                   |
-| weather                           | N/A                     | string                     | ""          | Display the image Immich ID.                                   |
+| [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
@@ -505,6 +505,54 @@ There is a `custom.example.css` file included that contains all the CSS selector
 The custom CSS will apply to all devices connected to Kiosk by default.
 
 To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?cusom_css=false`
+
+------
+
+## Weather
+
+> [!NOTE]
+> To use the weather feature, you’ll need an API key from [OpenWeatherMap](https://openweathermap.org).
+
+> [!TIP]
+> OpenWeatherMap limits API usage to 60 calls per hour.
+> Since the kiosk refreshes weather data every 10 minutes, you can monitor up to 6 locations with a single API key.
+
+### Setting Up Weather Locations
+
+You can configure multiple locations in the `config.yaml` file, and choose which one to display using the URL query `weather=NAME`.
+
+### Weather Location Configuration Options:
+
+| **Value**   | **Description** |
+|-------------|-----------------|
+| name        | The location’s display name (used in the URL query). |
+| lat         | Latitude of the location. |
+| lon         | Longitude of the location. |
+| api         | OpenWeatherMap API key. |
+| unit        | Units of measurement (`standard`, `metric`, or `imperial`). |
+| lang        | Language code for weather descriptions (see the full list [here](https://openweathermap.org/current#multi)). |
+
+### Example Configuration
+
+Here’s an example of how to add London and New York to the config.yaml file. These locations would be selectable via the URL, like this:
+http://{URL}?weather=london or http://{URL}?weather=new-york.
+
+```yaml
+ weather:
+  - name: london
+    lat: 51.5285262
+    lon: -0.2663999
+    api: API_KEY
+    unit: metric
+    lang: en
+
+  - name: new-york
+    lat: 40.6973709
+    lon: -74.1444838
+    api: API_KEY
+    unit: imperial
+    lang: en
+```
 
 ------
 
