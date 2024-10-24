@@ -109,8 +109,16 @@ There are two main ways to install Kiosk.
 
 #### Option 2: Download/create a compose file for Kiosk
 
-```sh
-curl -O compose url
+Create a directory of your choice (e.g. ./immich-kiosk) to hold the `docker-compose.yml` and config file.
+
+```bash
+mkdir ./immich-kiosk
+cd ./immich-kiosk
+```
+Download `docker-compose.yml`.
+
+```bash
+wget -O docker-compose.yml url
 ```
 
 ### Binary 
