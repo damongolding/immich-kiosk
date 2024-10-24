@@ -131,8 +131,8 @@ There are two main ways to install Kiosk.
 
   **Step 3**: Create the `config.yaml` file.
 
-  > [!NOTE]
-  > You may use [environment variables](#when-using-environment-variables) if preferred.
+> [!NOTE]
+> You may use [environment variables](#when-using-environment-variables) if preferred.
 
   Create config dir and download `config.yaml` file.
 
