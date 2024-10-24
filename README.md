@@ -105,7 +105,7 @@ There are two main ways to install Kiosk.
 
 ### Docker (recommended)
 
-* #### Option 1: Add Kiosk to your exsiting Immich compose stack.
+#### Option 1: Add Kiosk to your exsiting Immich compose stack.
 
   1. Add Kiosk to your Immich `docker-compose.yaml` file.
 
@@ -130,7 +130,6 @@ There are two main ways to install Kiosk.
 
   3. Create the `config.yaml` file.
 
-     > [!NOTE]
      > You may use [environment variables](#when-using-environment-variables) if preferred.
 
      Create config dir and download `config.yaml` file.
