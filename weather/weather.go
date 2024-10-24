@@ -84,8 +84,6 @@ type Sys struct {
 }
 
 func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 
 	ticker := time.NewTicker(time.Minute * 10)
 	defer ticker.Stop()
@@ -113,6 +111,9 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 
 	for {
 		select {
+		case <-ctx.Done():
+			log.Debug("Stopping weather updates for", "name", w.Name)
+			return
 		case <-ticker.C:
 			log.Debug("Getting weather for", "name", w.Name)
 			newWeather, err := w.updateWeather()
@@ -122,10 +123,6 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 			}
 			weatherDataStore.Store(w.Name, newWeather)
 			log.Debug("Retrieved weather for", "name", w.Name)
-
-		case <-ctx.Done():
-			log.Debug("Stopping weather updates for", "name", w.Name)
-			return
 		}
 	}
 }

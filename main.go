@@ -16,6 +16,8 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
 	"time"
 
@@ -95,12 +97,6 @@ func main() {
 		}))
 	}
 
-	weatherCtx := context.Background()
-
-	for _, w := range baseConfig.WeatherLocations {
-		go weather.AddWeatherLocation(weatherCtx, w)
-	}
-
 	// CSS cache busting
 	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public)
 
@@ -126,10 +122,31 @@ func main() {
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	for _, w := range baseConfig.WeatherLocations {
+		go weather.AddWeatherLocation(ctx, w)
+	}
+
 	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(fmt.Sprintf("%v", baseConfig.Kiosk.Port)))
 
-	err = e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
-	if err != nil {
+	go func() {
+		err = e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+	}()
+
+	<-ctx.Done()
+
+	fmt.Println("Kiosk shutting down")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := e.Shutdown(ctx); err != nil {
 		log.Fatal(err)
 	}
+
 }
