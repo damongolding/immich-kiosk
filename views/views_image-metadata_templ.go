@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -20,7 +21,7 @@ import (
 
 // ImageLocation generates a formatted string of the image location based on EXIF information.
 // It combines the city, state, and country information if available.
-func ImageLocation(info immich.ExifInfo) string {
+func ImageLocation(info immich.ExifInfo, hideCountries []string) string {
 	var location strings.Builder
 
 	if info.City != "" {
@@ -32,7 +33,7 @@ func ImageLocation(info immich.ExifInfo) string {
 		location.WriteString(info.State)
 	}
 
-	if info.Country != "" {
+	if info.Country != "" && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
 		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
 		location.WriteString(info.Country)
 	}
@@ -155,7 +156,7 @@ func imageMetadata(viewData ViewData, imageIndex int) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(ImageDateTime(viewData, imageIndex))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-metadata.templ`, Line: 103, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-metadata.templ`, Line: 104, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -185,7 +186,7 @@ func imageMetadata(viewData ViewData, imageIndex int) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.Raw(ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo)).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = templ.Raw(ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo, viewData.HideCountries)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -202,7 +203,7 @@ func imageMetadata(viewData ViewData, imageIndex int) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(viewData.Images[imageIndex].ImmichImage.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-metadata.templ`, Line: 118, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-metadata.templ`, Line: 119, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {

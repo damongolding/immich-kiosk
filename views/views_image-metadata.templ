@@ -25,7 +25,7 @@ func ImageLocation(info immich.ExifInfo, hideCountries []string) string {
 		location.WriteString(info.State)
 	}
 
-	if info.Country != "" && !slices.Contains(hideCountries, info.Country) {
+	if info.Country != "" && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
 		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
 		location.WriteString(info.Country)
 	}
@@ -111,7 +111,7 @@ templ imageMetadata(viewData ViewData, imageIndex int) {
 		}
 		if viewData.ShowImageLocation {
 			<div class="image--metadata--location">
-				@templ.Raw(ImageLocation(viewData.HideCountries, viewData.Images[imageIndex].ImmichImage.ExifInfo))
+				@templ.Raw(ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo, viewData.HideCountries))
 			</div>
 		}
 		if viewData.ShowImageID {

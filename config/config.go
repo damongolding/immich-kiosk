@@ -371,6 +371,23 @@ func (c *Config) checkWeatherLocations() {
 	}
 }
 
+// checkHideCountries processes the list of countries to hide in location information
+// by converting all country names to lowercase for case-insensitive matching.
+// If the HideCountries slice is empty, the function returns early without making
+// any modifications.
+//
+// This normalization ensures consistent matching of country names regardless of
+// the casing used in the configuration or location data.
+func (c *Config) checkHideCountries() {
+	if len(c.HideCountries) == 0 {
+		return
+	}
+
+	for i, country := range c.HideCountries {
+		c.HideCountries[i] = strings.ToLower(country)
+	}
+}
+
 // WatchConfig sets up a configuration file watcher that monitors for changes
 // and reloads the configuration when necessary.
 func (c *Config) WatchConfig() {
@@ -508,6 +525,7 @@ func (c *Config) Load() error {
 	c.checkRequiredFields()
 	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
+	c.checkHideCountries()
 	c.checkWeatherLocations()
 	c.checkDebuging()
 

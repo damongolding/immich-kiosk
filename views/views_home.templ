@@ -224,8 +224,7 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-
-templ clockHtmx(queries url.Values, theme string) {
+templ clockHtmx(theme string) {
 	<div
 		id="clock"
 		class={ fmt.Sprintf("clock--theme-%s", theme) }
@@ -338,16 +337,15 @@ templ Home(viewData ViewData) {
 				<div id="clock-weather-container">
 					<div>
 						if (viewData.ShowTime || viewData.ShowDate) {
-							@clockHtmx(viewData.Queries, viewData.Theme)
+							@clockHtmx(viewData.Theme)
 						}
 					</div>
 					<div>
-						if len(viewData.WeatherLocations) > 0 {
+						if viewData.Queries.Has("weather") {
 							@weatherHtmx(viewData.Theme)
 						}
 					</div>
 				</div>
-
 			}
 			@menu()
 			@paramForm(viewData.Queries)

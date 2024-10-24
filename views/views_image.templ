@@ -5,8 +5,6 @@ import (
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"strings"
-	"time"
-	"slices"
 )
 
 // Image is the main entry point for rendering images.
@@ -168,8 +166,6 @@ templ RenderImageWithContainFit(ImageData, imageFit string) {
 	/>
 }
 
-
-
 // transformOrigin generates a CSS class for the transform-origin property.
 //
 // Parameters:
@@ -207,8 +203,6 @@ func smartZoom(image immich.ImmichAsset) templ.CSSClass {
 
 	return transformOrigin(fmt.Sprintf("%f%% %f%%", x, y))
 }
-
-
 
 // renderHistory renders a form containing the viewing history of images.
 //
