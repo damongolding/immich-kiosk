@@ -107,21 +107,47 @@ There are two main ways to install Kiosk.
 
 #### Option 1: Add Kiosk to your exsiting Immich compose stack. 
 
-#### Option 2: Download/create a compose file for Kiosk
+#### Option 2: Create a seprate compose file for Kiosk
 
-Create a directory of your choice (e.g. ./immich-kiosk) to hold the `docker-compose.yml` and config file.
+Step 1: Create a directory of your choice (e.g. ./immich-kiosk) to hold the `docker-compose.yaml` and config file.
 
 ```bash
 mkdir ./immich-kiosk
 cd ./immich-kiosk
 ```
-Download `docker-compose.yml`.
+Step 2: Download `docker-compose.yaml`.
 
 ```bash
-wget -O docker-compose.yml url
+wget -O docker-compose.yaml url
 ```
 
-### Binary 
+Set your timezone by updating the `TZ` variable.
+
+Step 3: Create config
+
+> [!NOTE]
+> You may use environment variables if preferred.
+
+Create config dir and download `config.yaml` file.
+
+```sh
+mkdir ./config
+wget -O ./config/config.yaml url
+```
+
+Step 4: Modify `config.yaml` file.
+
+Only the `immich_url` and `immich_api_key` are required fields.
+
+Step 5: Start the container
+```sh
+docker compose up -d
+```
+
+
+### Binary
+
+Vist [the latest release](https://github.com/damongolding/immich-kiosk/releases/latest) and scroll to the assets at the bottom of the release notes. 
 
 ------
 
@@ -141,14 +167,14 @@ services:
     volumes:
       # Mount the directory with config.yaml inside
       - ./config:/config
-    restart: on-failure
+    restart: alwayd
     ports:
       - 3000:3000
 ```
 
 ### When using environment variables
 
-> [!NOTE]
+> [!TIP]
 > You do not need to specifiy all of these.
 > If you want the default behaviour/value you can omit it from you compose file.
 
@@ -210,7 +236,7 @@ services:
       KIOSK_PORT: 3000
     ports:
       - 3000:3000
-    restart: on-failure
+    restart: always
 ```
 
 ------
@@ -227,7 +253,7 @@ See the file config.example.yaml for an example config file
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
-| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
+| disable_screensaver              | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
