@@ -113,7 +113,7 @@ There are two main ways to install Kiosk.
 
   Follow from step 3 in option 2 to create the `config.yaml` file.
 
-* #### Option 2: Create a seprate compose file for Kiosk.
+#### Option 2: Create a seprate compose file for Kiosk.
 
   1. Create a directory of your choice (e.g. ./immich-kiosk) to hold the `docker-compose.yaml` and config file.
      ```sh
@@ -151,30 +151,29 @@ There are two main ways to install Kiosk.
 
 ### Binary
 
-**Step 1**: Download the binary file
-Vist [the latest release](https://github.com/damongolding/immich-kiosk/releases/latest) and scroll to the assets at the bottom of the release notes.
-Download the archive file that matches your machines architecture and unarchive.
+1. Download the binary file
+   Vist [the latest release](https://github.com/damongolding/immich-kiosk/releases/latest) and scroll to the assets at the bottom of the release notes.
+   Download the archive file that matches your machines architecture and unarchive.
 
-**Step 2**:
-Create config dir and download `config.yaml` file.
+2. Create config dir and download `config.yaml` file.
 
-```sh
-mkdir ./config
-wget -O ./config/config.yaml url
-```
+   ```sh
+   mkdir ./config
+   wget -O ./config/config.yaml url
+   ```
 
-**Step 3**: Modify `config.yaml` file.
+3. Modify `config.yaml` file.
 
-Only the `immich_url` and `immich_api_key` are required fields.
+   Only the `immich_url` and `immich_api_key` are required fields.
 
-**Step 4**: Start Kiosk
+4. Start Kiosk
+   ```sh
+   ./kiosk
+   ```
 
 > [!TIP]
 > Use something like `systemd` to automate starting Kiosk
 
-```sh
-./kiosk
-```
 
 ------
 
