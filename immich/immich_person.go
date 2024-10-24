@@ -137,10 +137,11 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 	}
 
 	requestBody := ImmichSearchRandomBody{
-		PersonIds: []string{personID},
-		Type:      string(ImageType),
-		WithExif:  true,
-		Size:      1000,
+		PersonIds:  []string{personID},
+		Type:       string(ImageType),
+		WithExif:   true,
+		WithPeople: true,
+		Size:       1000,
 	}
 
 	if requestConfig.ShowArchived {

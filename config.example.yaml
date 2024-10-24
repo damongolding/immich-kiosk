@@ -29,11 +29,11 @@ hide_cursor: false # Hide cursor/mouse via CSS.
 font_size: 100 # the base font size as a percentage. OMIT the % character
 background_blur: true # display a blurred version of image as background
 theme: fade # which theme to use. fade or solid
-layout: single # which layout to use. single or splitview
+layout: single # which layout to use. single, splitview or splitview-landscape
 
 # Sleep mode
-sleep_start: 22 # sleep mode start time
-sleep_end: 7 # sleep mode end time
+# sleep_start: 22 # sleep mode start time
+# sleep_end: 7 # sleep mode end time
 
 # Transition options
 transition: none # cross-fade, fade or none
@@ -56,6 +56,14 @@ show_image_location: false
 hide_countries:
   - "country to hide"
 show_image_id: false
+
+# weather:
+#   - name: london
+#     lat: 51.5285262
+#     lon: -0.2663999
+#     api: ""
+#     unit: metric
+#     lang: en
 
 # options that can NOT be changed via url params
 kiosk:

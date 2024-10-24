@@ -56,7 +56,7 @@ func crossFadeDurationCSS(crossFadeDuration float32) string {
     `, crossFadeDuration)
 }
 
-func kioskCrossFade(kioskVersion string, deviceID string, queries url.Values, crossFadeDuration float32) templ.Component {
+func kioskCrossFade(kioskVersion string, deviceID string, crossFadeDuration float32) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -81,29 +81,14 @@ func kioskCrossFade(kioskVersion string, deviceID string, queries url.Values, cr
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if len(queries) > 0 {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-param, .kiosk-history--entry\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-history--entry\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-trigger=\"load, kiosk-new-image\" hx-swap=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\" hx-include=\".kiosk-history--entry\" hx-trigger=\"load, kiosk-new-image\" hx-swap=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("beforeend settle:%.1fs", crossFadeDuration+1))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 41, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 37, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -116,7 +101,7 @@ func kioskCrossFade(kioskVersion string, deviceID string, queries url.Values, cr
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 44, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 40, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -148,7 +133,7 @@ func fadeDurationCSS(fadeDuration float32) string {
         `, fadeDuration)
 }
 
-func kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDuration float32) templ.Component {
+func kioskFade(kioskVersion string, deviceID string, fadeDuration float32) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -173,29 +158,14 @@ func kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDur
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if len(queries) > 0 {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-param, .kiosk-history--entry\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-history--entry\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-trigger=\"load, kiosk-new-image\" hx-swap=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\" hx-include=\".kiosk-history--entry\" hx-trigger=\"load, kiosk-new-image\" hx-swap=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration/2))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 71, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 63, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -208,7 +178,7 @@ func kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDur
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 73, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 65, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -230,7 +200,7 @@ func kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDur
 	})
 }
 
-func kioskNone(kioskVersion string, deviceID string, queries url.Values) templ.Component {
+func kioskNone(kioskVersion string, deviceID string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -251,29 +221,14 @@ func kioskNone(kioskVersion string, deviceID string, queries url.Values) templ.C
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if len(queries) > 0 {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-param, .kiosk-history--entry\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-history--entry\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-trigger=\"load, kiosk-new-image\" hx-swap=\"innerHTML\" hx-on::after-request=\"kiosk.startPolling()\" hx-headers=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\" hx-include=\".kiosk-history--entry\" hx-trigger=\"load, kiosk-new-image\" hx-swap=\"innerHTML\" hx-on::after-request=\"kiosk.startPolling()\" hx-headers=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 91, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 79, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -317,6 +272,37 @@ func baseFontSizeMobile(fontSize int) string {
 		</style>`, fontSize-20)
 }
 
+func imageSmartZoomKeyframes(zoomAmount int) string {
+
+	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
+	return fmt.Sprintf(`
+	<style>
+	      @keyframes image-smart-zoom-in {
+            from {
+                transform: scale3d(1,1,1);
+                transform-origin: center;
+            }
+
+            to {
+                transform: scale3d(%.2f,%.2f,%.2f);
+                transform-origin: inherit;
+            }
+        }
+
+        @keyframes image-smart-zoom-out {
+            from {
+                transform: scale3d(%.2f,%.2f,%.2f);
+                transform-origin: inherit;
+            }
+
+            to {
+                transform: scale3d(1,1,1);
+                transform-origin: center;
+            }
+        }
+        </style>`, zoom, zoom, zoom, zoom, zoom, zoom)
+}
+
 func imageZoomKeyframes(zoomAmount int) string {
 
 	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
@@ -325,24 +311,28 @@ func imageZoomKeyframes(zoomAmount int) string {
 	   <style>
 			@keyframes image-zoom-in {
                 from {
-                    transform: scale(1);
+                    transform: scale3d(1,1,1);
+                    transform-origin: center;
                 }
 
                 to {
-                    transform: scale(%.2f);
+                    transform: scale3d(%.2f,%.2f,%.2f);
+                    transform-origin: center;
                 }
             }
 
             @keyframes image-zoom-out {
                 from {
-                    transform: scale(%.2f);
+                    transform: scale3d(%.2f,%.2f,%.2f);
+                    transform-origin: center;
                 }
 
                 to {
-                    transform: scale(1);
+                    transform: scale3d(1,1,1);
+                    transform-origin: center;
                 }
             }
-		</style>`, zoom, zoom)
+		</style>`, zoom, zoom, zoom, zoom, zoom, zoom)
 }
 
 func customCss(css []byte) string {
@@ -361,8 +351,8 @@ func animationDuration(duration int) templ.CSSClass {
 	}
 }
 
-func zoomInOrOut() string {
-	return fmt.Sprintf("frame--image-zoom-%s", utils.RandomItem([]string{"in", "out"}))
+func zoomInOrOut(zoomType string) string {
+	return fmt.Sprintf("frame--image-%s-%s", zoomType, utils.RandomItem([]string{"in", "out"}))
 }
 
 func kioskData(data any) templ.Component {
@@ -490,7 +480,7 @@ func paramForm(queries url.Values) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 198, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 221, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -503,7 +493,7 @@ func paramForm(queries url.Values) templ.Component {
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 198, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 221, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -523,7 +513,7 @@ func paramForm(queries url.Values) templ.Component {
 	})
 }
 
-func clock(queries url.Values, theme string) templ.Component {
+func clockHtmx(queries url.Values, theme string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -562,17 +552,54 @@ func clock(queries url.Values, theme string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-get=\"/clock\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-get=\"/clock\" hx-trigger=\"load, every 13s\" hx-swap=\"innerHTML\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if len(queries) > 0 {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-param\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
+		return templ_7745c5c3_Err
+	})
+}
+
+func weatherHtmx(theme string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-trigger=\"load, every 13s\" hx-swap=\"innerHTML\"></div>")
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var19 == nil {
+			templ_7745c5c3_Var19 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		var templ_7745c5c3_Var20 = []any{fmt.Sprintf("weather--theme-%s", theme)}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var20...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"weather\" class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var21 string
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var20).String())
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 1, Col: 0}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-get=\"/weather\" hx-include=\".kiosk-param\" hx-trigger=\"load, every 61s\" hx-swap=\"innerHTML\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -596,9 +623,9 @@ func progressBar() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var19 == nil {
-			templ_7745c5c3_Var19 = templ.NopComponent
+		templ_7745c5c3_Var22 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var22 == nil {
+			templ_7745c5c3_Var22 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"progress\"><div class=\"progress--bar\"></div></div>")
@@ -609,7 +636,7 @@ func progressBar() templ.Component {
 	})
 }
 
-func sleepMode(sleepStart, sleepEnd string, queries url.Values) templ.Component {
+func sleepMode(sleepStart, sleepEnd string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -625,23 +652,13 @@ func sleepMode(sleepStart, sleepEnd string, queries url.Values) templ.Component 
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var20 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var20 == nil {
-			templ_7745c5c3_Var20 = templ.NopComponent
+		templ_7745c5c3_Var23 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var23 == nil {
+			templ_7745c5c3_Var23 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		if sleepStart != "" && sleepEnd != "" {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-get=\"/sleep\" hx-trigger=\"load, every 13s\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if len(queries) > 0 {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-include=\".kiosk-param\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" hx-target=\"#navigation-interaction-area\"></form>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-get=\"/sleep\" hx-trigger=\"load, every 13s\" hx-target=\"#navigation-interaction-area\"></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -666,21 +683,21 @@ func refreshCheckForm(kioskVersion, reloadTimeStamp string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var21 == nil {
-			templ_7745c5c3_Var21 = templ.NopComponent
+		templ_7745c5c3_Var24 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var24 == nil {
+			templ_7745c5c3_Var24 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/refresh/check\" hx-trigger=\"every 7s\" hx-headers=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var22 string
-		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp))
+		var templ_7745c5c3_Var25 string
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 242, Col: 115}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 271, Col: 115}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -708,17 +725,17 @@ func Home(viewData ViewData) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var23 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var23 == nil {
-			templ_7745c5c3_Var23 = templ.NopComponent
+		templ_7745c5c3_Var26 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var26 == nil {
+			templ_7745c5c3_Var26 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var24 = []any{baseFontSize(viewData.FontSize)}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var24...)
+		var templ_7745c5c3_Var27 = []any{baseFontSize(viewData.FontSize)}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var27...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -726,12 +743,12 @@ func Home(viewData ViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var25 string
-		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var24).String())
+		var templ_7745c5c3_Var28 string
+		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var27).String())
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 1, Col: 0}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -739,12 +756,12 @@ func Home(viewData ViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var26 string
-		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(viewData.KioskVersion)
+		var templ_7745c5c3_Var29 string
+		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(viewData.KioskVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 252, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 281, Col: 55}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -752,12 +769,12 @@ func Home(viewData ViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var27 string
-		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))))
+		var templ_7745c5c3_Var30 string
+		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 260, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 289, Col: 114}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -771,9 +788,17 @@ func Home(viewData ViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templ.Raw(imageZoomKeyframes(viewData.ImageZoomAmount)).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		switch strings.ToLower(viewData.ImageEffect) {
+		case "zoom":
+			templ_7745c5c3_Err = templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount)).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		case "smart-zoom":
+			templ_7745c5c3_Err = templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount)).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		templ_7745c5c3_Err = templ.Raw(baseFontSizeMobile(viewData.FontSize)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -789,8 +814,8 @@ func Home(viewData ViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var28 = []any{fmt.Sprintf("layout-%s", viewData.Layout)}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var28...)
+		var templ_7745c5c3_Var31 = []any{fmt.Sprintf("layout-%s", viewData.Layout)}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var31...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -798,12 +823,12 @@ func Home(viewData ViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var29 string
-		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var28).String())
+		var templ_7745c5c3_Var32 string
+		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var31).String())
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 1, Col: 0}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -813,17 +838,17 @@ func Home(viewData ViewData) templ.Component {
 		}
 		switch strings.ToLower(viewData.Transition) {
 		case "cross-fade":
-			templ_7745c5c3_Err = kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.CrossFadeTransitionDuration).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.CrossFadeTransitionDuration).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case "fade":
-			templ_7745c5c3_Err = kioskFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.FadeTransitionDuration).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = kioskFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.FadeTransitionDuration).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		default:
-			templ_7745c5c3_Err = kioskNone(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = kioskNone(viewData.KioskVersion, utils.GenerateUUID()).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -834,8 +859,28 @@ func Home(viewData ViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		if !viewData.DisableUi && (viewData.ShowTime || viewData.ShowDate) {
-			templ_7745c5c3_Err = clock(viewData.Queries, viewData.Theme).Render(ctx, templ_7745c5c3_Buffer)
+		if !viewData.DisableUi {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"clock-weather-container\"><div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if viewData.ShowTime || viewData.ShowDate {
+				templ_7745c5c3_Err = clockHtmx(viewData.Queries, viewData.Theme).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if len(viewData.WeatherLocations) > 0 {
+				templ_7745c5c3_Err = weatherHtmx(viewData.Theme).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -848,7 +893,7 @@ func Home(viewData ViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = sleepMode(viewData.SleepStart, viewData.SleepEnd, viewData.Queries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = sleepMode(viewData.SleepStart, viewData.SleepEnd).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -879,16 +924,26 @@ func Home(viewData ViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var30 string
-		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))))
+		var templ_7745c5c3_Var33 string
+		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 320, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 366, Col: 96}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></script></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></script>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if len(viewData.Queries) > 0 {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n\t\t\t\t  const kioskQueires = document.body.querySelectorAll(\".kiosk-param\");\n   \t\t           document.body.addEventListener(\"htmx:configRequest\", (event) => {\n                    kioskQueires.forEach((q) => {\n                      event.detail.parameters[q.name] = q.value;\n                    });\n                  });\n                </script>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

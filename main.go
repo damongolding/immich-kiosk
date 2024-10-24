@@ -12,9 +12,12 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
 	"time"
 
@@ -25,6 +28,7 @@ import (
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/routes"
+	"github.com/damongolding/immich-kiosk/weather"
 )
 
 // version current build version number
@@ -38,6 +42,10 @@ func init() {
 }
 
 func main() {
+
+	fmt.Println(kioskBanner)
+	versionStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#5af78e")).Render
+	fmt.Print("Version ", versionStyle(version), "\n\n")
 
 	log.SetTimeFormat("15:04:05")
 
@@ -66,12 +74,9 @@ func main() {
 		log.Debug("🕐", "current_time", time.Now().Format(time.Kitchen), "current_zone", zone)
 	}
 
-	fmt.Println(kioskBanner)
-	versionStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#5af78e")).Render(version)
-	fmt.Print("Version ", versionStyle, "\n\n")
-
 	e := echo.New()
 	e.HideBanner = true
+	e.HidePort = true
 
 	// Middleware
 	e.Use(middleware.Recover())
@@ -109,14 +114,39 @@ func main() {
 
 	e.GET("/clock", routes.Clock(baseConfig))
 
+	e.GET("/weather", routes.Weather(baseConfig))
+
 	e.GET("/sleep", routes.Sleep(baseConfig))
 
 	e.GET("/cache/flush", routes.FlushCache)
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
-	err = e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
-	if err != nil {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	for _, w := range baseConfig.WeatherLocations {
+		go weather.AddWeatherLocation(ctx, w)
+	}
+
+	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(fmt.Sprintf("%v", baseConfig.Kiosk.Port)))
+
+	go func() {
+		err = e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+	}()
+
+	<-ctx.Done()
+
+	fmt.Println("Kiosk shutting down")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := e.Shutdown(ctx); err != nil {
 		log.Fatal(err)
 	}
+
 }

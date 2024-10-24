@@ -78,24 +78,24 @@ type ExifInfo struct {
 	ImageOrientation ImageOrientation
 }
 
-type People []struct {
+type Person struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
 	BirthDate     any       `json:"-"` // `json:"birthDate"`
 	ThumbnailPath string    `json:"-"` // `json:"thumbnailPath"`
 	IsHidden      bool      `json:"-"` // `json:"isHidden"`
 	UpdatedAt     time.Time `json:"-"` // `json:"updatedAt"`
-	Faces         Faces     `json:"-"` // `json:"faces"`
+	Faces         []Face    `json:"faces"`
 }
 
-type Faces []struct {
-	ID            string `json:"-"` // `json:"id"`
-	ImageHeight   int    `json:"-"` // `json:"imageHeight"`
-	ImageWidth    int    `json:"-"` // `json:"imageWidth"`
-	BoundingBoxX1 int    `json:"-"` // `json:"boundingBoxX1"`
-	BoundingBoxX2 int    `json:"-"` // `json:"boundingBoxX2"`
-	BoundingBoxY1 int    `json:"-"` // `json:"boundingBoxY1"`
-	BoundingBoxY2 int    `json:"-"` // `json:"boundingBoxY2"`
+type Face struct {
+	ID            string `json:"id"`
+	ImageHeight   int    `json:"imageHeight"`
+	ImageWidth    int    `json:"imageWidth"`
+	BoundingBoxX1 int    `json:"boundingBoxX1"`
+	BoundingBoxX2 int    `json:"boundingBoxX2"`
+	BoundingBoxY1 int    `json:"boundingBoxY1"`
+	BoundingBoxY2 int    `json:"boundingBoxY2"`
 }
 
 type ImmichAsset struct {
@@ -119,8 +119,9 @@ type ImmichAsset struct {
 	IsTrashed        bool            `json:"isTrashed"`
 	Duration         string          `json:"-"` // `json:"duration"`
 	ExifInfo         ExifInfo        `json:"exifInfo"`
-	LivePhotoVideoID any             `json:"-"`        // `json:"livePhotoVideoId"`
-	People           People          `json:"people"`   // `json:"people"`
+	LivePhotoVideoID any             `json:"-"`      // `json:"livePhotoVideoId"`
+	People           []Person        `json:"people"` // `json:"people"`
+	UnassignedFaces  []Face          `json:"unassignedFaces"`
 	Checksum         string          `json:"checksum"` // `json:"checksum"`
 	StackCount       any             `json:"-"`        // `json:"stackCount"`
 	IsOffline        bool            `json:"-"`        // `json:"isOffline"`
@@ -129,11 +130,6 @@ type ImmichAsset struct {
 	RatioWanted      ImageOrientation
 	IsPortrait       bool
 	IsLandscape      bool
-}
-
-type ImmichBuckets []struct {
-	Count      int       `json:"count"`
-	TimeBucket time.Time `json:"timeBucket"`
 }
 
 type ImmichAlbum struct {
@@ -200,7 +196,7 @@ func NewImage(base config.Config) ImmichAsset {
 type ImmichApiCall func(string, string, io.Reader) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse
+	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face
 }
 
 func FluchApiCache() {

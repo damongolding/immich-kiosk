@@ -101,6 +101,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 		Type:       string(ImageType),
 		IsFavorite: true,
 		WithExif:   true,
+		WithPeople: true,
 		Size:       1000,
 	}
 
