@@ -2,6 +2,7 @@ package views
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 
 // ImageLocation generates a formatted string of the image location based on EXIF information.
 // It combines the city, state, and country information if available.
-func ImageLocation(info immich.ExifInfo) string {
+func ImageLocation(info immich.ExifInfo, hideCountries []string) string {
 	var location strings.Builder
 
 	if info.City != "" {
@@ -24,7 +25,7 @@ func ImageLocation(info immich.ExifInfo) string {
 		location.WriteString(info.State)
 	}
 
-	if info.Country != "" {
+	if info.Country != "" && !slices.Contains(hideCountries, info.Country) {
 		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
 		location.WriteString(info.Country)
 	}
@@ -110,7 +111,7 @@ templ imageMetadata(viewData ViewData, imageIndex int) {
 		}
 		if viewData.ShowImageLocation {
 			<div class="image--metadata--location">
-				@templ.Raw(ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo))
+				@templ.Raw(ImageLocation(viewData.HideCountries, viewData.Images[imageIndex].ImmichImage.ExifInfo))
 			</div>
 		}
 		if viewData.ShowImageID {
