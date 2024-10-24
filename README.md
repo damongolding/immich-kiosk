@@ -107,49 +107,48 @@ There are two main ways to install Kiosk.
 
 * #### Option 1: Add Kiosk to your exsiting Immich compose stack.
 
-  **Step 1**: Add Kiosk to your Immich `docker-compose.yaml` file.
+  1. Add Kiosk to your Immich `docker-compose.yaml` file.
 
-  Add the [kiosk service](#docker-compose) to your Immich `docker-compose.yaml` file.
+     Add the [kiosk service](#docker-compose) to your Immich `docker-compose.yaml` file.
 
   Follow from step 3 in option 2 to create the `config.yaml` file.
 
 * #### Option 2: Create a seprate compose file for Kiosk.
 
-  **Step 1**: Create a directory of your choice (e.g. ./immich-kiosk) to hold the `docker-compose.yaml` and config file.
+  1. Create a directory of your choice (e.g. ./immich-kiosk) to hold the `docker-compose.yaml` and config file.
+     ```sh
+     mkdir ./immich-kiosk
+     cd ./immich-kiosk
+     ```
+  2. Download `docker-compose.yaml`.
 
-  ```sh
-  mkdir ./immich-kiosk
-  cd ./immich-kiosk
-  ```
-  **Step 2**: Download `docker-compose.yaml`.
+     ```sh
+     wget -O docker-compose.yaml url
+     ```
 
-  ```sh
-  wget -O docker-compose.yaml url
-  ```
+     Set `TZ` to a `TZ identifier` from [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
 
-  Set `TZ` to a `TZ identifier` from [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
+  3. Create the `config.yaml` file.
 
-  **Step 3**: Create the `config.yaml` file.
+     > [!NOTE]
+     > You may use [environment variables](#when-using-environment-variables) if preferred.
 
-> [!NOTE]
-> You may use [environment variables](#when-using-environment-variables) if preferred.
+     Create config dir and download `config.yaml` file.
 
-  Create config dir and download `config.yaml` file.
+     ```sh
+     mkdir ./config
+     wget -O ./config/config.yaml url
+     ```
 
-  ```sh
-  mkdir ./config
-  wget -O ./config/config.yaml url
-  ```
+  4. Modify `config.yaml` file.
 
-  **Step 4**: Modify `config.yaml` file.
+     Only the `immich_url` and `immich_api_key` are required fields.
 
-  Only the `immich_url` and `immich_api_key` are required fields.
+  5. Start the container
 
-  **Step 5**: Start the container
-
-  ```sh
-  docker compose up -d
-  ```
+     ```sh
+     docker compose up -d
+     ```
 
 ### Binary
 
