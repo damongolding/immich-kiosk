@@ -149,6 +149,9 @@ There are two main ways to install Kiosk.
 
 ### Binary
 
+> [!TIP]
+> Use something like `systemd` to automate starting the Kiosk binary.
+
 1. Download the binary file
    Vist [the latest release](https://github.com/damongolding/immich-kiosk/releases/latest) and scroll to the assets at the bottom of the release notes.
    Download the archive file that matches your machines architecture and unarchive.
@@ -168,9 +171,6 @@ There are two main ways to install Kiosk.
    ```sh
    ./kiosk
    ```
-
-> [!TIP]
-> Use something like `systemd` to automate starting Kiosk
 
 
 ------
