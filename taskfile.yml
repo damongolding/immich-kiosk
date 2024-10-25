@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.11.3-beta.4
+  VERSION: 0.12.0
 
 tasks:
   default:
@@ -9,7 +9,7 @@ tasks:
       - KIOSK_DEBUG=true ./dist/kiosk
 
   verbose:
-    deps: [build]
+    deps: [build-verbose]
     cmds:
       - KIOSK_DEBUG_VERBOSE=true ./dist/kiosk
 
@@ -57,6 +57,12 @@ tasks:
       - go generate *.go
       - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
 
+  build-verbose:
+    deps: [frontend, templ]
+    cmds:
+      - go generate *.go
+      - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -X github.com/damongolding/immich-kiosk/routes.drawFacesOnImages=true" -o dist/kiosk .
+
   docker-image:
     deps: [build]
     cmds:
@@ -79,7 +85,7 @@ tasks:
 
   outdated:
     cmds:
-      - go list -m -u all
+      - go list -u -m -json all | go-mod-outdated -direct -update
       - cd frontend && pnpm outdated
 
   update-templ:

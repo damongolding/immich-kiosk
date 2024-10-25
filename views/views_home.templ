@@ -27,16 +27,12 @@ func crossFadeDurationCSS(crossFadeDuration float32) string {
     `, crossFadeDuration)
 }
 
-templ kioskCrossFade(kioskVersion string, deviceID string, queries url.Values, crossFadeDuration float32) {
+templ kioskCrossFade(kioskVersion string, deviceID string, crossFadeDuration float32) {
 	@templ.Raw(crossFadeDurationCSS(crossFadeDuration))
 	<div
 		id="kiosk"
 		hx-post="/image"
-		if len(queries) > 0 {
-			hx-include=".kiosk-param, .kiosk-history--entry"
-		} else {
-			hx-include=".kiosk-history--entry"
-		}
+		hx-include=".kiosk-history--entry"
 		hx-trigger="load, kiosk-new-image"
 		hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", crossFadeDuration+1) }
 		hx-on::after-request="kiosk.startPolling()"
@@ -57,16 +53,12 @@ func fadeDurationCSS(fadeDuration float32) string {
         `, fadeDuration)
 }
 
-templ kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDuration float32) {
+templ kioskFade(kioskVersion string, deviceID string, fadeDuration float32) {
 	@templ.Raw(fadeDurationCSS(fadeDuration / 2))
 	<div
 		id="kiosk"
 		hx-post="/image"
-		if len(queries) > 0 {
-			hx-include=".kiosk-param, .kiosk-history--entry"
-		} else {
-			hx-include=".kiosk-history--entry"
-		}
+		hx-include=".kiosk-history--entry"
 		hx-trigger="load, kiosk-new-image"
 		hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration/2) }
 		hx-on::after-request="kiosk.startPolling()"
@@ -76,15 +68,11 @@ templ kioskFade(kioskVersion string, deviceID string, queries url.Values, fadeDu
 	</div>
 }
 
-templ kioskNone(kioskVersion string, deviceID string, queries url.Values) {
+templ kioskNone(kioskVersion string, deviceID string) {
 	<div
 		id="kiosk"
 		hx-post="/image"
-		if len(queries) > 0 {
-			hx-include=".kiosk-param, .kiosk-history--entry"
-		} else {
-			hx-include=".kiosk-history--entry"
-		}
+		hx-include=".kiosk-history--entry"
 		hx-trigger="load, kiosk-new-image"
 		hx-swap="innerHTML"
 		hx-on::after-request="kiosk.startPolling()"
@@ -110,6 +98,37 @@ func baseFontSizeMobile(fontSize int) string {
 		</style>`, fontSize-20)
 }
 
+func imageSmartZoomKeyframes(zoomAmount int) string {
+
+	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
+	return fmt.Sprintf(`
+	<style>
+	      @keyframes image-smart-zoom-in {
+            from {
+                transform: scale3d(1,1,1);
+                transform-origin: center;
+            }
+
+            to {
+                transform: scale3d(%.2f,%.2f,%.2f);
+                transform-origin: inherit;
+            }
+        }
+
+        @keyframes image-smart-zoom-out {
+            from {
+                transform: scale3d(%.2f,%.2f,%.2f);
+                transform-origin: inherit;
+            }
+
+            to {
+                transform: scale3d(1,1,1);
+                transform-origin: center;
+            }
+        }
+        </style>`, zoom, zoom, zoom, zoom, zoom, zoom)
+}
+
 func imageZoomKeyframes(zoomAmount int) string {
 
 	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
@@ -118,24 +137,28 @@ func imageZoomKeyframes(zoomAmount int) string {
 	   <style>
 			@keyframes image-zoom-in {
                 from {
-                    transform: scale(1);
+                    transform: scale3d(1,1,1);
+                    transform-origin: center;
                 }
 
                 to {
-                    transform: scale(%.2f);
+                    transform: scale3d(%.2f,%.2f,%.2f);
+                    transform-origin: center;
                 }
             }
 
             @keyframes image-zoom-out {
                 from {
-                    transform: scale(%.2f);
+                    transform: scale3d(%.2f,%.2f,%.2f);
+                    transform-origin: center;
                 }
 
                 to {
-                    transform: scale(1);
+                    transform: scale3d(1,1,1);
+                    transform-origin: center;
                 }
             }
-		</style>`, zoom, zoom)
+		</style>`, zoom, zoom, zoom, zoom, zoom, zoom)
 }
 
 func customCss(css []byte) string {
@@ -148,8 +171,8 @@ css animationDuration(duration int) {
 	animation-duration: { fmt.Sprintf("%ds", duration) };
 }
 
-func zoomInOrOut() string {
-	return fmt.Sprintf("frame--image-zoom-%s", utils.RandomItem([]string{"in", "out"}))
+func zoomInOrOut(zoomType string) string {
+	return fmt.Sprintf("frame--image-%s-%s", zoomType, utils.RandomItem([]string{"in", "out"}))
 }
 
 templ kioskData(data any) {
@@ -201,15 +224,23 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-templ clock(queries url.Values, theme string) {
+templ clockHtmx(theme string) {
 	<div
 		id="clock"
 		class={ fmt.Sprintf("clock--theme-%s", theme) }
 		hx-get="/clock"
-		if len(queries) > 0 {
-			hx-include=".kiosk-param"
-		}
 		hx-trigger="load, every 13s"
+		hx-swap="innerHTML"
+	></div>
+}
+
+templ weatherHtmx(theme string) {
+	<div
+		id="weather"
+		class={ fmt.Sprintf("weather--theme-%s", theme) }
+		hx-get="/weather"
+		hx-include=".kiosk-param"
+		hx-trigger="load, every 61s"
 		hx-swap="innerHTML"
 	></div>
 }
@@ -222,14 +253,11 @@ templ progressBar() {
 	</div>
 }
 
-templ sleepMode(sleepStart, sleepEnd string, queries url.Values) {
+templ sleepMode(sleepStart, sleepEnd string) {
 	if sleepStart != "" && sleepEnd != "" {
 		<form
 			hx-get="/sleep"
 			hx-trigger="load, every 13s"
-			if len(queries) > 0 {
-				hx-include=".kiosk-param"
-			}
 			hx-target="#navigation-interaction-area"
 		></form>
 	}
@@ -285,7 +313,12 @@ templ Home(viewData ViewData) {
     				}
 				</style>
 			}
-			@templ.Raw(imageZoomKeyframes(viewData.ImageZoomAmount))
+			switch  strings.ToLower(viewData.ImageEffect) {
+				case "zoom":
+					@templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount))
+				case "smart-zoom":
+					@templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount))
+			}
 			@templ.Raw(baseFontSizeMobile(viewData.FontSize))
 			if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
 				@templ.Raw(customCss(viewData.CustomCss))
@@ -294,21 +327,32 @@ templ Home(viewData ViewData) {
 		<body class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
 			switch strings.ToLower(viewData.Transition) {
 				case "cross-fade":
-					@kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.CrossFadeTransitionDuration)
+					@kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.CrossFadeTransitionDuration)
 				case "fade":
-					@kioskFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries, viewData.FadeTransitionDuration)
+					@kioskFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.FadeTransitionDuration)
 				default:
-					@kioskNone(viewData.KioskVersion, utils.GenerateUUID(), viewData.Queries)
+					@kioskNone(viewData.KioskVersion, utils.GenerateUUID())
 			}
 			if viewData.ShowProgress {
 				@progressBar()
 			}
-			if !viewData.DisableUi && (viewData.ShowTime || viewData.ShowDate) {
-				@clock(viewData.Queries, viewData.Theme)
+			if !viewData.DisableUi {
+				<div id="clock-weather-container">
+					<div>
+						if (viewData.ShowTime || viewData.ShowDate) {
+							@clockHtmx(viewData.Theme)
+						}
+					</div>
+					<div>
+						if viewData.Queries.Has("weather") {
+							@weatherHtmx(viewData.Theme)
+						}
+					</div>
+				</div>
 			}
 			@menu()
 			@paramForm(viewData.Queries)
-			@sleepMode(viewData.SleepStart, viewData.SleepEnd, viewData.Queries)
+			@sleepMode(viewData.SleepStart, viewData.SleepEnd)
 			@historyForm()
 			@refreshCheckForm(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
 			@offlineIcon()
@@ -321,6 +365,16 @@ templ Home(viewData ViewData) {
 				"disableScreensaver": viewData.DisableScreensaver,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
+			if len(viewData.Queries) > 0 {
+				<script>
+				  const kioskQueires = document.body.querySelectorAll(".kiosk-param");
+   		           document.body.addEventListener("htmx:configRequest", (event) => {
+                    kioskQueires.forEach((q) => {
+                      event.detail.parameters[q.name] = q.value;
+                    });
+                  });
+                </script>
+			}
 		</body>
 	</html>
 }

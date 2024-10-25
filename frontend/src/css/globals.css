@@ -12,6 +12,7 @@ body {
     font-family: "Barlow", Arial, Helvetica, sans-serif;
     letter-spacing: 0.0625rem;
     background-color: #000;
+    overflow: hidden;
 }
 
 @media screen and (max-width: 31.25rem) {

@@ -87,6 +87,7 @@ body {
     sans-serif;
   letter-spacing: 0.0625rem;
   background-color: #000;
+  overflow: hidden;
 }
 @media screen and (max-width: 31.25rem) {
   html,
@@ -146,10 +147,8 @@ body {
   right: 0;
   bottom: 0;
   overflow: hidden;
-  z-index: 0;
-}
-.frame-black-bg {
   background-color: #000;
+  z-index: 0;
 }
 .frame--image {
   position: absolute;
@@ -187,19 +186,23 @@ body {
   width: 100%;
   height: 100%;
 }
+.layout-splitview .frame {
+  border: 0.4rem solid black;
+  border-radius: 0.75rem;
+}
 .frame--layout-splitview {
   position: relative;
-  width: 50%;
+  width: 100%;
   height: 100%;
-  width: 50vw;
-  height: 100vh;
   overflow: hidden;
 }
 .frame--layout-splitview:nth-child(1) {
-  border-right: 0.125rem solid black;
+  border-right: 0.2rem solid black;
+  border-radius: 0.75rem;
 }
 .frame--layout-splitview:nth-child(2) {
-  border-left: 0.125rem solid black;
+  border-left: 0.2rem solid black;
+  border-radius: 0.75rem;
 }
 .frame--layout-splitview .frame--image {
   position: absolute;
@@ -211,20 +214,22 @@ body {
 }
 .layout-splitview-landscape .frame {
   flex-direction: column;
+  border: 0.4rem solid black;
+  border-radius: 0.75rem;
 }
 .frame--layout-splitview-landscape {
   position: relative;
   width: 100%;
-  height: 50%;
-  width: 100vw;
-  height: 50vh;
+  height: 100%;
   overflow: hidden;
 }
 .frame--layout-splitview-landscape:nth-child(1) {
-  border-bottom: 0.125rem solid black;
+  border-bottom: 0.2rem solid black;
+  border-radius: 0.75rem;
 }
 .frame--layout-splitview-landscape:nth-child(2) {
-  border-top: 0.125rem solid black;
+  border-top: 0.2rem solid black;
+  border-radius: 0.75rem;
 }
 .frame--layout-splitview-landscape .frame--image {
   position: absolute;
@@ -245,7 +250,7 @@ body {
   bottom: 0;
   right: 0;
   max-width: 70vw;
-  padding: 1rem 1rem 1.375rem 1rem;
+  padding: 1rem;
   color: #fff;
   font-size: 1.1rem;
   text-align: right;
@@ -366,12 +371,45 @@ body {
   animation-duration: inherit;
   transition-timing-function: cubic-bezier(0.455, 0.03, 0.515, 0.955);
   animation-fill-mode: forwards;
+  transform-origin: inherit;
+  object-position: inherit;
+  will-change: scale;
 }
 .frame--image-zoom-in img {
   animation-name: image-zoom-in;
 }
 .frame--image-zoom-out img {
   animation-name: image-zoom-out;
+}
+.frame--image-zoom-in-0 img {
+  animation-name: image-zoom-in-0;
+}
+.frame--image-zoom-out-0 img {
+  animation-name: image-zoom-out-0;
+}
+.frame--image-zoom-in-1 img {
+  animation-name: image-zoom-in-1;
+}
+.frame--image-zoom-out-1 img {
+  animation-name: image-zoom-out-1;
+}
+.frame--image-zoom-in-2 img {
+  animation-name: image-zoom-in-2;
+}
+.frame--image-zoom-out-2 img {
+  animation-name: image-zoom-out-2;
+}
+.frame--image-zoom-in-3 img {
+  animation-name: image-zoom-in-3;
+}
+.frame--image-zoom-out-3 img {
+  animation-name: image-zoom-out-3;
+}
+.frame--image-smart-zoom-out img {
+  animation-name: image-smart-zoom-out;
+}
+.frame--image-smart-zoom-in img {
+  animation-name: image-smart-zoom-in;
 }
 @media screen and (max-width: 31.25rem) {
   .image--metadata {
@@ -450,7 +488,7 @@ body {
 /* src/css/offline.css */
 #offline {
   position: absolute;
-  top: 1rem;
+  bottom: 1rem;
   left: 50%;
   margin-left: -1.5rem;
   width: 3rem;
@@ -468,61 +506,48 @@ body {
   opacity: 0.5;
 }
 
-/* src/css/clock.css */
-#clock {
+/* src/css/clock-weather-container.css */
+#clock-weather-container {
   position: absolute;
-  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  top: 0;
   left: 0;
-  color: #fff;
-  font-size: 3rem;
-  padding: 1rem;
-  text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
   z-index: 10000;
 }
-.layout-splitview #clock,
-.layout-splitview-landscape #clock {
-  bottom: unset;
-  top: 0;
+.layout-splitview #clock-weather-container {
+  flex-direction: row;
+  width: 100vw;
+  height: auto;
 }
-#clock:empty {
-  display: none;
-  padding: 0;
+.sleep #clock-weather-container {
+  height: 100vh;
+  width: 100vw;
+  z-index: 99999;
+}
+
+/* src/css/clock.css */
+#clock {
+  position: relative;
+  color: #fff;
+  font-size: 3rem;
+  text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+  padding: 1rem;
+  z-index: 10000;
+}
+@media screen and (max-width: 31.25rem) {
+  #clock {
+    padding: 0.5rem;
+  }
 }
 .clock--theme-fade::before {
   content: "";
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 150%;
-  height: 200%;
-  background-image:
-    radial-gradient(
-      100% 100% at 0% 100%,
-      hsla(0, 0%, 0%, 0.59) 0%,
-      hsla(0, 0%, 0%, 0.582) 5.2%,
-      hsla(0, 0%, 0%, 0.561) 10.9%,
-      hsla(0, 0%, 0%, 0.529) 16.9%,
-      hsla(0, 0%, 0%, 0.487) 23.3%,
-      hsla(0, 0%, 0%, 0.437) 29.9%,
-      hsla(0, 0%, 0%, 0.382) 36.8%,
-      hsla(0, 0%, 0%, 0.324) 43.8%,
-      hsla(0, 0%, 0%, 0.266) 51%,
-      hsla(0, 0%, 0%, 0.208) 58.2%,
-      hsla(0, 0%, 0%, 0.153) 65.4%,
-      hsla(0, 0%, 0%, 0.103) 72.6%,
-      hsla(0, 0%, 0%, 0.061) 79.7%,
-      hsla(0, 0%, 0%, 0.029) 86.7%,
-      hsla(0, 0%, 0%, 0.008) 93.5%,
-      hsla(0, 0%, 0%, 0) 100%);
-  z-index: 0;
-}
-.layout-splitview .clock--theme-fade::before,
-.layout-splitview-landscape .clock--theme-fade::before {
-  content: "";
-  position: absolute;
   bottom: unset;
-  top: 0;
-  left: 0;
+  top: -1rem;
+  left: -1rem;
   width: 150%;
   height: 200%;
   background-image:
@@ -547,18 +572,8 @@ body {
   z-index: 0;
 }
 .clock--theme-solid {
-  padding-left: 1.5rem;
   background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 0 2rem 0 0;
-}
-.layout-splitview .clock--theme-solid,
-.layout-splitview-landscape .clock--theme-solid {
   border-radius: 0 0 2rem 0;
-}
-@media screen and (max-width: 31.25rem) {
-  #clock {
-    padding: 0.5rem;
-  }
 }
 .clock--date {
   position: relative;
@@ -572,6 +587,7 @@ body {
   z-index: 1;
 }
 .sleep #clock {
+  position: absolute;
   top: 50%;
   left: 50%;
   bottom: unset;
@@ -589,6 +605,139 @@ body {
   font-size: 18vw;
 }
 .sleep #clock::before {
+  display: none;
+}
+
+/* src/css/weather.css */
+#weather {
+  position: relative;
+  color: #fff;
+  text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+  padding: 1rem 1.5rem 1rem 1rem;
+  z-index: 10000;
+}
+.layout-splitview #weather {
+  padding: 1rem 1rem 1rem 1.5rem;
+}
+@media screen and (max-width: 31.25rem) {
+  #weather {
+    padding: 0.5rem 1rem 0.5rem 0.5rem;
+  }
+  .layout-splitview #weather {
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+  }
+}
+.weather--theme-fade::before {
+  content: "";
+  position: absolute;
+  bottom: -1rem;
+  left: -1rem;
+  width: 150%;
+  height: 200%;
+  background-image:
+    radial-gradient(
+      100% 100% at 0% 100%,
+      hsla(0, 0%, 0%, 0.59) 0%,
+      hsla(0, 0%, 0%, 0.582) 5.2%,
+      hsla(0, 0%, 0%, 0.561) 10.9%,
+      hsla(0, 0%, 0%, 0.529) 16.9%,
+      hsla(0, 0%, 0%, 0.487) 23.3%,
+      hsla(0, 0%, 0%, 0.437) 29.9%,
+      hsla(0, 0%, 0%, 0.382) 36.8%,
+      hsla(0, 0%, 0%, 0.324) 43.8%,
+      hsla(0, 0%, 0%, 0.266) 51%,
+      hsla(0, 0%, 0%, 0.208) 58.2%,
+      hsla(0, 0%, 0%, 0.153) 65.4%,
+      hsla(0, 0%, 0%, 0.103) 72.6%,
+      hsla(0, 0%, 0%, 0.061) 79.7%,
+      hsla(0, 0%, 0%, 0.029) 86.7%,
+      hsla(0, 0%, 0%, 0.008) 93.5%,
+      hsla(0, 0%, 0%, 0) 100%);
+  z-index: 0;
+}
+.weather {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 1rem;
+  z-index: 1;
+}
+.weather--temp {
+  display: flex;
+  font-size: 3rem;
+  font-weight: bold;
+  gap: 0.5rem;
+}
+.weather--temp--value {
+  display: flex;
+}
+.weather--temp--unit {
+  font-size: 1.5rem;
+  padding: 0.6rem 0 0 0.1rem;
+}
+.weather--description {
+  display: flex;
+  padding-top: 0.1rem;
+  gap: 0.5rem;
+  align-items: end;
+}
+.weather--description--icon {
+  width: 1rem;
+  height: 1rem;
+}
+.weather--description--icon svg {
+  fill: #fff;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 1rem rgba(0, 0, 0, 1));
+}
+.weather--description--value {
+  z-index: 1;
+}
+.layout-splitview #weather,
+.layout-splitview .weather {
+  text-align: right;
+  align-items: flex-end;
+}
+.layout-splitview .weather--theme-fade::before {
+  content: "";
+  position: absolute;
+  top: -1rem;
+  left: unset;
+  right: -1rem;
+  bottom: unset;
+  width: 150%;
+  height: 200%;
+  background-image:
+    radial-gradient(
+      100% 100% at 100% 0%,
+      hsla(0, 0%, 0%, 0.59) 0%,
+      hsla(0, 0%, 0%, 0.582) 5.2%,
+      hsla(0, 0%, 0%, 0.561) 10.9%,
+      hsla(0, 0%, 0%, 0.529) 16.9%,
+      hsla(0, 0%, 0%, 0.487) 23.3%,
+      hsla(0, 0%, 0%, 0.437) 29.9%,
+      hsla(0, 0%, 0%, 0.382) 36.8%,
+      hsla(0, 0%, 0%, 0.324) 43.8%,
+      hsla(0, 0%, 0%, 0.266) 51%,
+      hsla(0, 0%, 0%, 0.208) 58.2%,
+      hsla(0, 0%, 0%, 0.153) 65.4%,
+      hsla(0, 0%, 0%, 0.103) 72.6%,
+      hsla(0, 0%, 0%, 0.061) 79.7%,
+      hsla(0, 0%, 0%, 0.029) 86.7%,
+      hsla(0, 0%, 0%, 0.008) 93.5%,
+      hsla(0, 0%, 0%, 0) 100%);
+  z-index: 0;
+}
+.weather--theme-solid {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 0 2rem 0 0;
+  align-self: start;
+}
+.layout-splitview .weather--theme-solid {
+  border-radius: 0 0 0 2rem;
+}
+.sleep #weather {
   display: none;
 }
 
@@ -668,6 +817,10 @@ body {
 }
 .sleep #navigation-interaction-area {
   background-color: black;
+}
+.layout-splitview .navigation {
+  right: 50%;
+  transform: translateX(50%);
 }
 
 /* src/css/kiosk.css */

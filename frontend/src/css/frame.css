@@ -13,11 +13,9 @@
     bottom: 0;
     overflow: hidden;
 
-    z-index: 0;
-}
-
-.frame-black-bg {
     background-color: #000;
+
+    z-index: 0;
 }
 
 .frame--image {
@@ -66,22 +64,27 @@
 }
 
 /* Splitview layout */
+.layout-splitview .frame {
+    border: 0.4rem solid black;
+    border-radius: 0.75rem;
+}
+
 .frame--layout-splitview {
     position: relative;
-    width: 50%;
+    width: 100%;
     height: 100%;
 
-    width: 50vw;
-    height: 100vh;
     overflow: hidden;
 }
 
 .frame--layout-splitview:nth-child(1) {
-    border-right: 0.125rem solid black;
+    border-right: 0.2rem solid black;
+    border-radius: 0.75rem;
 }
 
 .frame--layout-splitview:nth-child(2) {
-    border-left: 0.125rem solid black;
+    border-left: 0.2rem solid black;
+    border-radius: 0.75rem;
 }
 
 .frame--layout-splitview .frame--image {
@@ -96,24 +99,26 @@
 /* Splitview landscape layout */
 .layout-splitview-landscape .frame {
     flex-direction: column;
+    border: 0.4rem solid black;
+    border-radius: 0.75rem;
 }
 
 .frame--layout-splitview-landscape {
     position: relative;
     width: 100%;
-    height: 50%;
+    height: 100%;
 
-    width: 100vw;
-    height: 50vh;
     overflow: hidden;
 }
 
 .frame--layout-splitview-landscape:nth-child(1) {
-    border-bottom: 0.125rem solid black;
+    border-bottom: 0.2rem solid black;
+    border-radius: 0.75rem;
 }
 
 .frame--layout-splitview-landscape:nth-child(2) {
-    border-top: 0.125rem solid black;
+    border-top: 0.2rem solid black;
+    border-radius: 0.75rem;
 }
 
 .frame--layout-splitview-landscape .frame--image {

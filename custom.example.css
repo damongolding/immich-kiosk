@@ -10,13 +10,13 @@ body{}
 .kiosk--spinner{}
 /* src/css/frame.css */
 .frame{}
-.frame-black-bg{}
 .frame--image{}
 .frame--image img{}
 .frame--image-fit-contain{}
 .frame--image-fit-cover{}
 .frame--background{}
 .frame--background img{}
+.layout-splitview .frame{}
 .frame--layout-splitview{}
 .frame--layout-splitview:nth-child(1){}
 .frame--layout-splitview:nth-child(2){}
@@ -44,6 +44,16 @@ body{}
 .frame--image-zoom img{}
 .frame--image-zoom-in img{}
 .frame--image-zoom-out img{}
+.frame--image-zoom-in-0 img{}
+.frame--image-zoom-out-0 img{}
+.frame--image-zoom-in-1 img{}
+.frame--image-zoom-out-1 img{}
+.frame--image-zoom-in-2 img{}
+.frame--image-zoom-out-2 img{}
+.frame--image-zoom-in-3 img{}
+.frame--image-zoom-out-3 img{}
+.frame--image-smart-zoom-out img{}
+.frame--image-smart-zoom-in img{}
 /* src/css/error.css */
 .error-container{}
 .error{}
@@ -59,20 +69,37 @@ body{}
 #offline svg{}
 .offline{}
 .sleep #offline{}
+/* src/css/clock-weather-container.css */
+#clock-weather-container{}
+.layout-splitview #clock-weather-container{}
+.sleep #clock-weather-container{}
 /* src/css/clock.css */
 #clock{}
-.layout-splitview-landscape #clock{}
-#clock:empty{}
 .clock--theme-fade::before{}
-.layout-splitview-landscape .clock--theme-fade::before{}
 .clock--theme-solid{}
-.layout-splitview-landscape .clock--theme-solid{}
 .clock--date{}
 .clock--time{}
 .sleep #clock{}
 .sleep .clock--date{}
 .sleep .clock--time{}
 .sleep #clock::before{}
+/* src/css/weather.css */
+#weather{}
+.layout-splitview #weather{}
+.weather--theme-fade::before{}
+.weather{}
+.weather--temp{}
+.weather--temp--value{}
+.weather--temp--unit{}
+.weather--description{}
+.weather--description--icon{}
+.weather--description--icon svg{}
+.weather--description--value{}
+.layout-splitview .weather{}
+.layout-splitview .weather--theme-fade::before{}
+.weather--theme-solid{}
+.layout-splitview .weather--theme-solid{}
+.sleep #weather{}
 /* src/css/menu.css */
 #navigation-interaction-area{}
 .navigation{}
@@ -88,4 +115,5 @@ body{}
 .navigation--control--paused .navigation--control--play{}
 .navigation--control--paused .navigation--control--pause{}
 .sleep #navigation-interaction-area{}
+.layout-splitview .navigation{}
 /* src/css/kiosk.css */

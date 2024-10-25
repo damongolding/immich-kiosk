@@ -27,9 +27,10 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 	}
 
 	requestBody := ImmichSearchRandomBody{
-		Type:     string(ImageType),
-		WithExif: true,
-		Size:     1000,
+		Type:       string(ImageType),
+		WithExif:   true,
+		WithPeople: true,
+		Size:       1000,
 	}
 
 	if requestConfig.ShowArchived {

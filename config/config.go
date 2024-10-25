@@ -70,6 +70,15 @@ type KioskSettings struct {
 	DebugVerbose bool `mapstructure:"debug_verbose" default:"false"`
 }
 
+type WeatherLocation struct {
+	Name string `mapstructure:"name"`
+	Lat  string `mapstructure:"lat"`
+	Lon  string `mapstructure:"lon"`
+	API  string `mapstructure:"api"`
+	Unit string `mapstructure:"unit"`
+	Lang string `mapstructure:"lang"`
+}
+
 type Config struct {
 	// V is the viper instance used for configuration management
 	V *viper.Viper
@@ -126,10 +135,10 @@ type Config struct {
 
 	// ImageFit the fit style for main image
 	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain"`
-	// ImageZoom add a zoom effect to images
-	ImageZoom bool `mapstructure:"image_zoom" query:"image_zoom" form:"image_zoom" default:"false"`
-	// ImageZoomAmount the amount to zoom in/out of images
-	ImageZoomAmount int `mapstructure:"image_zoom_amount" query:"image_zoom_amount" form:"image_zoom_amount" default:"120"`
+	// ImageEffect which effect to apply to image (if any)
+	ImageEffect string `mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:""`
+	// ImageEffectAmount the amount of effect to apply
+	ImageEffectAmount int `mapstructure:"image_effect_amount" query:"image_effect_amount" form:"image_effect_amount" default:"120"`
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
@@ -156,8 +165,12 @@ type Config struct {
 	ShowImageExif bool `mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
 	// ShowImageLocation display image location data
 	ShowImageLocation bool `mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
+	// HideCountries hide country names in location information
+	HideCountries []string `mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
 	// ShowImageID display image ID
 	ShowImageID bool `mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
+
+	WeatherLocations []WeatherLocation `mapstructure:"weather" default:"[]"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
@@ -310,6 +323,9 @@ func (c *Config) checkDebuging() {
 	}
 }
 
+// checkAlbumAndPerson validates and cleans up the Album and Person slices in the Config.
+// It removes any empty strings or placeholder values ("ALBUM_ID" or "PERSON_ID"),
+// and trims whitespace from the remaining values.
 func (c *Config) checkAlbumAndPerson() {
 	newAlbum := []string{}
 	for _, album := range c.Album {
@@ -326,6 +342,50 @@ func (c *Config) checkAlbumAndPerson() {
 		}
 	}
 	c.Person = newPerson
+}
+
+// checkWeatherLocations validates the WeatherLocations in the Config.
+// It checks each WeatherLocation for required fields (name, latitude, longitude, and API key),
+// and logs an error message if any required fields are missing.
+func (c *Config) checkWeatherLocations() {
+	for i := 0; i < len(c.WeatherLocations); i++ {
+		w := c.WeatherLocations[i]
+		missingFields := []string{}
+		if w.Name == "" {
+			missingFields = append(missingFields, "name")
+		}
+		if w.Lat == "" {
+			missingFields = append(missingFields, "latitude")
+		}
+		if w.Lon == "" {
+			missingFields = append(missingFields, "longitude")
+		}
+		if w.API == "" {
+			missingFields = append(missingFields, "API key")
+		}
+		if len(missingFields) > 0 {
+			log.Warn("Weather location is missing required fields. Ignoring this location.", "missing fields", strings.Join(missingFields, ", "), "name", w.Name)
+			c.WeatherLocations = append(c.WeatherLocations[:i], c.WeatherLocations[i+1:]...)
+			i--
+		}
+	}
+}
+
+// checkHideCountries processes the list of countries to hide in location information
+// by converting all country names to lowercase for case-insensitive matching.
+// If the HideCountries slice is empty, the function returns early without making
+// any modifications.
+//
+// This normalization ensures consistent matching of country names regardless of
+// the casing used in the configuration or location data.
+func (c *Config) checkHideCountries() {
+	if len(c.HideCountries) == 0 {
+		return
+	}
+
+	for i, country := range c.HideCountries {
+		c.HideCountries[i] = strings.ToLower(country)
+	}
 }
 
 // WatchConfig sets up a configuration file watcher that monitors for changes
@@ -407,9 +467,14 @@ func (c *Config) reloadConfig(reason string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if err := c.Load(); err != nil {
-		log.Error("Failed to reload config:", err)
+	newConfig := New()
+
+	if err := newConfig.Load(); err != nil {
+		log.Error("Reloading config:", err)
+		return
 	}
+
+	*c = *newConfig
 
 	c.updateConfigState()
 }
@@ -460,6 +525,8 @@ func (c *Config) Load() error {
 	c.checkRequiredFields()
 	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
+	c.checkHideCountries()
+	c.checkWeatherLocations()
 	c.checkDebuging()
 
 	return nil
