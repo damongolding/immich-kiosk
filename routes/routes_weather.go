@@ -30,7 +30,7 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 			return c.NoContent(http.StatusOK)
 		}
 
-		weatherData := weather.Current(weatherLocation)
+		weatherData := weather.CurrentWeather(weatherLocation)
 		if !strings.EqualFold(weatherData.Name, weatherLocation) || len(weatherData.Data) == 0 {
 			log.Error("missing weather location data", "location", weatherData.Name)
 			return c.NoContent(http.StatusOK)

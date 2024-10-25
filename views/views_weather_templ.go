@@ -109,7 +109,7 @@ func Weather(weatherData weather.WeatherLocation) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		default:
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- sun --> <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d=\"M361.5 1.2c5 2.1 8.6 6.6 9.6 11.9L391 121l107.9 19.8c5.3 1 9.8 4.6 11.9 9.6s1.5 10.7-1.6 15.2L446.9 256l62.3 90.3c3.1 4.5 3.7 10.2 1.6 15.2s-6.6 8.6-11.9 9.6L391 391 371.1 498.9c-1 5.3-4.6 9.8-9.6 11.9s-10.7 1.5-15.2-1.6L256 446.9l-90.3 62.3c-4.5 3.1-10.2 3.7-15.2 1.6s-8.6-6.6-9.6-11.9L121 391 13.1 371.1c-5.3-1-9.8-4.6-11.9-9.6s-1.5-10.7 1.6-15.2L65.1 256 2.8 165.7c-3.1-4.5-3.7-10.2-1.6-15.2s6.6-8.6 11.9-9.6L121 121 140.9 13.1c1-5.3 4.6-9.8 9.6-11.9s10.7-1.5 15.2 1.6L256 65.1 346.3 2.8c4.5-3.1 10.2-3.7 15.2-1.6zM160 256a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zm224 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0z\"></path></svg>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- sun --> <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><g clip-path=\"url(#a)\" fill=\"#fff\"><path d=\"M160 256a95.996 95.996 0 0 1 28.118-67.882 95.996 95.996 0 0 1 135.764 0 95.996 95.996 0 0 1 0 135.764 95.996 95.996 0 0 1-135.764 0A95.996 95.996 0 0 1 160 256ZM244 11.5C244 5.149 249.149 0 255.5 0S267 5.149 267 11.5v105c0 6.351-5.149 11.5-11.5 11.5s-11.5-5.149-11.5-11.5v-105ZM244 395.5c0-6.351 5.149-11.5 11.5-11.5s11.5 5.149 11.5 11.5v105c0 6.351-5.149 11.5-11.5 11.5s-11.5-5.149-11.5-11.5v-105ZM500.5 244c6.351 0 11.5 5.149 11.5 11.5s-5.149 11.5-11.5 11.5h-105c-6.351 0-11.5-5.149-11.5-11.5s5.149-11.5 11.5-11.5h105ZM116.5 244c6.351 0 11.5 5.149 11.5 11.5s-5.149 11.5-11.5 11.5h-105C5.149 267 0 261.851 0 255.5S5.149 244 11.5 244h105ZM74.627 91.598c-4.491-4.491-4.491-11.773 0-16.264 4.491-4.49 11.773-4.49 16.264 0l74.246 74.246c4.491 4.491 4.491 11.773 0 16.264s-11.773 4.491-16.264 0L74.627 91.598ZM346.156 363.127c-4.491-4.491-4.491-11.773 0-16.264s11.772-4.491 16.263 0l74.247 74.246c4.491 4.491 4.491 11.773 0 16.264s-11.773 4.491-16.264 0l-74.246-74.246ZM420.402 74.627c4.491-4.49 11.773-4.49 16.264 0 4.491 4.491 4.491 11.773 0 16.264l-74.247 74.246c-4.491 4.491-11.772 4.491-16.263 0-4.491-4.491-4.491-11.773 0-16.264l74.246-74.246ZM148.873 346.156c4.491-4.491 11.773-4.491 16.264 0s4.491 11.773 0 16.264l-74.246 74.246c-4.492 4.491-11.773 4.491-16.264 0s-4.491-11.773 0-16.264l74.246-74.246Z\"></path></g><defs><clipPath id=\"a\"><path fill=\"#fff\" d=\"M0 0h512v512H0z\"></path></clipPath></defs></svg>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -121,7 +121,7 @@ func Weather(weatherData weather.WeatherLocation) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(weatherData.Data[0].Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_weather.templ`, Line: 82, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_weather.templ`, Line: 81, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {

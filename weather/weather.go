@@ -127,7 +127,7 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 	}
 }
 
-func Current(name string) WeatherLocation {
+func CurrentWeather(name string) WeatherLocation {
 	value, ok := weatherDataStore.Load(name)
 	if !ok {
 		return WeatherLocation{}
