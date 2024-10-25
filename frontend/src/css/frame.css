@@ -4,9 +4,6 @@
     display: flex;
     width: 100%;
     height: 100%;
-
-    width: 100vw;
-    height: 100vh;
     top: 0;
     left: 0;
     right: 0;
@@ -23,8 +20,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
 }
 
 .frame--image img {
@@ -92,8 +89,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 50vw;
-    height: 100vh;
 }
 
 /* Splitview landscape layout */
@@ -126,6 +121,4 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100vw;
-    height: 50vh;
 }

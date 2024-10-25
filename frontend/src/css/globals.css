@@ -12,6 +12,8 @@ body {
     font-family: "Barlow", Arial, Helvetica, sans-serif;
     letter-spacing: 0.0625rem;
     background-color: #000;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
 }
 
