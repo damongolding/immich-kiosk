@@ -40,7 +40,7 @@ jobs:
         run: |
           REPO_OWNER=$(echo ${{ github.repository }} | cut -d '/' -f 1)
           REPO_NAME=$(echo ${{ github.repository }} | cut -d '/' -f 2)
-          RELEASE_URL="https://github.com/$REPO_OWNER/$REPO_NAME/releases/tag/${{ env.VERSION }}"
+          RELEASE_URL="https://github.com/$REPO_OWNER/$REPO_NAME/releases/tag/v${{ env.VERSION }}"
           echo "RELEASE_URL=$RELEASE_URL" >> $GITHUB_ENV
 
       - name: Discord Notification

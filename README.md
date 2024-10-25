@@ -181,7 +181,7 @@ There are two main ways to install Kiosk.
 > You can use both a yaml file and environment variables but environment variables will overwrite settings from the yaml file
 > Set `TZ` to a `TZ identifier` from [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
 
-### When using a yaml.yaml config file
+### When using a `config.yaml` config file
 ```yaml
 services:
   immich-kiosk:
@@ -344,7 +344,7 @@ example:
 
 `https://{URL}?refresh=120&background_blur=false&transition=none`
 
-Thos above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
+The above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
 
 ------
 
