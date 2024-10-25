@@ -597,7 +597,7 @@ There is a `custom.example.css` file included that contains all the CSS selector
 
 The custom CSS will apply to all devices connected to Kiosk by default.
 
-To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?cusom_css=false`
+To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?custom_css=false`
 
 ------
 
@@ -781,9 +781,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - Whitelist for people and albums
 - Exclude list
 - PWA (✔ basic implimetion)
-- Ken Burns
 - Splitview related images
-- Splitview horizontal mode
 - Docker/immich healthcheck?
 
 ------
