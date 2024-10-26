@@ -73,6 +73,7 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 
 ## Requirements
 - A reachable Immich server that is running version v1.117.0 or above.
+- A browser from [this supported list](https://browserslist.dev/?q=PiAwLjIl) or higher.
 
 ## Key features
 - Simple installation and updates via Docker.
