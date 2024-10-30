@@ -117,9 +117,9 @@ type Config struct {
 	// FontSize the base font size as a percentage
 	FontSize int `mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
 	// Theme which theme to use
-	Theme string `mapstructure:"theme" query:"theme" form:"theme" default:"fade"`
+	Theme string `mapstructure:"theme" query:"theme" form:"theme" default:"fade" lowercase:"true"`
 	// Layout which layout to use
-	Layout string `mapstructure:"layout" query:"layout" form:"layout" default:"single"`
+	Layout string `mapstructure:"layout" query:"layout" form:"layout" default:"single" lowercase:"true"`
 
 	// SleepStart when to start sleep mode
 	SleepStart string `mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
@@ -134,15 +134,15 @@ type Config struct {
 	Album []string `mapstructure:"album" query:"album" form:"album" default:"[]"`
 
 	// ImageFit the fit style for main image
-	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain"`
+	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
 	// ImageEffect which effect to apply to image (if any)
-	ImageEffect string `mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:""`
+	ImageEffect string `mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:"" lowercase:"true"`
 	// ImageEffectAmount the amount of effect to apply
 	ImageEffectAmount int `mapstructure:"image_effect_amount" query:"image_effect_amount" form:"image_effect_amount" default:"120"`
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
-	Transition string `mapstructure:"transition" query:"transition" form:"transition" default:""`
+	Transition string `mapstructure:"transition" query:"transition" form:"transition" default:"" lowercase:"true"`
 	// FadeTransitionDuration sets the length of the fade transition
 	FadeTransitionDuration float32 `mapstructure:"fade_transition_duration" query:"fade_transition_duration" form:"fade_transition_duration" default:"1"`
 	// CrossFadeTransitionDuration sets the length of the cross-fade transition
