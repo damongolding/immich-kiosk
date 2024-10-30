@@ -307,6 +307,21 @@ func (c *Config) checkUrlScheme() {
 	}
 }
 
+func (c *Config) checkLowercaseTaggedFields() {
+	val := reflect.ValueOf(c).Elem()
+	typ := val.Type()
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldType := typ.Field(i)
+
+		// Check if the field has the `lowercase` tag set to "true"
+		if fieldType.Tag.Get("lowercase") == "true" && field.Kind() == reflect.String && field.CanSet() {
+			field.SetString(strings.ToLower(field.String()))
+		}
+	}
+}
+
 // checkRequiredFields check is required config files are set.
 func (c *Config) checkRequiredFields() {
 	switch {
@@ -523,6 +538,7 @@ func (c *Config) Load() error {
 	}
 
 	c.checkRequiredFields()
+	c.checkLowercaseTaggedFields()
 	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
 	c.checkHideCountries()
