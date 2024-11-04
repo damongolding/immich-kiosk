@@ -7,6 +7,7 @@ package immich
 
 import (
 	"io"
+	"net/http"
 	"sync"
 	"time"
 
@@ -41,6 +42,10 @@ var (
 	apiCache *cache.Cache
 	// apiCacheLock is used to synchronize access to the apiCache
 	apiCacheLock sync.Mutex
+	// httpClient default http client for Immich api calls
+	httpClient = &http.Client{
+		Timeout: time.Second * 20,
+	}
 )
 
 type ImmichPersonStatistics struct {

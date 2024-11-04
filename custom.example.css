@@ -44,14 +44,6 @@ body{}
 .frame--image-zoom img{}
 .frame--image-zoom-in img{}
 .frame--image-zoom-out img{}
-.frame--image-zoom-in-0 img{}
-.frame--image-zoom-out-0 img{}
-.frame--image-zoom-in-1 img{}
-.frame--image-zoom-out-1 img{}
-.frame--image-zoom-in-2 img{}
-.frame--image-zoom-out-2 img{}
-.frame--image-zoom-in-3 img{}
-.frame--image-zoom-out-3 img{}
 .frame--image-smart-zoom-out img{}
 .frame--image-smart-zoom-in img{}
 /* src/css/error.css */

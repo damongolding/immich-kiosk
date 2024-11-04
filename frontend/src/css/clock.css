@@ -21,8 +21,8 @@
     content: "";
     position: absolute;
     bottom: unset;
-    top: -1rem;
-    left: -1rem;
+    top: 0;
+    left: 0;
     width: 150%;
     height: 200%;
     background-image: radial-gradient(

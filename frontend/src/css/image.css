@@ -157,35 +157,6 @@
     animation-name: image-zoom-out;
 }
 
-/* default pan zoom  */
-.frame--image-zoom-in-0 img {
-    animation-name: image-zoom-in-0;
-}
-.frame--image-zoom-out-0 img {
-    animation-name: image-zoom-out-0;
-}
-
-.frame--image-zoom-in-1 img {
-    animation-name: image-zoom-in-1;
-}
-.frame--image-zoom-out-1 img {
-    animation-name: image-zoom-out-1;
-}
-
-.frame--image-zoom-in-2 img {
-    animation-name: image-zoom-in-2;
-}
-.frame--image-zoom-out-2 img {
-    animation-name: image-zoom-out-2;
-}
-
-.frame--image-zoom-in-3 img {
-    animation-name: image-zoom-in-3;
-}
-.frame--image-zoom-out-3 img {
-    animation-name: image-zoom-out-3;
-}
-
 /*  Smart zoom */
 .frame--image-smart-zoom-out img {
     animation-name: image-smart-zoom-out;

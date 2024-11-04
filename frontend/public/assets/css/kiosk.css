@@ -68,6 +68,34 @@
     U+FEFF,
     U+FFFD;
 }
+@font-face {
+  font-family: "Barlow";
+  font-style: bold;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/assets/fonts/7cHqv4kjgoGqM7E30-8s51ostz0rdg.woff2) format("woff2");
+  unicode-range:
+    U+0000-00FF,
+    U+0131,
+    U+0152-0153,
+    U+02BB-02BC,
+    U+02C6,
+    U+02DA,
+    U+02DC,
+    U+0304,
+    U+0308,
+    U+0329,
+    U+2000-206F,
+    U+2074,
+    U+20AC,
+    U+2122,
+    U+2191,
+    U+2193,
+    U+2212,
+    U+2215,
+    U+FEFF,
+    U+FFFD;
+}
 
 /* src/css/globals.css */
 * {
@@ -87,6 +115,8 @@ body {
     sans-serif;
   letter-spacing: 0.0625rem;
   background-color: #000;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
 }
 @media screen and (max-width: 31.25rem) {
@@ -99,8 +129,8 @@ body {
 /* src/css/container.css */
 #kiosk {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   opacity: 1;
   transition: opacity 1s ease-out;
@@ -140,8 +170,6 @@ body {
   display: flex;
   width: 100%;
   height: 100%;
-  width: 100vw;
-  height: 100vh;
   top: 0;
   left: 0;
   right: 0;
@@ -155,8 +183,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 .frame--image img {
   position: relative;
@@ -209,8 +237,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 50vw;
-  height: 100vh;
 }
 .layout-splitview-landscape .frame {
   flex-direction: column;
@@ -236,8 +262,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 50vh;
 }
 
 /* src/css/image.css */
@@ -381,30 +405,6 @@ body {
 .frame--image-zoom-out img {
   animation-name: image-zoom-out;
 }
-.frame--image-zoom-in-0 img {
-  animation-name: image-zoom-in-0;
-}
-.frame--image-zoom-out-0 img {
-  animation-name: image-zoom-out-0;
-}
-.frame--image-zoom-in-1 img {
-  animation-name: image-zoom-in-1;
-}
-.frame--image-zoom-out-1 img {
-  animation-name: image-zoom-out-1;
-}
-.frame--image-zoom-in-2 img {
-  animation-name: image-zoom-in-2;
-}
-.frame--image-zoom-out-2 img {
-  animation-name: image-zoom-out-2;
-}
-.frame--image-zoom-in-3 img {
-  animation-name: image-zoom-in-3;
-}
-.frame--image-zoom-out-3 img {
-  animation-name: image-zoom-out-3;
-}
 .frame--image-smart-zoom-out img {
   animation-name: image-smart-zoom-out;
 }
@@ -435,8 +435,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background-color: #000;
 }
 .error {
@@ -512,19 +512,19 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100vh;
+  height: 100%;
   top: 0;
   left: 0;
   z-index: 10000;
 }
 .layout-splitview #clock-weather-container {
   flex-direction: row;
-  width: 100vw;
+  width: 100%;
   height: auto;
 }
 .sleep #clock-weather-container {
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   z-index: 99999;
 }
 
@@ -546,8 +546,8 @@ body {
   content: "";
   position: absolute;
   bottom: unset;
-  top: -1rem;
-  left: -1rem;
+  top: 0;
+  left: 0;
   width: 150%;
   height: 200%;
   background-image:
@@ -630,8 +630,8 @@ body {
 .weather--theme-fade::before {
   content: "";
   position: absolute;
-  bottom: -1rem;
-  left: -1rem;
+  bottom: 0;
+  left: 0;
   width: 150%;
   height: 200%;
   background-image:
@@ -702,9 +702,9 @@ body {
 .layout-splitview .weather--theme-fade::before {
   content: "";
   position: absolute;
-  top: -1rem;
+  top: 0;
   left: unset;
-  right: -1rem;
+  right: 0;
   bottom: unset;
   width: 150%;
   height: 200%;
@@ -745,8 +745,8 @@ body {
 #navigation-interaction-area {
   position: absolute;
   inset: 0px;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   z-index: 99998;
   background-color: transparent;
   transition: background-color 3s ease;

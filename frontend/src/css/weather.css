@@ -25,8 +25,8 @@
 .weather--theme-fade::before {
     content: "";
     position: absolute;
-    bottom: -1rem;
-    left: -1rem;
+    bottom: 0;
+    left: 0;
     width: 150%;
     height: 200%;
     background-image: radial-gradient(
@@ -109,9 +109,9 @@
 .layout-splitview .weather--theme-fade::before {
     content: "";
     position: absolute;
-    top: -1rem;
+    top: 0;
     left: unset;
-    right: -1rem;
+    right: 0;
     bottom: unset;
     width: 150%;
     height: 200%;

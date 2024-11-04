@@ -73,6 +73,7 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 
 ## Requirements
 - A reachable Immich server that is running version v1.117.0 or above.
+- A browser from [this supported list](https://browserslist.dev/?q=PiAwLjIl) or higher.
 
 ## Key features
 - Simple installation and updates via Docker.
@@ -121,7 +122,7 @@ There are two main ways to install Kiosk.
   2. Download `docker-compose.yaml`.
 
      ```sh
-     wget -O docker-compose.yaml url
+     wget -O docker-compose.yaml https://raw.githubusercontent.com/damongolding/immich-kiosk/refs/heads/main/docker-compose.yaml
      ```
 
      Set `TZ` to a `TZ identifier` from [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
@@ -134,7 +135,7 @@ There are two main ways to install Kiosk.
 
      ```sh
      mkdir ./config
-     wget -O ./config/config.yaml url
+     wget -O ./config/config.yaml https://raw.githubusercontent.com/damongolding/immich-kiosk/refs/heads/main/config.example.yaml
      ```
 
   4. Modify `config.yaml` file.
