@@ -44,7 +44,7 @@ var (
 	apiCacheLock sync.Mutex
 	// httpClient default http client for Immich api calls
 	httpClient = &http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Second * 20,
 	}
 )
 

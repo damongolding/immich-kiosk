@@ -114,6 +114,7 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body io.Reader) ([]by
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
 		log.Error(err)
+		_, _ = io.Copy(io.Discard, res.Body)
 		return responseBody, err
 	}
 
