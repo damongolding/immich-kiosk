@@ -82,9 +82,6 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body io.Reader) ([]by
 
 	var responseBody []byte
 
-	client := &http.Client{
-		Timeout: time.Second * 10,
-	}
 	req, err := http.NewRequest(method, apiUrl, body)
 	if err != nil {
 		log.Error(err)
@@ -100,7 +97,7 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body io.Reader) ([]by
 
 	var res *http.Response
 	for attempts := 0; attempts < 3; attempts++ {
-		res, err = client.Do(req)
+		res, err = httpClient.Do(req)
 		if err == nil {
 			break
 		}
@@ -117,6 +114,7 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body io.Reader) ([]by
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
 		log.Error(err)
+		_, _ = io.Copy(io.Discard, res.Body)
 		return responseBody, err
 	}
 
