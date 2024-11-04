@@ -13,7 +13,7 @@ import (
 )
 
 // Home home endpoint
-func Home(baseConfig *config.Config) echo.HandlerFunc {
+func Home(baseConfig *config.Config, desktopApp bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
@@ -47,6 +47,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			DeviceID:     utils.GenerateUUID(),
 			Queries:      c.QueryParams(),
 			CustomCss:    customCss,
+			Desktop:      desktopApp,
 			Config:       requestConfig,
 		}
 

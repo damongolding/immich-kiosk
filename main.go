@@ -106,7 +106,9 @@ func main() {
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
 
-	e.GET("/", routes.Home(baseConfig))
+	e.GET("/", routes.Home(baseConfig, false))
+
+	e.GET("/desktop", routes.Home(baseConfig, true))
 
 	e.GET("/image", routes.NewRawImage(baseConfig))
 

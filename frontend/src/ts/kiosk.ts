@@ -16,6 +16,7 @@ type KioskData = {
   params: Record<string, unknown>;
   refresh: number;
   disableScreensaver: boolean;
+  desktop: boolean;
 };
 
 // Parse kiosk data from the HTML element
@@ -66,7 +67,7 @@ async function init() {
     );
   }
 
-  if (!fullscreenAPI.requestFullscreen) {
+  if (!fullscreenAPI.requestFullscreen && !kioskData.desktop) {
     fullscreenButton && htmx.remove(fullscreenButton);
     fullScreenButtonSeperator && htmx.remove(fullScreenButtonSeperator);
   }
@@ -81,7 +82,7 @@ async function init() {
 }
 
 function handleFullscreenClick() {
-  toggleFullscreen(documentBody, fullscreenButton);
+  toggleFullscreen(documentBody, fullscreenButton, kioskData.desktop);
 }
 
 /**

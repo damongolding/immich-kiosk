@@ -3668,14 +3668,22 @@ var kiosk = (() => {
       fullscreenEnabled: null
     };
   }
-  function toggleFullscreen(documentBody2, fullscreenButton2) {
-    var _a2;
-    if (isFullscreen) {
-      if (fullscreenAPI.exitFullscreen) {
-        document[fullscreenAPI.exitFullscreen]();
+  function toggleFullscreen(documentBody2, fullscreenButton2, desktop) {
+    var _a2, _b, _c;
+    if (desktop) {
+      if (isFullscreen) {
+        (_a2 = window["go"]["main"]["App"]) == null ? void 0 : _a2.ExitFullscreen();
+      } else {
+        (_b = window["go"]["main"]["App"]) == null ? void 0 : _b.EnterFullscreen();
       }
     } else {
-      (_a2 = documentBody2[fullscreenAPI.requestFullscreen]) == null ? void 0 : _a2.call(documentBody2);
+      if (isFullscreen) {
+        if (fullscreenAPI.exitFullscreen) {
+          document[fullscreenAPI.exitFullscreen]();
+        }
+      } else {
+        (_c = documentBody2[fullscreenAPI.requestFullscreen]) == null ? void 0 : _c.call(documentBody2);
+      }
     }
     isFullscreen = !isFullscreen;
     fullscreenButton2 == null ? void 0 : fullscreenButton2.classList.toggle("navigation--fullscreen-enabled");
@@ -3837,7 +3845,7 @@ var kiosk = (() => {
           }
         );
       }
-      if (!fullscreenAPI.requestFullscreen) {
+      if (!fullscreenAPI.requestFullscreen && !kioskData.desktop) {
         fullscreenButton && htmx_esm_default.remove(fullscreenButton);
         fullScreenButtonSeperator && htmx_esm_default.remove(fullScreenButtonSeperator);
       }
@@ -3850,7 +3858,7 @@ var kiosk = (() => {
     });
   }
   function handleFullscreenClick() {
-    toggleFullscreen(documentBody, fullscreenButton);
+    toggleFullscreen(documentBody, fullscreenButton, kioskData.desktop);
   }
   function addEventListeners() {
     menuInteraction == null ? void 0 : menuInteraction.addEventListener("click", togglePolling);

@@ -322,6 +322,10 @@ templ Home(viewData ViewData) {
 			if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
 				@templ.Raw(customCss(viewData.CustomCss))
 			}
+			if viewData.Desktop {
+				<script src="wails://wails/wails/ipc.js"></script>
+				<script src="wails://wails/wails/runtime.js"></script>
+			}
 		</head>
 		<body class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
 			switch viewData.Transition {
@@ -362,6 +366,7 @@ templ Home(viewData ViewData) {
 				"params":             quriesToJson(viewData.Queries),
 				"refresh":            viewData.Refresh,
 				"disableScreensaver": viewData.DisableScreensaver,
+				"desktop":            viewData.Desktop,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			if len(viewData.Queries) > 0 {

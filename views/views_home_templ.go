@@ -819,6 +819,12 @@ func Home(viewData ViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
+		if viewData.Desktop {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script src=\"wails://wails/wails/ipc.js\"></script> <script src=\"wails://wails/wails/runtime.js\"></script>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -925,6 +931,7 @@ func Home(viewData ViewData) templ.Component {
 			"params":             quriesToJson(viewData.Queries),
 			"refresh":            viewData.Refresh,
 			"disableScreensaver": viewData.DisableScreensaver,
+			"desktop":            viewData.Desktop,
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -936,7 +943,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 366, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 371, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {

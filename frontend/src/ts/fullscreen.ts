@@ -65,13 +65,22 @@ function getFullscreenAPI(): {
 function toggleFullscreen(
   documentBody: HTMLElement,
   fullscreenButton: HTMLElement | null,
+  desktop: boolean,
 ) {
-  if (isFullscreen) {
-    if (fullscreenAPI.exitFullscreen) {
-      (document as Document)[fullscreenAPI.exitFullscreen]();
+  if (desktop) {
+    if (isFullscreen) {
+      window["go"]["main"]["App"].ExitFullscreen();
+    } else {
+      window["go"]["main"]["App"].EnterFullscreen();
     }
   } else {
-    documentBody[fullscreenAPI.requestFullscreen as keyof Document]?.();
+    if (isFullscreen) {
+      if (fullscreenAPI.exitFullscreen) {
+        (document as Document)[fullscreenAPI.exitFullscreen]();
+      }
+    } else {
+      documentBody[fullscreenAPI.requestFullscreen as keyof Document]?.();
+    }
   }
 
   isFullscreen = !isFullscreen;

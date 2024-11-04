@@ -34,6 +34,8 @@ type ViewData struct {
 	Queries url.Values
 	// CustomCss
 	CustomCss []byte
+	// Is running via  the desktop app
+	Desktop bool
 	// instance config
 	config.Config
 }
