@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -79,6 +80,20 @@ type WeatherLocation struct {
 	Lang string `mapstructure:"lang"`
 }
 
+// Config represents the main configuration structure for the Immich Kiosk application.
+// It contains all the settings that control the behavior and appearance of the kiosk,
+// including connection details, display options, image settings, and various feature toggles.
+//
+// The structure supports configuration through YAML files, environment variables,
+// and URL query parameters. Many fields can be dynamically updated through URL queries
+// during runtime.
+//
+// # Tags used in the configuration structure:
+//   - mapstructure: field name from yaml file
+//   - query: enables URL query parameter binding
+//   - form: enables form parameter binding
+//   - default: sets default value
+//   - lowercase: converts string value to lowercase
 type Config struct {
 	// V is the viper instance used for configuration management
 	V *viper.Viper
@@ -117,9 +132,9 @@ type Config struct {
 	// FontSize the base font size as a percentage
 	FontSize int `mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
 	// Theme which theme to use
-	Theme string `mapstructure:"theme" query:"theme" form:"theme" default:"fade"`
+	Theme string `mapstructure:"theme" query:"theme" form:"theme" default:"fade" lowercase:"true"`
 	// Layout which layout to use
-	Layout string `mapstructure:"layout" query:"layout" form:"layout" default:"single"`
+	Layout string `mapstructure:"layout" query:"layout" form:"layout" default:"single" lowercase:"true"`
 
 	// SleepStart when to start sleep mode
 	SleepStart string `mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
@@ -134,15 +149,15 @@ type Config struct {
 	Album []string `mapstructure:"album" query:"album" form:"album" default:"[]"`
 
 	// ImageFit the fit style for main image
-	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain"`
+	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
 	// ImageEffect which effect to apply to image (if any)
-	ImageEffect string `mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:""`
+	ImageEffect string `mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:"" lowercase:"true"`
 	// ImageEffectAmount the amount of effect to apply
 	ImageEffectAmount int `mapstructure:"image_effect_amount" query:"image_effect_amount" form:"image_effect_amount" default:"120"`
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
-	Transition string `mapstructure:"transition" query:"transition" form:"transition" default:""`
+	Transition string `mapstructure:"transition" query:"transition" form:"transition" default:"" lowercase:"true"`
 	// FadeTransitionDuration sets the length of the fade transition
 	FadeTransitionDuration float32 `mapstructure:"fade_transition_duration" query:"fade_transition_duration" form:"fade_transition_duration" default:"1"`
 	// CrossFadeTransitionDuration sets the length of the cross-fade transition
@@ -304,6 +319,21 @@ func (c *Config) checkUrlScheme() {
 		break
 	default:
 		c.ImmichUrl = defaultScheme + c.ImmichUrl
+	}
+}
+
+func (c *Config) checkLowercaseTaggedFields() {
+	val := reflect.ValueOf(c).Elem()
+	typ := val.Type()
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldType := typ.Field(i)
+
+		// Check if the field has the `lowercase` tag set to "true"
+		if fieldType.Tag.Get("lowercase") == "true" && field.Kind() == reflect.String && field.CanSet() {
+			field.SetString(strings.ToLower(field.String()))
+		}
 	}
 }
 
@@ -523,6 +553,7 @@ func (c *Config) Load() error {
 	}
 
 	c.checkRequiredFields()
+	c.checkLowercaseTaggedFields()
 	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
 	c.checkHideCountries()

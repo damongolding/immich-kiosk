@@ -347,7 +347,7 @@ func renderImage(viewData ViewData, imageData ImageData) templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		switch strings.ToLower(viewData.ImageEffect) {
+		switch viewData.ImageEffect {
 		case "zoom", "smart-zoom":
 			templ_7745c5c3_Var13 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -430,7 +430,7 @@ func renderImageFit(imageData string, imageFit string) templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		switch strings.ToLower(imageFit) {
+		switch imageFit {
 		case "cover":
 			templ_7745c5c3_Err = RenderImageWithCoverFit(imageData, imageFit).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
