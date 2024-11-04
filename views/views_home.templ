@@ -6,7 +6,6 @@ import (
 	"github.com/damongolding/immich-kiosk/utils"
 	"math"
 	"net/url"
-	"strings"
 )
 
 templ spinner() {
@@ -313,7 +312,7 @@ templ Home(viewData ViewData) {
     				}
 				</style>
 			}
-			switch  strings.ToLower(viewData.ImageEffect) {
+			switch  viewData.ImageEffect {
 				case "zoom":
 					@templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount))
 				case "smart-zoom":
@@ -325,7 +324,7 @@ templ Home(viewData ViewData) {
 			}
 		</head>
 		<body class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
-			switch strings.ToLower(viewData.Transition) {
+			switch viewData.Transition {
 				case "cross-fade":
 					@kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.CrossFadeTransitionDuration)
 				case "fade":

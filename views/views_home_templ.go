@@ -14,7 +14,6 @@ import (
 	"github.com/damongolding/immich-kiosk/utils"
 	"math"
 	"net/url"
-	"strings"
 )
 
 func spinner() templ.Component {
@@ -88,7 +87,7 @@ func kioskCrossFade(kioskVersion string, deviceID string, crossFadeDuration floa
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("beforeend settle:%.1fs", crossFadeDuration+1))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 37, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 36, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -101,7 +100,7 @@ func kioskCrossFade(kioskVersion string, deviceID string, crossFadeDuration floa
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 40, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 39, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -165,7 +164,7 @@ func kioskFade(kioskVersion string, deviceID string, fadeDuration float32) templ
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration/2))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 63, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 62, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -178,7 +177,7 @@ func kioskFade(kioskVersion string, deviceID string, fadeDuration float32) templ
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 65, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 64, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -228,7 +227,7 @@ func kioskNone(kioskVersion string, deviceID string) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 79, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 78, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -480,7 +479,7 @@ func paramForm(queries url.Values) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 221, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 220, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -493,7 +492,7 @@ func paramForm(queries url.Values) templ.Component {
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 221, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 220, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -705,7 +704,7 @@ func refreshCheckForm(kioskVersion, reloadTimeStamp string, queries url.Values) 
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 273, Col: 115}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 272, Col: 115}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
@@ -769,7 +768,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var29 string
 		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(viewData.KioskVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 283, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 282, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
@@ -782,7 +781,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var30 string
 		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 291, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 290, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
@@ -798,7 +797,7 @@ func Home(viewData ViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		switch strings.ToLower(viewData.ImageEffect) {
+		switch viewData.ImageEffect {
 		case "zoom":
 			templ_7745c5c3_Err = templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -846,7 +845,7 @@ func Home(viewData ViewData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		switch strings.ToLower(viewData.Transition) {
+		switch viewData.Transition {
 		case "cross-fade":
 			templ_7745c5c3_Err = kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.CrossFadeTransitionDuration).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -937,7 +936,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 367, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 366, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
