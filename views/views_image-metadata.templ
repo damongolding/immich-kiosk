@@ -21,12 +21,16 @@ func ImageLocation(info immich.ExifInfo, hideCountries []string) string {
 	}
 
 	if info.State != "" {
-		location.WriteString(", ")
+		if info.City != "" {
+			location.WriteString(", ")
+		}
 		location.WriteString(info.State)
 	}
 
 	if info.Country != "" && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
-		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
+		if info.City != "" || info.State != "" {
+			location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
+		}
 		location.WriteString(info.Country)
 	}
 
