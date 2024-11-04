@@ -27,10 +27,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
-	"reflect"
 
 	"github.com/charmbracelet/log"
 	"github.com/mcuadros/go-defaults"
@@ -80,6 +80,20 @@ type WeatherLocation struct {
 	Lang string `mapstructure:"lang"`
 }
 
+// Config represents the main configuration structure for the Immich Kiosk application.
+// It contains all the settings that control the behavior and appearance of the kiosk,
+// including connection details, display options, image settings, and various feature toggles.
+//
+// The structure supports configuration through YAML files, environment variables,
+// and URL query parameters. Many fields can be dynamically updated through URL queries
+// during runtime.
+//
+// # Tags used in the configuration structure:
+//   - mapstructure: field name from yaml file
+//   - query: enables URL query parameter binding
+//   - form: enables form parameter binding
+//   - default: sets default value
+//   - lowercase: converts string value to lowercase
 type Config struct {
 	// V is the viper instance used for configuration management
 	V *viper.Viper
