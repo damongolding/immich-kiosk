@@ -22,23 +22,26 @@ import (
 // ImageLocation generates a formatted string of the image location based on EXIF information.
 // It combines the city, state, and country information if available.
 func ImageLocation(info immich.ExifInfo, hideCountries []string) string {
-	var location strings.Builder
+	var parts []string
 
 	if info.City != "" {
-		location.WriteString(info.City)
+		parts = append(parts, info.City)
 	}
 
 	if info.State != "" {
-		location.WriteString(", ")
-		location.WriteString(info.State)
+		parts = append(parts, info.State)
 	}
 
 	if info.Country != "" && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
-		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
-		location.WriteString(info.Country)
+		// Insert the line break if there are already parts (city or state)
+		if len(parts) > 0 {
+			parts = append(parts, "<span>, </span><br class=\"responsive-break\"/>"+info.Country)
+		} else {
+			parts = append(parts, info.Country)
+		}
 	}
 
-	return location.String()
+	return strings.Join(parts, ", ")
 }
 
 // ImageExif generates a formatted string of EXIF information for an image.
@@ -79,11 +82,9 @@ func ImageExif(info immich.ExifInfo) string {
 func ImageDateTime(viewData ViewData, imageIndex int) string {
 	var imageDate string
 
-	var imageTimeFormat string
+	imageTimeFormat := "15:04"
 	if viewData.ImageTimeFormat == "12" {
 		imageTimeFormat = time.Kitchen
-	} else {
-		imageTimeFormat = time.TimeOnly
 	}
 
 	imageDateFormat := utils.DateToLayout(viewData.ImageDateFormat)
@@ -156,7 +157,7 @@ func imageMetadata(viewData ViewData, imageIndex int) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(ImageDateTime(viewData, imageIndex))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-metadata.templ`, Line: 104, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-metadata.templ`, Line: 105, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -203,7 +204,7 @@ func imageMetadata(viewData ViewData, imageIndex int) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(viewData.Images[imageIndex].ImmichImage.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-metadata.templ`, Line: 119, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-metadata.templ`, Line: 120, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
