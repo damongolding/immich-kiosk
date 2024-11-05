@@ -3669,12 +3669,12 @@ var kiosk = (() => {
     };
   }
   function toggleFullscreen(documentBody2, fullscreenButton2, desktop) {
-    var _a2, _b, _c;
+    var _a2;
     if (desktop) {
       if (isFullscreen) {
-        (_a2 = window["go"]["main"]["App"]) == null ? void 0 : _a2.ExitFullscreen();
+        window["go"]["main"]["App"].ExitFullscreen();
       } else {
-        (_b = window["go"]["main"]["App"]) == null ? void 0 : _b.EnterFullscreen();
+        window["go"]["main"]["App"].EnterFullscreen();
       }
     } else {
       if (isFullscreen) {
@@ -3682,7 +3682,7 @@ var kiosk = (() => {
           document[fullscreenAPI.exitFullscreen]();
         }
       } else {
-        (_c = documentBody2[fullscreenAPI.requestFullscreen]) == null ? void 0 : _c.call(documentBody2);
+        (_a2 = documentBody2[fullscreenAPI.requestFullscreen]) == null ? void 0 : _a2.call(documentBody2);
       }
     }
     isFullscreen = !isFullscreen;
