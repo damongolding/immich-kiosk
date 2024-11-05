@@ -71,11 +71,9 @@ func ImageExif(info immich.ExifInfo) string {
 func ImageDateTime(viewData ViewData, imageIndex int) string {
 	var imageDate string
 
-	var imageTimeFormat string
+	imageTimeFormat := "15:04"
 	if viewData.ImageTimeFormat == "12" {
 		imageTimeFormat = time.Kitchen
-	} else {
-		imageTimeFormat = time.TimeOnly
 	}
 
 	imageDateFormat := utils.DateToLayout(viewData.ImageDateFormat)

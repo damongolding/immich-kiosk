@@ -21,7 +21,7 @@
     "esbuild": "^0.24.0",
     "eslint": "^9.14.0",
     "eslint-plugin-compat": "^6.0.1",
-    "globals": "^15.11.0",
+    "globals": "^15.12.0",
     "htmx.org": "^2.0.3",
     "typescript": "^5.6.3"
   },
