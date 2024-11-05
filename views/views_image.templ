@@ -85,6 +85,10 @@ templ renderImageBackground(viewData ViewData, imageData ImageData) {
 	}
 }
 
+css backgroundImage(s string) {
+	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url(%s)", s)) };
+}
+
 // renderImage renders an image with the specified effect and fit.
 // It applies zoom effects if specified, otherwise renders the image with the default frame.
 //
@@ -100,6 +104,8 @@ templ renderImage(viewData ViewData, imageData ImageData) {
 			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichImage) {
 				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
 			}
+		case "pan-zoom":
+			<div class={ "frame--image frame--image-pan-zoom", backgroundImage(imageData.ImageData) }></div>
 		default:
 			@frame() {
 				@renderImageFit(imageData.ImageData, viewData.ImageFit)

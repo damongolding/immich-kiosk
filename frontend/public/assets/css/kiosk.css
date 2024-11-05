@@ -397,7 +397,7 @@ body {
   animation-fill-mode: forwards;
   transform-origin: inherit;
   object-position: inherit;
-  will-change: scale;
+  will-change: scale3d;
 }
 .frame--image-zoom-in img {
   animation-name: image-zoom-in;
@@ -410,6 +410,23 @@ body {
 }
 .frame--image-smart-zoom-in img {
   animation-name: image-smart-zoom-in;
+}
+.frame--image-pan-zoom {
+  background-repeat: no-repeat;
+  background-size: 200% auto;
+  animation-name: image-pan-zoom;
+  animation-duration: 80s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  animation-direction: normal;
+}
+@keyframes image-pan-zoom {
+  0% {
+    background-position: bottom left;
+  }
+  100% {
+    background-position: top right;
+  }
 }
 @media screen and (max-width: 31.25rem) {
   .image--metadata {

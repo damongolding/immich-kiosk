@@ -46,6 +46,7 @@ body{}
 .frame--image-zoom-out img{}
 .frame--image-smart-zoom-out img{}
 .frame--image-smart-zoom-in img{}
+.frame--image-pan-zoom{}
 /* src/css/error.css */
 .error-container{}
 .error{}

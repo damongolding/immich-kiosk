@@ -19,6 +19,10 @@ templ frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) {
 			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect), smartZoom(img) }>
 				{ children... }
 			</div>
+		case "pan-zoom":
+			<div class={ "frame--image", "frame--image-pan-zoom" }>
+				{ children... }
+			</div>
 		default:
 			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect) }>
 				{ children... }
