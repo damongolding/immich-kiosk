@@ -411,6 +411,9 @@ body {
 .frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-in img {
   animation-name: image-smart-zoom-in;
 }
+.polling-paused .frame:nth-last-of-type(-n+2) img {
+  animation-play-state: paused;
+}
 @media screen and (max-width: 31.25rem) {
   .image--metadata {
     padding: 0.5rem !important;

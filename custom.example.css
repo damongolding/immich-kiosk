@@ -46,6 +46,7 @@ body{}
 .frame:nth-last-of-type(-n+2) .frame--image-zoom-out img{}
 .frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-out img{}
 .frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-in img{}
+.polling-paused .frame:nth-last-of-type(-n+2) img{}
 /* src/css/error.css */
 .error-container{}
 .error{}

@@ -126,7 +126,7 @@ function addEventListeners() {
 function cleanupFrames() {
   const frames = htmx.findAll(".frame");
   if (frames.length > 3) {
-    htmx.remove(frames[0], 3000);
+    htmx.remove(frames[0]);
   }
 }
 

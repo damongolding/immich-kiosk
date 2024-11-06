@@ -18,7 +18,6 @@ function initMenu(
 
   htmx.on(kiosk as HTMLElement, "htmx:afterSettle", function (e: any) {
     gettingNewImage = false;
-    console.log("fin?");
   });
 }
 

@@ -54,6 +54,7 @@ function updateKiosk(timestamp: number) {
  * Start the polling process to fetch new images
  */
 function startPolling() {
+  progressBarElement = htmx.find(".progress--bar") as HTMLElement | null;
   progressBarElement?.classList.remove("progress--bar-paused");
   menuPausePlayButton?.classList.remove("navigation--control--paused");
 
@@ -63,6 +64,8 @@ function startPolling() {
   pausedTime = null;
 
   animationFrameId = requestAnimationFrame(updateKiosk);
+
+  document.body.classList.remove("polling-paused");
 
   isPaused = false;
 }
@@ -92,6 +95,8 @@ function pausePolling() {
   menuPausePlayButton?.classList.add("navigation--control--paused");
   menuElement?.classList.remove("navigation-hidden");
 
+  document.body.classList.add("polling-paused");
+
   isPaused = true;
 }
 
@@ -106,6 +111,8 @@ function resumePolling() {
   progressBarElement?.classList.remove("progress--bar-paused");
   menuPausePlayButton?.classList.remove("navigation--control--paused");
   menuElement?.classList.add("navigation-hidden");
+
+  document.body.classList.remove("polling-paused");
 
   isPaused = false;
 }

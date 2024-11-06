@@ -3732,6 +3732,7 @@ var kiosk = (() => {
     lastPollTime = performance.now();
     pausedTime = null;
     animationFrameId = requestAnimationFrame(updateKiosk);
+    document.body.classList.remove("polling-paused");
     isPaused = false;
   }
   function stopPolling() {
@@ -3747,6 +3748,7 @@ var kiosk = (() => {
     progressBarElement == null ? void 0 : progressBarElement.classList.add("progress--bar-paused");
     menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--control--paused");
     menuElement == null ? void 0 : menuElement.classList.remove("navigation-hidden");
+    document.body.classList.add("polling-paused");
     isPaused = true;
   }
   function resumePolling() {
@@ -3755,6 +3757,7 @@ var kiosk = (() => {
     progressBarElement == null ? void 0 : progressBarElement.classList.remove("progress--bar-paused");
     menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--control--paused");
     menuElement == null ? void 0 : menuElement.classList.add("navigation-hidden");
+    document.body.classList.remove("polling-paused");
     isPaused = false;
   }
   function togglePolling() {
@@ -3811,7 +3814,6 @@ var kiosk = (() => {
     menuPausePlayButton2 = pausePlayButton;
     htmx_esm_default.on(kiosk2, "htmx:afterSettle", function(e) {
       gettingNewImage = false;
-      console.log("fin?");
     });
   }
   function handleNextImageClick() {
@@ -3899,7 +3901,7 @@ var kiosk = (() => {
   function cleanupFrames() {
     const frames = htmx_esm_default.findAll(".frame");
     if (frames.length > 3) {
-      htmx_esm_default.remove(frames[0], 3e3);
+      htmx_esm_default.remove(frames[0]);
     }
   }
   document.addEventListener("DOMContentLoaded", () => {
