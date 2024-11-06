@@ -5,7 +5,7 @@ body{}
 /* src/css/container.css */
 #kiosk{}
 #kiosk.htmx-swapping{}
-#kiosk.htmx-settling .htmx-added{}
+#kiosk.htmx-settling .htmx-added:last-of-type{}
 /* src/css/spinner.css */
 .kiosk--spinner{}
 /* src/css/frame.css */
@@ -42,10 +42,10 @@ body{}
 .image--metadata--location{}
 .frame--layout-splitview:nth-child(1) .image--metadata{}
 .frame--image-zoom img{}
-.frame--image-zoom-in img{}
-.frame--image-zoom-out img{}
-.frame--image-smart-zoom-out img{}
-.frame--image-smart-zoom-in img{}
+.frame:nth-last-of-type(-n+2) .frame--image-zoom-in img{}
+.frame:nth-last-of-type(-n+2) .frame--image-zoom-out img{}
+.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-out img{}
+.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-in img{}
 /* src/css/error.css */
 .error-container{}
 .error{}
@@ -94,6 +94,8 @@ body{}
 .sleep #weather{}
 /* src/css/menu.css */
 #navigation-interaction-area{}
+#navigation-interaction-area--next-image{}
+#navigation-interaction-area--menu{}
 .navigation{}
 .navigation--item{}
 .navigation--item--separator{}

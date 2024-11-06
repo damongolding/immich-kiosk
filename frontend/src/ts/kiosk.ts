@@ -6,6 +6,7 @@ import {
 } from "./fullscreen";
 import { initPolling, startPolling, togglePolling } from "./polling";
 import { preventSleep } from "./wakelock";
+import { handleNextImageClick, initMenu } from "./menu";
 
 ("use strict");
 
@@ -37,7 +38,7 @@ const fullScreenButtonSeperator = htmx.find(
 const kiosk = htmx.find("#kiosk") as HTMLElement | null;
 const menu = htmx.find(".navigation") as HTMLElement | null;
 const menuInteraction = htmx.find(
-  "#navigation-interaction-area",
+  "#navigation-interaction-area--menu",
 ) as HTMLElement | null;
 const menuPausePlayButton = htmx.find(
   ".navigation--control",
@@ -77,6 +78,8 @@ async function init() {
     console.error("Could not start polling");
   }
 
+  initMenu(kiosk, menu, menuPausePlayButton);
+
   addEventListeners();
 }
 
@@ -95,6 +98,10 @@ function addEventListeners() {
   // Fullscreen
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
+
+  // Menu
+  const nextImage = htmx.find("#navigation-interaction-area--next-image");
+  nextImage?.addEventListener("click", handleNextImageClick);
 
   // Server online check. Fires after every AJAX request.
   htmx.on("htmx:afterRequest", function (e: any) {

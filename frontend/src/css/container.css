@@ -25,7 +25,7 @@
     }
 }
 
-#kiosk.htmx-settling .htmx-added {
+#kiosk.htmx-settling .htmx-added:last-of-type {
     animation-name: fade-in;
     animation-duration: 1s;
     animation-fill-mode: forwards;

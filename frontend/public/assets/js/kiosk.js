@@ -3728,9 +3728,11 @@ var kiosk = (() => {
     progressBarElement = htmx_esm_default.find(".progress--bar");
     progressBarElement == null ? void 0 : progressBarElement.classList.remove("progress--bar-paused");
     menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--control--paused");
+    menuElement == null ? void 0 : menuElement.classList.add("navigation-hidden");
     lastPollTime = performance.now();
     pausedTime = null;
     animationFrameId = requestAnimationFrame(updateKiosk);
+    isPaused = false;
   }
   function stopPolling() {
     if (isPaused && animationFrameId === null) return;
@@ -3798,6 +3800,27 @@ var kiosk = (() => {
     };
   });
 
+  // src/ts/menu.ts
+  var gettingNewImage = false;
+  var kioskElement2;
+  var menuElement2;
+  var menuPausePlayButton2;
+  function initMenu(kiosk2, menu2, pausePlayButton) {
+    kioskElement2 = kiosk2;
+    menuElement2 = menu2;
+    menuPausePlayButton2 = pausePlayButton;
+    htmx_esm_default.on(kiosk2, "htmx:afterSettle", function(e) {
+      gettingNewImage = false;
+      console.log("fin?");
+    });
+  }
+  function handleNextImageClick() {
+    if (gettingNewImage) return;
+    pausePolling();
+    htmx_esm_default.trigger(kioskElement2, "kiosk-new-image");
+    gettingNewImage = true;
+  }
+
   // src/ts/kiosk.ts
   var _a;
   var kioskData = JSON.parse(
@@ -3814,9 +3837,9 @@ var kiosk = (() => {
   var kiosk = htmx_esm_default.find("#kiosk");
   var menu = htmx_esm_default.find(".navigation");
   var menuInteraction = htmx_esm_default.find(
-    "#navigation-interaction-area"
+    "#navigation-interaction-area--menu"
   );
-  var menuPausePlayButton2 = htmx_esm_default.find(
+  var menuPausePlayButton3 = htmx_esm_default.find(
     ".navigation--control"
   );
   function init() {
@@ -3842,10 +3865,11 @@ var kiosk = (() => {
         fullScreenButtonSeperator && htmx_esm_default.remove(fullScreenButtonSeperator);
       }
       if (pollInterval2) {
-        initPolling(pollInterval2, kiosk, menu, menuPausePlayButton2);
+        initPolling(pollInterval2, kiosk, menu, menuPausePlayButton3);
       } else {
         console.error("Could not start polling");
       }
+      initMenu(kiosk, menu, menuPausePlayButton3);
       addEventListeners();
     });
   }
@@ -3854,9 +3878,11 @@ var kiosk = (() => {
   }
   function addEventListeners() {
     menuInteraction == null ? void 0 : menuInteraction.addEventListener("click", togglePolling);
-    menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
+    menuPausePlayButton3 == null ? void 0 : menuPausePlayButton3.addEventListener("click", togglePolling);
     fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", handleFullscreenClick);
     addFullscreenEventListener(fullscreenButton);
+    const nextImage = htmx_esm_default.find("#navigation-interaction-area--next-image");
+    nextImage == null ? void 0 : nextImage.addEventListener("click", handleNextImageClick);
     htmx_esm_default.on("htmx:afterRequest", function(e) {
       const offlineSVG = htmx_esm_default.find("#offline");
       if (!offlineSVG) {

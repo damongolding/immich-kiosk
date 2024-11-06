@@ -145,7 +145,7 @@ body {
     opacity: 0;
   }
 }
-#kiosk.htmx-settling .htmx-added {
+#kiosk.htmx-settling .htmx-added:last-of-type {
   animation-name: fade-in;
   animation-duration: 1s;
   animation-fill-mode: forwards;
@@ -399,16 +399,16 @@ body {
   object-position: inherit;
   will-change: scale;
 }
-.frame--image-zoom-in img {
+.frame:nth-last-of-type(-n+2) .frame--image-zoom-in img {
   animation-name: image-zoom-in;
 }
-.frame--image-zoom-out img {
+.frame:nth-last-of-type(-n+2) .frame--image-zoom-out img {
   animation-name: image-zoom-out;
 }
-.frame--image-smart-zoom-out img {
+.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-out img {
   animation-name: image-smart-zoom-out;
 }
-.frame--image-smart-zoom-in img {
+.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-in img {
   animation-name: image-smart-zoom-in;
 }
 @media screen and (max-width: 31.25rem) {
@@ -744,12 +744,25 @@ body {
 /* src/css/menu.css */
 #navigation-interaction-area {
   position: absolute;
-  inset: 0px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
   width: 100%;
   height: 100%;
   z-index: 99998;
   background-color: transparent;
   transition: background-color 3s ease;
+}
+#navigation-interaction-area--previous-image,
+#navigation-interaction-area--next-image {
+  width: 25%;
+  height: 100%;
+}
+#navigation-interaction-area--menu {
+  width: 50%;
+  height: 100%;
 }
 .navigation {
   display: flex;

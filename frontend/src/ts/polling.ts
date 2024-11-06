@@ -54,14 +54,17 @@ function updateKiosk(timestamp: number) {
  * Start the polling process to fetch new images
  */
 function startPolling() {
-  progressBarElement = htmx.find(".progress--bar") as HTMLElement | null;
   progressBarElement?.classList.remove("progress--bar-paused");
   menuPausePlayButton?.classList.remove("navigation--control--paused");
+
+  menuElement?.classList.add("navigation-hidden");
 
   lastPollTime = performance.now();
   pausedTime = null;
 
   animationFrameId = requestAnimationFrame(updateKiosk);
+
+  isPaused = false;
 }
 
 /**
@@ -114,4 +117,4 @@ function togglePolling() {
   isPaused ? resumePolling() : pausePolling();
 }
 
-export { initPolling, startPolling, togglePolling };
+export { initPolling, startPolling, pausePolling, togglePolling };
