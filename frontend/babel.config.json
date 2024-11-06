@@ -1,0 +1,17 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "chrome": "53",
+          "ios": "10"
+        },
+        "useBuiltIns": "usage",
+        "corejs": "3",
+        "forceAllTransforms": true,
+        "bugfixes": true
+      }
+    ]
+  ]
+}

@@ -187,6 +187,8 @@ type Config struct {
 
 	WeatherLocations []WeatherLocation `mapstructure:"weather" default:"[]"`
 
+	Legacy bool `mapstructure:"legacy" query:"legacy" form:"legacy" default:"false"`
+
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
 

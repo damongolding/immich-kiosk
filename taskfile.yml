@@ -33,11 +33,13 @@ tasks:
     dir: ./frontend
     cmds:
       - pnpm css
+      - pnpm css:legacy
 
   frontend-js:
     dir: ./frontend
     cmds:
       - pnpm js
+      - pnpm js:legacy
 
   templ:
     cmds:

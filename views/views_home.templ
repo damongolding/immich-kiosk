@@ -287,7 +287,11 @@ templ Home(viewData ViewData) {
 			<meta name="theme-color" content="black"/>
 			<title>Immich Kiosk</title>
 			<link rel="manifest" href="/assets/manifest.json"/>
-			<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))) }/>
+			if viewData.Legacy {
+				<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk-legacy.%s.css", viewData.KioskVersion))) }/>
+			} else {
+				<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))) }/>
+			}
 			<link
 				rel="apple-touch-icon"
 				sizes="180x180"
@@ -363,7 +367,11 @@ templ Home(viewData ViewData) {
 				"refresh":            viewData.Refresh,
 				"disableScreensaver": viewData.DisableScreensaver,
 			})
-			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
+			if viewData.Legacy {
+				<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk-legacy.%s.js", viewData.KioskVersion))) }></script>
+			} else {
+				<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
+			}
 			if len(viewData.Queries) > 0 {
 				<script>
 				  const kioskQueires = document.body.querySelectorAll(".kiosk-param");

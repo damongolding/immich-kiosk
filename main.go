@@ -99,9 +99,11 @@ func main() {
 
 	// CSS cache busting
 	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public)
+	e.FileFS("/assets/css/kiosk-legacy.*.css", "frontend/public/assets/css/kiosk-legacy.css", public)
 
 	// JS cache busting
 	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public)
+	e.FileFS("/assets/js/kiosk-legacy.*.js", "frontend/public/assets/js/kiosk-legacy.js", public)
 
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))

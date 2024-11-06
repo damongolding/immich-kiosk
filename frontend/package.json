@@ -7,7 +7,9 @@
     "lint": "pnpm exec eslint ./public/assets/js/kiosk.js",
     "js": "pnpm exec esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --target=es6 --outfile=./public/assets/js/kiosk.js ",
     "css": "pnpm exec esbuild --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css",
-    "build": "pnpm test && pnpm css && pnpm js ",
+    "build": "pnpm test && pnpm css && pnpm css:legacy && pnpm js && pnpm js:legacy",
+    "css:legacy": "postcss ./public/assets/css/kiosk.css --no-map -o ./public/assets/css/kiosk-legacy.css",
+    "js:legacy": "pnpm exec babel ./public/assets/js/kiosk.js --out-file ./public/assets/js/kiosk-legacy.js && pnpm exec esbuild './public/assets/js/kiosk-legacy.js' --format=cjs --allow-overwrite --global-name=kiosk --bundle --target=es5 --outfile=./public/assets/js/kiosk-legacy.js",
     "test": "tsc --noEmit"
   },
   "keywords": [],
@@ -17,17 +19,26 @@
     "node": "20.17.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "autoprefixer": "^10.4.20",
     "browserslist": "^4.24.2",
     "esbuild": "^0.24.0",
     "eslint": "^9.14.0",
     "eslint-plugin-compat": "^6.0.1",
     "globals": "^15.12.0",
     "htmx.org": "^2.0.3",
+    "postcss": "^8.4.47",
+    "postcss-cli": "^11.0.0",
     "typescript": "^5.6.3"
   },
   "browserslist": [
     "> 0.2%",
     "not op_mini all",
     "not IE 11"
-  ]
+  ],
+  "dependencies": {
+    "core-js": "^3.39.0"
+  }
 }
