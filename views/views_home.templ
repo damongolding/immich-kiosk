@@ -368,6 +368,8 @@ templ Home(viewData ViewData) {
 				"disableScreensaver": viewData.DisableScreensaver,
 			})
 			if viewData.Legacy {
+				<script src="https://cdn.jsdelivr.net/npm/whatwg-fetch/dist/fetch.umd.js"></script>
+				<script src="https://cdn.jsdelivr.net/npm/es6-promise/dist/es6-promise.auto.min.js"></script>
 				<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk-legacy.%s.js", viewData.KioskVersion))) }></script>
 			} else {
 				<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
