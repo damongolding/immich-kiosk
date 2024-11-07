@@ -106,9 +106,9 @@ body{}
 .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--enter{}
-.navigation--control--play{}
-.navigation--control--paused .navigation--control--play{}
-.navigation--control--paused .navigation--control--pause{}
+.navigation--play-pause--play{}
+.navigation--play-pause--paused .navigation--play-pause--play{}
+.navigation--play-pause--paused .navigation--play-pause--pause{}
 .sleep #navigation-interaction-area{}
 .layout-splitview .navigation{}
 /* src/css/kiosk.css */

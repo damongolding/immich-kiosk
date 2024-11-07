@@ -90,17 +90,17 @@
 }
 
 /* nav controls */
-.navigation--control--play {
+.navigation--play-pause--play {
     display: none;
     visibility: hidden;
 }
 
-.navigation--control--paused .navigation--control--play {
+.navigation--play-pause--paused .navigation--play-pause--play {
     display: inline;
     visibility: visible;
 }
 
-.navigation--control--paused .navigation--control--pause {
+.navigation--play-pause--paused .navigation--play-pause--pause {
     display: none;
     visibility: hidden;
 }

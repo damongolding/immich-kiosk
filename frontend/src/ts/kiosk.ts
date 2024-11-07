@@ -6,10 +6,13 @@ import {
 } from "./fullscreen";
 import { initPolling, startPolling, togglePolling } from "./polling";
 import { preventSleep } from "./wakelock";
-import { handleNextImageClick, initMenu } from "./menu";
+import { handleNextImageClick, handlePrevImageClick, initMenu } from "./menu";
 
 ("use strict");
 
+/**
+ * Type definition for kiosk configuration data
+ */
 type KioskData = {
   debug: boolean;
   debugVerbose: boolean;
@@ -41,11 +44,13 @@ const menuInteraction = htmx.find(
   "#navigation-interaction-area--menu",
 ) as HTMLElement | null;
 const menuPausePlayButton = htmx.find(
-  ".navigation--control",
+  ".navigation--play-pause",
 ) as HTMLElement | null;
 
 /**
  * Initialize Kiosk functionality
+ * Sets up debugging, screensaver prevention, service worker registration,
+ * fullscreen capability, polling, menu and event listeners
  */
 async function init() {
   if (kioskData.debugVerbose) {
@@ -78,17 +83,26 @@ async function init() {
     console.error("Could not start polling");
   }
 
-  initMenu(kiosk, menu, menuPausePlayButton);
+  initMenu(kiosk);
 
   addEventListeners();
 }
 
+/**
+ * Handler for fullscreen button clicks
+ * Toggles fullscreen mode for the document body
+ */
 function handleFullscreenClick() {
   toggleFullscreen(documentBody, fullscreenButton);
 }
 
 /**
  * Add event listeners to Kiosk elements
+ * Sets up listeners for:
+ * - Menu interaction and polling control
+ * - Fullscreen functionality
+ * - Navigation between images
+ * - Server connection status monitoring
  */
 function addEventListeners() {
   // Pause/resume polling and show/hide menu
@@ -100,8 +114,18 @@ function addEventListeners() {
   addFullscreenEventListener(fullscreenButton);
 
   // Menu
-  const nextImage = htmx.find("#navigation-interaction-area--next-image");
-  nextImage?.addEventListener("click", handleNextImageClick);
+  // - next image
+  const nextImageArea = htmx.find("#navigation-interaction-area--next-image");
+  const nextImageMenuButton = htmx.find(".navigation--next-image");
+  nextImageArea?.addEventListener("click", handleNextImageClick);
+  nextImageMenuButton?.addEventListener("click", handleNextImageClick);
+  // - prev image
+  const prevImageArea = htmx.find(
+    "#navigation-interaction-area--previous-image",
+  );
+  const prevImageMenuButton = htmx.find(".navigation--prev-image");
+  prevImageArea?.addEventListener("click", handlePrevImageClick);
+  prevImageMenuButton?.addEventListener("click", handlePrevImageClick);
 
   // Server online check. Fires after every AJAX request.
   htmx.on("htmx:afterRequest", function (e: any) {
@@ -121,7 +145,8 @@ function addEventListeners() {
 }
 
 /**
- * Remove first frame
+ * Remove first frame from the DOM when there are more than 3 frames
+ * Used to prevent memory issues from accumulating frames
  */
 function cleanupFrames() {
   const frames = htmx.findAll(".frame");

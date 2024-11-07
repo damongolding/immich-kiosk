@@ -3727,7 +3727,7 @@ var kiosk = (() => {
   function startPolling() {
     progressBarElement = htmx_esm_default.find(".progress--bar");
     progressBarElement == null ? void 0 : progressBarElement.classList.remove("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--control--paused");
+    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--play-pause--paused");
     menuElement == null ? void 0 : menuElement.classList.add("navigation-hidden");
     lastPollTime = performance.now();
     pausedTime = null;
@@ -3739,23 +3739,25 @@ var kiosk = (() => {
     if (isPaused && animationFrameId === null) return;
     cancelAnimationFrame(animationFrameId);
     progressBarElement == null ? void 0 : progressBarElement.classList.add("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--control--paused");
+    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--play-pause--paused");
   }
-  function pausePolling() {
+  function pausePolling(showMenu = true) {
     if (isPaused && animationFrameId === null) return;
     cancelAnimationFrame(animationFrameId);
     pausedTime = performance.now();
     progressBarElement == null ? void 0 : progressBarElement.classList.add("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--control--paused");
-    menuElement == null ? void 0 : menuElement.classList.remove("navigation-hidden");
-    document.body.classList.add("polling-paused");
+    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--play-pause--paused");
+    if (showMenu) {
+      menuElement == null ? void 0 : menuElement.classList.remove("navigation-hidden");
+      document.body.classList.add("polling-paused");
+    }
     isPaused = true;
   }
   function resumePolling() {
     if (!isPaused) return;
     animationFrameId = requestAnimationFrame(updateKiosk);
     progressBarElement == null ? void 0 : progressBarElement.classList.remove("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--control--paused");
+    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--play-pause--paused");
     menuElement == null ? void 0 : menuElement.classList.add("navigation-hidden");
     document.body.classList.remove("polling-paused");
     isPaused = false;
@@ -3806,20 +3808,31 @@ var kiosk = (() => {
   // src/ts/menu.ts
   var gettingNewImage = false;
   var kioskElement2;
-  var menuElement2;
-  var menuPausePlayButton2;
-  function initMenu(kiosk2, menu2, pausePlayButton) {
+  function initMenu(kiosk2) {
     kioskElement2 = kiosk2;
-    menuElement2 = menu2;
-    menuPausePlayButton2 = pausePlayButton;
     htmx_esm_default.on(kiosk2, "htmx:afterSettle", function(e) {
       gettingNewImage = false;
     });
   }
   function handleNextImageClick() {
     if (gettingNewImage) return;
-    pausePolling();
+    pausePolling(false);
     htmx_esm_default.trigger(kioskElement2, "kiosk-new-image");
+    gettingNewImage = true;
+  }
+  function handlePrevImageClick() {
+    const historyItems = htmx_esm_default.findAll(".kiosk-history--entry");
+    if (gettingNewImage || historyItems.length < 2) return;
+    pausePolling(false);
+    try {
+      htmx_esm_default.ajax("post", "/image/previous", {
+        source: "#kiosk",
+        values: htmx_esm_default.values(htmx_esm_default.find("#kiosk-history"), "post")
+      });
+    } catch (e) {
+      console.log(e);
+      return;
+    }
     gettingNewImage = true;
   }
 
@@ -3841,8 +3854,8 @@ var kiosk = (() => {
   var menuInteraction = htmx_esm_default.find(
     "#navigation-interaction-area--menu"
   );
-  var menuPausePlayButton3 = htmx_esm_default.find(
-    ".navigation--control"
+  var menuPausePlayButton2 = htmx_esm_default.find(
+    ".navigation--play-pause"
   );
   function init() {
     return __async(this, null, function* () {
@@ -3867,11 +3880,11 @@ var kiosk = (() => {
         fullScreenButtonSeperator && htmx_esm_default.remove(fullScreenButtonSeperator);
       }
       if (pollInterval2) {
-        initPolling(pollInterval2, kiosk, menu, menuPausePlayButton3);
+        initPolling(pollInterval2, kiosk, menu, menuPausePlayButton2);
       } else {
         console.error("Could not start polling");
       }
-      initMenu(kiosk, menu, menuPausePlayButton3);
+      initMenu(kiosk);
       addEventListeners();
     });
   }
@@ -3880,11 +3893,19 @@ var kiosk = (() => {
   }
   function addEventListeners() {
     menuInteraction == null ? void 0 : menuInteraction.addEventListener("click", togglePolling);
-    menuPausePlayButton3 == null ? void 0 : menuPausePlayButton3.addEventListener("click", togglePolling);
+    menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
     fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", handleFullscreenClick);
     addFullscreenEventListener(fullscreenButton);
-    const nextImage = htmx_esm_default.find("#navigation-interaction-area--next-image");
-    nextImage == null ? void 0 : nextImage.addEventListener("click", handleNextImageClick);
+    const nextImageArea = htmx_esm_default.find("#navigation-interaction-area--next-image");
+    const nextImageMenuButton = htmx_esm_default.find(".navigation--next-image");
+    nextImageArea == null ? void 0 : nextImageArea.addEventListener("click", handleNextImageClick);
+    nextImageMenuButton == null ? void 0 : nextImageMenuButton.addEventListener("click", handleNextImageClick);
+    const prevImageArea = htmx_esm_default.find(
+      "#navigation-interaction-area--previous-image"
+    );
+    const prevImageMenuButton = htmx_esm_default.find(".navigation--prev-image");
+    prevImageArea == null ? void 0 : prevImageArea.addEventListener("click", handlePrevImageClick);
+    prevImageMenuButton == null ? void 0 : prevImageMenuButton.addEventListener("click", handlePrevImageClick);
     htmx_esm_default.on("htmx:afterRequest", function(e) {
       const offlineSVG = htmx_esm_default.find("#offline");
       if (!offlineSVG) {
