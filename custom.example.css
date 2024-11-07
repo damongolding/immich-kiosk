@@ -102,14 +102,16 @@ body{}
 .navigation--item--separator{}
 .navigation-hidden{}
 .navigation svg{}
+.rounded{}
 .navigation--flush-cache svg{}
 .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--enter{}
+.navigation--media-buttons{}
+.navigation--media-buttons .navigation--item{}
 .navigation--play-pause--play{}
 .navigation--play-pause--paused .navigation--play-pause--play{}
 .navigation--play-pause--paused .navigation--play-pause--pause{}
 .navigation--prev-image.disabled{}
 .sleep #navigation-interaction-area{}
-.layout-splitview .navigation{}
 /* src/css/kiosk.css */
