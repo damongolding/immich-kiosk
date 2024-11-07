@@ -831,6 +831,10 @@ body {
   display: none;
   visibility: hidden;
 }
+.navigation--next-image.disabled,
+.navigation--prev-image.disabled {
+  opacity: 0.5;
+}
 .sleep #navigation-interaction-area {
   background-color: black;
 }

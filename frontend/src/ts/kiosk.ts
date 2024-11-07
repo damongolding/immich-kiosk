@@ -43,9 +43,13 @@ const menu = htmx.find(".navigation") as HTMLElement | null;
 const menuInteraction = htmx.find(
   "#navigation-interaction-area--menu",
 ) as HTMLElement | null;
+const nextImageArea = htmx.find("#navigation-interaction-area--next-image");
+const prevImageArea = htmx.find("#navigation-interaction-area--previous-image");
 const menuPausePlayButton = htmx.find(
   ".navigation--play-pause",
 ) as HTMLElement | null;
+const nextImageMenuButton = htmx.find(".navigation--next-image");
+const prevImageMenuButton = htmx.find(".navigation--prev-image");
 
 /**
  * Initialize Kiosk functionality
@@ -83,7 +87,11 @@ async function init() {
     console.error("Could not start polling");
   }
 
-  initMenu(kiosk);
+  initMenu(
+    kiosk as HTMLElement,
+    nextImageMenuButton as HTMLElement,
+    prevImageMenuButton as HTMLElement,
+  );
 
   addEventListeners();
 }
@@ -113,17 +121,11 @@ function addEventListeners() {
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
 
-  // Menu
+  // Next/Prev image navigation
   // - next image
-  const nextImageArea = htmx.find("#navigation-interaction-area--next-image");
-  const nextImageMenuButton = htmx.find(".navigation--next-image");
   nextImageArea?.addEventListener("click", handleNextImageClick);
   nextImageMenuButton?.addEventListener("click", handleNextImageClick);
   // - prev image
-  const prevImageArea = htmx.find(
-    "#navigation-interaction-area--previous-image",
-  );
-  const prevImageMenuButton = htmx.find(".navigation--prev-image");
   prevImageArea?.addEventListener("click", handlePrevImageClick);
   prevImageMenuButton?.addEventListener("click", handlePrevImageClick);
 

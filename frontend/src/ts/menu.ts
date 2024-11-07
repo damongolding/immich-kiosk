@@ -12,16 +12,36 @@ let gettingNewImage = false;
 /** Reference to the main kiosk container element */
 let kioskElement: HTMLElement | null;
 
+let nextImageMenuButton: HTMLElement;
+let prevImageMenuButton: HTMLElement;
+
+function disableImageNavigationButtons() {
+  htmx.addClass(nextImageMenuButton as Element, "disabled");
+  htmx.addClass(prevImageMenuButton as Element, "disabled");
+}
+
+function enableImageNavigationButtons() {
+  htmx.removeClass(nextImageMenuButton as Element, "disabled");
+  htmx.removeClass(prevImageMenuButton as Element, "disabled");
+}
+
 /**
  * Initializes the menu controls and sets up event handlers
  * @param kiosk - The kiosk container element
  * @param menu - The menu container element
  * @param pausePlayButton - The pause/play button element
  */
-function initMenu(kiosk: HTMLElement | null) {
+function initMenu(
+  kiosk: HTMLElement,
+  nextImageButton: HTMLElement,
+  prevImageButton: HTMLElement,
+) {
   kioskElement = kiosk;
+  nextImageMenuButton = nextImageButton;
+  prevImageMenuButton = prevImageButton;
 
   htmx.on(kiosk as HTMLElement, "htmx:afterSettle", function (e: any) {
+    enableImageNavigationButtons();
     gettingNewImage = false;
   });
 }
@@ -35,6 +55,9 @@ function handleNextImageClick() {
 
   pausePolling(false);
   htmx.trigger(kioskElement as HTMLElement, "kiosk-new-image");
+
+  disableImageNavigationButtons();
+
   gettingNewImage = true;
 }
 
@@ -47,6 +70,7 @@ function handlePrevImageClick() {
   if (gettingNewImage || historyItems.length < 2) return;
 
   pausePolling(false);
+
   try {
     htmx.ajax("post", "/image/previous", {
       source: "#kiosk",
@@ -56,6 +80,8 @@ function handlePrevImageClick() {
     console.log(e);
     return;
   }
+
+  disableImageNavigationButtons();
 
   gettingNewImage = true;
 }

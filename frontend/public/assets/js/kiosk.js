@@ -3808,9 +3808,22 @@ var kiosk = (() => {
   // src/ts/menu.ts
   var gettingNewImage = false;
   var kioskElement2;
-  function initMenu(kiosk2) {
+  var nextImageMenuButton;
+  var prevImageMenuButton;
+  function disableImageNavigationButtons() {
+    htmx_esm_default.addClass(nextImageMenuButton, "disabled");
+    htmx_esm_default.addClass(prevImageMenuButton, "disabled");
+  }
+  function enableImageNavigationButtons() {
+    htmx_esm_default.removeClass(nextImageMenuButton, "disabled");
+    htmx_esm_default.removeClass(prevImageMenuButton, "disabled");
+  }
+  function initMenu(kiosk2, nextImageButton, prevImageButton) {
     kioskElement2 = kiosk2;
+    nextImageMenuButton = nextImageButton;
+    prevImageMenuButton = prevImageButton;
     htmx_esm_default.on(kiosk2, "htmx:afterSettle", function(e) {
+      enableImageNavigationButtons();
       gettingNewImage = false;
     });
   }
@@ -3818,6 +3831,7 @@ var kiosk = (() => {
     if (gettingNewImage) return;
     pausePolling(false);
     htmx_esm_default.trigger(kioskElement2, "kiosk-new-image");
+    disableImageNavigationButtons();
     gettingNewImage = true;
   }
   function handlePrevImageClick() {
@@ -3833,6 +3847,7 @@ var kiosk = (() => {
       console.log(e);
       return;
     }
+    disableImageNavigationButtons();
     gettingNewImage = true;
   }
 
@@ -3854,9 +3869,13 @@ var kiosk = (() => {
   var menuInteraction = htmx_esm_default.find(
     "#navigation-interaction-area--menu"
   );
+  var nextImageArea = htmx_esm_default.find("#navigation-interaction-area--next-image");
+  var prevImageArea = htmx_esm_default.find("#navigation-interaction-area--previous-image");
   var menuPausePlayButton2 = htmx_esm_default.find(
     ".navigation--play-pause"
   );
+  var nextImageMenuButton2 = htmx_esm_default.find(".navigation--next-image");
+  var prevImageMenuButton2 = htmx_esm_default.find(".navigation--prev-image");
   function init() {
     return __async(this, null, function* () {
       if (kioskData.debugVerbose) {
@@ -3884,7 +3903,11 @@ var kiosk = (() => {
       } else {
         console.error("Could not start polling");
       }
-      initMenu(kiosk);
+      initMenu(
+        kiosk,
+        nextImageMenuButton2,
+        prevImageMenuButton2
+      );
       addEventListeners();
     });
   }
@@ -3896,16 +3919,10 @@ var kiosk = (() => {
     menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
     fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", handleFullscreenClick);
     addFullscreenEventListener(fullscreenButton);
-    const nextImageArea = htmx_esm_default.find("#navigation-interaction-area--next-image");
-    const nextImageMenuButton = htmx_esm_default.find(".navigation--next-image");
     nextImageArea == null ? void 0 : nextImageArea.addEventListener("click", handleNextImageClick);
-    nextImageMenuButton == null ? void 0 : nextImageMenuButton.addEventListener("click", handleNextImageClick);
-    const prevImageArea = htmx_esm_default.find(
-      "#navigation-interaction-area--previous-image"
-    );
-    const prevImageMenuButton = htmx_esm_default.find(".navigation--prev-image");
+    nextImageMenuButton2 == null ? void 0 : nextImageMenuButton2.addEventListener("click", handleNextImageClick);
     prevImageArea == null ? void 0 : prevImageArea.addEventListener("click", handlePrevImageClick);
-    prevImageMenuButton == null ? void 0 : prevImageMenuButton.addEventListener("click", handlePrevImageClick);
+    prevImageMenuButton2 == null ? void 0 : prevImageMenuButton2.addEventListener("click", handlePrevImageClick);
     htmx_esm_default.on("htmx:afterRequest", function(e) {
       const offlineSVG = htmx_esm_default.find("#offline");
       if (!offlineSVG) {
