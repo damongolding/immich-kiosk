@@ -4,9 +4,21 @@ import {
   fullscreenAPI,
   toggleFullscreen,
 } from "./fullscreen";
-import { initPolling, startPolling, togglePolling } from "./polling";
+import {
+  initPolling,
+  startPolling,
+  togglePolling,
+  pausePolling,
+  resumePolling,
+} from "./polling";
 import { preventSleep } from "./wakelock";
-import { handleNextImageClick, handlePrevImageClick, initMenu } from "./menu";
+import {
+  handleNextImageClick,
+  handlePrevImageClick,
+  initMenu,
+  disableImageNavigationButtons,
+  enableImageNavigationButtons,
+} from "./menu";
 
 ("use strict");
 
@@ -50,6 +62,8 @@ const menuPausePlayButton = htmx.find(
 ) as HTMLElement | null;
 const nextImageMenuButton = htmx.find(".navigation--next-image");
 const prevImageMenuButton = htmx.find(".navigation--prev-image");
+
+let requestInFlight = false;
 
 /**
  * Initialize Kiosk functionality
@@ -122,9 +136,6 @@ function addEventListeners() {
   addFullscreenEventListener(fullscreenButton);
 
   // Next/Prev image navigation
-  // - next image
-  nextImageArea?.addEventListener("click", handleNextImageClick);
-  nextImageMenuButton?.addEventListener("click", handleNextImageClick);
   // - prev image
   prevImageArea?.addEventListener("click", handlePrevImageClick);
   prevImageMenuButton?.addEventListener("click", handlePrevImageClick);
@@ -157,9 +168,30 @@ function cleanupFrames() {
   }
 }
 
+function setRequestLock(e: any) {
+  if (requestInFlight) {
+    e.preventDefault();
+    return;
+  }
+
+  pausePolling(false);
+
+  disableImageNavigationButtons();
+
+  requestInFlight = true;
+}
+
+function releaseRequestLock() {
+  console.log("HTMX event: releaseRequestLock");
+
+  enableImageNavigationButtons();
+
+  requestInFlight = false;
+}
+
 // Initialize Kiosk when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
   init();
 });
 
-export { cleanupFrames, startPolling };
+export { cleanupFrames, startPolling, setRequestLock, releaseRequestLock };

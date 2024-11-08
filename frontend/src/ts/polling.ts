@@ -125,4 +125,10 @@ function togglePolling() {
   isPaused ? resumePolling() : pausePolling();
 }
 
-export { initPolling, startPolling, pausePolling, togglePolling };
+export {
+  initPolling,
+  startPolling,
+  pausePolling,
+  resumePolling,
+  togglePolling,
+};

@@ -41,6 +41,8 @@ var kiosk = (() => {
   var kiosk_exports = {};
   __export(kiosk_exports, {
     cleanupFrames: () => cleanupFrames,
+    releaseRequestLock: () => releaseRequestLock,
+    setRequestLock: () => setRequestLock,
     startPolling: () => startPolling
   });
 
@@ -3827,13 +3829,6 @@ var kiosk = (() => {
       gettingNewImage = false;
     });
   }
-  function handleNextImageClick() {
-    if (gettingNewImage) return;
-    pausePolling(false);
-    htmx_esm_default.trigger(kioskElement2, "kiosk-new-image");
-    disableImageNavigationButtons();
-    gettingNewImage = true;
-  }
   function handlePrevImageClick() {
     const historyItems = htmx_esm_default.findAll(".kiosk-history--entry");
     if (gettingNewImage || historyItems.length < 2) return;
@@ -3876,6 +3871,7 @@ var kiosk = (() => {
   );
   var nextImageMenuButton2 = htmx_esm_default.find(".navigation--next-image");
   var prevImageMenuButton2 = htmx_esm_default.find(".navigation--prev-image");
+  var requestInFlight = false;
   function init() {
     return __async(this, null, function* () {
       if (kioskData.debugVerbose) {
@@ -3919,8 +3915,6 @@ var kiosk = (() => {
     menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
     fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", handleFullscreenClick);
     addFullscreenEventListener(fullscreenButton);
-    nextImageArea == null ? void 0 : nextImageArea.addEventListener("click", handleNextImageClick);
-    nextImageMenuButton2 == null ? void 0 : nextImageMenuButton2.addEventListener("click", handleNextImageClick);
     prevImageArea == null ? void 0 : prevImageArea.addEventListener("click", handlePrevImageClick);
     prevImageMenuButton2 == null ? void 0 : prevImageMenuButton2.addEventListener("click", handlePrevImageClick);
     htmx_esm_default.on("htmx:afterRequest", function(e) {
@@ -3941,6 +3935,20 @@ var kiosk = (() => {
     if (frames.length > 3) {
       htmx_esm_default.remove(frames[0]);
     }
+  }
+  function setRequestLock(e) {
+    if (requestInFlight) {
+      e.preventDefault();
+      return;
+    }
+    pausePolling(false);
+    disableImageNavigationButtons();
+    requestInFlight = true;
+  }
+  function releaseRequestLock() {
+    console.log("HTMX event: releaseRequestLock");
+    enableImageNavigationButtons();
+    requestInFlight = false;
   }
   document.addEventListener("DOMContentLoaded", () => {
     init();

@@ -86,4 +86,10 @@ function handlePrevImageClick() {
   gettingNewImage = true;
 }
 
-export { initMenu, handlePrevImageClick, handleNextImageClick };
+export {
+  initMenu,
+  handlePrevImageClick,
+  handleNextImageClick,
+  disableImageNavigationButtons,
+  enableImageNavigationButtons,
+};
