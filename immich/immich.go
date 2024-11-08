@@ -6,7 +6,6 @@
 package immich
 
 import (
-	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -198,7 +197,7 @@ func NewImage(base config.Config) ImmichAsset {
 	return ImmichAsset{}
 }
 
-type ImmichApiCall func(string, string, io.Reader) ([]byte, error)
+type ImmichApiCall func(string, string, []byte) ([]byte, error)
 
 type ImmichApiResponse interface {
 	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face
