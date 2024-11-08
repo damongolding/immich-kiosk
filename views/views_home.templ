@@ -228,9 +228,10 @@ templ sleepMode(sleepStart, sleepEnd string) {
 		<form
 			hx-get="/sleep"
 			hx-trigger="load, every 13s"
-			hx-target="#navigation-interaction-area"
+			hx-target="#sleep-controller"
 			hx-swap="innerHTML"
 		></form>
+		<div id="sleep-controller"></div>
 	}
 }
 

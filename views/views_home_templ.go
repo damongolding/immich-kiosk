@@ -482,7 +482,7 @@ func sleepMode(sleepStart, sleepEnd string) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if sleepStart != "" && sleepEnd != "" {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-get=\"/sleep\" hx-trigger=\"load, every 13s\" hx-target=\"#navigation-interaction-area\" hx-swap=\"innerHTML\"></form>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-get=\"/sleep\" hx-trigger=\"load, every 13s\" hx-target=\"#sleep-controller\" hx-swap=\"innerHTML\"></form><div id=\"sleep-controller\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -530,7 +530,7 @@ func refreshCheckForm(kioskVersion, reloadTimeStamp string, queries url.Values) 
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 245, Col: 115}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 246, Col: 115}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -579,7 +579,7 @@ func body(viewData ViewData) templ.Component {
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("beforeend settle:%.1fs", viewData.CrossFadeTransitionDuration+1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 252, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 253, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -627,7 +627,7 @@ func body(viewData ViewData) templ.Component {
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration/2))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 257, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 258, Col: 89}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -727,7 +727,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var28 string
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(viewData.KioskVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 275, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 276, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
@@ -740,7 +740,7 @@ func Home(viewData ViewData) templ.Component {
 		var templ_7745c5c3_Var29 string
 		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 283, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 284, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
@@ -801,7 +801,7 @@ func Home(viewData ViewData) templ.Component {
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 334, Col: 122}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 335, Col: 122}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
@@ -925,7 +925,7 @@ func Home(viewData ViewData) templ.Component {
 			var templ_7745c5c3_Var32 string
 			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 369, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 370, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {
