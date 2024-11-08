@@ -13,8 +13,6 @@ import {
 } from "./polling";
 import { preventSleep } from "./wakelock";
 import {
-  handleNextImageClick,
-  handlePrevImageClick,
   initMenu,
   disableImageNavigationButtons,
   enableImageNavigationButtons,
@@ -102,7 +100,6 @@ async function init() {
   }
 
   initMenu(
-    kiosk as HTMLElement,
     nextImageMenuButton as HTMLElement,
     prevImageMenuButton as HTMLElement,
   );
@@ -135,11 +132,6 @@ function addEventListeners() {
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
 
-  // Next/Prev image navigation
-  // - prev image
-  prevImageArea?.addEventListener("click", handlePrevImageClick);
-  prevImageMenuButton?.addEventListener("click", handlePrevImageClick);
-
   // Server online check. Fires after every AJAX request.
   htmx.on("htmx:afterRequest", function (e: any) {
     const offlineSVG = htmx.find("#offline");
@@ -168,6 +160,12 @@ function cleanupFrames() {
   }
 }
 
+/**
+ * Sets a lock to prevent concurrent requests
+ * @param e - Event object that triggered the request
+ * @description Prevents multiple simultaneous requests by checking and setting a lock flag.
+ * Also pauses polling and disables navigation buttons while request is in flight.
+ */
 function setRequestLock(e: any) {
   if (requestInFlight) {
     e.preventDefault();
@@ -181,12 +179,31 @@ function setRequestLock(e: any) {
   requestInFlight = true;
 }
 
+/**
+ * Releases the request lock after a request completes
+ * @description Re-enables navigation buttons and marks request as complete by unsetting
+ * the requestInFlight flag.
+ */
 function releaseRequestLock() {
-  console.log("HTMX event: releaseRequestLock");
-
   enableImageNavigationButtons();
 
   requestInFlight = false;
+}
+
+/**
+ * Checks if there are enough history entries to navigate back
+ * @param e - Event object for the history navigation request
+ * @description Prevents navigation when there is an active request or insufficient history.
+ * If navigation is allowed, sets the request lock.
+ */
+function checkHistoryExists(e: any) {
+  const historyItems = htmx.findAll(".kiosk-history--entry");
+  if (requestInFlight || historyItems.length < 2) {
+    e.preventDefault();
+    return;
+  }
+
+  setRequestLock(e);
 }
 
 // Initialize Kiosk when the DOM is fully loaded
@@ -194,4 +211,10 @@ document.addEventListener("DOMContentLoaded", () => {
   init();
 });
 
-export { cleanupFrames, startPolling, setRequestLock, releaseRequestLock };
+export {
+  cleanupFrames,
+  startPolling,
+  setRequestLock,
+  releaseRequestLock,
+  checkHistoryExists,
+};

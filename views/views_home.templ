@@ -8,15 +8,6 @@ import (
 	"net/url"
 )
 
-// KioskComponentConfig defines configuration for a kiosk component
-type KioskComponentConfig struct {
-	Version   string          // Version of the kiosk
-	DeviceID  string          // Unique identifier for the device
-	Duration  float32         // Duration for transitions
-	SwapStyle string          // Style for content swapping
-	ExtraCSS  templ.Component // Additional CSS to include
-}
-
 // spinner renders a loading spinner image
 templ spinner() {
 	<img
@@ -24,63 +15,6 @@ templ spinner() {
 		src="/assets/images/spinner.gif"
 		alt="Loading spinner"
 	/>
-}
-
-// kioskBase creates the base kiosk component with configuration
-templ kioskBase(config KioskComponentConfig) {
-	if config.ExtraCSS != nil {
-		@config.ExtraCSS
-	}
-	<div
-		id="kiosk"
-		hx-post="/image"
-		hx-include=".kiosk-history--entry"
-		hx-trigger="
-		  load,
-		  click from:#navigation-interaction-area--next-image,
-		  click from:.navigation--next-image,
-		  keyup[key=='ArrowRight'] from:body,
-		  kiosk-new-image
-		"
-		hx-on::before-request="kiosk.setRequestLock(event)"
-		hx-on::after-request="kiosk.startPolling()"
-		hx-on::after-settle="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
-		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, config.Version, config.DeviceID) }
-		hx-swap={ config.SwapStyle }
-	>
-		@spinner()
-	</div>
-}
-
-// kioskNone creates the kiosk component with no transition effects
-templ kioskNone(kioskVersion string, deviceID string) {
-	@kioskBase(KioskComponentConfig{
-		Version:   kioskVersion,
-		DeviceID:  deviceID,
-		SwapStyle: "innerHTML",
-	})
-}
-
-// kioskFade creates the kiosk component with the fade transition
-templ kioskFade(kioskVersion string, deviceID string, fadeDuration float32) {
-	@kioskBase(KioskComponentConfig{
-		Version:   kioskVersion,
-		DeviceID:  deviceID,
-		Duration:  fadeDuration,
-		SwapStyle: fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration/2),
-		ExtraCSS:  templ.Raw(fadeDurationCSS(fadeDuration / 2)),
-	})
-}
-
-// kioskCrossFade creates the kiosk component with the cross-fade transition
-templ kioskCrossFade(kioskVersion string, deviceID string, crossFadeDuration float32) {
-	@kioskBase(KioskComponentConfig{
-		Version:   kioskVersion,
-		DeviceID:  deviceID,
-		Duration:  crossFadeDuration,
-		SwapStyle: fmt.Sprintf("beforeend settle:%.1fs", crossFadeDuration+1),
-		ExtraCSS:  templ.Raw(crossFadeDurationCSS(crossFadeDuration)),
-	})
 }
 
 // crossFadeDurationCSS generates CSS for the cross-fade animation
@@ -105,23 +39,22 @@ func fadeDurationCSS(fadeDuration float32) string {
 	`, fadeDuration)
 }
 
-// baseFontSize sets the base font size as a CSS property
-
-css baseFontSize(fontSize int) {
-	font-size: { fmt.Sprintf("%v%%", fontSize) };
-}
-
-// baseFontSizeMobile generates CSS for mobile font sizing
-func baseFontSizeMobile(fontSize int) string {
+// baseFontSize generates CSS for font sizing
+func baseFontSize(fontSize int) string {
 	return fmt.Sprintf(`
 		<style>
+            html,
+            body {
+                font-size: %v%%;
+            }
+
 		    @media screen and (max-width: 31.25rem) {
 				html,
 				body {
 				    font-size: %v%% !important;
 				}
 			}
-		</style>`, fontSize-20)
+		</style>`, fontSize, fontSize-20)
 }
 
 // imageSmartZoomKeyframes generates CSS keyframes for smart zoom animations
@@ -296,6 +229,7 @@ templ sleepMode(sleepStart, sleepEnd string) {
 			hx-get="/sleep"
 			hx-trigger="load, every 13s"
 			hx-target="#navigation-interaction-area"
+			hx-swap="innerHTML"
 		></form>
 	}
 }
@@ -312,10 +246,29 @@ templ refreshCheckForm(kioskVersion, reloadTimeStamp string, queries url.Values)
 	></form>
 }
 
+templ body(viewData ViewData) {
+	switch viewData.Transition {
+		case "cross-fade":
+			<body hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", viewData.CrossFadeTransitionDuration+1) } class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
+				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
+				{ children... }
+			</body>
+		case "fade":
+			<body hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration/2) } class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
+				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
+				{ children... }
+			</body>
+		default:
+			<body hx-swap="innerHTML" class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
+				{ children... }
+			</body>
+	}
+}
+
 // Home renders the main kiosk HTML template
 templ Home(viewData ViewData) {
 	<!DOCTYPE html>
-	<html lang="en" class={ baseFontSize(viewData.FontSize) }>
+	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -352,26 +305,36 @@ templ Home(viewData ViewData) {
 					}
 				</style>
 			}
-			switch  viewData.ImageEffect {
+			switch viewData.ImageEffect {
 				case "zoom":
 					@templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount))
 				case "smart-zoom":
 					@templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount))
 			}
-			@templ.Raw(baseFontSizeMobile(viewData.FontSize))
+			@templ.Raw(baseFontSize(viewData.FontSize))
 			if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
 				@templ.Raw(customCss(viewData.CustomCss))
 			}
 		</head>
-		<body class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
-			switch viewData.Transition {
-				case "cross-fade":
-					@kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.CrossFadeTransitionDuration)
-				case "fade":
-					@kioskFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.FadeTransitionDuration)
-				default:
-					@kioskNone(viewData.KioskVersion, utils.GenerateUUID())
-			}
+		@body(viewData) {
+			<div
+				id="kiosk"
+				hx-post="/image"
+				hx-include=".kiosk-history--entry"
+				hx-trigger="
+        		  load,
+        		  click from:#navigation-interaction-area--next-image,
+        		  click from:.navigation--next-image,
+        		  keyup[key=='ArrowRight'] from:body,
+        		  kiosk-new-image
+          		"
+				hx-on::before-request="kiosk.setRequestLock(event)"
+				hx-on::after-request="kiosk.startPolling()"
+				hx-on::after-settle="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
+				hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID) }
+			>
+				@spinner()
+			</div>
 			if viewData.ShowProgress {
 				@progressBar()
 			}
@@ -407,13 +370,13 @@ templ Home(viewData ViewData) {
 			if len(viewData.Queries) > 0 {
 				<script>
 				    const kioskQueires = document.body.querySelectorAll(".kiosk-param");
-					document.body.addEventListener("htmx:configRequest", (event) => {
-					    kioskQueires.forEach((q) => {
-							event.detail.parameters[q.name] = q.value;
-						});
-					});
+    				document.body.addEventListener("htmx:configRequest", (event) => {
+    				    kioskQueires.forEach((q) => {
+    						event.detail.parameters[q.name] = q.value;
+    					});
+    				});
 				</script>
 			}
-		</body>
+		}
 	</html>
 }

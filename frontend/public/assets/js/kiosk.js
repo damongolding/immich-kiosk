@@ -40,6 +40,7 @@ var kiosk = (() => {
   // src/ts/kiosk.ts
   var kiosk_exports = {};
   __export(kiosk_exports, {
+    checkHistoryExists: () => checkHistoryExists,
     cleanupFrames: () => cleanupFrames,
     releaseRequestLock: () => releaseRequestLock,
     setRequestLock: () => setRequestLock,
@@ -3808,8 +3809,6 @@ var kiosk = (() => {
   });
 
   // src/ts/menu.ts
-  var gettingNewImage = false;
-  var kioskElement2;
   var nextImageMenuButton;
   var prevImageMenuButton;
   function disableImageNavigationButtons() {
@@ -3820,30 +3819,9 @@ var kiosk = (() => {
     htmx_esm_default.removeClass(nextImageMenuButton, "disabled");
     htmx_esm_default.removeClass(prevImageMenuButton, "disabled");
   }
-  function initMenu(kiosk2, nextImageButton, prevImageButton) {
-    kioskElement2 = kiosk2;
+  function initMenu(nextImageButton, prevImageButton) {
     nextImageMenuButton = nextImageButton;
     prevImageMenuButton = prevImageButton;
-    htmx_esm_default.on(kiosk2, "htmx:afterSettle", function(e) {
-      enableImageNavigationButtons();
-      gettingNewImage = false;
-    });
-  }
-  function handlePrevImageClick() {
-    const historyItems = htmx_esm_default.findAll(".kiosk-history--entry");
-    if (gettingNewImage || historyItems.length < 2) return;
-    pausePolling(false);
-    try {
-      htmx_esm_default.ajax("post", "/image/previous", {
-        source: "#kiosk",
-        values: htmx_esm_default.values(htmx_esm_default.find("#kiosk-history"), "post")
-      });
-    } catch (e) {
-      console.log(e);
-      return;
-    }
-    disableImageNavigationButtons();
-    gettingNewImage = true;
   }
 
   // src/ts/kiosk.ts
@@ -3900,7 +3878,6 @@ var kiosk = (() => {
         console.error("Could not start polling");
       }
       initMenu(
-        kiosk,
         nextImageMenuButton2,
         prevImageMenuButton2
       );
@@ -3915,8 +3892,6 @@ var kiosk = (() => {
     menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
     fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", handleFullscreenClick);
     addFullscreenEventListener(fullscreenButton);
-    prevImageArea == null ? void 0 : prevImageArea.addEventListener("click", handlePrevImageClick);
-    prevImageMenuButton2 == null ? void 0 : prevImageMenuButton2.addEventListener("click", handlePrevImageClick);
     htmx_esm_default.on("htmx:afterRequest", function(e) {
       const offlineSVG = htmx_esm_default.find("#offline");
       if (!offlineSVG) {
@@ -3946,9 +3921,16 @@ var kiosk = (() => {
     requestInFlight = true;
   }
   function releaseRequestLock() {
-    console.log("HTMX event: releaseRequestLock");
     enableImageNavigationButtons();
     requestInFlight = false;
+  }
+  function checkHistoryExists(e) {
+    const historyItems = htmx_esm_default.findAll(".kiosk-history--entry");
+    if (requestInFlight || historyItems.length < 2) {
+      e.preventDefault();
+      return;
+    }
+    setRequestLock(e);
   }
   document.addEventListener("DOMContentLoaded", () => {
     init();
