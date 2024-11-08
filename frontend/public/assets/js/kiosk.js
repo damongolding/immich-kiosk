@@ -3890,6 +3890,12 @@ var kiosk = (() => {
   function addEventListeners() {
     menuInteraction == null ? void 0 : menuInteraction.addEventListener("click", togglePolling);
     menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        togglePolling();
+      }
+    });
     fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", handleFullscreenClick);
     addFullscreenEventListener(fullscreenButton);
     htmx_esm_default.on("htmx:afterRequest", function(e) {

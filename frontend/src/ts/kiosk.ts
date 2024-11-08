@@ -127,6 +127,12 @@ function addEventListeners() {
   // Pause/resume polling and show/hide menu
   menuInteraction?.addEventListener("click", togglePolling);
   menuPausePlayButton?.addEventListener("click", togglePolling);
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") {
+      e.preventDefault();
+      togglePolling();
+    }
+  });
 
   // Fullscreen
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
