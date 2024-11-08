@@ -682,6 +682,12 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
 
 \* I would suggest disabling all the UI i.e. `http://192.168.0.123:3000?disable_ui=true`
 
+### Using Kiosk to set Immich images as Home Assistant dashboard background
+1. Navigate to the dashboard with the view you wish to add the image background to.
+2. Enter edit mode and click the ✏ next to the view you want to add the image to.
+3. Select the "background" tab and toggle on "Local path or web URL" and enter your url* with path /image e.g. http://192.168.0.123:3000/image.
+
+\* If you want to specify an album or a person you can also add that to the url e.g. http://192.168.0.123:3000/image?album=ALBUM_ID
 
 ### Using Immich Kiosk as an image source for Wallpanel in HomeAssistant:
 
