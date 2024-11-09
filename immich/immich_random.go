@@ -30,7 +30,7 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 		Type:       string(ImageType),
 		WithExif:   true,
 		WithPeople: true,
-		Size:       1000,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	if requestConfig.ShowArchived {

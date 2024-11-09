@@ -54,6 +54,9 @@ type KioskSettings struct {
 	// WatchConfig if kiosk should watch config file for changes
 	WatchConfig bool `mapstructure:"watch_config" default:"false"`
 
+	// FetchedAssetsSize the size of assets requests from Immich. min=1 max=1000
+	FetchedAssetsSize int `mapstructure:"fetched_assets_size" default:"1000"`
+
 	// Cache enable/disable api call and image caching
 	Cache bool `mapstructure:"cache" default:"true"`
 
@@ -229,6 +232,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 	}{
 		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
+		{"kiosk.fetched_assets_size", "KIOSK_FETCHED_ASSETS_SIZE"},
 		{"kiosk.password", "KIOSK_PASSWORD"},
 		{"kiosk.cache", "KIOSK_CACHE"},
 		{"kiosk.prefetch", "KIOSK_PREFETCH"},

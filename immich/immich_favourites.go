@@ -26,7 +26,7 @@ func (i *ImmichAsset) favouriteImagesCount(requestID string) (int, error) {
 		IsFavorite: true,
 		WithPeople: false,
 		WithExif:   false,
-		Size:       1000,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	if requestConfig.ShowArchived {
@@ -102,7 +102,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 		IsFavorite: true,
 		WithExif:   true,
 		WithPeople: true,
-		Size:       1000,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	if requestConfig.ShowArchived {
