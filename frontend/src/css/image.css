@@ -154,20 +154,26 @@
     object-position: inherit;
     will-change: scale;
 }
-.frame--image-zoom-in img {
+
+.frame:nth-last-of-type(-n + 2) .frame--image-zoom-in img {
     animation-name: image-zoom-in;
 }
-.frame--image-zoom-out img {
+.frame:nth-last-of-type(-n + 2) .frame--image-zoom-out img {
     animation-name: image-zoom-out;
 }
 
 /*  Smart zoom */
-.frame--image-smart-zoom-out img {
+.frame:nth-last-of-type(-n + 2) .frame--image-smart-zoom-out img {
     animation-name: image-smart-zoom-out;
 }
 
-.frame--image-smart-zoom-in img {
+.frame:nth-last-of-type(-n + 2) .frame--image-smart-zoom-in img {
     animation-name: image-smart-zoom-in;
+}
+
+/* Pause animations when polling is paused */
+.polling-paused .frame:nth-last-of-type(-n + 2) img {
+    animation-play-state: paused;
 }
 
 @media screen and (max-width: 31.25rem) {
