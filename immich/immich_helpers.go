@@ -191,12 +191,19 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 		return bytes, err
 	}
 
+	assetSize := "thumbnail"
+	if requestConfig.UseOriginalImage {
+		assetSize = "original"
+	}
+
 	apiUrl := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
-		Path:     "/api/assets/" + i.ID + "/thumbnail",
+		Path:     "/api/assets/" + i.ID + "/" + assetSize,
 		RawQuery: "size=preview",
 	}
+
+	log.Info(apiUrl.String())
 
 	return i.immichApiCall("GET", apiUrl.String(), nil)
 }

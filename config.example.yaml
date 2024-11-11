@@ -44,7 +44,8 @@ cross_fade_transition_duration: 1 # in seconds
 show_progress: false # display a progress bar
 image_fit: contain # how the image fits the screen. Options are none, contain and cover
 image_effect: none
-image_effect_amount: 120 
+image_effect_amount: 120
+use_original_image: false # use the original file.
 
 # Image METADATA
 show_image_time: false # true or false
