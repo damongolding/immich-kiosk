@@ -104,6 +104,13 @@ templ imageMetadata(viewData ViewData, imageIndex int) {
 				{ ImageDateTime(viewData, imageIndex) }
 			</div>
 		}
+		if viewData.ShowImageDescription {
+			<div class="image--metadata--desciption">
+				<small>
+					{ viewData.Images[imageIndex].ImmichImage.ExifInfo.Description }
+				</small>
+			</div>
+		}
 		if viewData.ShowImageExif {
 			<div class="image--metadata--exif">
 				@templ.Raw(ImageExif(viewData.Images[imageIndex].ImmichImage.ExifInfo))

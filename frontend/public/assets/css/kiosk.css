@@ -375,6 +375,10 @@ body {
 }
 .image--metadata--location {
 }
+.frame--layout-splitview .image--metadata--desciption,
+.frame--layout-splitview-landscape .image--metadata--desciption {
+  max-width: 50%;
+}
 .frame--layout-splitview:nth-child(1) .image--metadata {
   position: absolute;
   display: flex;
@@ -415,6 +419,9 @@ body {
   .image--metadata {
     padding: 0.5rem !important;
     max-width: 50vw;
+  }
+  .image--metadata--desciption {
+    max-width: 100%;
   }
   .image--metadata--date,
   .image--metadata--exif,

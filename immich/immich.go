@@ -78,7 +78,7 @@ type ExifInfo struct {
 	City             string    `json:"city"`
 	State            string    `json:"state"`
 	Country          string    `json:"country"`
-	Description      string    `json:"-"` // `json:"description"`
+	Description      string    `json:"description"`
 	ProjectionType   any       `json:"-"` // `json:"projectionType"`
 	ImageOrientation ImageOrientation
 }
