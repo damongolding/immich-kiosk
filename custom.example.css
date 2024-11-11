@@ -1,6 +1,7 @@
 /* src/css/fonts.css */
 /* src/css/globals.css */
 *{}
+*:focus{}
 body{}
 /* src/css/container.css */
 #kiosk{}

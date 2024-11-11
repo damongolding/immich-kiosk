@@ -101,11 +101,16 @@
 * {
   -moz-box-sizing: border-box;
        box-sizing: border-box;
-  -moz-user-select: none;
-   -ms-user-select: none;
-       user-select: none;
   -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }
+*:focus {
+    outline: none;
+    border: none;
+    box-shadow: none;
+  }
 html,
 body {
   padding: 0;
