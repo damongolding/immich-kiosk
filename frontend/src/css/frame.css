@@ -92,18 +92,18 @@
 }
 
 /* Splitview landscape layout */
-.layout-splitview-landscape .frame {
-    flex-direction: column;
-    border: 0.4rem solid black;
-    border-radius: 0.75rem;
-}
-
-.frame--layout-splitview-landscape {
+.layout-splitview-landscape {
     position: relative;
     width: 100%;
     height: 100%;
 
     overflow: hidden;
+
+    .frame {
+        flex-direction: column;
+        border: 0.4rem solid black;
+        border-radius: 0.75rem;
+    }
 }
 
 .frame--layout-splitview-landscape:nth-child(1) {
