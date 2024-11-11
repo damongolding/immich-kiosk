@@ -160,7 +160,7 @@ body {
     opacity: 0;
   }
 }
-#kiosk.htmx-settling .htmx-added {
+#kiosk.htmx-settling .htmx-added:last-of-type {
   -webkit-animation-name: fade-in;
      -moz-animation-name: fade-in;
           animation-name: fade-in;
@@ -518,25 +518,30 @@ body {
      object-position: inherit;
   will-change: scale;
 }
-.frame--image-zoom-in img {
+.frame:nth-last-of-type(-n+2) .frame--image-zoom-in img {
   -webkit-animation-name: image-zoom-in;
      -moz-animation-name: image-zoom-in;
           animation-name: image-zoom-in;
 }
-.frame--image-zoom-out img {
+.frame:nth-last-of-type(-n+2) .frame--image-zoom-out img {
   -webkit-animation-name: image-zoom-out;
      -moz-animation-name: image-zoom-out;
           animation-name: image-zoom-out;
 }
-.frame--image-smart-zoom-out img {
+.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-out img {
   -webkit-animation-name: image-smart-zoom-out;
      -moz-animation-name: image-smart-zoom-out;
           animation-name: image-smart-zoom-out;
 }
-.frame--image-smart-zoom-in img {
+.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-in img {
   -webkit-animation-name: image-smart-zoom-in;
      -moz-animation-name: image-smart-zoom-in;
           animation-name: image-smart-zoom-in;
+}
+.polling-paused .frame:nth-last-of-type(-n+2) img {
+  -webkit-animation-play-state: paused;
+     -moz-animation-play-state: paused;
+          animation-play-state: paused;
 }
 @media screen and (max-width: 31.25rem) {
   .image--metadata {
@@ -765,8 +770,20 @@ body {
         -ms-transform: translate(-50%, -50%);
             transform: translate(-50%, -50%);
     opacity: 0.1;
-    z-index: 99999;
+    z-index: 99998;
     line-height: 1;
+    -webkit-animation-name: clock-screesaver;
+       -moz-animation-name: clock-screesaver;
+            animation-name: clock-screesaver;
+    -webkit-animation-duration: 3600s;
+       -moz-animation-duration: 3600s;
+            animation-duration: 3600s;
+    -webkit-animation-timing-function: step-end;
+       -moz-animation-timing-function: step-end;
+            animation-timing-function: step-end;
+    -webkit-animation-iteration-count: infinite;
+       -moz-animation-iteration-count: infinite;
+            animation-iteration-count: infinite;
   }
 .sleep .clock--date {
     font-size: 8vw;
@@ -778,6 +795,262 @@ body {
 .sleep #clock::before {
     display: none;
   }
+@-webkit-keyframes clock-screesaver {
+  0% {
+    top: 50%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+  }
+  11% {
+    top: 5%;
+    left: 5%;
+    bottom: unset;
+    right: unset;
+    -webkit-transform: translate(-5%, -5%);
+            transform: translate(-5%, -5%);
+  }
+  22% {
+    top: unset;
+    left: unset;
+    bottom: 5%;
+    right: 5%;
+    -webkit-transform: translate(5%, 5%);
+            transform: translate(5%, 5%);
+  }
+  33% {
+    top: 5%;
+    left: unset;
+    bottom: unset;
+    right: 5%;
+    -webkit-transform: translate(5%, -5%);
+            transform: translate(5%, -5%);
+  }
+  44% {
+    top: unset;
+    left: 5%;
+    bottom: 5%;
+    right: unset;
+    -webkit-transform: translate(-5%, 5%);
+            transform: translate(-5%, 5%);
+  }
+  55% {
+    top: 5%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    -webkit-transform: translate(-50%, -5%);
+            transform: translate(-50%, -5%);
+  }
+  66% {
+    top: unset;
+    left: unset;
+    bottom: 5%;
+    right: 50%;
+    -webkit-transform: translate(50%, 5%);
+            transform: translate(50%, 5%);
+  }
+  77% {
+    top: 50%;
+    left: unset;
+    bottom: unset;
+    right: 5%;
+    -webkit-transform: translate(5%, -50%);
+            transform: translate(5%, -50%);
+  }
+  88% {
+    top: 50%;
+    left: 5%;
+    bottom: unset;
+    right: unset;
+    -webkit-transform: translate(-5%, -50%);
+            transform: translate(-5%, -50%);
+  }
+  100% {
+    top: 50%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+  }
+}
+@-moz-keyframes clock-screesaver {
+  0% {
+    top: 50%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    -moz-transform: translate(-50%, -50%);
+         transform: translate(-50%, -50%);
+  }
+  11% {
+    top: 5%;
+    left: 5%;
+    bottom: unset;
+    right: unset;
+    -moz-transform: translate(-5%, -5%);
+         transform: translate(-5%, -5%);
+  }
+  22% {
+    top: unset;
+    left: unset;
+    bottom: 5%;
+    right: 5%;
+    -moz-transform: translate(5%, 5%);
+         transform: translate(5%, 5%);
+  }
+  33% {
+    top: 5%;
+    left: unset;
+    bottom: unset;
+    right: 5%;
+    -moz-transform: translate(5%, -5%);
+         transform: translate(5%, -5%);
+  }
+  44% {
+    top: unset;
+    left: 5%;
+    bottom: 5%;
+    right: unset;
+    -moz-transform: translate(-5%, 5%);
+         transform: translate(-5%, 5%);
+  }
+  55% {
+    top: 5%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    -moz-transform: translate(-50%, -5%);
+         transform: translate(-50%, -5%);
+  }
+  66% {
+    top: unset;
+    left: unset;
+    bottom: 5%;
+    right: 50%;
+    -moz-transform: translate(50%, 5%);
+         transform: translate(50%, 5%);
+  }
+  77% {
+    top: 50%;
+    left: unset;
+    bottom: unset;
+    right: 5%;
+    -moz-transform: translate(5%, -50%);
+         transform: translate(5%, -50%);
+  }
+  88% {
+    top: 50%;
+    left: 5%;
+    bottom: unset;
+    right: unset;
+    -moz-transform: translate(-5%, -50%);
+         transform: translate(-5%, -50%);
+  }
+  100% {
+    top: 50%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    -moz-transform: translate(-50%, -50%);
+         transform: translate(-50%, -50%);
+  }
+}
+@keyframes clock-screesaver {
+  0% {
+    top: 50%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    -webkit-transform: translate(-50%, -50%);
+       -moz-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+  }
+  11% {
+    top: 5%;
+    left: 5%;
+    bottom: unset;
+    right: unset;
+    -webkit-transform: translate(-5%, -5%);
+       -moz-transform: translate(-5%, -5%);
+            transform: translate(-5%, -5%);
+  }
+  22% {
+    top: unset;
+    left: unset;
+    bottom: 5%;
+    right: 5%;
+    -webkit-transform: translate(5%, 5%);
+       -moz-transform: translate(5%, 5%);
+            transform: translate(5%, 5%);
+  }
+  33% {
+    top: 5%;
+    left: unset;
+    bottom: unset;
+    right: 5%;
+    -webkit-transform: translate(5%, -5%);
+       -moz-transform: translate(5%, -5%);
+            transform: translate(5%, -5%);
+  }
+  44% {
+    top: unset;
+    left: 5%;
+    bottom: 5%;
+    right: unset;
+    -webkit-transform: translate(-5%, 5%);
+       -moz-transform: translate(-5%, 5%);
+            transform: translate(-5%, 5%);
+  }
+  55% {
+    top: 5%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    -webkit-transform: translate(-50%, -5%);
+       -moz-transform: translate(-50%, -5%);
+            transform: translate(-50%, -5%);
+  }
+  66% {
+    top: unset;
+    left: unset;
+    bottom: 5%;
+    right: 50%;
+    -webkit-transform: translate(50%, 5%);
+       -moz-transform: translate(50%, 5%);
+            transform: translate(50%, 5%);
+  }
+  77% {
+    top: 50%;
+    left: unset;
+    bottom: unset;
+    right: 5%;
+    -webkit-transform: translate(5%, -50%);
+       -moz-transform: translate(5%, -50%);
+            transform: translate(5%, -50%);
+  }
+  88% {
+    top: 50%;
+    left: 5%;
+    bottom: unset;
+    right: unset;
+    -webkit-transform: translate(-5%, -50%);
+       -moz-transform: translate(-5%, -50%);
+            transform: translate(-5%, -50%);
+  }
+  100% {
+    top: 50%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    -webkit-transform: translate(-50%, -50%);
+       -moz-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+  }
+}
 
 /* src/css/weather.css */
 #weather {
@@ -972,25 +1245,42 @@ body {
 /* src/css/menu.css */
 #navigation-interaction-area {
   position: absolute;
-  inset: 0px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
   width: 100%;
   height: 100%;
-  z-index: 99998;
+  z-index: 99999;
   background-color: transparent;
-  -moz-transition: background-color 3s ease;
-  transition: background-color 3s ease;
+}
+#navigation-interaction-area--previous-image,
+#navigation-interaction-area--next-image {
+  width: 25%;
+  height: 100%;
+}
+#navigation-interaction-area--menu {
+  width: 50%;
+  height: 100%;
 }
 .navigation {
   display: -webkit-flex;
   display: -moz-box;
   display: flex;
-  gap: 0.5rem;
+  gap: 1.6rem;
   position: absolute;
   top: 1rem;
-  right: 1rem;
+  right: 50%;
+  -webkit-transform: translateX(50%);
+     -moz-transform: translateX(50%);
+      -ms-transform: translateX(50%);
+          transform: translateX(50%);
   padding: 0.5rem;
-  background-color: rgba(0, 0, 0, 0.8);
-  border-radius: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 40rem;
   opacity: 1;
   visibility: visible;
   -moz-transition: opacity 0.5s ease;
@@ -1027,6 +1317,10 @@ body {
   width: 2rem;
   height: 2rem;
 }
+.rounded {
+  border-radius: 40rem;
+  background-color: rgba(0, 0, 0, 0.6);
+}
 .navigation--flush-cache svg {
   fill: white;
 }
@@ -1042,7 +1336,15 @@ body {
     display: none;
     visibility: hidden;
   }
-.navigation--control--play {
+.navigation--media-buttons {
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
+}
+.navigation--media-buttons .navigation--item {
+  width: 4.62rem;
+}
+.navigation--play-pause--play {
   display: none;
   visibility: hidden;
 }
@@ -1054,15 +1356,28 @@ body {
     display: none;
     visibility: hidden;
   }
-.sleep #navigation-interaction-area {
-  background-color: black;
+.navigation--next-image.disabled,
+.navigation--prev-image.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
-.layout-splitview .navigation {
-  right: 50%;
-  -webkit-transform: translateX(50%);
-     -moz-transform: translateX(50%);
-      -ms-transform: translateX(50%);
-          transform: translateX(50%);
+
+/* src/css/sleep.css */
+#sleep-controller {
+  background-color: transparent;
 }
+.sleep #sleep-controller {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99997;
+    background-color: black;
+    -moz-transition: background-color 3s ease;
+    transition: background-color 3s ease;
+  }
 
 /* src/css/kiosk.css */
