@@ -6,6 +6,7 @@
     bottom: 0;
     left: 0;
     display: flex;
+    justify-content: center;
     width: 100%;
     height: 100%;
     z-index: 99998;
@@ -15,13 +16,14 @@
 
 #navigation-interaction-area--previous-image,
 #navigation-interaction-area--next-image {
-    width: 25%;
+    width: 50%;
     height: 100%;
 }
 
 #navigation-interaction-area--menu {
+    position: absolute;
     width: 50%;
-    height: 100%;
+    height: 50%;
 }
 
 /* --- menu --- */
@@ -110,7 +112,6 @@
     display: none;
     visibility: hidden;
 }
-
 
 .navigation--control--paused {
     .navigation--control--play {
