@@ -5,6 +5,10 @@ body{}
 /* src/css/container.css */
 #kiosk{}
 #kiosk.htmx-swapping{}
+@-webkit-keyframes fade-in{}
+from{}
+@-moz-keyframes fade-in{}
+from{}
 #kiosk.htmx-settling .htmx-added{}
 /* src/css/spinner.css */
 .kiosk--spinner{}
@@ -21,8 +25,8 @@ body{}
 .frame--layout-splitview:nth-child(1){}
 .frame--layout-splitview:nth-child(2){}
 .frame--layout-splitview .frame--image{}
+.layout-splitview-landscape{}
 .layout-splitview-landscape .frame{}
-.frame--layout-splitview-landscape{}
 .frame--layout-splitview-landscape:nth-child(1){}
 .frame--layout-splitview-landscape:nth-child(2){}
 .frame--layout-splitview-landscape .frame--image{}
@@ -39,8 +43,7 @@ body{}
 .image--metadata--exif{}
 .image--metadata--exif--fnumber{}
 .image--metadata--exif--seperator{}
-.image--metadata--location{}
-.frame--layout-splitview-landscape .image--metadata--desciption{}
+.frame--layout-splitview .image--metadata--desciption, .frame--layout-splitview-landscape .image--metadata--desciption{}
 .frame--layout-splitview:nth-child(1) .image--metadata{}
 .frame--image-zoom img{}
 .frame--image-zoom-in img{}
@@ -50,10 +53,10 @@ body{}
 /* src/css/error.css */
 .error-container{}
 .error{}
-.error--title{}
-.error--message{}
 .error svg{}
 .error ul li{}
+.error--title{}
+.error--message{}
 /* src/css/progress.css */
 .progress{}
 .progress--bar{}
@@ -90,8 +93,8 @@ body{}
 .weather--description--value{}
 .layout-splitview .weather{}
 .layout-splitview .weather--theme-fade::before{}
-.weather--theme-solid{}
 .layout-splitview .weather--theme-solid{}
+.weather--theme-solid{}
 .sleep #weather{}
 /* src/css/menu.css */
 #navigation-interaction-area{}

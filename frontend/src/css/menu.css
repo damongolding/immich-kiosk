@@ -64,14 +64,16 @@
     visibility: hidden;
 }
 
-.navigation--fullscreen-enabled .navigation--fullscreen--exit {
-    display: inline;
-    visibility: visible;
-}
+.navigation--fullscreen-enabled {
+    .navigation--fullscreen--exit {
+        display: inline;
+        visibility: visible;
+    }
 
-.navigation--fullscreen-enabled .navigation--fullscreen--enter {
-    display: none;
-    visibility: hidden;
+    .navigation--fullscreen--enter {
+        display: none;
+        visibility: hidden;
+    }
 }
 
 /* nav controls */
@@ -80,14 +82,16 @@
     visibility: hidden;
 }
 
-.navigation--control--paused .navigation--control--play {
-    display: inline;
-    visibility: visible;
-}
+.navigation--control--paused {
+    .navigation--control--play {
+        display: inline;
+        visibility: visible;
+    }
 
-.navigation--control--paused .navigation--control--pause {
-    display: none;
-    visibility: hidden;
+    .navigation--control--pause {
+        display: none;
+        visibility: hidden;
+    }
 }
 
 /* sleep mode */
