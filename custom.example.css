@@ -40,6 +40,7 @@ body{}
 .image--metadata--exif--fnumber{}
 .image--metadata--exif--seperator{}
 .image--metadata--location{}
+.frame--layout-splitview-landscape .image--metadata--desciption{}
 .frame--layout-splitview:nth-child(1) .image--metadata{}
 .frame--image-zoom img{}
 .frame--image-zoom-in img{}
