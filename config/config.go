@@ -157,6 +157,8 @@ type Config struct {
 	ImageEffect string `mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:"" lowercase:"true"`
 	// ImageEffectAmount the amount of effect to apply
 	ImageEffectAmount int `mapstructure:"image_effect_amount" query:"image_effect_amount" form:"image_effect_amount" default:"120"`
+	// UseOriginalImage use the original image
+	UseOriginalImage bool `mapstructure:"use_original_image" query:"use_original_image" form:"use_original_image" default:"false"`
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
@@ -179,6 +181,8 @@ type Config struct {
 	ShowImageDate bool `mapstructure:"show_image_date" query:"show_image_date" form:"show_image_date"  default:"false"`
 	// ImageDateFormat format for image date
 	ImageDateFormat string `mapstructure:"image_date_format" query:"image_date_format" form:"image_date_format" default:""`
+	// ShowImageDescription isplay image description
+	ShowImageDescription bool `mapstructure:"show_image_description" query:"show_image_description" form:"show_image_description" default:"false"`
 	// ShowImageExif display image exif data (f number, iso, shutter speed, Focal length)
 	ShowImageExif bool `mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
 	// ShowImageLocation display image location data

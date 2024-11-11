@@ -1,7 +1,7 @@
 package immich
 
 import (
-	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"math/rand/v2"
@@ -155,7 +155,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     "api/search/random",
-		RawQuery: queries.Encode(),
+		RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
 	}
 
 	jsonBody, err := json.Marshal(requestBody)
@@ -163,10 +163,8 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 		log.Fatal("marshaling request body", err)
 	}
 
-	requestBodyReader := bytes.NewReader(jsonBody)
-
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAssets)
-	apiBody, err := immichApiCall("POST", apiUrl.String(), requestBodyReader)
+	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
 		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err

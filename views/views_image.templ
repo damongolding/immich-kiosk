@@ -204,6 +204,14 @@ func smartZoom(image immich.ImmichAsset) templ.CSSClass {
 	return transformOrigin(fmt.Sprintf("%f%% %f%%", x, y))
 }
 
+func newHistoryEntry(images []ImageData) string {
+	newImages := make([]string, len(images))
+	for i, entry := range images {
+		newImages[i] = entry.ImmichImage.ID
+	}
+	return strings.Join(newImages, ",")
+}
+
 // renderHistory renders a form containing the viewing history of images.
 //
 // Parameters:
@@ -213,8 +221,6 @@ templ renderHistory(viewData ViewData) {
 		for _, historyEntry := range viewData.History {
 			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
 		}
-		for _, newHistoryEntry := range viewData.Images {
-			<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry.ImmichImage.ID }/>
-		}
+		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Images) }/>
 	</form>
 }

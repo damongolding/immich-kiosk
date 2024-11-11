@@ -25,9 +25,8 @@ func ImageLocation(info immich.ExifInfo, hideCountries []string) string {
 	}
 
 	if info.Country != "" && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
-		// Insert the line break if there are already parts (city or state)
 		if len(parts) > 0 {
-			parts = append(parts, "<span>, </span><br class=\"responsive-break\"/>"+info.Country)
+			parts = append(parts, "<br class=\"responsive-break\"/>"+info.Country)
 		} else {
 			parts = append(parts, info.Country)
 		}
@@ -103,6 +102,13 @@ templ imageMetadata(viewData ViewData, imageIndex int) {
 		if viewData.ShowImageDate || viewData.ShowImageTime {
 			<div class="image--metadata--date">
 				{ ImageDateTime(viewData, imageIndex) }
+			</div>
+		}
+		if viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" {
+			<div class="image--metadata--desciption">
+				<small>
+					{ viewData.Images[imageIndex].ImmichImage.ExifInfo.Description }
+				</small>
 			</div>
 		}
 		if viewData.ShowImageExif {

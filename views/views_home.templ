@@ -8,6 +8,7 @@ import (
 	"net/url"
 )
 
+// spinner renders a loading spinner image
 templ spinner() {
 	<img
 		class="kiosk--spinner"
@@ -16,172 +17,136 @@ templ spinner() {
 	/>
 }
 
+// crossFadeDurationCSS generates CSS for the cross-fade animation
 func crossFadeDurationCSS(crossFadeDuration float32) string {
 	return fmt.Sprintf(`
-	   <style>
-            #kiosk.htmx-settling .htmx-added {
-                animation-duration: %.1fs;
-            }
-        </style>
-    `, crossFadeDuration)
+	    <style>
+			#kiosk.htmx-settling .htmx-added {
+			    animation-duration: %.1fs;
+			}
+		</style>
+	`, crossFadeDuration)
 }
 
-templ kioskCrossFade(kioskVersion string, deviceID string, crossFadeDuration float32) {
-	@templ.Raw(crossFadeDurationCSS(crossFadeDuration))
-	<div
-		id="kiosk"
-		hx-post="/image"
-		hx-include=".kiosk-history--entry"
-		hx-trigger="load, kiosk-new-image"
-		hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", crossFadeDuration+1) }
-		hx-on::after-request="kiosk.startPolling()"
-		hx-on::after-settle="kiosk.cleanupFrames()"
-		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
-	>
-		@spinner()
-	</div>
-}
-
+// fadeDurationCSS generates CSS for the fade animation
 func fadeDurationCSS(fadeDuration float32) string {
 	return fmt.Sprintf(`
-	   <style>
-            #kiosk,#kiosk.htmx-swapping {
-                transition: opacity %.1fs ease-out;
-            }
-        </style>
-        `, fadeDuration)
+	    <style>
+			#kiosk,#kiosk.htmx-swapping {
+			    transition: opacity %.1fs ease-out;
+			}
+		</style>
+	`, fadeDuration)
 }
 
-templ kioskFade(kioskVersion string, deviceID string, fadeDuration float32) {
-	@templ.Raw(fadeDurationCSS(fadeDuration / 2))
-	<div
-		id="kiosk"
-		hx-post="/image"
-		hx-include=".kiosk-history--entry"
-		hx-trigger="load, kiosk-new-image"
-		hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", fadeDuration/2) }
-		hx-on::after-request="kiosk.startPolling()"
-		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
-	>
-		@spinner()
-	</div>
-}
-
-templ kioskNone(kioskVersion string, deviceID string) {
-	<div
-		id="kiosk"
-		hx-post="/image"
-		hx-include=".kiosk-history--entry"
-		hx-trigger="load, kiosk-new-image"
-		hx-swap="innerHTML"
-		hx-on::after-request="kiosk.startPolling()"
-		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, kioskVersion, deviceID) }
-	>
-		@spinner()
-	</div>
-}
-
-css baseFontSize(fontSize int) {
-	font-size: { fmt.Sprintf("%v%%", fontSize) };
-}
-
-func baseFontSizeMobile(fontSize int) string {
+// baseFontSize generates CSS for font sizing
+func baseFontSize(fontSize int) string {
 	return fmt.Sprintf(`
-	   <style>
-		@media screen and (max-width: 31.25rem) {
+		<style>
             html,
             body {
-                font-size: %v%% !important;
+                font-size: %v%%;
             }
-        }
-		</style>`, fontSize-20)
+
+		    @media screen and (max-width: 31.25rem) {
+				html,
+				body {
+				    font-size: %v%% !important;
+				}
+			}
+		</style>`, fontSize, fontSize-20)
 }
 
+// imageSmartZoomKeyframes generates CSS keyframes for smart zoom animations
 func imageSmartZoomKeyframes(zoomAmount int) string {
-
 	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
 	return fmt.Sprintf(`
-	<style>
-	      @keyframes image-smart-zoom-in {
-            from {
-                transform: scale3d(1,1,1);
-                transform-origin: center;
-            }
+	    <style>
+	        frames image-smart-zoom-in {
+	           from {
+	           	   transform: scale3d(1,1,1);
+	           	   transform-origin: center;
+	           }
 
-            to {
-                transform: scale3d(%.2f,%.2f,%.2f);
-                transform-origin: inherit;
-            }
-        }
+	           to {
+	           	   transform: scale3d(%.2f,%.2f,%.2f);
+	           	   transform-origin: inherit;
+	           }
+	        }
 
-        @keyframes image-smart-zoom-out {
-            from {
-                transform: scale3d(%.2f,%.2f,%.2f);
-                transform-origin: inherit;
-            }
+	        @keyframes image-smart-zoom-out {
+	           from {
+	           	   transform: scale3d(%.2f,%.2f,%.2f);
+	           	   transform-origin: inherit;
+	           }
 
-            to {
-                transform: scale3d(1,1,1);
-                transform-origin: center;
-            }
-        }
-        </style>`, zoom, zoom, zoom, zoom, zoom, zoom)
+	           to {
+	           	   transform: scale3d(1,1,1);
+	           	   transform-origin: center;
+	           }
+	        }
+	    </style>`, zoom, zoom, zoom, zoom, zoom, zoom)
 }
 
+// imageZoomKeyframes generates CSS keyframes for basic zoom animations
 func imageZoomKeyframes(zoomAmount int) string {
-
 	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
 
 	return fmt.Sprintf(`
-	   <style>
+	    <style>
 			@keyframes image-zoom-in {
-                from {
-                    transform: scale3d(1,1,1);
-                    transform-origin: center;
-                }
+			    from {
+			        transform: scale3d(1,1,1);
+			        transform-origin: center;
+			    }
 
-                to {
-                    transform: scale3d(%.2f,%.2f,%.2f);
-                    transform-origin: center;
-                }
-            }
+			    to {
+			        transform: scale3d(%.2f,%.2f,%.2f);
+			        transform-origin: center;
+			    }
+			}
 
-            @keyframes image-zoom-out {
-                from {
-                    transform: scale3d(%.2f,%.2f,%.2f);
-                    transform-origin: center;
-                }
+			@keyframes image-zoom-out {
+				from {
+				    transform: scale3d(%.2f,%.2f,%.2f);
+				    transform-origin: center;
+				}
 
-                to {
-                    transform: scale3d(1,1,1);
-                    transform-origin: center;
-                }
-            }
+				to {
+				    transform: scale3d(1,1,1);
+				    transform-origin: center;
+				}
+			}
 		</style>`, zoom, zoom, zoom, zoom, zoom, zoom)
 }
 
+// customCss wraps CSS content in style tags and removes null bytes
 func customCss(css []byte) string {
-	// Remove null bytes
 	css = bytes.Replace(css, []byte{0}, []byte{}, -1)
 	return fmt.Sprintf("<style>%s</style>", css)
 }
+
+// animationDuration sets the CSS animation duration
 
 css animationDuration(duration int) {
 	animation-duration: { fmt.Sprintf("%ds", duration) };
 }
 
+// zoomInOrOut generates a random zoom in/out animation class name
 func zoomInOrOut(zoomType string) string {
 	return fmt.Sprintf("frame--image-%s-%s", zoomType, utils.RandomItem([]string{"in", "out"}))
 }
 
+// kioskData renders kiosk configuration data as JSON
 templ kioskData(data any) {
 	@templ.JSONScript("kiosk-data", data)
 	<script>
-	    const kioskData = JSON.parse(document.getElementById('kiosk-data').textContent);
+		const kioskData = JSON.parse(document.getElementById('kiosk-data').textContent);
 		console.log(`\nImmich Kiosk version: %c${kioskData.version}`,  "color: white; font-weight:600; background-color:#1e83f7; padding:0.3rem 1rem; border-radius:4px;", "\n\n");
 	</script>
 }
 
+// offlineIcon displays an offline status icon
 templ offlineIcon() {
 	<div id="offline">
 		<svg
@@ -207,12 +172,14 @@ templ offlineIcon() {
 	</div>
 }
 
+// historyForm renders a form for kiosk history
 templ historyForm() {
 	<form id="kiosk-history" hx-swap-oob="true">
 		<input class="kiosk-history--entry" type="hidden" value=""/>
 	</form>
 }
 
+// paramForm renders a form with URL query parameters
 templ paramForm(queries url.Values) {
 	<form id="kiosk-params">
 		for key, values := range queries {
@@ -223,6 +190,7 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
+// clockHtmx renders a clock component with HTMX updates
 templ clockHtmx(theme string) {
 	<div
 		id="clock"
@@ -233,6 +201,7 @@ templ clockHtmx(theme string) {
 	></div>
 }
 
+// weatherHtmx renders a weather component with HTMX updates
 templ weatherHtmx(theme string) {
 	<div
 		id="weather"
@@ -244,6 +213,7 @@ templ weatherHtmx(theme string) {
 	></div>
 }
 
+// progressBar renders a progress indicator bar
 templ progressBar() {
 	<div class="progress">
 		<div
@@ -252,16 +222,20 @@ templ progressBar() {
 	</div>
 }
 
+// sleepMode renders a form for sleep mode functionality
 templ sleepMode(sleepStart, sleepEnd string) {
 	if sleepStart != "" && sleepEnd != "" {
 		<form
 			hx-get="/sleep"
 			hx-trigger="load, every 13s"
-			hx-target="#navigation-interaction-area"
+			hx-target="#sleep-controller"
+			hx-swap="innerHTML"
 		></form>
+		<div id="sleep-controller"></div>
 	}
 }
 
+// refreshCheckForm renders a form to check for application updates
 templ refreshCheckForm(kioskVersion, reloadTimeStamp string, queries url.Values) {
 	<form
 		hx-post="/refresh/check"
@@ -273,9 +247,29 @@ templ refreshCheckForm(kioskVersion, reloadTimeStamp string, queries url.Values)
 	></form>
 }
 
+templ body(viewData ViewData) {
+	switch viewData.Transition {
+		case "cross-fade":
+			<body hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", viewData.CrossFadeTransitionDuration+1) } class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
+				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
+				{ children... }
+			</body>
+		case "fade":
+			<body hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration/2) } class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
+				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
+				{ children... }
+			</body>
+		default:
+			<body hx-swap="innerHTML" class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
+				{ children... }
+			</body>
+	}
+}
+
+// Home renders the main kiosk HTML template
 templ Home(viewData ViewData) {
 	<!DOCTYPE html>
-	<html lang="en" class={ baseFontSize(viewData.FontSize) }>
+	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -307,31 +301,41 @@ templ Home(viewData ViewData) {
 			/>
 			if viewData.HideCursor {
 				<style>
-    				html, body{
-    				    cursor: none;
-    				}
+				    html, body{
+					    cursor: none;
+					}
 				</style>
 			}
-			switch  viewData.ImageEffect {
+			switch viewData.ImageEffect {
 				case "zoom":
 					@templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount))
 				case "smart-zoom":
 					@templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount))
 			}
-			@templ.Raw(baseFontSizeMobile(viewData.FontSize))
+			@templ.Raw(baseFontSize(viewData.FontSize))
 			if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
 				@templ.Raw(customCss(viewData.CustomCss))
 			}
 		</head>
-		<body class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
-			switch viewData.Transition {
-				case "cross-fade":
-					@kioskCrossFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.CrossFadeTransitionDuration)
-				case "fade":
-					@kioskFade(viewData.KioskVersion, utils.GenerateUUID(), viewData.FadeTransitionDuration)
-				default:
-					@kioskNone(viewData.KioskVersion, utils.GenerateUUID())
-			}
+		@body(viewData) {
+			<div
+				id="kiosk"
+				hx-post="/image"
+				hx-include=".kiosk-history--entry"
+				hx-trigger="
+        		  load,
+        		  click from:#navigation-interaction-area--next-image,
+        		  click from:.navigation--next-image,
+        		  keyup[key=='ArrowRight'] from:body,
+        		  kiosk-new-image
+          		"
+				hx-on::before-request="kiosk.setRequestLock(event)"
+				hx-on::after-request="kiosk.startPolling()"
+				hx-on::after-settle="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
+				hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID) }
+			>
+				@spinner()
+			</div>
 			if viewData.ShowProgress {
 				@progressBar()
 			}
@@ -366,14 +370,14 @@ templ Home(viewData ViewData) {
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			if len(viewData.Queries) > 0 {
 				<script>
-				  const kioskQueires = document.body.querySelectorAll(".kiosk-param");
-   		           document.body.addEventListener("htmx:configRequest", (event) => {
-                    kioskQueires.forEach((q) => {
-                      event.detail.parameters[q.name] = q.value;
-                    });
-                  });
-                </script>
+				    const kioskQueires = document.body.querySelectorAll(".kiosk-param");
+    				document.body.addEventListener("htmx:configRequest", (event) => {
+    				    kioskQueires.forEach((q) => {
+    						event.detail.parameters[q.name] = q.value;
+    					});
+    				});
+				</script>
 			}
-		</body>
+		}
 	</html>
 }
