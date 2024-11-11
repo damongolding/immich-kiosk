@@ -203,8 +203,6 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 		RawQuery: "size=preview",
 	}
 
-	log.Info(apiUrl.String())
-
 	return i.immichApiCall("GET", apiUrl.String(), nil)
 }
 
