@@ -9,9 +9,8 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    z-index: 99998;
+    z-index: 99999;
     background-color: transparent;
-    transition: background-color 3s ease;
 }
 
 #navigation-interaction-area--previous-image,
@@ -129,9 +128,4 @@
 .navigation--prev-image.disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-/* sleep mode */
-.sleep #navigation-interaction-area {
-    background-color: black;
 }
