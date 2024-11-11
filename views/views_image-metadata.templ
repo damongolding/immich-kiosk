@@ -25,7 +25,11 @@ func ImageLocation(info immich.ExifInfo, hideCountries []string) string {
 	}
 
 	if info.Country != "" && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
-		parts = append(parts, info.Country)
+		if len(parts) > 0 {
+			parts = append(parts, "<br class=\"responsive-break\"/>"+info.Country)
+		} else {
+			parts = append(parts, info.Country)
+		}
 	}
 
 	return strings.Join(parts, ", ")
