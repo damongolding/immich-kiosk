@@ -167,7 +167,7 @@ func imageMetadata(viewData ViewData, imageIndex int) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		if viewData.ShowImageDescription {
+		if viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"image--metadata--desciption\"><small>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

@@ -104,7 +104,7 @@ templ imageMetadata(viewData ViewData, imageIndex int) {
 				{ ImageDateTime(viewData, imageIndex) }
 			</div>
 		}
-		if viewData.ShowImageDescription {
+		if viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" {
 			<div class="image--metadata--desciption">
 				<small>
 					{ viewData.Images[imageIndex].ImmichImage.ExifInfo.Description }
