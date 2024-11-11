@@ -597,8 +597,12 @@ body {
   right: unset;
   transform: translate(-50%, -50%);
   opacity: 0.1;
-  z-index: 99999;
+  z-index: 99998;
   line-height: 1;
+  animation-name: clock-screesaver;
+  animation-duration: 3600s;
+  animation-timing-function: step-end;
+  animation-iteration-count: infinite;
 }
 .sleep .clock--date {
   font-size: 8vw;
@@ -609,6 +613,78 @@ body {
 }
 .sleep #clock::before {
   display: none;
+}
+@keyframes clock-screesaver {
+  0% {
+    top: 50%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    transform: translate(-50%, -50%);
+  }
+  11% {
+    top: 5%;
+    left: 5%;
+    bottom: unset;
+    right: unset;
+    transform: translate(-5%, -5%);
+  }
+  22% {
+    top: unset;
+    left: unset;
+    bottom: 5%;
+    right: 5%;
+    transform: translate(5%, 5%);
+  }
+  33% {
+    top: 5%;
+    left: unset;
+    bottom: unset;
+    right: 5%;
+    transform: translate(5%, -5%);
+  }
+  44% {
+    top: unset;
+    left: 5%;
+    bottom: 5%;
+    right: unset;
+    transform: translate(-5%, 5%);
+  }
+  55% {
+    top: 5%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    transform: translate(-50%, -5%);
+  }
+  66% {
+    top: unset;
+    left: unset;
+    bottom: 5%;
+    right: 50%;
+    transform: translate(50%, 5%);
+  }
+  77% {
+    top: 50%;
+    left: unset;
+    bottom: unset;
+    right: 5%;
+    transform: translate(5%, -50%);
+  }
+  88% {
+    top: 50%;
+    left: 5%;
+    bottom: unset;
+    right: unset;
+    transform: translate(-5%, -50%);
+  }
+  100% {
+    top: 50%;
+    left: 50%;
+    bottom: unset;
+    right: unset;
+    transform: translate(-50%, -50%);
+  }
 }
 
 /* src/css/weather.css */
@@ -754,9 +830,8 @@ body {
   display: flex;
   width: 100%;
   height: 100%;
-  z-index: 99998;
+  z-index: 99999;
   background-color: transparent;
-  transition: background-color 3s ease;
 }
 #navigation-interaction-area--previous-image,
 #navigation-interaction-area--next-image {
@@ -847,8 +922,24 @@ body {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.sleep #navigation-interaction-area {
-  background-color: black;
+
+/* src/css/sleep.css */
+#sleep-controller {
+  background-color: transparent;
+}
+.sleep {
+  #sleep-controller {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99997;
+    background-color: black;
+    transition: background-color 3s ease;
+  }
 }
 
 /* src/css/kiosk.css */

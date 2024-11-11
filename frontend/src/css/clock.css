@@ -75,8 +75,13 @@
     right: unset;
     transform: translate(-50%, -50%);
     opacity: 0.1;
-    z-index: 99999;
+    z-index: 99998;
     line-height: 1;
+
+    animation-name: clock-screesaver;
+    animation-duration: 3600s;
+    animation-timing-function: step-end;
+    animation-iteration-count: infinite;
 }
 
 .sleep .clock--date {
@@ -90,4 +95,96 @@
 
 .sleep #clock::before {
     display: none;
+}
+
+@keyframes clock-screesaver {
+    /* middle */
+    0% {
+        top: 50%;
+        left: 50%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-50%, -50%);
+    }
+
+    /* top left */
+    11% {
+        top: 5%;
+        left: 5%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-5%, -5%);
+    }
+
+    /* right bottom */
+    22% {
+        top: unset;
+        left: unset;
+        bottom: 5%;
+        right: 5%;
+        transform: translate(5%, 5%);
+    }
+
+    /* top right */
+    33% {
+        top: 5%;
+        left: unset;
+        bottom: unset;
+        right: 5%;
+        transform: translate(5%, -5%);
+    }
+
+    /* left bottom */
+    44% {
+        top: unset;
+        left: 5%;
+        bottom: 5%;
+        right: unset;
+        transform: translate(-5%, 5%);
+    }
+
+    /* top middle */
+    55% {
+        top: 5%;
+        left: 50%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-50%, -5%);
+    }
+
+    /* bottom middle */
+    66% {
+        top: unset;
+        left: unset;
+        bottom: 5%;
+        right: 50%;
+        transform: translate(50%, 5%);
+    }
+
+    /* right middle */
+    77% {
+        top: 50%;
+        left: unset;
+        bottom: unset;
+        right: 5%;
+        transform: translate(5%, -50%);
+    }
+
+    /* left middle */
+    88% {
+        top: 50%;
+        left: 5%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-5%, -50%);
+    }
+
+    /* middle */
+    100% {
+        top: 50%;
+        left: 50%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-50%, -50%);
+    }
 }
