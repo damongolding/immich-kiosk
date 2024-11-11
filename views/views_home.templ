@@ -62,7 +62,7 @@ func imageSmartZoomKeyframes(zoomAmount int) string {
 	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
 	return fmt.Sprintf(`
 	    <style>
-	        frames image-smart-zoom-in {
+	        @keyframes image-smart-zoom-in {
 	           from {
 	           	   transform: scale3d(1,1,1);
 	           	   transform-origin: center;
