@@ -141,7 +141,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 		Type:       string(ImageType),
 		WithExif:   true,
 		WithPeople: true,
-		Size:       1000,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	if requestConfig.ShowArchived {

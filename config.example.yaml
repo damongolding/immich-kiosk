@@ -47,6 +47,7 @@ image_effect: none
 image_effect_amount: 120
 use_original_image: false # use the original file.
 
+
 # Image METADATA
 show_image_time: false # true or false
 image_time_format: 24 # 12 or 24
@@ -70,6 +71,7 @@ show_image_id: false
 kiosk:
   port: 3000
   watch_config: false
+  fetched_assets_size: 1000
   password: ""
   cache: true # cache select api calls
   pre_fetch: true # fetch assets in the background
