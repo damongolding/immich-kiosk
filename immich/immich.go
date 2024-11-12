@@ -6,7 +6,6 @@
 package immich
 
 import (
-	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -78,7 +77,7 @@ type ExifInfo struct {
 	City             string    `json:"city"`
 	State            string    `json:"state"`
 	Country          string    `json:"country"`
-	Description      string    `json:"-"` // `json:"description"`
+	Description      string    `json:"description"`
 	ProjectionType   any       `json:"-"` // `json:"projectionType"`
 	ImageOrientation ImageOrientation
 }
@@ -198,7 +197,7 @@ func NewImage(base config.Config) ImmichAsset {
 	return ImmichAsset{}
 }
 
-type ImmichApiCall func(string, string, io.Reader) ([]byte, error)
+type ImmichApiCall func(string, string, []byte) ([]byte, error)
 
 type ImmichApiResponse interface {
 	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face

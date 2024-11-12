@@ -120,7 +120,11 @@
     padding: 0 0.5rem;
 }
 
-.image--metadata--location {
+.frame--layout-splitview,
+.frame--layout-splitview-landscape {
+    .image--metadata--desciption {
+        max-width: 50%;
+    }
 }
 
 .frame--layout-splitview:nth-child(1) .image--metadata {
@@ -150,19 +154,20 @@
     object-position: inherit;
     will-change: scale3d;
 }
-.frame--image-zoom-in img {
+
+.frame:nth-last-of-type(-n + 2) .frame--image-zoom-in img {
     animation-name: image-zoom-in;
 }
-.frame--image-zoom-out img {
+.frame:nth-last-of-type(-n + 2) .frame--image-zoom-out img {
     animation-name: image-zoom-out;
 }
 
 /*  Smart zoom */
-.frame--image-smart-zoom-out img {
+.frame:nth-last-of-type(-n + 2) .frame--image-smart-zoom-out img {
     animation-name: image-smart-zoom-out;
 }
 
-.frame--image-smart-zoom-in img {
+.frame:nth-last-of-type(-n + 2) .frame--image-smart-zoom-in img {
     animation-name: image-smart-zoom-in;
 }
 
@@ -215,7 +220,9 @@
     }
 }
 
-.paused .frame--image-pan-zoom {
+/* Pause animations when polling is paused */
+.polling-paused .frame--image-pan-zoom,
+.polling-paused .frame:nth-last-of-type(-n + 2) img {
     animation-play-state: paused;
 }
 
@@ -225,16 +232,22 @@
         max-width: 50vw;
     }
 
+    .image--metadata--desciption {
+        max-width: 100%;
+    }
+
     .image--metadata--date,
     .image--metadata--exif,
     .image--metadata--location {
         padding-left: 0.5rem;
     }
 
-    .image--metadata--location span {
-        display: none;
-    }
-    .image--metadata--location .responsive-break {
-        display: inline;
+    .image--metadata--location {
+        span {
+            display: none;
+        }
+        .responsive-break {
+            display: inline;
+        }
     }
 }
