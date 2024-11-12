@@ -1,6 +1,10 @@
 package views
 
-import "github.com/damongolding/immich-kiosk/immich"
+import (
+	"fmt"
+	"github.com/damongolding/immich-kiosk/immich"
+	"github.com/damongolding/immich-kiosk/utils"
+)
 
 // frame is a template function that renders a basic frame for an image.
 // It wraps the child content in a div with the class "frame--image".
@@ -19,13 +23,24 @@ templ frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) {
 			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect), smartZoom(img) }>
 				{ children... }
 			</div>
-		case "pan-zoom":
-			<div class={ "frame--image", "frame--image-pan-zoom" }>
-				{ children... }
-			</div>
 		default:
 			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect) }>
 				{ children... }
 			</div>
 	}
+}
+
+css imageEffectPanning(refresh int, imageData string) {
+	animation-name: { randomPanDirection() };
+	animation-duration: { templ.SafeCSSProperty(fmt.Sprintf("%vs", refresh+20)) };
+	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url(%s)", imageData)) };
+}
+
+func randomPanDirection() string {
+	pick := utils.RandomItem([]string{"lb-tr", "br-tl", "tr-bl", "tl-br"})
+	return "image-pan-zoom-" + pick
+}
+
+templ frameWithPan(refresh int, imageData string) {
+	<div class={ "frame--image frame--image-pan-zoom", imageEffectPanning(refresh, imageData) }></div>
 }

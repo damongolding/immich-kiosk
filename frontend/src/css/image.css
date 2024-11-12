@@ -167,37 +167,15 @@
 }
 
 /* pan-zoom */
-/* .frame--image-pan-zoom img {
-    animation-direction: normal;
-    animation-duration: inherit;
-    transition-timing-function: linear !important;
-    animation-fill-mode: forwards;
-    will-change: scale3d;
-    animation-name: image-pan-zoom;
-    transform: scale3d(1.2, 1.2, 1.2);
-}
-
-@keyframes image-pan-zoom {
-    0% {
-        transform-origin: bottom left;
-    }
-
-    100% {
-        transform-origin: top right;
-    }
-} */
-
 .frame--image-pan-zoom {
     background-repeat: no-repeat;
-    background-size: 200% auto;
-    animation-name: image-pan-zoom;
-    animation-duration: 80s;
+    background-size: 400% auto;
     animation-timing-function: linear;
     animation-fill-mode: forwards;
     animation-direction: normal;
 }
 
-@keyframes image-pan-zoom {
+@keyframes image-pan-zoom-lb-tr {
     0% {
         background-position: bottom left;
     }
@@ -205,6 +183,40 @@
     100% {
         background-position: top right;
     }
+}
+
+@keyframes image-pan-zoom-br-tl {
+    0% {
+        background-position: bottom right;
+    }
+
+    100% {
+        background-position: top left;
+    }
+}
+
+@keyframes image-pan-zoom-tr-bl {
+    0% {
+        background-position: top right;
+    }
+
+    100% {
+        background-position: bottom left;
+    }
+}
+
+@keyframes image-pan-zoom-tl-br {
+    0% {
+        background-position: top left;
+    }
+
+    100% {
+        background-position: bottom right;
+    }
+}
+
+.paused .frame--image-pan-zoom {
+    animation-play-state: paused;
 }
 
 @media screen and (max-width: 31.25rem) {

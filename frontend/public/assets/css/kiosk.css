@@ -413,19 +413,41 @@ body {
 }
 .frame--image-pan-zoom {
   background-repeat: no-repeat;
-  background-size: 200% auto;
-  animation-name: image-pan-zoom;
-  animation-duration: 80s;
+  background-size: 400% auto;
   animation-timing-function: linear;
   animation-fill-mode: forwards;
   animation-direction: normal;
 }
-@keyframes image-pan-zoom {
+@keyframes image-pan-zoom-lb-tr {
   0% {
     background-position: bottom left;
   }
   100% {
     background-position: top right;
+  }
+}
+@keyframes image-pan-zoom-br-tl {
+  0% {
+    background-position: bottom right;
+  }
+  100% {
+    background-position: top left;
+  }
+}
+@keyframes image-pan-zoom-tr-bl {
+  0% {
+    background-position: top right;
+  }
+  100% {
+    background-position: bottom left;
+  }
+}
+@keyframes image-pan-zoom-tl-br {
+  0% {
+    background-position: top left;
+  }
+  100% {
+    background-position: bottom right;
   }
 }
 @media screen and (max-width: 31.25rem) {
