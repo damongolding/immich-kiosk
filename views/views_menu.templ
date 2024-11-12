@@ -8,14 +8,14 @@ templ menu() {
 			hx-target="#kiosk"
 			hx-include=".kiosk-history--entry"
 			hx-trigger="
-			  click,
-			  click from:.navigation--prev-image,
-			  keyup[key=='ArrowLeft'] from:body,
-			  kiosk-prev-image
+			  click throttle:1s,
+			  click from:.navigation--prev-image throttle:1s,
+			  keyup[key=='ArrowLeft'] from:body throttle:1s,
+			  kiosk-prev-image throttle:1s
 			"
 			hx-on::before-request="kiosk.checkHistoryExists(event)"
 			hx-on::after-request="kiosk.startPolling()"
-			hx-on::after-settle="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
+			hx-on::after-swap="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
 		></div>
 		<div id="navigation-interaction-area--menu"></div>
 		<div id="navigation-interaction-area--next-image"></div>

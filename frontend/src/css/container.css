@@ -7,6 +7,7 @@
     overflow: hidden;
     opacity: 1;
     transition: opacity 1s ease-out;
+    will-change: opacity;
 
     z-index: 0;
 }
@@ -15,6 +16,7 @@
 #kiosk.htmx-swapping {
     opacity: 0;
     transition: opacity 1s ease-out;
+    will-change: opacity;
 }
 /* END Fade transition */
 
@@ -23,6 +25,15 @@
     from {
         opacity: 0;
     }
+}
+
+/* only let the last two frame animation play */
+#kiosk .frame {
+    animation-play-state: paused;
+}
+
+#kiosk .frame:nth-last-child(-n + 2) {
+    animation-play-state: running;
 }
 
 #kiosk.htmx-settling .htmx-added:last-of-type {

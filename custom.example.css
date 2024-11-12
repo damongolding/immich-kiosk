@@ -10,6 +10,8 @@ body{}
 from{}
 @-moz-keyframes fade-in{}
 from{}
+#kiosk .frame{}
+#kiosk .frame:nth-last-child(-n+2){}
 #kiosk.htmx-settling .htmx-added:last-of-type{}
 /* src/css/spinner.css */
 .kiosk--spinner{}

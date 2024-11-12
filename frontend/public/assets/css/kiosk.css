@@ -143,12 +143,14 @@ body {
   opacity: 1;
   -moz-transition: opacity 1s ease-out;
   transition: opacity 1s ease-out;
+  will-change: opacity;
   z-index: 0;
 }
 #kiosk.htmx-swapping {
   opacity: 0;
   -moz-transition: opacity 1s ease-out;
   transition: opacity 1s ease-out;
+  will-change: opacity;
 }
 @-webkit-keyframes fade-in {
   from {
@@ -164,6 +166,16 @@ body {
   from {
     opacity: 0;
   }
+}
+#kiosk .frame {
+  -webkit-animation-play-state: paused;
+     -moz-animation-play-state: paused;
+          animation-play-state: paused;
+}
+#kiosk .frame:nth-last-child(-n+2) {
+  -webkit-animation-play-state: running;
+     -moz-animation-play-state: running;
+          animation-play-state: running;
 }
 #kiosk.htmx-settling .htmx-added:last-of-type {
   -webkit-animation-name: fade-in;

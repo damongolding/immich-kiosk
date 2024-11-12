@@ -794,7 +794,7 @@ func Home(viewData ViewData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\" hx-include=\".kiosk-history--entry\" hx-trigger=\"\n        \t\t  load,\n        \t\t  click from:#navigation-interaction-area--next-image,\n        \t\t  click from:.navigation--next-image,\n        \t\t  keyup[key==&#39;ArrowRight&#39;] from:body,\n        \t\t  kiosk-new-image\n          \t\t\" hx-on::before-request=\"kiosk.setRequestLock(event)\" hx-on::after-request=\"kiosk.startPolling()\" hx-on::after-settle=\"kiosk.cleanupFrames(), kiosk.releaseRequestLock()\" hx-headers=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"kiosk\" hx-post=\"/image\" hx-include=\".kiosk-history--entry\" hx-trigger=\"\n        \t\t  load,\n        \t\t  click from:#navigation-interaction-area--next-image throttle:1s,\n        \t\t  click from:.navigation--next-image throttle:1s,\n        \t\t  keyup[key==&#39;ArrowRight&#39;] from:body throttle:1s,\n        \t\t  kiosk-new-image throttle:1s\n          \t\t\" hx-on::before-request=\"kiosk.setRequestLock(event)\" hx-on::after-request=\"kiosk.startPolling()\" hx-on::after-swap=\"kiosk.cleanupFrames(), kiosk.releaseRequestLock()\" hx-headers=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

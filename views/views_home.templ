@@ -324,14 +324,14 @@ templ Home(viewData ViewData) {
 				hx-include=".kiosk-history--entry"
 				hx-trigger="
         		  load,
-        		  click from:#navigation-interaction-area--next-image,
-        		  click from:.navigation--next-image,
-        		  keyup[key=='ArrowRight'] from:body,
-        		  kiosk-new-image
+        		  click from:#navigation-interaction-area--next-image throttle:1s,
+        		  click from:.navigation--next-image throttle:1s,
+        		  keyup[key=='ArrowRight'] from:body throttle:1s,
+        		  kiosk-new-image throttle:1s
           		"
 				hx-on::before-request="kiosk.setRequestLock(event)"
 				hx-on::after-request="kiosk.startPolling()"
-				hx-on::after-settle="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
+				hx-on::after-swap="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
 				hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID) }
 			>
 				@spinner()
