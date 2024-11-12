@@ -101,7 +101,7 @@ templ renderImage(viewData ViewData, imageData ImageData) {
 				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
 			}
 		case "pan-zoom":
-			@frameWithPan(viewData.Refresh, imageData.ImageData)
+			@frameWithPan(viewData.Refresh, imageData.ImageData, viewData.ImageEffectAmount)
 		default:
 			@frame() {
 				@renderImageFit(imageData.ImageData, viewData.ImageFit)

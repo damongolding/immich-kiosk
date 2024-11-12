@@ -30,9 +30,10 @@ templ frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) {
 	}
 }
 
-css imageEffectPanning(refresh int, imageData string) {
+css imageEffectPanning(refresh int, imageData string, effectAmount int) {
 	animation-name: { randomPanDirection() };
 	animation-duration: { templ.SafeCSSProperty(fmt.Sprintf("%vs", refresh+20)) };
+	background-size: { templ.SafeCSSProperty(fmt.Sprintf("%v%% auto", effectAmount)) };
 	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url(%s)", imageData)) };
 }
 
@@ -41,6 +42,6 @@ func randomPanDirection() string {
 	return "image-pan-zoom-" + pick
 }
 
-templ frameWithPan(refresh int, imageData string) {
-	<div class={ "frame--image frame--image-pan-zoom", imageEffectPanning(refresh, imageData) }></div>
+templ frameWithPan(refresh int, imageData string, effectAmount int) {
+	<div class={ "frame--image frame--image-pan-zoom", imageEffectPanning(refresh, imageData, effectAmount) }></div>
 }

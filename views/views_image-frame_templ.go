@@ -145,10 +145,11 @@ func frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) temp
 	})
 }
 
-func imageEffectPanning(refresh int, imageData string) templ.CSSClass {
+func imageEffectPanning(refresh int, imageData string, effectAmount int) templ.CSSClass {
 	templ_7745c5c3_CSSBuilder := templruntime.GetBuilder()
 	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`animation-name`, randomPanDirection())))
 	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`animation-duration`, templ.SafeCSSProperty(fmt.Sprintf("%vs", refresh+20)))))
+	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`background-size`, templ.SafeCSSProperty(fmt.Sprintf("%v%% auto", effectAmount)))))
 	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`background-image`, templ.SafeCSSProperty(fmt.Sprintf("url(%s)", imageData)))))
 	templ_7745c5c3_CSSID := templ.CSSID(`imageEffectPanning`, templ_7745c5c3_CSSBuilder.String())
 	return templ.ComponentCSSClass{
@@ -162,7 +163,7 @@ func randomPanDirection() string {
 	return "image-pan-zoom-" + pick
 }
 
-func frameWithPan(refresh int, imageData string) templ.Component {
+func frameWithPan(refresh int, imageData string, effectAmount int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -183,7 +184,7 @@ func frameWithPan(refresh int, imageData string) templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var8 = []any{"frame--image frame--image-pan-zoom", imageEffectPanning(refresh, imageData)}
+		var templ_7745c5c3_Var8 = []any{"frame--image frame--image-pan-zoom", imageEffectPanning(refresh, imageData, effectAmount)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

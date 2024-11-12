@@ -174,7 +174,6 @@
 /* pan-zoom */
 .frame--image-pan-zoom {
     background-repeat: no-repeat;
-    background-size: 400% auto;
     animation-timing-function: linear;
     animation-fill-mode: forwards;
     animation-direction: normal;
