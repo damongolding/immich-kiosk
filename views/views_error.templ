@@ -18,7 +18,19 @@ templ Error(data ErrorData) {
 					<h2 class="error--title">{ data.Title }</h2>
 				}
 				<p class="error--message">
-					@templ.Raw(data.Message)
+					<ul>
+						<li>Are your data source ID's correct (albumID, personID)?</li>
+						<li>Do those data sources have assets?</li>
+						<li>Is Immich online?</li>
+					</ul>
+					<p>
+						Full error:
+						<br/>
+						<br/>
+						<code>
+							@templ.Raw(data.Message)
+						</code>
+					</p>
 				</p>
 			</div>
 		</div>

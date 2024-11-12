@@ -1,10 +1,15 @@
 package config
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"strings"
 	"testing"
+
+	"github.com/charmbracelet/log"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -55,7 +60,7 @@ func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 
 	echoContenx := e.NewContext(req, rec)
 
-	t.Log("Trying to add:", echoContenx.Request().URL.Query())
+	t.Log("Trying to add:", echoContenx.QueryParams())
 
 	err := c.ConfigWithOverrides(echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
@@ -85,7 +90,7 @@ func TestMalformedURLs(t *testing.T) {
 			t.Setenv("KIOSK_IMMICH_URL", test.KIOSK_IMMICH_URL)
 			t.Setenv("KIOSK_IMMICH_API_KEY", "12345")
 
-			var c Config
+			c := New()
 
 			err := c.Load()
 			assert.NoError(t, err, "Config load should not return an error")
@@ -113,7 +118,7 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 
 	echoContenx := e.NewContext(req, rec)
 
-	t.Log("Trying to add:", echoContenx.Request().URL.Query())
+	t.Log("Trying to add:", echoContenx.QueryParams())
 
 	err := configWithBase.ConfigWithOverrides(echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
@@ -137,7 +142,7 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 
 	echoContenx = e.NewContext(req, rec)
 
-	t.Log("Trying to add:", echoContenx.Request().URL.Query())
+	t.Log("Trying to add:", echoContenx.QueryParams())
 
 	err = configWithoutBase.ConfigWithOverrides(echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
@@ -165,4 +170,144 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 	assert.Equal(t, 2, len(configWithBaseOnly.Album), "Base albums should persist")
 	assert.Contains(t, configWithBaseOnly.Album, "BASE_ALBUM_1", "BASE_ALBUM_1 should be present")
 	assert.Contains(t, configWithBaseOnly.Album, "BASE_ALBUM_2", "BASE_ALBUM_2 should be present")
+}
+
+func TestAlbumAndPerson(t *testing.T) {
+	testCases := []struct {
+		name           string
+		inputAlbum     []string
+		inputPerson    []string
+		expectedAlbum  []string
+		expectedPerson []string
+	}{
+		{
+			name:           "No empty values",
+			inputAlbum:     []string{"album1", "album2"},
+			inputPerson:    []string{"person1", "person2"},
+			expectedAlbum:  []string{"album1", "album2"},
+			expectedPerson: []string{"person1", "person2"},
+		},
+		{
+			name:           "Empty values in album",
+			inputAlbum:     []string{"album1", "", "album2", ""},
+			inputPerson:    []string{"person1", "person2"},
+			expectedAlbum:  []string{"album1", "album2"},
+			expectedPerson: []string{"person1", "person2"},
+		},
+		{
+			name:           "Empty values in person",
+			inputAlbum:     []string{"album1", "album2"},
+			inputPerson:    []string{"", "person1", "", "person2"},
+			expectedAlbum:  []string{"album1", "album2"},
+			expectedPerson: []string{"person1", "person2"},
+		},
+		{
+			name:           "Empty values in both",
+			inputAlbum:     []string{"", "album1", "", "album2"},
+			inputPerson:    []string{"person1", "", "", "person2"},
+			expectedAlbum:  []string{"album1", "album2"},
+			expectedPerson: []string{"person1", "person2"},
+		},
+		{
+			name:           "All empty values",
+			inputAlbum:     []string{"", "", ""},
+			inputPerson:    []string{"", "", ""},
+			expectedAlbum:  []string{},
+			expectedPerson: []string{},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			c := &Config{
+				Album:  tc.inputAlbum,
+				Person: tc.inputPerson,
+			}
+
+			c.checkAlbumAndPerson()
+
+			assert.Equal(t, tc.expectedAlbum, c.Album, "Album mismatch")
+			assert.Equal(t, tc.expectedPerson, c.Person, "Person mismatch")
+		})
+	}
+}
+
+func TestCheckWeatherLocations(t *testing.T) {
+	tests := []struct {
+		name     string
+		config   *Config
+		expected string
+	}{
+		{
+			name: "All fields present",
+			config: &Config{
+				WeatherLocations: []WeatherLocation{
+					{Name: "City", Lat: "123", Lon: "456", API: "abc123"},
+				},
+			},
+			expected: "",
+		},
+		{
+			name: "Missing name",
+			config: &Config{
+				WeatherLocations: []WeatherLocation{
+					{Lat: "123", Lon: "456", API: "abc123"},
+				},
+			},
+			expected: "Weather location is missing required fields: name",
+		},
+		{
+			name: "Missing latitude",
+			config: &Config{
+				WeatherLocations: []WeatherLocation{
+					{Name: "City", Lon: "456", API: "abc123"},
+				},
+			},
+			expected: "Weather location is missing required fields: latitude",
+		},
+		{
+			name: "Missing longitude",
+			config: &Config{
+				WeatherLocations: []WeatherLocation{
+					{Name: "City", Lat: "123", API: "abc123"},
+				},
+			},
+			expected: "Weather location is missing required fields: longitude",
+		},
+		{
+			name: "Missing API key",
+			config: &Config{
+				WeatherLocations: []WeatherLocation{
+					{Name: "City", Lat: "123", Lon: "456"},
+				},
+			},
+			expected: "Weather location is missing required fields: API key",
+		},
+		{
+			name: "Multiple missing fields",
+			config: &Config{
+				WeatherLocations: []WeatherLocation{
+					{Name: "City"},
+				},
+			},
+			expected: "Weather location is missing required fields: latitude, longitude, API key",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			log.SetOutput(&buf)
+			defer log.SetOutput(os.Stderr)
+
+			tt.config.checkWeatherLocations()
+
+			output := strings.TrimSpace(buf.String())
+			if tt.expected == "" {
+				assert.Empty(t, output)
+			} else {
+				assert.NotEmpty(t, output)
+			}
+		})
+	}
 }

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"strings"
@@ -11,6 +12,8 @@ import (
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
+	"github.com/disintegration/imaging"
+	"github.com/fogleman/gg"
 	"github.com/labstack/echo/v4"
 	"github.com/patrickmn/go-cache"
 )
@@ -154,7 +157,7 @@ func imageToBase64(imgBytes []byte, config config.Config, requestID, kioskDevice
 // processBlurredImage applies a blur effect to the image if required by the configuration.
 // It returns the blurred image as a base64 string and an error if any occurs.
 func processBlurredImage(imgBytes []byte, config config.Config, requestID, kioskDeviceID string, isPrefetch bool) (string, error) {
-	if !config.BackgroundBlur || strings.EqualFold(config.ImageFit, "cover") || config.ImageZoom {
+	if !config.BackgroundBlur || strings.EqualFold(config.ImageFit, "cover") || (config.ImageEffect != "" && config.ImageEffect != "none") {
 		return "", nil
 	}
 
@@ -190,6 +193,61 @@ func trimHistory(history *[]string, maxLength int) {
 	}
 }
 
+func DrawFaceOnImage(imgBytes []byte, i *immich.ImmichAsset) []byte {
+
+	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
+		log.Debug("no people found")
+		return imgBytes
+	}
+
+	img, err := imaging.Decode(bytes.NewReader(imgBytes))
+	if err != nil {
+		log.Error("could not decode image", "err", err)
+		return imgBytes
+	}
+
+	dc := gg.NewContext(img.Bounds().Dx(), img.Bounds().Dy())
+
+	dc.DrawImage(img, 0, 0)
+
+	for _, person := range i.People {
+		for _, face := range person.Faces {
+			width := face.BoundingBoxX2 - face.BoundingBoxX1
+			height := face.BoundingBoxY2 - face.BoundingBoxY1
+
+			dc.DrawRectangle(float64(face.BoundingBoxX1), float64(face.BoundingBoxY1), float64(width), float64(height))
+			dc.SetHexColor("#990000")
+			dc.Fill()
+		}
+	}
+
+	for _, face := range i.UnassignedFaces {
+		width := face.BoundingBoxX2 - face.BoundingBoxX1
+		height := face.BoundingBoxY2 - face.BoundingBoxY1
+
+		dc.DrawRectangle(float64(face.BoundingBoxX1), float64(face.BoundingBoxY1), float64(width), float64(height))
+		dc.SetHexColor("#000099")
+		dc.Fill()
+	}
+
+	facesBoundX, facesBoundY := i.FacesCenterPointPX()
+	dc.DrawRectangle(facesBoundX-10, facesBoundY-10, 20, 20)
+	dc.SetHexColor("#889900")
+	dc.Fill()
+
+	out := dc.Image()
+
+	buf := new(bytes.Buffer)
+
+	err = imaging.Encode(buf, out, imaging.JPEG)
+	if err != nil {
+		log.Error("Error encodeing image:", err)
+		return imgBytes
+	}
+
+	return buf.Bytes()
+}
+
 // processViewImageData handles the entire process of preparing page data including image processing.
 // It returns the ImageData and an error if any step fails.
 func processViewImageData(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (views.ImageData, error) {
@@ -203,6 +261,15 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	imgBytes, err := processImage(&immichImage, requestConfig, requestID, kioskDeviceID, isPrefetch)
 	if err != nil {
 		return views.ImageData{}, fmt.Errorf("selecting image: %w", err)
+	}
+
+	if strings.EqualFold(requestConfig.ImageEffect, "smart-zoom") && len(immichImage.People)+len(immichImage.UnassignedFaces) == 0 {
+		immichImage.CheckForFaces(requestID)
+	}
+
+	if ShouldDrawFacesOnImages() {
+		log.Debug("Drawing faces")
+		imgBytes = DrawFaceOnImage(imgBytes, &immichImage)
 	}
 
 	img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, "Converted", isPrefetch)
@@ -247,13 +314,13 @@ func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceID st
 
 	cacheKey := c.Request().URL.String() + kioskDeviceID
 
-	if data, found := viewDataCache.Get(cacheKey); found {
+	if data, found := ViewDataCache.Get(cacheKey); found {
 		cachedViewData = data.([]views.ViewData)
 	}
 
 	cachedViewData = append(cachedViewData, viewDataToAdd)
 
-	viewDataCache.Set(cacheKey, cachedViewData, cache.DefaultExpiration)
+	ViewDataCache.Set(cacheKey, cachedViewData, cache.DefaultExpiration)
 
 }
 
@@ -304,12 +371,12 @@ func fromCache(c echo.Context, kioskDeviceID string) []views.ViewData {
 	defer viewDataCacheMutex.Unlock()
 
 	cacheKey := c.Request().URL.String() + kioskDeviceID
-	if data, found := viewDataCache.Get(cacheKey); found {
+	if data, found := ViewDataCache.Get(cacheKey); found {
 		cachedPageData := data.([]views.ViewData)
 		if len(cachedPageData) > 0 {
 			return cachedPageData
 		}
-		viewDataCache.Delete(cacheKey)
+		ViewDataCache.Delete(cacheKey)
 	}
 	return nil
 }
@@ -324,7 +391,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []views.ViewData, reque
 	cacheKey := c.Request().URL.String() + kioskDeviceID
 
 	viewDataToRender := cachedViewData[0]
-	viewDataCache.Set(cacheKey, cachedViewData[1:], cache.DefaultExpiration)
+	ViewDataCache.Set(cacheKey, cachedViewData[1:], cache.DefaultExpiration)
 
 	// Update history which will be outdated in cache
 	trimHistory(&requestConfig.History, 10)
@@ -335,6 +402,8 @@ func renderCachedViewData(c echo.Context, cachedViewData []views.ViewData, reque
 
 // generateViewData generates page data for the current request.
 func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID string, isPrefetch bool) (views.ViewData, error) {
+
+	const maxImageRetrievalAttepmts = 3
 
 	viewData := views.ViewData{
 		DeviceID: kioskDeviceID,
@@ -353,11 +422,42 @@ func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID
 			return viewData, nil
 		}
 
-		viewDataSplitView, err = ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
+		// Second image
+		for i := 0; i < maxImageRetrievalAttepmts; i++ {
+			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
+			if err != nil {
+				return viewData, err
+			}
+
+			if viewDataSplitView.ImmichImage.ID != viewDataSplitViewSecond.ImmichImage.ID {
+				viewData.Images = append(viewData.Images, viewDataSplitViewSecond)
+				break
+			}
+		}
+
+	case "splitview-landscape":
+		viewDataSplitView, err := ProcessViewImageData(requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
 		}
 		viewData.Images = append(viewData.Images, viewDataSplitView)
+
+		if viewDataSplitView.ImmichImage.IsPortrait {
+			return viewData, nil
+		}
+
+		// Second image
+		for i := 0; i < maxImageRetrievalAttepmts; i++ {
+			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
+			if err != nil {
+				return viewData, err
+			}
+
+			if viewDataSplitView.ImmichImage.ID != viewDataSplitViewSecond.ImmichImage.ID {
+				viewData.Images = append(viewData.Images, viewDataSplitViewSecond)
+				break
+			}
+		}
 
 	default:
 		viewDataSingle, err := ProcessViewImageData(requestConfig, c, isPrefetch)

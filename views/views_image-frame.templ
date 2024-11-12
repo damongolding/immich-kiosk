@@ -1,0 +1,27 @@
+package views
+
+import "github.com/damongolding/immich-kiosk/immich"
+
+// frame is a template function that renders a basic frame for an image.
+// It wraps the child content in a div with the class "frame--image".
+templ frame() {
+	<div class="frame--image">
+		{ children... }
+	</div>
+}
+
+// frameWithZoom is a template function that renders a frame with zoom effect for an image.
+// It takes the refresh interval, image effect type, and the image asset as parameters.
+// Depending on the image effect, it applies different CSS classes for zooming.
+templ frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) {
+	switch imageEffect {
+		case "smart-zoom":
+			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect), smartZoom(img) }>
+				{ children... }
+			</div>
+		default:
+			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect) }>
+				{ children... }
+			</div>
+	}
+}

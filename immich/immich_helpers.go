@@ -1,11 +1,13 @@
 package immich
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/patrickmn/go-cache"
@@ -18,18 +20,7 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 	errorUnmarshalErr := json.Unmarshal(body, &immichError)
 	if errorUnmarshalErr != nil {
 		log.Error("Couldn't read error", "body", string(body), "url", apiUrl)
-		return value, fmt.Errorf(`
-			No data or error returned from Immich API.
-			<ul>
-				<li>Are your data source ID's correct (albumID, personID)?</li>
-				<li>Do those data sources have assets?</li>
-				<li>Is Immich online?</li>
-			</ul>
-			<p>
-				Full error:<br/><br/>
-				<code>%w</code>
-			</p>
-			`, err)
+		return value, err
 	}
 	log.Errorf("%s : %v", immichError.Error, immichError.Message)
 	return value, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
@@ -37,7 +28,7 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 
 // immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
 func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID string, jsonShape T) ImmichApiCall {
-	return func(method, apiUrl string, body io.Reader) ([]byte, error) {
+	return func(method, apiUrl string, body []byte) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
 			return immichApiCall(method, apiUrl, body)
@@ -88,38 +79,57 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 }
 
 // immichApiCall bootstrap for immich api call
-func (i *ImmichAsset) immichApiCall(method, apiUrl string, body io.Reader) ([]byte, error) {
+func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte, error) {
 
 	var responseBody []byte
 
-	client := &http.Client{}
-	req, err := http.NewRequest(method, apiUrl, body)
-	if err != nil {
-		log.Error(err)
-		return responseBody, err
+	for attempts := 0; attempts < 3; attempts++ {
+
+		var bodyReader io.Reader
+		if body != nil {
+			bodyReader = bytes.NewReader(body)
+		}
+
+		req, err := http.NewRequest(method, apiUrl, bodyReader)
+		if err != nil {
+			log.Error(err)
+			return responseBody, err
+		}
+
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("x-api-key", requestConfig.ImmichApiKey)
+
+		if method == "POST" || method == "PUT" || method == "PATCH" {
+			req.Header.Set("Content-Type", "application/json")
+		}
+
+		res, err := httpClient.Do(req)
+		if err != nil {
+			log.Error("Request failed, retrying", "attempt", attempts, "URL", apiUrl, "err", err)
+			time.Sleep(time.Duration(attempts) * time.Second)
+			continue
+		}
+
+		defer res.Body.Close()
+
+		if res.StatusCode < 200 || res.StatusCode >= 300 {
+			err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
+			log.Error(err)
+			_, _ = io.Copy(io.Discard, res.Body)
+			return responseBody, err
+		}
+
+		responseBody, err = io.ReadAll(res.Body)
+		if err != nil {
+			log.Error("reading response body", "url", apiUrl, "err", err)
+			return responseBody, err
+		}
+
+		return responseBody, nil
+
 	}
 
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", requestConfig.ImmichApiKey)
-
-	if method == "POST" {
-		req.Header.Add("Content-Type", "application/json")
-	}
-
-	res, err := client.Do(req)
-	if err != nil {
-		log.Error(err)
-		return responseBody, err
-	}
-	defer res.Body.Close()
-
-	responseBody, err = io.ReadAll(res.Body)
-	if err != nil {
-		log.Error(err)
-		return responseBody, err
-	}
-
-	return responseBody, err
+	return responseBody, fmt.Errorf("Request failed: max retries exceeded")
 }
 
 // ratioCheck checks if the given image matches the desired ratio.
@@ -181,12 +191,151 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 		return bytes, err
 	}
 
+	assetSize := "thumbnail"
+	if requestConfig.UseOriginalImage {
+		assetSize = "original"
+	}
+
 	apiUrl := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
-		Path:     "/api/assets/" + i.ID + "/thumbnail",
+		Path:     "/api/assets/" + i.ID + "/" + assetSize,
 		RawQuery: "size=preview",
 	}
 
 	return i.immichApiCall("GET", apiUrl.String(), nil)
+}
+
+func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
+	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
+		return 0, 0
+	}
+
+	var minX, minY, maxX, maxY int
+	initialized := false
+
+	for _, person := range i.People {
+		for _, face := range person.Faces {
+			if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
+				face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
+				continue
+			}
+
+			if !initialized {
+				minX, minY = face.BoundingBoxX1, face.BoundingBoxY1
+				maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
+				initialized = true
+				continue
+			} else {
+				minX = min(minX, face.BoundingBoxX1)
+				minY = min(minY, face.BoundingBoxY1)
+				maxX = max(maxX, face.BoundingBoxX2)
+				maxY = max(maxY, face.BoundingBoxY2)
+			}
+		}
+	}
+
+	for _, face := range i.UnassignedFaces {
+		if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
+			face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
+			continue
+		}
+
+		if !initialized {
+			minX, minY = face.BoundingBoxX1, face.BoundingBoxY1
+			maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
+			initialized = true
+			continue
+		} else {
+			minX = min(minX, face.BoundingBoxX1)
+			minY = min(minY, face.BoundingBoxY1)
+			maxX = max(maxX, face.BoundingBoxX2)
+			maxY = max(maxY, face.BoundingBoxY2)
+		}
+	}
+
+	if !initialized {
+		return 0, 0
+	}
+
+	centerX := float64(minX+maxX) / 2
+	centerY := float64(minY+maxY) / 2
+
+	var percentX, percentY float64
+	var imageWidth, imageHeight int
+
+	if len(i.People) != 0 {
+		imageWidth = i.People[0].Faces[0].ImageWidth
+		imageHeight = i.People[0].Faces[0].ImageHeight
+	} else {
+		imageWidth = i.UnassignedFaces[0].ImageWidth
+		imageHeight = i.UnassignedFaces[0].ImageHeight
+	}
+
+	if imageWidth == 0 || imageHeight == 0 {
+		return 0, 0
+	}
+
+	percentX = centerX / float64(imageWidth) * 100
+	percentY = centerY / float64(imageHeight) * 100
+
+	return percentX, percentY
+}
+
+func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
+	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
+		return 0, 0
+	}
+
+	var minX, minY, maxX, maxY int
+	initialized := false
+
+	for _, person := range i.People {
+		for _, face := range person.Faces {
+			if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
+				face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
+				continue
+			}
+
+			if !initialized {
+				minX, minY = face.BoundingBoxX1, face.BoundingBoxY1
+				maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
+				initialized = true
+				continue
+			} else {
+				minX = min(minX, face.BoundingBoxX1)
+				minY = min(minY, face.BoundingBoxY1)
+				maxX = max(maxX, face.BoundingBoxX2)
+				maxY = max(maxY, face.BoundingBoxY2)
+			}
+		}
+	}
+
+	for _, face := range i.UnassignedFaces {
+		if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
+			face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
+			continue
+		}
+
+		if !initialized {
+			minX, minY = face.BoundingBoxX1, face.BoundingBoxY1
+			maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
+			initialized = true
+			continue
+		} else {
+			minX = min(minX, face.BoundingBoxX1)
+			minY = min(minY, face.BoundingBoxY1)
+			maxX = max(maxX, face.BoundingBoxX2)
+			maxY = max(maxY, face.BoundingBoxY2)
+		}
+	}
+
+	if !initialized {
+		return 0, 0
+	}
+
+	centerX := float64(minX+maxX) / 2
+	centerY := float64(minY+maxY) / 2
+
+	return centerX, centerY
 }

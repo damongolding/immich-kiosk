@@ -54,11 +54,14 @@
   - [Albums](#albums)
   - [People](#people)
   - [Image fit](#image-fit)
+  - [Image effects](#image-effects)
   - [Date format](#date-format)
   - [Themes](#themes)
   - [Layouts](#layouts)
   - [Sleep mode](#sleep-mode)
   - [Cusom CSS](#custom-css)
+  - [Weather](#weather)
+- [PWA](#pwa)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -70,6 +73,7 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 
 ## Requirements
 - A reachable Immich server that is running version v1.117.0 or above.
+- A browser from [this supported list](https://browserslist.dev/?q=PiAwLjIl) or higher.
 
 ## Key features
 - Simple installation and updates via Docker.
@@ -94,11 +98,84 @@ On the pi connected to the TV you want to display a random image from your libra
 
 Using this URL `http://{URL}?image_fit=cover&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID` would achieve what we want.
 
+## Example 2
+Fanyang Meng created a digital picture frame using a Raspberry Pi Zero 2 W and Kiosk. You can read the blog post about the process [here](https://fanyangmeng.blog/build-a-selfhosted-digital-frame/).
+
 
 ------
 
 ## Installation
-Use via [docker](#docker-compose) 👇
+There are two main ways to install Kiosk.
+
+### Docker (recommended)
+
+#### *Option 1: Add Kiosk to your exsiting Immich compose stack.*
+
+  1. Add the [kiosk service](#docker-compose) to your Immich `docker-compose.yaml` file.
+
+  Follow from step 3 in option 2 to create the `config.yaml` file.
+
+#### *Option 2: Create a seprate compose file for Kiosk.*
+
+  1. Create a directory of your choice (e.g. ./immich-kiosk) to hold the `docker-compose.yaml` and config file.
+     ```sh
+     mkdir ./immich-kiosk
+     cd ./immich-kiosk
+     ```
+  2. Download `docker-compose.yaml`.
+
+     ```sh
+     wget -O docker-compose.yaml https://raw.githubusercontent.com/damongolding/immich-kiosk/refs/heads/main/docker-compose.yaml
+     ```
+
+     Set `TZ` to a `TZ identifier` from [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
+
+  3. Create the `config.yaml` file.
+
+     > You may use [environment variables](#when-using-environment-variables) if preferred.
+
+     Create config dir and download `config.yaml` file.
+
+     ```sh
+     mkdir ./config
+     wget -O ./config/config.yaml https://raw.githubusercontent.com/damongolding/immich-kiosk/refs/heads/main/config.example.yaml
+     ```
+
+  4. Modify `config.yaml` file.
+
+     Only the `immich_url` and `immich_api_key` are required fields.
+
+  5. Start the container
+
+     ```sh
+     docker compose up -d
+     ```
+
+### Binary
+
+> [!TIP]
+> Use something like `systemd` to automate starting the Kiosk binary.
+
+1. Download the binary file
+   Vist [the latest release](https://github.com/damongolding/immich-kiosk/releases/latest) and scroll to the assets at the bottom of the release notes.
+   Download the archive file that matches your machines architecture and unarchive.
+
+2. Create config dir and download `config.yaml` file.
+
+   ```sh
+   mkdir ./config
+   wget -O ./config/config.yaml url
+   ```
+
+3. Modify `config.yaml` file.
+
+   Only the `immich_url` and `immich_api_key` are required fields.
+
+4. Start Kiosk
+   ```sh
+   ./kiosk
+   ```
+
 
 ------
 
@@ -106,8 +183,9 @@ Use via [docker](#docker-compose) 👇
 
 > [!NOTE]
 > You can use both a yaml file and environment variables but environment variables will overwrite settings from the yaml file
+> Set `TZ` to a `TZ identifier` from [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
 
-### When using a yaml config file
+### When using a `config.yaml` config file
 ```yaml
 services:
   immich-kiosk:
@@ -116,15 +194,16 @@ services:
     environment:
       TZ: "Europe/London"
     volumes:
-      - ./config.yaml:/config.yaml
-    restart: on-failure
+      # Mount the directory with config.yaml inside
+      - ./config:/config
+    restart: always
     ports:
       - 3000:3000
 ```
 
 ### When using environment variables
 
-> [!NOTE]
+> [!TIP]
 > You do not need to specifiy all of these.
 > If you want the default behaviour/value you can omit it from you compose file.
 
@@ -139,51 +218,57 @@ services:
       KIOSK_IMMICH_API_KEY: "****"
       KIOSK_IMMICH_URL: "****"
       # Clock
-      KIOSK_SHOW_TIME: FALSE
+      KIOSK_SHOW_TIME: false
       KIOSK_TIME_FORMAT: 24
-      KIOSK_SHOW_DATE: FALSE
+      KIOSK_SHOW_DATE: false
       KIOSK_DATE_FORMAT: YYYY/MM/DD
       # Kiosk behaviour
       KIOSK_REFRESH: 60
-      KIOSK_DISABLE_SCREENSAVER: FALSE
+      KIOSK_DISABLE_SCREENSAVER: false
       # Asset sources
-      KIOSK_SHOW_ARCHIVED: FALSE
+      KIOSK_SHOW_ARCHIVED: false
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
       # UI
-      KIOSK_DISABLE_UI: FALSE
-      KIOSK_HIDE_CURSOR: FALSE
+      KIOSK_DISABLE_UI: false
+      KIOSK_HIDE_CURSOR: false
       KIOSK_FONT_SIZE: 100
-      KIOSK_BACKGROUND_BLUR: TRUE
-      KIOSK_THEME: FADE
+      KIOSK_BACKGROUND_BLUR: true
+      KIOSK_THEME: fade
       KIOSK_LAYOUT: single
       # Sleep mode
-      KIOSK_SLEEP_START: 22
-      KIOSK_SLEEP_END: 7
+      # KIOSK_SLEEP_START: 22
+      # KIOSK_SLEEP_END: 7
       # Transistion options
-      KIOSK_TRANSITION: NONE
+      KIOSK_TRANSITION: none
       KIOSK_FADE_TRANSITION_DURATION: 1
       KIOSK_CROSS_FADE_TRANSITION_DURATION: 1
       # Image display settings
-      KIOSK_SHOW_PROGRESS: FALSE
-      KIOSK_IMAGE_FIT: CONTAIN
-      KIOSK_IMAGE_ZOOM: FALSE
-      KIOSK_IMAGE_ZOOM_AMOUNT: 120
+      KIOSK_SHOW_PROGRESS: false
+      KIOSK_IMAGE_FIT: contain
+      KIOSK_IMAGE_EFFECT: smart-zoom
+      KIOSK_IMAGE_EFFECT_AMOUNT: 120
+      KIOSK_USE_ORIGINAL_IMAGE: false
       # Image metadata
-      KIOSK_SHOW_IMAGE_TIME: FALSE
+      KIOSK_SHOW_IMAGE_TIME: false
       KIOSK_IMAGE_TIME_FORMAT: 24
-      KIOSK_SHOW_IMAGE_DATE: FALSE
+      KIOSK_SHOW_IMAGE_DATE: false
       KIOSK_IMAGE_DATE_FORMAT: YYYY-MM-DD
-      KIOSK_SHOW_IMAGE_EXIF: FALSE
-      KIOSK_SHOW_IMAGE_LOCATION: FALSE
+      KIOSK_SHOW_IMAGE_EXIF: false
+      KIOSK_SHOW_IMAGE_LOCATION: false
+      KIOSK_HIDE_COUNTRIES: "HIDDEN_COUNTRY,HIDDEN_COUNTRY"
+      KIOSK_SHOW_IMAGE_ID: false
       # Kiosk settings
+      KIOSK_WATCH_CONFIG: false
+      KIOSK_FETCHED_ASSETS_SIZE: 1000
       KIOSK_PASSWORD: ""
-      KIOSK_CACHE: TRUE
-      KIOSK_PREFETCH: TRUE
-      KIOSK_ASSET_WEIGHTING: TRUE
+      KIOSK_CACHE: true
+      KIOSK_PREFETCH: true
+      KIOSK_ASSET_WEIGHTING: true
+      KIOSK_PORT: 3000
     ports:
       - 3000:3000
-    restart: on-failure
+    restart: always
 ```
 
 ------
@@ -200,7 +285,7 @@ See the file config.example.yaml for an example config file
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
-| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking.        |
+| disable_screensaver              | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
@@ -218,14 +303,17 @@ See the file config.example.yaml for an example config file
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
 | [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | contain     | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
-| image_zoom                        | KIOSK_IMAGE_ZOOM        | bool                       | false       | Add a zoom effect to images.                                                               |
-| image_zoom_amount                 | KIOSK_IMAGE_ZOOM_AMOUNT | int                        | 120         | The amount to zoom out/in on an image as a percentage. DO NOT include the % character. 100 is the minimum. |
+| [image_effect](#image-effects)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom    | ""          | Add an effect to images.                                                               |
+| [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                   | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
+| use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE This will mostly likey cause kiosk to use more CPU and RAM resources. |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
 | [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information. |
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF   | bool                       | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION | bool                     | false       | Display the image location from METADATA (if available).                                   |
+| hide_countries                    | KIOSK_HIDE_COUNTRIES    | []string                   | []          | List of countries to hide from image_location                                                |
+| [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
@@ -244,12 +332,15 @@ kiosk:
 ```
 
 
-| **yaml**          | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
-|-------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
-| password          | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
-| cache             | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
-| prefetch          | KIOSK_PREFETCH          | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |
-| asset_weighting   | KIOSK_ASSET_WEIGHTING   | bool         | true        | Balances asset selection when multiple sources are used e.g. multiple people and albums. When enabled, sources with fewer assets will show less often. |
+| **yaml**            | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
+|---------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
+| port                | KIOSK_PORT              | int          | 3000        | Which port Kiosk should use. NOTE that is port will need to be reflected in your compose file e.g. `KIOSK_PORT:HOST_PORT` |
+| watch_config        | KIOSK_WATCH_CONFIG      | bool         | false       | Should Kiosk watch config.yaml file for changes. Reloads all connect clients if a change is detected. |
+| fetched_assets_size | KIOSK_FETCHED_ASSETS_SIZE | int        | 1000        | The number of assets (data) requested from Immich per api call. min=1 max=1000. |
+| password            | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
+| cache               | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
+| prefetch            | KIOSK_PREFETCH          | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |
+| asset_weighting     | KIOSK_ASSET_WEIGHTING   | bool         | true        | Balances asset selection when multiple sources are used e.g. multiple people and albums. When enabled, sources with fewer assets will show less often. |
 
 
 ------
@@ -261,7 +352,7 @@ example:
 
 `https://{URL}?refresh=120&background_blur=false&transition=none`
 
-Thos above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
+The above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
 
 ------
 
@@ -372,6 +463,25 @@ The image will cover the whole screen. To achieve this the image will mostly lik
 ### None
 The image is centered and displayed "as is". If the image is larger than your screen it will be scaled down to fit your screen.
 
+------
+
+## Image effects
+
+### zoom
+> [!NOTE]
+> [Image fit](#image-fit) is set to `cover` automatically when this effect is used.
+
+This effect zooms in or out to add movement to your images, with the center of the image as the focal point.
+
+### smart-zoom
+> [!NOTE]
+> [Image fit](#image-fit) is set to `cover` automatically when this effect is used.
+> If the image has multiple faces, Kiosk calculates the center of all faces to use as the focal point.
+
+Smart zoom works like the regular zoom but focuses on faces and includes both zooming and panning.
+
+> [!TIP]
+> To achieve a "Ken Burns" style effect change the `image_effect_amount` to somewhere between 200-400.
 
 ------
 
@@ -430,13 +540,26 @@ Display one image.
 ![Kiosk theme fade](/assets/theme-fade.jpeg)
 
 ### Splitview
+
 > [!NOTE]
 > Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
 > it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
 
-When a portrait image is fetched, Kiosk automatically retrieves a second portrait image and displays them side by side vertically. Landscape and square images are displayed individually.
+When a portrait image is fetched, Kiosk automatically retrieves a second portrait image\* and displays them side by side vertically. Landscape and square images are displayed individually.
+
+\* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
 
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
+
+### Splitview landscape
+
+> [!NOTE]
+> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
+> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
+
+When a landscape image is fetched, Kiosk automatically retrieves a second landscape image\* and displays them stacked horizontally. portrait and square images are displayed individually.
+
+\* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
 
 ------
 
@@ -465,14 +588,86 @@ Kiosk will display a black screen and can optionally shows a faint clock if `sho
 Custom CSS allows you to further customize Kiosk's appearance beyond the built-in themes and settings.
 
 To use custom CSS:
-1. Create a file named `custom.css` in the same directory as your `config.yaml` file.
+1. Create a file named `custom.css` in the same directory as your `docker-compose.yml` file.
 2. Add your custom CSS rules to this file.
+3. Mount the `custom.css` file in your container by adding the following line to the `volumes` section of your `docker-compose.yml`:
+```yaml
+volumes:
+  - ./config:/config
+  - ./custom.css:/custom.css
+```
+4. Restart your Kiosk container for the changes to take effect.
+
+> [!TIP]
+> Ensure that the path to your `custom.css` file is relative to your `docker-compose.yml` file.
 
 There is a `custom.example.css` file included that contains all the CSS selectors used by Kiosk, which you can use as a reference for your customizations.
 
 The custom CSS will apply to all devices connected to Kiosk by default.
 
-To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?cusom_css=false`
+To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?custom_css=false`
+
+------
+
+## Weather
+
+> [!NOTE]
+> To use the weather feature, you’ll need an API key from [OpenWeatherMap](https://openweathermap.org).
+
+> [!TIP]
+> OpenWeatherMap limits API usage to 60 calls per hour.
+> Since the kiosk refreshes weather data every 10 minutes, you can monitor up to 6 locations with a single API key.
+
+### Setting Up Weather Locations
+
+You can configure multiple locations in the `config.yaml` file, and choose which one to display using the URL query `weather=NAME`.
+
+### Weather Location Configuration Options:
+
+| **Value**   | **Description** |
+|-------------|-----------------|
+| name        | The location’s display name (used in the URL query). |
+| lat         | Latitude of the location. |
+| lon         | Longitude of the location. |
+| api         | OpenWeatherMap API key. |
+| unit        | Units of measurement (`standard`, `metric`, or `imperial`). |
+| lang        | Language code for weather descriptions (see the full list [here](https://openweathermap.org/current#multi)). |
+
+### Example Configuration
+
+Here’s an example of how to add London and New York to the config.yaml file. These locations would be selectable via the URL, like this:
+http://{URL}?weather=london or http://{URL}?weather=new-york.
+
+```yaml
+ weather:
+  - name: london
+    lat: 51.5285262
+    lon: -0.2663999
+    api: API_KEY
+    unit: metric
+    lang: en
+
+  - name: new-york
+    lat: 40.6973709
+    lon: -74.1444838
+    api: API_KEY
+    unit: imperial
+    lang: en
+```
+
+------
+
+## PWA
+
+> [!NOTE]
+> IOS does not allow PWA's to prevent the screen from going to sleep.
+> A work around is to lauch Kiosk then enable the [guided access](https://support.apple.com/en-gb/guide/iphone/iph7fad0d10/ios) feature.
+
+### IOS
+1. Open Safari and navigate to Kiosk.
+2. Tap on the share icon in Safari's navigation bar.
+3. Scroll till you see "Add to Home Screen" and tap it.
+4. Tap on the newly added Kiosk icon on your home screen!
 
 
 ------
@@ -593,7 +788,9 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ## TODO / Roadmap
 - Whitelist for people and albums
 - Exclude list
-- PWA
+- PWA (✔ basic implimetion)
+- Splitview related images
+- Docker/immich healthcheck?
 
 ------
 

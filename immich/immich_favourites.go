@@ -1,8 +1,9 @@
 package immich
 
 import (
-	"bytes"
+	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"net/url"
 
 	"github.com/charmbracelet/log"
@@ -26,7 +27,7 @@ func (i *ImmichAsset) favouriteImagesCount(requestID string) (int, error) {
 		IsFavorite: true,
 		WithPeople: false,
 		WithExif:   false,
-		Size:       1000,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	if requestConfig.ShowArchived {
@@ -54,10 +55,8 @@ func (i *ImmichAsset) favouriteImagesCount(requestID string) (int, error) {
 			log.Fatal("marshaling request body", err)
 		}
 
-		requestBodyReader := bytes.NewReader(jsonBody)
-
 		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, favourites)
-		apiBody, err := immichApiCall("POST", apiUrl.String(), requestBodyReader)
+		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, err = immichApiFail(favourites, err, apiBody, apiUrl.String())
 			return allFavouritesCount, err
@@ -101,7 +100,8 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 		Type:       string(ImageType),
 		IsFavorite: true,
 		WithExif:   true,
-		Size:       1000,
+		WithPeople: true,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	if requestConfig.ShowArchived {
@@ -115,7 +115,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     "api/search/random",
-		RawQuery: queries.Encode(),
+		RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
 	}
 
 	jsonBody, err := json.Marshal(requestBody)
@@ -123,10 +123,8 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 		log.Fatal("marshaling request body", err)
 	}
 
-	requestBodyReader := bytes.NewReader(jsonBody)
-
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAssets)
-	apiBody, err := immichApiCall("POST", apiUrl.String(), requestBodyReader)
+	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
 		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err

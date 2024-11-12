@@ -6,7 +6,7 @@
 package immich
 
 import (
-	"io"
+	"net/http"
 	"sync"
 	"time"
 
@@ -31,7 +31,7 @@ const (
 	AlbumKeywordAll        string = "all"
 	AlbumKeywordShared     string = "shared"
 	AlbumKeywordFavourites string = "favourites"
-	AlbumKeywordFavorites   string = "favorites"
+	AlbumKeywordFavorites  string = "favorites"
 )
 
 var (
@@ -41,6 +41,10 @@ var (
 	apiCache *cache.Cache
 	// apiCacheLock is used to synchronize access to the apiCache
 	apiCacheLock sync.Mutex
+	// httpClient default http client for Immich api calls
+	httpClient = &http.Client{
+		Timeout: time.Second * 20,
+	}
 )
 
 type ImmichPersonStatistics struct {
@@ -67,35 +71,35 @@ type ExifInfo struct {
 	FNumber          float64   `json:"fNumber"`
 	FocalLength      float64   `json:"focalLength"`
 	Iso              int       `json:"iso"`
-	ExposureTime     string    `json:"-"` // `json:"exposureTime"`
+	ExposureTime     string    `json:"exposureTime"`
 	Latitude         float64   `json:"-"` // `json:"latitude"`
 	Longitude        float64   `json:"-"` // `json:"longitude"`
 	City             string    `json:"city"`
 	State            string    `json:"state"`
 	Country          string    `json:"country"`
-	Description      string    `json:"-"` // `json:"description"`
+	Description      string    `json:"description"`
 	ProjectionType   any       `json:"-"` // `json:"projectionType"`
 	ImageOrientation ImageOrientation
 }
 
-type People []struct {
+type Person struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
 	BirthDate     any       `json:"-"` // `json:"birthDate"`
 	ThumbnailPath string    `json:"-"` // `json:"thumbnailPath"`
 	IsHidden      bool      `json:"-"` // `json:"isHidden"`
 	UpdatedAt     time.Time `json:"-"` // `json:"updatedAt"`
-	Faces         Faces     `json:"-"` // `json:"faces"`
+	Faces         []Face    `json:"faces"`
 }
 
-type Faces []struct {
-	ID            string `json:"-"` // `json:"id"`
-	ImageHeight   int    `json:"-"` // `json:"imageHeight"`
-	ImageWidth    int    `json:"-"` // `json:"imageWidth"`
-	BoundingBoxX1 int    `json:"-"` // `json:"boundingBoxX1"`
-	BoundingBoxX2 int    `json:"-"` // `json:"boundingBoxX2"`
-	BoundingBoxY1 int    `json:"-"` // `json:"boundingBoxY1"`
-	BoundingBoxY2 int    `json:"-"` // `json:"boundingBoxY2"`
+type Face struct {
+	ID            string `json:"id"`
+	ImageHeight   int    `json:"imageHeight"`
+	ImageWidth    int    `json:"imageWidth"`
+	BoundingBoxX1 int    `json:"boundingBoxX1"`
+	BoundingBoxX2 int    `json:"boundingBoxX2"`
+	BoundingBoxY1 int    `json:"boundingBoxY1"`
+	BoundingBoxY2 int    `json:"boundingBoxY2"`
 }
 
 type ImmichAsset struct {
@@ -119,8 +123,9 @@ type ImmichAsset struct {
 	IsTrashed        bool            `json:"isTrashed"`
 	Duration         string          `json:"-"` // `json:"duration"`
 	ExifInfo         ExifInfo        `json:"exifInfo"`
-	LivePhotoVideoID any             `json:"-"`        // `json:"livePhotoVideoId"`
-	People           People          `json:"people"`   // `json:"people"`
+	LivePhotoVideoID any             `json:"-"`      // `json:"livePhotoVideoId"`
+	People           []Person        `json:"people"` // `json:"people"`
+	UnassignedFaces  []Face          `json:"unassignedFaces"`
 	Checksum         string          `json:"checksum"` // `json:"checksum"`
 	StackCount       any             `json:"-"`        // `json:"stackCount"`
 	IsOffline        bool            `json:"-"`        // `json:"isOffline"`
@@ -129,11 +134,6 @@ type ImmichAsset struct {
 	RatioWanted      ImageOrientation
 	IsPortrait       bool
 	IsLandscape      bool
-}
-
-type ImmichBuckets []struct {
-	Count      int       `json:"count"`
-	TimeBucket time.Time `json:"timeBucket"`
 }
 
 type ImmichAlbum struct {
@@ -197,10 +197,10 @@ func NewImage(base config.Config) ImmichAsset {
 	return ImmichAsset{}
 }
 
-type ImmichApiCall func(string, string, io.Reader) ([]byte, error)
+type ImmichApiCall func(string, string, []byte) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse
+	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face
 }
 
 func FluchApiCache() {

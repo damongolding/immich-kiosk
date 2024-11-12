@@ -1,7 +1,7 @@
 /* --- offline icon --- */
 #offline {
     position: absolute;
-    top: 1rem;
+    bottom: 1rem;
     left: 50%;
     margin-left: -1.5rem;
     width: 3rem;

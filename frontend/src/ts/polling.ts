@@ -56,12 +56,18 @@ function updateKiosk(timestamp: number) {
 function startPolling() {
   progressBarElement = htmx.find(".progress--bar") as HTMLElement | null;
   progressBarElement?.classList.remove("progress--bar-paused");
-  menuPausePlayButton?.classList.remove("navigation--control--paused");
+  menuPausePlayButton?.classList.remove("navigation--play-pause--paused");
+
+  menuElement?.classList.add("navigation-hidden");
 
   lastPollTime = performance.now();
   pausedTime = null;
 
   animationFrameId = requestAnimationFrame(updateKiosk);
+
+  document.body.classList.remove("polling-paused");
+
+  isPaused = false;
 }
 
 /**
@@ -73,21 +79,24 @@ function stopPolling() {
   cancelAnimationFrame(animationFrameId as number);
 
   progressBarElement?.classList.add("progress--bar-paused");
-  menuPausePlayButton?.classList.add("navigation--control--paused");
+  menuPausePlayButton?.classList.add("navigation--play-pause--paused");
 }
 
 /**
  * Pause the polling process
  */
-function pausePolling() {
+function pausePolling(showMenu = true) {
   if (isPaused && animationFrameId === null) return;
 
   cancelAnimationFrame(animationFrameId as number);
   pausedTime = performance.now();
 
   progressBarElement?.classList.add("progress--bar-paused");
-  menuPausePlayButton?.classList.add("navigation--control--paused");
-  menuElement?.classList.remove("navigation-hidden");
+  menuPausePlayButton?.classList.add("navigation--play-pause--paused");
+  if (showMenu) {
+    menuElement?.classList.remove("navigation-hidden");
+    document.body.classList.add("polling-paused");
+  }
 
   isPaused = true;
 }
@@ -101,8 +110,10 @@ function resumePolling() {
   animationFrameId = requestAnimationFrame(updateKiosk);
 
   progressBarElement?.classList.remove("progress--bar-paused");
-  menuPausePlayButton?.classList.remove("navigation--control--paused");
+  menuPausePlayButton?.classList.remove("navigation--play-pause--paused");
   menuElement?.classList.add("navigation-hidden");
+
+  document.body.classList.remove("polling-paused");
 
   isPaused = false;
 }
@@ -114,4 +125,10 @@ function togglePolling() {
   isPaused ? resumePolling() : pausePolling();
 }
 
-export { initPolling, startPolling, togglePolling };
+export {
+  initPolling,
+  startPolling,
+  pausePolling,
+  resumePolling,
+  togglePolling,
+};

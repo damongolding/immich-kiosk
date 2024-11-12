@@ -3,10 +3,11 @@ module github.com/damongolding/immich-kiosk
 go 1.23.2
 
 require (
-	github.com/a-h/templ v0.2.778
-	github.com/charmbracelet/lipgloss v0.13.0
+	github.com/a-h/templ v0.2.793
+	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/charmbracelet/log v0.4.0
 	github.com/disintegration/imaging v1.6.2
+	github.com/fogleman/gg v1.3.0
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.12.0
@@ -14,17 +15,20 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/viper v1.20.0-alpha.6
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/image v0.20.0
+	golang.org/x/image v0.22.0
+	golang.org/x/text v0.20.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/charmbracelet/x/ansi v0.3.2 // indirect
+	github.com/charmbracelet/x/ansi v0.4.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -47,7 +51,5 @@ require (
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
-	golang.org/x/text v0.18.0 // indirect
-	golang.org/x/time v0.6.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	golang.org/x/time v0.5.0 // indirect
 )

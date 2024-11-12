@@ -40,7 +40,10 @@ var kiosk = (() => {
   // src/ts/kiosk.ts
   var kiosk_exports = {};
   __export(kiosk_exports, {
+    checkHistoryExists: () => checkHistoryExists,
     cleanupFrames: () => cleanupFrames,
+    releaseRequestLock: () => releaseRequestLock,
+    setRequestLock: () => setRequestLock,
     startPolling: () => startPolling
   });
 
@@ -3727,32 +3730,39 @@ var kiosk = (() => {
   function startPolling() {
     progressBarElement = htmx_esm_default.find(".progress--bar");
     progressBarElement == null ? void 0 : progressBarElement.classList.remove("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--control--paused");
+    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--play-pause--paused");
+    menuElement == null ? void 0 : menuElement.classList.add("navigation-hidden");
     lastPollTime = performance.now();
     pausedTime = null;
     animationFrameId = requestAnimationFrame(updateKiosk);
+    document.body.classList.remove("polling-paused");
+    isPaused = false;
   }
   function stopPolling() {
     if (isPaused && animationFrameId === null) return;
     cancelAnimationFrame(animationFrameId);
     progressBarElement == null ? void 0 : progressBarElement.classList.add("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--control--paused");
+    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--play-pause--paused");
   }
-  function pausePolling() {
+  function pausePolling(showMenu = true) {
     if (isPaused && animationFrameId === null) return;
     cancelAnimationFrame(animationFrameId);
     pausedTime = performance.now();
     progressBarElement == null ? void 0 : progressBarElement.classList.add("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--control--paused");
-    menuElement == null ? void 0 : menuElement.classList.remove("navigation-hidden");
+    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--play-pause--paused");
+    if (showMenu) {
+      menuElement == null ? void 0 : menuElement.classList.remove("navigation-hidden");
+      document.body.classList.add("polling-paused");
+    }
     isPaused = true;
   }
   function resumePolling() {
     if (!isPaused) return;
     animationFrameId = requestAnimationFrame(updateKiosk);
     progressBarElement == null ? void 0 : progressBarElement.classList.remove("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--control--paused");
+    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--play-pause--paused");
     menuElement == null ? void 0 : menuElement.classList.add("navigation-hidden");
+    document.body.classList.remove("polling-paused");
     isPaused = false;
   }
   function togglePolling() {
@@ -3760,24 +3770,59 @@ var kiosk = (() => {
   }
 
   // src/ts/wakelock.ts
-  var wakeLock = () => __async(void 0, null, function* () {
-    if ("wakeLock" in navigator) {
-      let wakeLock2 = null;
-      const requestWakeLock = () => __async(void 0, null, function* () {
+  var preventSleep = () => __async(void 0, null, function* () {
+    let wakeLock = null;
+    const requestWakeLock = () => __async(void 0, null, function* () {
+      if ("wakeLock" in navigator) {
         try {
-          wakeLock2 = yield navigator.wakeLock.request("screen");
+          wakeLock = yield navigator.wakeLock.request("screen");
+          wakeLock.addEventListener("release", () => {
+            wakeLock = null;
+          });
         } catch (err) {
-          console.error(`${err.name}, ${err.message}`);
+          if (err instanceof TypeError) {
+            try {
+              wakeLock = yield navigator.wakeLock.request();
+              wakeLock.addEventListener("release", () => {
+                wakeLock = null;
+              });
+            } catch (genericErr) {
+              console.error("Failed to acquire Wake Lock:", genericErr);
+            }
+          } else {
+            console.error("Error acquiring Wake Lock:", err);
+          }
         }
-      });
-      document.addEventListener("visibilitychange", () => {
-        if (wakeLock2 !== null && document.visibilityState === "visible") {
-          requestWakeLock();
-        }
-      });
-      yield requestWakeLock();
-    }
+      }
+    });
+    const handleVisibilityChange = () => __async(void 0, null, function* () {
+      if (document.visibilityState === "visible") {
+        yield requestWakeLock();
+      }
+    });
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    yield requestWakeLock();
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      wakeLock == null ? void 0 : wakeLock.release();
+    };
   });
+
+  // src/ts/menu.ts
+  var nextImageMenuButton;
+  var prevImageMenuButton;
+  function disableImageNavigationButtons() {
+    htmx_esm_default.addClass(nextImageMenuButton, "disabled");
+    htmx_esm_default.addClass(prevImageMenuButton, "disabled");
+  }
+  function enableImageNavigationButtons() {
+    htmx_esm_default.removeClass(nextImageMenuButton, "disabled");
+    htmx_esm_default.removeClass(prevImageMenuButton, "disabled");
+  }
+  function initMenu(nextImageButton, prevImageButton) {
+    nextImageMenuButton = nextImageButton;
+    prevImageMenuButton = prevImageButton;
+  }
 
   // src/ts/kiosk.ts
   var _a;
@@ -3789,30 +3834,55 @@ var kiosk = (() => {
   var fullscreenButton = htmx_esm_default.find(
     ".navigation--fullscreen"
   );
+  var fullScreenButtonSeperator = htmx_esm_default.find(
+    ".navigation--fullscreen-separator"
+  );
   var kiosk = htmx_esm_default.find("#kiosk");
   var menu = htmx_esm_default.find(".navigation");
   var menuInteraction = htmx_esm_default.find(
-    "#navigation-interaction-area"
+    "#navigation-interaction-area--menu"
   );
+  var nextImageArea = htmx_esm_default.find("#navigation-interaction-area--next-image");
+  var prevImageArea = htmx_esm_default.find("#navigation-interaction-area--previous-image");
   var menuPausePlayButton2 = htmx_esm_default.find(
-    ".navigation--control"
+    ".navigation--play-pause"
   );
+  var nextImageMenuButton2 = htmx_esm_default.find(".navigation--next-image");
+  var prevImageMenuButton2 = htmx_esm_default.find(".navigation--prev-image");
+  var requestInFlight = false;
   function init() {
-    if (kioskData.debugVerbose) {
-      htmx_esm_default.logAll();
-    }
-    if (kioskData.disableScreensaver) {
-      wakeLock();
-    }
-    if (!fullscreenAPI.requestFullscreen) {
-      fullscreenButton && htmx_esm_default.remove(fullscreenButton);
-    }
-    if (pollInterval2) {
-      initPolling(pollInterval2, kiosk, menu, menuPausePlayButton2);
-    } else {
-      console.error("Could not start polling");
-    }
-    addEventListeners();
+    return __async(this, null, function* () {
+      if (kioskData.debugVerbose) {
+        htmx_esm_default.logAll();
+      }
+      if (kioskData.disableScreensaver) {
+        yield preventSleep();
+      }
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/assets/js/sw.js").then(
+          function(registration) {
+            console.log("ServiceWorker registration successful");
+          },
+          function(err) {
+            console.log("ServiceWorker registration failed: ", err);
+          }
+        );
+      }
+      if (!fullscreenAPI.requestFullscreen) {
+        fullscreenButton && htmx_esm_default.remove(fullscreenButton);
+        fullScreenButtonSeperator && htmx_esm_default.remove(fullScreenButtonSeperator);
+      }
+      if (pollInterval2) {
+        initPolling(pollInterval2, kiosk, menu, menuPausePlayButton2);
+      } else {
+        console.error("Could not start polling");
+      }
+      initMenu(
+        nextImageMenuButton2,
+        prevImageMenuButton2
+      );
+      addEventListeners();
+    });
   }
   function handleFullscreenClick() {
     toggleFullscreen(documentBody, fullscreenButton);
@@ -3820,6 +3890,12 @@ var kiosk = (() => {
   function addEventListeners() {
     menuInteraction == null ? void 0 : menuInteraction.addEventListener("click", togglePolling);
     menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        togglePolling();
+      }
+    });
     fullscreenButton == null ? void 0 : fullscreenButton.addEventListener("click", handleFullscreenClick);
     addFullscreenEventListener(fullscreenButton);
     htmx_esm_default.on("htmx:afterRequest", function(e) {
@@ -3838,9 +3914,32 @@ var kiosk = (() => {
   function cleanupFrames() {
     const frames = htmx_esm_default.findAll(".frame");
     if (frames.length > 3) {
-      htmx_esm_default.remove(frames[0], 3e3);
+      htmx_esm_default.remove(frames[0]);
     }
   }
-  htmx_esm_default.onLoad(init);
+  function setRequestLock(e) {
+    if (requestInFlight) {
+      e.preventDefault();
+      return;
+    }
+    pausePolling(false);
+    disableImageNavigationButtons();
+    requestInFlight = true;
+  }
+  function releaseRequestLock() {
+    enableImageNavigationButtons();
+    requestInFlight = false;
+  }
+  function checkHistoryExists(e) {
+    const historyItems = htmx_esm_default.findAll(".kiosk-history--entry");
+    if (requestInFlight || historyItems.length < 2) {
+      e.preventDefault();
+      return;
+    }
+    setRequestLock(e);
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    init();
+  });
   return __toCommonJS(kiosk_exports);
 })();

@@ -1,0 +1,24 @@
+#clock-weather-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    top: 0;
+    left: 0;
+
+    z-index: 10000;
+}
+
+/* Splitview */
+.layout-splitview #clock-weather-container {
+    flex-direction: row;
+    width: 100%;
+    height: auto;
+}
+
+.sleep #clock-weather-container {
+    height: 100%;
+    width: 100%;
+    z-index: 99999;
+}
