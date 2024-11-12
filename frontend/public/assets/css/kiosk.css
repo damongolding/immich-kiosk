@@ -1324,6 +1324,9 @@ body {
           justify-content: center;
   cursor: pointer;
 }
+.navigation--item:hover {
+    background-color: rgb(51 52 96 / 60%);
+  }
 .navigation--item--separator {
   border: 0.0625rem solid rgba(255, 255, 255, 0.2);
 }
@@ -1377,6 +1380,12 @@ body {
     display: none;
     visibility: hidden;
   }
+.navigation--next-image {
+  border-radius: 0 60rem 60rem 0;
+}
+.navigation--prev-image {
+  border-radius: 60rem 0 0 60rem;
+}
 .navigation--next-image.disabled,
 .navigation--prev-image.disabled {
   opacity: 0.5;

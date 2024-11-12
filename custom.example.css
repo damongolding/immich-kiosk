@@ -128,6 +128,7 @@ from{}
 #navigation-interaction-area--menu{}
 .navigation{}
 .navigation--item{}
+.navigation--item:hover{}
 .navigation--item--separator{}
 .navigation-hidden{}
 .navigation svg{}
@@ -141,6 +142,8 @@ from{}
 .navigation--play-pause--play{}
 .navigation--control--paused .navigation--control--play{}
 .navigation--control--paused .navigation--control--pause{}
+.navigation--next-image{}
+.navigation--prev-image{}
 .navigation--prev-image.disabled{}
 /* src/css/sleep.css */
 #sleep-controller{}
