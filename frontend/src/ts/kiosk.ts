@@ -99,11 +99,14 @@ async function init() {
     console.error("Could not start polling");
   }
 
-  initMenu(
-    nextImageMenuButton as HTMLElement,
-    prevImageMenuButton as HTMLElement,
-  );
-
+  if (nextImageMenuButton && prevImageMenuButton) {
+    initMenu(
+      nextImageMenuButton as HTMLElement,
+      prevImageMenuButton as HTMLElement,
+    );
+  } else {
+    console.error("Menu buttons not found");
+  }
   addEventListeners();
 }
 
