@@ -561,7 +561,7 @@ body {
      -moz-animation-name: image-smart-zoom-in;
           animation-name: image-smart-zoom-in;
 }
-.frame--image-pan-zoom {
+.frame--image-pan {
   background-repeat: no-repeat;
   -webkit-animation-timing-function: linear;
      -moz-animation-timing-function: linear;
@@ -573,7 +573,7 @@ body {
      -moz-animation-direction: normal;
           animation-direction: normal;
 }
-@-webkit-keyframes image-pan-zoom-lb-tr {
+@-webkit-keyframes image-pan-lb-tr {
   0% {
     background-position: bottom left;
   }
@@ -581,7 +581,7 @@ body {
     background-position: top right;
   }
 }
-@-moz-keyframes image-pan-zoom-lb-tr {
+@-moz-keyframes image-pan-lb-tr {
   0% {
     background-position: bottom left;
   }
@@ -589,7 +589,7 @@ body {
     background-position: top right;
   }
 }
-@keyframes image-pan-zoom-lb-tr {
+@keyframes image-pan-lb-tr {
   0% {
     background-position: bottom left;
   }
@@ -597,7 +597,7 @@ body {
     background-position: top right;
   }
 }
-@-webkit-keyframes image-pan-zoom-br-tl {
+@-webkit-keyframes image-pan-br-tl {
   0% {
     background-position: bottom right;
   }
@@ -605,7 +605,7 @@ body {
     background-position: top left;
   }
 }
-@-moz-keyframes image-pan-zoom-br-tl {
+@-moz-keyframes image-pan-br-tl {
   0% {
     background-position: bottom right;
   }
@@ -613,7 +613,7 @@ body {
     background-position: top left;
   }
 }
-@keyframes image-pan-zoom-br-tl {
+@keyframes image-pan-br-tl {
   0% {
     background-position: bottom right;
   }
@@ -621,7 +621,7 @@ body {
     background-position: top left;
   }
 }
-@-webkit-keyframes image-pan-zoom-tr-bl {
+@-webkit-keyframes image-pan-tr-bl {
   0% {
     background-position: top right;
   }
@@ -629,7 +629,7 @@ body {
     background-position: bottom left;
   }
 }
-@-moz-keyframes image-pan-zoom-tr-bl {
+@-moz-keyframes image-pan-tr-bl {
   0% {
     background-position: top right;
   }
@@ -637,7 +637,7 @@ body {
     background-position: bottom left;
   }
 }
-@keyframes image-pan-zoom-tr-bl {
+@keyframes image-pan-tr-bl {
   0% {
     background-position: top right;
   }
@@ -645,7 +645,7 @@ body {
     background-position: bottom left;
   }
 }
-@-webkit-keyframes image-pan-zoom-tl-br {
+@-webkit-keyframes image-pan-tl-br {
   0% {
     background-position: top left;
   }
@@ -653,7 +653,7 @@ body {
     background-position: bottom right;
   }
 }
-@-moz-keyframes image-pan-zoom-tl-br {
+@-moz-keyframes image-pan-tl-br {
   0% {
     background-position: top left;
   }
@@ -661,7 +661,7 @@ body {
     background-position: bottom right;
   }
 }
-@keyframes image-pan-zoom-tl-br {
+@keyframes image-pan-tl-br {
   0% {
     background-position: top left;
   }
@@ -669,7 +669,7 @@ body {
     background-position: bottom right;
   }
 }
-.polling-paused .frame--image-pan-zoom,
+.polling-paused .frame--image-pan,
 .polling-paused .frame:nth-last-of-type(-n+2) img {
   -webkit-animation-play-state: paused;
      -moz-animation-play-state: paused;
@@ -681,7 +681,7 @@ body {
     max-width: 50vw;
   }
   .image--metadata--desciption {
-    max-width: 100%;
+    max-width: 100% !important;
   }
   .image--metadata--date,
   .image--metadata--exif,

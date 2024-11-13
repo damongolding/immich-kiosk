@@ -9,7 +9,6 @@ import {
   startPolling,
   togglePolling,
   pausePolling,
-  resumePolling,
 } from "./polling";
 import { preventSleep } from "./wakelock";
 import {
@@ -17,19 +16,19 @@ import {
   disableImageNavigationButtons,
   enableImageNavigationButtons,
 } from "./menu";
+import { initImageEffects } from "./image-effects";
 
 ("use strict");
 
-/**
- * Type definition for kiosk configuration data
- */
-type KioskData = {
+export type KioskData = {
   debug: boolean;
   debugVerbose: boolean;
   version: string;
   params: Record<string, unknown>;
   refresh: number;
   disableScreensaver: boolean;
+  imageEffect: string;
+  imageEffectAmount: Number;
 };
 
 // Parse kiosk data from the HTML element
@@ -103,6 +102,8 @@ async function init() {
     nextImageMenuButton as HTMLElement,
     prevImageMenuButton as HTMLElement,
   );
+
+  initImageEffects(kioskData);
 
   addEventListeners();
 }

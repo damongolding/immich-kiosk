@@ -366,6 +366,8 @@ templ Home(viewData ViewData) {
 				"params":             quriesToJson(viewData.Queries),
 				"refresh":            viewData.Refresh,
 				"disableScreensaver": viewData.DisableScreensaver,
+				"imageEffect":        viewData.ImageEffect,
+				"imageEffectAmount":  viewData.ImageEffectAmount,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			if len(viewData.Queries) > 0 {

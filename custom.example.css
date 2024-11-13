@@ -54,29 +54,29 @@ from{}
 .frame:nth-last-of-type(-n+2) .frame--image-zoom-out img{}
 .frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-out img{}
 .frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-in img{}
-.frame--image-pan-zoom{}
-@-webkit-keyframes image-pan-zoom-lb-tr{}
+.frame--image-pan{}
+@-webkit-keyframes image-pan-lb-tr{}
 0%{}
 100%{}
-@-moz-keyframes image-pan-zoom-lb-tr{}
+@-moz-keyframes image-pan-lb-tr{}
 0%{}
 100%{}
-@-webkit-keyframes image-pan-zoom-br-tl{}
+@-webkit-keyframes image-pan-br-tl{}
 0%{}
 100%{}
-@-moz-keyframes image-pan-zoom-br-tl{}
+@-moz-keyframes image-pan-br-tl{}
 0%{}
 100%{}
-@-webkit-keyframes image-pan-zoom-tr-bl{}
+@-webkit-keyframes image-pan-tr-bl{}
 0%{}
 100%{}
-@-moz-keyframes image-pan-zoom-tr-bl{}
+@-moz-keyframes image-pan-tr-bl{}
 0%{}
 100%{}
-@-webkit-keyframes image-pan-zoom-tl-br{}
+@-webkit-keyframes image-pan-tl-br{}
 0%{}
 100%{}
-@-moz-keyframes image-pan-zoom-tl-br{}
+@-moz-keyframes image-pan-tl-br{}
 0%{}
 100%{}
 .polling-paused .frame:nth-last-of-type(-n+2) img{}

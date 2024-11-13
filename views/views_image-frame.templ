@@ -30,18 +30,30 @@ templ frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) {
 	}
 }
 
-css imageEffectPanning(refresh int, imageData string, effectAmount int) {
-	animation-name: { randomPanDirection() };
-	animation-duration: { templ.SafeCSSProperty(fmt.Sprintf("%vs", refresh+20)) };
-	background-size: { templ.SafeCSSProperty(fmt.Sprintf("%v%% auto", effectAmount)) };
+func panBackgroundSize(imageIsPortrait bool, effectAmount int) string {
+	if imageIsPortrait {
+		return fmt.Sprintf("%v%% auto", effectAmount)
+
+	}
+	return fmt.Sprintf("auto %v%% ", effectAmount)
+
+}
+
+css imageEffectPanning(refresh int, imageData string) {
+	animation-name: { templ.SafeCSSProperty(randomPanDirection()) };
+	animation-duration: { templ.SafeCSSProperty(fmt.Sprintf("%vs", refresh+(refresh/3))) };
 	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url(%s)", imageData)) };
 }
 
 func randomPanDirection() string {
 	pick := utils.RandomItem([]string{"lb-tr", "br-tl", "tr-bl", "tl-br"})
-	return "image-pan-zoom-" + pick
+	return "image-pan-" + pick
 }
 
-templ frameWithPan(refresh int, imageData string, effectAmount int) {
-	<div class={ "frame--image frame--image-pan-zoom", imageEffectPanning(refresh, imageData, effectAmount) }></div>
+templ frameWithPan(refresh int, imageData ImageData) {
+	<div
+		data-imagewidth={ fmt.Sprintf("%v", imageData.ImmichImage.ExifInfo.ExifImageWidth) }
+		data-imageheight={ fmt.Sprintf("%v", imageData.ImmichImage.ExifInfo.ExifImageHeight) }
+		class={ "frame--image frame--image-pan", imageEffectPanning(refresh, imageData.ImageData) }
+	></div>
 }

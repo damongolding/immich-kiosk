@@ -371,8 +371,8 @@ func renderImage(viewData ViewData, imageData ImageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		case "pan-zoom":
-			templ_7745c5c3_Err = frameWithPan(viewData.Refresh, imageData.ImageData, viewData.ImageEffectAmount).Render(ctx, templ_7745c5c3_Buffer)
+		case "pan":
+			templ_7745c5c3_Err = frameWithPan(viewData.Refresh, imageData).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

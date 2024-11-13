@@ -145,11 +145,19 @@ func frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) temp
 	})
 }
 
-func imageEffectPanning(refresh int, imageData string, effectAmount int) templ.CSSClass {
+func panBackgroundSize(imageIsPortrait bool, effectAmount int) string {
+	if imageIsPortrait {
+		return fmt.Sprintf("%v%% auto", effectAmount)
+
+	}
+	return fmt.Sprintf("auto %v%% ", effectAmount)
+
+}
+
+func imageEffectPanning(refresh int, imageData string) templ.CSSClass {
 	templ_7745c5c3_CSSBuilder := templruntime.GetBuilder()
-	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`animation-name`, randomPanDirection())))
-	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`animation-duration`, templ.SafeCSSProperty(fmt.Sprintf("%vs", refresh+20)))))
-	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`background-size`, templ.SafeCSSProperty(fmt.Sprintf("%v%% auto", effectAmount)))))
+	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`animation-name`, templ.SafeCSSProperty(randomPanDirection()))))
+	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`animation-duration`, templ.SafeCSSProperty(fmt.Sprintf("%vs", refresh+(refresh/3))))))
 	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`background-image`, templ.SafeCSSProperty(fmt.Sprintf("url(%s)", imageData)))))
 	templ_7745c5c3_CSSID := templ.CSSID(`imageEffectPanning`, templ_7745c5c3_CSSBuilder.String())
 	return templ.ComponentCSSClass{
@@ -160,10 +168,10 @@ func imageEffectPanning(refresh int, imageData string, effectAmount int) templ.C
 
 func randomPanDirection() string {
 	pick := utils.RandomItem([]string{"lb-tr", "br-tl", "tr-bl", "tl-br"})
-	return "image-pan-zoom-" + pick
+	return "image-pan-" + pick
 }
 
-func frameWithPan(refresh int, imageData string, effectAmount int) templ.Component {
+func frameWithPan(refresh int, imageData ImageData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -184,21 +192,47 @@ func frameWithPan(refresh int, imageData string, effectAmount int) templ.Compone
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var8 = []any{"frame--image frame--image-pan-zoom", imageEffectPanning(refresh, imageData, effectAmount)}
+		var templ_7745c5c3_Var8 = []any{"frame--image frame--image-pan", imageEffectPanning(refresh, imageData.ImageData)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div data-imagewidth=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
-		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var8).String())
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", imageData.ImmichImage.ExifInfo.ExifImageWidth))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-frame.templ`, Line: 55, Col: 84}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" data-imageheight=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", imageData.ImmichImage.ExifInfo.ExifImageHeight))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-frame.templ`, Line: 56, Col: 86}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var11 string
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var8).String())
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image-frame.templ`, Line: 1, Col: 0}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

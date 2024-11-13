@@ -3824,6 +3824,34 @@ var kiosk = (() => {
     prevImageMenuButton = prevImageButton;
   }
 
+  // src/ts/image-effects.ts
+  function foo(kioskData2) {
+    const frames = htmx_esm_default.findAll(".frame");
+    const newFrame = frames[frames.length - 1];
+    const images = htmx_esm_default.findAll(newFrame, ".frame--image");
+    images.forEach((i) => calculateBackgroundSize(i, kioskData2));
+  }
+  function calculateBackgroundSize(el, kioskData2) {
+    const imageWidth = Number(el.dataset["imagewidth"]);
+    const imageHeight = Number(el.dataset["imageheight"]);
+    const imgAspectRatio = imageWidth / imageHeight;
+    const divAspectRatio = el.offsetWidth / el.offsetHeight;
+    if (imgAspectRatio > divAspectRatio) {
+      el.style.backgroundSize = `auto ${kioskData2.imageEffectAmount}%`;
+    } else {
+      el.style.backgroundSize = `${kioskData2.imageEffectAmount}% auto`;
+    }
+  }
+  function initImageEffects(kioskData2) {
+    if (kioskData2.imageEffect === "pan") {
+      htmx_esm_default.on(
+        htmx_esm_default.find("#kiosk"),
+        "htmx:afterSwap",
+        (e) => foo(kioskData2)
+      );
+    }
+  }
+
   // src/ts/kiosk.ts
   var _a;
   var kioskData = JSON.parse(
@@ -3881,6 +3909,7 @@ var kiosk = (() => {
         nextImageMenuButton2,
         prevImageMenuButton2
       );
+      initImageEffects(kioskData);
       addEventListeners();
     });
   }

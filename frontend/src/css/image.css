@@ -171,15 +171,15 @@
     animation-name: image-smart-zoom-in;
 }
 
-/* pan-zoom */
-.frame--image-pan-zoom {
+/* pan */
+.frame--image-pan {
     background-repeat: no-repeat;
     animation-timing-function: linear;
     animation-fill-mode: forwards;
     animation-direction: normal;
 }
 
-@keyframes image-pan-zoom-lb-tr {
+@keyframes image-pan-lb-tr {
     0% {
         background-position: bottom left;
     }
@@ -189,7 +189,7 @@
     }
 }
 
-@keyframes image-pan-zoom-br-tl {
+@keyframes image-pan-br-tl {
     0% {
         background-position: bottom right;
     }
@@ -199,7 +199,7 @@
     }
 }
 
-@keyframes image-pan-zoom-tr-bl {
+@keyframes image-pan-tr-bl {
     0% {
         background-position: top right;
     }
@@ -209,7 +209,7 @@
     }
 }
 
-@keyframes image-pan-zoom-tl-br {
+@keyframes image-pan-tl-br {
     0% {
         background-position: top left;
     }
@@ -218,9 +218,20 @@
         background-position: bottom right;
     }
 }
+
+/* .frame--image-pan {
+    background-size: auto 200%;
+}
+
+.layout-splitview-landscape
+    .frame
+    .frame--layout-splitview-landscape:not(:only-child)
+    .frame--image-pan {
+    background-size: 200% auto;
+} */
 
 /* Pause animations when polling is paused */
-.polling-paused .frame--image-pan-zoom,
+.polling-paused .frame--image-pan,
 .polling-paused .frame:nth-last-of-type(-n + 2) img {
     animation-play-state: paused;
 }
@@ -232,7 +243,7 @@
     }
 
     .image--metadata--desciption {
-        max-width: 100%;
+        max-width: 100% !important;
     }
 
     .image--metadata--date,
