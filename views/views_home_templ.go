@@ -911,7 +911,7 @@ func Home(viewData ViewData) templ.Component {
 				"debug":              viewData.Kiosk.Debug,
 				"debugVerbose":       viewData.Kiosk.DebugVerbose,
 				"version":            viewData.KioskVersion,
-				"params":             quriesToJson(viewData.Queries),
+				"params":             queriesToJson(viewData.Queries),
 				"refresh":            viewData.Refresh,
 				"disableScreensaver": viewData.DisableScreensaver,
 			}).Render(ctx, templ_7745c5c3_Buffer)
