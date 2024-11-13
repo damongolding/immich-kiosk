@@ -453,7 +453,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID
 
 		// Second image
 		for i := 0; i < maxImageRetrievalAttepmts; i++ {
-			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
+			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.LandscapeOrientation, requestConfig, c, isPrefetch)
 			if err != nil {
 				return viewData, err
 			}
