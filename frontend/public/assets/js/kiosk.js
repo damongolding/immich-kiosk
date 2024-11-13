@@ -3812,14 +3812,25 @@ var kiosk = (() => {
   var nextImageMenuButton;
   var prevImageMenuButton;
   function disableImageNavigationButtons() {
+    if (!nextImageMenuButton || !prevImageMenuButton) {
+      console.error("Navigation buttons not initialized");
+      return;
+    }
     htmx_esm_default.addClass(nextImageMenuButton, "disabled");
     htmx_esm_default.addClass(prevImageMenuButton, "disabled");
   }
   function enableImageNavigationButtons() {
+    if (!nextImageMenuButton || !prevImageMenuButton) {
+      console.error("Navigation buttons not initialized");
+      return;
+    }
     htmx_esm_default.removeClass(nextImageMenuButton, "disabled");
     htmx_esm_default.removeClass(prevImageMenuButton, "disabled");
   }
   function initMenu(nextImageButton, prevImageButton) {
+    if (!nextImageButton || !prevImageButton) {
+      throw new Error("Both navigation buttons must be provided");
+    }
     nextImageMenuButton = nextImageButton;
     prevImageMenuButton = prevImageButton;
   }
