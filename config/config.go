@@ -426,6 +426,16 @@ func (c *Config) checkHideCountries() {
 	}
 }
 
+func (c *Config) checkFetchedAssetsSize() {
+	if c.Kiosk.FetchedAssetsSize < 1 {
+		log.Warn("FetchedAssetsSize too small, setting to minimum value", "value", 1)
+		c.Kiosk.FetchedAssetsSize = 1
+	} else if c.Kiosk.FetchedAssetsSize > 1000 {
+		log.Warn("FetchedAssetsSize too large, setting to maximum value", "value", 1000)
+		c.Kiosk.FetchedAssetsSize = 1000
+	}
+}
+
 // WatchConfig sets up a configuration file watcher that monitors for changes
 // and reloads the configuration when necessary.
 func (c *Config) WatchConfig() {
@@ -567,6 +577,7 @@ func (c *Config) Load() error {
 	c.checkHideCountries()
 	c.checkWeatherLocations()
 	c.checkDebuging()
+	c.checkFetchedAssetsSize()
 
 	return nil
 }

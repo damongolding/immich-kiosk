@@ -8,12 +8,9 @@ import htmx from "htmx.org";
 let nextImageMenuButton: HTMLElement;
 let prevImageMenuButton: HTMLElement;
 
-let nextImageMenuButton: HTMLButtonElement;
-let prevImageMenuButton: HTMLButtonElement;
-
 function disableImageNavigationButtons() {
   if (!nextImageMenuButton || !prevImageMenuButton) {
-    console.error('Navigation buttons not initialized');
+    console.error("Navigation buttons not initialized");
     return;
   }
   htmx.addClass(nextImageMenuButton, "disabled");
@@ -22,7 +19,7 @@ function disableImageNavigationButtons() {
 
 function enableImageNavigationButtons() {
   if (!nextImageMenuButton || !prevImageMenuButton) {
-    console.error('Navigation buttons not initialized');
+    console.error("Navigation buttons not initialized");
     return;
   }
   htmx.removeClass(nextImageMenuButton as Element, "disabled");
@@ -36,7 +33,7 @@ function enableImageNavigationButtons() {
  */
 function initMenu(nextImageButton: HTMLElement, prevImageButton: HTMLElement) {
   if (!nextImageButton || !prevImageButton) {
-    throw new Error('Both navigation buttons must be provided');
+    throw new Error("Both navigation buttons must be provided");
   }
   nextImageMenuButton = nextImageButton;
   prevImageMenuButton = prevImageButton;

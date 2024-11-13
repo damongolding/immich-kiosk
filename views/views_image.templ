@@ -205,14 +205,14 @@ func smartZoom(image immich.ImmichAsset) templ.CSSClass {
 }
 
 func newHistoryEntry(images []ImageData) string {
-    if len(images) == 0 {
-        return ""
-    }
-    newImages := make([]string, len(images))
-    for i, entry := range images {
-        newImages[i] = entry.ImmichImage.ID
-    }
-    return strings.Join(newImages, ",")
+	if len(images) == 0 {
+		return ""
+	}
+	newImages := make([]string, len(images))
+	for i, entry := range images {
+		newImages[i] = entry.ImmichImage.ID
+	}
+	return strings.Join(newImages, ",")
 }
 
 // renderHistory renders a form containing the viewing history of images.

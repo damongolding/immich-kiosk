@@ -9,7 +9,6 @@ import {
   startPolling,
   togglePolling,
   pausePolling,
-  resumePolling,
 } from "./polling";
 import { preventSleep } from "./wakelock";
 import {
@@ -131,6 +130,7 @@ function addEventListeners() {
   menuInteraction?.addEventListener("click", togglePolling);
   menuPausePlayButton?.addEventListener("click", togglePolling);
   document.addEventListener("keydown", (e) => {
+    if (e.target !== document.body) return;
     if (e.code === "Space") {
       e.preventDefault();
       togglePolling();

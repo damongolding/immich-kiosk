@@ -3730,7 +3730,6 @@ var kiosk = (() => {
   function startPolling() {
     progressBarElement = htmx_esm_default.find(".progress--bar");
     progressBarElement == null ? void 0 : progressBarElement.classList.remove("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--play-pause--paused");
     menuElement == null ? void 0 : menuElement.classList.add("navigation-hidden");
     lastPollTime = performance.now();
     pausedTime = null;
@@ -3742,14 +3741,12 @@ var kiosk = (() => {
     if (isPaused && animationFrameId === null) return;
     cancelAnimationFrame(animationFrameId);
     progressBarElement == null ? void 0 : progressBarElement.classList.add("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--play-pause--paused");
   }
   function pausePolling(showMenu = true) {
     if (isPaused && animationFrameId === null) return;
     cancelAnimationFrame(animationFrameId);
     pausedTime = performance.now();
     progressBarElement == null ? void 0 : progressBarElement.classList.add("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.add("navigation--play-pause--paused");
     if (showMenu) {
       menuElement == null ? void 0 : menuElement.classList.remove("navigation-hidden");
       document.body.classList.add("polling-paused");
@@ -3760,7 +3757,6 @@ var kiosk = (() => {
     if (!isPaused) return;
     animationFrameId = requestAnimationFrame(updateKiosk);
     progressBarElement == null ? void 0 : progressBarElement.classList.remove("progress--bar-paused");
-    menuPausePlayButton == null ? void 0 : menuPausePlayButton.classList.remove("navigation--play-pause--paused");
     menuElement == null ? void 0 : menuElement.classList.add("navigation-hidden");
     document.body.classList.remove("polling-paused");
     isPaused = false;
@@ -3906,6 +3902,7 @@ var kiosk = (() => {
     menuInteraction == null ? void 0 : menuInteraction.addEventListener("click", togglePolling);
     menuPausePlayButton2 == null ? void 0 : menuPausePlayButton2.addEventListener("click", togglePolling);
     document.addEventListener("keydown", (e) => {
+      if (e.target !== document.body) return;
       if (e.code === "Space") {
         e.preventDefault();
         togglePolling();

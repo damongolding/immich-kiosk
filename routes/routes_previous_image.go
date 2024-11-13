@@ -1,11 +1,13 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
@@ -13,8 +15,8 @@ import (
 	"github.com/damongolding/immich-kiosk/views"
 )
 
-// NewImage returns an echo.HandlerFunc that handles requests for new images.
-// It manages image processing, caching, and prefetching based on the configuration.
+// PreviousImage returns an echo.HandlerFunc that handles requests for previous images.
+// It retrieves the previous images from the history and renders them.
 func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -42,9 +44,13 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 			return c.NoContent(http.StatusNoContent)
 		}
 
-		lastHistoryEntry := requestConfig.History[len(requestConfig.History)-2]
+		historyLen := len(requestConfig.History)
+		if historyLen < 2 {
+			return c.NoContent(http.StatusNoContent)
+		}
+		lastHistoryEntry := requestConfig.History[historyLen-2]
 		prevImages := strings.Split(lastHistoryEntry, ",")
-		requestConfig.History = requestConfig.History[:len(requestConfig.History)-2]
+		requestConfig.History = requestConfig.History[:historyLen-2]
 
 		ViewData := views.ViewData{
 			KioskVersion: kioskDeviceVersion,
@@ -54,30 +60,40 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 			Config:       requestConfig,
 		}
 
+		g, _ := errgroup.WithContext(c.Request().Context())
+
 		for i, imageID := range prevImages {
-			image := immich.NewImage(requestConfig)
-			image.ID = imageID
-			imgBytes, err := image.ImagePreview()
-			if err != nil {
-				return RenderError(c, err, "retrieving image")
-			}
+			i, imageID := i, imageID
+			g.Go(func() error {
+				image := immich.NewImage(requestConfig)
+				image.ID = imageID
+				imgBytes, err := image.ImagePreview()
+				if err != nil {
+					return fmt.Errorf("retrieving image: %w", err)
+				}
 
-			img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, "Converted", false)
-			if err != nil {
-				return RenderError(c, err, "converting image to base64")
-			}
+				img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, "Converted", false)
+				if err != nil {
+					return fmt.Errorf("converting image to base64: %w", err)
+				}
 
-			imgBlur, err := processBlurredImage(imgBytes, requestConfig, requestID, kioskDeviceID, false)
-			if err != nil {
-				return RenderError(c, err, "converting blurred image to base64")
-			}
+				imgBlur, err := processBlurredImage(imgBytes, requestConfig, requestID, kioskDeviceID, false)
+				if err != nil {
+					return fmt.Errorf("converting blurred image to base64: %w", err)
+				}
 
-			ViewData.Images[i] = views.ImageData{
-				ImmichImage:   image,
-				ImageData:     img,
-				ImageBlurData: imgBlur,
-			}
+				ViewData.Images[i] = views.ImageData{
+					ImmichImage:   image,
+					ImageData:     img,
+					ImageBlurData: imgBlur,
+				}
+				return nil
+			})
+		}
 
+		// Wait for all goroutines to complete and check for errors
+		if err := g.Wait(); err != nil {
+			return RenderError(c, err, "processing images")
 		}
 
 		return Render(c, http.StatusOK, views.Image(ViewData))
