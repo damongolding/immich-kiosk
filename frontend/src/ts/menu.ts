@@ -9,11 +9,19 @@ let nextImageMenuButton: HTMLElement;
 let prevImageMenuButton: HTMLElement;
 
 function disableImageNavigationButtons() {
+  if (!nextImageMenuButton || !prevImageMenuButton) {
+    console.error('Navigation buttons not initialized');
+    return;
+  }
   htmx.addClass(nextImageMenuButton as Element, "disabled");
   htmx.addClass(prevImageMenuButton as Element, "disabled");
 }
 
 function enableImageNavigationButtons() {
+  if (!nextImageMenuButton || !prevImageMenuButton) {
+    console.error('Navigation buttons not initialized');
+    return;
+  }
   htmx.removeClass(nextImageMenuButton as Element, "disabled");
   htmx.removeClass(prevImageMenuButton as Element, "disabled");
 }
