@@ -20,11 +20,13 @@ function enableImageNavigationButtons() {
 
 /**
  * Initializes the menu controls and sets up event handlers
- * @param kiosk - The kiosk container element
- * @param menu - The menu container element
- * @param pausePlayButton - The pause/play button element
+ * @param nextImageButton - The next image navigation button element
+ * @param prevImageButton - The previous image navigation button element
  */
 function initMenu(nextImageButton: HTMLElement, prevImageButton: HTMLElement) {
+  if (!nextImageButton || !prevImageButton) {
+    throw new Error('Both navigation buttons must be provided');
+  }
   nextImageMenuButton = nextImageButton;
   prevImageMenuButton = prevImageButton;
 }
