@@ -8,13 +8,16 @@ import htmx from "htmx.org";
 let nextImageMenuButton: HTMLElement;
 let prevImageMenuButton: HTMLElement;
 
+let nextImageMenuButton: HTMLButtonElement;
+let prevImageMenuButton: HTMLButtonElement;
+
 function disableImageNavigationButtons() {
   if (!nextImageMenuButton || !prevImageMenuButton) {
     console.error('Navigation buttons not initialized');
     return;
   }
-  htmx.addClass(nextImageMenuButton as Element, "disabled");
-  htmx.addClass(prevImageMenuButton as Element, "disabled");
+  htmx.addClass(nextImageMenuButton, "disabled");
+  htmx.addClass(prevImageMenuButton, "disabled");
 }
 
 function enableImageNavigationButtons() {
