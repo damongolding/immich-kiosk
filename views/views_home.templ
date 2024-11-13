@@ -256,7 +256,7 @@ templ body(viewData ViewData) {
 			</body>
 		case "fade":
 			<body hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration/2) } class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
-				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
+				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
 				{ children... }
 			</body>
 		default:
@@ -370,9 +370,9 @@ templ Home(viewData ViewData) {
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			if len(viewData.Queries) > 0 {
 				<script>
-				    const kioskQueires = document.body.querySelectorAll(".kiosk-param");
+				    const kioskQueries = document.body.querySelectorAll(".kiosk-param");
     				document.body.addEventListener("htmx:configRequest", (event) => {
-    				    kioskQueires.forEach((q) => {
+    				    kioskQueries.forEach((q) => {
     						event.detail.parameters[q.name] = q.value;
     					});
     				});

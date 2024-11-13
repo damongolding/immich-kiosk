@@ -650,7 +650,7 @@ func body(viewData ViewData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration)).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -936,7 +936,7 @@ func Home(viewData ViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if len(viewData.Queries) > 0 {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n\t\t\t\t    const kioskQueires = document.body.querySelectorAll(\".kiosk-param\");\n    \t\t\t\tdocument.body.addEventListener(\"htmx:configRequest\", (event) => {\n    \t\t\t\t    kioskQueires.forEach((q) => {\n    \t\t\t\t\t\tevent.detail.parameters[q.name] = q.value;\n    \t\t\t\t\t});\n    \t\t\t\t});\n\t\t\t\t</script>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n\t\t\t\t    const kioskQueries = document.body.querySelectorAll(\".kiosk-param\");\n    \t\t\t\tdocument.body.addEventListener(\"htmx:configRequest\", (event) => {\n    \t\t\t\t    kioskQueries.forEach((q) => {\n    \t\t\t\t\t\tevent.detail.parameters[q.name] = q.value;\n    \t\t\t\t\t});\n    \t\t\t\t});\n\t\t\t\t</script>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

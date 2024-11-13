@@ -3888,10 +3888,14 @@ var kiosk = (() => {
       } else {
         console.error("Could not start polling");
       }
-      initMenu(
-        nextImageMenuButton2,
-        prevImageMenuButton2
-      );
+      if (nextImageMenuButton2 && prevImageMenuButton2) {
+        initMenu(
+          nextImageMenuButton2,
+          prevImageMenuButton2
+        );
+      } else {
+        console.error("Menu buttons not found");
+      }
       addEventListeners();
     });
   }
