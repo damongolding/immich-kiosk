@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -52,6 +53,12 @@ type KioskSettings struct {
 
 	// WatchConfig if kiosk should watch config file for changes
 	WatchConfig bool `mapstructure:"watch_config" default:"false"`
+
+	// FetchedAssetsSize the size of assets requests from Immich. min=1 max=1000
+	FetchedAssetsSize int `mapstructure:"fetched_assets_size" default:"1000"`
+
+	// HTTPTimeout time in seconds before an http request will timeout
+	HTTPTimeout int `mapstructure:"http_timeout" default:"20"`
 
 	// Cache enable/disable api call and image caching
 	Cache bool `mapstructure:"cache" default:"true"`
@@ -79,6 +86,20 @@ type WeatherLocation struct {
 	Lang string `mapstructure:"lang"`
 }
 
+// Config represents the main configuration structure for the Immich Kiosk application.
+// It contains all the settings that control the behavior and appearance of the kiosk,
+// including connection details, display options, image settings, and various feature toggles.
+//
+// The structure supports configuration through YAML files, environment variables,
+// and URL query parameters. Many fields can be dynamically updated through URL queries
+// during runtime.
+//
+// # Tags used in the configuration structure:
+//   - mapstructure: field name from yaml file
+//   - query: enables URL query parameter binding
+//   - form: enables form parameter binding
+//   - default: sets default value
+//   - lowercase: converts string value to lowercase
 type Config struct {
 	// V is the viper instance used for configuration management
 	V *viper.Viper
@@ -98,6 +119,8 @@ type Config struct {
 
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
 	DisableUi bool `mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
+	// Frameless remove border on frames
+	Frameless bool `mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
 
 	// ShowTime whether to display clock
 	ShowTime bool `mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`
@@ -117,9 +140,9 @@ type Config struct {
 	// FontSize the base font size as a percentage
 	FontSize int `mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
 	// Theme which theme to use
-	Theme string `mapstructure:"theme" query:"theme" form:"theme" default:"fade"`
+	Theme string `mapstructure:"theme" query:"theme" form:"theme" default:"fade" lowercase:"true"`
 	// Layout which layout to use
-	Layout string `mapstructure:"layout" query:"layout" form:"layout" default:"single"`
+	Layout string `mapstructure:"layout" query:"layout" form:"layout" default:"single" lowercase:"true"`
 
 	// SleepStart when to start sleep mode
 	SleepStart string `mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
@@ -134,15 +157,17 @@ type Config struct {
 	Album []string `mapstructure:"album" query:"album" form:"album" default:"[]"`
 
 	// ImageFit the fit style for main image
-	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain"`
+	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
 	// ImageEffect which effect to apply to image (if any)
-	ImageEffect string `mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:""`
+	ImageEffect string `mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:"" lowercase:"true"`
 	// ImageEffectAmount the amount of effect to apply
 	ImageEffectAmount int `mapstructure:"image_effect_amount" query:"image_effect_amount" form:"image_effect_amount" default:"120"`
+	// UseOriginalImage use the original image
+	UseOriginalImage bool `mapstructure:"use_original_image" query:"use_original_image" form:"use_original_image" default:"false"`
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
-	Transition string `mapstructure:"transition" query:"transition" form:"transition" default:""`
+	Transition string `mapstructure:"transition" query:"transition" form:"transition" default:"" lowercase:"true"`
 	// FadeTransitionDuration sets the length of the fade transition
 	FadeTransitionDuration float32 `mapstructure:"fade_transition_duration" query:"fade_transition_duration" form:"fade_transition_duration" default:"1"`
 	// CrossFadeTransitionDuration sets the length of the cross-fade transition
@@ -161,6 +186,8 @@ type Config struct {
 	ShowImageDate bool `mapstructure:"show_image_date" query:"show_image_date" form:"show_image_date"  default:"false"`
 	// ImageDateFormat format for image date
 	ImageDateFormat string `mapstructure:"image_date_format" query:"image_date_format" form:"image_date_format" default:""`
+	// ShowImageDescription isplay image description
+	ShowImageDescription bool `mapstructure:"show_image_description" query:"show_image_description" form:"show_image_description" default:"false"`
 	// ShowImageExif display image exif data (f number, iso, shutter speed, Focal length)
 	ShowImageExif bool `mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
 	// ShowImageLocation display image location data
@@ -214,6 +241,8 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 	}{
 		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
+		{"kiosk.fetched_assets_size", "KIOSK_FETCHED_ASSETS_SIZE"},
+		{"kiosk.http_timeout", "KIOSK_HTTP_TIMEOUT"},
 		{"kiosk.password", "KIOSK_PASSWORD"},
 		{"kiosk.cache", "KIOSK_CACHE"},
 		{"kiosk.prefetch", "KIOSK_PREFETCH"},
@@ -307,6 +336,21 @@ func (c *Config) checkUrlScheme() {
 	}
 }
 
+func (c *Config) checkLowercaseTaggedFields() {
+	val := reflect.ValueOf(c).Elem()
+	typ := val.Type()
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldType := typ.Field(i)
+
+		// Check if the field has the `lowercase` tag set to "true"
+		if fieldType.Tag.Get("lowercase") == "true" && field.Kind() == reflect.String && field.CanSet() {
+			field.SetString(strings.ToLower(field.String()))
+		}
+	}
+}
+
 // checkRequiredFields check is required config files are set.
 func (c *Config) checkRequiredFields() {
 	switch {
@@ -385,6 +429,16 @@ func (c *Config) checkHideCountries() {
 
 	for i, country := range c.HideCountries {
 		c.HideCountries[i] = strings.ToLower(country)
+	}
+}
+
+func (c *Config) checkFetchedAssetsSize() {
+	if c.Kiosk.FetchedAssetsSize < 1 {
+		log.Warn("FetchedAssetsSize too small, setting to minimum value", "value", 1)
+		c.Kiosk.FetchedAssetsSize = 1
+	} else if c.Kiosk.FetchedAssetsSize > 1000 {
+		log.Warn("FetchedAssetsSize too large, setting to maximum value", "value", 1000)
+		c.Kiosk.FetchedAssetsSize = 1000
 	}
 }
 
@@ -523,11 +577,13 @@ func (c *Config) Load() error {
 	}
 
 	c.checkRequiredFields()
+	c.checkLowercaseTaggedFields()
 	c.checkAlbumAndPerson()
 	c.checkUrlScheme()
 	c.checkHideCountries()
 	c.checkWeatherLocations()
 	c.checkDebuging()
+	c.checkFetchedAssetsSize()
 
 	return nil
 }

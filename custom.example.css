@@ -1,11 +1,20 @@
+/* src/css/vars.css */
+:root{}
 /* src/css/fonts.css */
 /* src/css/globals.css */
 *{}
+*:focus{}
 body{}
 /* src/css/container.css */
 #kiosk{}
 #kiosk.htmx-swapping{}
-#kiosk.htmx-settling .htmx-added{}
+@-webkit-keyframes fade-in{}
+from{}
+@-moz-keyframes fade-in{}
+from{}
+#kiosk .frame{}
+#kiosk .frame:nth-last-child(-n+2){}
+#kiosk.htmx-settling .htmx-added:last-of-type{}
 /* src/css/spinner.css */
 .kiosk--spinner{}
 /* src/css/frame.css */
@@ -17,14 +26,18 @@ body{}
 .frame--background{}
 .frame--background img{}
 .layout-splitview .frame{}
+.layout-splitview.frameless .frame{}
 .frame--layout-splitview{}
 .frame--layout-splitview:nth-child(1){}
 .frame--layout-splitview:nth-child(2){}
+.frameless .frame--layout-splitview{}
 .frame--layout-splitview .frame--image{}
+.layout-splitview-landscape{}
 .layout-splitview-landscape .frame{}
-.frame--layout-splitview-landscape{}
+.layout-splitview-landscape.frameless .frame{}
 .frame--layout-splitview-landscape:nth-child(1){}
 .frame--layout-splitview-landscape:nth-child(2){}
+.frameless .frame--layout-splitview-landscape{}
 .frame--layout-splitview-landscape .frame--image{}
 /* src/css/image.css */
 .image--metadata{}
@@ -39,20 +52,21 @@ body{}
 .image--metadata--exif{}
 .image--metadata--exif--fnumber{}
 .image--metadata--exif--seperator{}
-.image--metadata--location{}
+.frame--layout-splitview .image--metadata--desciption, .frame--layout-splitview-landscape .image--metadata--desciption{}
 .frame--layout-splitview:nth-child(1) .image--metadata{}
 .frame--image-zoom img{}
-.frame--image-zoom-in img{}
-.frame--image-zoom-out img{}
-.frame--image-smart-zoom-out img{}
-.frame--image-smart-zoom-in img{}
+.frame:nth-last-of-type(-n+2) .frame--image-zoom-in img{}
+.frame:nth-last-of-type(-n+2) .frame--image-zoom-out img{}
+.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-out img{}
+.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-in img{}
+.polling-paused .frame:nth-last-of-type(-n+2) img{}
 /* src/css/error.css */
 .error-container{}
 .error{}
-.error--title{}
-.error--message{}
 .error svg{}
 .error ul li{}
+.error--title{}
+.error--message{}
 /* src/css/progress.css */
 .progress{}
 .progress--bar{}
@@ -75,6 +89,28 @@ body{}
 .sleep .clock--date{}
 .sleep .clock--time{}
 .sleep #clock::before{}
+@-webkit-keyframes clock-screesaver{}
+0%{}
+11%{}
+22%{}
+33%{}
+44%{}
+55%{}
+66%{}
+77%{}
+88%{}
+100%{}
+@-moz-keyframes clock-screesaver{}
+0%{}
+11%{}
+22%{}
+33%{}
+44%{}
+55%{}
+66%{}
+77%{}
+88%{}
+100%{}
 /* src/css/weather.css */
 #weather{}
 .layout-splitview #weather{}
@@ -89,23 +125,33 @@ body{}
 .weather--description--value{}
 .layout-splitview .weather{}
 .layout-splitview .weather--theme-fade::before{}
-.weather--theme-solid{}
 .layout-splitview .weather--theme-solid{}
+.weather--theme-solid{}
 .sleep #weather{}
 /* src/css/menu.css */
 #navigation-interaction-area{}
+#navigation-interaction-area--next-image{}
+#navigation-interaction-area--menu{}
 .navigation{}
 .navigation--item{}
+.navigation--item:hover{}
 .navigation--item--separator{}
 .navigation-hidden{}
 .navigation svg{}
+.rounded{}
 .navigation--flush-cache svg{}
 .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--enter{}
-.navigation--control--play{}
+.navigation--media-buttons{}
+.navigation--media-buttons .navigation--item{}
+.navigation--play-pause--play{}
 .navigation--control--paused .navigation--control--play{}
 .navigation--control--paused .navigation--control--pause{}
-.sleep #navigation-interaction-area{}
-.layout-splitview .navigation{}
+.navigation--next-image{}
+.navigation--prev-image{}
+.navigation--prev-image.disabled{}
+/* src/css/sleep.css */
+#sleep-controller{}
+.sleep #sleep-controller{}
 /* src/css/kiosk.css */

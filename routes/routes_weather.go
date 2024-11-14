@@ -27,13 +27,13 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 
 		if weatherLocation == "" {
 			log.Error("missing weather location name url param")
-			return c.NoContent(http.StatusOK)
+			return c.NoContent(http.StatusNoContent)
 		}
 
 		weatherData := weather.CurrentWeather(weatherLocation)
 		if !strings.EqualFold(weatherData.Name, weatherLocation) || len(weatherData.Data) == 0 {
 			log.Error("missing weather location data", "location", weatherData.Name)
-			return c.NoContent(http.StatusOK)
+			return c.NoContent(http.StatusNoContent)
 		}
 
 		return Render(c, http.StatusOK, views.Weather(weatherData))

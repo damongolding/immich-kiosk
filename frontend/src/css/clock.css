@@ -25,25 +25,7 @@
     left: 0;
     width: 150%;
     height: 200%;
-    background-image: radial-gradient(
-        100% 100% at 0% 0%,
-        hsla(0, 0%, 0%, 0.59) 0%,
-        hsla(0, 0%, 0%, 0.582) 5.2%,
-        hsla(0, 0%, 0%, 0.561) 10.9%,
-        hsla(0, 0%, 0%, 0.529) 16.9%,
-        hsla(0, 0%, 0%, 0.487) 23.3%,
-        hsla(0, 0%, 0%, 0.437) 29.9%,
-        hsla(0, 0%, 0%, 0.382) 36.8%,
-        hsla(0, 0%, 0%, 0.324) 43.8%,
-        hsla(0, 0%, 0%, 0.266) 51%,
-        hsla(0, 0%, 0%, 0.208) 58.2%,
-        hsla(0, 0%, 0%, 0.153) 65.4%,
-        hsla(0, 0%, 0%, 0.103) 72.6%,
-        hsla(0, 0%, 0%, 0.061) 79.7%,
-        hsla(0, 0%, 0%, 0.029) 86.7%,
-        hsla(0, 0%, 0%, 0.008) 93.5%,
-        hsla(0, 0%, 0%, 0) 100%
-    );
+    background-image: radial-gradient(100% 100% at 0% 0%, var(--fade-gradient));
     z-index: 0;
 }
 
@@ -67,27 +49,127 @@
 }
 
 /* In sleep mode */
-.sleep #clock {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    bottom: unset;
-    right: unset;
-    transform: translate(-50%, -50%);
-    opacity: 0.1;
-    z-index: 99999;
-    line-height: 1;
+
+.sleep {
+    #clock {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-50%, -50%);
+        opacity: 0.1;
+        z-index: 99998;
+        line-height: 1;
+
+        animation-name: clock-screesaver;
+        animation-duration: 3600s;
+        animation-timing-function: step-end;
+        animation-iteration-count: infinite;
+    }
+
+    .clock--date {
+        font-size: 8vw;
+    }
+
+    .clock--time {
+        padding-right: 0;
+        font-size: 18vw;
+    }
+
+    #clock::before {
+        display: none;
+    }
 }
 
-.sleep .clock--date {
-    font-size: 8vw;
-}
+@keyframes clock-screesaver {
+    /* middle */
+    0% {
+        top: 50%;
+        left: 50%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-50%, -50%);
+    }
 
-.sleep .clock--time {
-    padding-right: 0;
-    font-size: 18vw;
-}
+    /* top left */
+    11% {
+        top: 5%;
+        left: 5%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-5%, -5%);
+    }
 
-.sleep #clock::before {
-    display: none;
+    /* right bottom */
+    22% {
+        top: unset;
+        left: unset;
+        bottom: 5%;
+        right: 5%;
+        transform: translate(5%, 5%);
+    }
+
+    /* top right */
+    33% {
+        top: 5%;
+        left: unset;
+        bottom: unset;
+        right: 5%;
+        transform: translate(5%, -5%);
+    }
+
+    /* left bottom */
+    44% {
+        top: unset;
+        left: 5%;
+        bottom: 5%;
+        right: unset;
+        transform: translate(-5%, 5%);
+    }
+
+    /* top middle */
+    55% {
+        top: 5%;
+        left: 50%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-50%, -5%);
+    }
+
+    /* bottom middle */
+    66% {
+        top: unset;
+        left: unset;
+        bottom: 5%;
+        right: 50%;
+        transform: translate(50%, 5%);
+    }
+
+    /* right middle */
+    77% {
+        top: 50%;
+        left: unset;
+        bottom: unset;
+        right: 5%;
+        transform: translate(5%, -50%);
+    }
+
+    /* left middle */
+    88% {
+        top: 50%;
+        left: 5%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-5%, -50%);
+    }
+
+    /* middle */
+    100% {
+        top: 50%;
+        left: 50%;
+        bottom: unset;
+        right: unset;
+        transform: translate(-50%, -50%);
+    }
 }

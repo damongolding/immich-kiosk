@@ -1,14 +1,34 @@
-import htmx from "htmx.org";
+import htmx, { HtmxResponseInfo } from "htmx.org";
 import {
   addFullscreenEventListener,
   fullscreenAPI,
   toggleFullscreen,
 } from "./fullscreen";
-import { initPolling, startPolling, togglePolling } from "./polling";
+import {
+  initPolling,
+  startPolling,
+  togglePolling,
+  pausePolling,
+} from "./polling";
 import { preventSleep } from "./wakelock";
+import {
+  initMenu,
+  disableImageNavigationButtons,
+  enableImageNavigationButtons,
+} from "./menu";
 
 ("use strict");
 
+interface HTMXEvent extends Event {
+  preventDefault: () => void;
+  detail: {
+    successful: boolean;
+  };
+}
+
+/**
+ * Type definition for kiosk configuration data
+ */
 type KioskData = {
   debug: boolean;
   debugVerbose: boolean;
@@ -17,6 +37,8 @@ type KioskData = {
   refresh: number;
   disableScreensaver: boolean;
 };
+
+const MAX_FRAME = 3 as const;
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -37,16 +59,26 @@ const fullScreenButtonSeperator = htmx.find(
 const kiosk = htmx.find("#kiosk") as HTMLElement | null;
 const menu = htmx.find(".navigation") as HTMLElement | null;
 const menuInteraction = htmx.find(
-  "#navigation-interaction-area",
+  "#navigation-interaction-area--menu",
 ) as HTMLElement | null;
 const menuPausePlayButton = htmx.find(
-  ".navigation--control",
+  ".navigation--play-pause",
 ) as HTMLElement | null;
+const nextImageMenuButton = htmx.find(
+  ".navigation--next-image",
+) as HTMLElement | null;
+const prevImageMenuButton = htmx.find(
+  ".navigation--prev-image",
+) as HTMLElement | null;
+
+let requestInFlight = false;
 
 /**
  * Initialize Kiosk functionality
+ * Sets up debugging, screensaver prevention, service worker registration,
+ * fullscreen capability, polling, menu and event listeners
  */
-async function init() {
+async function init(): Promise<void> {
   if (kioskData.debugVerbose) {
     htmx.logAll();
   }
@@ -77,27 +109,51 @@ async function init() {
     console.error("Could not start polling");
   }
 
+  if (nextImageMenuButton && prevImageMenuButton) {
+    initMenu(
+      nextImageMenuButton as HTMLElement,
+      prevImageMenuButton as HTMLElement,
+    );
+  } else {
+    console.error("Menu buttons not found");
+  }
   addEventListeners();
 }
 
-function handleFullscreenClick() {
+/**
+ * Handler for fullscreen button clicks
+ * Toggles fullscreen mode for the document body
+ */
+function handleFullscreenClick(): void {
   toggleFullscreen(documentBody, fullscreenButton);
 }
 
 /**
  * Add event listeners to Kiosk elements
+ * Sets up listeners for:
+ * - Menu interaction and polling control
+ * - Fullscreen functionality
+ * - Navigation between images
+ * - Server connection status monitoring
  */
-function addEventListeners() {
+function addEventListeners(): void {
   // Pause/resume polling and show/hide menu
   menuInteraction?.addEventListener("click", togglePolling);
   menuPausePlayButton?.addEventListener("click", togglePolling);
+  document.addEventListener("keydown", (e) => {
+    if (e.target !== document.body) return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      togglePolling();
+    }
+  });
 
   // Fullscreen
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
 
   // Server online check. Fires after every AJAX request.
-  htmx.on("htmx:afterRequest", function (e: any) {
+  htmx.on("htmx:afterRequest", function (e: HTMXEvent) {
     const offlineSVG = htmx.find("#offline");
 
     if (!offlineSVG) {
@@ -114,13 +170,60 @@ function addEventListeners() {
 }
 
 /**
- * Remove first frame
+ * Remove first frame from the DOM when there are more than 3 frames
+ * Used to prevent memory issues from accumulating frames
  */
-function cleanupFrames() {
+function cleanupFrames(): void {
   const frames = htmx.findAll(".frame");
-  if (frames.length > 3) {
-    htmx.remove(frames[0], 3000);
+  if (frames.length > MAX_FRAME) {
+    htmx.remove(frames[0]);
   }
+}
+
+/**
+ * Sets a lock to prevent concurrent requests
+ * @param e - Event object that triggered the request
+ * @description Prevents multiple simultaneous requests by checking and setting a lock flag.
+ * Also pauses polling and disables navigation buttons while request is in flight.
+ */
+function setRequestLock(e: HTMXEvent): void {
+  if (requestInFlight) {
+    e.preventDefault();
+    return;
+  }
+
+  pausePolling(false);
+
+  disableImageNavigationButtons();
+
+  requestInFlight = true;
+}
+
+/**
+ * Releases the request lock after a request completes
+ * @description Re-enables navigation buttons and marks request as complete by unsetting
+ * the requestInFlight flag.
+ */
+function releaseRequestLock(): void {
+  enableImageNavigationButtons();
+
+  requestInFlight = false;
+}
+
+/**
+ * Checks if there are enough history entries to navigate back
+ * @param e - Event object for the history navigation request
+ * @description Prevents navigation when there is an active request or insufficient history.
+ * If navigation is allowed, sets the request lock.
+ */
+function checkHistoryExists(e: HTMXEvent): void {
+  const historyItems = htmx.findAll(".kiosk-history--entry");
+  if (requestInFlight || historyItems.length < 2) {
+    e.preventDefault();
+    return;
+  }
+
+  setRequestLock(e);
 }
 
 // Initialize Kiosk when the DOM is fully loaded
@@ -128,4 +231,10 @@ document.addEventListener("DOMContentLoaded", () => {
   init();
 });
 
-export { cleanupFrames, startPolling };
+export {
+  cleanupFrames,
+  startPolling,
+  setRequestLock,
+  releaseRequestLock,
+  checkHistoryExists,
+};

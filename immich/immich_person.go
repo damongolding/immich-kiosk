@@ -1,11 +1,12 @@
 package immich
 
 import (
-	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"math/rand/v2"
 	"net/url"
+	"path"
 
 	"github.com/charmbracelet/log"
 	"github.com/google/go-querystring/query"
@@ -26,7 +27,7 @@ func (i *ImmichAsset) personAssets(personID, requestID string) ([]ImmichAsset, e
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "api/people/" + personID + "/assets",
+		Path:   path.Join("api", "people", personID, "assets"),
 	}
 
 	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestID, images)
@@ -56,7 +57,7 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID string) (int, error) 
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "api/people/" + personID + "/statistics",
+		Path:   path.Join("api", "people", personID, "statistics"),
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, personStatistics)
@@ -141,7 +142,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 		Type:       string(ImageType),
 		WithExif:   true,
 		WithPeople: true,
-		Size:       1000,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	if requestConfig.ShowArchived {
@@ -155,7 +156,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     "api/search/random",
-		RawQuery: queries.Encode(),
+		RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
 	}
 
 	jsonBody, err := json.Marshal(requestBody)
@@ -163,10 +164,8 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 		log.Fatal("marshaling request body", err)
 	}
 
-	requestBodyReader := bytes.NewReader(jsonBody)
-
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAssets)
-	apiBody, err := immichApiCall("POST", apiUrl.String(), requestBodyReader)
+	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
 		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err

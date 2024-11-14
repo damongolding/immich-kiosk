@@ -61,6 +61,7 @@
   - [Sleep mode](#sleep-mode)
   - [Cusom CSS](#custom-css)
   - [Weather](#weather)
+- [Navigation Controls](#navigation-controls)
 - [PWA](#pwa)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
@@ -97,6 +98,9 @@ Using this URL `http://{URL}?album={ALBUM_ID}&transtion=none&show_time=false` wo
 On the pi connected to the TV you want to display a random image from your library but only images of two specific people. We want the image to cover the whole screen (knowing some cropping will happen) and we want to use the fade transition.
 
 Using this URL `http://{URL}?image_fit=cover&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID` would achieve what we want.
+
+## Example 2
+Fanyang Meng created a digital picture frame using a Raspberry Pi Zero 2 W and Kiosk. You can read the blog post about the process [here](https://fanyangmeng.blog/build-a-selfhosted-digital-frame/).
 
 
 ------
@@ -215,51 +219,55 @@ services:
       KIOSK_IMMICH_API_KEY: "****"
       KIOSK_IMMICH_URL: "****"
       # Clock
-      KIOSK_SHOW_TIME: FALSE
+      KIOSK_SHOW_TIME: false
       KIOSK_TIME_FORMAT: 24
-      KIOSK_SHOW_DATE: FALSE
+      KIOSK_SHOW_DATE: false
       KIOSK_DATE_FORMAT: YYYY/MM/DD
       # Kiosk behaviour
       KIOSK_REFRESH: 60
-      KIOSK_DISABLE_SCREENSAVER: FALSE
+      KIOSK_DISABLE_SCREENSAVER: false
       # Asset sources
-      KIOSK_SHOW_ARCHIVED: FALSE
+      KIOSK_SHOW_ARCHIVED: false
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
       # UI
-      KIOSK_DISABLE_UI: FALSE
-      KIOSK_HIDE_CURSOR: FALSE
+      KIOSK_DISABLE_UI: false
+      KIOSK_FRAMELESS: false
+      KIOSK_HIDE_CURSOR: false
       KIOSK_FONT_SIZE: 100
-      KIOSK_BACKGROUND_BLUR: TRUE
-      KIOSK_THEME: FADE
-      KIOSK_LAYOUT: SINGLE
+      KIOSK_BACKGROUND_BLUR: true
+      KIOSK_THEME: fade
+      KIOSK_LAYOUT: single
       # Sleep mode
-      KIOSK_SLEEP_START: 22
-      KIOSK_SLEEP_END: 7
+      # KIOSK_SLEEP_START: 22
+      # KIOSK_SLEEP_END: 7
       # Transistion options
-      KIOSK_TRANSITION: NONE
+      KIOSK_TRANSITION: none
       KIOSK_FADE_TRANSITION_DURATION: 1
       KIOSK_CROSS_FADE_TRANSITION_DURATION: 1
       # Image display settings
-      KIOSK_SHOW_PROGRESS: FALSE
-      KIOSK_IMAGE_FIT: CONTAIN
-      KIOSK_IMAGE_EFFECT: SMART-ZOOM
+      KIOSK_SHOW_PROGRESS: false
+      KIOSK_IMAGE_FIT: contain
+      KIOSK_IMAGE_EFFECT: smart-zoom
       KIOSK_IMAGE_EFFECT_AMOUNT: 120
+      KIOSK_USE_ORIGINAL_IMAGE: false
       # Image metadata
-      KIOSK_SHOW_IMAGE_TIME: FALSE
+      KIOSK_SHOW_IMAGE_TIME: false
       KIOSK_IMAGE_TIME_FORMAT: 24
-      KIOSK_SHOW_IMAGE_DATE: FALSE
+      KIOSK_SHOW_IMAGE_DATE: false
       KIOSK_IMAGE_DATE_FORMAT: YYYY-MM-DD
-      KIOSK_SHOW_IMAGE_EXIF: FALSE
-      KIOSK_SHOW_IMAGE_LOCATION: FALSE
+      KIOSK_SHOW_IMAGE_EXIF: false
+      KIOSK_SHOW_IMAGE_LOCATION: false
       KIOSK_HIDE_COUNTRIES: "HIDDEN_COUNTRY,HIDDEN_COUNTRY"
-      KIOSK_SHOW_IMAGE_ID: FALSE
+      KIOSK_SHOW_IMAGE_ID: false
       # Kiosk settings
-      KIOSK_WATCH_CONFIG: FALSE
+      KIOSK_WATCH_CONFIG: false
+      KIOSK_FETCHED_ASSETS_SIZE: 1000
+      KIOSK_HTTP_TIMEOUT: 20
       KIOSK_PASSWORD: ""
-      KIOSK_CACHE: TRUE
-      KIOSK_PREFETCH: TRUE
-      KIOSK_ASSET_WEIGHTING: TRUE
+      KIOSK_CACHE: true
+      KIOSK_PREFETCH: true
+      KIOSK_ASSET_WEIGHTING: true
       KIOSK_PORT: 3000
     ports:
       - 3000:3000
@@ -285,6 +293,7 @@ See the file config.example.yaml for an example config file
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
+| frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
@@ -300,6 +309,7 @@ See the file config.example.yaml for an example config file
 | [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | contain     | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
 | [image_effect](#image-effects)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom    | ""          | Add an effect to images.                                                               |
 | [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                   | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
+| use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: This will mostly likey cause kiosk to use more CPU and RAM resources. |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
@@ -326,14 +336,16 @@ kiosk:
 ```
 
 
-| **yaml**          | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
-|-------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
-| port              | KIOSK_PORT              | int          | 3000        | Which port Kiosk should use. NOTE that is port will need to be reflected in your compose file e.g. `KIOSK_PORT:HOST_PORT` |
-| watch_config      | KIOSK_WATCH_CONFIG      | bool         | false       | Should Kiosk watch config.yaml file for changes. Reloads all connect clients if a change is detected. |
-| password          | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
-| cache             | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
-| prefetch          | KIOSK_PREFETCH          | bool         | true        | Pre fetch assets in the background so images load much quicker when refresh timer ends.    |
-| asset_weighting   | KIOSK_ASSET_WEIGHTING   | bool         | true        | Balances asset selection when multiple sources are used e.g. multiple people and albums. When enabled, sources with fewer assets will show less often. |
+| **yaml**            | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
+|---------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
+| port                | KIOSK_PORT              | int          | 3000        | Which port Kiosk should use. NOTE: that is port will need to be reflected in your compose file, e.g. `KIOSK_PORT:HOST_PORT` |
+| watch_config        | KIOSK_WATCH_CONFIG      | bool         | false       | Should Kiosk watch config.yaml file for changes. Reloads all connect clients if a change is detected. |
+| fetched_assets_size | KIOSK_FETCHED_ASSETS_SIZE | int        | 1000        | The number of assets (data) requested from Immich per api call. min=1 max=1000. |
+| http_timeout        | KIOSK_HTTP_TIMEOUT      | int          | 20          | The number of seconds before an http request will time out. |
+| password            | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters, e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
+| cache               | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
+| prefetch            | KIOSK_PREFETCH          | bool         | true        | Pre-fetch assets in the background, so images load much quicker when refresh timer ends.    |
+| asset_weighting     | KIOSK_ASSET_WEIGHTING   | bool         | true        | Balances asset selection when multiple sources are used, e.g. multiple people and albums. When enabled, sources with fewer assets will show less often. |
 
 
 ------
@@ -647,6 +659,29 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
     unit: imperial
     lang: en
 ```
+------
+
+## Navigation Controls
+
+You can interact with Kiosk in three ways: touch, mouse, or keyboard.
+
+### Touch & Click Zones
+
+Kiosk's display is divided into interactive zones:
+
+![Interaction zones](/assets/click-zones.jpg)
+
+1. Left Side: Previous image(s)
+2. Center top: Pause/Play and Toggle Menu
+3. Right Side: Next image(s)
+
+### Keyboard Shortcuts
+
+| Key           | Action                        |
+|---------------|-------------------------------|
+| _ Spacebar    | Play/Pause and Toggle Menu    |
+| → Left Arrow  | Next Image(s)                 |
+| ← Right Arrow | Previous Image(s)             |
 
 ------
 

@@ -408,7 +408,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []views.ViewData, reque
 // generateViewData generates page data for the current request.
 func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID string, isPrefetch bool) (views.ViewData, error) {
 
-	const maxImageRetivalAttepmts = 3
+	const maxImageRetrievalAttepmts = 3
 
 	viewData := views.ViewData{
 		DeviceID: kioskDeviceID,
@@ -428,7 +428,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID
 		}
 
 		// Second image
-		for i := 0; i < maxImageRetivalAttepmts; i++ {
+		for i := 0; i < maxImageRetrievalAttepmts; i++ {
 			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
 			if err != nil {
 				return viewData, err
@@ -452,8 +452,8 @@ func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID
 		}
 
 		// Second image
-		for i := 0; i < maxImageRetivalAttepmts; i++ {
-			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
+		for i := 0; i < maxImageRetrievalAttepmts; i++ {
+			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.LandscapeOrientation, requestConfig, c, isPrefetch)
 			if err != nil {
 				return viewData, err
 			}

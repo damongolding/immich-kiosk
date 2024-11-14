@@ -14,23 +14,25 @@ import (
 // ImageLocation generates a formatted string of the image location based on EXIF information.
 // It combines the city, state, and country information if available.
 func ImageLocation(info immich.ExifInfo, hideCountries []string) string {
-	var location strings.Builder
+	var parts []string
 
 	if info.City != "" {
-		location.WriteString(info.City)
+		parts = append(parts, info.City)
 	}
 
 	if info.State != "" {
-		location.WriteString(", ")
-		location.WriteString(info.State)
+		parts = append(parts, info.State)
 	}
 
 	if info.Country != "" && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
-		location.WriteString("<span>, </span><br class=\"responsive-break\"/>")
-		location.WriteString(info.Country)
+		if len(parts) > 0 {
+			parts = append(parts, "<br class=\"responsive-break\"/>"+info.Country)
+		} else {
+			parts = append(parts, info.Country)
+		}
 	}
 
-	return location.String()
+	return strings.Join(parts, ", ")
 }
 
 // ImageExif generates a formatted string of EXIF information for an image.
@@ -71,11 +73,9 @@ func ImageExif(info immich.ExifInfo) string {
 func ImageDateTime(viewData ViewData, imageIndex int) string {
 	var imageDate string
 
-	var imageTimeFormat string
+	imageTimeFormat := "15:04"
 	if viewData.ImageTimeFormat == "12" {
 		imageTimeFormat = time.Kitchen
-	} else {
-		imageTimeFormat = time.TimeOnly
 	}
 
 	imageDateFormat := utils.DateToLayout(viewData.ImageDateFormat)
@@ -102,6 +102,13 @@ templ imageMetadata(viewData ViewData, imageIndex int) {
 		if viewData.ShowImageDate || viewData.ShowImageTime {
 			<div class="image--metadata--date">
 				{ ImageDateTime(viewData, imageIndex) }
+			</div>
+		}
+		if viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" {
+			<div class="image--metadata--desciption">
+				<small>
+					{ viewData.Images[imageIndex].ImmichImage.ExifInfo.Description }
+				</small>
 			</div>
 		}
 		if viewData.ShowImageExif {

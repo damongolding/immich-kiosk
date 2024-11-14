@@ -95,7 +95,7 @@ templ renderImageBackground(viewData ViewData, imageData ImageData) {
 // The function uses frameWithZoom for zoom effects and frame for default rendering.
 // It delegates to RenderImageWithCoverFit or renderImageFit based on the image effect.
 templ renderImage(viewData ViewData, imageData ImageData) {
-	switch strings.ToLower(viewData.ImageEffect) {
+	switch viewData.ImageEffect {
 		case "zoom", "smart-zoom":
 			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichImage) {
 				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
@@ -118,7 +118,7 @@ templ renderImage(viewData ViewData, imageData ImageData) {
 //   - "none": Uses RenderImageWithoutFit
 //   - Any other value: Uses RenderImageWithContainFit (default behavior)
 templ renderImageFit(imageData string, imageFit string) {
-	switch strings.ToLower(imageFit) {
+	switch imageFit {
 		case "cover":
 			@RenderImageWithCoverFit(imageData, imageFit)
 		case "none":
@@ -204,6 +204,17 @@ func smartZoom(image immich.ImmichAsset) templ.CSSClass {
 	return transformOrigin(fmt.Sprintf("%f%% %f%%", x, y))
 }
 
+func newHistoryEntry(images []ImageData) string {
+	if len(images) == 0 {
+		return ""
+	}
+	newImages := make([]string, len(images))
+	for i, entry := range images {
+		newImages[i] = entry.ImmichImage.ID
+	}
+	return strings.Join(newImages, ",")
+}
+
 // renderHistory renders a form containing the viewing history of images.
 //
 // Parameters:
@@ -213,8 +224,6 @@ templ renderHistory(viewData ViewData) {
 		for _, historyEntry := range viewData.History {
 			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
 		}
-		for _, newHistoryEntry := range viewData.Images {
-			<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry.ImmichImage.ID }/>
-		}
+		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Images) }/>
 	</form>
 }
