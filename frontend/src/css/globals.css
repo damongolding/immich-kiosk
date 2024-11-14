@@ -25,6 +25,6 @@ body {
 @media screen and (max-width: 31.25rem) {
     html,
     body {
-        font-size: 80%; /* 16px */
+        font-size: 80%; /* 12px */
     }
 }

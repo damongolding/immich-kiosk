@@ -148,7 +148,7 @@ templ kioskData(data any) {
 
 // offlineIcon displays an offline status icon
 templ offlineIcon() {
-	<div id="offline">
+	<figure id="offline">
 		<svg
 			width="48"
 			height="48"
@@ -169,7 +169,7 @@ templ offlineIcon() {
 				fill="#F3516B"
 			></path>
 		</svg>
-	</div>
+	</figure>
 }
 
 // historyForm renders a form for kiosk history
@@ -250,17 +250,17 @@ templ refreshCheckForm(kioskVersion, reloadTimeStamp string, queries url.Values)
 templ body(viewData ViewData) {
 	switch viewData.Transition {
 		case "cross-fade":
-			<body hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", viewData.CrossFadeTransitionDuration+1) } class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
+			<body hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", viewData.CrossFadeTransitionDuration+1) } class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }>
 				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
 				{ children... }
 			</body>
 		case "fade":
-			<body hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration/2) } class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
+			<body hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration/2) } class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }>
 				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
 				{ children... }
 			</body>
 		default:
-			<body hx-swap="innerHTML" class={ fmt.Sprintf("layout-%s", viewData.Layout) }>
+			<body hx-swap="innerHTML" class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }>
 				{ children... }
 			</body>
 	}
@@ -318,7 +318,7 @@ templ Home(viewData ViewData) {
 			}
 		</head>
 		@body(viewData) {
-			<div
+			<main
 				id="kiosk"
 				hx-post="/image"
 				hx-include=".kiosk-history--entry"
@@ -335,12 +335,12 @@ templ Home(viewData ViewData) {
 				hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID) }
 			>
 				@spinner()
-			</div>
+			</main>
 			if viewData.ShowProgress {
 				@progressBar()
 			}
 			if !viewData.DisableUi {
-				<div id="clock-weather-container">
+				<section id="clock-weather-container">
 					<div>
 						if (viewData.ShowTime || viewData.ShowDate) {
 							@clockHtmx(viewData.Theme)
@@ -351,7 +351,7 @@ templ Home(viewData ViewData) {
 							@weatherHtmx(viewData.Theme)
 						}
 					</div>
-				</div>
+				</section>
 			}
 			@menu()
 			@paramForm(viewData.Queries)

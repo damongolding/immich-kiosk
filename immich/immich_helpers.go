@@ -180,6 +180,40 @@ func (i *ImmichAsset) addRatio() {
 	}
 }
 
+// AssetInfo fetches the image information from Immich
+func (i *ImmichAsset) AssetInfo(requestID string) {
+	var immichAsset ImmichAsset
+
+	u, err := url.Parse(requestConfig.ImmichUrl)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	apiUrl := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   "/api/assets/" + i.ID,
+	}
+
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAsset)
+	body, err := immichApiCall("GET", apiUrl.String(), nil)
+	if err != nil {
+		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
+		log.Error("adding faces", "err", err)
+		return
+	}
+
+	err = json.Unmarshal(body, &immichAsset)
+	if err != nil {
+		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
+		log.Error("adding faces", "err", err)
+		return
+	}
+
+	*i = immichAsset
+}
+
 // ImagePreview fetches the raw image data from Immich
 func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 
@@ -206,6 +240,10 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 	return i.immichApiCall("GET", apiUrl.String(), nil)
 }
 
+// FacesCenterPoint calculates the center point of all detected faces in an image as percentages.
+// It analyzes both assigned (People) and unassigned faces, finding the bounding box that encompasses
+// all faces and returning its center as x,y percentages relative to the image dimensions.
+// Returns (0,0) if no faces are detected or if image dimensions are invalid.
 func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
 	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
 		return 0, 0
@@ -282,6 +320,10 @@ func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
 	return percentX, percentY
 }
 
+// FacesCenterPointPX calculates the center point of all detected faces in an image in pixels.
+// It analyzes both assigned (People) and unassigned faces, finding the bounding box that encompasses
+// all faces and returning its center as x,y pixel coordinates.
+// Returns (0,0) if no faces are detected or if all bounding boxes are empty.
 func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
 	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
 		return 0, 0

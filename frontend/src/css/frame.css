@@ -61,9 +61,16 @@
 }
 
 /* Splitview layout */
-.layout-splitview .frame {
-    border: 0.4rem solid black;
-    border-radius: 0.75rem;
+.layout-splitview {
+    .frame {
+        border: 0.4rem solid black;
+        border-radius: 0.75rem;
+    }
+
+    &.frameless .frame {
+        border: none;
+        border-radius: 0;
+    }
 }
 
 .frame--layout-splitview {
@@ -82,6 +89,10 @@
 .frame--layout-splitview:nth-child(2) {
     border-left: 0.2rem solid black;
     border-radius: 0.75rem;
+}
+
+.frameless .frame--layout-splitview {
+    border-radius: 0;
 }
 
 .frame--layout-splitview .frame--image {
@@ -104,6 +115,12 @@
         border: 0.4rem solid black;
         border-radius: 0.75rem;
     }
+
+    &.frameless .frame {
+        flex-direction: column;
+        border: none;
+        border-radius: 0;
+    }
 }
 
 .frame--layout-splitview-landscape:nth-child(1) {
@@ -114,6 +131,10 @@
 .frame--layout-splitview-landscape:nth-child(2) {
     border-top: 0.2rem solid black;
     border-radius: 0.75rem;
+}
+
+.frameless .frame--layout-splitview-landscape {
+    border-radius: 0;
 }
 
 .frame--layout-splitview-landscape .frame--image {

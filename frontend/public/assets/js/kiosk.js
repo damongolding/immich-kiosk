@@ -3832,6 +3832,7 @@ var kiosk = (() => {
   }
 
   // src/ts/kiosk.ts
+  var MAX_FRAME = 3;
   var _a;
   var kioskData = JSON.parse(
     ((_a = document.getElementById("kiosk-data")) == null ? void 0 : _a.textContent) || "{}"
@@ -3849,13 +3850,15 @@ var kiosk = (() => {
   var menuInteraction = htmx_esm_default.find(
     "#navigation-interaction-area--menu"
   );
-  var nextImageArea = htmx_esm_default.find("#navigation-interaction-area--next-image");
-  var prevImageArea = htmx_esm_default.find("#navigation-interaction-area--previous-image");
   var menuPausePlayButton2 = htmx_esm_default.find(
     ".navigation--play-pause"
   );
-  var nextImageMenuButton2 = htmx_esm_default.find(".navigation--next-image");
-  var prevImageMenuButton2 = htmx_esm_default.find(".navigation--prev-image");
+  var nextImageMenuButton2 = htmx_esm_default.find(
+    ".navigation--next-image"
+  );
+  var prevImageMenuButton2 = htmx_esm_default.find(
+    ".navigation--prev-image"
+  );
   var requestInFlight = false;
   function init() {
     return __async(this, null, function* () {
@@ -3925,7 +3928,7 @@ var kiosk = (() => {
   }
   function cleanupFrames() {
     const frames = htmx_esm_default.findAll(".frame");
-    if (frames.length > 3) {
+    if (frames.length > MAX_FRAME) {
       htmx_esm_default.remove(frames[0]);
     }
   }

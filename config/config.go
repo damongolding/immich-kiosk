@@ -116,6 +116,8 @@ type Config struct {
 
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
 	DisableUi bool `mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
+	// Frameless remove border on frames
+	Frameless bool `mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
 
 	// ShowTime whether to display clock
 	ShowTime bool `mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`

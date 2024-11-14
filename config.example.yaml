@@ -25,6 +25,7 @@ album:
 
 # UI
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
+frameless: false # remove border around image and rounded corners.
 hide_cursor: false # Hide cursor/mouse via CSS.
 font_size: 100 # the base font size as a percentage. OMIT the % character
 background_blur: true # display a blurred version of image as background
@@ -46,7 +47,6 @@ image_fit: contain # how the image fits the screen. Options are none, contain an
 image_effect: none
 image_effect_amount: 120
 use_original_image: false # use the original file.
-
 
 # Image METADATA
 show_image_time: false # true or false

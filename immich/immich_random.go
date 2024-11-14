@@ -25,6 +25,7 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		log.Fatal("parsing url", err)
+		return err
 	}
 
 	requestBody := ImmichSearchRandomBody{

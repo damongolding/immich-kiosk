@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -39,15 +40,12 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 			"path", c.Request().URL.String(),
 			"requestConfig", requestConfig.String(),
 		)
-
-		if isSleepMode(requestConfig) || len(requestConfig.History) < 2 {
-			return c.NoContent(http.StatusNoContent)
-		}
-
 		historyLen := len(requestConfig.History)
-		if historyLen < 2 {
+
+		if isSleepMode(requestConfig) || historyLen < 2 {
 			return c.NoContent(http.StatusNoContent)
 		}
+
 		lastHistoryEntry := requestConfig.History[historyLen-2]
 		prevImages := strings.Split(lastHistoryEntry, ",")
 		requestConfig.History = requestConfig.History[:historyLen-2]
@@ -67,6 +65,17 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 			g.Go(func() error {
 				image := immich.NewImage(requestConfig)
 				image.ID = imageID
+
+				var wg sync.WaitGroup
+				wg.Add(1)
+
+				go func(image *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
+					defer wg.Done()
+
+					image.AssetInfo(requestID)
+
+				}(&image, requestID, &wg)
+
 				imgBytes, err := image.ImagePreview()
 				if err != nil {
 					return fmt.Errorf("retrieving image: %w", err)
@@ -81,6 +90,8 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 				if err != nil {
 					return fmt.Errorf("converting blurred image to base64: %w", err)
 				}
+
+				wg.Wait()
 
 				ViewData.Images[i] = views.ImageData{
 					ImmichImage:   image,

@@ -1,4 +1,4 @@
-import htmx from "htmx.org";
+import htmx, { HtmxResponseInfo } from "htmx.org";
 import {
   addFullscreenEventListener,
   fullscreenAPI,
@@ -19,6 +19,13 @@ import {
 
 ("use strict");
 
+interface HTMXEvent extends Event {
+  preventDefault: () => void;
+  detail: {
+    successful: boolean;
+  };
+}
+
 /**
  * Type definition for kiosk configuration data
  */
@@ -30,6 +37,8 @@ type KioskData = {
   refresh: number;
   disableScreensaver: boolean;
 };
+
+const MAX_FRAME = 3 as const;
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -52,13 +61,15 @@ const menu = htmx.find(".navigation") as HTMLElement | null;
 const menuInteraction = htmx.find(
   "#navigation-interaction-area--menu",
 ) as HTMLElement | null;
-const nextImageArea = htmx.find("#navigation-interaction-area--next-image");
-const prevImageArea = htmx.find("#navigation-interaction-area--previous-image");
 const menuPausePlayButton = htmx.find(
   ".navigation--play-pause",
 ) as HTMLElement | null;
-const nextImageMenuButton = htmx.find(".navigation--next-image");
-const prevImageMenuButton = htmx.find(".navigation--prev-image");
+const nextImageMenuButton = htmx.find(
+  ".navigation--next-image",
+) as HTMLElement | null;
+const prevImageMenuButton = htmx.find(
+  ".navigation--prev-image",
+) as HTMLElement | null;
 
 let requestInFlight = false;
 
@@ -67,7 +78,7 @@ let requestInFlight = false;
  * Sets up debugging, screensaver prevention, service worker registration,
  * fullscreen capability, polling, menu and event listeners
  */
-async function init() {
+async function init(): Promise<void> {
   if (kioskData.debugVerbose) {
     htmx.logAll();
   }
@@ -113,7 +124,7 @@ async function init() {
  * Handler for fullscreen button clicks
  * Toggles fullscreen mode for the document body
  */
-function handleFullscreenClick() {
+function handleFullscreenClick(): void {
   toggleFullscreen(documentBody, fullscreenButton);
 }
 
@@ -125,7 +136,7 @@ function handleFullscreenClick() {
  * - Navigation between images
  * - Server connection status monitoring
  */
-function addEventListeners() {
+function addEventListeners(): void {
   // Pause/resume polling and show/hide menu
   menuInteraction?.addEventListener("click", togglePolling);
   menuPausePlayButton?.addEventListener("click", togglePolling);
@@ -142,7 +153,7 @@ function addEventListeners() {
   addFullscreenEventListener(fullscreenButton);
 
   // Server online check. Fires after every AJAX request.
-  htmx.on("htmx:afterRequest", function (e: any) {
+  htmx.on("htmx:afterRequest", function (e: HTMXEvent) {
     const offlineSVG = htmx.find("#offline");
 
     if (!offlineSVG) {
@@ -162,9 +173,9 @@ function addEventListeners() {
  * Remove first frame from the DOM when there are more than 3 frames
  * Used to prevent memory issues from accumulating frames
  */
-function cleanupFrames() {
+function cleanupFrames(): void {
   const frames = htmx.findAll(".frame");
-  if (frames.length > 3) {
+  if (frames.length > MAX_FRAME) {
     htmx.remove(frames[0]);
   }
 }
@@ -175,7 +186,7 @@ function cleanupFrames() {
  * @description Prevents multiple simultaneous requests by checking and setting a lock flag.
  * Also pauses polling and disables navigation buttons while request is in flight.
  */
-function setRequestLock(e: any) {
+function setRequestLock(e: HTMXEvent): void {
   if (requestInFlight) {
     e.preventDefault();
     return;
@@ -193,7 +204,7 @@ function setRequestLock(e: any) {
  * @description Re-enables navigation buttons and marks request as complete by unsetting
  * the requestInFlight flag.
  */
-function releaseRequestLock() {
+function releaseRequestLock(): void {
   enableImageNavigationButtons();
 
   requestInFlight = false;
@@ -205,7 +216,7 @@ function releaseRequestLock() {
  * @description Prevents navigation when there is an active request or insufficient history.
  * If navigation is allowed, sets the request lock.
  */
-function checkHistoryExists(e: any) {
+function checkHistoryExists(e: HTMXEvent): void {
   const historyItems = htmx.findAll(".kiosk-history--entry");
   if (requestInFlight || historyItems.length < 2) {
     e.preventDefault();

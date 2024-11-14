@@ -1,3 +1,24 @@
+/* src/css/vars.css */
+:root {
+  --fade-gradient:
+    hsla(0, 0%, 0%, 0.59) 0%,
+    hsla(0, 0%, 0%, 0.582) 5.2%,
+    hsla(0, 0%, 0%, 0.561) 10.9%,
+    hsla(0, 0%, 0%, 0.529) 16.9%,
+    hsla(0, 0%, 0%, 0.487) 23.3%,
+    hsla(0, 0%, 0%, 0.437) 29.9%,
+    hsla(0, 0%, 0%, 0.382) 36.8%,
+    hsla(0, 0%, 0%, 0.324) 43.8%,
+    hsla(0, 0%, 0%, 0.266) 51%,
+    hsla(0, 0%, 0%, 0.208) 58.2%,
+    hsla(0, 0%, 0%, 0.153) 65.4%,
+    hsla(0, 0%, 0%, 0.103) 72.6%,
+    hsla(0, 0%, 0%, 0.061) 79.7%,
+    hsla(0, 0%, 0%, 0.029) 86.7%,
+    hsla(0, 0%, 0%, 0.008) 93.5%,
+    hsla(0, 0%, 0%, 0) 100%;
+}
+
 /* src/css/fonts.css */
 @font-face {
   font-family: "Barlow";
@@ -267,9 +288,13 @@ body {
   height: 100%;
 }
 .layout-splitview .frame {
-  border: 0.4rem solid black;
-  border-radius: 0.75rem;
-}
+    border: 0.4rem solid black;
+    border-radius: 0.75rem;
+  }
+.layout-splitview.frameless .frame {
+    border: none;
+    border-radius: 0;
+  }
 .frame--layout-splitview {
   position: relative;
   width: 100%;
@@ -283,6 +308,9 @@ body {
 .frame--layout-splitview:nth-child(2) {
   border-left: 0.2rem solid black;
   border-radius: 0.75rem;
+}
+.frameless .frame--layout-splitview {
+  border-radius: 0;
 }
 .frame--layout-splitview .frame--image {
   position: absolute;
@@ -310,6 +338,14 @@ body {
     border: 0.4rem solid black;
     border-radius: 0.75rem;
   }
+.layout-splitview-landscape.frameless .frame {
+    -webkit-flex-direction: column;
+       -moz-box-orient: vertical;
+       -moz-box-direction: normal;
+            flex-direction: column;
+    border: none;
+    border-radius: 0;
+  }
 .frame--layout-splitview-landscape:nth-child(1) {
   border-bottom: 0.2rem solid black;
   border-radius: 0.75rem;
@@ -317,6 +353,9 @@ body {
 .frame--layout-splitview-landscape:nth-child(2) {
   border-top: 0.2rem solid black;
   border-radius: 0.75rem;
+}
+.frameless .frame--layout-splitview-landscape {
+  border-radius: 0;
 }
 .frame--layout-splitview-landscape .frame--image {
   position: absolute;
@@ -361,45 +400,8 @@ body {
   right: 0;
   width: 150%;
   height: 200%;
-  background-image:
-    -moz-radial-gradient(
-      100% 100%,
-      100% 100%,
-      hsla(0, 0%, 0%, 0.59) 0%,
-      hsla(0, 0%, 0%, 0.582) 5.2%,
-      hsla(0, 0%, 0%, 0.561) 10.9%,
-      hsla(0, 0%, 0%, 0.529) 16.9%,
-      hsla(0, 0%, 0%, 0.487) 23.3%,
-      hsla(0, 0%, 0%, 0.437) 29.9%,
-      hsla(0, 0%, 0%, 0.382) 36.8%,
-      hsla(0, 0%, 0%, 0.324) 43.8%,
-      hsla(0, 0%, 0%, 0.266) 51%,
-      hsla(0, 0%, 0%, 0.208) 58.2%,
-      hsla(0, 0%, 0%, 0.153) 65.4%,
-      hsla(0, 0%, 0%, 0.103) 72.6%,
-      hsla(0, 0%, 0%, 0.061) 79.7%,
-      hsla(0, 0%, 0%, 0.029) 86.7%,
-      hsla(0, 0%, 0%, 0.008) 93.5%,
-      hsla(0, 0%, 0%, 0) 100%);
-  background-image:
-    radial-gradient(
-      100% 100% at 100% 100%,
-      hsla(0, 0%, 0%, 0.59) 0%,
-      hsla(0, 0%, 0%, 0.582) 5.2%,
-      hsla(0, 0%, 0%, 0.561) 10.9%,
-      hsla(0, 0%, 0%, 0.529) 16.9%,
-      hsla(0, 0%, 0%, 0.487) 23.3%,
-      hsla(0, 0%, 0%, 0.437) 29.9%,
-      hsla(0, 0%, 0%, 0.382) 36.8%,
-      hsla(0, 0%, 0%, 0.324) 43.8%,
-      hsla(0, 0%, 0%, 0.266) 51%,
-      hsla(0, 0%, 0%, 0.208) 58.2%,
-      hsla(0, 0%, 0%, 0.153) 65.4%,
-      hsla(0, 0%, 0%, 0.103) 72.6%,
-      hsla(0, 0%, 0%, 0.061) 79.7%,
-      hsla(0, 0%, 0%, 0.029) 86.7%,
-      hsla(0, 0%, 0%, 0.008) 93.5%,
-      hsla(0, 0%, 0%, 0) 100%);
+  background-image: -moz-radial-gradient(100% 100%, 100% 100%, var(--fade-gradient));
+  background-image: radial-gradient(100% 100% at 100% 100%, var(--fade-gradient));
   z-index: 0;
 }
 .frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before {
@@ -410,45 +412,8 @@ body {
   left: 0;
   width: 150%;
   height: 200%;
-  background-image:
-    -moz-radial-gradient(
-      0% 100%,
-      100% 100%,
-      hsla(0, 0%, 0%, 0.59) 0%,
-      hsla(0, 0%, 0%, 0.582) 5.2%,
-      hsla(0, 0%, 0%, 0.561) 10.9%,
-      hsla(0, 0%, 0%, 0.529) 16.9%,
-      hsla(0, 0%, 0%, 0.487) 23.3%,
-      hsla(0, 0%, 0%, 0.437) 29.9%,
-      hsla(0, 0%, 0%, 0.382) 36.8%,
-      hsla(0, 0%, 0%, 0.324) 43.8%,
-      hsla(0, 0%, 0%, 0.266) 51%,
-      hsla(0, 0%, 0%, 0.208) 58.2%,
-      hsla(0, 0%, 0%, 0.153) 65.4%,
-      hsla(0, 0%, 0%, 0.103) 72.6%,
-      hsla(0, 0%, 0%, 0.061) 79.7%,
-      hsla(0, 0%, 0%, 0.029) 86.7%,
-      hsla(0, 0%, 0%, 0.008) 93.5%,
-      hsla(0, 0%, 0%, 0) 100%);
-  background-image:
-    radial-gradient(
-      100% 100% at 0% 100%,
-      hsla(0, 0%, 0%, 0.59) 0%,
-      hsla(0, 0%, 0%, 0.582) 5.2%,
-      hsla(0, 0%, 0%, 0.561) 10.9%,
-      hsla(0, 0%, 0%, 0.529) 16.9%,
-      hsla(0, 0%, 0%, 0.487) 23.3%,
-      hsla(0, 0%, 0%, 0.437) 29.9%,
-      hsla(0, 0%, 0%, 0.382) 36.8%,
-      hsla(0, 0%, 0%, 0.324) 43.8%,
-      hsla(0, 0%, 0%, 0.266) 51%,
-      hsla(0, 0%, 0%, 0.208) 58.2%,
-      hsla(0, 0%, 0%, 0.153) 65.4%,
-      hsla(0, 0%, 0%, 0.103) 72.6%,
-      hsla(0, 0%, 0%, 0.061) 79.7%,
-      hsla(0, 0%, 0%, 0.029) 86.7%,
-      hsla(0, 0%, 0%, 0.008) 93.5%,
-      hsla(0, 0%, 0%, 0) 100%);
+  background-image: -moz-radial-gradient(0% 100%, 100% 100%, var(--fade-gradient));
+  background-image: radial-gradient(100% 100% at 0% 100%, var(--fade-gradient));
   z-index: 0;
 }
 .image--metadata--theme-solid {
@@ -720,45 +685,8 @@ body {
   left: 0;
   width: 150%;
   height: 200%;
-  background-image:
-    -moz-radial-gradient(
-      0% 0%,
-      100% 100%,
-      hsla(0, 0%, 0%, 0.59) 0%,
-      hsla(0, 0%, 0%, 0.582) 5.2%,
-      hsla(0, 0%, 0%, 0.561) 10.9%,
-      hsla(0, 0%, 0%, 0.529) 16.9%,
-      hsla(0, 0%, 0%, 0.487) 23.3%,
-      hsla(0, 0%, 0%, 0.437) 29.9%,
-      hsla(0, 0%, 0%, 0.382) 36.8%,
-      hsla(0, 0%, 0%, 0.324) 43.8%,
-      hsla(0, 0%, 0%, 0.266) 51%,
-      hsla(0, 0%, 0%, 0.208) 58.2%,
-      hsla(0, 0%, 0%, 0.153) 65.4%,
-      hsla(0, 0%, 0%, 0.103) 72.6%,
-      hsla(0, 0%, 0%, 0.061) 79.7%,
-      hsla(0, 0%, 0%, 0.029) 86.7%,
-      hsla(0, 0%, 0%, 0.008) 93.5%,
-      hsla(0, 0%, 0%, 0) 100%);
-  background-image:
-    radial-gradient(
-      100% 100% at 0% 0%,
-      hsla(0, 0%, 0%, 0.59) 0%,
-      hsla(0, 0%, 0%, 0.582) 5.2%,
-      hsla(0, 0%, 0%, 0.561) 10.9%,
-      hsla(0, 0%, 0%, 0.529) 16.9%,
-      hsla(0, 0%, 0%, 0.487) 23.3%,
-      hsla(0, 0%, 0%, 0.437) 29.9%,
-      hsla(0, 0%, 0%, 0.382) 36.8%,
-      hsla(0, 0%, 0%, 0.324) 43.8%,
-      hsla(0, 0%, 0%, 0.266) 51%,
-      hsla(0, 0%, 0%, 0.208) 58.2%,
-      hsla(0, 0%, 0%, 0.153) 65.4%,
-      hsla(0, 0%, 0%, 0.103) 72.6%,
-      hsla(0, 0%, 0%, 0.061) 79.7%,
-      hsla(0, 0%, 0%, 0.029) 86.7%,
-      hsla(0, 0%, 0%, 0.008) 93.5%,
-      hsla(0, 0%, 0%, 0) 100%);
+  background-image: -moz-radial-gradient(0% 0%, 100% 100%, var(--fade-gradient));
+  background-image: radial-gradient(100% 100% at 0% 0%, var(--fade-gradient));
   z-index: 0;
 }
 .clock--theme-solid {
@@ -1095,45 +1023,8 @@ body {
   left: 0;
   width: 150%;
   height: 200%;
-  background-image:
-    -moz-radial-gradient(
-      0% 100%,
-      100% 100%,
-      hsla(0, 0%, 0%, 0.59) 0%,
-      hsla(0, 0%, 0%, 0.582) 5.2%,
-      hsla(0, 0%, 0%, 0.561) 10.9%,
-      hsla(0, 0%, 0%, 0.529) 16.9%,
-      hsla(0, 0%, 0%, 0.487) 23.3%,
-      hsla(0, 0%, 0%, 0.437) 29.9%,
-      hsla(0, 0%, 0%, 0.382) 36.8%,
-      hsla(0, 0%, 0%, 0.324) 43.8%,
-      hsla(0, 0%, 0%, 0.266) 51%,
-      hsla(0, 0%, 0%, 0.208) 58.2%,
-      hsla(0, 0%, 0%, 0.153) 65.4%,
-      hsla(0, 0%, 0%, 0.103) 72.6%,
-      hsla(0, 0%, 0%, 0.061) 79.7%,
-      hsla(0, 0%, 0%, 0.029) 86.7%,
-      hsla(0, 0%, 0%, 0.008) 93.5%,
-      hsla(0, 0%, 0%, 0) 100%);
-  background-image:
-    radial-gradient(
-      100% 100% at 0% 100%,
-      hsla(0, 0%, 0%, 0.59) 0%,
-      hsla(0, 0%, 0%, 0.582) 5.2%,
-      hsla(0, 0%, 0%, 0.561) 10.9%,
-      hsla(0, 0%, 0%, 0.529) 16.9%,
-      hsla(0, 0%, 0%, 0.487) 23.3%,
-      hsla(0, 0%, 0%, 0.437) 29.9%,
-      hsla(0, 0%, 0%, 0.382) 36.8%,
-      hsla(0, 0%, 0%, 0.324) 43.8%,
-      hsla(0, 0%, 0%, 0.266) 51%,
-      hsla(0, 0%, 0%, 0.208) 58.2%,
-      hsla(0, 0%, 0%, 0.153) 65.4%,
-      hsla(0, 0%, 0%, 0.103) 72.6%,
-      hsla(0, 0%, 0%, 0.061) 79.7%,
-      hsla(0, 0%, 0%, 0.029) 86.7%,
-      hsla(0, 0%, 0%, 0.008) 93.5%,
-      hsla(0, 0%, 0%, 0) 100%);
+  background-image: -moz-radial-gradient(0% 100%, 100% 100%, var(--fade-gradient));
+  background-image: radial-gradient(100% 100% at 0% 100%, var(--fade-gradient));
   z-index: 0;
 }
 .weather {
@@ -1205,45 +1096,8 @@ body {
     bottom: unset;
     width: 150%;
     height: 200%;
-    background-image:
-      -moz-radial-gradient(
-        100% 0%,
-        100% 100%,
-        hsla(0, 0%, 0%, 0.59) 0%,
-        hsla(0, 0%, 0%, 0.582) 5.2%,
-        hsla(0, 0%, 0%, 0.561) 10.9%,
-        hsla(0, 0%, 0%, 0.529) 16.9%,
-        hsla(0, 0%, 0%, 0.487) 23.3%,
-        hsla(0, 0%, 0%, 0.437) 29.9%,
-        hsla(0, 0%, 0%, 0.382) 36.8%,
-        hsla(0, 0%, 0%, 0.324) 43.8%,
-        hsla(0, 0%, 0%, 0.266) 51%,
-        hsla(0, 0%, 0%, 0.208) 58.2%,
-        hsla(0, 0%, 0%, 0.153) 65.4%,
-        hsla(0, 0%, 0%, 0.103) 72.6%,
-        hsla(0, 0%, 0%, 0.061) 79.7%,
-        hsla(0, 0%, 0%, 0.029) 86.7%,
-        hsla(0, 0%, 0%, 0.008) 93.5%,
-        hsla(0, 0%, 0%, 0) 100%);
-    background-image:
-      radial-gradient(
-        100% 100% at 100% 0%,
-        hsla(0, 0%, 0%, 0.59) 0%,
-        hsla(0, 0%, 0%, 0.582) 5.2%,
-        hsla(0, 0%, 0%, 0.561) 10.9%,
-        hsla(0, 0%, 0%, 0.529) 16.9%,
-        hsla(0, 0%, 0%, 0.487) 23.3%,
-        hsla(0, 0%, 0%, 0.437) 29.9%,
-        hsla(0, 0%, 0%, 0.382) 36.8%,
-        hsla(0, 0%, 0%, 0.324) 43.8%,
-        hsla(0, 0%, 0%, 0.266) 51%,
-        hsla(0, 0%, 0%, 0.208) 58.2%,
-        hsla(0, 0%, 0%, 0.153) 65.4%,
-        hsla(0, 0%, 0%, 0.103) 72.6%,
-        hsla(0, 0%, 0%, 0.061) 79.7%,
-        hsla(0, 0%, 0%, 0.029) 86.7%,
-        hsla(0, 0%, 0%, 0.008) 93.5%,
-        hsla(0, 0%, 0%, 0) 100%);
+    background-image: -moz-radial-gradient(100% 0%, 100% 100%, var(--fade-gradient));
+    background-image: radial-gradient(100% 100% at 100% 0%, var(--fade-gradient));
     z-index: 0;
   }
 .layout-splitview .weather--theme-solid {
@@ -1390,6 +1244,7 @@ body {
 .navigation--prev-image.disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* src/css/sleep.css */

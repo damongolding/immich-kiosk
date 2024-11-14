@@ -83,7 +83,7 @@ function stopPolling() {
 /**
  * Pause the polling process
  */
-function pausePolling(showMenu = true) {
+function pausePolling(showMenu: boolean = true) {
   if (isPaused && animationFrameId === null) return;
 
   cancelAnimationFrame(animationFrameId as number);
