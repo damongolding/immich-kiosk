@@ -200,14 +200,14 @@ func (i *ImmichAsset) AssetInfo(requestID string) {
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
-		log.Error("adding faces", "err", err)
+		log.Error("fetching asset info", "err", err)
 		return
 	}
 
 	err = json.Unmarshal(body, &immichAsset)
 	if err != nil {
 		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
-		log.Error("adding faces", "err", err)
+		log.Error("fetching asset info", "err", err)
 		return
 	}
 

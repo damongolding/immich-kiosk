@@ -61,6 +61,7 @@
   - [Sleep mode](#sleep-mode)
   - [Cusom CSS](#custom-css)
   - [Weather](#weather)
+- [Navigation](#navigation)
 - [PWA](#pwa)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
@@ -656,6 +657,29 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
     unit: imperial
     lang: en
 ```
+------
+
+## Navigation Controls
+
+You can interact with Kiosk in three ways: touch, mouse, or keyboard.
+
+### Touch & Click Zones
+
+Kiosk's display is divided into interactive zones:
+
+![Interaction zones](/assets/click-zones.jpg)
+
+1. Left Side: Previous image(s)
+2. Center top: Pause/Play and Toggle Menu
+3. Right Side: Next image(s)
+
+### Keyboard Shortcuts
+
+| Key           | Action                        |
+|---------------|-------------------------------|
+| _ Spacebar    | Play/Pause and Toggle Menu    |
+| → Left Arrow  | Next Image(s)                 |
+| ← Right Arrow | Previous Image(s)             |
 
 ------
 
