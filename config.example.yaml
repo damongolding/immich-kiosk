@@ -72,6 +72,7 @@ kiosk:
   port: 3000
   watch_config: false
   fetched_assets_size: 1000
+  http_timeout: 20
   password: ""
   cache: true # cache select api calls
   pre_fetch: true # fetch assets in the background

@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"path"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -193,7 +194,7 @@ func (i *ImmichAsset) AssetInfo(requestID string) {
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "/api/assets/" + i.ID,
+		Path:   path.Join("api", "assets", i.ID),
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAsset)
@@ -233,7 +234,7 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 	apiUrl := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
-		Path:     "/api/assets/" + i.ID + "/" + assetSize,
+		Path:     path.Join("api", "assets", i.ID, assetSize),
 		RawQuery: "size=preview",
 	}
 

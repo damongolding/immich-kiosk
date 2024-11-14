@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"net/url"
+	"path"
 
 	"github.com/charmbracelet/log"
 	"github.com/google/go-querystring/query"
@@ -26,7 +27,7 @@ func (i *ImmichAsset) personAssets(personID, requestID string) ([]ImmichAsset, e
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "api/people/" + personID + "/assets",
+		Path:   path.Join("api", "people", personID, "assets"),
 	}
 
 	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestID, images)
@@ -56,7 +57,7 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID string) (int, error) 
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "api/people/" + personID + "/statistics",
+		Path:   path.Join("api", "people", personID, "statistics"),
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, personStatistics)

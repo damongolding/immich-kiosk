@@ -263,6 +263,7 @@ services:
       # Kiosk settings
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
+      KIOSK_HTTP_TIMEOUT: 20
       KIOSK_PASSWORD: ""
       KIOSK_CACHE: true
       KIOSK_PREFETCH: true
@@ -340,9 +341,10 @@ kiosk:
 | port                | KIOSK_PORT              | int          | 3000        | Which port Kiosk should use. NOTE: that is port will need to be reflected in your compose file e.g. `KIOSK_PORT:HOST_PORT` |
 | watch_config        | KIOSK_WATCH_CONFIG      | bool         | false       | Should Kiosk watch config.yaml file for changes. Reloads all connect clients if a change is detected. |
 | fetched_assets_size | KIOSK_FETCHED_ASSETS_SIZE | int        | 1000        | The number of assets (data) requested from Immich per api call. min=1 max=1000. |
+| http_timeout        | KIOSK_HTTP_TIMEOUT      | int          | 20          | The number of seconds before a http request will timeout. |
 | password            | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters  e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
 | cache               | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
-| prefetch            | KIOSK_PREFETCH          | bool         | true        | Pre-fetch assets in the background so images load much quicker when refresh timer ends.    |
+| prefetch            | KIOSK_PREFETCH          | bool         | true        | Pre-fetch assets in the background, so images load much quicker when refresh timer ends.    |
 | asset_weighting     | KIOSK_ASSET_WEIGHTING   | bool         | true        | Balances asset selection when multiple sources are used, e.g. multiple people and albums. When enabled, sources with fewer assets will show less often. |
 
 
