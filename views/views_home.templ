@@ -357,7 +357,7 @@ templ Home(viewData ViewData) {
 					</div>
 				</section>
 			}
-			@menu()
+			@menu(viewData.Desktop)
 			@paramForm(viewData.Queries)
 			@sleepMode(viewData.SleepStart, viewData.SleepEnd)
 			@historyForm()
