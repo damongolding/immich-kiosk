@@ -314,6 +314,7 @@ See the file config.example.yaml for an example config file
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
 | [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information. |
+| show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION | bool                  | false       | Display image description from METADATA (if available). |
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF   | bool                       | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION | bool                     | false       | Display the image location from METADATA (if available).                                   |
 | hide_countries                    | KIOSK_HIDE_COUNTRIES    | []string                   | []          | List of countries to hide from image_location                                                |

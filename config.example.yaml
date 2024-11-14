@@ -53,6 +53,7 @@ show_image_time: false # true or false
 image_time_format: 24 # 12 or 24
 show_image_date: false # true or false
 image_date_format: YYYY-MM-DD
+show_image_description: false
 show_image_exif: false
 show_image_location: false
 hide_countries:
