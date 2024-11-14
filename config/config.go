@@ -57,7 +57,7 @@ type KioskSettings struct {
 	// FetchedAssetsSize the size of assets requests from Immich. min=1 max=1000
 	FetchedAssetsSize int `mapstructure:"fetched_assets_size" default:"1000"`
 
-	// HTTPTimeout time in seconds before a http request will timeout
+	// HTTPTimeout time in seconds before an http request will timeout
 	HTTPTimeout int `mapstructure:"http_timeout" default:"20"`
 
 	// Cache enable/disable api call and image caching
