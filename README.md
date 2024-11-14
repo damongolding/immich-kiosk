@@ -61,7 +61,7 @@
   - [Sleep mode](#sleep-mode)
   - [Cusom CSS](#custom-css)
   - [Weather](#weather)
-- [Navigation](#navigation)
+- [Navigation Controls](#navigation-controls)
 - [PWA](#pwa)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
