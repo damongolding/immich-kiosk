@@ -1,11 +1,13 @@
 package immich
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"path"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -27,7 +29,7 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 
 // immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
 func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID string, jsonShape T) ImmichApiCall {
-	return func(method, apiUrl string, body io.Reader) ([]byte, error) {
+	return func(method, apiUrl string, body []byte) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
 			return immichApiCall(method, apiUrl, body)
@@ -78,53 +80,57 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 }
 
 // immichApiCall bootstrap for immich api call
-func (i *ImmichAsset) immichApiCall(method, apiUrl string, body io.Reader) ([]byte, error) {
+func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte, error) {
 
 	var responseBody []byte
 
-	req, err := http.NewRequest(method, apiUrl, body)
-	if err != nil {
-		log.Error(err)
-		return responseBody, err
-	}
-
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("x-api-key", requestConfig.ImmichApiKey)
-
-	if method == "POST" || method == "PUT" || method == "PATCH" {
-		req.Header.Add("Content-Type", "application/json")
-	}
-
-	var res *http.Response
 	for attempts := 0; attempts < 3; attempts++ {
-		res, err = httpClient.Do(req)
-		if err == nil {
-			break
+
+		var bodyReader io.Reader
+		if body != nil {
+			bodyReader = bytes.NewReader(body)
 		}
-		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiUrl, "err", err)
-		time.Sleep(time.Duration(attempts) * time.Second)
-	}
-	if err != nil {
-		log.Error("Request failed after retries", "err", err)
-		return responseBody, err
+
+		req, err := http.NewRequest(method, apiUrl, bodyReader)
+		if err != nil {
+			log.Error(err)
+			return responseBody, err
+		}
+
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("x-api-key", requestConfig.ImmichApiKey)
+
+		if method == "POST" || method == "PUT" || method == "PATCH" {
+			req.Header.Set("Content-Type", "application/json")
+		}
+
+		res, err := httpClient.Do(req)
+		if err != nil {
+			log.Error("Request failed, retrying", "attempt", attempts, "URL", apiUrl, "err", err)
+			time.Sleep(time.Duration(attempts) * time.Second)
+			continue
+		}
+
+		defer res.Body.Close()
+
+		if res.StatusCode < 200 || res.StatusCode >= 300 {
+			err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
+			log.Error(err)
+			_, _ = io.Copy(io.Discard, res.Body)
+			return responseBody, err
+		}
+
+		responseBody, err = io.ReadAll(res.Body)
+		if err != nil {
+			log.Error("reading response body", "url", apiUrl, "err", err)
+			return responseBody, err
+		}
+
+		return responseBody, nil
+
 	}
 
-	defer res.Body.Close()
-
-	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
-		log.Error(err)
-		_, _ = io.Copy(io.Discard, res.Body)
-		return responseBody, err
-	}
-
-	responseBody, err = io.ReadAll(res.Body)
-	if err != nil {
-		log.Error("reading response body", "url", apiUrl, "err", err)
-		return responseBody, err
-	}
-
-	return responseBody, err
+	return responseBody, fmt.Errorf("Request failed: max retries exceeded")
 }
 
 // ratioCheck checks if the given image matches the desired ratio.
@@ -175,6 +181,40 @@ func (i *ImmichAsset) addRatio() {
 	}
 }
 
+// AssetInfo fetches the image information from Immich
+func (i *ImmichAsset) AssetInfo(requestID string) {
+	var immichAsset ImmichAsset
+
+	u, err := url.Parse(requestConfig.ImmichUrl)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	apiUrl := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   path.Join("api", "assets", i.ID),
+	}
+
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAsset)
+	body, err := immichApiCall("GET", apiUrl.String(), nil)
+	if err != nil {
+		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
+		log.Error("fetching asset info", "err", err)
+		return
+	}
+
+	err = json.Unmarshal(body, &immichAsset)
+	if err != nil {
+		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
+		log.Error("fetching asset info", "err", err)
+		return
+	}
+
+	*i = immichAsset
+}
+
 // ImagePreview fetches the raw image data from Immich
 func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 
@@ -186,16 +226,25 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 		return bytes, err
 	}
 
+	assetSize := AssetSizeThumbnail
+	if requestConfig.UseOriginalImage {
+		assetSize = AssetSizeOriginal
+	}
+
 	apiUrl := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
-		Path:     "/api/assets/" + i.ID + "/thumbnail",
+		Path:     path.Join("api", "assets", i.ID, assetSize),
 		RawQuery: "size=preview",
 	}
 
 	return i.immichApiCall("GET", apiUrl.String(), nil)
 }
 
+// FacesCenterPoint calculates the center point of all detected faces in an image as percentages.
+// It analyzes both assigned (People) and unassigned faces, finding the bounding box that encompasses
+// all faces and returning its center as x,y percentages relative to the image dimensions.
+// Returns (0,0) if no faces are detected or if image dimensions are invalid.
 func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
 	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
 		return 0, 0
@@ -254,12 +303,14 @@ func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
 	var percentX, percentY float64
 	var imageWidth, imageHeight int
 
-	if len(i.People) != 0 {
+	if len(i.People) != 0 && len(i.People[0].Faces) != 0 {
 		imageWidth = i.People[0].Faces[0].ImageWidth
 		imageHeight = i.People[0].Faces[0].ImageHeight
-	} else {
+	} else if len(i.UnassignedFaces) != 0 {
 		imageWidth = i.UnassignedFaces[0].ImageWidth
 		imageHeight = i.UnassignedFaces[0].ImageHeight
+	} else {
+		return 0, 0
 	}
 
 	if imageWidth == 0 || imageHeight == 0 {
@@ -272,6 +323,10 @@ func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
 	return percentX, percentY
 }
 
+// FacesCenterPointPX calculates the center point of all detected faces in an image in pixels.
+// It analyzes both assigned (People) and unassigned faces, finding the bounding box that encompasses
+// all faces and returning its center as x,y pixel coordinates.
+// Returns (0,0) if no faces are detected or if all bounding boxes are empty.
 func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
 	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
 		return 0, 0

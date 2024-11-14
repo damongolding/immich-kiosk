@@ -114,6 +114,8 @@ func main() {
 
 	e.POST("/image", routes.NewImage(baseConfig))
 
+	e.POST("/image/previous", routes.PreviousImage(baseConfig))
+
 	e.GET("/clock", routes.Clock(baseConfig))
 
 	e.GET("/weather", routes.Weather(baseConfig))

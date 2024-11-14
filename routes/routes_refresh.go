@@ -24,7 +24,7 @@ func RefreshCheck(baseConfig *config.Config) echo.HandlerFunc {
 		// If kiosk version on client and server do not match refresh client.
 		if KioskVersion != kioskVersionHeader || kioskRefreshTimestampHeader != requestConfig.ReloadTimeStamp {
 			c.Response().Header().Set("HX-Refresh", "true")
-			return c.NoContent(http.StatusOK)
+			return c.NoContent(http.StatusNoContent)
 		}
 
 		log.Debug(
@@ -33,6 +33,6 @@ func RefreshCheck(baseConfig *config.Config) echo.HandlerFunc {
 			"path", c.Request().URL.String(),
 		)
 
-		return c.NoContent(http.StatusOK)
+		return c.NoContent(http.StatusNoContent)
 	}
 }

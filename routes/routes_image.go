@@ -27,7 +27,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		// If kiosk version on client and server do not match refresh client.
 		if kioskDeviceVersion != "" && KioskVersion != kioskDeviceVersion {
 			c.Response().Header().Set("HX-Refresh", "true")
-			return c.NoContent(http.StatusOK)
+			return c.NoContent(http.StatusNoContent)
 		}
 
 		err := requestConfig.ConfigWithOverrides(c)
@@ -44,7 +44,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		)
 
 		if isSleepMode(requestConfig) {
-			return c.NoContent(http.StatusOK)
+			return c.NoContent(http.StatusNoContent)
 		}
 
 		// get and use prefetch data (if found)

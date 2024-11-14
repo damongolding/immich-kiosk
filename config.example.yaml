@@ -25,6 +25,7 @@ album:
 
 # UI
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
+frameless: false # remove border around image and rounded corners.
 hide_cursor: false # Hide cursor/mouse via CSS.
 font_size: 100 # the base font size as a percentage. OMIT the % character
 background_blur: true # display a blurred version of image as background
@@ -43,14 +44,16 @@ cross_fade_transition_duration: 1 # in seconds
 # Image display settings
 show_progress: false # display a progress bar
 image_fit: contain # how the image fits the screen. Options are none, contain and cover
-image_zoom: false # add a zoom effect to images
-image_zoom_amount: 120 # The amount zoomed as a percentage
+image_effect: none
+image_effect_amount: 120
+use_original_image: false # use the original file.
 
 # Image METADATA
 show_image_time: false # true or false
 image_time_format: 24 # 12 or 24
 show_image_date: false # true or false
 image_date_format: YYYY-MM-DD
+show_image_description: false
 show_image_exif: false
 show_image_location: false
 hide_countries:
@@ -69,6 +72,8 @@ show_image_id: false
 kiosk:
   port: 3000
   watch_config: false
+  fetched_assets_size: 1000
+  http_timeout: 20
   password: ""
   cache: true # cache select api calls
   pre_fetch: true # fetch assets in the background

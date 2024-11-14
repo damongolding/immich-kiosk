@@ -21,6 +21,6 @@ func FlushCache(c echo.Context) error {
 	log.Info("Cache after flush ", "viewDataCache_items", ViewDataCache.ItemCount(), "apiCache_items", immich.ApiCacheCount())
 
 	c.Response().Header().Set("HX-Refresh", "true")
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 
 }

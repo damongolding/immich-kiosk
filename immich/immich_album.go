@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"net/url"
+	"path"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/utils"
@@ -66,7 +67,7 @@ func (i *ImmichAsset) albumAssets(albumID, requestID string) (ImmichAlbum, error
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "api/albums/" + albumID,
+		Path:   path.Join("api", "albums", albumID),
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, album)
