@@ -32,6 +32,9 @@ const (
 	AlbumKeywordShared     string = "shared"
 	AlbumKeywordFavourites string = "favourites"
 	AlbumKeywordFavorites  string = "favorites"
+
+	AssetSizeThumbnail string = "thumbnail"
+	AssetSizeOriginal  string = "original"
 )
 
 var (

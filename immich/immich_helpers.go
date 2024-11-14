@@ -225,9 +225,9 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 		return bytes, err
 	}
 
-	assetSize := "thumbnail"
+	assetSize := AssetSizeThumbnail
 	if requestConfig.UseOriginalImage {
-		assetSize = "original"
+		assetSize = AssetSizeOriginal
 	}
 
 	apiUrl := url.URL{
