@@ -682,8 +682,8 @@ Kiosk's display is divided into interactive zones:
 | Key           | Action                        |
 |---------------|-------------------------------|
 | _ Spacebar    | Play/Pause and Toggle Menu    |
-| → Left Arrow  | Next Image(s)                 |
-| ← Right Arrow | Previous Image(s)             |
+| → Right Arrow | Next Image(s)                 |
+| ← Left Arrow  | Previous Image(s)             |
 
 ------
 
