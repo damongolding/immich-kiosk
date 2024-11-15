@@ -822,6 +822,8 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ------
 
 ## TODO / Roadmap
+- [x] Sleep mode
+- [ ] Add sleep mode indicator
 - [ ] Whitelist for people and albums
 - [ ] Exclude list
 - [ ] PWA (✔ basic implimetion)
@@ -829,6 +831,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - [x] Splitview
 - [ ] Splitview related images
 - [ ] Docker/immich healthcheck?
+- [x] Multi location weather
 - [ ] Default weather location
 - [ ] Redirect/friendly urls
 
