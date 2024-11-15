@@ -822,13 +822,15 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ------
 
 ## TODO / Roadmap
-- [] Whitelist for people and albums
-- [] Exclude list
-- [] PWA (✔ basic implimetion)
-- [] Splitview related images
-- [] Docker/immich healthcheck?
-- [] Default weather location
-- [] Redirect/friendly urls
+- [ ] Whitelist for people and albums
+- [ ] Exclude list
+- [ ] PWA (✔ basic implimetion)
+- [x] prev/next navigation
+- [x] Splitview
+- [ ] Splitview related images
+- [ ] Docker/immich healthcheck?
+- [ ] Default weather location
+- [ ] Redirect/friendly urls
 
 ------
 
