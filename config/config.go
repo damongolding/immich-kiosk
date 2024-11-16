@@ -78,12 +78,13 @@ type KioskSettings struct {
 }
 
 type WeatherLocation struct {
-	Name string `mapstructure:"name"`
-	Lat  string `mapstructure:"lat"`
-	Lon  string `mapstructure:"lon"`
-	API  string `mapstructure:"api"`
-	Unit string `mapstructure:"unit"`
-	Lang string `mapstructure:"lang"`
+	Name    string `mapstructure:"name"`
+	Lat     string `mapstructure:"lat"`
+	Lon     string `mapstructure:"lon"`
+	API     string `mapstructure:"api"`
+	Unit    string `mapstructure:"unit"`
+	Lang    string `mapstructure:"lang"`
+	Default bool   `mapstructure:"default"`
 }
 
 // Config represents the main configuration structure for the Immich Kiosk application.
@@ -197,7 +198,8 @@ type Config struct {
 	// ShowImageID display image ID
 	ShowImageID bool `mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
 
-	WeatherLocations []WeatherLocation `mapstructure:"weather" default:"[]"`
+	WeatherLocations  []WeatherLocation `mapstructure:"weather" default:"[]"`
+	HasWeatherDefault bool
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `mapstructure:"kiosk"`
@@ -406,6 +408,9 @@ func (c *Config) checkWeatherLocations() {
 		}
 		if w.API == "" {
 			missingFields = append(missingFields, "API key")
+		}
+		if w.Default {
+			c.HasWeatherDefault = true
 		}
 		if len(missingFields) > 0 {
 			log.Warn("Weather location is missing required fields. Ignoring this location.", "missing fields", strings.Join(missingFields, ", "), "name", w.Name)

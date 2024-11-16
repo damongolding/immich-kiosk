@@ -25,8 +25,8 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 			"location", weatherLocation,
 		)
 
-		if weatherLocation == "" {
-			log.Error("missing weather location name url param")
+		if weatherLocation == "" && !baseConfig.HasWeatherDefault {
+			log.Error("missing weather location name url param and no default is set")
 			return c.NoContent(http.StatusNoContent)
 		}
 
