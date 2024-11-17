@@ -834,6 +834,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - [x] Multi location weather
 - [ ] Default weather location
 - [ ] Redirect/friendly urls
+- [ ] Webhooks
 
 ------
 
