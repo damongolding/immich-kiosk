@@ -14,6 +14,7 @@ import (
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
+	"github.com/damongolding/immich-kiosk/webhooks"
 )
 
 // PreviousImage returns an echo.HandlerFunc that handles requests for previous images.
@@ -107,6 +108,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 			return RenderError(c, err, "processing images")
 		}
 
+		go webhooks.Trigger(requestConfig, KioskVersion, webhooks.PreviousAsset, ViewData)
 		return Render(c, http.StatusOK, views.Image(ViewData))
 	}
 }

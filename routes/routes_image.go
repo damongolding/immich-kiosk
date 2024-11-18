@@ -10,6 +10,7 @@ import (
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
+	"github.com/damongolding/immich-kiosk/webhooks"
 )
 
 // NewImage returns an echo.HandlerFunc that handles requests for new images.
@@ -49,14 +50,15 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
-			if viewData := fromCache(c, kioskDeviceID); viewData != nil {
+			if cachedViewData := fromCache(c, kioskDeviceID); cachedViewData != nil {
 				go imagePreFetch(requestConfig, c, kioskDeviceID)
-				return renderCachedViewData(c, viewData, &requestConfig, requestID, kioskDeviceID)
+				go webhooks.Trigger(requestConfig, KioskVersion, webhooks.NewAsset, cachedViewData[0])
+				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, kioskDeviceID)
 			}
 			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image")
 		}
 
-		ViewData, err := generateViewData(requestConfig, c, kioskDeviceID, false)
+		viewData, err := generateViewData(requestConfig, c, kioskDeviceID, false)
 		if err != nil {
 			return RenderError(c, err, "retrieving image")
 		}
@@ -65,7 +67,8 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			go imagePreFetch(requestConfig, c, kioskDeviceID)
 		}
 
-		return Render(c, http.StatusOK, views.Image(ViewData))
+		go webhooks.Trigger(requestConfig, KioskVersion, webhooks.NewAsset, viewData)
+		return Render(c, http.StatusOK, views.Image(viewData))
 	}
 }
 

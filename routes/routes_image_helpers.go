@@ -12,6 +12,7 @@ import (
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
+	"github.com/damongolding/immich-kiosk/webhooks"
 	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 	"github.com/labstack/echo/v4"
@@ -326,6 +327,8 @@ func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceID st
 	cachedViewData = append(cachedViewData, viewDataToAdd)
 
 	ViewDataCache.Set(cacheKey, cachedViewData, cache.DefaultExpiration)
+
+	go webhooks.Trigger(requestConfig, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
 
 }
 
