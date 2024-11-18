@@ -32,9 +32,9 @@ from{}
 .frame--layout-splitview:nth-child(2){}
 .frameless .frame--layout-splitview{}
 .frame--layout-splitview .frame--image{}
-.layout-splitview-landscape{}
 .layout-splitview-landscape .frame{}
 .layout-splitview-landscape.frameless .frame{}
+.frame--layout-splitview-landscape{}
 .frame--layout-splitview-landscape:nth-child(1){}
 .frame--layout-splitview-landscape:nth-child(2){}
 .frameless .frame--layout-splitview-landscape{}
