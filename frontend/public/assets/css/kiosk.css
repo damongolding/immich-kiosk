@@ -324,12 +324,6 @@ body {
      -moz-box-align: center;
           align-items: center;
 }
-.layout-splitview-landscape {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
 .layout-splitview-landscape .frame {
     -webkit-flex-direction: column;
        -moz-box-orient: vertical;
@@ -346,14 +340,20 @@ body {
     border: none;
     border-radius: 0;
   }
+.frame--layout-splitview-landscape {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
 .frame--layout-splitview-landscape:nth-child(1) {
-  border-bottom: 0.2rem solid black;
-  border-radius: 0.75rem;
-}
+    border-bottom: 0.2rem solid black;
+    border-radius: 0.75rem;
+  }
 .frame--layout-splitview-landscape:nth-child(2) {
-  border-top: 0.2rem solid black;
-  border-radius: 0.75rem;
-}
+    border-top: 0.2rem solid black;
+    border-radius: 0.75rem;
+  }
 .frameless .frame--layout-splitview-landscape {
   border-radius: 0;
 }
