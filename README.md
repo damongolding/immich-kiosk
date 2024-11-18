@@ -682,8 +682,8 @@ Kiosk's display is divided into interactive zones:
 | Key           | Action                        |
 |---------------|-------------------------------|
 | _ Spacebar    | Play/Pause and Toggle Menu    |
-| → Left Arrow  | Next Image(s)                 |
-| ← Right Arrow | Previous Image(s)             |
+| → Right Arrow | Next Image(s)                 |
+| ← Left Arrow  | Previous Image(s)             |
 
 ------
 
@@ -822,11 +822,19 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 ------
 
 ## TODO / Roadmap
-- Whitelist for people and albums
-- Exclude list
-- PWA (✔ basic implimetion)
-- Splitview related images
-- Docker/immich healthcheck?
+- [x] Sleep mode
+- [ ] Add sleep mode indicator
+- [ ] Whitelist for people and albums
+- [ ] Exclude list
+- [ ] PWA (✔ basic implimetion)
+- [x] prev/next navigation
+- [x] Splitview
+- [ ] Splitview related images
+- [ ] Docker/immich healthcheck?
+- [x] Multi location weather
+- [ ] Default weather location
+- [ ] Redirect/friendly urls
+- [ ] Webhooks
 
 ------
 
