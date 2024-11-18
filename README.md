@@ -63,6 +63,7 @@
   - [Weather](#weather)
 - [Navigation Controls](#navigation-controls)
 - [PWA](#pwa)
+- [Webhooks](#webhooks)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -698,6 +699,38 @@ Kiosk's display is divided into interactive zones:
 2. Tap on the share icon in Safari's navigation bar.
 3. Scroll till you see "Add to Home Screen" and tap it.
 4. Tap on the newly added Kiosk icon on your home screen!
+
+------
+
+## Webhooks
+
+Kiosk can notify external services about certain events using webhooks. When enabled, Kiosk will send HTTP POST requests to your specified webhook URL(s) when these events occur.
+
+### Enabling Webhooks
+
+Add webhook configuration to your `config.yaml`:
+
+> [!TIP]
+> You can have multiple webhooks for different urls and events.
+
+```yaml
+webhooks:
+  - url: "https://your-webhook-endpoint.com"
+    event: asset.new
+```
+
+
+### Available Events
+
+| Event           | Description                                             |
+|-----------------|---------------------------------------------------------|
+|`asset.new`      | Triggered when a new image is requested from Kiosk      |
+|`asset.previous` | Triggered when a previous image is requested from Kiosk |
+|`asset.prefetch` | Triggered when Kiosk prefecthes asset data from Immich  |
+|`cache.flushed`  | Triggered when the cache is manually cleared            |
+
+### Webhook Payload
+
 
 
 ------
