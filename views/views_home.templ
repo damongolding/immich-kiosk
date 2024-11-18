@@ -269,7 +269,7 @@ templ body(viewData ViewData) {
 // Home renders the main kiosk HTML template
 templ Home(viewData ViewData) {
 	<!DOCTYPE html>
-	<html lang="en">
+	<html lang="en" class={ templ.KV("desktop", viewData.Desktop) }>
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>

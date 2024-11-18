@@ -447,9 +447,13 @@ func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID
 		}
 		viewData.Images = append(viewData.Images, viewDataSplitView)
 
+		log.Info("in landscape mode 1st image", "IsPortrait", viewDataSplitView.ImmichImage.IsPortrait)
+
 		if viewDataSplitView.ImmichImage.IsPortrait {
 			return viewData, nil
 		}
+
+		log.Info("in landscape mode 2nd image", "IsPortrait", viewDataSplitView.ImmichImage.IsPortrait)
 
 		// Second image
 		for i := 0; i < maxImageRetrievalAttepmts; i++ {

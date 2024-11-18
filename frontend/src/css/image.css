@@ -122,8 +122,12 @@
     animation-fill-mode: forwards;
     transform-origin: inherit;
     object-position: inherit;
-    will-change: scale;
+    will-change: scale3d;
 }
+
+/* .desktop .frame--image-zoom img {
+    animation-timing-function: cubic-bezier(0, 0, 1, 1);
+} */
 
 .frame:nth-last-of-type(-n + 2) .frame--image-zoom-in img {
     animation-name: image-zoom-in;

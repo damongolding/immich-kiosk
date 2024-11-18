@@ -89,6 +89,7 @@ async function init(): Promise<void> {
   }
 
   if ("serviceWorker" in navigator) {
+    /* eslint-disable-next-line */
     navigator.serviceWorker.register("/assets/js/sw.js").then(
       function (registration) {
         console.log("ServiceWorker registration successful");
@@ -239,3 +240,10 @@ export {
   releaseRequestLock,
   checkHistoryExists,
 };
+
+document.addEventListener("keydown", function (e) {
+  if (e.code === "ArrowLeft") {
+    e.preventDefault();
+    console.log("click");
+  }
+});
