@@ -719,7 +719,6 @@ webhooks:
     event: asset.new
 ```
 
-
 ### Available Events
 
 | Event           | Description                                             |
@@ -731,7 +730,8 @@ webhooks:
 
 ### Webhook Payload
 
-
+> [!NOTE]
+> This section will be added later
 
 ------
 
