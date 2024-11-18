@@ -22,7 +22,6 @@ import (
 func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
 		kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
 		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
@@ -52,7 +51,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 		requestConfig.History = requestConfig.History[:historyLen-2]
 
 		ViewData := views.ViewData{
-			KioskVersion: kioskDeviceVersion,
+			KioskVersion: KioskVersion,
 			DeviceID:     kioskDeviceID,
 			Images:       make([]views.ImageData, len(prevImages)),
 			Queries:      c.QueryParams(),
