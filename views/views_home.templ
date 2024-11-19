@@ -248,10 +248,11 @@ templ refreshCheckForm(kioskVersion, reloadTimeStamp string, queries url.Values)
 }
 
 templ body(viewData ViewData) {
+	{{ headerStr := fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID) }}
 	switch viewData.Transition {
 		case "cross-fade":
 			<body
-				hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID) }
+				hx-headers={ headerStr }
 				hx-swap={ fmt.Sprintf("beforeend settle:%.1fs", viewData.CrossFadeTransitionDuration+1) }
 				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
@@ -260,7 +261,7 @@ templ body(viewData ViewData) {
 			</body>
 		case "fade":
 			<body
-				hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID) }
+				hx-headers={ headerStr }
 				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration/2) }
 				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
@@ -269,7 +270,7 @@ templ body(viewData ViewData) {
 			</body>
 		default:
 			<body
-				hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID) }
+				hx-headers={ headerStr }
 				hx-swap="innerHTML"
 				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>

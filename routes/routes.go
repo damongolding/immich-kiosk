@@ -15,7 +15,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/patrickmn/go-cache"
 
+	"github.com/damongolding/immich-kiosk/common"
 	"github.com/damongolding/immich-kiosk/config"
+	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
 )
 
@@ -37,15 +39,42 @@ func ShouldDrawFacesOnImages() bool {
 	return drawFacesOnImages == "true"
 }
 
-type RequestData struct {
-	History []string `form:"history"`
-	config.Config
-}
-
 func init() {
 	// Setting up Immich api cache
 	ViewDataCache = cache.New(5*time.Minute, 10*time.Minute)
 
+}
+
+func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.RouteRequestData, error) {
+
+	kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
+	kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
+	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+	clientName := c.QueryParams().Get("client")
+	if clientName == "" {
+		clientName = c.FormValue("client")
+	}
+
+	// create a copy of the global config to use with this request
+	requestConfig := *baseConfig
+
+	// If kiosk version on client and server do not match refresh client.
+	if kioskDeviceVersion != "" && KioskVersion != kioskDeviceVersion {
+		c.Response().Header().Set("HX-Refresh", "true")
+		return nil, c.NoContent(http.StatusNoContent)
+	}
+
+	err := requestConfig.ConfigWithOverrides(c)
+	if err != nil {
+		log.Error("overriding config", "err", err)
+	}
+
+	return &common.RouteRequestData{
+		RequestConfig: requestConfig,
+		DeviceID:      kioskDeviceID,
+		RequestID:     requestID,
+		ClientName:    clientName,
+	}, nil
 }
 
 func RenderError(c echo.Context, err error, message string) error {

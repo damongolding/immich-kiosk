@@ -14,7 +14,10 @@ import (
 func FlushCache(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
 
 		viewDataCacheMutex.Lock()
 		defer viewDataCacheMutex.Unlock()
@@ -27,7 +30,7 @@ func FlushCache(baseConfig *config.Config) echo.HandlerFunc {
 		log.Info("Cache after flush ", "viewDataCache_items", ViewDataCache.ItemCount(), "apiCache_items", immich.ApiCacheCount())
 
 		c.Response().Header().Set("HX-Refresh", "true")
-		go webhooks.Trigger(*baseConfig, KioskVersion, webhooks.CacheFlush, views.ViewData{DeviceID: kioskDeviceID})
+		go webhooks.Trigger(requestData, KioskVersion, webhooks.CacheFlush, views.ViewData{})
 		return c.NoContent(http.StatusNoContent)
 	}
 }

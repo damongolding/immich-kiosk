@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/common"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/views"
@@ -21,6 +22,8 @@ const (
 	CacheFlush    WebhookEvent = "cache.flush"
 )
 
+var httpClient = &http.Client{}
+
 type Meta struct {
 	Source  string `json:"source"`
 	Version string `json:"version"`
@@ -30,15 +33,18 @@ type Payload struct {
 	Event      string               `json:"event"`
 	Timestamp  string               `json:"timestamp"`
 	DeviceID   string               `json:"deviceID"`
+	ClientName string               `json:"clientName"`
 	AssetCount int                  `json:"assetCount"`
 	Assets     []immich.ImmichAsset `json:"assets"`
 	Config     config.Config        `json:"config"`
 	Meta       Meta                 `json:"meta"`
 }
 
-func Trigger(c config.Config, KioskVersion string, event WebhookEvent, viewData views.ViewData) {
+func Trigger(requestData *common.RouteRequestData, KioskVersion string, event WebhookEvent, viewData views.ViewData) {
 
-	for _, userWebhook := range c.Webhooks {
+	config := requestData.RequestConfig
+
+	for _, userWebhook := range config.Webhooks {
 		if userWebhook.Event != string(event) {
 			continue
 		}
@@ -52,10 +58,11 @@ func Trigger(c config.Config, KioskVersion string, event WebhookEvent, viewData 
 		payload := Payload{
 			Event:      string(event),
 			Timestamp:  time.Now().Format(time.RFC3339),
-			DeviceID:   viewData.DeviceID,
+			DeviceID:   requestData.DeviceID,
+			ClientName: requestData.ClientName,
 			AssetCount: len(images),
 			Assets:     images,
-			Config:     c,
+			Config:     config,
 			Meta: Meta{
 				Source:  "immich-kiosk",
 				Version: KioskVersion,
@@ -68,7 +75,9 @@ func Trigger(c config.Config, KioskVersion string, event WebhookEvent, viewData 
 			return
 		}
 
-		resp, err := http.Post(userWebhook.Url, "application/json", bytes.NewBuffer(jsonPayload))
+		httpClient.Timeout = time.Second * time.Duration(config.Kiosk.HTTPTimeout)
+
+		resp, err := httpClient.Post(userWebhook.Url, "application/json", bytes.NewBuffer(jsonPayload))
 		if err != nil {
 			log.Error("webhook post", "err", err)
 			return

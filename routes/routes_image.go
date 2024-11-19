@@ -8,7 +8,6 @@ import (
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
-	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
 	"github.com/damongolding/immich-kiosk/webhooks"
 )
@@ -18,28 +17,19 @@ import (
 func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
-		kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
-		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
-
-		// create a copy of the global config to use with this request
-		requestConfig := *baseConfig
-
-		// If kiosk version on client and server do not match refresh client.
-		if kioskDeviceVersion != "" && KioskVersion != kioskDeviceVersion {
-			c.Response().Header().Set("HX-Refresh", "true")
-			return c.NoContent(http.StatusNoContent)
-		}
-
-		err := requestConfig.ConfigWithOverrides(c)
+		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
-			log.Error("overriding config", "err", err)
+			return err
 		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
+		deviceID := requestData.DeviceID
 
 		log.Debug(
 			requestID,
 			"method", c.Request().Method,
-			"deviceID", kioskDeviceID,
+			"deviceID", deviceID,
 			"path", c.Request().URL.String(),
 			"requestConfig", requestConfig.String(),
 		)
@@ -50,24 +40,24 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
-			if cachedViewData := fromCache(c, kioskDeviceID); cachedViewData != nil {
-				go imagePreFetch(requestConfig, c, kioskDeviceID)
-				go webhooks.Trigger(requestConfig, KioskVersion, webhooks.NewAsset, cachedViewData[0])
-				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, kioskDeviceID)
+			if cachedViewData := fromCache(c, deviceID); cachedViewData != nil {
+				go imagePreFetch(requestConfig, c)
+				go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
+				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID)
 			}
-			log.Debug(requestID, "deviceID", kioskDeviceID, "cache miss for new image")
+			log.Debug(requestID, "deviceID", deviceID, "cache miss for new image")
 		}
 
-		viewData, err := generateViewData(requestConfig, c, kioskDeviceID, false)
+		viewData, err := generateViewData(requestConfig, c, deviceID, false)
 		if err != nil {
 			return RenderError(c, err, "retrieving image")
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			go imagePreFetch(requestConfig, c, kioskDeviceID)
+			go imagePreFetch(requestConfig, c)
 		}
 
-		go webhooks.Trigger(requestConfig, KioskVersion, webhooks.NewAsset, viewData)
+		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)
 		return Render(c, http.StatusOK, views.Image(viewData))
 	}
 }
@@ -77,15 +67,13 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
-
-		// create a copy of the global config to use with this request
-		requestConfig := *baseConfig
-
-		err := requestConfig.ConfigWithOverrides(c)
+		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
-			log.Error("overriding config", "err", err)
+			return err
 		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
 
 		log.Debug(
 			requestID,
