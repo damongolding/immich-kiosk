@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"reflect"
 	"strings"
@@ -47,7 +48,20 @@ const (
 	defaultConfigFile = "config.yaml"
 )
 
+// Redirect represents a URL redirection configuration with a friendly name.
+type Redirect struct {
+	// Name is the friendly identifier used to access the redirect
+	Name string `mapstructure:"name"`
+	// URL is the destination address for the redirect
+	URL string `mapstructure:"url"`
+}
+
 type KioskSettings struct {
+	// Redirects defines a list of URL redirections with friendly names
+	Redirects []Redirect `mapstructure:"redirects" default:"[]"`
+	//RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
+	RedirectsMap map[string]string `json:"-"`
+
 	// Port which port to use
 	Port int `mapstructure:"port" default:"3000"`
 
@@ -442,6 +456,86 @@ func (c *Config) checkFetchedAssetsSize() {
 	}
 }
 
+// checkRedirects validates and processes the configured redirects in the Config.
+// It performs several checks and validations:
+// - Skips redirects with empty names or URLs
+// - Ensures redirect names are unique
+// - Validates URLs are properly formatted
+// - Handles relative redirects starting with "?"
+// - Detects and removes circular redirects
+// - Builds a map for O(1) redirect lookups
+//
+// The function updates the Config's RedirectsMap field with valid redirects.
+// Invalid redirects are logged as warnings and excluded from the final map.
+func (c *Config) checkRedirects() {
+	redirects := make(map[string]string)
+	seen := make(map[string]bool)
+
+	for _, r := range c.Kiosk.Redirects {
+		if r.Name == "" {
+			log.Warn("Skipping redirect with empty name", "url", r.URL)
+			continue
+		}
+		if r.URL == "" {
+			log.Warn("Skipping redirect with empty URL", "name", r.Name)
+			continue
+		}
+
+		if seen[r.Name] {
+			log.Warn("Duplicate redirect name found", "name", r.Name)
+			continue
+		}
+		if _, err := url.Parse(r.URL); err != nil {
+			log.Warn("Invalid redirect URL", "name", r.Name, "url", r.URL, "error", err)
+			continue
+		}
+		seen[r.Name] = true
+
+		if strings.HasPrefix(r.URL, "?") {
+			redirects[r.Name] = "/" + r.URL
+		} else {
+			redirects[r.Name] = r.URL
+		}
+
+		if c.Kiosk.Debug {
+			log.Debug("Registered redirect", "name", r.Name, "url", r.URL)
+		}
+	}
+
+	for name, targetURL := range redirects {
+		visited := make(map[string]bool)
+		current := name
+
+		for {
+			if visited[current] {
+				log.Warn("Circular redirect detected",
+					"starting_point", name,
+					"current", current,
+					"url", targetURL)
+				delete(redirects, name)
+				break
+			}
+
+			visited[current] = true
+
+			// Check if the URL points to another internal redirect
+			if strings.HasPrefix(targetURL, "/") {
+				nextRedirect := strings.TrimPrefix(targetURL, "/")
+				nextURL, exists := redirects[nextRedirect]
+				if !exists {
+					break
+				}
+				current = nextRedirect
+				targetURL = nextURL
+			} else {
+				break
+			}
+		}
+	}
+
+	c.Kiosk.RedirectsMap = redirects
+}
+
 // WatchConfig sets up a configuration file watcher that monitors for changes
 // and reloads the configuration when necessary.
 func (c *Config) WatchConfig() {
@@ -584,6 +678,7 @@ func (c *Config) Load() error {
 	c.checkWeatherLocations()
 	c.checkDebuging()
 	c.checkFetchedAssetsSize()
+	c.checkRedirects()
 
 	return nil
 }

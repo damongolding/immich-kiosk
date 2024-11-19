@@ -81,6 +81,7 @@ func main() {
 	// Middleware
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
+
 	if baseConfig.Kiosk.Password != "" {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 			Skipper: func(c echo.Context) bool {
@@ -123,6 +124,8 @@ func main() {
 	e.GET("/cache/flush", routes.FlushCache)
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
+
+	e.GET("/:redirect", routes.Redirect(baseConfig))
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
