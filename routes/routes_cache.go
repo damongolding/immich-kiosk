@@ -4,23 +4,33 @@ import (
 	"net/http"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
+	"github.com/damongolding/immich-kiosk/views"
+	"github.com/damongolding/immich-kiosk/webhooks"
 	"github.com/labstack/echo/v4"
 )
 
-func FlushCache(c echo.Context) error {
+func FlushCache(baseConfig *config.Config) echo.HandlerFunc {
+	return func(c echo.Context) error {
 
-	viewDataCacheMutex.Lock()
-	defer viewDataCacheMutex.Unlock()
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
 
-	log.Info("Cache before flush", "viewDataCache_items", ViewDataCache.ItemCount(), "apiCache_items", immich.ApiCacheCount())
+		viewDataCacheMutex.Lock()
+		defer viewDataCacheMutex.Unlock()
 
-	ViewDataCache.Flush()
-	immich.FluchApiCache()
+		log.Info("Cache before flush", "viewDataCache_items", ViewDataCache.ItemCount(), "apiCache_items", immich.ApiCacheCount())
 
-	log.Info("Cache after flush ", "viewDataCache_items", ViewDataCache.ItemCount(), "apiCache_items", immich.ApiCacheCount())
+		ViewDataCache.Flush()
+		immich.FluchApiCache()
 
-	c.Response().Header().Set("HX-Refresh", "true")
-	return c.NoContent(http.StatusNoContent)
+		log.Info("Cache after flush ", "viewDataCache_items", ViewDataCache.ItemCount(), "apiCache_items", immich.ApiCacheCount())
 
+		c.Response().Header().Set("HX-Refresh", "true")
+		go webhooks.Trigger(requestData, KioskVersion, webhooks.CacheFlush, views.ViewData{})
+		return c.NoContent(http.StatusNoContent)
+	}
 }

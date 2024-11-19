@@ -64,6 +64,7 @@
 - [Navigation Controls](#navigation-controls)
 - [Redirects](#redirects)
 - [PWA](#pwa)
+- [Webhooks](#webhooks)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
@@ -737,6 +738,77 @@ http://{URL}/our-wedding -> Redirects to /?weather=london&album=51be319b-55ea-40
 3. Scroll till you see "Add to Home Screen" and tap it.
 4. Tap on the newly added Kiosk icon on your home screen!
 
+------
+
+## Webhooks
+
+> [!TIP]
+> To include the `clientName` in your webhook payload, append `client=YOUR_CLIENT_NAME` to your URL parameters.
+
+Kiosk can notify external services about certain events using webhooks. When enabled, Kiosk will send HTTP POST requests to your specified webhook URL(s) when these events occur.
+
+### Enabling Webhooks
+
+Add webhook configuration to your `config.yaml`:
+
+> [!TIP]
+> You can have multiple webhooks for different urls and events.
+
+```yaml
+webhooks:
+  - url: "https://your-webhook-endpoint.com"
+    event: asset.new
+```
+
+### Available Events
+
+| Event           | Description                                             |
+|-----------------|---------------------------------------------------------|
+|`asset.new`      | Triggered when a new image is requested from Kiosk      |
+|`asset.previous` | Triggered when a previous image is requested from Kiosk |
+|`asset.prefetch` | Triggered when Kiosk prefecthes asset data from Immich  |
+|`cache.flushed`  | Triggered when the cache is manually cleared            |
+
+### Webhook Payload
+
+| Field        | Type          | Description                                          |
+|--------------|---------------|------------------------------------------------------|
+| `event`      | string        | The type of event, e.g., "asset.new".                |
+| `timestamp`  | string (ISO)  | The time the event occurred, in ISO 8601 format.     |
+| `deviceID`   | string (UUID) | Unique identifier for the device.                    |
+| `clientName` | string        | Name of the client device.                           |
+| `assetCount` | int           | Number of assets related to the event.               |
+| `assets`     | array         | Array of asset objects.                              |
+| `config`     | object        | Configuration options for the application.           |
+| `meta`       | object        | Metadata about the source and version of the system. |
+
+### Example payload
+
+```json
+{
+    "event": "asset.new",
+    "timestamp": "2024-11-19T11:03:07Z",
+    "deviceID": "ed08beb1-6de7-4592-9827-078c3ad91ae4",
+    "clientName": "dining-room-pi",
+    "assetCount": 1,
+    "assets": [
+         {
+             "id": "bb4ce63b-b80d-430f-ad37-5cfe243e08b1",
+             "type": "IMAGE",
+             "originalMimeType": "image/jpeg",
+             "localDateTime": "2013-04-06T23:45:54Z"
+             /* ... other properties omitted for brevity */
+         }
+     ],
+     "config": {
+         /* ... configuration fields omitted for brevity */
+     },
+     "meta": {
+         "source": "immich-kiosk",
+         "version": "0.13.1"
+     }
+}
+```
 
 ------
 

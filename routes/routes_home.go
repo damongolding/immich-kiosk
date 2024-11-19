@@ -16,15 +16,13 @@ import (
 func Home(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
-
-		// create a copy of the global config to use with this request
-		requestConfig := *baseConfig
-
-		err := requestConfig.ConfigWithOverrides(c)
+		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
-			log.Error("overriding config", "err", err)
+			return err
 		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
 
 		log.Debug(
 			requestID,

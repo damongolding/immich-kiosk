@@ -121,7 +121,7 @@ func main() {
 
 	e.GET("/sleep", routes.Sleep(baseConfig))
 
-	e.GET("/cache/flush", routes.FlushCache)
+	e.GET("/cache/flush", routes.FlushCache(baseConfig))
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 

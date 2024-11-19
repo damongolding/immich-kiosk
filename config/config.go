@@ -63,41 +63,46 @@ type KioskSettings struct {
 	RedirectsMap map[string]string `json:"-"`
 
 	// Port which port to use
-	Port int `mapstructure:"port" default:"3000"`
+	Port int `json:"port" mapstructure:"port" default:"3000"`
 
 	// WatchConfig if kiosk should watch config file for changes
-	WatchConfig bool `mapstructure:"watch_config" default:"false"`
+	WatchConfig bool `json:"watchConfig" mapstructure:"watch_config" default:"false"`
 
 	// FetchedAssetsSize the size of assets requests from Immich. min=1 max=1000
-	FetchedAssetsSize int `mapstructure:"fetched_assets_size" default:"1000"`
+	FetchedAssetsSize int `json:"fetchedAssetsSize" mapstructure:"fetched_assets_size" default:"1000"`
 
 	// HTTPTimeout time in seconds before an http request will timeout
-	HTTPTimeout int `mapstructure:"http_timeout" default:"20"`
+	HTTPTimeout int `json:"httpTimeout" mapstructure:"http_timeout" default:"20"`
 
 	// Cache enable/disable api call and image caching
-	Cache bool `mapstructure:"cache" default:"true"`
+	Cache bool `json:"cache" mapstructure:"cache" default:"true"`
 
 	// PreFetch fetch and cache an image in the background
-	PreFetch bool `mapstructure:"prefetch" default:"true"`
+	PreFetch bool `json:"preFetch" mapstructure:"prefetch" default:"true"`
 
 	// Password the password used to add authentication to the frontend
-	Password string `mapstructure:"password" default:""`
+	Password string `json:"-" mapstructure:"password" default:""`
 
 	// AssetWeighting use weighting when picking assets
-	AssetWeighting bool `mapstructure:"asset_weighting" default:"true"`
+	AssetWeighting bool `json:"assetWeighting" mapstructure:"asset_weighting" default:"true"`
 
 	// debug modes
-	Debug        bool `mapstructure:"debug" default:"false"`
-	DebugVerbose bool `mapstructure:"debug_verbose" default:"false"`
+	Debug        bool `json:"debug" mapstructure:"debug" default:"false"`
+	DebugVerbose bool `json:"debugVerbose" mapstructure:"debug_verbose" default:"false"`
 }
 
 type WeatherLocation struct {
-	Name string `mapstructure:"name"`
-	Lat  string `mapstructure:"lat"`
-	Lon  string `mapstructure:"lon"`
-	API  string `mapstructure:"api"`
-	Unit string `mapstructure:"unit"`
-	Lang string `mapstructure:"lang"`
+	Name string `json:"name" mapstructure:"name"`
+	Lat  string `json:"lat" mapstructure:"lat"`
+	Lon  string `json:"lon" mapstructure:"lon"`
+	API  string `json:"api" mapstructure:"api"`
+	Unit string `json:"unit" mapstructure:"unit"`
+	Lang string `json:"lang" mapstructure:"lang"`
+}
+
+type Webhook struct {
+	Url   string `json:"url" mapstructure:"url"`
+	Event string `json:"event" mapstructure:"event"`
 }
 
 // Config represents the main configuration structure for the Immich Kiosk application.
@@ -116,108 +121,112 @@ type WeatherLocation struct {
 //   - lowercase: converts string value to lowercase
 type Config struct {
 	// V is the viper instance used for configuration management
-	V *viper.Viper
+	V *viper.Viper `json:"-"`
 	// mu is a mutex used to ensure thread-safe access to the configuration
-	mu *sync.Mutex
+	mu *sync.Mutex `json:"-"`
 	// ReloadTimeStamp timestamp for when the last client reload was called for
-	ReloadTimeStamp string
+	ReloadTimeStamp string `json:"-"`
 	// configLastModTime stores the last modification time of the configuration file
-	configLastModTime time.Time
+	configLastModTime time.Time `json:"-"`
 	// configHash stores the SHA-256 hash of the configuration file
-	configHash string
+	configHash string `json:"-"`
 
 	// ImmichApiKey Immich key to access assets
-	ImmichApiKey string `mapstructure:"immich_api_key" default:""`
+	ImmichApiKey string `json:"-" mapstructure:"immich_api_key" default:""`
 	// ImmichUrl Immuch base url
-	ImmichUrl string `mapstructure:"immich_url" default:""`
+	ImmichUrl string `json:"-" mapstructure:"immich_url" default:""`
 
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
-	DisableUi bool `mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
+	DisableUi bool `json:"disableUi" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames
-	Frameless bool `mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
+	Frameless bool `json:"frameless" mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
 
 	// ShowTime whether to display clock
-	ShowTime bool `mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`
+	ShowTime bool `json:"showTime" mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`
 	// TimeFormat whether to use 12 of 24 hour format for clock
-	TimeFormat string `mapstructure:"time_format" query:"time_format" form:"time_format" default:""`
+	TimeFormat string `json:"timeFormat" mapstructure:"time_format" query:"time_format" form:"time_format" default:""`
 	// ShowDate whether to display date
-	ShowDate bool `mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
+	ShowDate bool `json:"showDate" mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
 	//  DateFormat format for date
-	DateFormat string `mapstructure:"date_format" query:"date_format" form:"date_format" default:""`
+	DateFormat string `json:"dateFormat" mapstructure:"date_format" query:"date_format" form:"date_format" default:""`
 
 	// Refresh time between fetching new image
-	Refresh int `mapstructure:"refresh" query:"refresh" form:"refresh" default:"60"`
+	Refresh int `json:"refresh" mapstructure:"refresh" query:"refresh" form:"refresh" default:"60"`
 	// DisableScreensaver asks browser to disable screensaver
-	DisableScreensaver bool `mapstructure:"disable_screensaver" query:"disable_screensaver" form:"disable_screensaver" default:"false"`
+	DisableScreensaver bool `json:"disableScreensaver" mapstructure:"disable_screensaver" query:"disable_screensaver" form:"disable_screensaver" default:"false"`
 	// HideCursor hide cursor via CSS
-	HideCursor bool `mapstructure:"hide_cursor" query:"hide_cursor" form:"hide_cursor" default:"false"`
+	HideCursor bool `json:"hideCursor" mapstructure:"hide_cursor" query:"hide_cursor" form:"hide_cursor" default:"false"`
 	// FontSize the base font size as a percentage
-	FontSize int `mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
+	FontSize int `json:"fontSize" mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
 	// Theme which theme to use
-	Theme string `mapstructure:"theme" query:"theme" form:"theme" default:"fade" lowercase:"true"`
+	Theme string `json:"theme" mapstructure:"theme" query:"theme" form:"theme" default:"fade" lowercase:"true"`
 	// Layout which layout to use
-	Layout string `mapstructure:"layout" query:"layout" form:"layout" default:"single" lowercase:"true"`
+	Layout string `json:"layout" mapstructure:"layout" query:"layout" form:"layout" default:"single" lowercase:"true"`
 
 	// SleepStart when to start sleep mode
-	SleepStart string `mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
+	SleepStart string `json:"sleepStart" mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
 	// SleepEnd when to exit sleep mode
-	SleepEnd string `mapstructure:"sleep_end" query:"sleep_end" form:"sleep_end" default:""`
+	SleepEnd string `json:"sleepEnd" mapstructure:"sleep_end" query:"sleep_end" form:"sleep_end" default:""`
 
 	// ShowArchived allow archived image to be displayed
-	ShowArchived bool `mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
+	ShowArchived bool `json:"showArchived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display
-	Person []string `mapstructure:"person" query:"person" form:"person" default:"[]"`
+	Person []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
 	// Album ID of album(s) to display
-	Album []string `mapstructure:"album" query:"album" form:"album" default:"[]"`
+	Album []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
 
 	// ImageFit the fit style for main image
-	ImageFit string `mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
+	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
 	// ImageEffect which effect to apply to image (if any)
-	ImageEffect string `mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:"" lowercase:"true"`
+	ImageEffect string `json:"imageEffect" mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:"" lowercase:"true"`
 	// ImageEffectAmount the amount of effect to apply
-	ImageEffectAmount int `mapstructure:"image_effect_amount" query:"image_effect_amount" form:"image_effect_amount" default:"120"`
+	ImageEffectAmount int `json:"imageEffectAmount" mapstructure:"image_effect_amount" query:"image_effect_amount" form:"image_effect_amount" default:"120"`
 	// UseOriginalImage use the original image
-	UseOriginalImage bool `mapstructure:"use_original_image" query:"use_original_image" form:"use_original_image" default:"false"`
+	UseOriginalImage bool `json:"useOriginalImage" mapstructure:"use_original_image" query:"use_original_image" form:"use_original_image" default:"false"`
 	// BackgroundBlur whether to display blurred image as background
-	BackgroundBlur bool `mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
+	BackgroundBlur bool `json:"backgroundBlur" mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
-	Transition string `mapstructure:"transition" query:"transition" form:"transition" default:"" lowercase:"true"`
+	Transition string `json:"transition" mapstructure:"transition" query:"transition" form:"transition" default:"" lowercase:"true"`
 	// FadeTransitionDuration sets the length of the fade transition
-	FadeTransitionDuration float32 `mapstructure:"fade_transition_duration" query:"fade_transition_duration" form:"fade_transition_duration" default:"1"`
+	FadeTransitionDuration float32 `json:"fadeTransitionDuration" mapstructure:"fade_transition_duration" query:"fade_transition_duration" form:"fade_transition_duration" default:"1"`
 	// CrossFadeTransitionDuration sets the length of the cross-fade transition
-	CrossFadeTransitionDuration float32 `mapstructure:"cross_fade_transition_duration" query:"cross_fade_transition_duration" form:"cross_fade_transition_duration" default:"1"`
+	CrossFadeTransitionDuration float32 `json:"crossFadeTransitionDuration" mapstructure:"cross_fade_transition_duration" query:"cross_fade_transition_duration" form:"cross_fade_transition_duration" default:"1"`
 
 	// ShowProgress display a progress bar
-	ShowProgress bool `mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
+	ShowProgress bool `json:"showProgress" mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
 	// CustomCSS use custom css file
-	CustomCSS bool `mapstructure:"custom_css" query:"custom_css" form:"custom_css" default:"true"`
+	CustomCSS bool `json:"customCSS" mapstructure:"custom_css" query:"custom_css" form:"custom_css" default:"true"`
 
 	// ShowImageTime whether to display image time
-	ShowImageTime bool `mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`
+	ShowImageTime bool `json:"showImageTime" mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`
 	// ImageTimeFormat  whether to use 12 of 24 hour format
-	ImageTimeFormat string `mapstructure:"image_time_format" query:"image_time_format" form:"image_time_format" default:""`
+	ImageTimeFormat string `json:"imageTimeFormat" mapstructure:"image_time_format" query:"image_time_format" form:"image_time_format" default:""`
 	// ShowImageDate whether to display image date
-	ShowImageDate bool `mapstructure:"show_image_date" query:"show_image_date" form:"show_image_date"  default:"false"`
+	ShowImageDate bool `json:"showImageDate" mapstructure:"show_image_date" query:"show_image_date" form:"show_image_date"  default:"false"`
 	// ImageDateFormat format for image date
-	ImageDateFormat string `mapstructure:"image_date_format" query:"image_date_format" form:"image_date_format" default:""`
+	ImageDateFormat string `json:"imageDateFormat" mapstructure:"image_date_format" query:"image_date_format" form:"image_date_format" default:""`
 	// ShowImageDescription isplay image description
-	ShowImageDescription bool `mapstructure:"show_image_description" query:"show_image_description" form:"show_image_description" default:"false"`
+	ShowImageDescription bool `json:"showImageDescription" mapstructure:"show_image_description" query:"show_image_description" form:"show_image_description" default:"false"`
 	// ShowImageExif display image exif data (f number, iso, shutter speed, Focal length)
-	ShowImageExif bool `mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
+	ShowImageExif bool `json:"showImageExif" mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
 	// ShowImageLocation display image location data
-	ShowImageLocation bool `mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
+	ShowImageLocation bool `json:"showImageLocation" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
 	// HideCountries hide country names in location information
-	HideCountries []string `mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
+	HideCountries []string `json:"hideCountries" mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
 	// ShowImageID display image ID
-	ShowImageID bool `mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
+	ShowImageID bool `json:"showImageID" mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
 
-	WeatherLocations []WeatherLocation `mapstructure:"weather" default:"[]"`
+	// WeatherLocations A list of locations to fetch and display weather data from. Each location
+	WeatherLocations []WeatherLocation `json:"weather" mapstructure:"weather" default:"[]"`
+
+	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
+	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`
 
 	// Kiosk settings that are unable to be changed via URL queries
-	Kiosk KioskSettings `mapstructure:"kiosk"`
+	Kiosk KioskSettings `json:"kiosk" mapstructure:"kiosk"`
 
 	// History past shown images
-	History []string `form:"history" default:"[]"`
+	History []string `json:"history" form:"history" default:"[]"`
 }
 
 // New returns a new config pointer instance

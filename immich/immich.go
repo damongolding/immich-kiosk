@@ -106,37 +106,37 @@ type Face struct {
 }
 
 type ImmichAsset struct {
-	ID               string          `json:"id"`
-	DeviceAssetID    string          `json:"-"` // `json:"deviceAssetId"`
-	OwnerID          string          `json:"-"` // `json:"ownerId"`
-	DeviceID         string          `json:"-"` // `json:"deviceId"`
-	LibraryID        string          `json:"-"` // `json:"libraryId"`
-	Type             ImmichAssetType `json:"type"`
-	OriginalPath     string          `json:"-"`                // `json:"originalPath"`
-	OriginalFileName string          `json:"-"`                // `json:"originalFileName"`
-	OriginalMimeType string          `json:"originalMimeType"` // `json:"originalMimeType"`
-	Resized          bool            `json:"-"`                // `json:"resized"`
-	Thumbhash        string          `json:"-"`                // `json:"thumbhash"`
-	FileCreatedAt    time.Time       `json:"-"`                // `json:"fileCreatedAt"`
-	FileModifiedAt   time.Time       `json:"-"`                // `json:"fileModifiedAt"`
-	LocalDateTime    time.Time       `json:"localDateTime"`    // `json:"localDateTime"`
-	UpdatedAt        time.Time       `json:"-"`                // `json:"updatedAt"`
-	IsFavorite       bool            `json:"isFavorite"`
-	IsArchived       bool            `json:"isArchived"`
-	IsTrashed        bool            `json:"isTrashed"`
-	Duration         string          `json:"-"` // `json:"duration"`
-	ExifInfo         ExifInfo        `json:"exifInfo"`
-	LivePhotoVideoID any             `json:"-"`      // `json:"livePhotoVideoId"`
-	People           []Person        `json:"people"` // `json:"people"`
-	UnassignedFaces  []Face          `json:"unassignedFaces"`
-	Checksum         string          `json:"checksum"` // `json:"checksum"`
-	StackCount       any             `json:"-"`        // `json:"stackCount"`
-	IsOffline        bool            `json:"-"`        // `json:"isOffline"`
-	HasMetadata      bool            `json:"-"`        // `json:"hasMetadata"`
-	DuplicateID      any             `json:"-"`        // `json:"duplicateId"`
-	RatioWanted      ImageOrientation
-	IsPortrait       bool
-	IsLandscape      bool
+	ID               string           `json:"id"`
+	DeviceAssetID    string           `json:"-"` // `json:"deviceAssetId"`
+	OwnerID          string           `json:"-"` // `json:"ownerId"`
+	DeviceID         string           `json:"-"` // `json:"deviceId"`
+	LibraryID        string           `json:"-"` // `json:"libraryId"`
+	Type             ImmichAssetType  `json:"type"`
+	OriginalPath     string           `json:"-"`                // `json:"originalPath"`
+	OriginalFileName string           `json:"-"`                // `json:"originalFileName"`
+	OriginalMimeType string           `json:"originalMimeType"` // `json:"originalMimeType"`
+	Resized          bool             `json:"-"`                // `json:"resized"`
+	Thumbhash        string           `json:"-"`                // `json:"thumbhash"`
+	FileCreatedAt    time.Time        `json:"-"`                // `json:"fileCreatedAt"`
+	FileModifiedAt   time.Time        `json:"-"`                // `json:"fileModifiedAt"`
+	LocalDateTime    time.Time        `json:"localDateTime"`    // `json:"localDateTime"`
+	UpdatedAt        time.Time        `json:"-"`                // `json:"updatedAt"`
+	IsFavorite       bool             `json:"isFavorite"`
+	IsArchived       bool             `json:"isArchived"`
+	IsTrashed        bool             `json:"isTrashed"`
+	Duration         string           `json:"-"` // `json:"duration"`
+	ExifInfo         ExifInfo         `json:"exifInfo"`
+	LivePhotoVideoID any              `json:"-"` // `json:"livePhotoVideoId"`
+	People           []Person         `json:"people"`
+	UnassignedFaces  []Face           `json:"unassignedFaces"`
+	Checksum         string           `json:"checksum"` // `json:"checksum"`
+	StackCount       any              `json:"-"`        // `json:"stackCount"`
+	IsOffline        bool             `json:"-"`        // `json:"isOffline"`
+	HasMetadata      bool             `json:"-"`        // `json:"hasMetadata"`
+	DuplicateID      any              `json:"-"`        // `json:"duplicateId"`
+	RatioWanted      ImageOrientation `json:"-"`
+	IsPortrait       bool             `json:"-"`
+	IsLandscape      bool             `json:"-"`
 }
 
 type ImmichAlbum struct {
