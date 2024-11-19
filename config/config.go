@@ -53,7 +53,7 @@ type Redirect struct {
 	// Name is the friendly identifier used to access the redirect
 	Name string `mapstructure:"name"`
 	// URL is the destination address for the redirect
-	URL  string `mapstructure:"url"`
+	URL string `mapstructure:"url"`
 }
 
 type KioskSettings struct {
@@ -466,6 +466,15 @@ func (c *Config) checkRedirects() {
 	seen := make(map[string]bool)
 
 	for _, r := range c.Kiosk.Redirects {
+		if r.Name == "" {
+			log.Warn("Skipping redirect with empty name", "url", r.URL)
+			continue
+		}
+		if r.URL == "" {
+			log.Warn("Skipping redirect with empty URL", "name", r.Name)
+			continue
+		}
+
 		if seen[r.Name] {
 			log.Warn("Duplicate redirect name found", "name", r.Name)
 			continue
