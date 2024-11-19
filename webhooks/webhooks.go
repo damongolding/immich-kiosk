@@ -22,7 +22,9 @@ const (
 	CacheFlush    WebhookEvent = "cache.flush"
 )
 
-var httpClient = &http.Client{}
+var httpClient = &http.Client{
+	Timeout: 20 * time.Second,
+}
 
 type Meta struct {
 	Source  string `json:"source"`
@@ -40,9 +42,24 @@ type Payload struct {
 	Meta       Meta                 `json:"meta"`
 }
 
+// Trigger handles sending webhook payloads to configured webhooks endpoints for specified events.
+// It packages up the current request context, images, and config into a JSON payload and sends it
+// to any webhook URLs configured for the event type.
+//
+// requestData contains the current request context including device ID and client name.
+// KioskVersion is the current version string of the kiosk application.
+// event specifies which webhook event (NewAsset, PreviousAsset, etc) triggered this webhook.
+// viewData contains the images and other view context for the current request.
 func Trigger(requestData *common.RouteRequestData, KioskVersion string, event WebhookEvent, viewData views.ViewData) {
 
+	if requestData == nil {
+		log.Error("invalid request data")
+		return
+	}
+
 	config := requestData.RequestConfig
+
+	httpClient.Timeout = time.Second * time.Duration(config.Kiosk.HTTPTimeout)
 
 	for _, userWebhook := range config.Webhooks {
 		if userWebhook.Event != string(event) {
@@ -74,8 +91,6 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 			log.Error("webhook marshal", "err", err)
 			return
 		}
-
-		httpClient.Timeout = time.Second * time.Duration(config.Kiosk.HTTPTimeout)
 
 		resp, err := httpClient.Post(userWebhook.Url, "application/json", bytes.NewBuffer(jsonPayload))
 		if err != nil {

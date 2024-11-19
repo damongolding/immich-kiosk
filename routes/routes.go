@@ -45,6 +45,16 @@ func init() {
 
 }
 
+// InitializeRequestData processes incoming request context and configuration to create RouteRequestData.
+// It handles kiosk version checks, client configuration overrides, and request metadata.
+//
+// Parameters:
+//   - c: Echo context containing the HTTP request and response data
+//   - baseConfig: Base configuration to be used as template for request-specific config
+//
+// Returns:
+//   - *common.RouteRequestData: Processed request data and configuration
+//   - error: Any errors encountered during initialization
 func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.RouteRequestData, error) {
 
 	kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
@@ -66,7 +76,8 @@ func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.R
 
 	err := requestConfig.ConfigWithOverrides(c)
 	if err != nil {
-		log.Error("overriding config", "err", err)
+		log.Error("Failed to initialise request data", "error", err, "path", c.Request().URL.Path)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, "Failed to process request")
 	}
 
 	return &common.RouteRequestData{
