@@ -31,21 +31,6 @@
     }
 }
 
-/* only let the last two frame animation play */
-/* #kiosk .frame {
-    animation-play-state: paused;
-} */
-
-/* #kiosk .frame:nth-last-child(-n + 2) {
-    animation-play-state: running;
-} */
-
-/* #kiosk.htmx-settling .htmx-added:last-of-type {
-    animation-name: fade-in;
-    animation-duration: inherit;
-    animation-fill-mode: forwards;
-} */
-
 .crossfade .frame {
     animation-name: fade-in;
     animation-fill-mode: forwards;

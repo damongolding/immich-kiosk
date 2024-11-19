@@ -639,9 +639,9 @@ func body(viewData ViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var24 string
-			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration/2))
+			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 265, Col: 84}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 265, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {
@@ -778,7 +778,7 @@ func Home(viewData ViewData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if viewData.HideCursor {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\n\t\t\t\t    html, body{\n\t\t\t\t\t    cursor: none;\n\t\t\t\t\t}\n\t\t\t\t</style>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\n\t\t\t\t    html, body {\n\t\t\t\t\t    cursor: none;\n\t\t\t\t\t}\n\t\t\t\t</style>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

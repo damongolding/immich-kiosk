@@ -262,7 +262,7 @@ templ body(viewData ViewData) {
 		case "fade":
 			<body
 				hx-headers={ headerStr }
-				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration/2) }
+				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration) }
 				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
@@ -314,7 +314,7 @@ templ Home(viewData ViewData) {
 			/>
 			if viewData.HideCursor {
 				<style>
-				    html, body{
+				    html, body {
 					    cursor: none;
 					}
 				</style>
