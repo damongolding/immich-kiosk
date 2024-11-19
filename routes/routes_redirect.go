@@ -33,7 +33,7 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
 		// Check if maximum redirects exceeded
 		if count >= maxRedirects {
-			return echo.NewHTTPError(http.StatusBadRequest, "Too many redirects")
+			return echo.NewHTTPError(http.StatusTooManyRequests, "Too many redirects")
 		}
 
 		var r RedirectPath
