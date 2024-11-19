@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/labstack/echo/v4"
@@ -19,13 +20,29 @@ type RedirectPath struct {
 //
 // The function returns a temporary (307) redirect in both cases.
 func Redirect(baseConfig *config.Config) echo.HandlerFunc {
+
+	maxRedirects := 10
+
 	return func(c echo.Context) error {
+
+		redirectCount := c.Request().Header.Get("X-Redirect-Count")
+		count := 0
+		if redirectCount != "" {
+			count, _ = strconv.Atoi(redirectCount)
+		}
+
+		// Check if maximum redirects exceeded
+		if count >= maxRedirects {
+			return echo.NewHTTPError(http.StatusBadRequest, "Too many redirects")
+		}
+
 		var r RedirectPath
 		if err := c.Bind(&r); err != nil {
 			return err
 		}
 
 		if url, exists := baseConfig.Kiosk.RedirectsMap[r.RedirectName]; exists {
+			c.Response().Header().Set("X-Redirect-Count", strconv.Itoa(count+1))
 			return c.Redirect(http.StatusTemporaryRedirect, url)
 		}
 

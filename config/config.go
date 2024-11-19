@@ -57,7 +57,9 @@ type Redirect struct {
 }
 
 type KioskSettings struct {
-	Redirects    []Redirect        `mapstructure:"redirects" default:"[]"`
+	// Redirects defines a list of URL redirections with friendly names
+	Redirects []Redirect `mapstructure:"redirects" default:"[]"`
+	//RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
 	RedirectsMap map[string]string `json:"-"`
 
 	// Port which port to use
@@ -454,13 +456,17 @@ func (c *Config) checkFetchedAssetsSize() {
 	}
 }
 
-// checkRedirects processes the list of redirects from the configuration and builds a map
-// for quick lookup. It takes the array of Redirect structs from c.Kiosk.Redirects and
-// creates a map where the redirect names are keys and their corresponding URLs are values.
+// checkRedirects validates and processes the configured redirects in the Config.
+// It performs several checks and validations:
+// - Skips redirects with empty names or URLs
+// - Ensures redirect names are unique
+// - Validates URLs are properly formatted
+// - Handles relative redirects starting with "?"
+// - Detects and removes circular redirects
+// - Builds a map for O(1) redirect lookups
 //
-// The resulting map is stored in c.Kiosk.RedirectsMap for efficient access during runtime.
-// This map allows O(1) lookup of redirect URLs based on their names, improving performance
-// when handling redirect requests.
+// The function updates the Config's RedirectsMap field with valid redirects.
+// Invalid redirects are logged as warnings and excluded from the final map.
 func (c *Config) checkRedirects() {
 	redirects := make(map[string]string)
 	seen := make(map[string]bool)
@@ -484,9 +490,46 @@ func (c *Config) checkRedirects() {
 			continue
 		}
 		seen[r.Name] = true
-		redirects[r.Name] = r.URL
+
+		if strings.HasPrefix(r.URL, "?") {
+			redirects[r.Name] = "/" + r.URL
+		} else {
+			redirects[r.Name] = r.URL
+		}
+
 		if c.Kiosk.Debug {
 			log.Debug("Registered redirect", "name", r.Name, "url", r.URL)
+		}
+	}
+
+	for name, targetURL := range redirects {
+		visited := make(map[string]bool)
+		current := name
+
+		for {
+			if visited[current] {
+				log.Warn("Circular redirect detected",
+					"starting_point", name,
+					"current", current,
+					"url", targetURL)
+				delete(redirects, name)
+				break
+			}
+
+			visited[current] = true
+
+			// Check if the URL points to another internal redirect
+			if strings.HasPrefix(targetURL, "/") {
+				nextRedirect := strings.TrimPrefix(targetURL, "/")
+				nextURL, exists := redirects[nextRedirect]
+				if !exists {
+					break
+				}
+				current = nextRedirect
+				targetURL = nextURL
+			} else {
+				break
+			}
 		}
 	}
 
