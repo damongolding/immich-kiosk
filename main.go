@@ -124,6 +124,8 @@ func main() {
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
+	e.GET("/:redirect", routes.Redirect(baseConfig))
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 

@@ -62,6 +62,7 @@
   - [Cusom CSS](#custom-css)
   - [Weather](#weather)
 - [Navigation Controls](#navigation-controls)
+- [Redirects](#redirects)
 - [PWA](#pwa)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
@@ -684,6 +685,42 @@ Kiosk's display is divided into interactive zones:
 | _ Spacebar    | Play/Pause and Toggle Menu    |
 | → Right Arrow | Next Image(s)                 |
 | ← Left Arrow  | Previous Image(s)             |
+
+------
+
+## Redirects
+
+Redirects provide a simple way to map short, memorable paths to longer URLs.
+It's particularly useful for creating friendly URLs that redirect to more
+complex endpoints with query parameters.
+
+## How they Work
+
+### Configuration
+Redirects are defined in the `config.yaml` file under the `kiosk.redirects` section:
+
+Each redirect consists of:
+- `name`: The short path that users will use
+- `url`: The destination URL where users will be redirected to
+
+### Examples
+
+```yaml
+kiosk:
+  redirects:
+    - name: london
+      url: /?weather=london
+
+    - name: sheffield
+      url: /?weather=sheffield
+
+    - name: our-wedding
+      url: /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
+```
+
+http://{URL}/london      -> Redirects to /?refresh=10&weather=london
+http://{URL}/sheffield   -> Redirects to /?refresh=10&weather=sheffield
+http://{URL}/our-wedding -> Redirects to /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
 
 ------
 

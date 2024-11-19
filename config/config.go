@@ -47,7 +47,15 @@ const (
 	defaultConfigFile = "config.yaml"
 )
 
+type Redirect struct {
+	Name string `mapstructure:"name"`
+	URL  string `mapstructure:"url"`
+}
+
 type KioskSettings struct {
+	Redirects    []Redirect        `mapstructure:"redirects" default:"[]"`
+	RedirectsMap map[string]string `json:"-"`
+
 	// Port which port to use
 	Port int `mapstructure:"port" default:"3000"`
 
@@ -442,6 +450,23 @@ func (c *Config) checkFetchedAssetsSize() {
 	}
 }
 
+// checkRedirects processes the list of redirects from the configuration and builds a map
+// for quick lookup. It takes the array of Redirect structs from c.Kiosk.Redirects and
+// creates a map where the redirect names are keys and their corresponding URLs are values.
+//
+// The resulting map is stored in c.Kiosk.RedirectsMap for efficient access during runtime.
+// This map allows O(1) lookup of redirect URLs based on their names, improving performance
+// when handling redirect requests.
+func (c *Config) checkRedirects() {
+	redirects := make(map[string]string)
+
+	for _, r := range c.Kiosk.Redirects {
+		redirects[r.Name] = r.URL
+	}
+
+	c.Kiosk.RedirectsMap = redirects
+}
+
 // WatchConfig sets up a configuration file watcher that monitors for changes
 // and reloads the configuration when necessary.
 func (c *Config) WatchConfig() {
@@ -584,6 +609,7 @@ func (c *Config) Load() error {
 	c.checkWeatherLocations()
 	c.checkDebuging()
 	c.checkFetchedAssetsSize()
+	c.checkRedirects()
 
 	return nil
 }
