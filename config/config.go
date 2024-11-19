@@ -47,8 +47,11 @@ const (
 	defaultConfigFile = "config.yaml"
 )
 
+// Redirect represents a URL redirection configuration with a friendly name.
 type Redirect struct {
+	// Name is the friendly identifier used to access the redirect
 	Name string `mapstructure:"name"`
+	// URL is the destination address for the redirect
 	URL  string `mapstructure:"url"`
 }
 
