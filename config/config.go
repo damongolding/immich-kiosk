@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"reflect"
 	"strings"
@@ -459,9 +460,22 @@ func (c *Config) checkFetchedAssetsSize() {
 // when handling redirect requests.
 func (c *Config) checkRedirects() {
 	redirects := make(map[string]string)
+	seen := make(map[string]bool)
 
 	for _, r := range c.Kiosk.Redirects {
+		if seen[r.Name] {
+			log.Warn("Duplicate redirect name found", "name", r.Name)
+			continue
+		}
+		if _, err := url.Parse(r.URL); err != nil {
+			log.Warn("Invalid redirect URL", "name", r.Name, "url", r.URL, "error", err)
+			continue
+		}
+		seen[r.Name] = true
 		redirects[r.Name] = r.URL
+		if c.Kiosk.Debug {
+			log.Debug("Registered redirect", "name", r.Name, "url", r.URL)
+		}
 	}
 
 	c.Kiosk.RedirectsMap = redirects

@@ -718,8 +718,8 @@ kiosk:
       url: /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
 ```
 
-http://{URL}/london      -> Redirects to /?refresh=10&weather=london
-http://{URL}/sheffield   -> Redirects to /?refresh=10&weather=sheffield
+http://{URL}/london      -> Redirects to /?weather=london
+http://{URL}/sheffield   -> Redirects to /?weather=sheffield
 http://{URL}/our-wedding -> Redirects to /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
 
 ------
