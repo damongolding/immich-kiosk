@@ -14,7 +14,10 @@ import (
 	"github.com/damongolding/immich-kiosk/config"
 )
 
-var weatherDataStore sync.Map
+var (
+	weatherDataStore sync.Map
+	DefaultLocation  string
+)
 
 type WeatherLocation struct {
 	Name string
@@ -83,7 +86,14 @@ type Sys struct {
 	Sunset  int    `json:"sunset"`
 }
 
+// AddWeatherLocation adds a new weather location to be monitored.
+// It takes a context for cancellation and a WeatherLocation config.
+// The function will periodically fetch weather data for the location every 10 minutes.
 func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
+
+	if location.Default && DefaultLocation == "" {
+		DefaultLocation = location.Name
+	}
 
 	ticker := time.NewTicker(time.Minute * 10)
 	defer ticker.Stop()
@@ -127,6 +137,8 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 	}
 }
 
+// CurrentWeather retrieves the current weather data for a given location name.
+// Returns a WeatherLocation struct containing the weather data, or an empty struct if not found.
 func CurrentWeather(name string) WeatherLocation {
 	value, ok := weatherDataStore.Load(name)
 	if !ok {
@@ -135,6 +147,8 @@ func CurrentWeather(name string) WeatherLocation {
 	return value.(WeatherLocation)
 }
 
+// updateWeather fetches new weather data from the OpenWeatherMap API for this location.
+// Returns the updated WeatherLocation and any error that occurred.
 func (w *WeatherLocation) updateWeather() (WeatherLocation, error) {
 
 	apiUrl := url.URL{

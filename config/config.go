@@ -218,8 +218,9 @@ type Config struct {
 	ShowImageID bool `json:"showImageID" mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
 
 	// WeatherLocations A list of locations to fetch and display weather data from. Each location
-	WeatherLocations  []WeatherLocation `json:"weather" mapstructure:"weather" default:"[]"`
-	HasWeatherDefault bool
+	WeatherLocations []WeatherLocation `json:"weather" mapstructure:"weather" default:"[]"`
+	// HasWeatherDefault indicates whether any weather location has been set as the default.
+	HasWeatherDefault bool `json:"-" default:"false"`
 
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
 	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`
