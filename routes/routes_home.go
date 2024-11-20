@@ -41,14 +41,15 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			}
 		}
 
-		if !c.QueryParams().Has("weather") && requestConfig.HasWeatherDefault {
-			c.QueryParams().Add("weather", weather.DefaultLocation)
+		queryParams := c.QueryParams()
+		if !queryParams.Has("weather") && requestConfig.HasWeatherDefault {
+			queryParams.Set("weather", weather.DefaultLocation())
 		}
 
 		viewData := views.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     utils.GenerateUUID(),
-			Queries:      c.QueryParams(),
+			Queries:      queryParams,
 			CustomCss:    customCss,
 			Config:       requestConfig,
 		}

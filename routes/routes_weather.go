@@ -14,7 +14,6 @@ import (
 func Weather(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
@@ -31,9 +30,18 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 			"location", weatherLocation,
 		)
 
-		if weatherLocation == "" && !baseConfig.HasWeatherDefault {
-			log.Error("missing weather location name url param and no default is set")
-			return c.NoContent(http.StatusNoContent)
+		if weatherLocation == "" {
+			if !baseConfig.HasWeatherDefault {
+				log.Warn("No weather location provided and no default set")
+				return c.NoContent(http.StatusNoContent)
+			}
+			for _, loc := range baseConfig.WeatherLocations {
+				if loc.Default {
+					weatherLocation = loc.Name
+					break
+				}
+			}
+			log.Debug("Using default weather location", "location", weatherLocation)
 		}
 
 		weatherData := weather.CurrentWeather(weatherLocation)

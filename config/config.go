@@ -434,7 +434,12 @@ func (c *Config) checkWeatherLocations() {
 			missingFields = append(missingFields, "API key")
 		}
 		if w.Default {
-			c.HasWeatherDefault = true
+			if c.HasWeatherDefault {
+				log.Warn("Multiple default weather locations found. Using the first one.", "name", w.Name)
+				w.Default = false
+			} else {
+				c.HasWeatherDefault = true
+			}
 		}
 		if len(missingFields) > 0 {
 			log.Warn("Weather location is missing required fields. Ignoring this location.", "missing fields", strings.Join(missingFields, ", "), "name", w.Name)

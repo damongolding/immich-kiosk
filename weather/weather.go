@@ -15,8 +15,9 @@ import (
 )
 
 var (
-	weatherDataStore sync.Map
-	DefaultLocation  string
+	weatherDataStore  sync.Map
+	defaultLocationMu sync.RWMutex
+	defaultLocation   string
 )
 
 type WeatherLocation struct {
@@ -86,13 +87,27 @@ type Sys struct {
 	Sunset  int    `json:"sunset"`
 }
 
+func DefaultLocation() string {
+	defaultLocationMu.RLock()
+	defer defaultLocationMu.RUnlock()
+	return defaultLocation
+}
+
+func SetDefaultLocation(location string) {
+	defaultLocationMu.Lock()
+	defaultLocation = location
+	defaultLocationMu.Unlock()
+}
+
 // AddWeatherLocation adds a new weather location to be monitored.
-// It takes a context for cancellation and a WeatherLocation config.
-// The function will periodically fetch weather data for the location every 10 minutes.
+// It takes a context.Context for cancellation and a config.WeatherLocation struct to configure the monitoring.
+// The weather data is fetched immediately and then updated every 10 minutes until the context is cancelled.
+// If the location is marked as default and no default exists yet, it will be set as the default location.
 func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 
-	if location.Default && DefaultLocation == "" {
-		DefaultLocation = location.Name
+	if location.Default && DefaultLocation() == "" {
+		SetDefaultLocation(location.Name)
+		log.Info("Set default weather location", "name", location.Name)
 	}
 
 	ticker := time.NewTicker(time.Minute * 10)
