@@ -43,7 +43,12 @@ class Clock {
 
   private updateDate(now: Date): void {
     if (!this.config.showDate || !this.elements.date) return;
-    this.elements.date.innerHTML = format(now, this.config.dateFormat);
+    try {
+      this.elements.date.innerHTML = format(now, this.config.dateFormat);
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      this.elements.date.innerHTML = now.toLocaleDateString();
+    }
   }
 
   private updateTime(now: Date): void {
