@@ -14,7 +14,11 @@ import (
 	"github.com/damongolding/immich-kiosk/config"
 )
 
-var weatherDataStore sync.Map
+var (
+	weatherDataStore  sync.Map
+	defaultLocationMu sync.RWMutex
+	defaultLocation   string
+)
 
 type WeatherLocation struct {
 	Name string
@@ -83,7 +87,28 @@ type Sys struct {
 	Sunset  int    `json:"sunset"`
 }
 
+func DefaultLocation() string {
+	defaultLocationMu.RLock()
+	defer defaultLocationMu.RUnlock()
+	return defaultLocation
+}
+
+func SetDefaultLocation(location string) {
+	defaultLocationMu.Lock()
+	defaultLocation = location
+	defaultLocationMu.Unlock()
+}
+
+// AddWeatherLocation adds a new weather location to be monitored.
+// It takes a context.Context for cancellation and a config.WeatherLocation struct to configure the monitoring.
+// The weather data is fetched immediately and then updated every 10 minutes until the context is cancelled.
+// If the location is marked as default and no default exists yet, it will be set as the default location.
 func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
+
+	if location.Default && DefaultLocation() == "" {
+		SetDefaultLocation(location.Name)
+		log.Info("Set default weather location", "name", location.Name)
+	}
 
 	ticker := time.NewTicker(time.Minute * 10)
 	defer ticker.Stop()
@@ -127,6 +152,8 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 	}
 }
 
+// CurrentWeather retrieves the current weather data for a given location name.
+// Returns a WeatherLocation struct containing the weather data, or an empty struct if not found.
 func CurrentWeather(name string) WeatherLocation {
 	value, ok := weatherDataStore.Load(name)
 	if !ok {
@@ -135,6 +162,8 @@ func CurrentWeather(name string) WeatherLocation {
 	return value.(WeatherLocation)
 }
 
+// updateWeather fetches new weather data from the OpenWeatherMap API for this location.
+// Returns the updated WeatherLocation and any error that occurred.
 func (w *WeatherLocation) updateWeather() (WeatherLocation, error) {
 
 	apiUrl := url.URL{
@@ -162,7 +191,8 @@ func (w *WeatherLocation) updateWeather() (WeatherLocation, error) {
 			break
 		}
 		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiUrl, "err", err)
-		time.Sleep(time.Duration(attempts) * time.Second)
+		time.Sleep(time.Duration(1<<attempts) * time.Second)
+
 	}
 	if err != nil {
 		log.Error("Request failed after retries", "err", err)

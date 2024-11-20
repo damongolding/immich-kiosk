@@ -92,12 +92,13 @@ type KioskSettings struct {
 }
 
 type WeatherLocation struct {
-	Name string `json:"name" mapstructure:"name"`
-	Lat  string `json:"lat" mapstructure:"lat"`
-	Lon  string `json:"lon" mapstructure:"lon"`
-	API  string `json:"api" mapstructure:"api"`
-	Unit string `json:"unit" mapstructure:"unit"`
-	Lang string `json:"lang" mapstructure:"lang"`
+	Name    string `mapstructure:"name"`
+	Lat     string `mapstructure:"lat"`
+	Lon     string `mapstructure:"lon"`
+	API     string `mapstructure:"api"`
+	Unit    string `mapstructure:"unit"`
+	Lang    string `mapstructure:"lang"`
+	Default bool   `mapstructure:"default"`
 }
 
 type Webhook struct {
@@ -218,6 +219,8 @@ type Config struct {
 
 	// WeatherLocations A list of locations to fetch and display weather data from. Each location
 	WeatherLocations []WeatherLocation `json:"weather" mapstructure:"weather" default:"[]"`
+	// HasWeatherDefault indicates whether any weather location has been set as the default.
+	HasWeatherDefault bool `json:"-" default:"false"`
 
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
 	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`
@@ -429,6 +432,14 @@ func (c *Config) checkWeatherLocations() {
 		}
 		if w.API == "" {
 			missingFields = append(missingFields, "API key")
+		}
+		if w.Default {
+			if c.HasWeatherDefault {
+				log.Warn("Multiple default weather locations found. Using the first one.", "name", w.Name)
+				w.Default = false
+			} else {
+				c.HasWeatherDefault = true
+			}
 		}
 		if len(missingFields) > 0 {
 			log.Warn("Weather location is missing required fields. Ignoring this location.", "missing fields", strings.Join(missingFields, ", "), "name", w.Name)

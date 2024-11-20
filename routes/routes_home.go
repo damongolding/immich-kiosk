@@ -10,6 +10,7 @@ import (
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
+	"github.com/damongolding/immich-kiosk/weather"
 )
 
 // Home home endpoint
@@ -40,10 +41,15 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			}
 		}
 
+		queryParams := c.QueryParams()
+		if !queryParams.Has("weather") && requestConfig.HasWeatherDefault {
+			queryParams.Set("weather", weather.DefaultLocation())
+		}
+
 		viewData := views.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     utils.GenerateUUID(),
-			Queries:      c.QueryParams(),
+			Queries:      queryParams,
 			CustomCss:    customCss,
 			Config:       requestConfig,
 		}

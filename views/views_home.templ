@@ -359,7 +359,7 @@ templ Home(viewData ViewData) {
 						}
 					</div>
 					<div>
-						if viewData.Queries.Has("weather") {
+						if viewData.Queries.Has("weather") || viewData.HasWeatherDefault {
 							@weatherHtmx(viewData.Theme)
 						}
 					</div>

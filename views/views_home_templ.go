@@ -858,7 +858,7 @@ func Home(viewData ViewData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if viewData.Queries.Has("weather") {
+				if viewData.Queries.Has("weather") || viewData.HasWeatherDefault {
 					templ_7745c5c3_Err = weatherHtmx(viewData.Theme).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
