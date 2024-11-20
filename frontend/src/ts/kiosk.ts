@@ -15,6 +15,7 @@ import {
   initMenu,
   disableImageNavigationButtons,
   enableImageNavigationButtons,
+  toggleImageOverlay,
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
@@ -151,13 +152,23 @@ function handleFullscreenClick(): void {
  */
 function addEventListeners(): void {
   // Pause/resume polling and show/hide menu
-  menuInteraction?.addEventListener("click", togglePolling);
-  menuPausePlayButton?.addEventListener("click", togglePolling);
+  menuInteraction?.addEventListener("click", () => togglePolling);
+  menuPausePlayButton?.addEventListener("click", () => togglePolling);
   document.addEventListener("keydown", (e) => {
     if (e.target !== document.body) return;
-    if (e.code === "Space") {
-      e.preventDefault();
-      togglePolling();
+
+    e.preventDefault();
+
+    switch (e.code) {
+      case "Space":
+        togglePolling(true);
+        break;
+      case "KeyI":
+        if (!document.body.classList.contains("polling-paused")) {
+          togglePolling();
+        }
+        toggleImageOverlay();
+        break;
     }
   });
 
@@ -167,9 +178,7 @@ function addEventListeners(): void {
 
   document
     .querySelector(".navigation--more-info")
-    ?.addEventListener("click", () => {
-      htmx.toggleClass("body", "more-info");
-    });
+    ?.addEventListener("click", () => toggleImageOverlay());
 
   // Server online check. Fires after every AJAX request.
   htmx.on("htmx:afterRequest", function (e: HTMXEvent) {

@@ -40,7 +40,7 @@ to{}
 .frameless .frame--layout-splitview-landscape{}
 .frame--layout-splitview-landscape .frame--image{}
 /* src/css/image.css */
-.more-info .image--metadata{}
+.polling-paused.more-info .image--metadata{}
 .image--metadata{}
 .image--metadata--theme-fade::before{}
 .frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before{}
@@ -63,16 +63,15 @@ to{}
 .polling-paused .frame{}
 .polling-paused .frame img{}
 /* src/css/image-more-info.css */
-.more-info #more-info.hidden{}
-.more-info .frame--image img{}
 #more-info{}
-#more-info .more-info--image{}
-#more-info .more-info--image .more-info--image--data{}
-#more-info .more-info--image h3{}
-#more-info .more-info--image a{}
-#more-info .more-info--image .more-info--image--qr-code{}
-#more-info .more-info--image .more-info--image--qr-code img{}
-#more-info.hidden{}
+.polling-paused.more-info .frame--image img{}
+.polling-paused.more-info #more-info{}
+.polling-paused.more-info #more-info .more-info--image{}
+.polling-paused.more-info #more-info .more-info--image .more-info--image--data{}
+.polling-paused.more-info #more-info .more-info--image h3{}
+.polling-paused.more-info #more-info .more-info--image a{}
+.polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code{}
+.polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code img{}
 .layout-splitview-landscape #more-info{}
 .layout-splitview-landscape #more-info .more-info--image{}
 /* src/css/error.css */
@@ -91,7 +90,7 @@ to{}
 .offline{}
 .sleep #offline{}
 /* src/css/clock-weather-container.css */
-.more-info #clock-weather-container{}
+.polling-paused.more-info #clock-weather-container{}
 #clock-weather-container{}
 .layout-splitview #clock-weather-container{}
 .sleep #clock-weather-container{}

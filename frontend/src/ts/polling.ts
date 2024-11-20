@@ -1,4 +1,5 @@
 import htmx from "htmx.org";
+import { hideImageOverlay } from "./menu";
 
 let animationFrameId: number | null = null;
 let progressBarElement: HTMLElement | null;
@@ -65,7 +66,7 @@ function startPolling() {
   animationFrameId = requestAnimationFrame(updateKiosk);
 
   document.body.classList.remove("polling-paused");
-  document.body.classList.remove("more-info");
+  hideImageOverlay();
 
   isPaused = false;
 }
@@ -103,7 +104,7 @@ function pausePolling(showMenu: boolean = true) {
 /**
  * Resume the polling process
  */
-function resumePolling() {
+function resumePolling(hideOverlay: boolean = false) {
   if (!isPaused) return;
 
   animationFrameId = requestAnimationFrame(updateKiosk);
@@ -112,7 +113,7 @@ function resumePolling() {
   menuElement?.classList.add("navigation-hidden");
 
   document.body.classList.remove("polling-paused");
-  document.body.classList.remove("more-info");
+  if (hideOverlay) hideImageOverlay();
 
   isPaused = false;
 }
@@ -120,8 +121,8 @@ function resumePolling() {
 /**
  * Toggle the polling state (pause/restart)
  */
-function togglePolling() {
-  isPaused ? resumePolling() : pausePolling();
+function togglePolling(hideOverlay: boolean = false) {
+  isPaused ? resumePolling(hideOverlay) : pausePolling();
 }
 
 export {

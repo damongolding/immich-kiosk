@@ -8,6 +8,8 @@ import htmx from "htmx.org";
 let nextImageMenuButton: HTMLElement;
 let prevImageMenuButton: HTMLElement;
 
+let imageOverlayVisable = false;
+
 function disableImageNavigationButtons() {
   if (!nextImageMenuButton || !prevImageMenuButton) {
     console.error("Navigation buttons not initialized");
@@ -24,6 +26,23 @@ function enableImageNavigationButtons() {
   }
   htmx.removeClass(nextImageMenuButton as Element, "disabled");
   htmx.removeClass(prevImageMenuButton as Element, "disabled");
+}
+
+function showImageOverlay() {
+  if (!document.body.classList.contains("polling-paused")) return;
+  console.log("on");
+  document.body.classList.add("more-info");
+  imageOverlayVisable = true;
+}
+
+function hideImageOverlay() {
+  console.log("off");
+  document.body.classList.remove("more-info");
+  imageOverlayVisable = false;
+}
+
+function toggleImageOverlay() {
+  imageOverlayVisable ? hideImageOverlay() : showImageOverlay();
 }
 
 /**
@@ -43,4 +62,7 @@ export {
   initMenu,
   disableImageNavigationButtons,
   enableImageNavigationButtons,
+  showImageOverlay,
+  hideImageOverlay,
+  toggleImageOverlay,
 };
