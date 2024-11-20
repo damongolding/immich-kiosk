@@ -28,12 +28,14 @@ class Clock {
 
   constructor(config: ClockConfig) {
     this.config = config;
-    this.elements = this.initializeElements();
+    this.elements = this.initialiseElements();
   }
 
-  private initializeElements(): ClockElements {
+  private initialiseElements(): ClockElements {
+    const main = document.querySelector("clock");
+    if (!main) throw new Error("Clock element not found");
     return {
-      main: document.querySelector("clock"),
+      main: main as HTMLElement,
       date: document.querySelector(".clock--date"),
       time: document.querySelector(".clock--time"),
     };
@@ -66,6 +68,9 @@ class Clock {
   }
 
   public start(): void {
+    if (this.intervalId) {
+      this.stop();
+    }
     this.render();
     this.intervalId = window.setInterval(
       () => this.render(),
