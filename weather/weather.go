@@ -191,7 +191,8 @@ func (w *WeatherLocation) updateWeather() (WeatherLocation, error) {
 			break
 		}
 		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiUrl, "err", err)
-		time.Sleep(time.Duration(attempts) * time.Second)
+		time.Sleep(time.Duration(1<<attempts) * time.Second)
+
 	}
 	if err != nil {
 		log.Error("Request failed after retries", "err", err)
