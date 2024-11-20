@@ -16,9 +16,9 @@ interface ClockConfig {
 }
 
 interface ClockElements {
-  main: Element | null;
-  date: Element | null;
-  time: Element | null;
+  main: HTMLElement | null;
+  date: HTMLElement | null;
+  time: HTMLElement | null;
 }
 
 class Clock {
@@ -76,6 +76,11 @@ class Clock {
   public stop(): void {
     if (this.intervalId) {
       window.clearInterval(this.intervalId);
+      this.elements = {
+        main: null,
+        date: null,
+        time: null,
+      };
     }
   }
 }
