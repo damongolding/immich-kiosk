@@ -1,9 +1,10 @@
-path_filters:
-  - path: "custom.example.css"
-    action: ignore
+reviews:
+  path_filters:
+    - path: "custom.example.css"
+      action: ignore
 
-  - path: "frontend/public/"
-    action: ignore
+    - path: "frontend/public/"
+      action: ignore
 
-  - path: "*_templ.go"
-    action: ignore
+    - path: "*_templ.go"
+      action: ignore
