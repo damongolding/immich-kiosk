@@ -25,20 +25,15 @@
     from {
         opacity: 0;
     }
+
+    to {
+        opacity: 1;
+    }
 }
 
-/* only let the last two frame animation play */
-#kiosk .frame {
-    animation-play-state: paused;
-}
-
-#kiosk .frame:nth-last-child(-n + 2) {
-    animation-play-state: running;
-}
-
-#kiosk.htmx-settling .htmx-added:last-of-type {
+.crossfade .frame {
     animation-name: fade-in;
-    animation-duration: 1s;
     animation-fill-mode: forwards;
+    opacity: 0;
 }
 /* END Cross fade transtion */

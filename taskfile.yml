@@ -1,8 +1,9 @@
 version: "3"
 env:
-  VERSION: 0.13.0-beta.3
+  VERSION: 0.13.1-beta.3
 
 tasks:
+  # Development tasks
   default:
     deps: [build]
     cmds:
@@ -13,6 +14,7 @@ tasks:
     cmds:
       - KIOSK_DEBUG_VERBOSE=true ./dist/kiosk
 
+  # Frontend tasks
   frontend:
     deps: [frontend-test, frontend-css, frontend-js]
     dir: ./frontend
@@ -39,6 +41,7 @@ tasks:
     cmds:
       - pnpm js
 
+  # Backend tasks
   templ:
     cmds:
       - templ generate
@@ -51,6 +54,7 @@ tasks:
     cmds:
       - golangci-lint run
 
+  # Build tasks
   build:
     deps: [frontend, templ]
     cmds:
@@ -63,6 +67,7 @@ tasks:
       - go generate *.go
       - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -X github.com/damongolding/immich-kiosk/routes.drawFacesOnImages=true" -o dist/kiosk .
 
+  # Docker tasks
   docker-image:
     deps: [build]
     cmds:
@@ -83,6 +88,7 @@ tasks:
     cmds:
       - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk-development:{{.VERSION}} -t damongolding/immich-kiosk-development:latest .
 
+  # Maintenance tasks
   outdated:
     cmds:
       - go list -u -m -json all | go-mod-outdated -direct -update

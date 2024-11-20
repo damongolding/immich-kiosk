@@ -177,37 +177,34 @@ body {
   from {
     opacity: 0;
   }
+  to {
+    opacity: 1;
+  }
 }
 @-moz-keyframes fade-in {
   from {
     opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 @keyframes fade-in {
   from {
     opacity: 0;
   }
+  to {
+    opacity: 1;
+  }
 }
-#kiosk .frame {
-  -webkit-animation-play-state: paused;
-     -moz-animation-play-state: paused;
-          animation-play-state: paused;
-}
-#kiosk .frame:nth-last-child(-n+2) {
-  -webkit-animation-play-state: running;
-     -moz-animation-play-state: running;
-          animation-play-state: running;
-}
-#kiosk.htmx-settling .htmx-added:last-of-type {
+.crossfade .frame {
   -webkit-animation-name: fade-in;
      -moz-animation-name: fade-in;
           animation-name: fade-in;
-  -webkit-animation-duration: 1s;
-     -moz-animation-duration: 1s;
-          animation-duration: 1s;
   -webkit-animation-fill-mode: forwards;
      -moz-animation-fill-mode: forwards;
           animation-fill-mode: forwards;
+  opacity: 0;
 }
 
 /* src/css/spinner.css */
@@ -324,12 +321,6 @@ body {
      -moz-box-align: center;
           align-items: center;
 }
-.layout-splitview-landscape {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
 .layout-splitview-landscape .frame {
     -webkit-flex-direction: column;
        -moz-box-orient: vertical;
@@ -346,14 +337,20 @@ body {
     border: none;
     border-radius: 0;
   }
+.frame--layout-splitview-landscape {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
 .frame--layout-splitview-landscape:nth-child(1) {
-  border-bottom: 0.2rem solid black;
-  border-radius: 0.75rem;
-}
+    border-bottom: 0.2rem solid black;
+    border-radius: 0.75rem;
+  }
 .frame--layout-splitview-landscape:nth-child(2) {
-  border-top: 0.2rem solid black;
-  border-radius: 0.75rem;
-}
+    border-top: 0.2rem solid black;
+    border-radius: 0.75rem;
+  }
 .frameless .frame--layout-splitview-landscape {
   border-radius: 0;
 }
@@ -500,31 +497,36 @@ body {
      object-position: inherit;
   will-change: scale;
 }
-.frame:nth-last-of-type(-n+2) .frame--image-zoom-in img {
+.frame .frame--image-zoom-in img {
   -webkit-animation-name: image-zoom-in;
      -moz-animation-name: image-zoom-in;
           animation-name: image-zoom-in;
 }
-.frame:nth-last-of-type(-n+2) .frame--image-zoom-out img {
+.frame .frame--image-zoom-out img {
   -webkit-animation-name: image-zoom-out;
      -moz-animation-name: image-zoom-out;
           animation-name: image-zoom-out;
 }
-.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-out img {
+.frame .frame--image-smart-zoom-out img {
   -webkit-animation-name: image-smart-zoom-out;
      -moz-animation-name: image-smart-zoom-out;
           animation-name: image-smart-zoom-out;
 }
-.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-in img {
+.frame .frame--image-smart-zoom-in img {
   -webkit-animation-name: image-smart-zoom-in;
      -moz-animation-name: image-smart-zoom-in;
           animation-name: image-smart-zoom-in;
 }
-.polling-paused .frame:nth-last-of-type(-n+2) img {
+.polling-paused .frame {
   -webkit-animation-play-state: paused;
      -moz-animation-play-state: paused;
           animation-play-state: paused;
 }
+.polling-paused .frame img {
+    -webkit-animation-play-state: paused;
+       -moz-animation-play-state: paused;
+            animation-play-state: paused;
+  }
 @media screen and (max-width: 31.25rem) {
   .image--metadata {
     padding: 0.5rem !important;

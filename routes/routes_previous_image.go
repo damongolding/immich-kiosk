@@ -12,8 +12,8 @@ import (
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
-	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
+	"github.com/damongolding/immich-kiosk/webhooks"
 )
 
 // PreviousImage returns an echo.HandlerFunc that handles requests for previous images.
@@ -21,22 +21,19 @@ import (
 func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
-		kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
-		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
-
-		// create a copy of the global config to use with this request
-		requestConfig := *baseConfig
-
-		err := requestConfig.ConfigWithOverrides(c)
+		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
-			log.Error("overriding config", "err", err)
+			return err
 		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
+		kioskDeviceID := requestData.DeviceID
 
 		log.Debug(
 			requestID,
 			"method", c.Request().Method,
-			"deviceID", kioskDeviceID,
+			"deviceID", requestData.DeviceID,
 			"path", c.Request().URL.String(),
 			"requestConfig", requestConfig.String(),
 		)
@@ -51,7 +48,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 		requestConfig.History = requestConfig.History[:historyLen-2]
 
 		ViewData := views.ViewData{
-			KioskVersion: kioskDeviceVersion,
+			KioskVersion: KioskVersion,
 			DeviceID:     kioskDeviceID,
 			Images:       make([]views.ImageData, len(prevImages)),
 			Queries:      c.QueryParams(),
@@ -107,6 +104,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 			return RenderError(c, err, "processing images")
 		}
 
+		go webhooks.Trigger(requestData, KioskVersion, webhooks.PreviousAsset, ViewData)
 		return Render(c, http.StatusOK, views.Image(ViewData))
 	}
 }

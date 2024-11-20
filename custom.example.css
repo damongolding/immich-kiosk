@@ -10,11 +10,11 @@ body{}
 #kiosk.htmx-swapping{}
 @-webkit-keyframes fade-in{}
 from{}
+to{}
 @-moz-keyframes fade-in{}
 from{}
-#kiosk .frame{}
-#kiosk .frame:nth-last-child(-n+2){}
-#kiosk.htmx-settling .htmx-added:last-of-type{}
+to{}
+.crossfade .frame{}
 /* src/css/spinner.css */
 .kiosk--spinner{}
 /* src/css/frame.css */
@@ -32,9 +32,9 @@ from{}
 .frame--layout-splitview:nth-child(2){}
 .frameless .frame--layout-splitview{}
 .frame--layout-splitview .frame--image{}
-.layout-splitview-landscape{}
 .layout-splitview-landscape .frame{}
 .layout-splitview-landscape.frameless .frame{}
+.frame--layout-splitview-landscape{}
 .frame--layout-splitview-landscape:nth-child(1){}
 .frame--layout-splitview-landscape:nth-child(2){}
 .frameless .frame--layout-splitview-landscape{}
@@ -55,11 +55,12 @@ from{}
 .frame--layout-splitview .image--metadata--desciption, .frame--layout-splitview-landscape .image--metadata--desciption{}
 .frame--layout-splitview:nth-child(1) .image--metadata{}
 .frame--image-zoom img{}
-.frame:nth-last-of-type(-n+2) .frame--image-zoom-in img{}
-.frame:nth-last-of-type(-n+2) .frame--image-zoom-out img{}
-.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-out img{}
-.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-in img{}
-.polling-paused .frame:nth-last-of-type(-n+2) img{}
+.frame .frame--image-zoom-in img{}
+.frame .frame--image-zoom-out img{}
+.frame .frame--image-smart-zoom-out img{}
+.frame .frame--image-smart-zoom-in img{}
+.polling-paused .frame{}
+.polling-paused .frame img{}
 /* src/css/error.css */
 .error-container{}
 .error{}

@@ -6,7 +6,6 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/config"
-	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
 	"github.com/damongolding/immich-kiosk/weather"
 	"github.com/labstack/echo/v4"
@@ -15,7 +14,14 @@ import (
 func Weather(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
+
+		requestID := requestData.RequestID
+
 		weatherLocation := c.QueryParam("weather")
 
 		log.Debug(

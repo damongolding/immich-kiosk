@@ -12,6 +12,7 @@ import (
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
+	"github.com/damongolding/immich-kiosk/webhooks"
 	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 	"github.com/labstack/echo/v4"
@@ -302,11 +303,20 @@ func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, req
 	return processViewImageData(imageOrientation, requestConfig, c, isPrefetch)
 }
 
-func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceID string) {
+func imagePreFetch(requestConfig config.Config, c echo.Context) {
 
-	viewDataToAdd, err := generateViewData(requestConfig, c, kioskDeviceID, true)
+	requestData, err := InitializeRequestData(c, &requestConfig)
 	if err != nil {
-		log.Error("prefetch", "err", err)
+		log.Error("InitializeRequestData", "prefetch", true, "err", err)
+	}
+
+	requestConfig = requestData.RequestConfig
+	requestID := requestData.RequestID
+	deviceID := requestData.DeviceID
+
+	viewDataToAdd, err := generateViewData(requestConfig, c, requestID, true)
+	if err != nil {
+		log.Error("generateViewData", "prefetch", true, "err", err)
 		return
 	}
 
@@ -317,7 +327,7 @@ func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceID st
 	viewDataCacheMutex.Lock()
 	defer viewDataCacheMutex.Unlock()
 
-	cacheKey := c.Request().URL.String() + kioskDeviceID
+	cacheKey := c.Request().URL.String() + deviceID
 
 	if data, found := ViewDataCache.Get(cacheKey); found {
 		cachedViewData = data.([]views.ViewData)
@@ -327,47 +337,9 @@ func imagePreFetch(requestConfig config.Config, c echo.Context, kioskDeviceID st
 
 	ViewDataCache.Set(cacheKey, cachedViewData, cache.DefaultExpiration)
 
+	go webhooks.Trigger(requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
+
 }
-
-// imagePreFetch pre-fetches a specified number of images and caches them.
-// func imagePreFetchOld(numberOfImages int, requestConfig config.Config, c echo.Context, kioskDeviceID string) {
-
-// 	var wg sync.WaitGroup
-
-// 	wg.Add(numberOfImages)
-
-// 	cacheKey := c.Request().URL.String() + kioskDeviceID
-
-// 	for i := 0; i < numberOfImages; i++ {
-
-// 		go func() {
-
-// 			defer wg.Done()
-
-// 			viewImageData, err := processViewImageData(requestConfig, c, true)
-// 			if err != nil {
-// 				log.Error("prefetch", "err", err)
-// 				return
-// 			}
-
-// 			viewDataCacheMutex.Lock()
-// 			defer viewDataCacheMutex.Unlock()
-
-// 			cachedViewData := []views.ViewData{}
-
-// 			if data, found := viewDataCache.Get(cacheKey); found {
-// 				cachedViewData = data.([]views.ViewData)
-// 			}
-
-// 			cachedViewData = append(cachedViewData, viewImageData)
-
-// 			viewDataCache.Set(cacheKey, cachedViewData, cache.DefaultExpiration)
-// 		}()
-
-// 	}
-
-// 	wg.Wait()
-// }
 
 // fromCache retrieves cached page data for a given request and device ID.
 func fromCache(c echo.Context, kioskDeviceID string) []views.ViewData {

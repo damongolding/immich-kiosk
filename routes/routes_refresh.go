@@ -21,7 +21,6 @@ func RefreshCheck(baseConfig *config.Config) echo.HandlerFunc {
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig
 
-		// If kiosk version on client and server do not match refresh client.
 		if KioskVersion != kioskVersionHeader || kioskRefreshTimestampHeader != requestConfig.ReloadTimeStamp {
 			c.Response().Header().Set("HX-Refresh", "true")
 			return c.NoContent(http.StatusNoContent)

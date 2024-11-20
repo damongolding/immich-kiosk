@@ -15,22 +15,13 @@ import (
 func Sleep(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		kioskVersionHeader := c.Request().Header.Get("kiosk-version")
-		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
-
-		// create a copy of the global config to use with this request
-		requestConfig := *baseConfig
-
-		// If kiosk version on client and server do not match refresh client.
-		if kioskVersionHeader != "" && KioskVersion != kioskVersionHeader {
-			c.Response().Header().Set("HX-Refresh", "true")
-			return c.String(http.StatusTemporaryRedirect, "")
-		}
-
-		err := requestConfig.ConfigWithOverrides(c)
+		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
-			log.Error("overriding config", "err", err)
+			return err
 		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
 
 		log.Debug(
 			requestID,
