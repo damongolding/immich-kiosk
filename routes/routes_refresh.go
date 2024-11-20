@@ -7,18 +7,24 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/damongolding/immich-kiosk/config"
+	"github.com/damongolding/immich-kiosk/utils"
 )
 
 // RefreshCheck endpoint to check if device requires a refresh
 func RefreshCheck(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		requestData, err := InitializeRequestData(c, baseConfig)
-		if err != nil {
-			return err
-		}
+		kioskVersionHeader := c.Request().Header.Get("kiosk-version")
+		kioskRefreshTimestampHeader := c.Request().Header.Get("kiosk-reload-timestamp")
+		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 
-		requestID := requestData.RequestID
+		// create a copy of the global config to use with this request
+		requestConfig := *baseConfig
+
+		if KioskVersion != kioskVersionHeader || kioskRefreshTimestampHeader != requestConfig.ReloadTimeStamp {
+			c.Response().Header().Set("HX-Refresh", "true")
+			return c.NoContent(http.StatusNoContent)
+		}
 
 		log.Debug(
 			requestID,
