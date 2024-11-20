@@ -1,4 +1,4 @@
-import htmx, { HtmxResponseInfo } from "htmx.org";
+import htmx from "htmx.org";
 import {
   addFullscreenEventListener,
   fullscreenAPI,
@@ -16,6 +16,8 @@ import {
   disableImageNavigationButtons,
   enableImageNavigationButtons,
 } from "./menu";
+import { initClock } from "./clock";
+import type { TimeFormat } from "./clock";
 
 ("use strict");
 
@@ -36,6 +38,10 @@ type KioskData = {
   params: Record<string, unknown>;
   refresh: number;
   disableScreensaver: boolean;
+  showDate: boolean;
+  dateFormat: string;
+  showTime: boolean;
+  timeFormat: TimeFormat;
 };
 
 const MAX_FRAME = 3 as const;
@@ -82,6 +88,13 @@ async function init(): Promise<void> {
   if (kioskData.debugVerbose) {
     htmx.logAll();
   }
+
+  const clock = initClock(
+    kioskData.showDate,
+    kioskData.dateFormat,
+    kioskData.showTime,
+    kioskData.timeFormat,
+  );
 
   if (kioskData.disableScreensaver) {
     await preventSleep();
