@@ -190,15 +190,15 @@ templ paramForm(queries url.Values) {
 	</form>
 }
 
-// clockHtmx renders a clock component with HTMX updates
-templ clockHtmx(theme string) {
+// clockHtml renders a clock html
+templ clockHtml(theme string) {
 	<div
 		id="clock"
 		class={ fmt.Sprintf("clock--theme-%s", theme) }
-		hx-get="/clock"
-		hx-trigger="load, every 13s"
-		hx-swap="innerHTML"
-	></div>
+	>
+		<div class="clock--date"></div>
+		<div class="clock--time"></div>
+	</div>
 }
 
 // weatherHtmx renders a weather component with HTMX updates
@@ -355,7 +355,7 @@ templ Home(viewData ViewData) {
 				<section id="clock-weather-container">
 					<div>
 						if (viewData.ShowTime || viewData.ShowDate) {
-							@clockHtmx(viewData.Theme)
+							@clockHtml(viewData.Theme)
 						}
 					</div>
 					<div>
@@ -378,6 +378,10 @@ templ Home(viewData ViewData) {
 				"params":             queriesToJson(viewData.Queries),
 				"refresh":            viewData.Refresh,
 				"disableScreensaver": viewData.DisableScreensaver,
+				"showDate":           viewData.ShowDate,
+				"dateFormat":         utils.DateToJavascriptLayout(viewData.DateFormat),
+				"showTime":           viewData.ShowTime,
+				"timeFormat":         viewData.TimeFormat,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			if len(viewData.Queries) > 0 {

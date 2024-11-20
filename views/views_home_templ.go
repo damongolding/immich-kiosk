@@ -333,8 +333,8 @@ func paramForm(queries url.Values) templ.Component {
 	})
 }
 
-// clockHtmx renders a clock component with HTMX updates
-func clockHtmx(theme string) templ.Component {
+// clockHtml renders a clock html
+func clockHtml(theme string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -373,7 +373,7 @@ func clockHtmx(theme string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-get=\"/clock\" hx-trigger=\"load, every 13s\" hx-swap=\"innerHTML\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"clock--date\"></div><div class=\"clock--time\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -849,7 +849,7 @@ func Home(viewData ViewData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if viewData.ShowTime || viewData.ShowDate {
-					templ_7745c5c3_Err = clockHtmx(viewData.Theme).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = clockHtml(viewData.Theme).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -928,6 +928,10 @@ func Home(viewData ViewData) templ.Component {
 				"params":             queriesToJson(viewData.Queries),
 				"refresh":            viewData.Refresh,
 				"disableScreensaver": viewData.DisableScreensaver,
+				"showDate":           viewData.ShowDate,
+				"dateFormat":         utils.DateToJavascriptLayout(viewData.DateFormat),
+				"showTime":           viewData.ShowTime,
+				"timeFormat":         viewData.TimeFormat,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -939,7 +943,7 @@ func Home(viewData ViewData) templ.Component {
 			var templ_7745c5c3_Var33 string
 			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 382, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_home.templ`, Line: 386, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 			if templ_7745c5c3_Err != nil {

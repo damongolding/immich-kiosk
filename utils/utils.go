@@ -69,6 +69,18 @@ func DateToLayout(input string) string {
 	return replacer.Replace(input)
 }
 
+func DateToJavascriptLayout(input string) string {
+	replacer := strings.NewReplacer(
+		"YYYY", "yyyy",
+		"YY", "yy",
+		"DDDD", "EEEE",
+		"DDD", "EEE",
+		"DD", "dd",
+		"D", "d",
+	)
+	return replacer.Replace(input)
+}
+
 // ImageToBase64 converts image bytes into a base64 string
 func ImageToBase64(imgBtyes []byte) (string, error) {
 
