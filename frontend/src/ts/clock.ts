@@ -81,6 +81,7 @@ class Clock {
   public stop(): void {
     if (this.intervalId) {
       window.clearInterval(this.intervalId);
+      this.intervalId = undefined;
       this.elements = {
         main: null,
         date: null,
