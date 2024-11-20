@@ -164,7 +164,14 @@ function addEventListeners(): void {
         togglePolling(true);
         break;
       case "KeyI":
-        if (!document.body.classList.contains("polling-paused")) {
+        if (
+          document.body.classList.contains("polling-paused") &&
+          document.body.classList.contains("more-info")
+        ) {
+          togglePolling();
+          toggleImageOverlay();
+          break;
+        } else if (!document.body.classList.contains("polling-paused")) {
           togglePolling();
         }
         toggleImageOverlay();
