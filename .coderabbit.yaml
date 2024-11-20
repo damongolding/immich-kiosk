@@ -1,9 +1,9 @@
 path_filters:
-  - path: 'custom.example.css'
+  - path: "custom.example.css"
     action: ignore
 
-  - path: frontend/public/**/*
+  - path: "frontend/public/"
     action: ignore
 
-  - path: '*_templ.go'
+  - path: "*_templ.go"
     action: ignore
