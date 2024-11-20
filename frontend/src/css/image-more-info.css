@@ -28,14 +28,12 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            gap: 2rem;
 
             padding: 6rem 3rem 3rem 3rem;
             color: #fff;
             border-radius: 0.74rem;
 
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
 
             .more-info--image--data {
                 display: flex;
