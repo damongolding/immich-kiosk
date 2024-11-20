@@ -89,7 +89,7 @@ async function init(): Promise<void> {
     htmx.logAll();
   }
 
-  const clock = initClock(
+  initClock(
     kioskData.showDate,
     kioskData.dateFormat,
     kioskData.showTime,

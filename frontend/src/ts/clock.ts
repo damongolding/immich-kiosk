@@ -1,5 +1,4 @@
 import { format } from "date-fns/format";
-import htmx from "htmx.org";
 
 const CLOCK_UPDATE_INTERVAL = 5000;
 const TIME_FORMATS = {
@@ -34,9 +33,9 @@ class Clock {
 
   private initializeElements(): ClockElements {
     return {
-      main: htmx.find("clock"),
-      date: htmx.find(".clock--date"),
-      time: htmx.find(".clock--time"),
+      main: document.querySelector("clock"),
+      date: document.querySelector(".clock--date"),
+      time: document.querySelector(".clock--time"),
     };
   }
 

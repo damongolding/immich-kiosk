@@ -333,8 +333,8 @@ func paramForm(queries url.Values) templ.Component {
 	})
 }
 
-// clockHtmx renders a clock component with HTMX updates
-func clockHtmx(theme string) templ.Component {
+// clockHtml renders a clock html
+func clockHtml(theme string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -862,7 +862,7 @@ func Home(viewData ViewData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if viewData.ShowTime || viewData.ShowDate {
-					templ_7745c5c3_Err = clockHtmx(viewData.Theme).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = clockHtml(viewData.Theme).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
