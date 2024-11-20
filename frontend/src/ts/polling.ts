@@ -65,6 +65,7 @@ function startPolling() {
   animationFrameId = requestAnimationFrame(updateKiosk);
 
   document.body.classList.remove("polling-paused");
+  document.body.classList.remove("more-info");
 
   isPaused = false;
 }
@@ -111,6 +112,7 @@ function resumePolling() {
   menuElement?.classList.add("navigation-hidden");
 
   document.body.classList.remove("polling-paused");
+  document.body.classList.remove("more-info");
 
   isPaused = false;
 }

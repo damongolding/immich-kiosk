@@ -644,7 +644,6 @@ body {
             flex-direction: column;
   }
 .layout-splitview-landscape #more-info .more-info--image {
-      height: 50%;
       -webkit-flex-direction: row;
          -moz-box-orient: horizontal;
          -moz-box-direction: normal;
