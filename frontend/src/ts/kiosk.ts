@@ -165,6 +165,12 @@ function addEventListeners(): void {
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
 
+  document
+    .querySelector(".navigation--more-info")
+    ?.addEventListener("click", () => {
+      htmx.toggleClass("body", "more-info");
+    });
+
   // Server online check. Fires after every AJAX request.
   htmx.on("htmx:afterRequest", function (e: HTMXEvent) {
     const offlineSVG = htmx.find("#offline");

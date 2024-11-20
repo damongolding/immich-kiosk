@@ -40,6 +40,7 @@ to{}
 .frameless .frame--layout-splitview-landscape{}
 .frame--layout-splitview-landscape .frame--image{}
 /* src/css/image.css */
+.more-info .image--metadata{}
 .image--metadata{}
 .image--metadata--theme-fade::before{}
 .frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before{}
@@ -61,6 +62,19 @@ to{}
 .frame .frame--image-smart-zoom-in img{}
 .polling-paused .frame{}
 .polling-paused .frame img{}
+/* src/css/image-more-info.css */
+.more-info #more-info.hidden{}
+.more-info .frame--image img{}
+#more-info{}
+#more-info .more-info--image{}
+#more-info .more-info--image .more-info--image--data{}
+#more-info .more-info--image h3{}
+#more-info .more-info--image a{}
+#more-info .more-info--image .more-info--image--qr-code{}
+#more-info .more-info--image .more-info--image--qr-code img{}
+#more-info.hidden{}
+.layout-splitview-landscape #more-info{}
+.layout-splitview-landscape #more-info .more-info--image{}
 /* src/css/error.css */
 .error-container{}
 .error{}
@@ -77,6 +91,7 @@ to{}
 .offline{}
 .sleep #offline{}
 /* src/css/clock-weather-container.css */
+.more-info #clock-weather-container{}
 #clock-weather-container{}
 .layout-splitview #clock-weather-container{}
 .sleep #clock-weather-container{}
@@ -144,6 +159,7 @@ to{}
 .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--enter{}
+.navigation--more-info svg{}
 .navigation--media-buttons{}
 .navigation--media-buttons .navigation--item{}
 .navigation--play-pause--play{}

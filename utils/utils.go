@@ -35,6 +35,8 @@ import (
 	"github.com/disintegration/imaging"
 
 	"github.com/google/uuid"
+
+	"github.com/skip2/go-qrcode"
 )
 
 type WeightedAsset struct {
@@ -419,4 +421,20 @@ func IsSleepTime(sleepStartTime, sleepEndTime string, currentTime time.Time) (bo
 func FileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	return !os.IsNotExist(err)
+}
+
+func CreateQrCode(link string) string {
+	png, err := qrcode.Encode(link, qrcode.Medium, 256)
+	if err != nil {
+		log.Error("QR code", "err", err)
+		return ""
+	}
+
+	i, err := ImageToBase64(png)
+	if err != nil {
+		log.Error("QR code", "err", err)
+		return ""
+	}
+
+	return i
 }

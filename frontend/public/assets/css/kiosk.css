@@ -368,6 +368,9 @@ body {
 }
 
 /* src/css/image.css */
+.more-info .image--metadata {
+    opacity: 0.2;
+  }
 .image--metadata {
   position: absolute;
   display: -webkit-flex;
@@ -548,6 +551,106 @@ body {
     }
 }
 
+/* src/css/image-more-info.css */
+.more-info #more-info.hidden {
+    display: -webkit-flex;
+    display: -moz-box;
+    display: flex;
+  }
+.more-info .frame--image img {
+    -webkit-filter: grayscale(1) blur(4px) brightness(0.4);
+            filter: grayscale(1) blur(4px) brightness(0.4);
+  }
+#more-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.4rem;
+  z-index: 99998;
+}
+#more-info .more-info--image {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(51 52 96 / 60%);
+    display: -webkit-flex;
+    display: -moz-box;
+    display: flex;
+    -webkit-flex-direction: column;
+       -moz-box-orient: vertical;
+       -moz-box-direction: normal;
+            flex-direction: column;
+    -webkit-justify-content: space-between;
+       -moz-box-pack: justify;
+            justify-content: space-between;
+    padding: 6rem 3rem 3rem 3rem;
+    color: #fff;
+    border-radius: 0.74rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+#more-info .more-info--image .more-info--image--data {
+      display: -webkit-flex;
+      display: -moz-box;
+      display: flex;
+      -webkit-flex: 1;
+         -moz-box-flex: 1;
+              flex: 1;
+      -webkit-flex-direction: column;
+         -moz-box-orient: vertical;
+         -moz-box-direction: normal;
+              flex-direction: column;
+      -webkit-justify-content: center;
+         -moz-box-pack: center;
+              justify-content: center;
+      gap: 2rem;
+    }
+#more-info .more-info--image h3 {
+      margin: 0.5rem 0;
+    }
+#more-info .more-info--image a {
+      font-weight: 600;
+      text-decoration: underline;
+      color: #fff;
+    }
+#more-info .more-info--image .more-info--image--qr-code {
+      display: -webkit-flex;
+      display: -moz-box;
+      display: flex;
+      -webkit-align-items: flex-end;
+         -moz-box-align: end;
+              align-items: flex-end;
+      -webkit-justify-content: center;
+         -moz-box-pack: center;
+              justify-content: center;
+    }
+#more-info .more-info--image .more-info--image--qr-code img {
+        max-width: 14rem;
+        border-radius: 0.5rem;
+      }
+#more-info.hidden {
+    display: none;
+  }
+.layout-splitview-landscape #more-info {
+    -webkit-flex-direction: column;
+       -moz-box-orient: vertical;
+       -moz-box-direction: normal;
+            flex-direction: column;
+  }
+.layout-splitview-landscape #more-info .more-info--image {
+      height: 50%;
+      -webkit-flex-direction: row;
+         -moz-box-orient: horizontal;
+         -moz-box-direction: normal;
+              flex-direction: row;
+    }
+
 /* src/css/error.css */
 .error-container {
   position: absolute;
@@ -634,6 +737,9 @@ body {
 }
 
 /* src/css/clock-weather-container.css */
+.more-info #clock-weather-container {
+    opacity: 0.2;
+  }
 #clock-weather-container {
   position: absolute;
   display: -webkit-flex;
@@ -1130,7 +1236,7 @@ body {
           justify-content: center;
   width: 100%;
   height: 100%;
-  z-index: 99999;
+  z-index: 99997;
   background-color: transparent;
 }
 #navigation-interaction-area--previous-image,
@@ -1147,7 +1253,7 @@ body {
   display: -webkit-flex;
   display: -moz-box;
   display: flex;
-  gap: 1.6rem;
+  gap: 1.4rem;
   position: absolute;
   top: 1rem;
   right: 50%;
@@ -1194,8 +1300,8 @@ body {
 }
 .navigation svg {
   fill: white;
-  width: 2rem;
-  height: 2rem;
+  width: 1.8rem;
+  height: 1.8rem;
 }
 .rounded {
   border-radius: 40rem;
@@ -1215,6 +1321,10 @@ body {
 .navigation--fullscreen-enabled .navigation--fullscreen--enter {
     display: none;
     visibility: hidden;
+  }
+.navigation--more-info svg {
+    width: 1.5rem;
+    height: 1.5rem;
   }
 .navigation--media-buttons {
   display: -webkit-flex;

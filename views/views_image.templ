@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
+	"net/url"
+	"path"
 	"strings"
 )
 
@@ -20,6 +22,66 @@ templ Image(viewData ViewData) {
 		@layoutSplitView(viewData)
 	}
 	@renderHistory(viewData)
+	@renderMoreInfo(viewData)
+}
+
+func imageUrl(baseUrl, imageID string) string {
+
+	u, err := url.Parse(baseUrl)
+	if err != nil {
+		return "#"
+	}
+
+	apiUrl := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   path.Join("photos", imageID),
+	}
+
+	return apiUrl.String()
+
+}
+
+templ renderMoreInfo(viewData ViewData) {
+	<div id="more-info" class="hidden" hx-swap-oob="true">
+		for _, img := range viewData.Images {
+			<div class="more-info--image">
+				<div class="more-info--image--data">
+					<div>
+						<div>
+							<h3>
+								Image ID
+							</h3>
+						</div>
+						<div>
+							{ img.ImmichImage.ID }
+						</div>
+					</div>
+					<div>
+						<div>
+							<h3>
+								Original mime type
+							</h3>
+						</div>
+						<div>
+							{ img.ImmichImage.OriginalMimeType }
+						</div>
+					</div>
+					<div>
+						<h3>
+							Image link
+						</h3>
+						<a href={ templ.SafeURL(imageUrl(viewData.ImmichUrl, img.ImmichImage.ID)) } target="_blank">
+							The link
+						</a>
+					</div>
+				</div>
+				<div class="more-info--image--qr-code">
+					<img src={ utils.CreateQrCode(imageUrl(viewData.ImmichUrl, img.ImmichImage.ID)) }/>
+				</div>
+			</div>
+		}
+	</div>
 }
 
 // layoutSingleView renders a single image layout.
