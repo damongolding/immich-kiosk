@@ -32,7 +32,7 @@ class Clock {
   }
 
   private initialiseElements(): ClockElements {
-    const main = document.querySelector("clock");
+    const main = document.getElementById("clock");
     if (!main) throw new Error("Clock element not found");
     return {
       main: main as HTMLElement,
@@ -46,7 +46,7 @@ class Clock {
     try {
       this.elements.date.innerHTML = format(now, this.config.dateFormat);
     } catch (error) {
-      console.error('Error formatting date:', error);
+      console.error("Error formatting date:", error);
       this.elements.date.innerHTML = now.toLocaleDateString();
     }
   }
