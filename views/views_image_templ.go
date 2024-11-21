@@ -67,7 +67,7 @@ func Image(viewData ViewData) templ.Component {
 	})
 }
 
-func imageUrl(baseUrl, imageID string) string {
+func immichImageUrl(baseUrl, imageID string) string {
 
 	u, err := url.Parse(baseUrl)
 	if err != nil {
@@ -140,7 +140,7 @@ func renderMoreInfo(viewData ViewData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 templ.SafeURL = templ.SafeURL(imageUrl(viewData.ImmichUrl, img.ImmichImage.ID))
+			var templ_7745c5c3_Var5 templ.SafeURL = templ.SafeURL(immichImageUrl(viewData.ImmichUrl, img.ImmichImage.ID))
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var5)))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -150,9 +150,9 @@ func renderMoreInfo(viewData ViewData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(utils.CreateQrCode(imageUrl(viewData.ImmichUrl, img.ImmichImage.ID)))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(utils.CreateQrCode(immichImageUrl(viewData.ImmichUrl, img.ImmichImage.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 91, Col: 84}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/views_image.templ`, Line: 91, Col: 90}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {

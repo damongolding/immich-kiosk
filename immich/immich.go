@@ -42,8 +42,8 @@ var (
 	requestConfig config.Config
 	// apiCache cache store for immich api call(s)
 	apiCache *cache.Cache
-	// apiCacheLock is used to synchronize access to the apiCache
-	apiCacheLock sync.Mutex
+	// mu is a mutual exclusion lock for managing concurrent access to shared resources
+	mu sync.Mutex
 
 	// httpTransport defines the transport layer configuration for HTTP requests to the Immich API.
 	// It manages connection pooling, keepalive settings, and connection timeouts.

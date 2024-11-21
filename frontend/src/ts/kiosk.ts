@@ -162,7 +162,7 @@ function addEventListeners(): void {
         e.preventDefault();
         togglePolling(true);
         break;
-      case "KeyI":
+      case "KeyI": {
         e.preventDefault();
         const isPollingPaused =
           document.body.classList.contains("polling-paused");
@@ -178,6 +178,7 @@ function addEventListeners(): void {
           toggleImageOverlay();
         }
         break;
+      }
     }
   });
 

@@ -3,7 +3,6 @@ package routes
 import (
 	"net/http"
 	"strings"
-	"sync"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/config"
@@ -40,6 +39,11 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 
 			historyLen := len(requestConfig.History)
 
+			if historyLen == 0 {
+				log.Error("webhook request missing history")
+				return c.NoContent(http.StatusBadRequest)
+			}
+
 			lastHistoryEntry := requestConfig.History[historyLen-1]
 			prevImages := strings.Split(lastHistoryEntry, ",")
 
@@ -58,17 +62,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 					image := immich.NewImage(requestConfig)
 					image.ID = imageID
 
-					var wg sync.WaitGroup
-					wg.Add(1)
-
-					go func(image *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
-						defer wg.Done()
-
-						image.AssetInfo(requestID)
-
-					}(&image, requestID, &wg)
-
-					wg.Wait()
+					image.AssetInfo(requestID)
 
 					ViewData.Images[i] = views.ImageData{
 						ImmichImage: image,

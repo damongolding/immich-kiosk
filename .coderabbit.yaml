@@ -1,10 +1,6 @@
+language: en-GB
 reviews:
   path_filters:
-    - path: "custom.example.css"
-      action: ignore
-
-    - path: "frontend/public/"
-      action: ignore
-
-    - path: "*_templ.go"
-      action: ignore
+    - "!custom.example.css"
+    - "!frontend/public/"
+    - "!*_templ.go"

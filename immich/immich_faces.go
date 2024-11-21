@@ -19,7 +19,7 @@ func (i *ImmichAsset) CheckForFaces(requestID string) {
 	apiUrl := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
-		Path:     "api/faces/",
+		Path:     "api/faces",
 		RawQuery: "id=" + i.ID,
 	}
 

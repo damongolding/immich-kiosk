@@ -434,15 +434,26 @@ func FileExists(filename string) bool {
 
 // CreateQrCode generates a QR code for the given link and returns it as a base64 encoded string
 func CreateQrCode(link string) string {
+
+	if link == "" {
+		log.Error("QR code generation failed: empty link provided")
+		return ""
+	}
+
+	if _, err := url.Parse(link); err != nil {
+		log.Error("QR code generation failed: invalid URL", "link", link, "err", err)
+		return ""
+	}
+
 	png, err := qrcode.Encode(link, qrcode.Medium, 128)
 	if err != nil {
-		log.Error("QR code", "err", err)
+		log.Error("QR code generation failed", "link", link, "err", err)
 		return ""
 	}
 
 	i, err := ImageToBase64(png)
 	if err != nil {
-		log.Error("QR code", "err", err)
+		log.Error("QR code base64 encoding failed", "link", link, "err", err)
 		return ""
 	}
 
