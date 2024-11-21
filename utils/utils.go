@@ -424,7 +424,7 @@ func FileExists(filename string) bool {
 }
 
 func CreateQrCode(link string) string {
-	png, err := qrcode.Encode(link, qrcode.Medium, 256)
+	png, err := qrcode.Encode(link, qrcode.Medium, 128)
 	if err != nil {
 		log.Error("QR code", "err", err)
 		return ""

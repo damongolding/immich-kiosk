@@ -8,7 +8,7 @@ import htmx from "htmx.org";
 let nextImageMenuButton: HTMLElement;
 let prevImageMenuButton: HTMLElement;
 
-let imageOverlayVisable = false;
+let imageOverlayVisible = false;
 
 function disableImageNavigationButtons() {
   if (!nextImageMenuButton || !prevImageMenuButton) {
@@ -32,17 +32,17 @@ function showImageOverlay() {
   if (!document.body.classList.contains("polling-paused")) return;
   console.log("on");
   document.body.classList.add("more-info");
-  imageOverlayVisable = true;
+  imageOverlayVisible = true;
 }
 
 function hideImageOverlay() {
   console.log("off");
   document.body.classList.remove("more-info");
-  imageOverlayVisable = false;
+  imageOverlayVisible = false;
 }
 
 function toggleImageOverlay() {
-  imageOverlayVisable ? hideImageOverlay() : showImageOverlay();
+  imageOverlayVisible ? hideImageOverlay() : showImageOverlay();
 }
 
 /**

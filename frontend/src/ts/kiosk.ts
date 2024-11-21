@@ -152,29 +152,31 @@ function handleFullscreenClick(): void {
  */
 function addEventListeners(): void {
   // Pause/resume polling and show/hide menu
-  menuInteraction?.addEventListener("click", () => togglePolling);
-  menuPausePlayButton?.addEventListener("click", () => togglePolling);
+  menuInteraction?.addEventListener("click", () => togglePolling());
+  menuPausePlayButton?.addEventListener("click", () => togglePolling());
   document.addEventListener("keydown", (e) => {
     if (e.target !== document.body) return;
 
-    e.preventDefault();
-
     switch (e.code) {
       case "Space":
+        e.preventDefault();
         togglePolling(true);
         break;
       case "KeyI":
-        if (
-          document.body.classList.contains("polling-paused") &&
-          document.body.classList.contains("more-info")
-        ) {
+        e.preventDefault();
+        const isPollingPaused =
+          document.body.classList.contains("polling-paused");
+        const hasMoreInfo = document.body.classList.contains("more-info");
+
+        if (isPollingPaused && hasMoreInfo) {
           togglePolling();
           toggleImageOverlay();
-          break;
-        } else if (!document.body.classList.contains("polling-paused")) {
-          togglePolling();
+        } else {
+          if (!isPollingPaused) {
+            togglePolling();
+          }
+          toggleImageOverlay();
         }
-        toggleImageOverlay();
         break;
     }
   });
