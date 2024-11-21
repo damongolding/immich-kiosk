@@ -18,9 +18,9 @@ type RouteRequestData struct {
 }
 
 func init() {
-	var err error
-	SharedSecret, err = utils.GenerateSharedSecret()
+	secret, err := utils.GenerateSharedSecret()
 	if err != nil {
-		log.Error("Generatering shared secret", "err", err)
+		log.Fatal("Failed to generate shared secret", "error", err)
 	}
+	SharedSecret = secret
 }
