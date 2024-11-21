@@ -55,7 +55,10 @@
     cursor: pointer;
 
     &:hover {
-        background-color: rgb(51 52 96 / 60%);
+        background-color: var(--mint-green);
+        svg {
+            fill: var(--cool-grey);
+        }
     }
 }
 

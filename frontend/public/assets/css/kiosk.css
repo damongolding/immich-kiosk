@@ -1,5 +1,8 @@
 /* src/css/vars.css */
 :root {
+  --light-grey: #f7f9f8;
+  --cool-grey: #333460;
+  --mint-green: #1ed2bb;
   --fade-gradient:
     hsla(0, 0%, 0%, 0.59) 0%,
     hsla(0, 0%, 0%, 0.582) 5.2%,
@@ -555,6 +558,12 @@ body {
 #more-info {
   display: none;
 }
+#more-info * {
+    -webkit-user-select: text;
+       -moz-user-select: text;
+        -ms-user-select: text;
+            user-select: text;
+  }
 .polling-paused.more-info .frame--image img {
     -webkit-filter: grayscale(1) blur(4px) brightness(0.4);
             filter: grayscale(1) blur(4px) brightness(0.4);
@@ -586,12 +595,10 @@ body {
       -webkit-justify-content: space-between;
          -moz-box-pack: justify;
               justify-content: space-between;
+      gap: 2rem;
       padding: 6rem 3rem 3rem 3rem;
       color: #fff;
       border-radius: 0.74rem;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
     }
 .polling-paused.more-info #more-info .more-info--image .more-info--image--data {
         display: -webkit-flex;
@@ -644,6 +651,21 @@ body {
          -moz-box-direction: normal;
               flex-direction: row;
     }
+.more-info--webhook {
+  background-color: var(--mint-green);
+  outline: none;
+  border: none;
+  color: var(--cool-grey);
+  font-weight: 600;
+  border-radius: 60rem;
+  padding: 0.5rem 2rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.more-info--webhook:hover {
+    -webkit-filter: brightness(85%);
+            filter: brightness(85%);
+  }
 
 /* src/css/error.css */
 .error-container {
@@ -1281,8 +1303,11 @@ body {
   cursor: pointer;
 }
 .navigation--item:hover {
-    background-color: rgb(51 52 96 / 60%);
+    background-color: var(--mint-green);
   }
+.navigation--item:hover svg {
+      fill: var(--cool-grey);
+    }
 .navigation--item--separator {
   border: 0.0625rem solid rgba(255, 255, 255, 0.2);
 }

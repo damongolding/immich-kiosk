@@ -39,11 +39,13 @@ import (
 	"github.com/skip2/go-qrcode"
 )
 
+// WeightedAsset represents an asset with a type and ID
 type WeightedAsset struct {
 	Type string
 	ID   string
 }
 
+// AssetWithWeighting represents a WeightedAsset with an associated weight value
 type AssetWithWeighting struct {
 	Asset  WeightedAsset
 	Weight int
@@ -71,6 +73,7 @@ func DateToLayout(input string) string {
 	return replacer.Replace(input)
 }
 
+// DateToJavascriptLayout converts a date format string from Go layout to JavaScript format
 func DateToJavascriptLayout(input string) string {
 	replacer := strings.NewReplacer(
 		"YYYY", "yyyy",
@@ -232,6 +235,7 @@ func WeightedRandomItem(assets []AssetWithWeighting) WeightedAsset {
 	return WeightedAsset{}
 }
 
+// Color represents an RGB color with string representations
 type Color struct {
 	R   int
 	G   int
@@ -328,6 +332,8 @@ func PickRandomImageType(useWeighting bool, peopleAndAlbums []AssetWithWeighting
 	return pickedImage
 }
 
+// parseTimeString parses a time string in various formats and returns a time.Time value.
+// It accepts formats like "1", "12", "130", "1430" and converts them to hours and minutes.
 func parseTimeString(timeStr string) (time.Time, error) {
 	// Extract only the digits
 	digits := regexp.MustCompile(`\d`).FindAllString(timeStr, -1)
@@ -385,6 +391,8 @@ func parseTimeString(timeStr string) (time.Time, error) {
 	return time.Date(0, 1, 1, hours, minutes, 0, 0, time.UTC), nil
 }
 
+// IsSleepTime checks if the current time falls within a sleep period defined by start and end times.
+// It handles periods that cross midnight by adjusting the times accordingly.
 func IsSleepTime(sleepStartTime, sleepEndTime string, currentTime time.Time) (bool, error) {
 	// Parse start and end times
 	startTime, err := parseTimeString(sleepStartTime)
@@ -418,11 +426,13 @@ func IsSleepTime(sleepStartTime, sleepEndTime string, currentTime time.Time) (bo
 		currentTime.Before(endTime), nil
 }
 
+// FileExists checks if a file exists at the specified path
 func FileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	return !os.IsNotExist(err)
 }
 
+// CreateQrCode generates a QR code for the given link and returns it as a base64 encoded string
 func CreateQrCode(link string) string {
 	png, err := qrcode.Encode(link, qrcode.Medium, 128)
 	if err != nil {

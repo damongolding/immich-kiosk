@@ -1,5 +1,8 @@
 #more-info {
     display: none;
+    * {
+        user-select: text;
+    }
 }
 
 .polling-paused.more-info {
@@ -33,7 +36,6 @@
             padding: 6rem 3rem 3rem 3rem;
             color: #fff;
             border-radius: 0.74rem;
-
 
             .more-info--image--data {
                 display: flex;
@@ -73,5 +75,20 @@
         .more-info--image {
             flex-direction: row;
         }
+    }
+}
+
+.more-info--webhook {
+    background-color: var(--mint-green);
+    outline: none;
+    border: none;
+    color: var(--cool-grey);
+    font-weight: 600;
+    border-radius: 60rem;
+    padding: 0.5rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    &:hover {
+        filter: brightness(85%);
     }
 }

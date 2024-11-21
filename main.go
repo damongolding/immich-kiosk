@@ -125,6 +125,8 @@ func main() {
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
+	e.POST("/webhooks", routes.Webhooks(baseConfig))
+
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)

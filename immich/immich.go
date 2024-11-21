@@ -44,9 +44,19 @@ var (
 	apiCache *cache.Cache
 	// apiCacheLock is used to synchronize access to the apiCache
 	apiCacheLock sync.Mutex
+
+	// httpTransport defines the transport layer configuration for HTTP requests to the Immich API.
+	// It manages connection pooling, keepalive settings, and connection timeouts.
+	httpTransport = &http.Transport{
+		MaxIdleConns:        100,
+		IdleConnTimeout:     90 * time.Second,
+		DisableKeepAlives:   false,
+		MaxIdleConnsPerHost: 100,
+	}
 	// httpClient default http client for Immich api calls
 	httpClient = &http.Client{
-		Timeout: time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout),
+		Timeout:   time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout),
+		Transport: httpTransport,
 	}
 )
 

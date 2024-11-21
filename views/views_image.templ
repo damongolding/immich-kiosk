@@ -75,6 +75,17 @@ templ renderMoreInfo(viewData ViewData) {
 							The link
 						</a>
 					</div>
+					<div>
+						<button
+							class="more-info--webhook"
+							hx-post="/webhooks"
+							hx-trigger="click"
+							hx-include=".kiosk-history--entry"
+							hx-headers='{"kiosk-webhook-event": "user.webhook.trigger.info_overlay"}'
+						>
+							Trigger webhook
+						</button>
+					</div>
 				</div>
 				<div class="more-info--image--qr-code">
 					<img src={ utils.CreateQrCode(imageUrl(viewData.ImmichUrl, img.ImmichImage.ID)) }/>

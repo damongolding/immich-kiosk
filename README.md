@@ -762,12 +762,13 @@ webhooks:
 
 ### Available Events
 
-| Event           | Description                                             |
-|-----------------|---------------------------------------------------------|
-|`asset.new`      | Triggered when a new image is requested from Kiosk      |
-|`asset.previous` | Triggered when a previous image is requested from Kiosk |
-|`asset.prefetch` | Triggered when Kiosk prefecthes asset data from Immich  |
-|`cache.flushed`  | Triggered when the cache is manually cleared            |
+| Event                              | Description                                             |
+|------------------------------------|---------------------------------------------------------|
+|`asset.new`                         | Triggered when a new image is requested from Kiosk      |
+|`asset.previous`                    | Triggered when a previous image is requested from Kiosk |
+|`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich  |
+|`cache.flushed`                     | Triggered when the cache is manually cleared            |
+|`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
 
 ### Webhook Payload
 

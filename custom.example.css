@@ -64,6 +64,7 @@ to{}
 .polling-paused .frame img{}
 /* src/css/image-more-info.css */
 #more-info{}
+#more-info *{}
 .polling-paused.more-info .frame--image img{}
 .polling-paused.more-info #more-info{}
 .polling-paused.more-info #more-info .more-info--image{}
@@ -74,6 +75,8 @@ to{}
 .polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code img{}
 .layout-splitview-landscape #more-info{}
 .layout-splitview-landscape #more-info .more-info--image{}
+.more-info--webhook{}
+.more-info--webhook:hover{}
 /* src/css/error.css */
 .error-container{}
 .error{}
@@ -150,6 +153,7 @@ to{}
 .navigation{}
 .navigation--item{}
 .navigation--item:hover{}
+.navigation--item:hover svg{}
 .navigation--item--separator{}
 .navigation-hidden{}
 .navigation svg{}
