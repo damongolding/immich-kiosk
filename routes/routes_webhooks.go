@@ -1,12 +1,15 @@
 package routes
 
 import (
+	"io"
 	"net/http"
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/common"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
+	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
 	"github.com/damongolding/immich-kiosk/webhooks"
 	"github.com/labstack/echo/v4"
@@ -25,6 +28,8 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 		requestID := requestData.RequestID
 		kioskDeviceID := requestData.DeviceID
 
+		receivedSignature := c.Request().Header.Get("X-Signature")
+		receivedTimestamp := c.Request().Header.Get("X-Timestamp")
 		kioskWebhookEvent := c.Request().Header.Get("kiosk-webhook-event")
 
 		log.Debug(
@@ -33,6 +38,31 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			"path", c.Request().URL.String(),
 			"webhook event", kioskWebhookEvent,
 		)
+
+		body := c.Request().Body
+		defer body.Close()
+
+		payload, err := io.ReadAll(body)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to read request body")
+		}
+
+		// Expect payload to be empty
+		if len(payload) != 0 {
+			return c.NoContent(http.StatusBadRequest)
+		}
+
+		// 5-minute tolerance
+		if !utils.IsValidTimestamp(receivedTimestamp, 300) {
+			return c.NoContent(http.StatusBadRequest)
+		}
+
+		calculatedSignature := utils.CalculateSignature(common.SharedSecret, receivedTimestamp)
+
+		// Compare the received signature with the calculated signature
+		if !utils.IsValidSignature(receivedSignature, calculatedSignature) {
+			return echo.NewHTTPError(http.StatusForbidden, "Invalid signature")
+		}
 
 		switch kioskWebhookEvent {
 		case string(webhooks.UserWebhookTriggerInfoOverlay):
@@ -77,6 +107,9 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			}
 
 			go webhooks.Trigger(requestData, KioskVersion, webhooks.UserWebhookTriggerInfoOverlay, ViewData)
+
+			return c.String(http.StatusOK, "Triggered")
+
 		}
 
 		return c.NoContent(http.StatusNoContent)

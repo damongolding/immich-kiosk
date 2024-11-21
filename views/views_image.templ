@@ -2,11 +2,14 @@ package views
 
 import (
 	"fmt"
+	"github.com/damongolding/immich-kiosk/common"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 	"net/url"
 	"path"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // Image is the main entry point for rendering images.
@@ -40,6 +43,10 @@ func immichImageUrl(baseUrl, imageID string) string {
 
 	return apiUrl.String()
 
+}
+
+func webhookSignature() string {
+	return utils.CalculateSignature(common.SharedSecret, strconv.FormatInt(time.Now().Unix(), 10))
 }
 
 templ renderMoreInfo(viewData ViewData) {
@@ -79,9 +86,10 @@ templ renderMoreInfo(viewData ViewData) {
 						<button
 							class="more-info--webhook"
 							hx-post="/webhooks"
-							hx-trigger="click"
+							hx-trigger="click throttle:2s"
 							hx-include=".kiosk-history--entry"
-							hx-headers='{"kiosk-webhook-event": "user.webhook.trigger.info_overlay"}'
+							hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.webhook.trigger.info_overlay"}`, time.Now().Unix(), webhookSignature()) }
+							hx-swap="textContent"
 						>
 							Trigger webhook
 						</button>

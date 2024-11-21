@@ -8,7 +8,11 @@ package utils
 
 import (
 	"bytes"
+	"crypto/hmac"
+	crand "crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"image"
 	"io"
@@ -458,4 +462,46 @@ func CreateQrCode(link string) string {
 	}
 
 	return i
+}
+
+// generateSharedSecret generates a random 256-bit (32-byte) secret.
+func GenerateSharedSecret() string {
+	secret := make([]byte, 32)
+	_, err := crand.Read(secret)
+	if err != nil {
+		log.Fatalf("Failed to generate secret: %v", err)
+	}
+	return hex.EncodeToString(secret)
+}
+
+// calculateSignature generates an HMAC-SHA256 signature
+func CalculateSignature(secret, timestamp string) string {
+	h := hmac.New(sha256.New, []byte(secret))
+	h.Write([]byte(timestamp))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// IsValidSignature performs a constant-time comparison of two signatures
+func IsValidSignature(receivedSignature, calculatedSignature string) bool {
+	received, _ := hex.DecodeString(receivedSignature)
+	calculated, _ := hex.DecodeString(calculatedSignature)
+	return hmac.Equal(received, calculated)
+}
+
+// IsValidTimestamp validates the timestamp to prevent replay attacks
+func IsValidTimestamp(receivedTimestamp string, toleranceSeconds int) bool {
+	ts, err := strconv.ParseInt(receivedTimestamp, 10, 64)
+	if err != nil {
+		return false
+	}
+	currentTime := time.Now().Unix()
+	return abs(currentTime-ts) <= int64(toleranceSeconds)
+}
+
+// abs returns the absolute value of an int64
+func abs(x int64) int64 {
+	if x < 0 {
+		return -x
+	}
+	return x
 }
