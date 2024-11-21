@@ -1,6 +1,0 @@
-language: en-GB
-reviews:
-  path_filters:
-    - "!custom.example.css"
-    - "!frontend/public/"
-    - "!*_templ.go"
