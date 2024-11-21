@@ -45,6 +45,12 @@ func immichImageUrl(baseUrl, imageID string) string {
 
 }
 
+// webhookSignature generates a signature for webhook authentication.
+// It combines the shared secret with the current Unix timestamp
+// to create a time-based signature for securing webhook requests.
+//
+// Returns:
+//   - A string containing the calculated signature
 func webhookSignature() string {
 	return utils.CalculateSignature(common.SharedSecret, strconv.FormatInt(time.Now().Unix(), 10))
 }

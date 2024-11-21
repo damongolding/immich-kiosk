@@ -339,6 +339,13 @@ func PickRandomImageType(useWeighting bool, peopleAndAlbums []AssetWithWeighting
 // parseTimeString parses a time string in various formats and returns a time.Time value.
 // It accepts formats like "1", "12", "130", "1430" and converts them to hours and minutes.
 func parseTimeString(timeStr string) (time.Time, error) {
+
+	// Trim whitespace and validate
+	timeStr = strings.TrimSpace(timeStr)
+	if timeStr == "" {
+		return time.Time{}, fmt.Errorf("invalid time format: empty or whitespace-only input")
+	}
+
 	// Extract only the digits
 	digits := regexp.MustCompile(`\d`).FindAllString(timeStr, -1)
 
@@ -465,13 +472,13 @@ func CreateQrCode(link string) string {
 }
 
 // generateSharedSecret generates a random 256-bit (32-byte) secret.
-func GenerateSharedSecret() string {
+func GenerateSharedSecret() (string, error) {
 	secret := make([]byte, 32)
 	_, err := crand.Read(secret)
 	if err != nil {
-		log.Fatalf("Failed to generate secret: %v", err)
+		return "", fmt.Errorf("failed to generate secret: %w", err)
 	}
-	return hex.EncodeToString(secret)
+	return hex.EncodeToString(secret), nil
 }
 
 // calculateSignature generates an HMAC-SHA256 signature

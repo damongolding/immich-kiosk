@@ -77,7 +77,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			lastHistoryEntry := requestConfig.History[historyLen-1]
 			prevImages := strings.Split(lastHistoryEntry, ",")
 
-			ViewData := views.ViewData{
+			viewData := views.ViewData{
 				KioskVersion: KioskVersion,
 				DeviceID:     kioskDeviceID,
 				Images:       make([]views.ImageData, len(prevImages)),
@@ -94,7 +94,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 
 					image.AssetInfo(requestID)
 
-					ViewData.Images[i] = views.ImageData{
+					viewData.Images[i] = views.ImageData{
 						ImmichImage: image,
 					}
 					return nil
@@ -106,7 +106,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 				return RenderError(c, err, "retrieving image data")
 			}
 
-			go webhooks.Trigger(requestData, KioskVersion, webhooks.UserWebhookTriggerInfoOverlay, ViewData)
+			go webhooks.Trigger(requestData, KioskVersion, webhooks.UserWebhookTriggerInfoOverlay, viewData)
 
 			return c.String(http.StatusOK, "Triggered")
 

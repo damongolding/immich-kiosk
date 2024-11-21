@@ -2,6 +2,7 @@
 package common
 
 import (
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/utils"
 )
@@ -17,5 +18,9 @@ type RouteRequestData struct {
 }
 
 func init() {
-	SharedSecret = utils.GenerateSharedSecret()
+	var err error
+	SharedSecret, err = utils.GenerateSharedSecret()
+	if err != nil {
+		log.Error("Generatering shared secret", "err", err)
+	}
 }
