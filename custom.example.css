@@ -62,7 +62,7 @@ to{}
 .frame .frame--image-smart-zoom-in img{}
 .polling-paused .frame{}
 .polling-paused .frame img{}
-/* src/css/image-more-info.css */
+/* src/css/more-info-overlay.css */
 #more-info{}
 #more-info *{}
 .polling-paused.more-info .frame--image img{}
