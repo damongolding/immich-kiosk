@@ -801,7 +801,7 @@ body {
 .sleep #clock-weather-container {
   height: 100%;
   width: 100%;
-  z-index: 99999;
+  z-index: 99996;
 }
 
 /* src/css/clock.css */
