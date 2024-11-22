@@ -51,7 +51,7 @@ tasks:
 
   # Maintenance tasks
   install:
-    deps: [update-templ]
+    deps: [update-templ, frontend-install]
     cmds:
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62.0
       - go install github.com/psampaz/go-mod-outdated@latest

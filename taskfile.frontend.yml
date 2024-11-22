@@ -7,6 +7,11 @@ tasks:
     cmds:
       - pnpm lint
 
+  frontend-install:
+    dir: ./frontend
+    cmds:
+      - pnpm i
+
   frontend-build:
     dir: ./frontend
     cmds:
