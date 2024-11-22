@@ -32,10 +32,9 @@ func Sleep(baseConfig *config.Config) echo.HandlerFunc {
 			"Sleep end", requestConfig.SleepEnd,
 		)
 
-		if sleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now()); sleepTime {
-			return Render(c, http.StatusOK, views.Sleep(true, requestData.RequestConfig.SleepIcon))
-		}
+		sleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now())
+		
+		return Render(c, http.StatusOK, views.Sleep(sleepTime, requestData.RequestConfig.SleepIcon))
 
-		return Render(c, http.StatusOK, views.Sleep(false, requestData.RequestConfig.SleepIcon))
 	}
 }
