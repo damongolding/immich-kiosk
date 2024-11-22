@@ -1,3 +1,4 @@
+# Builder
 FROM --platform=$BUILDPLATFORM golang:1.23.3-alpine AS build
 
 ARG VERSION
@@ -9,9 +10,12 @@ WORKDIR /app
 COPY . .
 
 RUN go mod download
+RUN go install github.com/a-h/templ/cmd/templ@latest
+RUN templ generate
+
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION}" -o dist/kiosk .
 
-
+# Release
 FROM  alpine:latest
 
 ENV TZ=Europe/London
