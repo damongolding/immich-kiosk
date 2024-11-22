@@ -22,6 +22,8 @@ jobs:
         env:
           CI: true
         run: |
+          go install github.com/a-h/templ/cmd/templ@latest
+          templ generate
           mkdir -p test-results
           go test -v ./... > test-results/test.log
 
