@@ -1,0 +1,23 @@
+version: "3"
+
+tasks:
+  # Docker tasks
+  docker-image:
+    deps: [build]
+    cmds:
+      - docker build --no-cache --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
+
+  docker-buildx:
+    cmds:
+      - docker buildx create --name mybuilder --use
+      - docker buildx install
+
+  docker-image-push:
+    deps: [build]
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}} --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
+
+  docker-dev-push:
+    deps: [build]
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk-development:{{.VERSION}} -t damongolding/immich-kiosk-development:latest .
