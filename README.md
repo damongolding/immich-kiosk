@@ -70,6 +70,7 @@
 - [TODO / Roadmap](#todo--roadmap)
 - [Support](#support)
 - [Help](#help)
+- [Contributing](#contributing)
 
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
