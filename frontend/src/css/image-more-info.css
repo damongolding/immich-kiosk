@@ -37,22 +37,18 @@
             color: #fff;
             border-radius: 0.74rem;
 
+            overflow: hidden;
+
             .more-info--image--data {
                 display: flex;
                 flex: 1;
                 flex-direction: column;
                 justify-content: center;
-                gap: 2rem;
+                gap: 1rem;
             }
 
             h3 {
                 margin: 0.5rem 0;
-            }
-
-            a {
-                font-weight: 600;
-                text-decoration: underline;
-                color: #fff;
             }
 
             .more-info--image--qr-code {
@@ -73,21 +69,33 @@
         flex-direction: column;
 
         .more-info--image {
-            flex-direction: row;
+            flex-direction: row !important;
+            height: 50%;
         }
     }
 }
 
-.more-info--webhook {
+.more-info--button-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+}
+
+.more-info--webhook,
+.more-info--image-link {
+    font-family: "Barlow", Arial, Helvetica, sans-serif;
     background-color: var(--mint-green);
     outline: none;
     border: none;
     color: var(--cool-grey);
     font-weight: 600;
-    border-radius: 60rem;
+    border-radius: 0.4rem;
     padding: 0.5rem 2rem;
     font-size: 1rem;
     cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
     &:hover {
         filter: brightness(85%);
     }

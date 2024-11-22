@@ -71,16 +71,16 @@ type ImmichError struct {
 }
 
 type ExifInfo struct {
-	Make             string    `json:"-"` // `json:"make"`
-	Model            string    `json:"-"` // `json:"model"`
+	Make             string    `json:"make"`
+	Model            string    `json:"model"`
 	ExifImageWidth   int       `json:"exifImageWidth"`
 	ExifImageHeight  int       `json:"exifImageHeight"`
-	FileSizeInByte   int       `json:"-"` // `json:"fileSizeInByte"`
+	FileSizeInByte   int       `json:"fileSizeInByte"`
 	Orientation      string    `json:"orientation"`
 	DateTimeOriginal time.Time `json:"dateTimeOriginal"`
-	ModifyDate       time.Time `json:"-"` // `json:"modifyDate"`
-	TimeZone         string    `json:"-"` // `json:"timeZone"`
-	LensModel        string    `json:"-"` // `json:"lensModel"`
+	ModifyDate       time.Time `json:"modifyDate"`
+	TimeZone         string    `json:"timeZone"`
+	LensModel        string    `json:"lensModel"`
 	FNumber          float64   `json:"fNumber"`
 	FocalLength      float64   `json:"focalLength"`
 	Iso              int       `json:"iso"`
@@ -122,8 +122,8 @@ type ImmichAsset struct {
 	DeviceID         string           `json:"-"` // `json:"deviceId"`
 	LibraryID        string           `json:"-"` // `json:"libraryId"`
 	Type             ImmichAssetType  `json:"type"`
-	OriginalPath     string           `json:"-"`                // `json:"originalPath"`
-	OriginalFileName string           `json:"-"`                // `json:"originalFileName"`
+	OriginalPath     string           `json:"-"` // `json:"originalPath"`
+	OriginalFileName string           `json:"originalFileName"`
 	OriginalMimeType string           `json:"originalMimeType"` // `json:"originalMimeType"`
 	Resized          bool             `json:"-"`                // `json:"resized"`
 	Thumbhash        string           `json:"-"`                // `json:"thumbhash"`

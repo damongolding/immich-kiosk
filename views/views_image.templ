@@ -1,10 +1,13 @@
 package views
 
 import (
+	"context"
 	"fmt"
 	"github.com/damongolding/immich-kiosk/common"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
+	human "github.com/dustin/go-humanize"
+	"io"
 	"net/url"
 	"path"
 	"strconv"
@@ -55,6 +58,34 @@ func webhookSignature() string {
 	return utils.CalculateSignature(common.SharedSecret, strconv.FormatInt(time.Now().Unix(), 10))
 }
 
+func people(people []immich.Person) templ.Component {
+	if len(people) == 0 {
+		return templ.NopComponent
+	}
+
+	names := []string{}
+	for _, person := range people {
+		if person.Name != "" {
+			names = append(names, person.Name)
+		}
+	}
+
+	if len(names) == 0 {
+		return templ.NopComponent
+	}
+
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+		return templ.Raw(`
+			<div>
+				<div>
+					<h3>People</h3>
+				</div>
+				<div>`+strings.Join(names, ", ")+`</div>
+			</div>
+		`).Render(ctx, w)
+	})
+}
+
 templ renderMoreInfo(viewData ViewData) {
 	<div id="more-info" class="hidden" hx-swap-oob="true">
 		for _, img := range viewData.Images {
@@ -63,32 +94,28 @@ templ renderMoreInfo(viewData ViewData) {
 					<div>
 						<div>
 							<h3>
-								Image ID
+								{ img.ImmichImage.ExifInfo.Make }
 							</h3>
 						</div>
 						<div>
-							{ img.ImmichImage.ID }
+							{ img.ImmichImage.ExifInfo.Model }
 						</div>
 					</div>
 					<div>
 						<div>
 							<h3>
-								Original mime type
+								{ img.ImmichImage.OriginalFileName }
 							</h3>
 						</div>
 						<div>
-							{ img.ImmichImage.OriginalMimeType }
+							{ fmt.Sprint(img.ImmichImage.ExifInfo.ExifImageWidth) } x { fmt.Sprint(img.ImmichImage.ExifInfo.ExifImageHeight) } • { human.Bytes(uint64(img.ImmichImage.ExifInfo.FileSizeInByte)) }
 						</div>
 					</div>
-					<div>
-						<h3>
-							Image link
-						</h3>
-						<a href={ templ.SafeURL(immichImageUrl(viewData.ImmichUrl, img.ImmichImage.ID)) } target="_blank">
-							The link
+					@people(img.ImmichImage.People)
+					<div class="more-info--button-group">
+						<a class="more-info--image-link" href={ templ.SafeURL(immichImageUrl(viewData.ImmichUrl, img.ImmichImage.ID)) } target="_blank">
+							View image in Immich
 						</a>
-					</div>
-					<div>
 						<button
 							class="more-info--webhook"
 							hx-post="/webhooks"

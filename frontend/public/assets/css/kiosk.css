@@ -600,6 +600,7 @@ body {
       padding: 6rem 3rem 3rem 3rem;
       color: #fff;
       border-radius: 0.74rem;
+      overflow: hidden;
     }
 .polling-paused.more-info #more-info .more-info--image .more-info--image--data {
         display: -webkit-flex;
@@ -615,15 +616,10 @@ body {
         -webkit-justify-content: center;
            -moz-box-pack: center;
                 justify-content: center;
-        gap: 2rem;
+        gap: 1rem;
       }
 .polling-paused.more-info #more-info .more-info--image h3 {
         margin: 0.5rem 0;
-      }
-.polling-paused.more-info #more-info .more-info--image a {
-        font-weight: 600;
-        text-decoration: underline;
-        color: #fff;
       }
 .polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code {
         display: -webkit-flex;
@@ -647,23 +643,41 @@ body {
             flex-direction: column;
   }
 .layout-splitview-landscape #more-info .more-info--image {
-      -webkit-flex-direction: row;
-         -moz-box-orient: horizontal;
-         -moz-box-direction: normal;
-              flex-direction: row;
+      -webkit-flex-direction: row !important;
+         -moz-box-orient: horizontal !important;
+         -moz-box-direction: normal !important;
+              flex-direction: row !important;
+      height: 50%;
     }
-.more-info--webhook {
+.more-info--button-group {
+  display: -webkit-flex;
+  display: -moz-box;
+  display: flex;
+  gap: 1rem;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+  padding-top: 1rem;
+}
+.more-info--webhook,
+.more-info--image-link {
+  font-family:
+    "Barlow",
+    Arial,
+    Helvetica,
+    sans-serif;
   background-color: var(--mint-green);
   outline: none;
   border: none;
   color: var(--cool-grey);
   font-weight: 600;
-  border-radius: 60rem;
+  border-radius: 0.4rem;
   padding: 0.5rem 2rem;
   font-size: 1rem;
   cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
 }
-.more-info--webhook:hover {
+.more-info--webhook:hover, .more-info--image-link:hover {
     -webkit-filter: brightness(85%);
             filter: brightness(85%);
   }

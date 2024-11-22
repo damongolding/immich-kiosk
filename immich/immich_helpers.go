@@ -93,16 +93,6 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte,
 
 	for attempts := 0; attempts < 3; attempts++ {
 
-		if attempts == 1 && lastErr != nil {
-			log.Info("Recreating HTTP client after failure")
-			mu.Lock()
-			httpClient = &http.Client{
-				Timeout:   time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout),
-				Transport: httpTransport,
-			}
-			mu.Unlock()
-		}
-
 		var bodyReader io.Reader
 		if body != nil {
 			bodyReader = bytes.NewReader(body)
