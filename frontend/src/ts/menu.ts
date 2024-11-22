@@ -30,13 +30,11 @@ function enableImageNavigationButtons() {
 
 function showImageOverlay() {
   if (!document.body.classList.contains("polling-paused")) return;
-  console.log("on");
   document.body.classList.add("more-info");
   imageOverlayVisible = true;
 }
 
 function hideImageOverlay() {
-  console.log("off");
   document.body.classList.remove("more-info");
   imageOverlayVisible = false;
 }

@@ -116,16 +116,18 @@ templ renderMoreInfo(viewData ViewData) {
 						<a class="more-info--image-link" href={ templ.SafeURL(immichImageUrl(viewData.ImmichUrl, img.ImmichImage.ID)) } target="_blank">
 							View image in Immich
 						</a>
-						<button
-							class="more-info--webhook"
-							hx-post="/webhooks"
-							hx-trigger="click throttle:2s"
-							hx-include=".kiosk-history--entry"
-							hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.webhook.trigger.info_overlay"}`, time.Now().Unix(), webhookSignature()) }
-							hx-swap="textContent"
-						>
-							Trigger webhook
-						</button>
+						if len(viewData.Webhooks) != 0 {
+							<button
+								class="more-info--webhook"
+								hx-post="/webhooks"
+								hx-trigger="click throttle:2s"
+								hx-include=".kiosk-history--entry"
+								hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.webhook.trigger.info_overlay"}`, time.Now().Unix(), webhookSignature()) }
+								hx-swap="textContent"
+							>
+								Trigger webhook
+							</button>
+						}
 					</div>
 				</div>
 				<div class="more-info--image--qr-code">
