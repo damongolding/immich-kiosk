@@ -36,6 +36,7 @@ function showImageOverlay(): void {
 }
 
 function hideImageOverlay(): void {
+  if (!document.body) return;
   document.body.classList.remove("more-info");
   imageOverlayVisible = false;
 }

@@ -14,36 +14,43 @@ includes:
 tasks:
   # Development tasks
   default:
+    desc: Run kiosk in debug mode
     deps: [build]
     cmds:
       - KIOSK_DEBUG=true ./dist/kiosk
 
   verbose:
+    desc: Run kiosk in verbose debug mode
     deps: [build-verbose]
     cmds:
       - KIOSK_DEBUG_VERBOSE=true ./dist/kiosk
 
   # Backend tasks
   templ:
+    desc: Generate templ templates
     cmds:
       - templ generate
 
   test:
+    desc: Run tests
     cmds:
       - go test ./...
 
   lint:
+    desc: Run linter
     cmds:
       - golangci-lint run
 
   # Build tasks
   build:
+    desc: Build kiosk
     deps: [frontend, templ]
     cmds:
       - go generate *.go
       - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
 
   build-verbose:
+    desc: Build kiosk with face detection debugging enabled
     deps: [frontend, templ]
     cmds:
       - go generate *.go
@@ -51,6 +58,7 @@ tasks:
 
   # Maintenance tasks
   install:
+    desc: Install development dependencies
     deps: [update-templ, frontend-install]
     cmds:
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62.0
@@ -58,10 +66,12 @@ tasks:
       - go mod tidy
 
   outdated:
+    desc: Check for outdated dependencies
     cmds:
       - go list -u -m -json all | go-mod-outdated -direct -update
       - cd frontend && pnpm outdated
 
   update-templ:
+    desc: Update templ CLI tool
     cmds:
       - go install github.com/a-h/templ/cmd/templ@latest
