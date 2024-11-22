@@ -681,11 +681,12 @@ Kiosk's display is divided into interactive zones:
 
 ### Keyboard Shortcuts
 
-| Key           | Action                        |
-|---------------|-------------------------------|
-| _ Spacebar    | Play/Pause and Toggle Menu    |
-| → Right Arrow | Next Image(s)                 |
-| ← Left Arrow  | Previous Image(s)             |
+| Key           | Action                                                   |
+|---------------|----------------------------------------------------------|
+| _ Spacebar    | Play/Pause and Toggle Menu                               |
+| → Right Arrow | Next Image(s)                                            |
+| ← Left Arrow  | Previous Image(s)                                        |
+| i Key         | Play/Pause and Toggle Menu and display more info overlay |
 
 ------
 

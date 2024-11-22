@@ -66,7 +66,7 @@ func people(people []immich.Person) templ.Component {
 	names := []string{}
 	for _, person := range people {
 		if person.Name != "" {
-			names = append(names, person.Name)
+			names = append(names, templ.EscapeString(person.Name))
 		}
 	}
 
@@ -87,7 +87,7 @@ func people(people []immich.Person) templ.Component {
 }
 
 templ renderMoreInfo(viewData ViewData) {
-	<div id="more-info" class="hidden" hx-swap-oob="true">
+	<div id="more-info" hx-swap-oob="true">
 		for _, img := range viewData.Images {
 			<div class="more-info--image">
 				<div class="more-info--image--data">
@@ -108,7 +108,7 @@ templ renderMoreInfo(viewData ViewData) {
 							</h3>
 						</div>
 						<div>
-							{ fmt.Sprint(img.ImmichImage.ExifInfo.ExifImageWidth) } x { fmt.Sprint(img.ImmichImage.ExifInfo.ExifImageHeight) } • { human.Bytes(uint64(img.ImmichImage.ExifInfo.FileSizeInByte)) }
+							{ fmt.Sprint(img.ImmichImage.ExifInfo.ExifImageWidth) } x { fmt.Sprint(img.ImmichImage.ExifInfo.ExifImageHeight) } <span class="image--metadata--exif--seperator">&#124;</span> { human.Bytes(uint64(img.ImmichImage.ExifInfo.FileSizeInByte)) }
 						</div>
 					</div>
 					@people(img.ImmichImage.People)

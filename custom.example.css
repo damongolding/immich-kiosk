@@ -72,8 +72,8 @@ to{}
 .polling-paused.more-info #more-info .more-info--image h3{}
 .polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code{}
 .polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code img{}
-.layout-splitview-landscape #more-info{}
-.layout-splitview-landscape #more-info .more-info--image{}
+.polling-paused.more-info.layout-splitview-landscape #more-info{}
+.polling-paused.more-info.layout-splitview-landscape #more-info .more-info--image{}
 .more-info--button-group{}
 .more-info--image-link{}
 .more-info--webhook:hover, .more-info--image-link:hover{}

@@ -64,13 +64,12 @@
     }
 }
 
-.layout-splitview-landscape {
+.polling-paused.more-info.layout-splitview-landscape {
     #more-info {
         flex-direction: column;
 
         .more-info--image {
-            flex-direction: row !important;
-            height: 50%;
+            flex-direction: row;
         }
     }
 }
@@ -96,6 +95,7 @@
     cursor: pointer;
     text-decoration: none;
     font-weight: 600;
+    transition: filter 0.2s ease;
     &:hover {
         filter: brightness(85%);
     }

@@ -636,18 +636,17 @@ body {
           max-width: 14rem;
           border-radius: 0.5rem;
         }
-.layout-splitview-landscape #more-info {
+.polling-paused.more-info.layout-splitview-landscape #more-info {
     -webkit-flex-direction: column;
        -moz-box-orient: vertical;
        -moz-box-direction: normal;
             flex-direction: column;
   }
-.layout-splitview-landscape #more-info .more-info--image {
-      -webkit-flex-direction: row !important;
-         -moz-box-orient: horizontal !important;
-         -moz-box-direction: normal !important;
-              flex-direction: row !important;
-      height: 50%;
+.polling-paused.more-info.layout-splitview-landscape #more-info .more-info--image {
+      -webkit-flex-direction: row;
+         -moz-box-orient: horizontal;
+         -moz-box-direction: normal;
+              flex-direction: row;
     }
 .more-info--button-group {
   display: -webkit-flex;
@@ -676,6 +675,10 @@ body {
   cursor: pointer;
   text-decoration: none;
   font-weight: 600;
+  transition: -webkit-filter 0.2s ease;
+  -moz-transition: filter 0.2s ease;
+  transition: filter 0.2s ease;
+  transition: filter 0.2s ease, -webkit-filter 0.2s ease;
 }
 .more-info--webhook:hover, .more-info--image-link:hover {
     -webkit-filter: brightness(85%);
