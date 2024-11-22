@@ -174,4 +174,6 @@ to{}
 /* src/css/sleep.css */
 #sleep-controller{}
 .sleep #sleep-controller{}
+#sleep-icon{}
+#sleep-icon svg{}
 /* src/css/kiosk.css */
