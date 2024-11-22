@@ -1,4 +1,10 @@
 /* --- image metadata --- */
+.polling-paused.more-info {
+    .image--metadata {
+        opacity: 0.2;
+    }
+}
+
 .image--metadata {
     position: absolute;
     display: flex;

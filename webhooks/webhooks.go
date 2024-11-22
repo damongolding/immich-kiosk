@@ -16,10 +16,11 @@ import (
 type WebhookEvent string
 
 const (
-	NewAsset      WebhookEvent = "asset.new"
-	PreviousAsset WebhookEvent = "asset.previous"
-	PrefetchAsset WebhookEvent = "asset.prefetch"
-	CacheFlush    WebhookEvent = "cache.flush"
+	NewAsset                      WebhookEvent = "asset.new"
+	PreviousAsset                 WebhookEvent = "asset.previous"
+	PrefetchAsset                 WebhookEvent = "asset.prefetch"
+	CacheFlush                    WebhookEvent = "cache.flush"
+	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"
 )
 
 var httpClient = &http.Client{

@@ -24,7 +24,7 @@ func (i *ImmichAsset) albums(requestID string, shared bool) (ImmichAlbums, error
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "api/albums/",
+		Path:   "api/albums",
 	}
 
 	if shared {

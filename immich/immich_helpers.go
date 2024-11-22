@@ -35,8 +35,8 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 			return immichApiCall(method, apiUrl, body)
 		}
 
-		apiCacheLock.Lock()
-		defer apiCacheLock.Unlock()
+		mu.Lock()
+		defer mu.Unlock()
 
 		if apiData, found := apiCache.Get(apiUrl); found {
 			if requestConfig.Kiosk.DebugVerbose {
@@ -83,6 +83,13 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte, error) {
 
 	var responseBody []byte
+	var lastErr error
+
+	_, err := url.Parse(apiUrl)
+	if err != nil {
+		log.Error("Invalid URL", "url", apiUrl, "err", err)
+		return responseBody, err
+	}
 
 	for attempts := 0; attempts < 3; attempts++ {
 
@@ -106,8 +113,24 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte,
 
 		res, err := httpClient.Do(req)
 		if err != nil {
-			log.Error("Request failed, retrying", "attempt", attempts, "URL", apiUrl, "err", err)
-			time.Sleep(time.Duration(attempts) * time.Second)
+			lastErr = err
+
+			// Type assert to get more details about the error
+			if urlErr, ok := err.(*url.Error); ok {
+				log.Error("Request failed",
+					"attempt", attempts,
+					"URL", apiUrl,
+					"operation", urlErr.Op,
+					"error_type", fmt.Sprintf("%T", urlErr.Err),
+					"error", urlErr.Err)
+			} else {
+				log.Error("Request failed",
+					"attempt", attempts,
+					"URL", apiUrl,
+					"error_type", fmt.Sprintf("%T", err),
+					"error", err)
+			}
+			time.Sleep(time.Duration(1<<attempts) * time.Second)
 			continue
 		}
 
@@ -127,10 +150,9 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte,
 		}
 
 		return responseBody, nil
-
 	}
 
-	return responseBody, fmt.Errorf("Request failed: max retries exceeded")
+	return responseBody, fmt.Errorf("Request failed: max retries exceeded. last err=%v", lastErr)
 }
 
 // ratioCheck checks if the given image matches the desired ratio.

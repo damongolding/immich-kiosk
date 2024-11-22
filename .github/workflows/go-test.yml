@@ -18,6 +18,11 @@ jobs:
       - name: Get dependencies
         run: go mod download
 
+      - name: Install templ and generate
+        run: |
+          go install github.com/a-h/templ/cmd/templ@latest
+          templ generate
+
       - name: Run tests
         env:
           CI: true

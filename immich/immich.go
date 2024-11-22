@@ -42,11 +42,21 @@ var (
 	requestConfig config.Config
 	// apiCache cache store for immich api call(s)
 	apiCache *cache.Cache
-	// apiCacheLock is used to synchronize access to the apiCache
-	apiCacheLock sync.Mutex
+	// mu is a mutual exclusion lock for managing concurrent access to shared resources
+	mu sync.Mutex
+
+	// httpTransport defines the transport layer configuration for HTTP requests to the Immich API.
+	// It manages connection pooling, keepalive settings, and connection timeouts.
+	httpTransport = &http.Transport{
+		MaxIdleConns:        100,
+		IdleConnTimeout:     90 * time.Second,
+		DisableKeepAlives:   false,
+		MaxIdleConnsPerHost: 100,
+	}
 	// httpClient default http client for Immich api calls
 	httpClient = &http.Client{
-		Timeout: time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout),
+		Timeout:   time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout),
+		Transport: httpTransport,
 	}
 )
 
@@ -61,16 +71,16 @@ type ImmichError struct {
 }
 
 type ExifInfo struct {
-	Make             string    `json:"-"` // `json:"make"`
-	Model            string    `json:"-"` // `json:"model"`
+	Make             string    `json:"make"`
+	Model            string    `json:"model"`
 	ExifImageWidth   int       `json:"exifImageWidth"`
 	ExifImageHeight  int       `json:"exifImageHeight"`
-	FileSizeInByte   int       `json:"-"` // `json:"fileSizeInByte"`
+	FileSizeInByte   int       `json:"fileSizeInByte"`
 	Orientation      string    `json:"orientation"`
 	DateTimeOriginal time.Time `json:"dateTimeOriginal"`
-	ModifyDate       time.Time `json:"-"` // `json:"modifyDate"`
-	TimeZone         string    `json:"-"` // `json:"timeZone"`
-	LensModel        string    `json:"-"` // `json:"lensModel"`
+	ModifyDate       time.Time `json:"modifyDate"`
+	TimeZone         string    `json:"timeZone"`
+	LensModel        string    `json:"lensModel"`
 	FNumber          float64   `json:"fNumber"`
 	FocalLength      float64   `json:"focalLength"`
 	Iso              int       `json:"iso"`
@@ -112,8 +122,8 @@ type ImmichAsset struct {
 	DeviceID         string           `json:"-"` // `json:"deviceId"`
 	LibraryID        string           `json:"-"` // `json:"libraryId"`
 	Type             ImmichAssetType  `json:"type"`
-	OriginalPath     string           `json:"-"`                // `json:"originalPath"`
-	OriginalFileName string           `json:"-"`                // `json:"originalFileName"`
+	OriginalPath     string           `json:"-"` // `json:"originalPath"`
+	OriginalFileName string           `json:"originalFileName"`
 	OriginalMimeType string           `json:"originalMimeType"` // `json:"originalMimeType"`
 	Resized          bool             `json:"-"`                // `json:"resized"`
 	Thumbhash        string           `json:"-"`                // `json:"thumbhash"`

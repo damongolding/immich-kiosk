@@ -15,6 +15,7 @@ import {
   initMenu,
   disableImageNavigationButtons,
   enableImageNavigationButtons,
+  toggleImageOverlay,
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
@@ -75,6 +76,9 @@ const nextImageMenuButton = htmx.find(
 ) as HTMLElement | null;
 const prevImageMenuButton = htmx.find(
   ".navigation--prev-image",
+) as HTMLElement | null;
+const moreInfoButton = htmx.find(
+  ".navigation--more-info",
 ) as HTMLElement | null;
 
 let requestInFlight = false;
@@ -142,6 +146,27 @@ function handleFullscreenClick(): void {
 }
 
 /**
+ * Handle 'i' key press events
+ * Controls polling and image overlay states based on current document status
+ * @description If both polling is paused and more info is shown, resumes polling and hides overlay.
+ * Otherwise, ensures polling is paused and toggles the overlay visibility.
+ */
+function handleInfoKeyPress(): void {
+  const isPollingPaused = document.body.classList.contains("polling-paused");
+  const hasMoreInfo = document.body.classList.contains("more-info");
+
+  if (isPollingPaused && hasMoreInfo) {
+    togglePolling();
+    toggleImageOverlay();
+  } else {
+    if (!isPollingPaused) {
+      togglePolling();
+    }
+    toggleImageOverlay();
+  }
+}
+
+/**
  * Add event listeners to Kiosk elements
  * Sets up listeners for:
  * - Menu interaction and polling control
@@ -151,19 +176,29 @@ function handleFullscreenClick(): void {
  */
 function addEventListeners(): void {
   // Pause/resume polling and show/hide menu
-  menuInteraction?.addEventListener("click", togglePolling);
-  menuPausePlayButton?.addEventListener("click", togglePolling);
+  menuInteraction?.addEventListener("click", () => togglePolling());
+  menuPausePlayButton?.addEventListener("click", () => togglePolling());
   document.addEventListener("keydown", (e) => {
     if (e.target !== document.body) return;
-    if (e.code === "Space") {
-      e.preventDefault();
-      togglePolling();
+
+    switch (e.code) {
+      case "Space":
+        e.preventDefault();
+        togglePolling(true);
+        break;
+      case "KeyI":
+        e.preventDefault();
+        handleInfoKeyPress();
+        break;
     }
   });
 
   // Fullscreen
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
+
+  // More info overlay
+  moreInfoButton?.addEventListener("click", () => toggleImageOverlay());
 
   // Server online check. Fires after every AJAX request.
   htmx.on("htmx:afterRequest", function (e: HTMXEvent) {

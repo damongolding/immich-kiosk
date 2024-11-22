@@ -1,99 +1,77 @@
 version: "3"
 env:
-  VERSION: 0.14.0-beta.1
+  VERSION: 0.14.0-beta.2
+
+includes:
+  frontend:
+    taskfile: ./taskfile.frontend.yml
+    flatten: true
+
+  docker:
+    taskfile: ./taskfile.docker.yml
+    flatten: true
 
 tasks:
   # Development tasks
   default:
+    desc: Run kiosk in debug mode
     deps: [build]
     cmds:
       - KIOSK_DEBUG=true ./dist/kiosk
 
   verbose:
+    desc: Run kiosk in verbose debug mode
     deps: [build-verbose]
     cmds:
       - KIOSK_DEBUG_VERBOSE=true ./dist/kiosk
 
-  # Frontend tasks
-  frontend:
-    deps: [frontend-test, frontend-css, frontend-js]
-    dir: ./frontend
-    cmds:
-      - pnpm lint
-
-  frontend-build:
-    dir: ./frontend
-    cmds:
-      - pnpm build
-
-  frontend-test:
-    dir: ./frontend
-    cmds:
-      - pnpm test
-
-  frontend-css:
-    dir: ./frontend
-    cmds:
-      - pnpm css
-
-  frontend-js:
-    dir: ./frontend
-    cmds:
-      - pnpm js
-
   # Backend tasks
   templ:
+    desc: Generate templ templates
     cmds:
       - templ generate
 
   test:
+    desc: Run tests
     cmds:
       - go test ./...
 
   lint:
+    desc: Run linter
     cmds:
       - golangci-lint run
 
   # Build tasks
   build:
+    desc: Build kiosk
     deps: [frontend, templ]
     cmds:
       - go generate *.go
       - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
 
   build-verbose:
+    desc: Build kiosk with face detection debugging enabled
     deps: [frontend, templ]
     cmds:
       - go generate *.go
       - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -X github.com/damongolding/immich-kiosk/routes.drawFacesOnImages=true" -o dist/kiosk .
 
-  # Docker tasks
-  docker-image:
-    deps: [build]
-    cmds:
-      - docker build --no-cache --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
-
-  docker-buildx:
-    cmds:
-      - docker buildx create --name mybuilder --use
-      - docker buildx install
-
-  docker-image-push:
-    deps: [build]
-    cmds:
-      - docker build --build-arg VERSION={{.VERSION}} --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
-
-  docker-dev-push:
-    deps: [build]
-    cmds:
-      - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk-development:{{.VERSION}} -t damongolding/immich-kiosk-development:latest .
-
   # Maintenance tasks
+  install:
+    desc: Install development dependencies
+    deps: [update-templ, frontend-install]
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62.0
+      - go install github.com/psampaz/go-mod-outdated@latest
+      - go mod tidy
+
   outdated:
+    desc: Check for outdated dependencies
     cmds:
       - go list -u -m -json all | go-mod-outdated -direct -update
       - cd frontend && pnpm outdated
 
   update-templ:
+    desc: Update templ CLI tool
     cmds:
       - go install github.com/a-h/templ/cmd/templ@latest

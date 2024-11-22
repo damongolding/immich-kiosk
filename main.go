@@ -25,6 +25,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/time/rate"
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/routes"
@@ -124,6 +125,8 @@ func main() {
 	e.GET("/cache/flush", routes.FlushCache(baseConfig))
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
+
+	e.POST("/webhooks", routes.Webhooks(baseConfig), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
