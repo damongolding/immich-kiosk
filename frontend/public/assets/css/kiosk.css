@@ -555,7 +555,7 @@ body {
     }
 }
 
-/* src/css/image-more-info.css */
+/* src/css/more-info-overlay.css */
 #more-info {
   display: none;
 }
@@ -674,7 +674,6 @@ body {
   font-size: 1rem;
   cursor: pointer;
   text-decoration: none;
-  font-weight: 600;
   transition: -webkit-filter 0.2s ease;
   -moz-transition: filter 0.2s ease;
   transition: filter 0.2s ease;
