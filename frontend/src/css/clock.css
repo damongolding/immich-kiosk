@@ -59,7 +59,7 @@
         right: unset;
         transform: translate(-50%, -50%);
         opacity: 0.1;
-        z-index: 99998;
+        z-index: 99996;
         line-height: 1;
 
         animation-name: clock-screesaver;

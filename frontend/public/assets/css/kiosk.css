@@ -856,7 +856,7 @@ body {
         -ms-transform: translate(-50%, -50%);
             transform: translate(-50%, -50%);
     opacity: 0.1;
-    z-index: 99998;
+    z-index: 99996;
     line-height: 1;
     -webkit-animation-name: clock-screesaver;
        -moz-animation-name: clock-screesaver;
@@ -1407,7 +1407,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 99997;
+    z-index: 99995;
     background-color: black;
     -moz-transition: background-color 3s ease;
     transition: background-color 3s ease;
