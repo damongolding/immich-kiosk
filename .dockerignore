@@ -5,3 +5,5 @@
 
 dist/
 config.yaml
+
+*_templ.go

@@ -94,7 +94,6 @@
     font-size: 1rem;
     cursor: pointer;
     text-decoration: none;
-    font-weight: 600;
     transition: filter 0.2s ease;
     &:hover {
         filter: brightness(85%);
