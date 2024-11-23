@@ -43,6 +43,7 @@ type KioskData = {
   dateFormat: string;
   showTime: boolean;
   timeFormat: TimeFormat;
+  transition: string;
 };
 
 let maxFrames: boolean;
