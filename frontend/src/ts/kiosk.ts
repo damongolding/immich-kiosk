@@ -45,7 +45,7 @@ type KioskData = {
   timeFormat: TimeFormat;
 };
 
-const MAX_FRAME = 3 as const;
+let maxFrames: boolean;
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -92,6 +92,8 @@ async function init(): Promise<void> {
   if (kioskData.debugVerbose) {
     htmx.logAll();
   }
+
+  maxFrames = kioskData.transition === "cross-fade" ? 3 : 1;
 
   initClock(
     kioskData.showDate,
@@ -218,12 +220,12 @@ function addEventListeners(): void {
 }
 
 /**
- * Remove first frame from the DOM when there are more than 3 frames
+ * Remove first frame from the DOM when there are more than maxFrames
  * Used to prevent memory issues from accumulating frames
  */
 function cleanupFrames(): void {
   const frames = htmx.findAll(".frame");
-  if (frames.length > MAX_FRAME) {
+  if (frames.length > maxFrames) {
     htmx.remove(frames[0]);
   }
 }
