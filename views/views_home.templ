@@ -382,7 +382,7 @@ templ Home(viewData ViewData) {
 				"dateFormat":         utils.DateToJavascriptLayout(viewData.DateFormat),
 				"showTime":           viewData.ShowTime,
 				"timeFormat":         viewData.TimeFormat,
-				"transition:          viewData.Transition,
+				"transition":         viewData.Transition,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			if len(viewData.Queries) > 0 {
