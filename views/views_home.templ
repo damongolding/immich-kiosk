@@ -344,7 +344,7 @@ templ Home(viewData ViewData) {
           		"
 				hx-on::before-request="kiosk.setRequestLock(event)"
 				hx-on::after-request="kiosk.startPolling()"
-				hx-on::after-swap="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
+				hx-on::after-swap="kiosk.releaseRequestLock()"
 			>
 				@spinner()
 			</main>
