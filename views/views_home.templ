@@ -271,7 +271,7 @@ templ body(viewData ViewData) {
 		default:
 			<body
 				hx-headers={ headerStr }
-				hx-swap="innerHTML"
+				hx-swap="beforeend"
 				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				{ children... }
