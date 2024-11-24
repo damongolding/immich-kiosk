@@ -46,7 +46,7 @@ type KioskData = {
   transition: string;
 };
 
-let maxFrames: boolean;
+let maxFrames: number;
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
