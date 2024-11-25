@@ -229,7 +229,6 @@ func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error
 	}
 
 	return queries, nil
-
 }
 
 // RandomItem returns a random item from given slice
