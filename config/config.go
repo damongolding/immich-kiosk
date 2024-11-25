@@ -228,7 +228,7 @@ type Config struct {
 	HasWeatherDefault bool `json:"-" default:"false"`
 
 	// OptimizeImages tells Kiosk to optimize imahes
-	OptimizeImages bool `json:"optimize" mapstructure:"optimize" query:"optimize" form:"optimize" default:"false"`
+	OptimizeImages bool `json:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
 
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
 	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`
