@@ -81,6 +81,9 @@ const prevImageMenuButton = htmx.find(
 const moreInfoButton = htmx.find(
   ".navigation--more-info",
 ) as HTMLElement | null;
+const offlineSVG = htmx.find(
+  "#offline",
+) as HTMLElement | null;
 
 let requestInFlight = false;
 
@@ -203,9 +206,11 @@ function addEventListeners(): void {
   // More info overlay
   moreInfoButton?.addEventListener("click", () => toggleImageOverlay());
 
+  // Unable to send ajax. probably offline.
+  htmx.on("htmx:sendError", () => htmx.addClass(offlineSVG, "offline"));
+
   // Server online check. Fires after every AJAX request.
   htmx.on("htmx:afterRequest", function (e: HTMXEvent) {
-    const offlineSVG = htmx.find("#offline");
 
     if (!offlineSVG) {
       console.error("offline svg missing");
