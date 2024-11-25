@@ -254,6 +254,7 @@ templ body(viewData ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap="beforeend"
+				hx-vals="js:{...kiosk.clientData()}"
 				class={ "crossfade", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
@@ -263,6 +264,7 @@ templ body(viewData ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration) }
+				hx-vals="js:{...kiosk.clientData()}"
 				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
@@ -272,6 +274,7 @@ templ body(viewData ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap="innerHTML"
+				hx-vals="js:{...kiosk.clientData()}"
 				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				{ children... }

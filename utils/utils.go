@@ -36,6 +36,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/config"
 	"github.com/disintegration/imaging"
 
 	"github.com/google/uuid"
@@ -120,7 +121,7 @@ func getImageMimeType(r io.Reader) string {
 }
 
 // BlurImage converts image bytes into a blurred base64 string
-func BlurImage(imgBytes []byte) ([]byte, error) {
+func BlurImage(imgBytes []byte, clientData config.ClientData) ([]byte, error) {
 	buf := new(bytes.Buffer)
 
 	var img image.Image
@@ -143,10 +144,14 @@ func BlurImage(imgBytes []byte) ([]byte, error) {
 		}
 	}
 
-	blurredImg := imaging.Blur(img, 20)
-	blurredImg = imaging.AdjustBrightness(blurredImg, -20)
+	blurredImage := imaging.Blur(img, 20)
+	blurredImage = imaging.AdjustBrightness(blurredImage, -20)
 
-	err = imaging.Encode(buf, blurredImg, imaging.JPEG)
+	if clientData.Width != 0 && clientData.Height != 0 {
+		blurredImage = imaging.Fit(blurredImage, clientData.Width, clientData.Height, imaging.Lanczos)
+	}
+
+	err = imaging.Encode(buf, blurredImage, imaging.JPEG)
 	if err != nil {
 		return buf.Bytes(), err
 	}
@@ -511,4 +516,27 @@ func abs(x int64) int64 {
 		return -x
 	}
 	return x
+}
+
+func OptimizeImage(imgBytes []byte, width, height int) ([]byte, error) {
+	img, err := imaging.Decode(bytes.NewReader(imgBytes))
+	if err != nil {
+		log.Error("could not decode image for optimising", "err", err)
+		return imgBytes, err
+	}
+
+	if width != 0 && height != 0 {
+		optimizedImage := imaging.Fit(img, width, height, imaging.Lanczos)
+
+		var buf bytes.Buffer
+		err = imaging.Encode(&buf, optimizedImage, imaging.JPEG)
+		if err != nil {
+			log.Error("failed to encode optimised image", "err", err)
+			return imgBytes, err
+		}
+
+		return buf.Bytes(), nil
+	}
+
+	return imgBytes, err
 }

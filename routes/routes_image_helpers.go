@@ -163,7 +163,7 @@ func processBlurredImage(imgBytes []byte, config config.Config, requestID, kiosk
 	}
 
 	startTime := time.Now()
-	imgBlurBytes, err := utils.BlurImage(imgBytes)
+	imgBlurBytes, err := utils.BlurImage(imgBytes, config.ClientData)
 	if err != nil {
 		return "", fmt.Errorf("blurring image: %w", err)
 	}
@@ -276,6 +276,13 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	if ShouldDrawFacesOnImages() {
 		log.Debug("Drawing faces")
 		imgBytes = DrawFaceOnImage(imgBytes, &immichImage)
+	}
+
+	if requestConfig.Optimize {
+		imgBytes, err = utils.OptimizeImage(imgBytes, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
+		if err != nil {
+			return views.ImageData{}, err
+		}
 	}
 
 	img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, "Converted", isPrefetch)
