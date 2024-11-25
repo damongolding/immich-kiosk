@@ -193,11 +193,11 @@ func GetImageMimeType(r io.Reader) string {
 }
 
 // BlurImage converts image bytes into a blurred base64 string
-func BlurImage(img image.Image, isOpimised bool, clientData config.ClientData) (image.Image, error) {
+func BlurImage(img image.Image, isOptimized bool, clientData config.ClientData) (image.Image, error) {
 
 	blurredImage := img
 
-	if clientData.Width != 0 && clientData.Height != 0 && !isOpimised {
+	if clientData.Width != 0 && clientData.Height != 0 && !isOptimized {
 		blurredImage = imaging.Fit(blurredImage, clientData.Width, clientData.Height, imaging.Lanczos)
 	}
 

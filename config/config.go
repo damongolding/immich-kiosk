@@ -227,7 +227,8 @@ type Config struct {
 	// HasWeatherDefault indicates whether any weather location has been set as the default.
 	HasWeatherDefault bool `json:"-" default:"false"`
 
-	Optimize bool `json:"optimize" mapstructure:"optimize" query:"optimize" form:"optimize" default:"false"`
+	// OptimizeImages tells Kiosk to optimize imahes
+	OptimizeImages bool `json:"optimize" mapstructure:"optimize" query:"optimize" form:"optimize" default:"false"`
 
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
 	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`
