@@ -342,7 +342,7 @@ templ Home(viewData ViewData) {
         		  keyup[key=='ArrowRight'] from:body throttle:1s,
         		  kiosk-new-image throttle:1s
           		"
-				hx-on::before-request="kiosk.setRequestLock(event)"
+				hx-on::before-send="kiosk.setRequestLock(event)"
 				hx-on::after-request="kiosk.startPolling()"
 				hx-on::after-swap="kiosk.releaseRequestLock()"
 			>
