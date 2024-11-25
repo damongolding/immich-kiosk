@@ -8,6 +8,7 @@ import (
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
+	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
 	"github.com/damongolding/immich-kiosk/webhooks"
 )
@@ -84,7 +85,12 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		immichImage := immich.NewImage(requestConfig)
 
-		imgBytes, err := processImage(&immichImage, requestConfig, requestID, "", false)
+		img, err := processImage(&immichImage, requestConfig, requestID, "", false)
+		if err != nil {
+			return err
+		}
+
+		imgBytes, err := utils.ImageToBytes(img)
 		if err != nil {
 			return err
 		}

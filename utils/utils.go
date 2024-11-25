@@ -44,6 +44,11 @@ import (
 	"github.com/skip2/go-qrcode"
 )
 
+const (
+	SigmaBase     = 10
+	SigmaConstant = 1300.0
+)
+
 // WeightedAsset represents an asset with a type and ID
 type WeightedAsset struct {
 	Type string
@@ -91,16 +96,83 @@ func DateToJavascriptLayout(input string) string {
 	return replacer.Replace(input)
 }
 
+// ImageToBytes converts an image.Image to a byte slice in JPEG format.
+// It takes an image.Image as input and returns the encoded bytes and any error encountered.
+// The bytes can be used for further processing, transmission, or storage.
+func ImageToBytes(img image.Image) ([]byte, error) {
+
+	buf := new(bytes.Buffer)
+
+	err := imaging.Encode(buf, img, imaging.JPEG)
+	if err != nil {
+		return buf.Bytes(), err
+	}
+
+	return buf.Bytes(), nil
+}
+
+// BytesToImage converts a byte slice to an image.Image.
+// It takes a byte slice as input and returns an image.Image and any error encountered.
+// It handles both WebP and other common image formats (JPEG, PNG, GIF) automatically
+// by detecting the MIME type and using the appropriate decoder.
+func BytesToImage(imgBytes []byte) (image.Image, error) {
+
+	var img image.Image
+	var err error
+
+	imageMime := GetImageMimeType(bytes.NewReader(imgBytes))
+
+	switch imageMime {
+	case "image/webp":
+		img, err = webp.Decode(bytes.NewReader(imgBytes))
+		if err != nil {
+			log.Error("could not decode image", "image mime type", imageMime, "err", err)
+			return nil, err
+		}
+	default:
+		img, err = imaging.Decode(bytes.NewReader(imgBytes))
+		if err != nil {
+			log.Error("could not decode image", "image mime type", imageMime, "err", err)
+			return nil, err
+		}
+	}
+
+	return img, nil
+}
+
 // ImageToBase64 converts image bytes into a base64 string
-func ImageToBase64(imgBtyes []byte) (string, error) {
+func ImageToBase64(img image.Image) (string, error) {
+
+	var buf bytes.Buffer
+
+	err := imaging.Encode(&buf, img, imaging.JPEG)
+	if err != nil {
+		return "", err
+	}
 
 	var base64Encoding string
 
-	mimeType := http.DetectContentType(imgBtyes)
+	mimeType := http.DetectContentType(buf.Bytes())
 
 	base64Encoding += fmt.Sprintf("data:%s;base64,", mimeType)
 
-	base64Encoding += base64.StdEncoding.EncodeToString(imgBtyes)
+	base64Encoding += base64.StdEncoding.EncodeToString(buf.Bytes())
+
+	return base64Encoding, nil
+}
+
+// BytesToBase64 converts a byte slice to a base64 encoded string with MIME type prefix.
+// It takes a byte slice representing an image and returns a data URI string suitable
+// for use in HTML/CSS, such as "data:image/jpeg;base64,/9j/4AAQSkZJ...".
+// The function detects the MIME type of the image automatically.
+func BytesToBase64(imgBytes []byte) (string, error) {
+	var base64Encoding string
+
+	mimeType := http.DetectContentType(imgBytes)
+
+	base64Encoding += fmt.Sprintf("data:%s;base64,", mimeType)
+
+	base64Encoding += base64.StdEncoding.EncodeToString(imgBytes)
 
 	return base64Encoding, nil
 }
@@ -111,8 +183,8 @@ func getImageFormat(r io.Reader) (string, error) {
 	return format, err
 }
 
-// getImageMimeType Get image mime type (gif/jpeg/png/webp)
-func getImageMimeType(r io.Reader) string {
+// GetImageMimeType Get image mime type (gif/jpeg/png/webp)
+func GetImageMimeType(r io.Reader) string {
 	format, _ := getImageFormat(r)
 	if format == "" {
 		return ""
@@ -121,42 +193,20 @@ func getImageMimeType(r io.Reader) string {
 }
 
 // BlurImage converts image bytes into a blurred base64 string
-func BlurImage(imgBytes []byte, clientData config.ClientData) ([]byte, error) {
-	buf := new(bytes.Buffer)
+func BlurImage(img image.Image, isOpimised bool, clientData config.ClientData) (image.Image, error) {
 
-	var img image.Image
-	var err error
+	blurredImage := img
 
-	imageMime := getImageMimeType(bytes.NewReader(imgBytes))
-
-	switch imageMime {
-	case "image/webp":
-		img, err = webp.Decode(bytes.NewReader(imgBytes))
-		if err != nil {
-			log.Error("could not decode image", "image mime type", imageMime, "err", err)
-			return buf.Bytes(), err
-		}
-	default:
-		img, err = imaging.Decode(bytes.NewReader(imgBytes))
-		if err != nil {
-			log.Error("could not decode image", "image mime type", imageMime, "err", err)
-			return buf.Bytes(), err
-		}
-	}
-
-	blurredImage := imaging.Blur(img, 20)
-	blurredImage = imaging.AdjustBrightness(blurredImage, -20)
-
-	if clientData.Width != 0 && clientData.Height != 0 {
+	if clientData.Width != 0 && clientData.Height != 0 && !isOpimised {
 		blurredImage = imaging.Fit(blurredImage, clientData.Width, clientData.Height, imaging.Lanczos)
 	}
 
-	err = imaging.Encode(buf, blurredImage, imaging.JPEG)
-	if err != nil {
-		return buf.Bytes(), err
-	}
+	sigma := calculateNormalizedSigma(SigmaBase, blurredImage.Bounds().Dx(), blurredImage.Bounds().Dy(), SigmaConstant)
 
-	return buf.Bytes(), nil
+	blurredImage = imaging.Blur(blurredImage, sigma)
+	blurredImage = imaging.AdjustBrightness(blurredImage, -20)
+
+	return blurredImage, nil
 }
 
 // CombineQueries combine URL.Query() and Referer() queries
@@ -467,7 +517,7 @@ func CreateQrCode(link string) string {
 		return ""
 	}
 
-	i, err := ImageToBase64(png)
+	i, err := BytesToBase64(png)
 	if err != nil {
 		log.Error("QR code base64 encoding failed", "link", link, "err", err)
 		return ""
@@ -518,25 +568,18 @@ func abs(x int64) int64 {
 	return x
 }
 
-func OptimizeImage(imgBytes []byte, width, height int) ([]byte, error) {
-	img, err := imaging.Decode(bytes.NewReader(imgBytes))
-	if err != nil {
-		log.Error("could not decode image for optimising", "err", err)
-		return imgBytes, err
-	}
+func OptimizeImage(img image.Image, width, height int) (image.Image, error) {
+
+	optimizedImage := img
 
 	if width != 0 && height != 0 {
-		optimizedImage := imaging.Fit(img, width, height, imaging.Lanczos)
-
-		var buf bytes.Buffer
-		err = imaging.Encode(&buf, optimizedImage, imaging.JPEG)
-		if err != nil {
-			log.Error("failed to encode optimised image", "err", err)
-			return imgBytes, err
-		}
-
-		return buf.Bytes(), nil
+		optimizedImage = imaging.Fit(img, width, height, imaging.Lanczos)
 	}
 
-	return imgBytes, err
+	return optimizedImage, nil
+}
+
+func calculateNormalizedSigma(baseSigma float64, width, height int, constant float64) float64 {
+	diagonal := math.Sqrt(float64(width*width + height*height))
+	return baseSigma * diagonal / constant
 }
