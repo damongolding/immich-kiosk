@@ -375,6 +375,7 @@ body {
      -moz-animation-fill-mode: forwards;
           animation-fill-mode: forwards;
   opacity: 0;
+  will-change: opacity;
 }
 
 /* src/css/image.css */

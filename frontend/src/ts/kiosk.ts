@@ -58,7 +58,7 @@ type KioskData = {
   transition: string;
 };
 
-let maxFrames: number;
+let maxFrames: number = 2;
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -115,7 +115,7 @@ async function init(): Promise<void> {
     htmx.logAll();
   }
 
-  maxFrames = kioskData.transition === "cross-fade" ? 3 : 2;
+  maxFrames = kioskData.transition === "cross-fade" ? 3 : maxFrames;
 
   initClock(
     kioskData.showDate,

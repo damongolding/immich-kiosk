@@ -1,10 +1,21 @@
 import { cleanupFrames } from "./kiosk";
 
+const IMAGE_LOAD_TIMEOUT_MS = 10000 as const;
+
+/**
+ * Represents the result of loading an image
+ */
 interface ImageLoadResult {
   success: boolean;
   img: HTMLImageElement;
 }
 
+/**
+ * Handles a new frame element by loading all images within it and marking it as loaded
+ * @param target - The target element to handle (either a frame or container of frames)
+ * @returns Promise that resolves when frame is handled
+ * @throws No errors thrown, but logs warnings for missing frames or failed image loads
+ */
 async function handleNewFrame(target: HTMLElement): Promise<void> {
   const frames: HTMLElement[] = target.classList.contains("frame")
     ? [target]
@@ -31,6 +42,8 @@ async function handleNewFrame(target: HTMLElement): Promise<void> {
         return { success: true, img };
       }
 
+      img.loading = "eager";
+
       const result = await Promise.race([
         new Promise<ImageLoadResult>((resolve) => {
           const handleLoad = () => {
@@ -48,9 +61,12 @@ async function handleNewFrame(target: HTMLElement): Promise<void> {
           img.addEventListener("load", handleLoad);
           img.addEventListener("error", handleError);
         }),
-        // Optional timeout for loading images
+
         new Promise<ImageLoadResult>((resolve) =>
-          setTimeout(() => resolve({ success: false, img }), 10000),
+          setTimeout(
+            () => resolve({ success: false, img }),
+            IMAGE_LOAD_TIMEOUT_MS,
+          ),
         ),
       ]);
 
@@ -63,7 +79,6 @@ async function handleNewFrame(target: HTMLElement): Promise<void> {
 
   const results = await Promise.all(imagePromises);
 
-  // Log failed images
   const failedImages = results.filter((r) => !r.success);
   if (failedImages.length > 0) {
     console.warn(

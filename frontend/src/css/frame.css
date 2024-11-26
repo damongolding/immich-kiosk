@@ -178,5 +178,6 @@
     animation-name: fade-in;
     animation-fill-mode: forwards;
     opacity: 0;
+    will-change: opacity;
 }
 /* END Cross fade transtion */
