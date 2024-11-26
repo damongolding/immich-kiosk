@@ -9,6 +9,7 @@ import (
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/utils"
+	"github.com/damongolding/immich-kiosk/views"
 )
 
 // Sleep sleep mode endpoint
@@ -31,18 +32,9 @@ func Sleep(baseConfig *config.Config) echo.HandlerFunc {
 			"Sleep end", requestConfig.SleepEnd,
 		)
 
-		if sleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now()); sleepTime {
-			return c.HTML(http.StatusOK, `
-			<script>
-    			document.body.classList.add('sleep');
-       		</script>
-			`)
-		}
+		sleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now())
+		
+		return Render(c, http.StatusOK, views.Sleep(sleepTime, requestData.RequestConfig.SleepIcon))
 
-		return c.HTML(http.StatusOK, `
-		<script>
-    		document.body.classList.remove('sleep');
-       	</script>
-		`)
 	}
 }
