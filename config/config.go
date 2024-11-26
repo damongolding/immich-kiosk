@@ -109,7 +109,7 @@ type Webhook struct {
 // ClientData represents the client-specific dimensions received from the frontend.
 type ClientData struct {
 	// Width represents the client's viewport width in pixels
-	Width  int `json:"client_width" query:"client_width" form:"client_width"`
+	Width int `json:"client_width" query:"client_width" form:"client_width"`
 	// Height represents the client's viewport height in pixels
 	Height int `json:"client_height" query:"client_height" form:"client_height"`
 }

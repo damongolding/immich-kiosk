@@ -61,7 +61,7 @@ type AssetWithWeighting struct {
 	Weight int
 }
 
-// GenerateUUID generates as UUID
+// GenerateUUID generates a new random UUID string
 func GenerateUUID() string {
 	return uuid.New().String()
 }
@@ -140,7 +140,7 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 	return img, nil
 }
 
-// ImageToBase64 converts image bytes into a base64 string
+// ImageToBase64 converts an image.Image to a base64 encoded data URI string with appropriate MIME type
 func ImageToBase64(img image.Image) (string, error) {
 
 	var buf bytes.Buffer
@@ -177,13 +177,13 @@ func BytesToBase64(imgBytes []byte) (string, error) {
 	return base64Encoding, nil
 }
 
-// getImageFormat retrieve format a.k.a name from decode config
+// getImageFormat retrieves the format name from the image decode config
 func getImageFormat(r io.Reader) (string, error) {
 	_, format, err := image.DecodeConfig(r)
 	return format, err
 }
 
-// GetImageMimeType Get image mime type (gif/jpeg/png/webp)
+// GetImageMimeType returns the MIME type (gif/jpeg/png/webp) for an image reader
 func GetImageMimeType(r io.Reader) string {
 	format, _ := getImageFormat(r)
 	if format == "" {
@@ -192,7 +192,8 @@ func GetImageMimeType(r io.Reader) string {
 	return mime.TypeByExtension("." + format)
 }
 
-// BlurImage converts image bytes into a blurred base64 string
+// BlurImage applies a Gaussian blur to an image with normalized sigma based on image dimensions.
+// It can optionally resize the image first based on client data dimensions.
 func BlurImage(img image.Image, isOptimized bool, clientData config.ClientData) (image.Image, error) {
 
 	blurredImage := img
@@ -209,8 +210,8 @@ func BlurImage(img image.Image, isOptimized bool, clientData config.ClientData) 
 	return blurredImage, nil
 }
 
-// CombineQueries combine URL.Query() and Referer() queries
-// NOTE: Referer queries will overwrite URL queries
+// CombineQueries combines URL.Query() and Referer() queries into a single url.Values.
+// Referer query parameters will overwrite URL query parameters with the same names.
 func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error) {
 
 	queries := urlQueries
@@ -231,7 +232,8 @@ func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error
 	return queries, nil
 }
 
-// RandomItem returns a random item from given slice
+// RandomItem returns a random item from the given slice.
+// Returns the zero value of type T if the slice is empty.
 func RandomItem[T any](s []T) T {
 
 	var out T
@@ -302,8 +304,8 @@ type Color struct {
 	Hex string
 }
 
-// StringToColor takes any string and returns a Color struct.
-// Identical strings should return identical values
+// StringToColor takes any string and returns a Color struct with deterministic RGB values.
+// Identical input strings will always return identical color values.
 func StringToColor(inputString string) Color {
 	sum := 0
 	for _, char := range inputString {
@@ -343,7 +345,7 @@ func ColorizeRequestId(requestID string) string {
 	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestID)
 }
 
-// calculateContrastRatio computes the contrast ratio between two RGB colors.
+// calculateContrastRatio computes the contrast ratio between two RGB colors according to WCAG 2.0.
 func calculateContrastRatio(color1, color2 Color) float64 {
 	lum1 := calculateLuminance(color1)
 	lum2 := calculateLuminance(color2)
@@ -354,7 +356,7 @@ func calculateContrastRatio(color1, color2 Color) float64 {
 	return (lum2 + 0.05) / (lum1 + 0.05)
 }
 
-// calculateLuminance calculates the relative luminance of an RGB color.
+// calculateLuminance calculates the relative luminance of an RGB color according to WCAG 2.0.
 func calculateLuminance(color Color) float64 {
 	r := linearize(float64(color.R) / 255.0)
 	g := linearize(float64(color.G) / 255.0)
@@ -363,7 +365,7 @@ func calculateLuminance(color Color) float64 {
 	return 0.2126*r + 0.7152*g + 0.0722*b
 }
 
-// linearize converts an sRGB component to a linear value.
+// linearize converts an sRGB component to a linear value according to the sRGB color space specification.
 func linearize(value float64) float64 {
 	if value <= 0.03928 {
 		return value / 12.92
@@ -491,13 +493,14 @@ func IsSleepTime(sleepStartTime, sleepEndTime string, currentTime time.Time) (bo
 		currentTime.Before(endTime), nil
 }
 
-// FileExists checks if a file exists at the specified path
+// FileExists checks if a file exists at the specified path and returns true if it does
 func FileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	return !os.IsNotExist(err)
 }
 
-// CreateQrCode generates a QR code for the given link and returns it as a base64 encoded string
+// CreateQrCode generates a QR code for the given link and returns it as a base64 encoded string.
+// Returns an empty string and logs an error if generation fails.
 func CreateQrCode(link string) string {
 
 	if link == "" {
@@ -525,7 +528,7 @@ func CreateQrCode(link string) string {
 	return i
 }
 
-// generateSharedSecret generates a random 256-bit (32-byte) secret.
+// GenerateSharedSecret generates a random 256-bit (32-byte) secret and returns it as a hex string.
 func GenerateSharedSecret() (string, error) {
 	secret := make([]byte, 32)
 	_, err := crand.Read(secret)
@@ -535,21 +538,21 @@ func GenerateSharedSecret() (string, error) {
 	return hex.EncodeToString(secret), nil
 }
 
-// calculateSignature generates an HMAC-SHA256 signature
+// CalculateSignature generates an HMAC-SHA256 signature for the given secret and timestamp
 func CalculateSignature(secret, timestamp string) string {
 	h := hmac.New(sha256.New, []byte(secret))
 	h.Write([]byte(timestamp))
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// IsValidSignature performs a constant-time comparison of two signatures
+// IsValidSignature performs a constant-time comparison of two signatures to prevent timing attacks
 func IsValidSignature(receivedSignature, calculatedSignature string) bool {
 	received, _ := hex.DecodeString(receivedSignature)
 	calculated, _ := hex.DecodeString(calculatedSignature)
 	return hmac.Equal(received, calculated)
 }
 
-// IsValidTimestamp validates the timestamp to prevent replay attacks
+// IsValidTimestamp validates if a timestamp is within the acceptable tolerance window
 func IsValidTimestamp(receivedTimestamp string, toleranceSeconds int) bool {
 	ts, err := strconv.ParseInt(receivedTimestamp, 10, 64)
 	if err != nil {
@@ -567,6 +570,8 @@ func abs(x int64) int64 {
 	return x
 }
 
+// OptimizeImage resizes an image to the specified dimensions while maintaining aspect ratio.
+// If width or height is 0, the image is returned unmodified.
 func OptimizeImage(img image.Image, width, height int) (image.Image, error) {
 
 	optimizedImage := img
@@ -578,6 +583,7 @@ func OptimizeImage(img image.Image, width, height int) (image.Image, error) {
 	return optimizedImage, nil
 }
 
+// calculateNormalizedSigma calculates a normalized sigma value for Gaussian blur based on image dimensions
 func calculateNormalizedSigma(baseSigma float64, width, height int, constant float64) float64 {
 	diagonal := math.Sqrt(float64(width*width + height*height))
 	return baseSigma * diagonal / constant
