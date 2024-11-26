@@ -115,7 +115,6 @@ async function init(): Promise<void> {
     htmx.logAll();
   }
 
-
   if (kioskData.showDate || kioskData.showTime) {
     initClock(
       kioskData.showDate,
@@ -124,7 +123,6 @@ async function init(): Promise<void> {
       kioskData.timeFormat,
     );
   }
-
 
   if (kioskData.disableScreensaver) {
     await preventSleep();
@@ -356,4 +354,5 @@ export {
   releaseRequestLock,
   checkHistoryExists,
   handleNewFrame,
+  clientData,
 };
