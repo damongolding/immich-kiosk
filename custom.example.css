@@ -7,14 +7,6 @@
 body{}
 /* src/css/container.css */
 #kiosk{}
-#kiosk.htmx-swapping{}
-@-webkit-keyframes fade-in{}
-from{}
-to{}
-@-moz-keyframes fade-in{}
-from{}
-to{}
-.crossfade .frame{}
 /* src/css/spinner.css */
 .kiosk--spinner{}
 /* src/css/frame.css */
@@ -39,6 +31,16 @@ to{}
 .frame--layout-splitview-landscape:nth-child(2){}
 .frameless .frame--layout-splitview-landscape{}
 .frame--layout-splitview-landscape .frame--image{}
+.transition-none .frame{}
+.transition-none .frame.loaded{}
+#kiosk.htmx-swapping{}
+@-webkit-keyframes fade-in{}
+from{}
+to{}
+@-moz-keyframes fade-in{}
+from{}
+to{}
+.transition-cross-fade .frame{}
 /* src/css/image.css */
 .polling-paused.more-info .image--metadata{}
 .image--metadata{}

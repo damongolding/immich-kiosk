@@ -19,6 +19,7 @@ import {
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
+import { handleNewFrame } from "./frames";
 
 ("use strict");
 
@@ -31,6 +32,17 @@ interface HTMXEvent extends Event {
 
 /**
  * Type definition for kiosk configuration data
+ * @property debug - Enable debug mode
+ * @property debugVerbose - Enable verbose debug logging
+ * @property version - Version string
+ * @property params - Additional configuration parameters
+ * @property refresh - Refresh interval in seconds
+ * @property disableScreensaver - Whether to prevent screen sleeping
+ * @property showDate - Whether to display the date
+ * @property dateFormat - Format string for date display
+ * @property showTime - Whether to display the time
+ * @property timeFormat - Format for time display
+ * @property transition - Type of transition animation
  */
 type KioskData = {
   debug: boolean;
@@ -43,9 +55,10 @@ type KioskData = {
   dateFormat: string;
   showTime: boolean;
   timeFormat: TimeFormat;
+  transition: string;
 };
 
-const MAX_FRAME = 3 as const;
+let maxFrames: number = 2;
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -80,13 +93,22 @@ const prevImageMenuButton = htmx.find(
 const moreInfoButton = htmx.find(
   ".navigation--more-info",
 ) as HTMLElement | null;
+const offlineSVG = htmx.find("#offline") as HTMLElement | null;
 
 let requestInFlight = false;
 
 /**
  * Initialize Kiosk functionality
- * Sets up debugging, screensaver prevention, service worker registration,
- * fullscreen capability, polling, menu and event listeners
+ * @description Sets up kiosk by configuring:
+ * - Debug logging if verbose mode enabled
+ * - Clock display
+ * - Screen sleep prevention
+ * - Service worker registration
+ * - Fullscreen capability
+ * - Image polling
+ * - Navigation menu
+ * - Event listeners
+ * @returns Promise<void>
  */
 async function init(): Promise<void> {
   if (kioskData.debugVerbose) {
@@ -141,7 +163,7 @@ async function init(): Promise<void> {
 
 /**
  * Handler for fullscreen button clicks
- * Toggles fullscreen mode for the document body
+ * @description Toggles fullscreen mode for the document body using the fullscreen API
  */
 function handleFullscreenClick(): void {
   toggleFullscreen(documentBody, fullscreenButton);
@@ -149,9 +171,10 @@ function handleFullscreenClick(): void {
 
 /**
  * Handle 'i' key press events
- * Controls polling and image overlay states based on current document status
- * @description If both polling is paused and more info is shown, resumes polling and hides overlay.
- * Otherwise, ensures polling is paused and toggles the overlay visibility.
+ * @description Controls polling and image overlay states:
+ * - If polling is paused and overlay shown: resumes polling and hides overlay
+ * - Otherwise: ensures polling is paused and toggles overlay visibility
+ * This allows for synchronized control of polling and overlay display
  */
 function handleInfoKeyPress(): void {
   const isPollingPaused = document.body.classList.contains("polling-paused");
@@ -170,11 +193,13 @@ function handleInfoKeyPress(): void {
 
 /**
  * Add event listeners to Kiosk elements
- * Sets up listeners for:
- * - Menu interaction and polling control
- * - Fullscreen functionality
- * - Navigation between images
- * - Server connection status monitoring
+ * @description Configures interactive behavior by setting up:
+ * - Menu click handlers for polling control
+ * - Keyboard shortcuts (space and 'i' keys)
+ * - Fullscreen toggle functionality
+ * - Image overlay controls
+ * - HTMX error handling for offline states
+ * - Server connectivity monitoring
  */
 function addEventListeners(): void {
   // Pause/resume polling and show/hide menu
@@ -202,10 +227,20 @@ function addEventListeners(): void {
   // More info overlay
   moreInfoButton?.addEventListener("click", () => toggleImageOverlay());
 
+  // Unable to send ajax. probably offline.
+  htmx.on("htmx:sendError", () => {
+    releaseRequestLock();
+
+    if (!offlineSVG) {
+      console.error("offline svg missing");
+      return;
+    }
+
+    htmx.addClass(offlineSVG, "offline");
+  });
+
   // Server online check. Fires after every AJAX request.
   htmx.on("htmx:afterRequest", function (e: HTMXEvent) {
-    const offlineSVG = htmx.find("#offline");
-
     if (!offlineSVG) {
       console.error("offline svg missing");
       return;
@@ -220,21 +255,36 @@ function addEventListeners(): void {
 }
 
 /**
- * Remove first frame from the DOM when there are more than 3 frames
- * Used to prevent memory issues from accumulating frames
+ * Remove first frame from the DOM when there are more than maxFrames
+ * @description Manages frame count to prevent memory issues:
+ * - Checks current number of frames in DOM
+ * - Removes oldest frame if count exceeds maxFrames limit
+ * This helps maintain smooth transitions while preventing memory bloat
  */
-function cleanupFrames(): void {
+async function cleanupFrames(): Promise<void> {
   const frames = htmx.findAll(".frame");
-  if (frames.length > MAX_FRAME) {
-    htmx.remove(frames[0]);
+  if (!frames?.length) {
+    console.debug("No frames found to clean up");
+    return;
+  }
+
+  if (frames.length > maxFrames) {
+    try {
+      htmx.remove(frames[0]);
+    } catch (error) {
+      console.error("Failed to remove frame:", error);
+    }
   }
 }
 
 /**
  * Sets a lock to prevent concurrent requests
  * @param e - Event object that triggered the request
- * @description Prevents multiple simultaneous requests by checking and setting a lock flag.
- * Also pauses polling and disables navigation buttons while request is in flight.
+ * @description Request management that:
+ * - Prevents multiple simultaneous requests
+ * - Pauses polling during request processing
+ * - Disables navigation controls
+ * - Sets request lock flag
  */
 function setRequestLock(e: HTMXEvent): void {
   if (requestInFlight) {
@@ -251,8 +301,10 @@ function setRequestLock(e: HTMXEvent): void {
 
 /**
  * Releases the request lock after a request completes
- * @description Re-enables navigation buttons and marks request as complete by unsetting
- * the requestInFlight flag.
+ * @description Request cleanup that:
+ * - Re-enables navigation controls
+ * - Clears request lock flag
+ * This restores normal kiosk operation after request processing
  */
 function releaseRequestLock(): void {
   enableImageNavigationButtons();
@@ -263,8 +315,10 @@ function releaseRequestLock(): void {
 /**
  * Checks if there are enough history entries to navigate back
  * @param e - Event object for the history navigation request
- * @description Prevents navigation when there is an active request or insufficient history.
- * If navigation is allowed, sets the request lock.
+ * @description Navigation safety check that:
+ * - Verifies sufficient history depth exists
+ * - Prevents navigation during active requests
+ * - Sets request lock if navigation is allowed
  */
 function checkHistoryExists(e: HTMXEvent): void {
   const historyItems = htmx.findAll(".kiosk-history--entry");
@@ -299,5 +353,6 @@ export {
   setRequestLock,
   releaseRequestLock,
   checkHistoryExists,
+  handleNewFrame,
   clientData,
 };

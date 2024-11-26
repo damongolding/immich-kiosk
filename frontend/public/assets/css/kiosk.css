@@ -171,45 +171,6 @@ body {
   will-change: opacity;
   z-index: 0;
 }
-#kiosk.htmx-swapping {
-  opacity: 0;
-  -moz-transition: opacity 1s ease-out;
-  transition: opacity 1s ease-out;
-  will-change: opacity;
-}
-@-webkit-keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@-moz-keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-.crossfade .frame {
-  -webkit-animation-name: fade-in;
-     -moz-animation-name: fade-in;
-          animation-name: fade-in;
-  -webkit-animation-fill-mode: forwards;
-     -moz-animation-fill-mode: forwards;
-          animation-fill-mode: forwards;
-  opacity: 0;
-}
 
 /* src/css/spinner.css */
 .kiosk--spinner {
@@ -369,6 +330,52 @@ body {
   -webkit-align-items: center;
      -moz-box-align: center;
           align-items: center;
+}
+.transition-none .frame {
+  visibility: hidden;
+}
+.transition-none .frame.loaded {
+    visibility: visible;
+  }
+#kiosk.htmx-swapping {
+  opacity: 0;
+  -moz-transition: opacity 1s ease-out;
+  transition: opacity 1s ease-out;
+  will-change: opacity;
+}
+@-webkit-keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@-moz-keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.transition-cross-fade .frame {
+  -webkit-animation-name: fade-in;
+     -moz-animation-name: fade-in;
+          animation-name: fade-in;
+  -webkit-animation-fill-mode: forwards;
+     -moz-animation-fill-mode: forwards;
+          animation-fill-mode: forwards;
+  opacity: 0;
+  will-change: opacity;
 }
 
 /* src/css/image.css */
@@ -1177,7 +1184,6 @@ body {
      -moz-box-orient: vertical;
      -moz-box-direction: normal;
           flex-direction: column;
-  gap: 0.1rem;
   font-size: 1rem;
   z-index: 1;
 }

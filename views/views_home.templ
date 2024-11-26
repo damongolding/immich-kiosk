@@ -21,7 +21,7 @@ templ spinner() {
 func crossFadeDurationCSS(crossFadeDuration float32) string {
 	return fmt.Sprintf(`
 	    <style>
-			.crossfade .frame {
+			.transition-cross-fade .frame {
                 animation-duration: %.1fs;
             }
 		</style>
@@ -254,8 +254,8 @@ templ body(viewData ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap="beforeend"
+				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 				hx-vals="js:{...kiosk.clientData()}"
-				class={ "crossfade", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
 				{ children... }
@@ -264,8 +264,8 @@ templ body(viewData ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration) }
+				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 				hx-vals="js:{...kiosk.clientData()}"
-				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
 				{ children... }
@@ -273,9 +273,10 @@ templ body(viewData ViewData) {
 		default:
 			<body
 				hx-headers={ headerStr }
+				hx-swap="beforeend"
+				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 				hx-swap="innerHTML"
 				hx-vals="js:{...kiosk.clientData()}"
-				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				{ children... }
 			</body>
@@ -345,9 +346,9 @@ templ Home(viewData ViewData) {
         		  keyup[key=='ArrowRight'] from:body throttle:1s,
         		  kiosk-new-image throttle:1s
           		"
-				hx-on::before-request="kiosk.setRequestLock(event)"
+				hx-on::before-send="kiosk.setRequestLock(event)"
 				hx-on::after-request="kiosk.startPolling()"
-				hx-on::after-swap="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
+				hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.handleNewFrame(this)"
 			>
 				@spinner()
 			</main>
@@ -385,6 +386,7 @@ templ Home(viewData ViewData) {
 				"dateFormat":         utils.DateToJavascriptLayout(viewData.DateFormat),
 				"showTime":           viewData.ShowTime,
 				"timeFormat":         viewData.TimeFormat,
+				"transition":         viewData.Transition,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			if len(viewData.Queries) > 0 {

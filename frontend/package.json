@@ -5,7 +5,7 @@
   "main": "src/kiosk.ts",
   "scripts": {
     "lint": "pnpm exec eslint ./public/assets/js/kiosk.js",
-    "js": "pnpm exec esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --minify --target=es6 --outfile=./public/assets/js/kiosk.js ",
+    "js": "pnpm exec esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --minify --target=es6 --outfile=./public/assets/js/kiosk.js",
     "css": "pnpm exec esbuild --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css && pnpm css:postcss",
     "css:postcss": "postcss ./public/assets/css/kiosk.css --no-map -o ./public/assets/css/kiosk.css",
     "build": "pnpm test && pnpm css && pnpm js ",
