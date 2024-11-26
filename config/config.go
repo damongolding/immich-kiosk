@@ -106,6 +106,14 @@ type Webhook struct {
 	Event string `json:"event" mapstructure:"event"`
 }
 
+// ClientData represents the client-specific dimensions received from the frontend.
+type ClientData struct {
+	// Width represents the client's viewport width in pixels
+	Width int `json:"client_width" query:"client_width" form:"client_width"`
+	// Height represents the client's viewport height in pixels
+	Height int `json:"client_height" query:"client_height" form:"client_height"`
+}
+
 // Config represents the main configuration structure for the Immich Kiosk application.
 // It contains all the settings that control the behavior and appearance of the kiosk,
 // including connection details, display options, image settings, and various feature toggles.
@@ -222,12 +230,17 @@ type Config struct {
 	// HasWeatherDefault indicates whether any weather location has been set as the default.
 	HasWeatherDefault bool `json:"-" default:"false"`
 
+	// OptimizeImages tells Kiosk to optimize imahes
+	OptimizeImages bool `json:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
+
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
 	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `json:"kiosk" mapstructure:"kiosk"`
 
+	// ClientData data sent from the client with data regarding itself
+	ClientData ClientData
 	// History past shown images
 	History []string `json:"history" form:"history" default:"[]"`
 }

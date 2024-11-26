@@ -12,6 +12,7 @@ import (
 
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
+	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
 	"github.com/damongolding/immich-kiosk/webhooks"
 )
@@ -78,12 +79,17 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 					return fmt.Errorf("retrieving image: %w", err)
 				}
 
-				img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, "Converted", false)
+				img, err := utils.BytesToImage(imgBytes)
+				if err != nil {
+					return err
+				}
+
+				imgString, err := imageToBase64(img, requestConfig, requestID, kioskDeviceID, "Converted", false)
 				if err != nil {
 					return fmt.Errorf("converting image to base64: %w", err)
 				}
 
-				imgBlur, err := processBlurredImage(imgBytes, requestConfig, requestID, kioskDeviceID, false)
+				imgBlurString, err := processBlurredImage(img, requestConfig, requestID, kioskDeviceID, false)
 				if err != nil {
 					return fmt.Errorf("converting blurred image to base64: %w", err)
 				}
@@ -92,8 +98,8 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 
 				ViewData.Images[i] = views.ImageData{
 					ImmichImage:   image,
-					ImageData:     img,
-					ImageBlurData: imgBlur,
+					ImageData:     imgString,
+					ImageBlurData: imgBlurString,
 				}
 				return nil
 			})
