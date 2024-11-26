@@ -115,14 +115,16 @@ async function init(): Promise<void> {
     htmx.logAll();
   }
 
-  maxFrames = kioskData.transition === "cross-fade" ? 3 : maxFrames;
 
-  initClock(
-    kioskData.showDate,
-    kioskData.dateFormat,
-    kioskData.showTime,
-    kioskData.timeFormat,
-  );
+  if (kioskData.showDate || kioskData.showTime) {
+    initClock(
+      kioskData.showDate,
+      kioskData.dateFormat,
+      kioskData.showTime,
+      kioskData.timeFormat,
+    );
+  }
+
 
   if (kioskData.disableScreensaver) {
     await preventSleep();
