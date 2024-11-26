@@ -54,7 +54,7 @@ type Redirect struct {
 	Name string `mapstructure:"name"`
 	// URL is the destination address for the redirect
 	URL string `mapstructure:"url"`
-	// Type
+	// Type specifies the redirect behaviour (e.g., "internal", "external")
 	Type string `mapstructure:"type"`
 }
 
@@ -529,15 +529,11 @@ func (c *Config) checkRedirects() {
 		seen[r.Name] = true
 
 		if strings.HasPrefix(r.URL, "?") {
-			redirects[r.Name] = Redirect{
-				URL:  "/" + r.URL,
-				Type: r.Type,
-			}
-		} else {
-			redirects[r.Name] = Redirect{
-				URL:  r.URL,
-				Type: r.Type,
-			}
+			r.URL = "/" + r.URL
+		}
+		redirects[r.Name] = Redirect{
+			URL:  r.URL,
+			Type: r.Type,
 		}
 
 		if c.Kiosk.Debug {
