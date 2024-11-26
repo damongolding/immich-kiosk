@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"bytes"
 	"fmt"
+	"image"
 	"net/http"
 	"strings"
 	"time"
@@ -13,7 +13,6 @@ import (
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
 	"github.com/damongolding/immich-kiosk/webhooks"
-	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 	"github.com/labstack/echo/v4"
 	"github.com/patrickmn/go-cache"
@@ -108,11 +107,17 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 
 // fetchImagePreview retrieves the preview of an image and logs the time taken.
 // It returns the image bytes and an error if any occurs.
-func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, kioskDeviceID string, isPrefetch bool) ([]byte, error) {
+func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, kioskDeviceID string, isPrefetch bool) (image.Image, error) {
 	imageGet := time.Now()
+
 	imgBytes, err := immichImage.ImagePreview()
 	if err != nil {
 		return nil, fmt.Errorf("getting image preview: %w", err)
+	}
+
+	img, err := utils.BytesToImage(imgBytes)
+	if err != nil {
+		return nil, err
 	}
 
 	if isPrefetch {
@@ -121,12 +126,12 @@ func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, kioskDeviceID
 		log.Debug(requestID, "Got image in", time.Since(imageGet).Seconds())
 	}
 
-	return imgBytes, nil
+	return img, nil
 }
 
 // processImage handles the entire process of selecting and retrieving an image.
 // It returns the image bytes and an error if any step fails.
-func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID string, kioskDeviceID string, isPrefetch bool) ([]byte, error) {
+func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID string, kioskDeviceID string, isPrefetch bool) (image.Image, error) {
 
 	peopleAndAlbums, err := gatherPeopleAndAlbums(immichImage, requestConfig, requestID)
 	if err != nil {
@@ -144,33 +149,34 @@ func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, 
 
 // imageToBase64 converts image bytes to a base64 string and logs the processing time.
 // It returns the base64 string and an error if conversion fails.
-func imageToBase64(imgBytes []byte, config config.Config, requestID, kioskDeviceID string, action string, isPrefetch bool) (string, error) {
+func imageToBase64(img image.Image, config config.Config, requestID, kioskDeviceID string, action string, isPrefetch bool) (string, error) {
 	startTime := time.Now()
-	img, err := utils.ImageToBase64(imgBytes)
+
+	imgBytes, err := utils.ImageToBase64(img)
 	if err != nil {
 		return "", fmt.Errorf("converting image to base64: %w", err)
 	}
 
 	logImageProcessing(config, requestID, kioskDeviceID, isPrefetch, action, startTime)
-	return img, nil
+	return imgBytes, nil
 }
 
 // processBlurredImage applies a blur effect to the image if required by the configuration.
 // It returns the blurred image as a base64 string and an error if any occurs.
-func processBlurredImage(imgBytes []byte, config config.Config, requestID, kioskDeviceID string, isPrefetch bool) (string, error) {
+func processBlurredImage(img image.Image, config config.Config, requestID, kioskDeviceID string, isPrefetch bool) (string, error) {
 	if !config.BackgroundBlur || strings.EqualFold(config.ImageFit, "cover") || (config.ImageEffect != "" && config.ImageEffect != "none") {
 		return "", nil
 	}
 
 	startTime := time.Now()
-	imgBlurBytes, err := utils.BlurImage(imgBytes)
+	imgBlur, err := utils.BlurImage(img, config.OptimizeImages, config.ClientData)
 	if err != nil {
 		return "", fmt.Errorf("blurring image: %w", err)
 	}
 
 	logImageProcessing(config, requestID, kioskDeviceID, isPrefetch, "Blurred", startTime)
 
-	return imageToBase64(imgBlurBytes, config, requestID, kioskDeviceID, "Coverted blurred", isPrefetch)
+	return imageToBase64(imgBlur, config, requestID, kioskDeviceID, "Coverted blurred", isPrefetch)
 }
 
 // logImageProcessing logs the time taken for image processing if debug verbose is enabled.
@@ -194,17 +200,11 @@ func trimHistory(history *[]string, maxLength int) {
 	}
 }
 
-func DrawFaceOnImage(imgBytes []byte, i *immich.ImmichAsset) []byte {
+func DrawFaceOnImage(img image.Image, i *immich.ImmichAsset) image.Image {
 
 	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
 		log.Debug("no people found")
-		return imgBytes
-	}
-
-	img, err := imaging.Decode(bytes.NewReader(imgBytes))
-	if err != nil {
-		log.Error("could not decode image", "err", err)
-		return imgBytes
+		return img
 	}
 
 	dc := gg.NewContext(img.Bounds().Dx(), img.Bounds().Dy())
@@ -236,17 +236,8 @@ func DrawFaceOnImage(imgBytes []byte, i *immich.ImmichAsset) []byte {
 	dc.SetHexColor("#889900")
 	dc.Fill()
 
-	out := dc.Image()
+	return dc.Image()
 
-	buf := new(bytes.Buffer)
-
-	err = imaging.Encode(buf, out, imaging.JPEG)
-	if err != nil {
-		log.Error("Error encodeing image:", err)
-		return imgBytes
-	}
-
-	return buf.Bytes()
 }
 
 // processViewImageData handles the entire process of preparing page data including image processing.
@@ -264,7 +255,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		immichImage.RatioWanted = imageOrientation
 	}
 
-	imgBytes, err := processImage(&immichImage, requestConfig, requestID, kioskDeviceID, isPrefetch)
+	img, err := processImage(&immichImage, requestConfig, requestID, kioskDeviceID, isPrefetch)
 	if err != nil {
 		return views.ImageData{}, fmt.Errorf("selecting image: %w", err)
 	}
@@ -275,23 +266,30 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 
 	if ShouldDrawFacesOnImages() {
 		log.Debug("Drawing faces")
-		imgBytes = DrawFaceOnImage(imgBytes, &immichImage)
+		img = DrawFaceOnImage(img, &immichImage)
 	}
 
-	img, err := imageToBase64(imgBytes, requestConfig, requestID, kioskDeviceID, "Converted", isPrefetch)
+	if requestConfig.OptimizeImages {
+		img, err = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
+		if err != nil {
+			return views.ImageData{}, err
+		}
+	}
+
+	imgString, err := imageToBase64(img, requestConfig, requestID, kioskDeviceID, "Converted", isPrefetch)
 	if err != nil {
 		return views.ImageData{}, err
 	}
 
-	imgBlur, err := processBlurredImage(imgBytes, requestConfig, requestID, kioskDeviceID, isPrefetch)
+	imgBlurString, err := processBlurredImage(img, requestConfig, requestID, kioskDeviceID, isPrefetch)
 	if err != nil {
 		return views.ImageData{}, err
 	}
 
 	return views.ImageData{
 		ImmichImage:   immichImage,
-		ImageData:     img,
-		ImageBlurData: imgBlur,
+		ImageData:     imgString,
+		ImageBlurData: imgBlurString,
 	}, nil
 }
 

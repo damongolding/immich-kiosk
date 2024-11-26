@@ -36,11 +36,21 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/config"
 	"github.com/disintegration/imaging"
 
 	"github.com/google/uuid"
 
 	"github.com/skip2/go-qrcode"
+)
+
+const (
+	// SigmaBase is the base value for calculating Gaussian blur sigma.
+	// This value was determined through empirical testing to provide optimal blur results.
+	SigmaBase = 10
+	// SigmaConstant is used to normalise the blur effect across different image sizes.
+	// The value 1300.0 was chosen as it provides consistent blur effects for typical screen resolutions.
+	SigmaConstant = 1300.0
 )
 
 // WeightedAsset represents an asset with a type and ID
@@ -55,7 +65,7 @@ type AssetWithWeighting struct {
 	Weight int
 }
 
-// GenerateUUID generates as UUID
+// GenerateUUID generates a new random UUID string
 func GenerateUUID() string {
 	return uuid.New().String()
 }
@@ -90,63 +100,14 @@ func DateToJavascriptLayout(input string) string {
 	return replacer.Replace(input)
 }
 
-// ImageToBase64 converts image bytes into a base64 string
-func ImageToBase64(imgBtyes []byte) (string, error) {
+// ImageToBytes converts an image.Image to a byte slice in JPEG format.
+// It takes an image.Image as input and returns the encoded bytes and any error encountered.
+// The bytes can be used for further processing, transmission, or storage.
+func ImageToBytes(img image.Image) ([]byte, error) {
 
-	var base64Encoding string
-
-	mimeType := http.DetectContentType(imgBtyes)
-
-	base64Encoding += fmt.Sprintf("data:%s;base64,", mimeType)
-
-	base64Encoding += base64.StdEncoding.EncodeToString(imgBtyes)
-
-	return base64Encoding, nil
-}
-
-// getImageFormat retrieve format a.k.a name from decode config
-func getImageFormat(r io.Reader) (string, error) {
-	_, format, err := image.DecodeConfig(r)
-	return format, err
-}
-
-// getImageMimeType Get image mime type (gif/jpeg/png/webp)
-func getImageMimeType(r io.Reader) string {
-	format, _ := getImageFormat(r)
-	if format == "" {
-		return ""
-	}
-	return mime.TypeByExtension("." + format)
-}
-
-// BlurImage converts image bytes into a blurred base64 string
-func BlurImage(imgBytes []byte) ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	var img image.Image
-	var err error
-
-	imageMime := getImageMimeType(bytes.NewReader(imgBytes))
-
-	switch imageMime {
-	case "image/webp":
-		img, err = webp.Decode(bytes.NewReader(imgBytes))
-		if err != nil {
-			log.Error("could not decode image", "image mime type", imageMime, "err", err)
-			return buf.Bytes(), err
-		}
-	default:
-		img, err = imaging.Decode(bytes.NewReader(imgBytes))
-		if err != nil {
-			log.Error("could not decode image", "image mime type", imageMime, "err", err)
-			return buf.Bytes(), err
-		}
-	}
-
-	blurredImg := imaging.Blur(img, 20)
-	blurredImg = imaging.AdjustBrightness(blurredImg, -20)
-
-	err = imaging.Encode(buf, blurredImg, imaging.JPEG)
+	err := imaging.Encode(buf, img, imaging.JPEG)
 	if err != nil {
 		return buf.Bytes(), err
 	}
@@ -154,8 +115,107 @@ func BlurImage(imgBytes []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// CombineQueries combine URL.Query() and Referer() queries
-// NOTE: Referer queries will overwrite URL queries
+// BytesToImage converts a byte slice to an image.Image.
+// It takes a byte slice as input and returns an image.Image and any error encountered.
+// It handles both WebP and other common image formats (JPEG, PNG, GIF) automatically
+// by detecting the MIME type and using the appropriate decoder.
+func BytesToImage(imgBytes []byte) (image.Image, error) {
+
+	var img image.Image
+	var err error
+
+	imageMime := GetImageMimeType(bytes.NewReader(imgBytes))
+
+	switch imageMime {
+	case "image/webp":
+		img, err = webp.Decode(bytes.NewReader(imgBytes))
+		if err != nil {
+			log.Error("could not decode image", "image mime type", imageMime, "err", err)
+			return nil, err
+		}
+	default:
+		img, err = imaging.Decode(bytes.NewReader(imgBytes))
+		if err != nil {
+			log.Error("could not decode image", "image mime type", imageMime, "err", err)
+			return nil, err
+		}
+	}
+
+	return img, nil
+}
+
+// ImageToBase64 converts an image.Image to a base64 encoded data URI string with appropriate MIME type
+func ImageToBase64(img image.Image) (string, error) {
+
+	var buf bytes.Buffer
+
+	err := imaging.Encode(&buf, img, imaging.JPEG)
+	if err != nil {
+		return "", err
+	}
+
+	var base64Encoding string
+
+	mimeType := http.DetectContentType(buf.Bytes())
+
+	base64Encoding += fmt.Sprintf("data:%s;base64,", mimeType)
+
+	base64Encoding += base64.StdEncoding.EncodeToString(buf.Bytes())
+
+	return base64Encoding, nil
+}
+
+// BytesToBase64 converts a byte slice to a base64 encoded string with MIME type prefix.
+// It takes a byte slice representing an image and returns a data URI string suitable
+// for use in HTML/CSS, such as "data:image/jpeg;base64,/9j/4AAQSkZJ...".
+// The function detects the MIME type of the image automatically.
+func BytesToBase64(imgBytes []byte) (string, error) {
+	var base64Encoding string
+
+	mimeType := http.DetectContentType(imgBytes)
+
+	base64Encoding += fmt.Sprintf("data:%s;base64,", mimeType)
+
+	base64Encoding += base64.StdEncoding.EncodeToString(imgBytes)
+
+	return base64Encoding, nil
+}
+
+// getImageFormat retrieves the format name from the image decode config
+func getImageFormat(r io.Reader) (string, error) {
+	_, format, err := image.DecodeConfig(r)
+	return format, err
+}
+
+// GetImageMimeType returns the MIME type (gif/jpeg/png/webp) for an image reader
+func GetImageMimeType(r io.Reader) string {
+	format, _ := getImageFormat(r)
+	if format == "" {
+		return ""
+	}
+	return mime.TypeByExtension("." + format)
+}
+
+// BlurImage applies a Gaussian blur to an image with normalized sigma based on image dimensions.
+// It can optionally resize the image first based on client data dimensions.
+func BlurImage(img image.Image, isOptimized bool, clientData config.ClientData) (image.Image, error) {
+
+	blurredImage := img
+
+	if clientData.Width != 0 && clientData.Height != 0 && !isOptimized {
+		blurredImage = imaging.Fit(blurredImage, clientData.Width, clientData.Height, imaging.Lanczos)
+	}
+
+	sigma := calculateNormalizedSigma(SigmaBase, blurredImage.Bounds().Dx(), blurredImage.Bounds().Dy(), SigmaConstant)
+
+	blurredImage = imaging.Blur(blurredImage, sigma)
+	blurredImage = imaging.AdjustBrightness(blurredImage, -20)
+
+	return blurredImage, nil
+}
+
+// CombineQueries combines URL.Query() and Referer() queries into a single url.Values.
+// Referer query parameters will overwrite URL query parameters with the same names.
 func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error) {
 
 	queries := urlQueries
@@ -174,10 +234,10 @@ func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error
 	}
 
 	return queries, nil
-
 }
 
-// RandomItem returns a random item from given slice
+// RandomItem returns a random item from the given slice.
+// Returns the zero value of type T if the slice is empty.
 func RandomItem[T any](s []T) T {
 
 	var out T
@@ -248,8 +308,8 @@ type Color struct {
 	Hex string
 }
 
-// StringToColor takes any string and returns a Color struct.
-// Identical strings should return identical values
+// StringToColor takes any string and returns a Color struct with deterministic RGB values.
+// Identical input strings will always return identical color values.
 func StringToColor(inputString string) Color {
 	sum := 0
 	for _, char := range inputString {
@@ -289,7 +349,7 @@ func ColorizeRequestId(requestID string) string {
 	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestID)
 }
 
-// calculateContrastRatio computes the contrast ratio between two RGB colors.
+// calculateContrastRatio computes the contrast ratio between two RGB colors according to WCAG 2.0.
 func calculateContrastRatio(color1, color2 Color) float64 {
 	lum1 := calculateLuminance(color1)
 	lum2 := calculateLuminance(color2)
@@ -300,7 +360,7 @@ func calculateContrastRatio(color1, color2 Color) float64 {
 	return (lum2 + 0.05) / (lum1 + 0.05)
 }
 
-// calculateLuminance calculates the relative luminance of an RGB color.
+// calculateLuminance calculates the relative luminance of an RGB color according to WCAG 2.0.
 func calculateLuminance(color Color) float64 {
 	r := linearize(float64(color.R) / 255.0)
 	g := linearize(float64(color.G) / 255.0)
@@ -309,7 +369,7 @@ func calculateLuminance(color Color) float64 {
 	return 0.2126*r + 0.7152*g + 0.0722*b
 }
 
-// linearize converts an sRGB component to a linear value.
+// linearize converts an sRGB component to a linear value according to the sRGB color space specification.
 func linearize(value float64) float64 {
 	if value <= 0.03928 {
 		return value / 12.92
@@ -437,13 +497,14 @@ func IsSleepTime(sleepStartTime, sleepEndTime string, currentTime time.Time) (bo
 		currentTime.Before(endTime), nil
 }
 
-// FileExists checks if a file exists at the specified path
+// FileExists checks if a file exists at the specified path and returns true if it does
 func FileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	return !os.IsNotExist(err)
 }
 
-// CreateQrCode generates a QR code for the given link and returns it as a base64 encoded string
+// CreateQrCode generates a QR code for the given link and returns it as a base64 encoded string.
+// Returns an empty string and logs an error if generation fails.
 func CreateQrCode(link string) string {
 
 	if link == "" {
@@ -462,7 +523,7 @@ func CreateQrCode(link string) string {
 		return ""
 	}
 
-	i, err := ImageToBase64(png)
+	i, err := BytesToBase64(png)
 	if err != nil {
 		log.Error("QR code base64 encoding failed", "link", link, "err", err)
 		return ""
@@ -471,7 +532,7 @@ func CreateQrCode(link string) string {
 	return i
 }
 
-// generateSharedSecret generates a random 256-bit (32-byte) secret.
+// GenerateSharedSecret generates a random 256-bit (32-byte) secret and returns it as a hex string.
 func GenerateSharedSecret() (string, error) {
 	secret := make([]byte, 32)
 	_, err := crand.Read(secret)
@@ -481,21 +542,21 @@ func GenerateSharedSecret() (string, error) {
 	return hex.EncodeToString(secret), nil
 }
 
-// calculateSignature generates an HMAC-SHA256 signature
+// CalculateSignature generates an HMAC-SHA256 signature for the given secret and timestamp
 func CalculateSignature(secret, timestamp string) string {
 	h := hmac.New(sha256.New, []byte(secret))
 	h.Write([]byte(timestamp))
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// IsValidSignature performs a constant-time comparison of two signatures
+// IsValidSignature performs a constant-time comparison of two signatures to prevent timing attacks
 func IsValidSignature(receivedSignature, calculatedSignature string) bool {
 	received, _ := hex.DecodeString(receivedSignature)
 	calculated, _ := hex.DecodeString(calculatedSignature)
 	return hmac.Equal(received, calculated)
 }
 
-// IsValidTimestamp validates the timestamp to prevent replay attacks
+// IsValidTimestamp validates if a timestamp is within the acceptable tolerance window
 func IsValidTimestamp(receivedTimestamp string, toleranceSeconds int) bool {
 	ts, err := strconv.ParseInt(receivedTimestamp, 10, 64)
 	if err != nil {
@@ -511,4 +572,28 @@ func abs(x int64) int64 {
 		return -x
 	}
 	return x
+}
+
+// OptimizeImage resizes an image to the specified dimensions while maintaining aspect ratio.
+// If width or height is 0, the image is returned unmodified.
+func OptimizeImage(img image.Image, width, height int) (image.Image, error) {
+
+	optimizedImage := img
+
+	if width != 0 && height != 0 {
+		optimizedImage = imaging.Fit(img, width, height, imaging.Lanczos)
+	}
+
+	return optimizedImage, nil
+}
+
+// calculateNormalizedSigma calculates a normalized sigma value for Gaussian blur based on image dimensions.
+// The formula uses the diagonal length of the image (sqrt(width² + height²)) to adjust the blur intensity,
+// ensuring consistent visual effects across different image sizes. The constant value helps maintain
+// a balanced blur effect for typical screen resolutions.
+//
+// The formula is: sigma = baseSigma * sqrt(width² + height²) / constant
+func calculateNormalizedSigma(baseSigma float64, width, height int, constant float64) float64 {
+	diagonal := math.Sqrt(float64(width*width + height*height))
+	return baseSigma * diagonal / constant
 }

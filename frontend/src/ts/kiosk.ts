@@ -276,6 +276,18 @@ function checkHistoryExists(e: HTMXEvent): void {
   setRequestLock(e);
 }
 
+type BrowserData = {
+  client_width: number;
+  client_height: number;
+};
+
+function clientData(): BrowserData {
+  return {
+    client_width: window.innerWidth,
+    client_height: window.innerHeight,
+  };
+}
+
 // Initialize Kiosk when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
   init();
@@ -287,4 +299,5 @@ export {
   setRequestLock,
   releaseRequestLock,
   checkHistoryExists,
+  clientData,
 };
