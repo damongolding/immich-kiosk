@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/labstack/echo/v4"
 )
@@ -24,14 +23,21 @@ type RedirectPath struct {
 // The function returns a temporary (307) redirect in both cases.
 func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
-	maxRedirects := 10
+	const (
+		maxRedirects        = 10
+		redirectCountHeader = "X-Redirect-Count"
+	)
 
 	return func(c echo.Context) error {
 
-		redirectCount := c.Request().Header.Get("X-Redirect-Count")
+		redirectCount := c.Request().Header.Get(redirectCountHeader)
 		count := 0
 		if redirectCount != "" {
-			count, _ = strconv.Atoi(redirectCount)
+			var err error
+			count, err = strconv.Atoi(redirectCount)
+			if err != nil {
+				count = 0
+			}
 		}
 
 		// Check if maximum redirects exceeded
@@ -41,32 +47,31 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
 		var r RedirectPath
 		if err := c.Bind(&r); err != nil {
-			return err
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid redirect request")
+		}
+
+		if r.RedirectName == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "Redirect name is required")
 		}
 
 		if redirectItem, exists := baseConfig.Kiosk.RedirectsMap[r.RedirectName]; exists {
-
 			if strings.EqualFold(redirectItem.Type, "internal") {
-
-				log.Info("INTERNAL")
 
 				parsedUrl, err := url.Parse(redirectItem.URL)
 				if err != nil {
-					return err
+					return echo.NewHTTPError(http.StatusInternalServerError, "Invalid redirect URL")
 				}
 
-				params := parsedUrl.Query()
-				for key, values := range params {
-					for _, value := range values {
-						c.QueryParams().Add(key, value)
-					}
+				for key, values := range parsedUrl.Query() {
+					c.QueryParams().Set(key, values[0])
 				}
 
 				return Home(baseConfig)(c)
 
 			}
 
-			c.Response().Header().Set("X-Redirect-Count", strconv.Itoa(count+1))
+			c.Response().Header().Set(redirectCountHeader, strconv.Itoa(count+1))
+
 			return c.Redirect(http.StatusTemporaryRedirect, redirectItem.URL)
 		}
 
