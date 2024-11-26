@@ -263,8 +263,17 @@ function addEventListeners(): void {
  */
 async function cleanupFrames(): Promise<void> {
   const frames = htmx.findAll(".frame");
+  if (!frames?.length) {
+    console.debug("No frames found to clean up");
+    return;
+  }
+
   if (frames.length > maxFrames) {
-    htmx.remove(frames[0]);
+    try {
+      htmx.remove(frames[0]);
+    } catch (error) {
+      console.error("Failed to remove frame:", error);
+    }
   }
 }
 

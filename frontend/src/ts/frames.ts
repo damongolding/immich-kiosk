@@ -16,7 +16,11 @@ interface ImageLoadResult {
  * @returns Promise that resolves when frame is handled
  * @throws No errors thrown, but logs warnings for missing frames or failed image loads
  */
-async function handleNewFrame(target: HTMLElement): Promise<void> {
+async function handleNewFrame(target: HTMLElement | null): Promise<void> {
+  if (!target) {
+    console.warn("Target element is null");
+    return;
+  }
   const frames: HTMLElement[] = target.classList.contains("frame")
     ? [target]
     : Array.from(target.querySelectorAll<HTMLElement>(".frame"));
