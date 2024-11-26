@@ -2,8 +2,11 @@ package routes
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/labstack/echo/v4"
 )
@@ -41,9 +44,30 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 			return err
 		}
 
-		if url, exists := baseConfig.Kiosk.RedirectsMap[r.RedirectName]; exists {
+		if redirectItem, exists := baseConfig.Kiosk.RedirectsMap[r.RedirectName]; exists {
+
+			if strings.EqualFold(redirectItem.Type, "internal") {
+
+				log.Info("INTERNAL")
+
+				parsedUrl, err := url.Parse(redirectItem.URL)
+				if err != nil {
+					return err
+				}
+
+				params := parsedUrl.Query()
+				for key, values := range params {
+					for _, value := range values {
+						c.QueryParams().Add(key, value)
+					}
+				}
+
+				return Home(baseConfig)(c)
+
+			}
+
 			c.Response().Header().Set("X-Redirect-Count", strconv.Itoa(count+1))
-			return c.Redirect(http.StatusTemporaryRedirect, url)
+			return c.Redirect(http.StatusTemporaryRedirect, redirectItem.URL)
 		}
 
 		return c.Redirect(http.StatusTemporaryRedirect, "/")

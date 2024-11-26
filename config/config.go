@@ -54,13 +54,15 @@ type Redirect struct {
 	Name string `mapstructure:"name"`
 	// URL is the destination address for the redirect
 	URL string `mapstructure:"url"`
+	// Type
+	Type string `mapstructure:"type"`
 }
 
 type KioskSettings struct {
 	// Redirects defines a list of URL redirections with friendly names
 	Redirects []Redirect `mapstructure:"redirects" default:"[]"`
 	//RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
-	RedirectsMap map[string]string `json:"-"`
+	RedirectsMap map[string]Redirect `json:"-"`
 
 	// Port which port to use
 	Port int `json:"port" mapstructure:"port" default:"3000"`
@@ -503,7 +505,7 @@ func (c *Config) checkFetchedAssetsSize() {
 // The function updates the Config's RedirectsMap field with valid redirects.
 // Invalid redirects are logged as warnings and excluded from the final map.
 func (c *Config) checkRedirects() {
-	redirects := make(map[string]string)
+	redirects := make(map[string]Redirect)
 	seen := make(map[string]bool)
 
 	for _, r := range c.Kiosk.Redirects {
@@ -527,14 +529,21 @@ func (c *Config) checkRedirects() {
 		seen[r.Name] = true
 
 		if strings.HasPrefix(r.URL, "?") {
-			redirects[r.Name] = "/" + r.URL
+			redirects[r.Name] = Redirect{
+				URL:  "/" + r.URL,
+				Type: r.Type,
+			}
 		} else {
-			redirects[r.Name] = r.URL
+			redirects[r.Name] = Redirect{
+				URL:  r.URL,
+				Type: r.Type,
+			}
 		}
 
 		if c.Kiosk.Debug {
 			log.Debug("Registered redirect", "name", r.Name, "url", r.URL)
 		}
+
 	}
 
 	for name, targetURL := range redirects {
@@ -546,7 +555,7 @@ func (c *Config) checkRedirects() {
 				log.Warn("Circular redirect detected",
 					"starting_point", name,
 					"current", current,
-					"url", targetURL)
+					"url", targetURL.URL)
 				delete(redirects, name)
 				break
 			}
@@ -554,8 +563,8 @@ func (c *Config) checkRedirects() {
 			visited[current] = true
 
 			// Check if the URL points to another internal redirect
-			if strings.HasPrefix(targetURL, "/") {
-				nextRedirect := strings.TrimPrefix(targetURL, "/")
+			if strings.HasPrefix(targetURL.URL, "/") {
+				nextRedirect := strings.TrimPrefix(targetURL.URL, "/")
 				nextURL, exists := redirects[nextRedirect]
 				if !exists {
 					break
