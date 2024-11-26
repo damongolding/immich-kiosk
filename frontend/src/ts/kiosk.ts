@@ -93,12 +93,14 @@ async function init(): Promise<void> {
     htmx.logAll();
   }
 
-  initClock(
-    kioskData.showDate,
-    kioskData.dateFormat,
-    kioskData.showTime,
-    kioskData.timeFormat,
-  );
+  if (kioskData.showDate || kioskData.showTime) {
+    initClock(
+      kioskData.showDate,
+      kioskData.dateFormat,
+      kioskData.showTime,
+      kioskData.timeFormat,
+    );
+  }
 
   if (kioskData.disableScreensaver) {
     await preventSleep();
