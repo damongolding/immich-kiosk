@@ -111,6 +111,7 @@ function initClock(
 
   const clock = new Clock(config);
   clock.start();
+  window.addEventListener("unload", () => clock.stop());
   return clock;
 }
 

@@ -254,7 +254,6 @@ templ RenderImageWithCoverFit(ImageData, imageFit string) {
 		class="frame--image-fit-cover"
 		src={ ImageData }
 		alt="Main image"
-		onload="kiosk.cleanupFrames()"
 	/>
 }
 
@@ -267,7 +266,6 @@ templ RenderImageWithoutFit(ImageData, imageFit string) {
 	<img
 		src={ ImageData }
 		alt="Main image"
-		onload="kiosk.cleanupFrames()"
 	/>
 }
 
@@ -281,7 +279,6 @@ templ RenderImageWithContainFit(ImageData, imageFit string) {
 		class="frame--image-fit-contain"
 		src={ ImageData }
 		alt="Main image"
-		onload="kiosk.cleanupFrames()"
 	/>
 }
 

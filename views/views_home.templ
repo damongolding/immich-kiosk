@@ -21,7 +21,7 @@ templ spinner() {
 func crossFadeDurationCSS(crossFadeDuration float32) string {
 	return fmt.Sprintf(`
 	    <style>
-			.crossfade .frame {
+			.transition-cross-fade .frame {
                 animation-duration: %.1fs;
             }
 		</style>
@@ -254,7 +254,7 @@ templ body(viewData ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap="beforeend"
-				class={ "crossfade", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
+				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
 				{ children... }
@@ -263,7 +263,7 @@ templ body(viewData ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration) }
-				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
+				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
 				{ children... }
@@ -272,7 +272,7 @@ templ body(viewData ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap="beforeend"
-				class={ fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
+				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 			>
 				{ children... }
 			</body>
@@ -344,7 +344,7 @@ templ Home(viewData ViewData) {
           		"
 				hx-on::before-send="kiosk.setRequestLock(event)"
 				hx-on::after-request="kiosk.startPolling()"
-				hx-on::after-swap="kiosk.releaseRequestLock()"
+				hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.handleNewFrame(this)"
 			>
 				@spinner()
 			</main>
