@@ -274,7 +274,7 @@ templ body(viewData ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap="beforeend"
-				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
+				class={ "transition-none", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
 				hx-swap="innerHTML"
 				hx-vals="js:{...kiosk.clientData()}"
 			>
