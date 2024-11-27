@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 	"net/url"
 	"path"
+	"slices"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/utils"
@@ -159,11 +160,13 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, kioskDeviceID str
 	return nil
 }
 
-func (i *ImmichAsset) RandomAlbumFromSharedAlbums(requestID string) (string, error) {
+func (i *ImmichAsset) RandomAlbumFromSharedAlbums(requestID string, excludedAlbums []string) (string, error) {
 	albums, err := i.allSharedAlbums(requestID)
 	if err != nil {
 		return "", err
 	}
+
+	albums.RemoveExcludedAlbums(excludedAlbums)
 
 	albumsWithWeighting := []utils.AssetWithWeighting{}
 
@@ -179,11 +182,13 @@ func (i *ImmichAsset) RandomAlbumFromSharedAlbums(requestID string) (string, err
 	return pickedAlbum.ID, nil
 }
 
-func (i *ImmichAsset) RandomAlbumFromAllAlbums(requestID string) (string, error) {
+func (i *ImmichAsset) RandomAlbumFromAllAlbums(requestID string, excludedAlbums []string) (string, error) {
 	albums, err := i.allAlbums(requestID)
 	if err != nil {
 		return "", err
 	}
+
+	albums.RemoveExcludedAlbums(excludedAlbums)
 
 	albumsWithWeighting := []utils.AssetWithWeighting{}
 
@@ -197,4 +202,25 @@ func (i *ImmichAsset) RandomAlbumFromAllAlbums(requestID string) (string, error)
 	pickedAlbum := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
 
 	return pickedAlbum.ID, nil
+}
+
+// RemoveExcludedAlbums filters out albums whose IDs are in the exclude slice.
+func (a *ImmichAlbums) RemoveExcludedAlbums(exclude []string) {
+	if len(exclude) == 0 {
+		return
+	}
+
+	// Create lookup map for O(1) performance
+	excludeMap := make(map[string]struct{}, len(exclude))
+	for _, id := range exclude {
+		excludeMap[id] = struct{}{}
+	}
+
+	albums := *a
+	withRemoved := slices.DeleteFunc(albums, func(album ImmichAlbum) bool {
+		_, excluded := excludeMap[album.ID]
+		return excluded
+	})
+
+	*a = withRemoved
 }
