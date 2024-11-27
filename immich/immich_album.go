@@ -167,6 +167,9 @@ func (i *ImmichAsset) RandomAlbumFromSharedAlbums(requestID string, excludedAlbu
 	}
 
 	albums.RemoveExcludedAlbums(excludedAlbums)
+	if len(albums) == 0 {
+		return "", fmt.Errorf("no albums available after applying exclusions")
+	}
 
 	albumsWithWeighting := []utils.AssetWithWeighting{}
 
@@ -189,6 +192,9 @@ func (i *ImmichAsset) RandomAlbumFromAllAlbums(requestID string, excludedAlbums 
 	}
 
 	albums.RemoveExcludedAlbums(excludedAlbums)
+	if len(albums) == 0 {
+		return "", fmt.Errorf("no albums available after applying exclusions")
+	}
 
 	albumsWithWeighting := []utils.AssetWithWeighting{}
 

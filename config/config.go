@@ -185,7 +185,7 @@ type Config struct {
 	Person []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
 	// Album ID of album(s) to display
 	Album          []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
-	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"excluded_albums" form:"excluded_album" default:"[]"`
+	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"excluded_albums" form:"excluded_albums" default:"[]"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
@@ -421,6 +421,14 @@ func (c *Config) checkAlbumAndPerson() {
 	}
 	c.Album = newAlbum
 
+	newExcludedAlbums := []string{}
+	for _, album := range c.ExcludedAlbums {
+		if album != "" && album != "ALBUM_ID" {
+			newExcludedAlbums = append(newExcludedAlbums, strings.TrimSpace(album))
+		}
+	}
+	c.ExcludedAlbums = newExcludedAlbums
+
 	newPerson := []string{}
 	for _, person := range c.Person {
 		if person != "" && person != "PERSON_ID" {
@@ -436,6 +444,9 @@ func (c *Config) checkAlbumAndPerson() {
 // capacity is significantly larger than its length, a new slice is allocated
 // to prevent memory leaks.
 func (c *Config) checkExcludedAlbums() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	if len(c.ExcludedAlbums) == 0 || len(c.Album) == 0 {
 		return
 	}
