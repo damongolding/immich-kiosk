@@ -763,6 +763,9 @@ func (c *Config) Load() error {
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(e echo.Context) error {
 
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	queries := e.QueryParams()
 
 	// check for person or album in quries and empty baseconfig slice if found
