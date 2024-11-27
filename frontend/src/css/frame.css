@@ -147,12 +147,8 @@
 }
 
 /* No transition */
-.transition-none .frame {
-    visibility: hidden;
-
-    &.loaded {
-        visibility: visible;
-    }
+.transition-none.frameless .frame {
+    background-color: transparent;
 }
 
 /* Fade transition */

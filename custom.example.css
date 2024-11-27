@@ -31,8 +31,7 @@ body{}
 .frame--layout-splitview-landscape:nth-child(2){}
 .frameless .frame--layout-splitview-landscape{}
 .frame--layout-splitview-landscape .frame--image{}
-.transition-none .frame{}
-.transition-none .frame.loaded{}
+.transition-none.frameless .frame{}
 #kiosk.htmx-swapping{}
 @-webkit-keyframes fade-in{}
 from{}

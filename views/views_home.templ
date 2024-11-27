@@ -275,7 +275,6 @@ templ body(viewData ViewData) {
 				hx-headers={ headerStr }
 				hx-swap="beforeend"
 				class={ "transition-none", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
-				hx-swap="innerHTML"
 				hx-vals="js:{...kiosk.clientData()}"
 			>
 				{ children... }
@@ -349,7 +348,7 @@ templ Home(viewData ViewData) {
           		"
 				hx-on::before-send="kiosk.setRequestLock(event)"
 				hx-on::after-request="kiosk.startPolling()"
-				hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.handleNewFrame(this)"
+				hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames()"
 			>
 				@spinner()
 			</main>

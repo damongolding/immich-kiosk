@@ -19,7 +19,6 @@ import {
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
-import { handleNewFrame } from "./frames";
 
 ("use strict");
 
@@ -58,7 +57,7 @@ type KioskData = {
   transition: string;
 };
 
-let maxFrames: number = 2;
+const MAX_FRAMES: number = 2 as const;
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -268,7 +267,7 @@ async function cleanupFrames(): Promise<void> {
     return;
   }
 
-  if (frames.length > maxFrames) {
+  if (frames.length > MAX_FRAMES) {
     try {
       htmx.remove(frames[0]);
     } catch (error) {
@@ -353,6 +352,5 @@ export {
   setRequestLock,
   releaseRequestLock,
   checkHistoryExists,
-  handleNewFrame,
   clientData,
 };

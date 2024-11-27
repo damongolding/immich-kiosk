@@ -18,7 +18,7 @@ interface ImageLoadResult {
  */
 async function handleNewFrame(target: HTMLElement | null): Promise<void> {
   if (!target) {
-    console.warn("Target element is null");
+    console.warn("Target frame is null");
     return;
   }
   const frames: HTMLElement[] = target.classList.contains("frame")
@@ -40,20 +40,56 @@ async function handleNewFrame(target: HTMLElement | null): Promise<void> {
     return;
   }
 
+  const checkImageRendered = (img: HTMLImageElement): Promise<boolean> => {
+    return new Promise((resolve) => {
+      let attempts = 0;
+      const maxAttempts = 3;
+
+      const check = () => {
+        const styles = window.getComputedStyle(img);
+        const bounds = img.getBoundingClientRect();
+
+        // More comprehensive checks
+        const hasSize =
+          (bounds.width > 0 && bounds.height > 0) || // Check actual rendered size
+          (img.clientWidth > 0 && img.clientHeight > 0) ||
+          (img.naturalWidth > 0 && img.naturalHeight > 0);
+
+        const isRendered =
+          img.complete &&
+          hasSize &&
+          styles.display !== "none" &&
+          styles.visibility !== "hidden" &&
+          styles.opacity !== "0";
+
+        if (isRendered || attempts >= maxAttempts) {
+          resolve(isRendered);
+        } else {
+          attempts++;
+          requestAnimationFrame(check);
+        }
+      };
+
+      requestAnimationFrame(check);
+    });
+  };
+
   const imagePromises = images.map(async (img): Promise<ImageLoadResult> => {
     try {
       if (img.complete) {
-        return { success: true, img };
+        const isRendered = await checkImageRendered(img);
+        return { success: isRendered, img };
       }
 
       img.loading = "eager";
 
       const result = await Promise.race([
         new Promise<ImageLoadResult>((resolve) => {
-          const handleLoad = () => {
+          const handleLoad = async () => {
             img.removeEventListener("load", handleLoad);
             img.removeEventListener("error", handleError);
-            resolve({ success: true, img });
+            const isRendered = await checkImageRendered(img);
+            resolve({ success: isRendered, img });
           };
 
           const handleError = () => {
@@ -91,7 +127,11 @@ async function handleNewFrame(target: HTMLElement | null): Promise<void> {
     );
   }
 
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+
   lastFrame.classList.add("loaded");
+
   await cleanupFrames();
 }
 

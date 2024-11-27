@@ -41,6 +41,7 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 	}
 
 	for _, album := range requestConfig.Album {
+
 		albumAssetCount, err := immichImage.AlbumImageCount(album, requestID)
 		if err != nil {
 			return nil, fmt.Errorf("getting album asset count: %w", err)
@@ -74,7 +75,7 @@ func isSleepMode(requestConfig config.Config) bool {
 
 // retrieveImage fetches a random image based on the picked image type.
 // It returns an error if the image retrieval fails.
-func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAsset, requestID, kioskDeviceID string, isPrefetch bool) error {
+func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAsset, excludedAlbums []string, requestID, kioskDeviceID string, isPrefetch bool) error {
 
 	viewDataCacheMutex.Lock()
 	defer viewDataCacheMutex.Unlock()
@@ -83,13 +84,13 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 	case "ALBUM":
 		switch pickedAsset.ID {
 		case immich.AlbumKeywordAll:
-			pickedAlbumID, err := immichImage.RandomAlbumFromAllAlbums(requestID)
+			pickedAlbumID, err := immichImage.RandomAlbumFromAllAlbums(requestID, excludedAlbums)
 			if err != nil {
 				return err
 			}
 			pickedAsset.ID = pickedAlbumID
 		case immich.AlbumKeywordShared:
-			pickedAlbumID, err := immichImage.RandomAlbumFromSharedAlbums(requestID)
+			pickedAlbumID, err := immichImage.RandomAlbumFromSharedAlbums(requestID, excludedAlbums)
 			if err != nil {
 				return err
 			}
@@ -140,7 +141,7 @@ func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, 
 
 	pickedImage := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, peopleAndAlbums)
 
-	if err := retrieveImage(immichImage, pickedImage, requestID, kioskDeviceID, isPrefetch); err != nil {
+	if err := retrieveImage(immichImage, pickedImage, requestConfig.ExcludedAlbums, requestID, kioskDeviceID, isPrefetch); err != nil {
 		return nil, err
 	}
 
