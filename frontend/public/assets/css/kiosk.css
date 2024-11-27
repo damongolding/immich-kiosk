@@ -331,12 +331,9 @@ body {
      -moz-box-align: center;
           align-items: center;
 }
-.transition-none .frame {
-  visibility: hidden;
+.transition-none.frameless .frame {
+  background-color: transparent;
 }
-.transition-none .frame.loaded {
-    visibility: visible;
-  }
 #kiosk.htmx-swapping {
   opacity: 0;
   -moz-transition: opacity 1s ease-out;
