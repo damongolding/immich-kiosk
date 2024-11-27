@@ -233,6 +233,7 @@ services:
       # Asset sources
       KIOSK_SHOW_ARCHIVED: false
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
+      KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
       # UI
       KIOSK_DISABLE_UI: false
@@ -297,6 +298,7 @@ See the file config.example.yaml for an example config file
 | optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low powered devices, this may help. |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
+| excluded_albums                   | KIOSK_EXCLUDED_ALBUMS   | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
@@ -313,8 +315,8 @@ See the file config.example.yaml for an example config file
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
 | [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | contain     | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
-| [image_effect](#image-effects)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom    | ""          | Add an effect to images.                                                               |
-| [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                   | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
+| [image_effect](#image-effects)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom   | ""         | Add an effect to images.                                                               |
+| [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120        | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: This will mostly likely cause kiosk to use more CPU and RAM resources. |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |

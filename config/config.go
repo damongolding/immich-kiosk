@@ -430,6 +430,35 @@ func (c *Config) checkAlbumAndPerson() {
 	c.Person = newPerson
 }
 
+// checkExcludedAlbums filters out any albums from c.Album that are present in
+// c.ExcludedAlbums. It uses a map for O(1) lookups of excluded album IDs and
+// filters in-place to avoid unnecessary allocations. If the resulting slice's
+// capacity is significantly larger than its length, a new slice is allocated
+// to prevent memory leaks.
+func (c *Config) checkExcludedAlbums() {
+	if len(c.ExcludedAlbums) == 0 || len(c.Album) == 0 {
+		return
+	}
+
+	excludeMap := make(map[string]struct{}, len(c.ExcludedAlbums))
+	for _, id := range c.ExcludedAlbums {
+		excludeMap[id] = struct{}{}
+	}
+
+	filtered := c.Album[:0]
+	for _, album := range c.Album {
+		if _, excluded := excludeMap[album]; !excluded {
+			filtered = append(filtered, album)
+		}
+	}
+
+	c.Album = filtered
+
+	if cap(c.Album) > 2*len(c.Album) {
+		c.Album = append([]string(nil), c.Album...)
+	}
+}
+
 // checkWeatherLocations validates the WeatherLocations in the Config.
 // It checks each WeatherLocation for required fields (name, latitude, longitude, and API key),
 // and logs an error message if any required fields are missing.
@@ -709,6 +738,7 @@ func (c *Config) Load() error {
 	c.checkRequiredFields()
 	c.checkLowercaseTaggedFields()
 	c.checkAlbumAndPerson()
+	c.checkExcludedAlbums()
 	c.checkUrlScheme()
 	c.checkHideCountries()
 	c.checkWeatherLocations()
@@ -737,6 +767,8 @@ func (c *Config) ConfigWithOverrides(e echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	c.checkExcludedAlbums()
 
 	return nil
 

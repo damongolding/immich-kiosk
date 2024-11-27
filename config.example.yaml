@@ -22,6 +22,8 @@ person:
 # ID(s) of album or albums to display
 album:
   - "ALBUM_ID"
+# Album IDs to exclude from being shown. Albums in this list will be filtered from
+# appearing in the frame even if they are included in the 'album' list.
 excluded_albums:
   - "ALBUM_ID"
 
