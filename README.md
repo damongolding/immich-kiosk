@@ -298,7 +298,7 @@ See the file config.example.yaml for an example config file
 | optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low powered devices, this may help. |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
-| [excluded_albums](#xxclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
+| [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
@@ -372,7 +372,7 @@ The above would set refresh to 120 seconds (2 minutes), turn off the background 
 
 ## Albums
 
-### Getting an albums ID from Immich:
+### Getting an albums ID from Immich
 1. Open Immich's web interface and click on "Albums" in the left hand navigation.
 2. Click on the album you want the ID of.
 3. The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
@@ -385,7 +385,7 @@ For each image refresh, Kiosk randomly selects one ID from this pool and fetches
 There are **three** ways you can set multiple albums:
 
 > [!NOTE]
-> These methods are applied in order of precedence. URL queries take highest priority, followed by environment variables, and finally the config.yaml file.
+> These methods are applied in order of precedence. URL queries take the highest priority, followed by environment variables, and finally the config.yaml file.
 > Each subsequent method overwrites the settings from the previous ones.
 
 1. via config.yaml file
@@ -403,7 +403,7 @@ environment:
 
 3. via url quires:
 
-```
+```url
 http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID
 ```
 
@@ -425,7 +425,7 @@ e.g. `http://{URL}?album=favorites` or `http://{URL}?album=favourites`
 
 ## Exclude albums
 
-### Getting an albums ID from Immich:
+### Getting an albums ID from Immich
 1. Open Immich's web interface and click on "Albums" in the left hand navigation.
 2. Click on the album you want the ID of.
 3. The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
@@ -434,7 +434,7 @@ e.g. `http://{URL}?album=favorites` or `http://{URL}?album=favourites`
 There are **three** ways you can exclude albums:
 
 > [!NOTE]
-> These methods are applied in order of precedence. URL queries take highest priority, followed by environment variables, and finally the config.yaml file.
+> These methods are applied in order of precedence. URL queries take the highest priority, followed by environment variables, and finally the config.yaml file.
 > Each subsequent method overwrites the settings from the previous ones.
 
 1. via config.yaml file
@@ -455,7 +455,7 @@ environment:
 > [!NOTE]
 > it is `exclude_album=` and not `excluded_albums=`
 
-```
+```url
 http://{URL}?exclude_album=ALBUM_ID&exclude_album=ALBUM_ID&exclude_album=ALBUM_ID
 ```
 
@@ -463,7 +463,7 @@ http://{URL}?exclude_album=ALBUM_ID&exclude_album=ALBUM_ID&exclude_album=ALBUM_I
 
 ### People
 
-### Getting a person's ID from Immich:
+### Getting a person's ID from Immich
 1. Open Immich's web interface and click on "Explore" in the left hand navigation.
 2. Click on the person you want the ID of (you may have to click "view all" if you don't see them).
 3. The url will now look something like this `http://192.168.86.123:2283/people/a04175f4-97bb-4d97-8d49-3700263043e5`.
@@ -476,7 +476,7 @@ For each image refresh, Kiosk randomly selects one ID from this pool and fetches
 There are **three** ways you can set multiple people ID's:
 
 > [!NOTE]
-> These methods are applied in order of precedence. URL queries take highest priority, followed by environment variables, and finally the config.yaml file.
+> These methods are applied in order of precedence. URL queries take the highest priority, followed by environment variables, and finally the config.yaml file.
 > Each subsequent method overwrites the settings from the previous ones.
 
 1. via config.yaml file
@@ -496,7 +496,7 @@ environment:
 
 3. via url quires
 
-```
+```url
 http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 ```
 ------
@@ -980,7 +980,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - [x] Sleep mode
 - [ ] Add sleep mode indicator
 - [ ] Whitelist for people and albums
-- [ ] Exclude list
+- [x] Exclude list
 - [ ] PWA (✔ basic implimetion)
 - [x] prev/next navigation
 - [x] Splitview
