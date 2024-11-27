@@ -753,6 +753,7 @@ Redirects are defined in the `config.yaml` file under the `kiosk.redirects` sect
 Each redirect consists of:
 - `name`: The short path that users will use
 - `url`: The destination URL where users will be redirected to
+- `type`: Optional field that controls URL behavior. Set to `internal` to keep the URL unchanged, or `external` to allow URL changes during redirection.
 
 ### Examples
 
@@ -764,15 +765,16 @@ kiosk:
 
     - name: sheffield
       url: /?weather=sheffield
+      type: internal
 
     - name: our-wedding
       url: /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
 
 ```
 
-http://{URL}/london      -> Redirects to /?weather=london
-http://{URL}/sheffield   -> Redirects to /?weather=sheffield
-http://{URL}/our-wedding -> Redirects to /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
+http://{URL}/london      -> Redirects to /?weather=london\
+http://{URL}/sheffield   -> Redirects to http://{URL}/sheffield\
+http://{URL}/our-wedding -> Redirects to /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3\
 
 ------
 
