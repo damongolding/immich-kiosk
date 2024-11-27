@@ -185,7 +185,7 @@ type Config struct {
 	Person []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
 	// Album ID of album(s) to display
 	Album          []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
-	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"excluded_albums" form:"excluded_albums" default:"[]"`
+	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`

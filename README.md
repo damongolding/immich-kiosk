@@ -298,7 +298,7 @@ See the file config.example.yaml for an example config file
 | optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low powered devices, this may help. |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
-| excluded_albums                   | KIOSK_EXCLUDED_ALBUMS   | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. |
+| [excluded_albums](#xxclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
@@ -420,6 +420,44 @@ e.g. `http://{URL}?album=shared`
 ####  ` favorites ` or ` favourites `
 Will use only favourited assets.
 e.g. `http://{URL}?album=favorites` or `http://{URL}?album=favourites`
+
+------
+
+## Exclude albums
+
+### Getting an albums ID from Immich:
+1. Open Immich's web interface and click on "Albums" in the left hand navigation.
+2. Click on the album you want the ID of.
+3. The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
+4. The album ID is everything after `albums/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+
+There are **three** ways you can exclude albums:
+
+> [!NOTE]
+> These methods are applied in order of precedence. URL queries take highest priority, followed by environment variables, and finally the config.yaml file.
+> Each subsequent method overwrites the settings from the previous ones.
+
+1. via config.yaml file
+```yaml
+excluded_albums:
+  - ALBUM_ID
+  - ALBUM_ID
+```
+
+2. via ENV in your docker-compose file use a `,` to separate IDs
+```yaml
+environment:
+  KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
+```
+
+3. via url quires:
+
+> [!NOTE]
+> it is `exclude_album=` and not `excluded_albums=`
+
+```
+http://{URL}?exclude_album=ALBUM_ID&exclude_album=ALBUM_ID&exclude_album=ALBUM_ID
+```
 
 ------
 
