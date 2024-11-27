@@ -465,8 +465,8 @@ func (c *Config) checkExcludedAlbums() {
 
 	c.Album = filtered
 
-	if cap(c.Album) > 2*len(c.Album) {
-		c.Album = append([]string(nil), c.Album...)
+	if excess := cap(c.Album) - len(c.Album); excess > len(c.Album) {
+		c.Album = append(make([]string, 0, len(c.Album)), c.Album...)
 	}
 }
 

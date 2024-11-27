@@ -160,54 +160,54 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, kioskDeviceID str
 	return nil
 }
 
+// selectRandomAlbum selects a random album from the given list of albums, excluding specific albums.
+// It weights the selection based on the asset count of each album.
+// Returns the selected album ID or an error if no albums are available after exclusions.
+// Parameters:
+//   - albums: List of albums to select from
+//   - excludedAlbums: List of album IDs to exclude from selection
+func (i *ImmichAsset) selectRandomAlbum(albums ImmichAlbums, excludedAlbums []string) (string, error) {
+	albums.RemoveExcludedAlbums(excludedAlbums)
+	if len(albums) == 0 {
+		return "", fmt.Errorf("no albums available after applying exclusions")
+	}
+
+	albumsWithWeighting := []utils.AssetWithWeighting{}
+	for _, album := range albums {
+		albumsWithWeighting = append(albumsWithWeighting, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: "ALBUM", ID: album.ID},
+			Weight: album.AssetCount,
+		})
+	}
+
+	pickedAlbum := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
+	return pickedAlbum.ID, nil
+}
+
+// RandomAlbumFromSharedAlbums returns a random album ID from shared albums.
+// It takes a requestID for API call tracking and a slice of excluded album IDs.
+// The selection is weighted based on the number of assets in each album.
+// Returns an error if there are no available albums after exclusions or if the API call fails.
 func (i *ImmichAsset) RandomAlbumFromSharedAlbums(requestID string, excludedAlbums []string) (string, error) {
 	albums, err := i.allSharedAlbums(requestID)
 	if err != nil {
 		return "", err
 	}
 
-	albums.RemoveExcludedAlbums(excludedAlbums)
-	if len(albums) == 0 {
-		return "", fmt.Errorf("no albums available after applying exclusions")
-	}
-
-	albumsWithWeighting := []utils.AssetWithWeighting{}
-
-	for _, album := range albums {
-		albumsWithWeighting = append(albumsWithWeighting, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: "ALBUM", ID: album.ID},
-			Weight: album.AssetCount,
-		})
-	}
-
-	pickedAlbum := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
-
-	return pickedAlbum.ID, nil
+	return i.selectRandomAlbum(albums, excludedAlbums)
 }
 
+// RandomAlbumFromAllAlbums returns a random album ID from all albums.
+// It takes a requestID for API call tracking and a slice of excluded album IDs.
+// The selection is weighted based on the number of assets in each album.
+// Returns an error if there are no available albums after exclusions or if the API call fails.
 func (i *ImmichAsset) RandomAlbumFromAllAlbums(requestID string, excludedAlbums []string) (string, error) {
 	albums, err := i.allAlbums(requestID)
 	if err != nil {
 		return "", err
 	}
 
-	albums.RemoveExcludedAlbums(excludedAlbums)
-	if len(albums) == 0 {
-		return "", fmt.Errorf("no albums available after applying exclusions")
-	}
-
-	albumsWithWeighting := []utils.AssetWithWeighting{}
-
-	for _, album := range albums {
-		albumsWithWeighting = append(albumsWithWeighting, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: "ALBUM", ID: album.ID},
-			Weight: album.AssetCount,
-		})
-	}
-
-	pickedAlbum := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
-
-	return pickedAlbum.ID, nil
+	return i.selectRandomAlbum(albums, excludedAlbums)
 }
 
 // RemoveExcludedAlbums filters out albums whose IDs are in the exclude slice.
