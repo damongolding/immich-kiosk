@@ -425,11 +425,17 @@ e.g. `http://{URL}?album=favorites` or `http://{URL}?album=favourites`
 
 ## Exclude albums
 
+This feature allows you to prevent specific albums from being displayed in the slideshow, even when using broad album selection methods like `all` or `shared`.
+
+> [!NOTE]
+> Excluded albums take precedence over album selection methods. If an album is in both the selected albums and excluded albums lists, it will be excluded.
+
 ### Getting an albums ID from Immich
 1. Open Immich's web interface and click on "Albums" in the left hand navigation.
 2. Click on the album you want the ID of.
 3. The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
 4. The album ID is everything after `albums/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+
 
 There are **three** ways you can exclude albums:
 
