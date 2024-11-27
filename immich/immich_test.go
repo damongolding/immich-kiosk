@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestArchiveLogic tests the handling of archived and trashed assets
 func TestArchiveLogic(t *testing.T) {
 
 	tests := []struct {
@@ -58,6 +59,7 @@ func TestArchiveLogic(t *testing.T) {
 	}
 }
 
+// TestFacesCenterPoint tests the calculation of the center point between detected faces in an asset
 func TestFacesCenterPoint(t *testing.T) {
 
 	tests := []struct {
@@ -154,6 +156,69 @@ func TestFacesCenterPoint(t *testing.T) {
 			gotX, gotY := tt.asset.FacesCenterPoint()
 			assert.Equal(t, tt.wantX, gotX, "Unexpected X coordinate")
 			assert.Equal(t, tt.wantY, gotY, "Unexpected Y coordinate")
+		})
+	}
+}
+
+// TestRemoveExcludedAlbums tests the functionality to remove specific albums from a list
+func TestRemoveExcludedAlbums(t *testing.T) {
+	tests := []struct {
+		name     string
+		albums   ImmichAlbums
+		exclude  []string
+		expected ImmichAlbums
+	}{
+		{
+			name: "removes excluded albums",
+			albums: ImmichAlbums{
+				{ID: "1"},
+				{ID: "2"},
+				{ID: "3"},
+			},
+			exclude: []string{"2"},
+			expected: ImmichAlbums{
+				{ID: "1"},
+				{ID: "3"},
+			},
+		},
+		{
+			name: "handles empty exclude list",
+			albums: ImmichAlbums{
+				{ID: "1"},
+				{ID: "2"},
+			},
+			exclude: []string{},
+			expected: ImmichAlbums{
+				{ID: "1"},
+				{ID: "2"},
+			},
+		},
+		{
+			name:     "handles empty albums list",
+			albums:   ImmichAlbums{},
+			exclude:  []string{"1"},
+			expected: ImmichAlbums{},
+		},
+		{
+			name: "handles multiple excludes",
+			albums: ImmichAlbums{
+				{ID: "1"},
+				{ID: "2"},
+				{ID: "3"},
+				{ID: "4"},
+			},
+			exclude: []string{"1", "3", "4"},
+			expected: ImmichAlbums{
+				{ID: "2"},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			albums := tt.albums
+			albums.RemoveExcludedAlbums(tt.exclude)
+			assert.Equal(t, tt.expected, albums, "RemoveExcludedAlbums returned unexpected result")
 		})
 	}
 }

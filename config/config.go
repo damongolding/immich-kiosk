@@ -184,7 +184,8 @@ type Config struct {
 	// Person ID of person to display
 	Person []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
 	// Album ID of album(s) to display
-	Album []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
+	Album          []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
+	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
@@ -420,6 +421,14 @@ func (c *Config) checkAlbumAndPerson() {
 	}
 	c.Album = newAlbum
 
+	newExcludedAlbums := []string{}
+	for _, album := range c.ExcludedAlbums {
+		if album != "" && album != "ALBUM_ID" {
+			newExcludedAlbums = append(newExcludedAlbums, strings.TrimSpace(album))
+		}
+	}
+	c.ExcludedAlbums = newExcludedAlbums
+
 	newPerson := []string{}
 	for _, person := range c.Person {
 		if person != "" && person != "PERSON_ID" {
@@ -427,6 +436,38 @@ func (c *Config) checkAlbumAndPerson() {
 		}
 	}
 	c.Person = newPerson
+}
+
+// checkExcludedAlbums filters out any albums from c.Album that are present in
+// c.ExcludedAlbums. It uses a map for O(1) lookups of excluded album IDs and
+// filters in-place to avoid unnecessary allocations. If the resulting slice's
+// capacity is significantly larger than its length, a new slice is allocated
+// to prevent memory leaks.
+func (c *Config) checkExcludedAlbums() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if len(c.ExcludedAlbums) == 0 || len(c.Album) == 0 {
+		return
+	}
+
+	excludeMap := make(map[string]struct{}, len(c.ExcludedAlbums))
+	for _, id := range c.ExcludedAlbums {
+		excludeMap[id] = struct{}{}
+	}
+
+	filtered := c.Album[:0]
+	for _, album := range c.Album {
+		if _, excluded := excludeMap[album]; !excluded {
+			filtered = append(filtered, album)
+		}
+	}
+
+	c.Album = filtered
+
+	if excess := cap(c.Album) - len(c.Album); excess > len(c.Album) {
+		c.Album = append(make([]string, 0, len(c.Album)), c.Album...)
+	}
 }
 
 // checkWeatherLocations validates the WeatherLocations in the Config.
@@ -708,6 +749,7 @@ func (c *Config) Load() error {
 	c.checkRequiredFields()
 	c.checkLowercaseTaggedFields()
 	c.checkAlbumAndPerson()
+	c.checkExcludedAlbums()
 	c.checkUrlScheme()
 	c.checkHideCountries()
 	c.checkWeatherLocations()
@@ -736,6 +778,8 @@ func (c *Config) ConfigWithOverrides(e echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	c.checkExcludedAlbums()
 
 	return nil
 
