@@ -191,8 +191,10 @@ func getImageFormat(r io.Reader) (string, error) {
 func GetImageMimeType(r io.Reader) string {
 	format, err := getImageFormat(r)
 	if err != nil || format == "" {
+		log.Error("getting mime", "err", err)
 		return ""
 	}
+
 	return mime.TypeByExtension("." + format)
 }
 

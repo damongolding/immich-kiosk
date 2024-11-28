@@ -7,12 +7,14 @@
 
     /* Z-index hierarchy */
     --z-base: 0;
-    --z-sleep: 99995;
-    --z-clock: 10000;
-    --z-sleep-clock: 99996;
-    --z-interaction: 99997;
-    --z-overlay: 99998;
-    --z-navigation: 99999;
+    --z-clock: 100;
+    --z-progress: 150;
+    --z-sleep: 200;
+    --z-sleep-clock: 300;
+    --z-interaction: 400;
+    --z-overlay: 500;
+    --z-navigation: 600;
+    --z-offline: 700;
 
     /* gradients */
     --fade-gradient: hsla(0, 0%, 0%, 0.59) 0%, hsla(0, 0%, 0%, 0.582) 5.2%,

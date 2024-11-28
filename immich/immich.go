@@ -58,6 +58,16 @@ var (
 		Timeout:   time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout),
 		Transport: httpTransport,
 	}
+
+	supportedImageMimeTypes = []string{
+		"image/jpeg",
+		"image/jpg",
+		"image/png",
+		"image/apng",
+		"image/avif",
+		"image/gif",
+		"image/webp",
+	}
 )
 
 type ImmichPersonStatistics struct {

@@ -11,7 +11,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 99995;
+        z-index: var(--z-sleep);
         background-color: black;
         transition: background-color 3s ease;
     }

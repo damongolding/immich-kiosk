@@ -67,8 +67,7 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 
 	requestConfig := requestData.RequestConfig
 
-	httpClient := newHTTPClient(20 * time.Second)
-	httpClient.Timeout = time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout)
+	httpClient := newHTTPClient(time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout))
 
 	var wg sync.WaitGroup
 	for _, userWebhook := range requestConfig.Webhooks {

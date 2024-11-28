@@ -33,7 +33,7 @@
         100% 100% at 100% 100%,
         var(--fade-gradient)
     );
-    z-index: 0;
+    z-index: var(-z-base);
 }
 
 .frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before {
@@ -48,7 +48,7 @@
         100% 100% at 0% 100%,
         var(--fade-gradient)
     );
-    z-index: 0;
+    z-index: var(-z-base);
 }
 
 /* solid theme */
