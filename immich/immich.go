@@ -53,8 +53,6 @@ var (
 		"image/jpeg",
 		"image/jpg",
 		"image/png",
-		"image/apng",
-		"image/avif",
 		"image/gif",
 		"image/webp",
 	}
