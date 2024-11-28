@@ -95,8 +95,8 @@ func DefaultLocation() string {
 
 func SetDefaultLocation(location string) {
 	defaultLocationMu.Lock()
+	defer defaultLocationMu.Unlock()
 	defaultLocation = location
-	defaultLocationMu.Unlock()
 }
 
 // AddWeatherLocation adds a new weather location to be monitored.

@@ -10,10 +10,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type RedirectPath struct {
-	RedirectName string `param:"redirect"`
-}
-
 // Redirect returns an echo.HandlerFunc that handles URL redirections based on configured redirect paths.
 // It takes a baseConfig parameter containing the application configuration including redirect mappings.
 //
@@ -45,16 +41,12 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusTooManyRequests, "Too many redirects")
 		}
 
-		var r RedirectPath
-		if err := c.Bind(&r); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid redirect request")
-		}
-
-		if r.RedirectName == "" {
+		redirectName := c.Param("redirect")
+		if redirectName == "" {
 			return echo.NewHTTPError(http.StatusBadRequest, "Redirect name is required")
 		}
 
-		if redirectItem, exists := baseConfig.Kiosk.RedirectsMap[r.RedirectName]; exists {
+		if redirectItem, exists := baseConfig.Kiosk.RedirectsMap[redirectName]; exists {
 			if strings.EqualFold(redirectItem.Type, "internal") {
 
 				parsedUrl, err := url.Parse(redirectItem.URL)
@@ -63,8 +55,14 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 				}
 
 				for key, values := range parsedUrl.Query() {
-					c.QueryParams().Set(key, values[0])
+					c.QueryParams().Add(key, values[0])
 				}
+
+				// Update the request URL with the new query parameters
+				newURL := c.Request().URL
+				queryParams := c.QueryParams()
+				newURL.RawQuery = queryParams.Encode()
+				c.Request().URL = newURL
 
 				return Home(baseConfig)(c)
 

@@ -9,7 +9,7 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    z-index: 99997;
+    z-index: var(--z-interaction);
     background-color: transparent;
 }
 
@@ -43,7 +43,7 @@
     box-shadow:
         rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem,
         rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
-    z-index: 99999;
+    z-index: var(--z-navigation);
 }
 
 .navigation--item {

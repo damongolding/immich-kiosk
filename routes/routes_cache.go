@@ -25,7 +25,7 @@ func FlushCache(baseConfig *config.Config) echo.HandlerFunc {
 		log.Info("Cache before flush", "viewDataCache_items", ViewDataCache.ItemCount(), "apiCache_items", immich.ApiCacheCount())
 
 		ViewDataCache.Flush()
-		immich.FluchApiCache()
+		immich.FlushApiCache()
 
 		log.Info("Cache after flush ", "viewDataCache_items", ViewDataCache.ItemCount(), "apiCache_items", immich.ApiCacheCount())
 

@@ -216,7 +216,7 @@ type ImmichApiResponse interface {
 	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face
 }
 
-func FluchApiCache() {
+func FlushApiCache() {
 	apiCache.Flush()
 }
 

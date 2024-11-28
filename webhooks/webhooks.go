@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/url"
+	"sync"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -23,10 +25,6 @@ const (
 	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"
 )
 
-var httpClient = &http.Client{
-	Timeout: 20 * time.Second,
-}
-
 type Meta struct {
 	Source  string `json:"source"`
 	Version string `json:"version"`
@@ -41,6 +39,15 @@ type Payload struct {
 	Assets     []immich.ImmichAsset `json:"assets"`
 	Config     config.Config        `json:"config"`
 	Meta       Meta                 `json:"meta"`
+}
+
+// newHTTPClient creates a new HTTP client with the specified timeout duration.
+// It returns a pointer to an http.Client configured with the given timeout.
+// This client is used for making webhook requests to external endpoints.
+func newHTTPClient(timeout time.Duration) *http.Client {
+	return &http.Client{
+		Timeout: timeout,
+	}
 }
 
 // Trigger handles sending webhook payloads to configured webhooks endpoints for specified events.
@@ -58,12 +65,19 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 		return
 	}
 
-	config := requestData.RequestConfig
+	requestConfig := requestData.RequestConfig
 
-	httpClient.Timeout = time.Second * time.Duration(config.Kiosk.HTTPTimeout)
+	httpClient := newHTTPClient(20 * time.Second)
+	httpClient.Timeout = time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout)
 
-	for _, userWebhook := range config.Webhooks {
+	var wg sync.WaitGroup
+	for _, userWebhook := range requestConfig.Webhooks {
 		if userWebhook.Event != string(event) {
+			continue
+		}
+
+		if _, err := url.Parse(userWebhook.Url); err != nil {
+			log.Error("invalid webhook URL", "url", userWebhook.Url, "err", err)
 			continue
 		}
 
@@ -80,7 +94,7 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 			ClientName: requestData.ClientName,
 			AssetCount: len(images),
 			Assets:     images,
-			Config:     config,
+			Config:     requestConfig,
 			Meta: Meta{
 				Source:  "immich-kiosk",
 				Version: KioskVersion,
@@ -90,14 +104,27 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 		jsonPayload, err := json.Marshal(payload)
 		if err != nil {
 			log.Error("webhook marshal", "err", err)
-			return
+			continue
 		}
 
-		resp, err := httpClient.Post(userWebhook.Url, "application/json", bytes.NewBuffer(jsonPayload))
-		if err != nil {
-			log.Error("webhook post", "err", err)
-			return
-		}
-		defer resp.Body.Close()
+		wg.Add(1)
+		go func(webhook config.Webhook, payload []byte) {
+			defer wg.Done()
+
+			resp, err := httpClient.Post(userWebhook.Url, "application/json", bytes.NewBuffer(jsonPayload))
+			if err != nil {
+				log.Error("webhook post", "err", err)
+				return
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+				log.Error("webhook request failed",
+					"url", webhook.Url,
+					"status", resp.StatusCode)
+				return
+			}
+		}(userWebhook, jsonPayload)
 	}
+	wg.Wait()
 }

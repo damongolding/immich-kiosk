@@ -21,7 +21,7 @@
         gap: 0.4rem;
         padding: 0.4rem;
 
-        z-index: 99998;
+        z-index: var(--z-overlay);
 
         .more-info--image {
             width: 100%;

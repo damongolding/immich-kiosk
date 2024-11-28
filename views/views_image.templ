@@ -94,11 +94,19 @@ templ renderMoreInfo(viewData ViewData) {
 					<div>
 						<div>
 							<h3>
-								{ img.ImmichImage.ExifInfo.Make }
+								if img.ImmichImage.ExifInfo.Make != "" {
+									img.ImmichImage.ExifInfo.Make
+								} else {
+									"Unknown Make"
+								}
 							</h3>
 						</div>
 						<div>
-							{ img.ImmichImage.ExifInfo.Model }
+							if img.ImmichImage.ExifInfo.Model != "" {
+								img.ImmichImage.ExifInfo.Model
+							} else {
+								"Unknown Model"
+							}
 						</div>
 					</div>
 					<div>

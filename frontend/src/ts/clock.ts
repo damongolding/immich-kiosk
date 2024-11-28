@@ -59,11 +59,16 @@ class Clock {
         ? TIME_FORMATS.TWELVE_HOUR
         : TIME_FORMATS.TWENTY_FOUR_HOUR;
 
-    const formattedTime = format(now, timeFormat);
-    this.elements.time.innerHTML =
-      this.config.timeFormat === "12"
-        ? formattedTime.toLowerCase()
-        : formattedTime;
+    try {
+      const formattedTime = format(now, timeFormat);
+      this.elements.time.innerHTML =
+        this.config.timeFormat === "12"
+          ? formattedTime.toLowerCase()
+          : formattedTime;
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      this.elements.time.innerHTML = now.toLocaleTimeString();
+    }
   }
 
   private render(): void {
@@ -87,11 +92,6 @@ class Clock {
     if (this.intervalId) {
       window.clearInterval(this.intervalId);
       this.intervalId = undefined;
-      this.elements = {
-        main: null,
-        date: null,
-        time: null,
-      };
     }
   }
 }
@@ -111,8 +111,13 @@ function initClock(
 
   const clock = new Clock(config);
   clock.start();
-  window.addEventListener("unload", () => clock.stop());
-  return clock;
+
+  const handleUnload = () => clock.stop();
+  window.addEventListener("unload", handleUnload);
+
+  return Object.assign(clock, {
+    cleanup: () => window.removeEventListener("unload", handleUnload),
+  });
 }
 
 export { initClock, Clock, type TimeFormat };

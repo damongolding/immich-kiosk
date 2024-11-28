@@ -2,12 +2,16 @@
 package common
 
 import (
+	"fmt"
+	"sync"
+
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/utils"
 )
 
 var SharedSecret string
+var SharedSecretInit sync.Once
 
 // RouteRequestData contains request metadata and configuration used across routes
 type RouteRequestData struct {
@@ -17,10 +21,23 @@ type RouteRequestData struct {
 	ClientName    string        // Name of the client making the request
 }
 
+func InitializeSecret() error {
+	var initErr error
+
+	SharedSecretInit.Do(func() {
+		secret, err := utils.GenerateSharedSecret()
+		if err != nil {
+			initErr = fmt.Errorf("failed to generate shared secret: %w", err)
+			return
+		}
+		SharedSecret = secret
+	})
+
+	return initErr
+}
+
 func init() {
-	secret, err := utils.GenerateSharedSecret()
-	if err != nil {
-		log.Fatal("Failed to generate shared secret", "error", err)
+	if err := InitializeSecret(); err != nil {
+		log.Fatal("Failed to initialize", "error", err)
 	}
-	SharedSecret = secret
 }

@@ -42,7 +42,8 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
 			if cachedViewData := fromCache(c, deviceID); cachedViewData != nil {
-				go imagePreFetch(requestConfig, c)
+				requestEchoCtx := c
+				go imagePreFetch(requestConfig, requestEchoCtx)
 				go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
 				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID)
 			}
@@ -55,7 +56,8 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			go imagePreFetch(requestConfig, c)
+			requestEchoCtx := c
+			go imagePreFetch(requestConfig, requestEchoCtx)
 		}
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)

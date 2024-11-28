@@ -189,8 +189,8 @@ func getImageFormat(r io.Reader) (string, error) {
 
 // GetImageMimeType returns the MIME type (gif/jpeg/png/webp) for an image reader
 func GetImageMimeType(r io.Reader) string {
-	format, _ := getImageFormat(r)
-	if format == "" {
+	format, err := getImageFormat(r)
+	if err != nil || format == "" {
 		return ""
 	}
 	return mime.TypeByExtension("." + format)
@@ -551,8 +551,14 @@ func CalculateSignature(secret, timestamp string) string {
 
 // IsValidSignature performs a constant-time comparison of two signatures to prevent timing attacks
 func IsValidSignature(receivedSignature, calculatedSignature string) bool {
-	received, _ := hex.DecodeString(receivedSignature)
-	calculated, _ := hex.DecodeString(calculatedSignature)
+	received, err := hex.DecodeString(receivedSignature)
+	if err != nil {
+		return false
+	}
+	calculated, err := hex.DecodeString(calculatedSignature)
+	if err != nil {
+		return false
+	}
 	return hmac.Equal(received, calculated)
 }
 
