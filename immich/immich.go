@@ -48,6 +48,14 @@ var (
 	httpClient = &http.Client{
 		Timeout: time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout),
 	}
+
+	supportedImageMimeTypes = []string{
+		"image/jpeg",
+		"image/jpg",
+		"image/png",
+		"image/gif",
+		"image/webp",
+	}
 )
 
 type ImmichPersonStatistics struct {

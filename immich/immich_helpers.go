@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"slices"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -227,7 +228,7 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 	}
 
 	assetSize := AssetSizeThumbnail
-	if requestConfig.UseOriginalImage {
+	if requestConfig.UseOriginalImage && slices.Contains(supportedImageMimeTypes, i.OriginalMimeType) {
 		assetSize = AssetSizeOriginal
 	}
 
