@@ -112,9 +112,13 @@ func main() {
 
 	e.GET("/image", routes.NewRawImage(baseConfig))
 
+	e.GET("/image/:id", routes.ServeImage(baseConfig))
+
 	e.POST("/image", routes.NewImage(baseConfig))
 
 	e.POST("/image/previous", routes.PreviousImage(baseConfig))
+
+	e.GET("/preload", routes.PreLoad(baseConfig))
 
 	e.GET("/clock", routes.Clock(baseConfig))
 

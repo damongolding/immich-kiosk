@@ -1,4 +1,6 @@
 import htmx from "htmx.org";
+import "./htmx-head-support";
+
 import {
   addFullscreenEventListener,
   fullscreenAPI,
@@ -19,6 +21,7 @@ import {
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
+import { preload } from "./preload";
 
 ("use strict");
 
@@ -353,4 +356,5 @@ export {
   releaseRequestLock,
   checkHistoryExists,
   clientData,
+  preload,
 };

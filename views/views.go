@@ -21,6 +21,8 @@ type ImageData struct {
 	ImageBlurData string
 	// Date image date
 	ImageDate string
+	//
+	ImagePath string
 }
 
 type ViewData struct {

@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      htmx-ext-head-support:
+        specifier: ^2.0.2
+        version: 2.0.2
     devDependencies:
       autoprefixer:
         specifier: ^10.4.20
@@ -532,6 +536,9 @@ packages:
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
+
+  htmx-ext-head-support@2.0.2:
+    resolution: {integrity: sha512-vDfp5d97tqUVg6XQ297C8QyPUUVWWfo6u0nXsZJw/tqgzy+OMPpEXnWzMU3URG01iEfoPIyWRMnnhplmX4ymMw==}
 
   htmx.org@2.0.3:
     resolution: {integrity: sha512-AeoJUAjkCVVajbfKX+3sVQBTCt8Ct4lif1T+z/tptTXo8+8yyq3QIMQQe/IT+R8ssfrO1I0DeX4CAronzCL6oA==}
@@ -1322,6 +1329,8 @@ snapshots:
   graceful-fs@4.2.11: {}
 
   has-flag@4.0.0: {}
+
+  htmx-ext-head-support@2.0.2: {}
 
   htmx.org@2.0.3: {}
 

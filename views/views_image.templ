@@ -214,11 +214,11 @@ templ renderImage(viewData ViewData, imageData ImageData) {
 	switch viewData.ImageEffect {
 		case "zoom", "smart-zoom":
 			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichImage) {
-				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
+				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit, imageData.ImagePath)
 			}
 		default:
 			@frame() {
-				@renderImageFit(imageData.ImageData, viewData.ImageFit)
+				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageData.ImagePath)
 			}
 	}
 }
@@ -233,10 +233,10 @@ templ renderImage(viewData ViewData, imageData ImageData) {
 //   - "cover": Uses RenderImageWithCoverFit
 //   - "none": Uses RenderImageWithoutFit
 //   - Any other value: Uses RenderImageWithContainFit (default behavior)
-templ renderImageFit(imageData string, imageFit string) {
+templ renderImageFit(imageData, imageFit, imagePath string) {
 	switch imageFit {
 		case "cover":
-			@RenderImageWithCoverFit(imageData, imageFit)
+			@RenderImageWithCoverFit(imageData, imageFit, imagePath)
 		case "none":
 			@RenderImageWithoutFit(imageData, imageFit)
 		default:
@@ -249,10 +249,10 @@ templ renderImageFit(imageData string, imageFit string) {
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
 //   - imageFit: A string specifying the image fit style (unused in this function).
-templ RenderImageWithCoverFit(ImageData, imageFit string) {
+templ RenderImageWithCoverFit(imageData, imageFit, imagePath string) {
 	<img
 		class="frame--image-fit-cover"
-		src={ ImageData }
+		src={ fmt.Sprintf("/image/%s", imagePath) }
 		alt="Main image"
 	/>
 }

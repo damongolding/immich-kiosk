@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"path"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -96,5 +97,39 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
+	}
+}
+
+type ImageIDParam struct {
+	ImageID string `param:"id"`
+}
+
+func ServeImage(baseConfig *config.Config) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
+
+		log.Debug(
+			requestID,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
+
+		var imageIDParam ImageIDParam
+		if err := c.Bind(&imageIDParam); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid image request")
+		}
+
+		imgPath := path.Join("tmp", imageIDParam.ImageID)
+
+		return c.File(imgPath)
+
 	}
 }

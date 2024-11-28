@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -596,4 +597,42 @@ func OptimizeImage(img image.Image, width, height int) (image.Image, error) {
 func calculateNormalizedSigma(baseSigma float64, width, height int, constant float64) float64 {
 	diagonal := math.Sqrt(float64(width*width + height*height))
 	return baseSigma * diagonal / constant
+}
+
+func SaveTempImage(img image.Image, id string) (string, error) {
+
+	if _, err := os.Stat("tmp"); os.IsNotExist(err) {
+		err := os.Mkdir("tmp", 0755)
+		if err != nil {
+			log.Error("failed to create tmp directory", "err", err)
+			return "", fmt.Errorf("failed to create tmp directory: %w", err)
+		}
+	}
+
+	var buf bytes.Buffer
+
+	if err := imaging.Encode(&buf, img, imaging.JPEG); err != nil {
+		log.Error("failed to encode image", "err", err)
+		return "", fmt.Errorf("failed to encode image: %w", err)
+	}
+
+	mimeType := http.DetectContentType(buf.Bytes())
+	ext := strings.TrimPrefix(mimeType, "image/")
+
+	filename := fmt.Sprintf("%s.%s", id, ext)
+	filepath := path.Join("tmp", filename)
+
+	tmpImg, err := os.Create(filepath)
+	if err != nil {
+		log.Error("failed to create file", "err", err)
+		return "", fmt.Errorf("failed to create file: %w", err)
+	}
+	defer tmpImg.Close()
+
+	if _, err := tmpImg.Write(buf.Bytes()); err != nil {
+		log.Error("failed to write image to temp file", "err", err)
+		return "", fmt.Errorf("failed to write image to temp file: %w", err)
+	}
+
+	return tmpImg.Name(), nil
 }

@@ -252,6 +252,7 @@ templ body(viewData ViewData) {
 	switch viewData.Transition {
 		case "cross-fade":
 			<body
+				hx-ext="head-support"
 				hx-headers={ headerStr }
 				hx-swap="beforeend"
 				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
@@ -262,6 +263,7 @@ templ body(viewData ViewData) {
 			</body>
 		case "fade":
 			<body
+				hx-ext="head-support"
 				hx-headers={ headerStr }
 				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration) }
 				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
@@ -272,6 +274,7 @@ templ body(viewData ViewData) {
 			</body>
 		default:
 			<body
+				hx-ext="head-support"
 				hx-headers={ headerStr }
 				hx-swap="beforeend"
 				class={ "transition-none", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
@@ -335,6 +338,7 @@ templ Home(viewData ViewData) {
 			}
 		</head>
 		@body(viewData) {
+			<div id="preload" hx-get="/preload" hx-trigger="preload"></div>
 			<main
 				id="kiosk"
 				hx-post="/image"
@@ -348,7 +352,7 @@ templ Home(viewData ViewData) {
           		"
 				hx-on::before-send="kiosk.setRequestLock(event)"
 				hx-on::after-request="kiosk.startPolling()"
-				hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames()"
+				hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames(), kiosk.preload()"
 			>
 				@spinner()
 			</main>

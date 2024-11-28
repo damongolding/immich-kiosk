@@ -277,6 +277,11 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		}
 	}
 
+	n, err := utils.SaveTempImage(img, immichImage.ID)
+	if err != nil {
+		return views.ImageData{}, err
+	}
+
 	imgString, err := imageToBase64(img, requestConfig, requestID, kioskDeviceID, "Converted", isPrefetch)
 	if err != nil {
 		return views.ImageData{}, err
@@ -291,6 +296,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		ImmichImage:   immichImage,
 		ImageData:     imgString,
 		ImageBlurData: imgBlurString,
+		ImagePath:     strings.TrimPrefix(n, "tmp/"),
 	}, nil
 }
 
@@ -347,6 +353,22 @@ func fromCache(c echo.Context, kioskDeviceID string) []views.ViewData {
 	defer viewDataCacheMutex.Unlock()
 
 	cacheKey := c.Request().URL.String() + kioskDeviceID
+	if data, found := ViewDataCache.Get(cacheKey); found {
+		cachedPageData := data.([]views.ViewData)
+		if len(cachedPageData) > 0 {
+			return cachedPageData
+		}
+		ViewDataCache.Delete(cacheKey)
+	}
+	return nil
+}
+
+func fromCacheWithURL(cacheKey string, kioskDeviceID string) []views.ViewData {
+
+	viewDataCacheMutex.Lock()
+	defer viewDataCacheMutex.Unlock()
+
+	cacheKey = cacheKey + kioskDeviceID
 	if data, found := ViewDataCache.Get(cacheKey); found {
 		cachedPageData := data.([]views.ViewData)
 		if len(cachedPageData) > 0 {
