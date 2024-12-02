@@ -42,6 +42,7 @@ interface HTMXEvent extends Event {
  * @property showTime - Whether to display the time
  * @property timeFormat - Format for time display
  * @property transition - Type of transition animation
+ * @property showMoreInfo - Show the more info image overlay
  */
 type KioskData = {
   debug: boolean;
@@ -55,6 +56,7 @@ type KioskData = {
   showTime: boolean;
   timeFormat: TimeFormat;
   transition: string;
+  showMoreInfo: boolean;
 };
 
 const MAX_FRAMES: number = 2 as const;
@@ -213,6 +215,7 @@ function addEventListeners(): void {
         togglePolling(true);
         break;
       case "KeyI":
+        if (!kioskData.showMoreInfo) return;
         e.preventDefault();
         handleInfoKeyPress();
         break;

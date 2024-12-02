@@ -230,6 +230,13 @@ type Config struct {
 	// ShowImageID display image ID
 	ShowImageID bool `json:"showImageID" mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
 
+	// ShowMoreInfo enables the display of additional information about the current image
+	ShowMoreInfo bool `json:"showMoreInfo" mapstructure:"show_more_info" query:"show_more_info" form:"show_more_info" default:"true"`
+	// ShowMoreInfoImageLink shows a link to the original image in the additional information panel
+	ShowMoreInfoImageLink bool `json:"showMoreInfoImageLink" mapstructure:"show_more_info_image_link" query:"show_more_info_image_link" form:"show_more_info_image_link" default:"true"`
+	// ShowMoreInfoQrCode displays a QR code linking to the original image in the additional information panel
+	ShowMoreInfoQrCode bool `json:"showMoreInfoQrCode" mapstructure:"show_more_info_qr_code" query:"show_more_info_qr_code" form:"show_more_info_qr_code" default:"true"`
+
 	// WeatherLocations A list of locations to fetch and display weather data from. Each location
 	WeatherLocations []WeatherLocation `json:"weather" mapstructure:"weather" default:"[]"`
 	// HasWeatherDefault indicates whether any weather location has been set as the default.
