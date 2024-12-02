@@ -68,6 +68,14 @@ var (
 		"image/gif",
 		"image/webp",
 	}
+
+	supportedImageMimeTypes = []string{
+		"image/jpeg",
+		"image/jpg",
+		"image/png",
+		"image/gif",
+		"image/webp",
+	}
 )
 
 type ImmichPersonStatistics struct {
