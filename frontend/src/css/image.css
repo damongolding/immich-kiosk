@@ -33,7 +33,7 @@
         100% 100% at 100% 100%,
         var(--fade-gradient)
     );
-    z-index: var(-z-base);
+    z-index: var(--z-base);
 }
 
 .frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before {
