@@ -8,10 +8,11 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/common"
+	components "github.com/damongolding/immich-kiosk/components/image"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
-	"github.com/damongolding/immich-kiosk/views"
 	"github.com/damongolding/immich-kiosk/webhooks"
 	"github.com/fogleman/gg"
 	"github.com/labstack/echo/v4"
@@ -243,7 +244,7 @@ func DrawFaceOnImage(img image.Image, i *immich.ImmichAsset) image.Image {
 
 // processViewImageData handles the entire process of preparing page data including image processing.
 // It returns the ImageData and an error if any step fails.
-func processViewImageData(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (views.ImageData, error) {
+func processViewImageData(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ImageData, error) {
 	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
 
@@ -258,7 +259,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 
 	img, err := processImage(&immichImage, requestConfig, requestID, kioskDeviceID, isPrefetch)
 	if err != nil {
-		return views.ImageData{}, fmt.Errorf("selecting image: %w", err)
+		return common.ImageData{}, fmt.Errorf("selecting image: %w", err)
 	}
 
 	if strings.EqualFold(requestConfig.ImageEffect, "smart-zoom") && len(immichImage.People)+len(immichImage.UnassignedFaces) == 0 {
@@ -273,32 +274,32 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	if requestConfig.OptimizeImages {
 		img, err = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
 		if err != nil {
-			return views.ImageData{}, err
+			return common.ImageData{}, err
 		}
 	}
 
 	imgString, err := imageToBase64(img, requestConfig, requestID, kioskDeviceID, "Converted", isPrefetch)
 	if err != nil {
-		return views.ImageData{}, err
+		return common.ImageData{}, err
 	}
 
 	imgBlurString, err := processBlurredImage(img, requestConfig, requestID, kioskDeviceID, isPrefetch)
 	if err != nil {
-		return views.ImageData{}, err
+		return common.ImageData{}, err
 	}
 
-	return views.ImageData{
+	return common.ImageData{
 		ImmichImage:   immichImage,
 		ImageData:     imgString,
 		ImageBlurData: imgBlurString,
 	}, nil
 }
 
-func ProcessViewImageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (views.ImageData, error) {
+func ProcessViewImageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ImageData, error) {
 	return processViewImageData("", requestConfig, c, isPrefetch)
 }
 
-func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (views.ImageData, error) {
+func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ImageData, error) {
 	return processViewImageData(imageOrientation, requestConfig, c, isPrefetch)
 }
 
@@ -321,7 +322,7 @@ func imagePreFetch(requestConfig config.Config, c echo.Context) {
 
 	trimHistory(&requestConfig.History, 10)
 
-	cachedViewData := []views.ViewData{}
+	cachedViewData := []common.ViewData{}
 
 	viewDataCacheMutex.Lock()
 	defer viewDataCacheMutex.Unlock()
@@ -329,7 +330,7 @@ func imagePreFetch(requestConfig config.Config, c echo.Context) {
 	cacheKey := c.Request().URL.String() + deviceID
 
 	if data, found := ViewDataCache.Get(cacheKey); found {
-		cachedViewData = data.([]views.ViewData)
+		cachedViewData = data.([]common.ViewData)
 	}
 
 	cachedViewData = append(cachedViewData, viewDataToAdd)
@@ -341,14 +342,14 @@ func imagePreFetch(requestConfig config.Config, c echo.Context) {
 }
 
 // fromCache retrieves cached page data for a given request and device ID.
-func fromCache(c echo.Context, kioskDeviceID string) []views.ViewData {
+func fromCache(c echo.Context, kioskDeviceID string) []common.ViewData {
 
 	viewDataCacheMutex.Lock()
 	defer viewDataCacheMutex.Unlock()
 
 	cacheKey := c.Request().URL.String() + kioskDeviceID
 	if data, found := ViewDataCache.Get(cacheKey); found {
-		cachedPageData := data.([]views.ViewData)
+		cachedPageData := data.([]common.ViewData)
 		if len(cachedPageData) > 0 {
 			return cachedPageData
 		}
@@ -358,7 +359,7 @@ func fromCache(c echo.Context, kioskDeviceID string) []views.ViewData {
 }
 
 // renderCachedViewData renders cached page data and updates the cache.
-func renderCachedViewData(c echo.Context, cachedViewData []views.ViewData, requestConfig *config.Config, requestID string, kioskDeviceID string) error {
+func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requestConfig *config.Config, requestID string, kioskDeviceID string) error {
 	viewDataCacheMutex.Lock()
 	defer viewDataCacheMutex.Unlock()
 
@@ -373,15 +374,15 @@ func renderCachedViewData(c echo.Context, cachedViewData []views.ViewData, reque
 	trimHistory(&requestConfig.History, 10)
 	viewDataToRender.History = requestConfig.History
 
-	return Render(c, http.StatusOK, views.Image(viewDataToRender))
+	return Render(c, http.StatusOK, components.Image(viewDataToRender))
 }
 
 // generateViewData generates page data for the current request.
-func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID string, isPrefetch bool) (views.ViewData, error) {
+func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID string, isPrefetch bool) (common.ViewData, error) {
 
 	const maxImageRetrievalAttepmts = 3
 
-	viewData := views.ViewData{
+	viewData := common.ViewData{
 		DeviceID: kioskDeviceID,
 		Config:   requestConfig,
 	}

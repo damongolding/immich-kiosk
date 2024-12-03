@@ -12,7 +12,6 @@ import (
 	"github.com/damongolding/immich-kiosk/common"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
-	"github.com/damongolding/immich-kiosk/views"
 )
 
 type WebhookEvent string
@@ -58,7 +57,7 @@ func newHTTPClient(timeout time.Duration) *http.Client {
 // KioskVersion is the current version string of the kiosk application.
 // event specifies which webhook event (NewAsset, PreviousAsset, etc) triggered this webhook.
 // viewData contains the images and other view context for the current request.
-func Trigger(requestData *common.RouteRequestData, KioskVersion string, event WebhookEvent, viewData views.ViewData) {
+func Trigger(requestData *common.RouteRequestData, KioskVersion string, event WebhookEvent, viewData common.ViewData) {
 
 	if requestData == nil {
 		log.Error("invalid request data")

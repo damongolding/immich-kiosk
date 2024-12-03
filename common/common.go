@@ -3,10 +3,12 @@ package common
 
 import (
 	"fmt"
+	"net/url"
 	"sync"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/config"
+	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
 )
 
@@ -40,4 +42,30 @@ func init() {
 	if err := InitializeSecret(); err != nil {
 		log.Fatal("Failed to initialize", "error", err)
 	}
+}
+
+type ImageData struct {
+	// ImmichImage immich asset data
+	ImmichImage immich.ImmichAsset
+	// ImageData image as base64 data
+	ImageData string
+	// ImageData blurred image as base64 data
+	ImageBlurData string
+	// Date image date
+	ImageDate string
+}
+
+type ViewData struct {
+	// KioskVersion the current build version of Kiosk
+	KioskVersion string
+	// DeviceID unique id for device
+	DeviceID string
+	// Images the images to display in view
+	Images []ImageData
+	// URL queries
+	Queries url.Values
+	// CustomCss
+	CustomCss []byte
+	// instance config
+	config.Config
 }

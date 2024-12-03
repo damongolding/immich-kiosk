@@ -1,0 +1,151 @@
+package components
+
+import (
+	"fmt"
+	"github.com/damongolding/immich-kiosk/common"
+	"strings"
+)
+
+// layoutSingleView renders a single image layout.
+//
+// Parameters:
+//   - viewData: ViewData containing all necessary information for rendering the image.
+templ layoutSingleView(viewData common.ViewData) {
+	@layoutView(viewData, true)
+}
+
+// layoutSplitView renders a split image layout for multiple images.
+//
+// Parameters:
+//   - viewData: ViewData containing all necessary information for rendering the images.
+templ layoutSplitView(viewData common.ViewData) {
+	@layoutView(viewData, false)
+}
+
+// layoutView renders the layout for either a single image or multiple images.
+// It applies the appropriate CSS classes and renders each image using renderSingleImage.
+//
+// Parameters:
+//   - viewData: ViewData containing all necessary information for rendering the images.
+//   - isSingle: A boolean indicating whether this is a single image layout.
+templ layoutView(viewData common.ViewData, isSingle bool) {
+	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
+		if isSingle {
+			@renderSingleImage(viewData, viewData.Images[0], 0)
+		} else {
+			for imageIndex, imageData := range viewData.Images {
+				<div class={ fmt.Sprintf("frame--layout-%s", viewData.Layout) }>
+					@renderSingleImage(viewData, imageData, imageIndex)
+				</div>
+			}
+		}
+	</div>
+}
+
+// renderImageBackground renders a blurred background image if applicable.
+//
+// Parameters:
+//   - viewData: ViewData containing background blur settings.
+//   - imageData: ImageData containing the blur data for the image.
+templ renderImageBackground(viewData common.ViewData, imageData common.ImageData) {
+	if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(imageData.ImageBlurData) > 0 {
+		<div class="frame--background">
+			<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
+		</div>
+	}
+}
+
+// renderImage renders an image with the specified effect and fit.
+// It applies zoom effects if specified, otherwise renders the image with the default frame.
+//
+// Parameters:
+//   - viewData: ViewData containing image effect and refresh settings.
+//   - imageData: ImageData containing the image data and ImmichImage.
+//
+// The function uses frameWithZoom for zoom effects and frame for default rendering.
+// It delegates to RenderImageWithCoverFit or renderImageFit based on the image effect.
+templ renderImage(viewData common.ViewData, imageData common.ImageData) {
+	switch viewData.ImageEffect {
+		case "zoom", "smart-zoom":
+			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichImage) {
+				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
+			}
+		default:
+			@frame() {
+				@renderImageFit(imageData.ImageData, viewData.ImageFit)
+			}
+	}
+}
+
+// renderSingleImage renders a single image with its background and metadata.
+//
+// Parameters:
+//   - viewData: ViewData containing rendering settings.
+//   - imageData: ImageData for the image to be rendered.
+//   - imageIndex: The index of the image in the viewData.Images slice.
+templ renderSingleImage(viewData common.ViewData, imageData common.ImageData, imageIndex int) {
+	@renderImageBackground(viewData, imageData)
+	@renderImage(viewData, imageData)
+	if !viewData.DisableUi {
+		@imageMetadata(viewData, imageIndex)
+	}
+}
+
+// renderImageFit selects and renders the appropriate image fit template based on the imageFit parameter.
+//
+// Parameters:
+//   - imageData: A string containing the image data (typically a URL or base64-encoded image).
+//   - imageFit: A string specifying the desired image fit style ("cover", "none", or any other value for "contain").
+//
+// The function uses a switch statement to determine which template to use:
+//   - "cover": Uses RenderImageWithCoverFit
+//   - "none": Uses RenderImageWithoutFit
+//   - Any other value: Uses RenderImageWithContainFit (default behavior)
+templ renderImageFit(imageData string, imageFit string) {
+	switch imageFit {
+		case "cover":
+			@RenderImageWithCoverFit(imageData, imageFit)
+		case "none":
+			@RenderImageWithoutFit(imageData, imageFit)
+		default:
+			@RenderImageWithContainFit(imageData, imageFit)
+	}
+}
+
+// RenderImageWithCoverFit renders an image with "cover" fit style.
+//
+// Parameters:
+//   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
+//   - imageFit: A string specifying the image fit style (unused in this function).
+templ RenderImageWithCoverFit(ImageData, imageFit string) {
+	<img
+		class="frame--image-fit-cover"
+		src={ ImageData }
+		alt="Main image"
+	/>
+}
+
+// RenderImageWithoutFit renders an image without any specific fit style.
+//
+// Parameters:
+//   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
+//   - imageFit: A string specifying the image fit style (unused in this function).
+templ RenderImageWithoutFit(ImageData, imageFit string) {
+	<img
+		src={ ImageData }
+		alt="Main image"
+	/>
+}
+
+// RenderImageWithContainFit renders an image with "contain" fit style.
+//
+// Parameters:
+//   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
+//   - imageFit: A string specifying the image fit style (unused in this function).
+templ RenderImageWithContainFit(ImageData, imageFit string) {
+	<img
+		class="frame--image-fit-contain"
+		src={ ImageData }
+		alt="Main image"
+	/>
+}

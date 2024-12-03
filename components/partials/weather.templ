@@ -1,4 +1,4 @@
-package views
+package partials
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-templ Weather(weatherData weather.WeatherLocation) {
+templ WeatherLocation(weatherData weather.WeatherLocation) {
 	<div class="weather">
 		<div class="weather--location">
 			{ cases.Title(language.Und).String(weatherData.Name) }
@@ -82,4 +82,16 @@ templ Weather(weatherData weather.WeatherLocation) {
 			</div>
 		</div>
 	</div>
+}
+
+// WeatherContainer renders a weather component with HTMX updates
+templ Weather(theme string) {
+	<div
+		id="weather"
+		class={ fmt.Sprintf("weather--theme-%s", theme) }
+		hx-get="/weather"
+		hx-include=".kiosk-param"
+		hx-trigger="load, every 61s"
+		hx-swap="innerHTML"
+	></div>
 }

@@ -6,8 +6,8 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 
+	"github.com/damongolding/immich-kiosk/components/partials"
 	"github.com/damongolding/immich-kiosk/config"
-	"github.com/damongolding/immich-kiosk/views"
 )
 
 // Clock clock endpoint
@@ -32,6 +32,6 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 			"DateFormat", requestConfig.DateFormat,
 		)
 
-		return Render(c, http.StatusOK, views.Clock(requestConfig))
+		return Render(c, http.StatusOK, partials.Clock(requestConfig))
 	}
 }

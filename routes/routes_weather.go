@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/components/partials"
 	"github.com/damongolding/immich-kiosk/config"
-	"github.com/damongolding/immich-kiosk/views"
 	"github.com/damongolding/immich-kiosk/weather"
 	"github.com/labstack/echo/v4"
 )
@@ -50,7 +50,7 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 			return c.NoContent(http.StatusNoContent)
 		}
 
-		return Render(c, http.StatusOK, views.Weather(weatherData))
+		return Render(c, http.StatusOK, partials.WeatherLocation(weatherData))
 
 	}
 }

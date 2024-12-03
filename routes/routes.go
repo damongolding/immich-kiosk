@@ -16,9 +16,9 @@ import (
 	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/common"
+	"github.com/damongolding/immich-kiosk/components/partials"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/utils"
-	"github.com/damongolding/immich-kiosk/views"
 )
 
 var (
@@ -90,7 +90,7 @@ func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.R
 
 func RenderError(c echo.Context, err error, message string) error {
 	log.Error(message, "err", err)
-	return Render(c, http.StatusOK, views.Error(views.ErrorData{
+	return Render(c, http.StatusOK, partials.Error(partials.ErrorData{
 		Title:   "Error " + message,
 		Message: err.Error(),
 	}))

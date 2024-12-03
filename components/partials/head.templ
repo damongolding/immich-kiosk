@@ -1,0 +1,131 @@
+package partials
+
+import (
+	"bytes"
+	"fmt"
+	"github.com/damongolding/immich-kiosk/common"
+	"math"
+)
+
+// baseFontSize generates CSS for font sizing
+func baseFontSize(fontSize int) string {
+	return fmt.Sprintf(`
+		<style>
+            html,
+            body {
+                font-size: %v%%;
+            }
+
+		    @media screen and (max-width: 31.25rem) {
+				html,
+				body {
+				    font-size: %v%% !important;
+				}
+			}
+		</style>`, fontSize, fontSize-20)
+}
+
+// imageSmartZoomKeyframes generates CSS keyframes for smart zoom animations
+func imageSmartZoomKeyframes(zoomAmount int) string {
+	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
+	return fmt.Sprintf(`
+	    <style>
+	        @keyframes image-smart-zoom-in {
+	           from {
+	           	   transform: scale3d(1,1,1);
+	           	   transform-origin: center;
+	           }
+
+	           to {
+	           	   transform: scale3d(%.2f,%.2f,%.2f);
+	           	   transform-origin: inherit;
+	           }
+	        }
+
+	        @keyframes image-smart-zoom-out {
+	           from {
+	           	   transform: scale3d(%.2f,%.2f,%.2f);
+	           	   transform-origin: inherit;
+	           }
+
+	           to {
+	           	   transform: scale3d(1,1,1);
+	           	   transform-origin: center;
+	           }
+	        }
+	    </style>`, zoom, zoom, zoom, zoom, zoom, zoom)
+}
+
+// imageZoomKeyframes generates CSS keyframes for basic zoom animations
+func imageZoomKeyframes(zoomAmount int) string {
+	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
+
+	return fmt.Sprintf(`
+	    <style>
+			@keyframes image-zoom-in {
+			    from {
+			        transform: scale3d(1,1,1);
+			        transform-origin: center;
+			    }
+
+			    to {
+			        transform: scale3d(%.2f,%.2f,%.2f);
+			        transform-origin: center;
+			    }
+			}
+
+			@keyframes image-zoom-out {
+				from {
+				    transform: scale3d(%.2f,%.2f,%.2f);
+				    transform-origin: center;
+				}
+
+				to {
+				    transform: scale3d(1,1,1);
+				    transform-origin: center;
+				}
+			}
+		</style>`, zoom, zoom, zoom, zoom, zoom, zoom)
+}
+
+// customCss wraps CSS content in style tags and removes null bytes
+func customCss(css []byte) string {
+	css = bytes.Replace(css, []byte{0}, []byte{}, -1)
+	return fmt.Sprintf("<style>%s</style>", css)
+}
+
+// Head renders the <head> content
+templ Head(viewData common.ViewData) {
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta name="version" content={ viewData.KioskVersion }/>
+	<meta name="description" content="Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses Immich as a data source."/>
+	<meta name="mobile-web-app-capable" content="yes"/>
+	<meta name="apple-mobile-web-app-capable" content="yes"/>
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+	<meta name="apple-mobile-web-app-status-bar" content="black-translucent"/>
+	<meta name="theme-color" content="black"/>
+	<title>Immich Kiosk</title>
+	<link rel="manifest" href="/assets/manifest.json"/>
+	<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))) }/>
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png"/>
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png"/>
+	<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png"/>
+	if viewData.HideCursor {
+		<style>
+			html, body {
+			    cursor: none;
+			}
+		</style>
+	}
+	switch viewData.ImageEffect {
+		case "zoom":
+			@templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount))
+		case "smart-zoom":
+			@templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount))
+	}
+	@templ.Raw(baseFontSize(viewData.FontSize))
+	if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
+		@templ.Raw(customCss(viewData.CustomCss))
+	}
+}

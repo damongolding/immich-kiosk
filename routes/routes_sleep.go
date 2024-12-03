@@ -7,9 +7,9 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 
+	"github.com/damongolding/immich-kiosk/components/partials"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/utils"
-	"github.com/damongolding/immich-kiosk/views"
 )
 
 // Sleep sleep mode endpoint
@@ -33,8 +33,8 @@ func Sleep(baseConfig *config.Config) echo.HandlerFunc {
 		)
 
 		sleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now())
-		
-		return Render(c, http.StatusOK, views.Sleep(sleepTime, requestData.RequestConfig.SleepIcon))
+
+		return Render(c, http.StatusOK, partials.SleepController(sleepTime, requestData.RequestConfig.SleepIcon))
 
 	}
 }

@@ -1,6 +1,6 @@
-package views
+package partials
 
-templ Sleep(sleepMode bool, sleepIcon bool) {
+templ SleepController(sleepMode bool, sleepIcon bool) {
 	if sleepMode {
 		if sleepIcon {
 			<figure id="sleep-icon">
@@ -20,5 +20,18 @@ templ Sleep(sleepMode bool, sleepIcon bool) {
 		<script>
             document.body.classList.remove('sleep');
     	</script>
+	}
+}
+
+// Sleep renders a form for sleep mode functionality
+templ Sleep(sleepStart, sleepEnd string) {
+	if sleepStart != "" && sleepEnd != "" {
+		<form
+			hx-get="/sleep"
+			hx-trigger="load, every 13s"
+			hx-target="#sleep-controller"
+			hx-swap="innerHTML"
+		></form>
+		<div id="sleep-controller"></div>
 	}
 }

@@ -1,0 +1,30 @@
+package components
+
+import (
+	"github.com/damongolding/immich-kiosk/common"
+	"strings"
+)
+
+func newHistoryEntry(images []common.ImageData) string {
+	if len(images) == 0 {
+		return ""
+	}
+	newImages := make([]string, len(images))
+	for i, entry := range images {
+		newImages[i] = entry.ImmichImage.ID
+	}
+	return strings.Join(newImages, ",")
+}
+
+// renderHistory renders a form containing the viewing history of images.
+//
+// Parameters:
+//   - viewData: ViewData containing the history and current images.
+templ renderHistory(viewData common.ViewData) {
+	<form id="kiosk-history" hx-swap-oob="true">
+		for _, historyEntry := range viewData.History {
+			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
+		}
+		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Images) }/>
+	</form>
+}

@@ -10,10 +10,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/damongolding/immich-kiosk/common"
+	components "github.com/damongolding/immich-kiosk/components/image"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
-	"github.com/damongolding/immich-kiosk/views"
 	"github.com/damongolding/immich-kiosk/webhooks"
 )
 
@@ -48,10 +49,10 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 		prevImages := strings.Split(lastHistoryEntry, ",")
 		requestConfig.History = requestConfig.History[:historyLen-2]
 
-		ViewData := views.ViewData{
+		ViewData := common.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     kioskDeviceID,
-			Images:       make([]views.ImageData, len(prevImages)),
+			Images:       make([]common.ImageData, len(prevImages)),
 			Queries:      c.QueryParams(),
 			Config:       requestConfig,
 		}
@@ -96,7 +97,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 
 				wg.Wait()
 
-				ViewData.Images[i] = views.ImageData{
+				ViewData.Images[i] = common.ImageData{
 					ImmichImage:   image,
 					ImageData:     imgString,
 					ImageBlurData: imgBlurString,
@@ -111,6 +112,6 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.PreviousAsset, ViewData)
-		return Render(c, http.StatusOK, views.Image(ViewData))
+		return Render(c, http.StatusOK, components.Image(ViewData))
 	}
 }

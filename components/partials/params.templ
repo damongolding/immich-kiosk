@@ -1,0 +1,14 @@
+package partials
+
+import "net/url"
+
+// ParamForm renders a form with URL query parameters
+templ Params(queries url.Values) {
+	<form id="kiosk-params">
+		for key, values := range queries {
+			for _, value := range values {
+				<input class="kiosk-param" type="hidden" name={ key } value={ value }/>
+			}
+		}
+	</form>
+}

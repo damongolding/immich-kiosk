@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 
+	"github.com/damongolding/immich-kiosk/common"
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/utils"
 	"github.com/damongolding/immich-kiosk/views"
@@ -46,7 +47,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			queryParams.Set("weather", weather.DefaultLocation())
 		}
 
-		viewData := views.ViewData{
+		viewData := common.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     utils.GenerateUUID(),
 			Queries:      queryParams,

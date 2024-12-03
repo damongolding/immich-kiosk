@@ -10,7 +10,6 @@ import (
 	"github.com/damongolding/immich-kiosk/config"
 	"github.com/damongolding/immich-kiosk/immich"
 	"github.com/damongolding/immich-kiosk/utils"
-	"github.com/damongolding/immich-kiosk/views"
 	"github.com/damongolding/immich-kiosk/webhooks"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/sync/errgroup"
@@ -77,10 +76,10 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			lastHistoryEntry := requestConfig.History[historyLen-1]
 			prevImages := strings.Split(lastHistoryEntry, ",")
 
-			viewData := views.ViewData{
+			viewData := common.ViewData{
 				KioskVersion: KioskVersion,
 				DeviceID:     kioskDeviceID,
-				Images:       make([]views.ImageData, len(prevImages)),
+				Images:       make([]common.ImageData, len(prevImages)),
 				Config:       requestConfig,
 			}
 
@@ -94,7 +93,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 
 					image.AssetInfo(requestID)
 
-					viewData.Images[i] = views.ImageData{
+					viewData.Images[i] = common.ImageData{
 						ImmichImage: image,
 					}
 					return nil
