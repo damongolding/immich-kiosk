@@ -1,0 +1,114 @@
+package views
+
+import (
+	"fmt"
+	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/components/partials"
+	"net/url"
+
+	"github.com/damongolding/immich-kiosk/internal/utils"
+)
+
+// Home renders the Home layout template
+templ Home(viewData common.ViewData) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			@partials.Head(viewData)
+		</head>
+		@partials.Body(viewData) {
+			<main
+				id="kiosk"
+				hx-post="/image"
+				hx-include=".kiosk-history--entry"
+				hx-trigger="
+					load,
+					click from:#navigation-interaction-area--next-image throttle:1s,
+					click from:.navigation--next-image throttle:1s,
+					keyup[key=='ArrowRight'] from:body throttle:1s,
+					kiosk-new-image throttle:1s
+				"
+				hx-on::before-send="kiosk.setRequestLock(event)"
+				hx-on::after-request="kiosk.startPolling()"
+				hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames()"
+			>
+				@partials.Spinner()
+			</main>
+			if viewData.ShowProgress {
+				@partials.ProgressBar()
+			}
+			if !viewData.DisableUi {
+				<section id="clock-weather-container">
+					<div>
+						if (viewData.ShowTime || viewData.ShowDate) {
+							@partials.ClockContainer(viewData.Theme)
+						}
+					</div>
+					<div>
+						if viewData.Queries.Has("weather") || viewData.HasWeatherDefault {
+							@partials.Weather(viewData.Theme)
+						}
+					</div>
+				</section>
+			}
+			@partials.Menu(viewData.ShowMoreInfo)
+			@partials.Params(viewData.Queries)
+			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd)
+			@partials.History()
+			@partials.RefreshCheck(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
+			@partials.OfflineIcon()
+			@kioskData(map[string]any{
+				"debug":              viewData.Kiosk.Debug,
+				"debugVerbose":       viewData.Kiosk.DebugVerbose,
+				"version":            viewData.KioskVersion,
+				"params":             queriesToJson(viewData.Queries),
+				"refresh":            viewData.Refresh,
+				"disableScreensaver": viewData.DisableScreensaver,
+				"showDate":           viewData.ShowDate,
+				"dateFormat":         utils.DateToJavascriptLayout(viewData.DateFormat),
+				"showTime":           viewData.ShowTime,
+				"timeFormat":         viewData.TimeFormat,
+				"transition":         viewData.Transition,
+				"showMoreInfo":       viewData.ShowMoreInfo,
+			})
+			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
+			if len(viewData.Queries) > 0 {
+				<script>
+					const kioskQueries = document.body.querySelectorAll(".kiosk-param");
+					document.body.addEventListener("htmx:configRequest", (event) => {
+						kioskQueries.forEach((q) => {
+							event.detail.parameters[q.name] = q.value;
+						});
+					});
+				</script>
+			}
+		}
+	</html>
+}
+
+// kioskData renders kiosk configuration data as JSON
+templ kioskData(data any) {
+	@templ.JSONScript("kiosk-data", data)
+	<script>
+		const kioskData = JSON.parse(document.getElementById('kiosk-data').textContent);
+		console.log(`\nImmich Kiosk version: %c${kioskData.version}`,  "color: white; font-weight:600; background-color:#1e83f7; padding:0.3rem 1rem; border-radius:4px;", "\n\n");
+	</script>
+}
+
+// QueriesToJson converts URL query parameters from url.Values to a map.
+// If a query parameter has only one value, it will be stored as a string.
+// If a query parameter has multiple values, they will be stored as a string slice.
+func queriesToJson(values url.Values) map[string]any {
+
+	result := make(map[string]any)
+
+	for key, value := range values {
+		if len(value) == 1 {
+			result[key] = value[0]
+		} else {
+			result[key] = value
+		}
+	}
+
+	return result
+}
