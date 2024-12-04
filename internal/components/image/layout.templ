@@ -47,7 +47,7 @@ templ layoutView(viewData common.ViewData, isSingle bool) {
 // Parameters:
 //   - viewData: ViewData containing background blur settings.
 //   - imageData: ImageData containing the blur data for the image.
-templ renderImageBackground(viewData common.ViewData, imageData common.ImageData) {
+templ renderImageBackground(viewData common.ViewData, imageData common.ViewImageData) {
 	if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(imageData.ImageBlurData) > 0 {
 		<div class="frame--background">
 			<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
@@ -64,7 +64,7 @@ templ renderImageBackground(viewData common.ViewData, imageData common.ImageData
 //
 // The function uses frameWithZoom for zoom effects and frame for default rendering.
 // It delegates to RenderImageWithCoverFit or renderImageFit based on the image effect.
-templ renderImage(viewData common.ViewData, imageData common.ImageData) {
+templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 	switch viewData.ImageEffect {
 		case "zoom", "smart-zoom":
 			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichImage) {
@@ -83,7 +83,7 @@ templ renderImage(viewData common.ViewData, imageData common.ImageData) {
 //   - viewData: ViewData containing rendering settings.
 //   - imageData: ImageData for the image to be rendered.
 //   - imageIndex: The index of the image in the viewData.Images slice.
-templ renderSingleImage(viewData common.ViewData, imageData common.ImageData, imageIndex int) {
+templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData, imageIndex int) {
 	@renderImageBackground(viewData, imageData)
 	@renderImage(viewData, imageData)
 	if !viewData.DisableUi {

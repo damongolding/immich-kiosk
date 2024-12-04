@@ -44,7 +44,7 @@ func init() {
 	}
 }
 
-type ImageData struct {
+type ViewImageData struct {
 	// ImmichImage immich asset data
 	ImmichImage immich.ImmichAsset
 	// ImageData image as base64 data
@@ -61,7 +61,7 @@ type ViewData struct {
 	// DeviceID unique id for device
 	DeviceID string
 	// Images the images to display in view
-	Images []ImageData
+	Images []ViewImageData
 	// URL queries
 	Queries url.Values
 	// CustomCss

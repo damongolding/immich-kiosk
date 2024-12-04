@@ -244,7 +244,7 @@ func DrawFaceOnImage(img image.Image, i *immich.ImmichAsset) image.Image {
 
 // processViewImageData handles the entire process of preparing page data including image processing.
 // It returns the ImageData and an error if any step fails.
-func processViewImageData(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ImageData, error) {
+func processViewImageData(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ViewImageData, error) {
 	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
 
@@ -259,7 +259,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 
 	img, err := processImage(&immichImage, requestConfig, requestID, kioskDeviceID, isPrefetch)
 	if err != nil {
-		return common.ImageData{}, fmt.Errorf("selecting image: %w", err)
+		return common.ViewImageData{}, fmt.Errorf("selecting image: %w", err)
 	}
 
 	if strings.EqualFold(requestConfig.ImageEffect, "smart-zoom") && len(immichImage.People)+len(immichImage.UnassignedFaces) == 0 {
@@ -274,32 +274,32 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	if requestConfig.OptimizeImages {
 		img, err = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
 		if err != nil {
-			return common.ImageData{}, err
+			return common.ViewImageData{}, err
 		}
 	}
 
 	imgString, err := imageToBase64(img, requestConfig, requestID, kioskDeviceID, "Converted", isPrefetch)
 	if err != nil {
-		return common.ImageData{}, err
+		return common.ViewImageData{}, err
 	}
 
 	imgBlurString, err := processBlurredImage(img, requestConfig, requestID, kioskDeviceID, isPrefetch)
 	if err != nil {
-		return common.ImageData{}, err
+		return common.ViewImageData{}, err
 	}
 
-	return common.ImageData{
+	return common.ViewImageData{
 		ImmichImage:   immichImage,
 		ImageData:     imgString,
 		ImageBlurData: imgBlurString,
 	}, nil
 }
 
-func ProcessViewImageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ImageData, error) {
+func ProcessViewImageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ViewImageData, error) {
 	return processViewImageData("", requestConfig, c, isPrefetch)
 }
 
-func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ImageData, error) {
+func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ViewImageData, error) {
 	return processViewImageData(imageOrientation, requestConfig, c, isPrefetch)
 }
 

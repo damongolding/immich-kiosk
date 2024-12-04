@@ -52,7 +52,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 		ViewData := common.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     kioskDeviceID,
-			Images:       make([]common.ImageData, len(prevImages)),
+			Images:       make([]common.ViewImageData, len(prevImages)),
 			Queries:      c.QueryParams(),
 			Config:       requestConfig,
 		}
@@ -97,7 +97,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 
 				wg.Wait()
 
-				ViewData.Images[i] = common.ImageData{
+				ViewData.Images[i] = common.ViewImageData{
 					ImmichImage:   image,
 					ImageData:     imgString,
 					ImageBlurData: imgBlurString,
