@@ -12,7 +12,10 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
+// SharedSecret stores the application-wide shared secret string
 var SharedSecret string
+
+// SharedSecretInit ensures SharedSecret is initialized only once
 var SharedSecretInit sync.Once
 
 // RouteRequestData contains request metadata and configuration used across routes
@@ -23,6 +26,9 @@ type RouteRequestData struct {
 	ClientName    string        // Name of the client making the request
 }
 
+// InitializeSecret generates and sets the shared secret for the application.
+// It uses sync.Once to ensure the secret is only generated once.
+// Returns an error if secret generation fails.
 func InitializeSecret() error {
 	var initErr error
 
@@ -38,35 +44,27 @@ func InitializeSecret() error {
 	return initErr
 }
 
+// init initializes the package by generating the shared secret
 func init() {
 	if err := InitializeSecret(); err != nil {
 		log.Fatal("Failed to initialize", "error", err)
 	}
 }
 
+// ViewImageData contains the image data and metadata for displaying an image in the view
 type ViewImageData struct {
-	// ImmichImage immich asset data
-	ImmichImage immich.ImmichAsset
-	// ImageData image as base64 data
-	// ImageData image as base64 data
-	ImageData string
-	// ImageBlurData blurred image as base64 data
-	ImageBlurData string
-	// Date image date
-	ImageDate string
+	ImmichImage   immich.ImmichAsset // ImmichImage contains immich asset data
+	ImageData     string             // ImageData contains the image as base64 data
+	ImageBlurData string             // ImageBlurData contains the blurred image as base64 data
+	ImageDate     string             // ImageDate contains the date of the image
 }
 
+// ViewData contains all the data needed to render a view in the application
 type ViewData struct {
-	// KioskVersion the current build version of Kiosk
-	KioskVersion string
-	// DeviceID unique id for device
-	DeviceID string
-	// Images the images to display in view
-	Images []ViewImageData
-	// URL queries
-	Queries url.Values
-	// CustomCss
-	CustomCss []byte
-	// instance config
-	config.Config
+	KioskVersion  string          // KioskVersion contains the current build version of Kiosk
+	DeviceID      string          // DeviceID contains the unique identifier for the device
+	Images        []ViewImageData // Images contains the collection of images to display in view
+	Queries       url.Values      // Queries contains the URL query parameters
+	CustomCss     []byte          // CustomCss contains custom CSS styling as bytes
+	config.Config                 // Config contains the instance configuration
 }
