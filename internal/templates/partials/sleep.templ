@@ -13,13 +13,9 @@ templ SleepController(sleepMode bool, sleepIcon bool) {
 				</span>
 			</figure>
 		}
-		<script>
-	        document.body.classList.add('sleep');
-		</script>
+		<div hx-on::load="document.body.classList.add('sleep')" hidden></div>
 	} else {
-		<script>
-            document.body.classList.remove('sleep');
-    	</script>
+		<div hx-on::load="document.body.classList.remove('sleep')" hidden></div>
 	}
 }
 
