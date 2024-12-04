@@ -28,7 +28,7 @@ templ Sleep(sleepStart, sleepEnd string) {
 	if sleepStart != "" && sleepEnd != "" {
 		<form
 			hx-get="/sleep"
-			hx-trigger="load, every 13s"
+			hx-trigger="load, every 15s"
 			hx-target="#sleep-controller"
 			hx-swap="innerHTML"
 		></form>

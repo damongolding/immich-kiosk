@@ -141,6 +141,11 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte,
 			err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
 			log.Error(err)
 			_, _ = io.Copy(io.Discard, res.Body)
+
+			if res.StatusCode == 401 {
+				err = fmt.Errorf("received 401 (unauthorised) code from Immich. Please check your Immich API is correct")
+			}
+
 			return responseBody, err
 		}
 
