@@ -30,7 +30,7 @@ templ renderMoreInfo(viewData common.ViewData) {
 					@people(img.ImmichImage.People)
 					<div class="more-info--button-group">
 						if viewData.ShowMoreInfoImageLink {
-							<a class="more-info--image-link" href={ templ.SafeURL(immichImageUrl(viewData.ImmichUrl, img.ImmichImage.ID)) } target="_blank">
+							<a class="more-info--image-link" href={ templ.SafeURL(immichImageUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichImage.ID)) } target="_blank">
 								View image in Immich
 							</a>
 						}
@@ -50,7 +50,7 @@ templ renderMoreInfo(viewData common.ViewData) {
 				</div>
 				if viewData.ShowMoreInfoQrCode {
 					<div class="more-info--image--qr-code">
-						<img src={ utils.CreateQrCode(immichImageUrl(viewData.ImmichUrl, img.ImmichImage.ID)) }/>
+						<img src={ utils.CreateQrCode(immichImageUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichImage.ID)) }/>
 					</div>
 				}
 			</div>
@@ -101,6 +101,7 @@ templ originalImageData(img immich.ImmichAsset) {
 // people generates a component displaying names of people detected in an image
 // Parameters:
 //   - people: Slice of Person objects containing detected individuals
+//
 // Returns:
 //   - A templ.Component for rendering the people list
 func people(people []immich.Person) templ.Component {
@@ -134,23 +135,29 @@ func people(people []immich.Person) templ.Component {
 // immichImageUrl constructs the URL for viewing an image in Immich
 // Parameters:
 //   - baseUrl: The base URL of the Immich instance
+//   - externalUrl: The external URL of the Immich instance, if different from base URL
 //   - imageID: The ID of the image to view
+//
 // Returns:
-//   - The complete URL string for viewing the image
-func immichImageUrl(baseUrl, imageID string) string {
-	u, err := url.Parse(baseUrl)
+//   - The complete URL string for viewing the image, or '#' if URL parsing fails
+func immichImageUrl(baseUrl, externalUrl, imageID string) string {
+	// Use external URL if provided, otherwise fall back to base URL
+	urlToParse := externalUrl
+	if urlToParse == "" {
+		urlToParse = baseUrl
+	}
+
+	u, err := url.Parse(urlToParse)
 	if err != nil {
 		log.Warn("Failed to parse base URL", "error", err)
 		return "#"
 	}
 
-	apiUrl := url.URL{
+	return (&url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
 		Path:   path.Join("photos", imageID),
-	}
-
-	return apiUrl.String()
+	}).String()
 }
 
 // webhookSignature generates a signature for webhook authentication.

@@ -147,6 +147,11 @@ type Config struct {
 	// ImmichUrl Immuch base url
 	ImmichUrl string `json:"-" mapstructure:"immich_url" default:""`
 
+	// ImmichExternalUrl specifies an external URL for Immich access. This can be used when
+	// the Immich instance is accessed through a different URL externally vs internally
+	// (e.g., when using reverse proxies or different network paths)
+	ImmichExternalUrl string `json:"-" mapstructure:"immich_external_url" default:""`
+
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
 	DisableUi bool `json:"disableUi" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames
