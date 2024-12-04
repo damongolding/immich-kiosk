@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
-	"github.com/damongolding/immich-kiosk/internal/components/partials"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/weather"
 	"github.com/labstack/echo/v4"
 )

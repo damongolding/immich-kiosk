@@ -6,9 +6,9 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 
-	components "github.com/damongolding/immich-kiosk/internal/components/image"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
@@ -61,7 +61,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)
-		return Render(c, http.StatusOK, components.Image(viewData))
+		return Render(c, http.StatusOK, imageComponent.Image(viewData))
 	}
 }
 

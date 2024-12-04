@@ -11,9 +11,9 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/damongolding/immich-kiosk/internal/common"
-	components "github.com/damongolding/immich-kiosk/internal/components/image"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
@@ -112,6 +112,6 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.PreviousAsset, ViewData)
-		return Render(c, http.StatusOK, components.Image(ViewData))
+		return Render(c, http.StatusOK, imageComponent.Image(ViewData))
 	}
 }

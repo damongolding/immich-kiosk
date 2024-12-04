@@ -9,9 +9,9 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
-	components "github.com/damongolding/immich-kiosk/internal/components/image"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 	"github.com/fogleman/gg"
@@ -374,7 +374,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 	trimHistory(&requestConfig.History, 10)
 	viewDataToRender.History = requestConfig.History
 
-	return Render(c, http.StatusOK, components.Image(viewDataToRender))
+	return Render(c, http.StatusOK, imageComponent.Image(viewDataToRender))
 }
 
 // generateViewData generates page data for the current request.
