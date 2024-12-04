@@ -1,0 +1,27 @@
+version: "3"
+
+tasks:
+  # Docker tasks
+  docker-image:
+    desc: Build docker image locally
+    deps: [build]
+    cmds:
+      - docker build --no-cache --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
+
+  docker-buildx:
+    desc: Create and install docker buildx builder
+    cmds:
+      - docker buildx create --name mybuilder --use
+      - docker buildx install
+
+  docker-image-push:
+    desc: Build and push multi-arch docker image
+    deps: [build]
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}} --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
+
+  docker-dev-push:
+    desc: Build and push development multi-arch docker image
+    deps: [build]
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk-development:{{.VERSION}} -t damongolding/immich-kiosk-development:latest .

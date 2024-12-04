@@ -9,7 +9,7 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    z-index: 99999;
+    z-index: var(--z-interaction);
     background-color: transparent;
 }
 
@@ -28,7 +28,7 @@
 /* --- menu --- */
 .navigation {
     display: flex;
-    gap: 1.6rem;
+    gap: 1.4rem;
     position: absolute;
     top: 1rem;
     right: 50%;
@@ -43,7 +43,7 @@
     box-shadow:
         rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem,
         rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
-    z-index: 99999;
+    z-index: var(--z-navigation);
 }
 
 .navigation--item {
@@ -55,7 +55,10 @@
     cursor: pointer;
 
     &:hover {
-        background-color: rgb(51 52 96 / 60%);
+        background-color: var(--mint-green);
+        svg {
+            fill: var(--cool-grey);
+        }
     }
 }
 
@@ -71,8 +74,8 @@
 
 .navigation svg {
     fill: white;
-    width: 2rem;
-    height: 2rem;
+    width: 1.8rem;
+    height: 1.8rem;
 }
 
 .rounded {
@@ -99,6 +102,13 @@
     .navigation--fullscreen--enter {
         display: none;
         visibility: hidden;
+    }
+}
+
+.navigation--more-info {
+    svg {
+        width: 1.5rem;
+        height: 1.5rem;
     }
 }
 

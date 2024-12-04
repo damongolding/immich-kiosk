@@ -1,3 +1,9 @@
+.polling-paused.more-info {
+    #clock-weather-container {
+        opacity: 0.2;
+    }
+}
+
 #clock-weather-container {
     position: absolute;
     display: flex;
@@ -7,7 +13,7 @@
     top: 0;
     left: 0;
 
-    z-index: 10000;
+    z-index: var(--z-clock);
 }
 
 /* Splitview */
@@ -20,5 +26,5 @@
 .sleep #clock-weather-container {
     height: 100%;
     width: 100%;
-    z-index: 99999;
+    z-index: var(--z-sleep-clock);
 }

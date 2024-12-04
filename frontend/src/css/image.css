@@ -1,4 +1,10 @@
 /* --- image metadata --- */
+.polling-paused.more-info {
+    .image--metadata {
+        opacity: 0.2;
+    }
+}
+
 .image--metadata {
     position: absolute;
     display: flex;
@@ -27,7 +33,7 @@
         100% 100% at 100% 100%,
         var(--fade-gradient)
     );
-    z-index: 0;
+    z-index: var(--z-base);
 }
 
 .frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before {
@@ -42,7 +48,7 @@
         100% 100% at 0% 100%,
         var(--fade-gradient)
     );
-    z-index: 0;
+    z-index: var(-z-base);
 }
 
 /* solid theme */
@@ -125,25 +131,28 @@
     will-change: scale;
 }
 
-.frame:nth-last-of-type(-n + 2) .frame--image-zoom-in img {
+.frame .frame--image-zoom-in img {
     animation-name: image-zoom-in;
 }
-.frame:nth-last-of-type(-n + 2) .frame--image-zoom-out img {
+.frame .frame--image-zoom-out img {
     animation-name: image-zoom-out;
 }
 
 /*  Smart zoom */
-.frame:nth-last-of-type(-n + 2) .frame--image-smart-zoom-out img {
+.frame .frame--image-smart-zoom-out img {
     animation-name: image-smart-zoom-out;
 }
 
-.frame:nth-last-of-type(-n + 2) .frame--image-smart-zoom-in img {
+.frame .frame--image-smart-zoom-in img {
     animation-name: image-smart-zoom-in;
 }
 
 /* Pause animations when polling is paused */
-.polling-paused .frame:nth-last-of-type(-n + 2) img {
+.polling-paused .frame {
     animation-play-state: paused;
+    img {
+        animation-play-state: paused;
+    }
 }
 
 @media screen and (max-width: 31.25rem) {

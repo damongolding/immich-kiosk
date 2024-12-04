@@ -22,6 +22,10 @@ person:
 # ID(s) of album or albums to display
 album:
   - "ALBUM_ID"
+# Album IDs to exclude from being shown. Albums in this list will be filtered from
+# appearing in the frame even if they are included in the 'album' list.
+excluded_albums:
+  - "ALBUM_ID"
 
 # UI
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
@@ -35,6 +39,7 @@ layout: single # which layout to use. single, splitview or splitview-landscape
 # Sleep mode
 # sleep_start: 22 # sleep mode start time
 # sleep_end: 7 # sleep mode end time
+sleep_icon: true
 
 # Transition options
 transition: none # cross-fade, fade or none

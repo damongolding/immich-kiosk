@@ -5,7 +5,7 @@
     text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
     padding: 1rem 1.5rem 1rem 1rem;
 
-    z-index: 10000;
+    z-index: var(--z-clock);
 }
 
 .layout-splitview #weather {
@@ -33,14 +33,13 @@
         100% 100% at 0% 100%,
         var(--fade-gradient)
     );
-    z-index: 0;
+    z-index: var(-z-base);
 }
 
 .weather {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
     font-size: 1rem;
 
     z-index: 1;
@@ -104,7 +103,7 @@
             100% 100% at 100% 0%,
             var(--fade-gradient)
         );
-        z-index: 0;
+        z-index: var(-z-base);
     }
     .weather--theme-solid {
         border-radius: 0 0 0 2rem;

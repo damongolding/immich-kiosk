@@ -8,7 +8,7 @@
     height: 3rem;
     display: none;
 
-    z-index: 999999999;
+    z-index: var(--z-offline);
 }
 
 #offline svg {

@@ -62,12 +62,15 @@
   - [Cusom CSS](#custom-css)
   - [Weather](#weather)
 - [Navigation Controls](#navigation-controls)
+- [Redirects](#redirects)
 - [PWA](#pwa)
+- [Webhooks](#webhooks)
 - [Home Assistant](#home-assistant)
 - [FAQ](#faq)
 - [TODO / Roadmap](#todo--roadmap)
 - [Support](#support)
 - [Help](#help)
+- [Contributing](#contributing)
 
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
@@ -226,9 +229,11 @@ services:
       # Kiosk behaviour
       KIOSK_REFRESH: 60
       KIOSK_DISABLE_SCREENSAVER: false
+      KIOSK_OPTIMIZE_IMAGES: false
       # Asset sources
       KIOSK_SHOW_ARCHIVED: false
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
+      KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
       # UI
       KIOSK_DISABLE_UI: false
@@ -261,6 +266,9 @@ services:
       KIOSK_SHOW_IMAGE_LOCATION: false
       KIOSK_HIDE_COUNTRIES: "HIDDEN_COUNTRY,HIDDEN_COUNTRY"
       KIOSK_SHOW_IMAGE_ID: false
+      KIOSK_SHOW_MORE_INFO: true
+      KIOSK_SHOW_MORE_INFO_IMAGE_LINK: true
+      KIOSK_SHOW_MORE_INFO_QR_CODE: true
       # Kiosk settings
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
@@ -289,9 +297,11 @@ See the file config.example.yaml for an example config file
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
-| disable_screensaver              | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
+| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
+| optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low-powered device, this may help. |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
+| [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
@@ -319,6 +329,9 @@ See the file config.example.yaml for an example config file
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF   | bool                       | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION | bool                     | false       | Display the image location from METADATA (if available).                                   |
 | hide_countries                    | KIOSK_HIDE_COUNTRIES    | []string                   | []          | List of countries to hide from image_location                                                |
+| show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s) |
+| show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay |
+| show_more_info_qr_code            | KIOSK_SHOW_MORE_INFO_QR_CODE    | bool               | true        | Displays a QR code linking to the original image (in Immich) in the additional information overlay |
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
 
 ### Additional options
@@ -365,7 +378,7 @@ The above would set refresh to 120 seconds (2 minutes), turn off the background 
 
 ## Albums
 
-### Getting an albums ID from Immich:
+### Getting an albums ID from Immich
 1. Open Immich's web interface and click on "Albums" in the left hand navigation.
 2. Click on the album you want the ID of.
 3. The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
@@ -378,7 +391,7 @@ For each image refresh, Kiosk randomly selects one ID from this pool and fetches
 There are **three** ways you can set multiple albums:
 
 > [!NOTE]
-> These methods are applied in order of precedence. URL queries take highest priority, followed by environment variables, and finally the config.yaml file.
+> These methods are applied in order of precedence. URL queries take the highest priority, followed by environment variables, and finally the config.yaml file.
 > Each subsequent method overwrites the settings from the previous ones.
 
 1. via config.yaml file
@@ -396,7 +409,7 @@ environment:
 
 3. via url quires:
 
-```
+```url
 http://{URL}?album=ALBUM_ID&album=ALBUM_ID&album=ALBUM_ID
 ```
 
@@ -416,9 +429,53 @@ e.g. `http://{URL}?album=favorites` or `http://{URL}?album=favourites`
 
 ------
 
+## Exclude albums
+
+This feature allows you to prevent specific albums from being displayed in the slideshow, even when using broad album selection methods like `all` or `shared`.
+
+> [!NOTE]
+> Excluded albums take precedence over album selection methods. If an album is in both the selected albums and excluded albums lists, it will be excluded.
+
+### Getting an albums ID from Immich
+1. Open Immich's web interface and click on "Albums" in the left hand navigation.
+2. Click on the album you want the ID of.
+3. The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
+4. The album ID is everything after `albums/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+
+
+There are **three** ways you can exclude albums:
+
+> [!NOTE]
+> These methods are applied in order of precedence. URL queries take the highest priority, followed by environment variables, and finally the config.yaml file.
+> Each subsequent method overwrites the settings from the previous ones.
+
+1. via config.yaml file
+```yaml
+excluded_albums:
+  - ALBUM_ID
+  - ALBUM_ID
+```
+
+2. via ENV in your docker-compose file use a `,` to separate IDs
+```yaml
+environment:
+  KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
+```
+
+3. via url quires:
+
+> [!NOTE]
+> it is `exclude_album=` and not `excluded_albums=`
+
+```url
+http://{URL}?exclude_album=ALBUM_ID&exclude_album=ALBUM_ID&exclude_album=ALBUM_ID
+```
+
+------
+
 ### People
 
-### Getting a person's ID from Immich:
+### Getting a person's ID from Immich
 1. Open Immich's web interface and click on "Explore" in the left hand navigation.
 2. Click on the person you want the ID of (you may have to click "view all" if you don't see them).
 3. The url will now look something like this `http://192.168.86.123:2283/people/a04175f4-97bb-4d97-8d49-3700263043e5`.
@@ -431,7 +488,7 @@ For each image refresh, Kiosk randomly selects one ID from this pool and fetches
 There are **three** ways you can set multiple people ID's:
 
 > [!NOTE]
-> These methods are applied in order of precedence. URL queries take highest priority, followed by environment variables, and finally the config.yaml file.
+> These methods are applied in order of precedence. URL queries take the highest priority, followed by environment variables, and finally the config.yaml file.
 > Each subsequent method overwrites the settings from the previous ones.
 
 1. via config.yaml file
@@ -451,7 +508,7 @@ environment:
 
 3. via url quires
 
-```
+```url
 http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 ```
 ------
@@ -679,11 +736,55 @@ Kiosk's display is divided into interactive zones:
 
 ### Keyboard Shortcuts
 
-| Key           | Action                        |
-|---------------|-------------------------------|
-| _ Spacebar    | Play/Pause and Toggle Menu    |
-| → Right Arrow | Next Image(s)                 |
-| ← Left Arrow  | Previous Image(s)             |
+| Key           | Action                                                   |
+|---------------|----------------------------------------------------------|
+| _ Spacebar    | Play/Pause and Toggle Menu                               |
+| → Right Arrow | Next Image(s)                                            |
+| ← Left Arrow  | Previous Image(s)                                        |
+| i Key         | Play/Pause and Toggle Menu and display more info overlay |
+
+------
+
+## Redirects
+
+Redirects provide a simple way to map short, memorable paths to longer URLs.
+It's particularly useful for creating friendly URLs that redirect to more
+complex endpoints with query parameters.
+
+## How they Work
+
+### Configuration
+Redirects are defined in the `config.yaml` file under the `kiosk.redirects` section:
+
+Each redirect consists of:
+- `name`: The short path that users will use
+- `url`: The destination URL where users will be redirected to
+- `type`: Optional field that controls URL behavior:
+  - `internal`: Keeps the URL unchanged during redirection (useful for maintaining browser history)
+  - `external`: Allows URL changes during redirection (default if omitted)
+
+### Examples
+
+```yaml
+kiosk:
+  redirects:
+    - name: london
+      url: /?weather=london
+
+    - name: sheffield
+      url: /?weather=sheffield
+      type: internal
+
+    - name: our-wedding
+      url: /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
+
+```
+
+| Source URL                  | Redirects to                                                |
+|-----------------------------|-------------------------------------------------------------|
+| http://{URL}/london         | /?weather=london                                            |
+| http://{URL}/sheffield      | http://{URL}/sheffield                                      |
+| http://{URL}/our-wedding    | /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3 |
 
 ------
 
@@ -699,6 +800,78 @@ Kiosk's display is divided into interactive zones:
 3. Scroll till you see "Add to Home Screen" and tap it.
 4. Tap on the newly added Kiosk icon on your home screen!
 
+------
+
+## Webhooks
+
+> [!TIP]
+> To include the `clientName` in your webhook payload, append `client=YOUR_CLIENT_NAME` to your URL parameters.
+
+Kiosk can notify external services about certain events using webhooks. When enabled, Kiosk will send HTTP POST requests to your specified webhook URL(s) when these events occur.
+
+### Enabling Webhooks
+
+Add webhook configuration to your `config.yaml`:
+
+> [!TIP]
+> You can have multiple webhooks for different urls and events.
+
+```yaml
+webhooks:
+  - url: "https://your-webhook-endpoint.com"
+    event: asset.new
+```
+
+### Available Events
+
+| Event                              | Description                                             |
+|------------------------------------|---------------------------------------------------------|
+|`asset.new`                         | Triggered when a new image is requested from Kiosk      |
+|`asset.previous`                    | Triggered when a previous image is requested from Kiosk |
+|`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich  |
+|`cache.flushed`                     | Triggered when the cache is manually cleared            |
+|`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
+
+### Webhook Payload
+
+| Field        | Type          | Description                                          |
+|--------------|---------------|------------------------------------------------------|
+| `event`      | string        | The type of event, e.g., "asset.new".                |
+| `timestamp`  | string (ISO)  | The time the event occurred, in ISO 8601 format.     |
+| `deviceID`   | string (UUID) | Unique identifier for the device.                    |
+| `clientName` | string        | Name of the client device.                           |
+| `assetCount` | int           | Number of assets related to the event.               |
+| `assets`     | array         | Array of asset objects.                              |
+| `config`     | object        | Configuration options for the application.           |
+| `meta`       | object        | Metadata about the source and version of the system. |
+
+### Example payload
+
+```json
+{
+    "event": "asset.new",
+    "timestamp": "2024-11-19T11:03:07Z",
+    "deviceID": "ed08beb1-6de7-4592-9827-078c3ad91ae4",
+    "clientName": "dining-room-pi",
+    "assetCount": 1,
+    "assets": [
+         {
+             "id": "bb4ce63b-b80d-430f-ad37-5cfe243e08b1",
+             "type": "IMAGE",
+             "originalMimeType": "image/jpeg",
+             "localDateTime": "2013-04-06T23:45:54Z"
+             /* ... other properties omitted for brevity */
+         }
+     ],
+     "config": {
+         /* ... configuration fields omitted for brevity */
+     },
+     "meta": {
+         "source": "immich-kiosk",
+         "version": "0.13.1"
+     }
+}
+```
 
 ------
 
@@ -825,7 +998,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - [x] Sleep mode
 - [ ] Add sleep mode indicator
 - [ ] Whitelist for people and albums
-- [ ] Exclude list
+- [x] Exclude list
 - [ ] PWA (✔ basic implimetion)
 - [x] prev/next navigation
 - [x] Splitview
@@ -854,6 +1027,67 @@ If you'd like to chat or need some informal help, feel free to find me in the Ki
 <a href="https://discord.com/channels/979116623879368755/1293191523927851099">
   <img style="height:32px!important" src="https://img.shields.io/badge/Immich%20Kiosk-Kiosk%20Discord?style=flat&logo=discord&logoColor=%23fff&labelColor=%235865F2&color=%235865F2" alt="Discord button">
 </a>
+
+
+------
+
+## Contributing
+
+### Prerequisites
+Want to help improve Immich Kiosk? Great! Here's what you'll need to get started:
+
+First, make sure you have these tools installed on your computer:
+
+- [Go](https://golang.org/doc/install) - The main programming language we use
+- [Taskfile](https://taskfile.dev/installation/) - Helps automate common tasks
+- [Node.js](https://nodejs.org/) - For running the frontend
+- [pnpm](https://pnpm.io/installation) - Package manager for the frontend
+
+Ready to contribute? Here's how:
+
+1. Fork the repository and create a new branch for your changes
+   ```sh
+   git checkout -b feature/my-feature
+   ```
+
+2. Run `task install` to set up your development environment
+
+3. Make your changes! Just remember to:
+   - Follow the existing code style
+   - Add tests if you're adding new features
+   - Test your changes with `task test`
+   - Check code quality with `task lint`
+
+4. Commit your changes with a helpful message
+   ```sh
+   git commit -m "feat: description of your change"
+   ```
+
+5. Push your changes to GitHub
+   ```sh
+   git push origin feature/my-feature
+   ```
+
+6. Create a Pull Request to the `main` branch
+   - Tell us what your changes do and why you made them
+   - Link to any related issues
+   - Add screenshots if you changed anything visual
+
+### Guidelines
+
+We try to keep things organized, so please:
+- Follow [Go best practices](https://golang.org/doc/effective_go)
+- Write clear commit messages following [conventional commits](https://www.conventionalcommits.org/)
+- Keep changes focused and manageable in size
+- Update docs if you change how things work
+- Add tests for new features
+
+Your changes will need to pass our automated checks before being merged.
+
+Need help? We're here for you!
+- Open an issue on GitHub
+- Chat with us in the [Discord channel](https://discord.com/channels/979116623879368755/1293191523927851099)
+
 
 <!-- LINKS & IMAGES -->
 [immich-github-url]: https://github.com/immich-app/immich

@@ -1,4 +1,22 @@
 :root {
+    /* colours */
+    --light-grey: #f7f9f8;
+    --cool-grey: #333460;
+    --mint-green: #1ed2bb;
+    --yellow: #e7e65f;
+
+    /* Z-index hierarchy */
+    --z-base: 0;
+    --z-clock: 100;
+    --z-progress: 150;
+    --z-sleep: 200;
+    --z-sleep-clock: 300;
+    --z-interaction: 400;
+    --z-overlay: 500;
+    --z-navigation: 600;
+    --z-offline: 700;
+
+    /* gradients */
     --fade-gradient: hsla(0, 0%, 0%, 0.59) 0%, hsla(0, 0%, 0%, 0.582) 5.2%,
         hsla(0, 0%, 0%, 0.561) 10.9%, hsla(0, 0%, 0%, 0.529) 16.9%,
         hsla(0, 0%, 0%, 0.487) 23.3%, hsla(0, 0%, 0%, 0.437) 29.9%,

@@ -7,14 +7,6 @@
 body{}
 /* src/css/container.css */
 #kiosk{}
-#kiosk.htmx-swapping{}
-@-webkit-keyframes fade-in{}
-from{}
-@-moz-keyframes fade-in{}
-from{}
-#kiosk .frame{}
-#kiosk .frame:nth-last-child(-n+2){}
-#kiosk.htmx-settling .htmx-added:last-of-type{}
 /* src/css/spinner.css */
 .kiosk--spinner{}
 /* src/css/frame.css */
@@ -32,14 +24,24 @@ from{}
 .frame--layout-splitview:nth-child(2){}
 .frameless .frame--layout-splitview{}
 .frame--layout-splitview .frame--image{}
-.layout-splitview-landscape{}
 .layout-splitview-landscape .frame{}
 .layout-splitview-landscape.frameless .frame{}
+.frame--layout-splitview-landscape{}
 .frame--layout-splitview-landscape:nth-child(1){}
 .frame--layout-splitview-landscape:nth-child(2){}
 .frameless .frame--layout-splitview-landscape{}
 .frame--layout-splitview-landscape .frame--image{}
+.transition-none.frameless .frame{}
+#kiosk.htmx-swapping{}
+@-webkit-keyframes fade-in{}
+from{}
+to{}
+@-moz-keyframes fade-in{}
+from{}
+to{}
+.transition-cross-fade .frame{}
 /* src/css/image.css */
+.polling-paused.more-info .image--metadata{}
 .image--metadata{}
 .image--metadata--theme-fade::before{}
 .frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before{}
@@ -55,11 +57,29 @@ from{}
 .frame--layout-splitview .image--metadata--desciption, .frame--layout-splitview-landscape .image--metadata--desciption{}
 .frame--layout-splitview:nth-child(1) .image--metadata{}
 .frame--image-zoom img{}
-.frame:nth-last-of-type(-n+2) .frame--image-zoom-in img{}
-.frame:nth-last-of-type(-n+2) .frame--image-zoom-out img{}
-.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-out img{}
-.frame:nth-last-of-type(-n+2) .frame--image-smart-zoom-in img{}
-.polling-paused .frame:nth-last-of-type(-n+2) img{}
+.frame .frame--image-zoom-in img{}
+.frame .frame--image-zoom-out img{}
+.frame .frame--image-smart-zoom-out img{}
+.frame .frame--image-smart-zoom-in img{}
+.polling-paused .frame{}
+.polling-paused .frame img{}
+/* src/css/more-info-overlay.css */
+#more-info{}
+#more-info *{}
+.polling-paused.more-info .frame--image img{}
+.polling-paused.more-info #more-info{}
+.polling-paused.more-info #more-info .more-info--image{}
+.polling-paused.more-info #more-info .more-info--image .more-info--image--data{}
+.polling-paused.more-info #more-info .more-info--image h3{}
+.polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code{}
+.polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code img{}
+.polling-paused.more-info.layout-splitview-landscape #more-info{}
+.polling-paused.more-info.layout-splitview-landscape #more-info .more-info--image{}
+.more-info--button-group{}
+.more-info--image-link{}
+.more-info--webhook:hover, .more-info--image-link:hover{}
+.frameless.more-info #more-info{}
+.frameless.more-info #more-info .more-info--image{}
 /* src/css/error.css */
 .error-container{}
 .error{}
@@ -76,6 +96,7 @@ from{}
 .offline{}
 .sleep #offline{}
 /* src/css/clock-weather-container.css */
+.polling-paused.more-info #clock-weather-container{}
 #clock-weather-container{}
 .layout-splitview #clock-weather-container{}
 .sleep #clock-weather-container{}
@@ -135,6 +156,7 @@ from{}
 .navigation{}
 .navigation--item{}
 .navigation--item:hover{}
+.navigation--item:hover svg{}
 .navigation--item--separator{}
 .navigation-hidden{}
 .navigation svg{}
@@ -143,6 +165,7 @@ from{}
 .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--exit{}
 .navigation--fullscreen-enabled .navigation--fullscreen--enter{}
+.navigation--more-info svg{}
 .navigation--media-buttons{}
 .navigation--media-buttons .navigation--item{}
 .navigation--play-pause--play{}
@@ -154,4 +177,6 @@ from{}
 /* src/css/sleep.css */
 #sleep-controller{}
 .sleep #sleep-controller{}
+#sleep-icon{}
+#sleep-icon svg{}
 /* src/css/kiosk.css */

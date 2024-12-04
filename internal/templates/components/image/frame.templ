@@ -1,0 +1,67 @@
+package components
+
+import (
+	"fmt"
+	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/utils"
+)
+
+// animationDuration sets the CSS animation duration
+
+css animationDuration(duration int) {
+	animation-duration: { fmt.Sprintf("%ds", duration) };
+}
+
+// zoomInOrOut generates a random zoom in/out animation class name
+func zoomInOrOut(zoomType string) string {
+	return fmt.Sprintf("frame--image-%s-%s", zoomType, utils.RandomItem([]string{"in", "out"}))
+}
+
+// frame is a template function that renders a basic frame for an image.
+// It wraps the child content in a div with the class "frame--image".
+templ frame() {
+	<div class="frame--image">
+		{ children... }
+	</div>
+}
+
+// smartZoom calculates the transform origin for an image based on detected faces.
+// It returns a templ.CSSClass for the transform-origin CSS property.
+//
+// If no faces are detected, it returns a random corner as the transform origin.
+// If faces are detected, it uses the center point of all faces as the transform origin.
+//
+// Parameters:
+//   - image: An immich.ImmichAsset containing information about detected faces.
+//
+// Returns:
+//   - templ.CSSClass: A CSS class for the transform-origin property.
+func smartZoom(image immich.ImmichAsset) templ.CSSClass {
+	if len(image.People) == 0 && len(image.UnassignedFaces) == 0 {
+		return transformOrigin(fmt.Sprintf("%s%% %s%%", utils.RandomItem([]string{"30", "70"}), utils.RandomItem([]string{"30", "70"})))
+	}
+
+	x, y := image.FacesCenterPoint()
+
+	if x == 0 || y == 0 {
+		return transformOrigin(fmt.Sprintf("%s%% %s%%", utils.RandomItem([]string{"30", "70"}), utils.RandomItem([]string{"30", "70"})))
+	}
+
+	return transformOrigin(fmt.Sprintf("%f%% %f%%", x, y))
+}
+
+// frameWithZoom is a template function that renders a frame with zoom effect for an image.
+// It takes the refresh interval, image effect type, and the image asset as parameters.
+// Depending on the image effect, it applies different CSS classes for zooming.
+templ frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) {
+	switch imageEffect {
+		case "smart-zoom":
+			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect), smartZoom(img) }>
+				{ children... }
+			</div>
+		default:
+			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect) }>
+				{ children... }
+			</div>
+	}
+}
