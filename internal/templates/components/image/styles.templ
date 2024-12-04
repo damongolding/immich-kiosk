@@ -1,0 +1,14 @@
+package components
+
+// transformOrigin generates a CSS class for the transform-origin property.
+//
+// Parameters:
+//   - value: A string representing the desired transform origin value.
+//
+// Returns:
+//   - A CSS class for the transform-origin property.
+
+css transformOrigin(value string) {
+	transform-origin: { value };
+	object-position: { value };
+}

@@ -1,0 +1,64 @@
+package partials
+
+import (
+	"fmt"
+	"github.com/damongolding/immich-kiosk/internal/common"
+)
+
+// crossFadeDurationCSS generates CSS for the cross-fade animation
+func crossFadeDurationCSS(crossFadeDuration float32) string {
+	return fmt.Sprintf(`
+	    <style>
+			.transition-cross-fade .frame {
+                animation-duration: %.1fs;
+            }
+		</style>
+	`, crossFadeDuration)
+}
+
+// fadeDurationCSS generates CSS for the fade animation
+func fadeDurationCSS(fadeDuration float32) string {
+	return fmt.Sprintf(`
+	    <style>
+			#kiosk,#kiosk.htmx-swapping {
+			    transition: opacity %.1fs ease-out;
+			}
+		</style>
+	`, fadeDuration)
+}
+
+// Body renders the <body> content
+templ Body(viewData common.ViewData) {
+	{{ headerStr := fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID) }}
+	switch viewData.Transition {
+		case "cross-fade":
+			<body
+				hx-headers={ headerStr }
+				hx-swap="beforeend"
+				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
+				hx-vals="js:{...kiosk.clientData()}"
+			>
+				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
+				{ children... }
+			</body>
+		case "fade":
+			<body
+				hx-headers={ headerStr }
+				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration) }
+				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
+				hx-vals="js:{...kiosk.clientData()}"
+			>
+				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
+				{ children... }
+			</body>
+		default:
+			<body
+				hx-headers={ headerStr }
+				hx-swap="beforeend"
+				class={ "transition-none", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
+				hx-vals="js:{...kiosk.clientData()}"
+			>
+				{ children... }
+			</body>
+	}
+}

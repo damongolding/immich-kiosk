@@ -99,3 +99,13 @@
         filter: brightness(85%);
     }
 }
+
+/* .frameless */
+.frameless.more-info {
+    #more-info {
+        padding: 0;
+        .more-info--image {
+            border-radius: 0;
+        }
+    }
+}

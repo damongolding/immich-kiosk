@@ -27,9 +27,9 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/time/rate"
 
-	"github.com/damongolding/immich-kiosk/config"
-	"github.com/damongolding/immich-kiosk/routes"
-	"github.com/damongolding/immich-kiosk/weather"
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/routes"
+	"github.com/damongolding/immich-kiosk/internal/weather"
 )
 
 // version current build version number
