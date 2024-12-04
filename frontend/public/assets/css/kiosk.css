@@ -696,6 +696,12 @@ body {
     -webkit-filter: brightness(85%);
             filter: brightness(85%);
   }
+.frameless.more-info #more-info {
+    padding: 0;
+  }
+.frameless.more-info #more-info .more-info--image {
+      border-radius: 0;
+    }
 
 /* src/css/error.css */
 .error-container {

@@ -78,6 +78,8 @@ to{}
 .more-info--button-group{}
 .more-info--image-link{}
 .more-info--webhook:hover, .more-info--image-link:hover{}
+.frameless.more-info #more-info{}
+.frameless.more-info #more-info .more-info--image{}
 /* src/css/error.css */
 .error-container{}
 .error{}
