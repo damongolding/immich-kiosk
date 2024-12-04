@@ -47,7 +47,7 @@ func InitializeSecret() error {
 // init initializes the package by generating the shared secret
 func init() {
 	if err := InitializeSecret(); err != nil {
-		log.Fatal("Failed to initialize", "error", err)
+		log.Fatal("initialising secret", "error", err)
 	}
 }
 

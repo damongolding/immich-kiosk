@@ -72,6 +72,14 @@ func ImageExif(info immich.ExifInfo) string {
 // ImageDateTime generates a formatted date and time string for an image based on the view data settings.
 // It can display date, time, or both, in various formats.
 func ImageDateTime(viewData common.ViewData, imageIndex int) string {
+
+	if imageIndex < 0 || imageIndex >= len(viewData.Images) {
+		return ""
+	}
+	if viewData.Images[imageIndex].ImmichImage.LocalDateTime.IsZero() {
+		return ""
+	}
+
 	var imageDate string
 
 	imageTimeFormat := "15:04"
@@ -99,13 +107,15 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 // imageMetadata renders the metadata for an image, including date, time, EXIF information, location, and ID.
 // The display of each piece of information is controlled by the ViewData settings.
 templ imageMetadata(viewData common.ViewData, imageIndex int) {
+	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
+	{{ showDescription := viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" }}
 	<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
-		if viewData.ShowImageDate || viewData.ShowImageTime {
+		if showDateTime {
 			<div class="image--metadata--date">
 				{ ImageDateTime(viewData, imageIndex) }
 			</div>
 		}
-		if viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" {
+		if showDescription {
 			<div class="image--metadata--desciption">
 				<small>
 					{ viewData.Images[imageIndex].ImmichImage.ExifInfo.Description }

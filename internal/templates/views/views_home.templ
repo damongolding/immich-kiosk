@@ -101,7 +101,14 @@ func queriesToJson(values url.Values) map[string]any {
 
 	result := make(map[string]any)
 
+	if values == nil {
+		return result
+	}
+
 	for key, value := range values {
+		if key == "" {
+			continue
+		}
 		if len(value) == 1 {
 			result[key] = value[0]
 		} else {

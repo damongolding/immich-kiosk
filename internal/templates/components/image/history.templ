@@ -3,6 +3,7 @@ package components
 import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"strings"
+	"text/template"
 )
 
 func newHistoryEntry(images []common.ViewImageData) string {
@@ -11,7 +12,8 @@ func newHistoryEntry(images []common.ViewImageData) string {
 	}
 	newImages := make([]string, len(images))
 	for i, entry := range images {
-		newImages[i] = entry.ImmichImage.ID
+		sanitisedID := template.HTMLEscapeString(entry.ImmichImage.ID)
+		newImages[i] = sanitisedID
 	}
 	return strings.Join(newImages, ",")
 }

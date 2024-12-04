@@ -3,6 +3,7 @@ package components
 import (
 	"context"
 	"fmt"
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -15,6 +16,10 @@ import (
 	"time"
 )
 
+// renderMoreInfo generates the HTML for displaying detailed information about images
+// It shows camera data, original image data, detected people, and optional QR codes/links
+// Parameters:
+//   - viewData: The view data containing images and display options
 templ renderMoreInfo(viewData common.ViewData) {
 	<div id="more-info" hx-swap-oob="true">
 		for _, img := range viewData.Images {
@@ -53,6 +58,9 @@ templ renderMoreInfo(viewData common.ViewData) {
 	</div>
 }
 
+// cameraData displays the camera make and model information from EXIF data
+// Parameters:
+//   - exifInfo: EXIF information containing camera details
 templ cameraData(exifInfo immich.ExifInfo) {
 	<div>
 		<div>
@@ -74,6 +82,9 @@ templ cameraData(exifInfo immich.ExifInfo) {
 	</div>
 }
 
+// originalImageData displays original filename and image dimensions/size
+// Parameters:
+//   - img: The Immich asset containing image metadata
 templ originalImageData(img immich.ImmichAsset) {
 	<div>
 		<div>
@@ -87,6 +98,11 @@ templ originalImageData(img immich.ImmichAsset) {
 	</div>
 }
 
+// people generates a component displaying names of people detected in an image
+// Parameters:
+//   - people: Slice of Person objects containing detected individuals
+// Returns:
+//   - A templ.Component for rendering the people list
 func people(people []immich.Person) templ.Component {
 	if len(people) == 0 {
 		return templ.NopComponent
@@ -115,10 +131,16 @@ func people(people []immich.Person) templ.Component {
 	})
 }
 
+// immichImageUrl constructs the URL for viewing an image in Immich
+// Parameters:
+//   - baseUrl: The base URL of the Immich instance
+//   - imageID: The ID of the image to view
+// Returns:
+//   - The complete URL string for viewing the image
 func immichImageUrl(baseUrl, imageID string) string {
-
 	u, err := url.Parse(baseUrl)
 	if err != nil {
+		log.Warn("Failed to parse base URL", "error", err)
 		return "#"
 	}
 
@@ -134,7 +156,6 @@ func immichImageUrl(baseUrl, imageID string) string {
 // webhookSignature generates a signature for webhook authentication.
 // It combines the shared secret with the current Unix timestamp
 // to create a time-based signature for securing webhook requests.
-//
 // Returns:
 //   - A string containing the calculated signature
 func webhookSignature() string {
