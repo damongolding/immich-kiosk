@@ -737,7 +737,7 @@ func (c *Config) Load() error {
 	// Add potential paths for the configuration file
 	c.V.AddConfigPath(".")         // Look in the current directory
 	c.V.AddConfigPath("./config/") // Look in the 'config/' subdirectory
-	c.V.AddConfigPath("../")       // Look in the parent directory for testing
+	c.V.AddConfigPath("../../")    // Look in the parent directory for testing
 
 	c.V.SetEnvPrefix("kiosk")
 
