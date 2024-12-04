@@ -55,7 +55,9 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 				}
 
 				for key, values := range parsedUrl.Query() {
-					c.QueryParams().Add(key, values[0])
+					for _, value := range values {
+						c.QueryParams().Add(key, value)
+					}
 				}
 
 				// Update the request URL with the new query parameters

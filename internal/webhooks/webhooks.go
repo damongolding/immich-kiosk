@@ -109,7 +109,7 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 		go func(webhook config.Webhook, payload []byte) {
 			defer wg.Done()
 
-			resp, err := httpClient.Post(userWebhook.Url, "application/json", bytes.NewBuffer(jsonPayload))
+			resp, err := httpClient.Post(webhook.Url, "application/json", bytes.NewBuffer(jsonPayload))
 			if err != nil {
 				log.Error("webhook post", "err", err)
 				return

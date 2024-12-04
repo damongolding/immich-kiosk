@@ -5,6 +5,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"html"
 	"net/url"
 )
 
@@ -109,10 +110,15 @@ func queriesToJson(values url.Values) map[string]any {
 		if key == "" {
 			continue
 		}
+		safeKey := html.EscapeString(key)
 		if len(value) == 1 {
-			result[key] = value[0]
+			result[safeKey] = html.EscapeString(value[0])
 		} else {
-			result[key] = value
+			escapedValues := make([]string, len(value))
+			for i, v := range value {
+				escapedValues[i] = html.EscapeString(v)
+			}
+			result[safeKey] = escapedValues
 		}
 	}
 

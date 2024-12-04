@@ -308,6 +308,7 @@ func imagePreFetch(requestConfig config.Config, c echo.Context) {
 	requestData, err := InitializeRequestData(c, &requestConfig)
 	if err != nil {
 		log.Error("InitializeRequestData", "prefetch", true, "err", err)
+		return
 	}
 
 	requestConfig = requestData.RequestConfig
