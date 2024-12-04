@@ -48,8 +48,9 @@ type ViewImageData struct {
 	// ImmichImage immich asset data
 	ImmichImage immich.ImmichAsset
 	// ImageData image as base64 data
+	// ImageData image as base64 data
 	ImageData string
-	// ImageData blurred image as base64 data
+	// ImageBlurData blurred image as base64 data
 	ImageBlurData string
 	// Date image date
 	ImageDate string
