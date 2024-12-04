@@ -19,18 +19,17 @@ import (
 // The function returns a temporary (307) redirect in both cases.
 func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
-	const (
-		maxRedirects        = 10
-		redirectCountHeader = "X-Redirect-Count"
-	)
-
 	return func(c echo.Context) error {
 
-		redirectCount := c.Request().Header.Get(redirectCountHeader)
+		redirectCount, err := c.Cookie(redirectCountHeader)
+		if err != nil {
+			redirectCount = &http.Cookie{Value: "0"}
+		}
+
 		count := 0
-		if redirectCount != "" {
+		if redirectCount != nil {
 			var err error
-			count, err = strconv.Atoi(redirectCount)
+			count, err = strconv.Atoi(redirectCount.Value)
 			if err != nil {
 				count = 0
 			}
@@ -38,6 +37,12 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
 		// Check if maximum redirects exceeded
 		if count >= maxRedirects {
+			cookie := &http.Cookie{
+				Name:   redirectCountHeader,
+				Value:  "",
+				MaxAge: -1,
+			}
+			c.SetCookie(cookie)
 			return echo.NewHTTPError(http.StatusTooManyRequests, "Too many redirects")
 		}
 
@@ -70,7 +75,10 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
 			}
 
-			c.Response().Header().Set(redirectCountHeader, strconv.Itoa(count+1))
+			c.SetCookie(&http.Cookie{
+				Name:  redirectCountHeader,
+				Value: strconv.Itoa(count + 1),
+			})
 
 			return c.Redirect(http.StatusTemporaryRedirect, redirectItem.URL)
 		}

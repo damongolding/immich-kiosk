@@ -18,6 +18,11 @@ import (
 func Home(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
+		c.SetCookie(&http.Cookie{
+			Name:   redirectCountHeader,
+			MaxAge: -1,
+		})
+
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err

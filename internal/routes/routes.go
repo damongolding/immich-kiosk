@@ -21,6 +21,11 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
+const (
+	maxRedirects        = 10
+	redirectCountHeader = "X-Redirect-Count"
+)
+
 var (
 	KioskVersion string
 
