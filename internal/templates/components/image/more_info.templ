@@ -180,7 +180,7 @@ func people(people []immich.Person) templ.Component {
 // Returns:
 //   - The complete URL string for viewing the image, or '#' if URL parsing fails
 func immichImageUrl(baseUrl, externalUrl, imageID string) string {
-	// Use external URL if provided, otherwise fall back to base URL
+
 	urlToParse := externalUrl
 	if urlToParse == "" {
 		urlToParse = baseUrl
