@@ -29,6 +29,7 @@
             background-color: rgb(51 52 96 / 60%);
 
             display: flex;
+            align-items: center;
             flex-direction: column;
             justify-content: space-between;
             gap: 2rem;
@@ -41,6 +42,7 @@
 
             .more-info--image--data {
                 display: flex;
+                width: fit-content;
                 flex: 1;
                 flex-direction: column;
                 justify-content: center;
@@ -49,6 +51,11 @@
 
             h3 {
                 margin: 0.5rem 0;
+            }
+
+            .more-info--image--maps-link {
+                color: #fff;
+                text-decoration: none;
             }
 
             .more-info--image--qr-code {

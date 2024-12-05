@@ -71,6 +71,7 @@ to{}
 .polling-paused.more-info #more-info .more-info--image{}
 .polling-paused.more-info #more-info .more-info--image .more-info--image--data{}
 .polling-paused.more-info #more-info .more-info--image h3{}
+.polling-paused.more-info #more-info .more-info--image .more-info--image--maps-link{}
 .polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code{}
 .polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code img{}
 .polling-paused.more-info.layout-splitview-landscape #more-info{}
