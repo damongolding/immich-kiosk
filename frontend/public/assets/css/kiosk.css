@@ -602,6 +602,9 @@ body {
       display: -webkit-flex;
       display: -moz-box;
       display: flex;
+      -webkit-align-items: center;
+         -moz-box-align: center;
+              align-items: center;
       -webkit-flex-direction: column;
          -moz-box-orient: vertical;
          -moz-box-direction: normal;
@@ -619,6 +622,9 @@ body {
         display: -webkit-flex;
         display: -moz-box;
         display: flex;
+        width: -webkit-fit-content;
+        width: -moz-fit-content;
+        width: fit-content;
         -webkit-flex: 1;
            -moz-box-flex: 1;
                 flex: 1;
@@ -633,6 +639,10 @@ body {
       }
 .polling-paused.more-info #more-info .more-info--image h3 {
         margin: 0.5rem 0;
+      }
+.polling-paused.more-info #more-info .more-info--image .more-info--image--maps-link {
+        color: #fff;
+        text-decoration: none;
       }
 .polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code {
         display: -webkit-flex;

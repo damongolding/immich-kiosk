@@ -22,9 +22,10 @@ import (
 //   - viewData: The view data containing images and display options
 templ renderMoreInfo(viewData common.ViewData) {
 	<div id="more-info" hx-swap-oob="true">
-		for _, img := range viewData.Images {
+		for i, img := range viewData.Images {
 			<div class="more-info--image">
 				<div class="more-info--image--data">
+					@originalImageTimeLocation(viewData, i, viewData.HideCountries)
 					@cameraData(img.ImmichImage.ExifInfo)
 					@originalImageData(img.ImmichImage)
 					@people(img.ImmichImage.People)
@@ -62,21 +63,23 @@ templ renderMoreInfo(viewData common.ViewData) {
 // Parameters:
 //   - exifInfo: EXIF information containing camera details
 templ cameraData(exifInfo immich.ExifInfo) {
+	{{ exif := ImageExif(exifInfo) }}
 	<div>
 		<div>
 			<h3>
 				if exifInfo.Make != "" {
 					{ exifInfo.Make }
 				} else {
-					Unknown Make
+					Unknown make
 				}
+				{ exifInfo.Model }
 			</h3>
 		</div>
 		<div>
-			if exifInfo.Model != "" {
-				{ exifInfo.Model }
+			if exif != "" {
+				@templ.Raw(exif)
 			} else {
-				Unknown Model
+				Unknown stats
 			}
 		</div>
 	</div>
@@ -94,6 +97,42 @@ templ originalImageData(img immich.ImmichAsset) {
 		</div>
 		<div>
 			{ fmt.Sprint(img.ExifInfo.ExifImageWidth) } x { fmt.Sprint(img.ExifInfo.ExifImageHeight) } <span class="image--metadata--exif--seperator">&#124;</span> { humanize.Bytes(uint64(img.ExifInfo.FileSizeInByte)) }
+		</div>
+	</div>
+}
+
+// originalImageTimeLocation displays the date/time and location of the image
+// Parameters:
+//   - viewData: The view data containing image information and display options
+//   - imageIndex: The index of the current image in the view data
+//   - hideCountries: List of country names to hide from location display
+templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCountries []string) {
+	{{ 	imageDatetime := ImageDateTime(viewData, imageIndex) }}
+	{{ location := ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo, hideCountries) }}
+	<div>
+		<div>
+			<h3>
+				if imageDatetime != "" {
+					{ ImageDateTime(viewData, imageIndex) }
+				} else {
+					Unknown date and time
+				}
+			</h3>
+		</div>
+		<div>
+			if location != "" {
+				{{ latitude := viewData.Images[imageIndex].ImmichImage.ExifInfo.Latitude }}
+				{{ longitude := viewData.Images[imageIndex].ImmichImage.ExifInfo.Longitude }}
+				if latitude != 0 && longitude != 0 {
+					<a class="more-info--image--maps-link" href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", latitude, longitude)) } target="_blank">
+						@templ.Raw(location)
+					</a>
+				} else {
+					@templ.Raw(location)
+				}
+			} else {
+				Unknown location
+			}
 		</div>
 	</div>
 }
