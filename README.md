@@ -714,6 +714,7 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
     api: API_KEY
     unit: metric
     lang: en
+    default: true
 
   - name: new-york
     lat: 40.6973709

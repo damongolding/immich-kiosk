@@ -17,6 +17,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
 
+      - name: Install Templ
+        run: |
+          go install github.com/a-h/templ/cmd/templ@latest
+          templ generate
+
       - name: Extract version from tag
         id: extract_version
         run: |
