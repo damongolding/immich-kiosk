@@ -221,6 +221,8 @@ services:
       # Required settings
       KIOSK_IMMICH_API_KEY: "****"
       KIOSK_IMMICH_URL: "****"
+      # External url for image links/QR codes
+      KIOSK_IMMICH_EXTERNAL_URL: ""
       # Clock
       KIOSK_SHOW_TIME: false
       KIOSK_TIME_FORMAT: 24
@@ -290,8 +292,9 @@ See the file config.example.yaml for an example config file
 
 | **yaml**                          | **ENV**                 | **Value**                  | **Default** | **Description**                                                                            |
 |-----------------------------------|-------------------------|----------------------------|-------------|--------------------------------------------------------------------------------------------|
-| immich_url                        | KIOSK_IMMICH_URL        | string                     | ""          | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`. |
 | immich_api_key                    | KIOSK_IMMICH_API_KEY    | string                     | ""          | The API for your Immich server.                                                            |
+| immich_url                        | KIOSK_IMMICH_URL        | string                     | ""          | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`. |
+| immich_external_url               | KIOSK_IMMICH_EXTERNAL_URL | string                   | ""          | The public URL of your Immich server used for links in additional information overlay. If not set, uses immich_url. |
 | show_time                         | KIOSK_SHOW_TIME         | bool                       | false       | Display clock.                                                                             |
 | time_format                       | KIOSK_TIME_FORMAT       | 12 \| 24                   | 24          | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
