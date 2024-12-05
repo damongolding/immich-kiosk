@@ -699,6 +699,7 @@ You can configure multiple locations in the `config.yaml` file, and choose which
 | api         | OpenWeatherMap API key. |
 | unit        | Units of measurement (`standard`, `metric`, or `imperial`). |
 | lang        | Language code for weather descriptions (see the full list [here](https://openweathermap.org/current#multi)). |
+| default     | Set this location as the default (when no location is specified) |
 
 ### Example Configuration
 
