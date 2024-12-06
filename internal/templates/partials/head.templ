@@ -28,64 +28,300 @@ func baseFontSize(fontSize int) string {
 // imageSmartZoomKeyframes generates CSS keyframes for smart zoom animations
 func imageSmartZoomKeyframes(zoomAmount int) string {
 	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
-	return fmt.Sprintf(`
-	    <style>
-	        @keyframes image-smart-zoom-in {
-	           from {
-	           	   transform: scale3d(1,1,1);
-	           	   transform-origin: center;
-	           }
+	scale3d := "%.2f, %.2f, %.2f"
+	template := `
+    <style>
+        @-webkit-keyframes image-smart-zoom-out {
+            from {
+                -webkit-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -webkit-transform-origin: inherit;
+                transform-origin: inherit;
+            }
 
-	           to {
-	           	   transform: scale3d(%.2f,%.2f,%.2f);
-	           	   transform-origin: inherit;
-	           }
-	        }
+            to {
+                -webkit-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -webkit-transform-origin: center;
+                transform-origin: center;
+            }
+        }
 
-	        @keyframes image-smart-zoom-out {
-	           from {
-	           	   transform: scale3d(%.2f,%.2f,%.2f);
-	           	   transform-origin: inherit;
-	           }
+        @-moz-keyframes image-smart-zoom-out {
+            from {
+                -webkit-transform: scale3d(%[1]s);
+                -moz-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -moz-transform-origin: inherit;
+                transform-origin: inherit;
+            }
 
-	           to {
-	           	   transform: scale3d(1,1,1);
-	           	   transform-origin: center;
-	           }
-	        }
-	    </style>`, zoom, zoom, zoom, zoom, zoom, zoom)
+            to {
+                -moz-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -moz-transform-origin: center;
+                transform-origin: center;
+            }
+        }
+
+        @-o-keyframes image-smart-zoom-out {
+            from {
+                -webkit-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -o-transform-origin: inherit;
+                transform-origin: inherit;
+            }
+
+            to {
+                transform: scale3d(1, 1, 1);
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+        }
+
+        @keyframes image-smart-zoom-out {
+            from {
+                -webkit-transform: scale3d(%[1]s);
+                -moz-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -webkit-transform-origin: inherit;
+                -moz-transform-origin: inherit;
+                -o-transform-origin: inherit;
+                transform-origin: inherit;
+            }
+
+            to {
+                -webkit-transform: scale3d(1, 1, 1);
+                -moz-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -webkit-transform-origin: center;
+                -moz-transform-origin: center;
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+        }
+
+        @-webkit-keyframes image-smart-zoom-in {
+            from {
+                -webkit-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -webkit-transform-origin: center;
+                transform-origin: center;
+            }
+
+            to {
+                -webkit-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -webkit-transform-origin: inherit;
+                transform-origin: inherit;
+            }
+        }
+
+        @-moz-keyframes image-smart-zoom-in {
+            from {
+                -moz-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -moz-transform-origin: center;
+                transform-origin: center;
+            }
+
+            to {
+                -moz-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -moz-transform-origin: inherit;
+                transform-origin: inherit;
+            }
+        }
+
+        @-o-keyframes image-smart-zoom-in {
+            from {
+                transform: scale3d(1, 1, 1);
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+
+            to {
+                transform: scale3d(%[1]s);
+                -o-transform-origin: inherit;
+                transform-origin: inherit;
+            }
+        }
+
+        @keyframes image-smart-zoom-in {
+            from {
+                -webkit-transform: scale3d(1, 1, 1);
+                -moz-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -webkit-transform-origin: center;
+                -moz-transform-origin: center;
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+
+            to {
+                -webkit-transform: scale3d(%[1]s);
+                -moz-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -webkit-transform-origin: inherit;
+                -moz-transform-origin: inherit;
+                -o-transform-origin: inherit;
+                transform-origin: inherit;
+            }
+        }
+    </style>`
+
+	return fmt.Sprintf(template, fmt.Sprintf(scale3d, zoom, zoom, zoom))
 }
 
 // imageZoomKeyframes generates CSS keyframes for basic zoom animations
 func imageZoomKeyframes(zoomAmount int) string {
 	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
 
-	return fmt.Sprintf(`
-	    <style>
-			@keyframes image-zoom-in {
-			    from {
-			        transform: scale3d(1,1,1);
-			        transform-origin: center;
-			    }
+	scale3d := "%.2f, %.2f, %.2f"
+	template := `
+	<style>
+        @-webkit-keyframes image-zoom-out {
+            from {
+                -webkit-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -webkit-transform-origin: center;
+                transform-origin: center;
+            }
 
-			    to {
-			        transform: scale3d(%.2f,%.2f,%.2f);
-			        transform-origin: center;
-			    }
-			}
+            to {
+                -webkit-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -webkit-transform-origin: center;
+                transform-origin: center;
+            }
+        }
 
-			@keyframes image-zoom-out {
-				from {
-				    transform: scale3d(%.2f,%.2f,%.2f);
-				    transform-origin: center;
-				}
+        @-moz-keyframes image-zoom-out {
+            from {
+                -webkit-transform: scale3d(%[1]s);
+                -moz-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -webkit-transform-origin: center;
+                -moz-transform-origin: center;
+                transform-origin: center;
+            }
 
-				to {
-				    transform: scale3d(1,1,1);
-				    transform-origin: center;
-				}
-			}
-		</style>`, zoom, zoom, zoom, zoom, zoom, zoom)
+            to {
+                -webkit-transform: scale3d(1, 1, 1);
+                -moz-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -webkit-transform-origin: center;
+                -moz-transform-origin: center;
+                transform-origin: center;
+            }
+        }
+
+        @-o-keyframes image-zoom-out {
+            from {
+                -webkit-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -webkit-transform-origin: center;
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+
+            to {
+                -webkit-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -webkit-transform-origin: center;
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+        }
+
+        @keyframes image-zoom-out {
+            from {
+                -webkit-transform: scale3d(%[1]s);
+                -moz-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -webkit-transform-origin: center;
+                -moz-transform-origin: center;
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+
+            to {
+                -webkit-transform: scale3d(1, 1, 1);
+                -moz-transform: scale3d(1, 1, 1);
+            }
+        }
+
+        @-webkit-keyframes image-zoom-in {
+            from {
+                -webkit-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -webkit-transform-origin: center;
+                transform-origin: center;
+            }
+
+            to {
+                -webkit-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -webkit-transform-origin: center;
+                transform-origin: center;
+            }
+        }
+
+        @-moz-keyframes image-zoom-in {
+            from {
+                -moz-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -moz-transform-origin: center;
+                transform-origin: center;
+            }
+
+            to {
+                -moz-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -moz-transform-origin: center;
+                transform-origin: center;
+            }
+        }
+
+        @-o-keyframes image-zoom-in {
+            from {
+                transform: scale3d(1, 1, 1);
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+
+            to {
+                transform: scale3d(%[1]s);
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+        }
+
+        @keyframes image-zoom-in {
+            from {
+                -webkit-transform: scale3d(1, 1, 1);
+                -moz-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -webkit-transform-origin: center;
+                -moz-transform-origin: center;
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+
+            to {
+                -webkit-transform: scale3d(%[1]s);
+                -moz-transform: scale3d(%[1]s);
+                transform: scale3d(%[1]s);
+                -webkit-transform-origin: center;
+                -moz-transform-origin: center;
+                -o-transform-origin: center;
+                transform-origin: center;
+            }
+        }
+	</style>`
+
+	return fmt.Sprintf(template, fmt.Sprintf(scale3d, zoom, zoom, zoom))
+
 }
 
 // customCss wraps CSS content in style tags and removes null bytes

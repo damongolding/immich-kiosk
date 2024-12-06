@@ -12,7 +12,7 @@
 
     background-color: #000;
 
-    z-index: var(-z-base);
+    z-index: var(--z-base);
 }
 
 .frame--image {
