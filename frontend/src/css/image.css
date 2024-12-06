@@ -48,7 +48,7 @@
         100% 100% at 0% 100%,
         var(--fade-gradient)
     );
-    z-index: var(-z-base);
+    z-index: var(--z-base);
 }
 
 /* solid theme */

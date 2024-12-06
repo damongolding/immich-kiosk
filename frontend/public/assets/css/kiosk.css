@@ -178,7 +178,7 @@ body {
   -moz-transition: opacity 1s ease-out;
   transition: opacity 1s ease-out;
   will-change: opacity;
-  z-index: var(-z-base);
+  z-index: var(--z-base);
 }
 
 /* src/css/spinner.css */
@@ -211,7 +211,7 @@ body {
   bottom: 0;
   overflow: hidden;
   background-color: #000;
-  z-index: var(-z-base);
+  z-index: var(--z-base);
 }
 .frame--image {
   position: absolute;
@@ -431,7 +431,7 @@ body {
   height: 200%;
   background-image: -moz-radial-gradient(0% 100%, 100% 100%, var(--fade-gradient));
   background-image: radial-gradient(100% 100% at 0% 100%, var(--fade-gradient));
-  z-index: var(-z-base);
+  z-index: var(--z-base);
 }
 .image--metadata--theme-solid {
   padding-left: 1.5rem;
@@ -1195,7 +1195,7 @@ body {
   height: 200%;
   background-image: -moz-radial-gradient(0% 100%, 100% 100%, var(--fade-gradient));
   background-image: radial-gradient(100% 100% at 0% 100%, var(--fade-gradient));
-  z-index: var(-z-base);
+  z-index: var(--z-base);
 }
 .weather {
   position: relative;
@@ -1267,7 +1267,7 @@ body {
     height: 200%;
     background-image: -moz-radial-gradient(100% 0%, 100% 100%, var(--fade-gradient));
     background-image: radial-gradient(100% 100% at 100% 0%, var(--fade-gradient));
-    z-index: var(-z-base);
+    z-index: var(--z-base);
   }
 .layout-splitview .weather--theme-solid {
     border-radius: 0 0 0 2rem;
