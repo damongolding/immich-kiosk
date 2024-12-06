@@ -38,6 +38,7 @@ func (i *ImmichAsset) albums(requestID string, shared bool) (ImmichAlbums, error
 		return immichApiFail(albums, err, body, apiUrl.String())
 	}
 
+
 	err = json.Unmarshal(body, &albums)
 	if err != nil {
 		return immichApiFail(albums, err, body, apiUrl.String())
