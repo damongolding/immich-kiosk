@@ -144,6 +144,33 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 	return img, nil
 }
 
+func FixImageOrientation(img image.Image, isLandscape bool, exifOrientation string) image.Image {
+
+	// return if image is already in the correct orientation
+	if (img.Bounds().Dy() > img.Bounds().Dx() && !isLandscape) || (img.Bounds().Dx() > img.Bounds().Dy() && isLandscape) {
+		return img
+	}
+
+	switch exifOrientation {
+	case "2":
+		return imaging.FlipH(img)
+	case "3":
+		return imaging.Rotate180(img)
+	case "4":
+		return imaging.FlipV(img)
+	case "5":
+		return imaging.Transpose(img)
+	case "6":
+		return imaging.Rotate270(img)
+	case "7":
+		return imaging.Transverse(img)
+	case "8":
+		return imaging.Rotate90(img)
+	default:
+		return img
+	}
+}
+
 // ImageToBase64 converts an image.Image to a base64 encoded data URI string with appropriate MIME type
 func ImageToBase64(img image.Image) (string, error) {
 
