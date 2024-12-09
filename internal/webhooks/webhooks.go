@@ -12,6 +12,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
 type WebhookEvent string
@@ -109,7 +110,20 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 		go func(webhook config.Webhook, payload []byte) {
 			defer wg.Done()
 
-			resp, err := httpClient.Post(webhook.Url, "application/json", bytes.NewBuffer(jsonPayload))
+			req, err := http.NewRequest("POST", webhook.Url, bytes.NewBuffer(jsonPayload))
+			if err != nil {
+				log.Error("webhook request creation", "err", err)
+				return
+			}
+
+			req.Header.Set("Content-Type", "application/json")
+
+			if webhook.Secret != "" {
+				signature := utils.CalculateSignature(webhook.Secret, string(jsonPayload))
+				req.Header.Set("X-Kiosk-Signature-256", "sha256="+signature)
+			}
+
+			resp, err := httpClient.Do(req)
 			if err != nil {
 				log.Error("webhook post", "err", err)
 				return
