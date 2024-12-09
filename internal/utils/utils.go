@@ -144,6 +144,60 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 	return img, nil
 }
 
+// ApplyExifOrientation adjusts an image's orientation based on EXIF data and desired landscape/portrait mode.
+// It takes an image, a boolean indicating if landscape orientation is desired, and an EXIF orientation string.
+// The EXIF orientation values follow the standard specification:
+//
+//	1 = Normal
+//	2 = Flipped horizontally
+//	3 = Rotated 180 degrees
+//	4 = Flipped vertically
+//	5 = Transposed (flipped horizontally and rotated 90° CW)
+//	6 = Rotated 90° CCW
+//	7 = Transverse (flipped horizontally and rotated 90° CCW)
+//	8 = Rotated 90° CW
+//
+// Returns the properly oriented image.
+func ApplyExifOrientation(img image.Image, isLandscape bool, exifOrientation string) image.Image {
+
+	if img == nil {
+		return nil
+	}
+
+	bounds := img.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	if width == height {
+		return img
+	}
+
+	// return if image is already in the correct orientation
+	isCurrentlyLandscape := width > height
+	if isCurrentlyLandscape == isLandscape {
+		return img
+	}
+
+	switch exifOrientation {
+	case "2":
+		return imaging.FlipH(img)
+	case "3":
+		return imaging.Rotate180(img)
+	case "4":
+		return imaging.FlipV(img)
+	case "5":
+		return imaging.Transpose(img)
+	case "6":
+		return imaging.Rotate270(img)
+	case "7":
+		return imaging.Transverse(img)
+	case "8":
+		return imaging.Rotate90(img)
+	default:
+		return img
+	}
+}
+
 // ImageToBase64 converts an image.Image to a base64 encoded data URI string with appropriate MIME type
 func ImageToBase64(img image.Image) (string, error) {
 
