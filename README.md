@@ -825,7 +825,16 @@ Add webhook configuration to your `config.yaml`:
 webhooks:
   - url: "https://your-webhook-endpoint.com"
     event: asset.new
+    secret: "my_webhook_secret" # Optional secret for securing webhooks
 ```
+
+When a secret is provided, Kiosk will generate a SHA-256 HMAC signature using the webhook payload and include it in the `X-Kiosk-Signature-256` header.
+This allows you to verify that webhook request came from your Kiosk instance, following the same validation pattern as [GitHub webhooks](https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries).
+
+To validate webhooks on your server, you should:
+1. Get the signature from the `X-Kiosk-Signature-256` header
+2. Generate a HMAC hex digest using your secret and the raw request body
+3. Compare the signatures using a constant-time comparison function
 
 ### Available Events
 

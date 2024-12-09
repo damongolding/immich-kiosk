@@ -64,6 +64,9 @@ show_image_location: false
 hide_countries:
   - "country to hide"
 show_image_id: false
+show_more_info: true
+show_more_info_image_link: true
+show_more_info_qr_code: true
 
 # weather:
 #   - name: london
