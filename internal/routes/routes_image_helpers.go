@@ -128,7 +128,7 @@ func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, kioskDeviceID
 		log.Debug(requestID, "Got image in", time.Since(imageGet).Seconds())
 	}
 
-	img = utils.FixImageOrientation(img, immichImage.IsLandscape, immichImage.ExifInfo.Orientation)
+	img = utils.ApplyExifOrientation(img, immichImage.IsLandscape, immichImage.ExifInfo.Orientation)
 
 	return img, nil
 }
