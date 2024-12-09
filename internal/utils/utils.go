@@ -545,9 +545,9 @@ func GenerateSharedSecret() (string, error) {
 }
 
 // CalculateSignature generates an HMAC-SHA256 signature for the given secret and timestamp
-func CalculateSignature(secret, timestamp string) string {
+func CalculateSignature(secret, data string) string {
 	h := hmac.New(sha256.New, []byte(secret))
-	h.Write([]byte(timestamp))
+	h.Write([]byte(data))
 	return hex.EncodeToString(h.Sum(nil))
 }
 

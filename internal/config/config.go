@@ -104,8 +104,9 @@ type WeatherLocation struct {
 }
 
 type Webhook struct {
-	Url   string `json:"url" mapstructure:"url"`
-	Event string `json:"event" mapstructure:"event"`
+	Url    string `json:"url" mapstructure:"url"`
+	Event  string `json:"event" mapstructure:"event"`
+	Secret string `json:"secret" mapstructure:"secret"`
 }
 
 // ClientData represents the client-specific dimensions received from the frontend.
