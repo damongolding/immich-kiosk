@@ -160,8 +160,21 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 // Returns the properly oriented image.
 func FixImageOrientation(img image.Image, isLandscape bool, exifOrientation string) image.Image {
 
+	if img == nil {
+		return nil
+	}
+
+	bounds := img.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	if width == height {
+		return img
+	}
+
 	// return if image is already in the correct orientation
-	if (img.Bounds().Dy() > img.Bounds().Dx() && !isLandscape) || (img.Bounds().Dx() > img.Bounds().Dy() && isLandscape) {
+	isCurrentlyLandscape := width > height
+	if isCurrentlyLandscape == isLandscape {
 		return img
 	}
 
