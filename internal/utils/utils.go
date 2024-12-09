@@ -144,6 +144,20 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 	return img, nil
 }
 
+// FixImageOrientation adjusts an image's orientation based on EXIF data and desired landscape/portrait mode.
+// It takes an image, a boolean indicating if landscape orientation is desired, and an EXIF orientation string.
+// The EXIF orientation values follow the standard specification:
+//
+//	1 = Normal
+//	2 = Flipped horizontally
+//	3 = Rotated 180 degrees
+//	4 = Flipped vertically
+//	5 = Transposed (flipped horizontally and rotated 90° CW)
+//	6 = Rotated 90° CCW
+//	7 = Transverse (flipped horizontally and rotated 90° CCW)
+//	8 = Rotated 90° CW
+//
+// Returns the properly oriented image.
 func FixImageOrientation(img image.Image, isLandscape bool, exifOrientation string) image.Image {
 
 	// return if image is already in the correct orientation
