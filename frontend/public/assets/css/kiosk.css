@@ -1402,11 +1402,11 @@ body {
   display: none;
   visibility: hidden;
 }
-.navigation--control--paused .navigation--control--play {
+.polling-paused .navigation--play-pause--play {
     display: inline;
     visibility: visible;
   }
-.navigation--control--paused .navigation--control--pause {
+.polling-paused .navigation--play-pause--pause {
     display: none;
     visibility: hidden;
   }

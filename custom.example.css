@@ -170,8 +170,8 @@ to{}
 .navigation--media-buttons{}
 .navigation--media-buttons .navigation--item{}
 .navigation--play-pause--play{}
-.navigation--control--paused .navigation--control--play{}
-.navigation--control--paused .navigation--control--pause{}
+.polling-paused .navigation--play-pause--play{}
+.polling-paused .navigation--play-pause--pause{}
 .navigation--next-image{}
 .navigation--prev-image{}
 .navigation--prev-image.disabled{}
