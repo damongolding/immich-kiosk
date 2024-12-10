@@ -33,7 +33,6 @@ require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect

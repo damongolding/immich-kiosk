@@ -668,8 +668,6 @@ volumes:
 > [!TIP]
 > Ensure that the path to your `custom.css` file is relative to your `docker-compose.yml` file.
 
-There is a `custom.example.css` file included that contains all the CSS selectors used by Kiosk, which you can use as a reference for your customizations.
-
 The custom CSS will apply to all devices connected to Kiosk by default.
 
 To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?custom_css=false`
