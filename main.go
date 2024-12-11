@@ -148,7 +148,9 @@ func main() {
 
 	<-common.Context.Done()
 
-	fmt.Println("Kiosk shutting down")
+	fmt.Println("")
+	log.Info("Kiosk shutting down")
+	fmt.Println("")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

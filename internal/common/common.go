@@ -54,10 +54,14 @@ func initialize() error {
 
 	// Handle graceful shutdown on interrupt signals
 	go func() {
-		sigChan := make(chan os.Signal, 5)
+		sigChan := make(chan os.Signal, 2)
 		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-		<-sigChan
-		cancel()
+		select {
+		case <-sigChan:
+			cancel()
+		case <-Context.Done():
+		}
+		signal.Stop(sigChan)
 	}()
 
 	return nil
