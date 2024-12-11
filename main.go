@@ -49,6 +49,10 @@ func main() {
 
 	log.SetTimeFormat("15:04:05")
 
+	if err := common.Initialize(); err != nil {
+		log.Fatal("failed to initialize common package", "error", err)
+	}
+
 	baseConfig := config.New()
 
 	err := baseConfig.Load()
