@@ -17,15 +17,12 @@ import (
 )
 
 var (
-	Context     context.Context
-	cancel      context.CancelFunc
-	contextInit sync.Once
+	Context context.Context
+	cancel  context.CancelFunc
 )
 
 func init() {
-	contextInit.Do(func() {
-		Context, cancel = context.WithCancel(context.Background())
-	})
+	Context, cancel = context.WithCancel(context.Background())
 
 	if err := InitializeSecret(); err != nil {
 		log.Fatal("failed to initialize shared secret", "error", err)
@@ -33,7 +30,7 @@ func init() {
 
 	// Handle graceful shutdown on interrupt signals
 	go func() {
-		sigChan := make(chan os.Signal, 1)
+		sigChan := make(chan os.Signal, 5)
 		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 		<-sigChan
 		cancel()
