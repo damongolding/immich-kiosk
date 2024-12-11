@@ -83,23 +83,12 @@ func (c *Config) initializeConfigState() error {
 	return nil
 }
 
-// hasConfigHashChanged calculates and compares the current hash of the config file
-// with the stored hash to detect content changes. Returns true if the hash has
-// changed or if there was an error computing the new hash.
-func (c *Config) hasConfigHashChanged() bool {
-	configHash, err := c.configFileHash(c.V.ConfigFileUsed())
-	if err != nil {
-		log.Error("configFileHash", "err", err)
-		return true
-	}
-	return c.configHash != configHash
-}
-
 // reloadConfig reloads the configuration when a change is detected.
 func (c *Config) reloadConfig(reason string) {
-	log.Infof("Config file %s, reloading config", reason)
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
+	log.Infof("Config file %s, reloading config", reason)
 
 	newConfig := New()
 
@@ -138,8 +127,26 @@ func (c *Config) configFileHash(filePath string) (string, error) {
 	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
 }
 
+// hasConfigHashChanged calculates and compares the current hash of the config file
+// with the stored hash to detect content changes. Returns true if the hash has
+// changed or if there was an error computing the new hash.
+func (c *Config) hasConfigHashChanged() bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	configHash, err := c.configFileHash(c.V.ConfigFileUsed())
+	if err != nil {
+		log.Error("configFileHash", "err", err)
+		return true
+	}
+	return c.configHash != configHash
+}
+
 // hasConfigMtimeChanged checks if the configuration file has been modified since the last check.
 func (c *Config) hasConfigMtimeChanged() bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
 	info, err := os.Stat(c.V.ConfigFileUsed())
 	if err != nil {
 		log.Errorf("Checking config file: %v", err)

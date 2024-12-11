@@ -129,7 +129,7 @@ type Config struct {
 	// V is the viper instance used for configuration management
 	V *viper.Viper `json:"-"`
 	// mu is a mutex used to ensure thread-safe access to the configuration
-	mu *sync.Mutex `json:"-"`
+	mu *sync.RWMutex `json:"-"`
 	// ReloadTimeStamp timestamp for when the last client reload was called for
 	ReloadTimeStamp string `json:"-"`
 	// configLastModTime stores the last modification time of the configuration file
@@ -261,7 +261,7 @@ type Config struct {
 func New() *Config {
 	c := &Config{
 		V:               viper.NewWithOptions(viper.ExperimentalBindStruct()),
-		mu:              &sync.Mutex{},
+		mu:              &sync.RWMutex{},
 		ReloadTimeStamp: time.Now().Format(time.RFC3339),
 	}
 	defaults.SetDefaults(c)

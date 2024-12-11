@@ -59,6 +59,11 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
 				parsedUrl, err := url.Parse(redirectItem.URL)
 				if err != nil {
+					log.Error("parse internal redirect URL",
+						"url", redirectItem.URL,
+						"redirect", redirectName,
+						"error", err)
+
 					return echo.NewHTTPError(http.StatusInternalServerError, "Invalid redirect URL")
 				}
 
@@ -82,7 +87,11 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 				Value: strconv.Itoa(count + 1),
 			})
 
-			redirectItem = mergeRequestQueries(c.QueryParams(), redirectItem)
+			mergedRedirect := mergeRequestQueries(c.QueryParams(), redirectItem)
+			if _, err := url.Parse(mergedRedirect.URL); err != nil {
+				log.Error("Invalid merged redirect URL", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to process redirect")
+			}
 
 			return c.Redirect(http.StatusTemporaryRedirect, redirectItem.URL)
 		}
