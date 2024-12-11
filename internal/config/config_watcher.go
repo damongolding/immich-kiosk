@@ -1,10 +1,12 @@
 package config
 
 import (
+	"context"
 	"crypto/sha256"
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -37,21 +39,29 @@ func (c *Config) watchConfigChanges() {
 	hashCheckCount := 0
 	const hashCheckInterval = 12
 
-	for range ticker.C {
-		if c.hasConfigMtimeChanged() {
-			c.reloadConfig("mTime changed")
-			hashCheckCount = 0
-			continue
-		}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
 
-		if hashCheckCount >= hashCheckInterval {
-			if c.hasConfigHashChanged() {
-				c.reloadConfig("hash changed")
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if c.hasConfigMtimeChanged() {
+				c.reloadConfig("mTime changed")
+				hashCheckCount = 0
+				continue
 			}
-			hashCheckCount = 0
-		}
 
-		hashCheckCount++
+			if hashCheckCount >= hashCheckInterval {
+				if c.hasConfigHashChanged() {
+					c.reloadConfig("hash changed")
+				}
+				hashCheckCount = 0
+			}
+
+			hashCheckCount++
+		}
 	}
 }
 
@@ -73,12 +83,14 @@ func (c *Config) initializeConfigState() error {
 	return nil
 }
 
-// hasConfigHashChanged checks if the hash of the config file has changed.
+// hasConfigHashChanged calculates and compares the current hash of the config file
+// with the stored hash to detect content changes. Returns true if the hash has
+// changed or if there was an error computing the new hash.
 func (c *Config) hasConfigHashChanged() bool {
 	configHash, err := c.configFileHash(c.V.ConfigFileUsed())
 	if err != nil {
 		log.Error("configFileHash", "err", err)
-		return false
+		return true
 	}
 	return c.configHash != configHash
 }

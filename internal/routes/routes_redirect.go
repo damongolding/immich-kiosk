@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v4"
@@ -101,14 +102,18 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 // 2. Merges them using utils.MergeQueries
 // 3. Updates the redirect URL with the combined query string
 func mergeRequestQueries(requestQueries url.Values, redirectItem config.Redirect) config.Redirect {
-	if redirectURL, err := url.Parse(redirectItem.URL); err == nil {
-		redirectQueries := redirectURL.Query()
-
-		merged := utils.MergeQueries(requestQueries, redirectQueries)
-
-		redirectURL.RawQuery = merged.Encode()
-		redirectItem.URL = redirectURL.String()
+	redirectURL, err := url.Parse(redirectItem.URL)
+	if err != nil {
+		log.Error("parse redirect URL", "url", redirectItem.URL, "err", err)
+		return redirectItem
 	}
+
+	redirectQueries := redirectURL.Query()
+
+	merged := utils.MergeQueries(requestQueries, redirectQueries)
+
+	redirectURL.RawQuery = merged.Encode()
+	redirectItem.URL = redirectURL.String()
 
 	return redirectItem
 }
