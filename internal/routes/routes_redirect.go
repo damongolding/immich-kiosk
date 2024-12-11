@@ -93,7 +93,7 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to process redirect")
 			}
 
-			return c.Redirect(http.StatusTemporaryRedirect, redirectItem.URL)
+			return c.Redirect(http.StatusTemporaryRedirect, mergedRedirect.URL)
 		}
 
 		return c.Redirect(http.StatusTemporaryRedirect, "/")
