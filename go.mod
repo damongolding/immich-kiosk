@@ -11,7 +11,7 @@ require (
 	github.com/fogleman/gg v1.3.0
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
-	github.com/labstack/echo/v4 v4.13.0
+	github.com/labstack/echo/v4 v4.13.1
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible

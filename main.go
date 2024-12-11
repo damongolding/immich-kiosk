@@ -16,8 +16,6 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
-	"os"
-	"os/signal"
 	"strings"
 	"time"
 
@@ -27,6 +25,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/time/rate"
 
+	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/routes"
 	"github.com/damongolding/immich-kiosk/internal/weather"
@@ -50,6 +49,10 @@ func main() {
 
 	log.SetTimeFormat("15:04:05")
 
+	if err := common.Initialize(); err != nil {
+		log.Fatal("failed to initialize common package", "error", err)
+	}
+
 	baseConfig := config.New()
 
 	err := baseConfig.Load()
@@ -59,7 +62,7 @@ func main() {
 
 	if baseConfig.Kiosk.WatchConfig {
 		log.Infof("Watching %s for changes", baseConfig.V.ConfigFileUsed())
-		baseConfig.WatchConfig()
+		baseConfig.WatchConfig(common.Context)
 	}
 
 	if baseConfig.Kiosk.Debug {
@@ -130,11 +133,8 @@ func main() {
 
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
-
 	for _, w := range baseConfig.WeatherLocations {
-		go weather.AddWeatherLocation(ctx, w)
+		go weather.AddWeatherLocation(common.Context, w)
 	}
 
 	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(fmt.Sprintf("%v", baseConfig.Kiosk.Port)))
@@ -146,9 +146,11 @@ func main() {
 		}
 	}()
 
-	<-ctx.Done()
+	<-common.Context.Done()
 
-	fmt.Println("Kiosk shutting down")
+	fmt.Println("")
+	log.Info("Kiosk shutting down")
+	fmt.Println("")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

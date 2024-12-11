@@ -386,3 +386,66 @@ func TestParseTimeString(t *testing.T) {
 		}
 	}
 }
+
+// TestMergeQueries tests the MergeQueries function
+func TestMergeQueries(t *testing.T) {
+	// Test cases
+	tests := []struct {
+		name     string
+		queryA   url.Values
+		queryB   url.Values
+		expected url.Values
+	}{
+		{
+			name:     "Empty queries",
+			queryA:   url.Values{},
+			queryB:   url.Values{},
+			expected: url.Values{},
+		},
+		{
+			name:     "One empty query",
+			queryA:   url.Values{"key": []string{"value"}},
+			queryB:   url.Values{},
+			expected: url.Values{"key": []string{"value"}},
+		},
+		{
+			name:     "Distinct keys",
+			queryA:   url.Values{"keyA": []string{"valueA"}},
+			queryB:   url.Values{"keyB": []string{"valueB"}},
+			expected: url.Values{"keyA": []string{"valueA"}, "keyB": []string{"valueB"}},
+		},
+		{
+			name:     "Same keys",
+			queryA:   url.Values{"key": []string{"valueA"}},
+			queryB:   url.Values{"key": []string{"valueB"}},
+			expected: url.Values{"key": []string{"valueB", "valueA"}},
+		},
+		{
+			name:     "Multiple values per key",
+			queryA:   url.Values{"key": []string{"valueA1", "valueA2"}},
+			queryB:   url.Values{"key": []string{"valueB1", "valueB2"}},
+			expected: url.Values{"key": []string{"valueB1", "valueB2", "valueA1", "valueA2"}},
+		},
+	}
+
+	// Run tests
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := MergeQueries(tt.queryA, tt.queryB)
+
+			// Compare lengths
+			assert.Equal(t, len(tt.expected), len(result), "MergeQueries() got length %v, want %v", len(result), len(tt.expected))
+
+			// Compare values
+			for key, expectedVals := range tt.expected {
+				resultVals, exists := result[key]
+				assert.True(t, exists, "MergeQueries() missing key %v", key)
+				assert.Equal(t, len(expectedVals), len(resultVals), "MergeQueries() key %v got %v values, want %v", key, len(resultVals), len(expectedVals))
+
+				for i, val := range expectedVals {
+					assert.Equal(t, val, resultVals[i], "MergeQueries() key %v index %v got %v, want %v", key, i, resultVals[i], val)
+				}
+			}
+		})
+	}
+}

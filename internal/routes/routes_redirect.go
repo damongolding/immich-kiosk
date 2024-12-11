@@ -6,7 +6,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v4"
 )
 
@@ -52,10 +54,16 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		if redirectItem, exists := baseConfig.Kiosk.RedirectsMap[redirectName]; exists {
+
 			if strings.EqualFold(redirectItem.Type, "internal") {
 
 				parsedUrl, err := url.Parse(redirectItem.URL)
 				if err != nil {
+					log.Error("parse internal redirect URL",
+						"url", redirectItem.URL,
+						"redirect", redirectName,
+						"error", err)
+
 					return echo.NewHTTPError(http.StatusInternalServerError, "Invalid redirect URL")
 				}
 
@@ -72,7 +80,6 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 				c.Request().URL = newURL
 
 				return Home(baseConfig)(c)
-
 			}
 
 			c.SetCookie(&http.Cookie{
@@ -80,9 +87,42 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 				Value: strconv.Itoa(count + 1),
 			})
 
-			return c.Redirect(http.StatusTemporaryRedirect, redirectItem.URL)
+			mergedRedirect := mergeRequestQueries(c.QueryParams(), redirectItem)
+			if _, err := url.Parse(mergedRedirect.URL); err != nil {
+				log.Error("Invalid merged redirect URL", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to process redirect")
+			}
+
+			return c.Redirect(http.StatusTemporaryRedirect, mergedRedirect.URL)
 		}
 
 		return c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
+}
+
+// mergeRequestQueries combines query parameters from an incoming request with those
+// already present in a redirect URL. It takes the request query parameters and a
+// redirect configuration item as input, and returns an updated redirect configuration
+// with merged query parameters in its URL.
+//
+// If parsing the redirect URL fails, the original redirect item is returned unchanged.
+// Otherwise, it:
+// 1. Extracts queries from both the request and redirect URL
+// 2. Merges them using utils.MergeQueries
+// 3. Updates the redirect URL with the combined query string
+func mergeRequestQueries(requestQueries url.Values, redirectItem config.Redirect) config.Redirect {
+	redirectURL, err := url.Parse(redirectItem.URL)
+	if err != nil {
+		log.Error("parse redirect URL", "url", redirectItem.URL, "err", err)
+		return redirectItem
+	}
+
+	redirectQueries := redirectURL.Query()
+
+	merged := utils.MergeQueries(requestQueries, redirectQueries)
+
+	redirectURL.RawQuery = merged.Encode()
+	redirectItem.URL = redirectURL.String()
+
+	return redirectItem
 }
