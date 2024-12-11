@@ -144,8 +144,9 @@ func (c *Config) checkExcludedAlbums() {
 // It checks each WeatherLocation for required fields (name, latitude, longitude, and API key),
 // and logs an error message if any required fields are missing.
 func (c *Config) checkWeatherLocations() {
-	for i := 0; i < len(c.WeatherLocations); i++ {
-		w := c.WeatherLocations[i]
+	var validLocations []WeatherLocation
+
+	for _, w := range c.WeatherLocations {
 		missingFields := []string{}
 		if w.Name == "" {
 			missingFields = append(missingFields, "name")
@@ -167,12 +168,15 @@ func (c *Config) checkWeatherLocations() {
 				c.HasWeatherDefault = true
 			}
 		}
-		if len(missingFields) > 0 {
-			log.Warn("Weather location is missing required fields. Ignoring this location.", "missing fields", strings.Join(missingFields, ", "), "name", w.Name)
-			c.WeatherLocations = append(c.WeatherLocations[:i], c.WeatherLocations[i+1:]...)
-			i--
+		if len(missingFields) == 0 {
+			validLocations = append(validLocations, w)
+		} else {
+			log.Warn("Weather location is missing required fields. Ignoring this location.",
+				"missing fields", strings.Join(missingFields, ", "), "name", w.Name)
 		}
 	}
+
+	c.WeatherLocations = validLocations
 }
 
 // checkHideCountries processes the list of countries to hide in location information
