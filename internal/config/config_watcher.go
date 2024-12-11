@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/signal"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -14,7 +13,7 @@ import (
 
 // WatchConfig sets up a configuration file watcher that monitors for changes
 // and reloads the configuration when necessary.
-func (c *Config) WatchConfig() {
+func (c *Config) WatchConfig(ctx context.Context) {
 	configPath := c.V.ConfigFileUsed()
 
 	if err := validateConfigFile(configPath); err != nil {
@@ -27,20 +26,17 @@ func (c *Config) WatchConfig() {
 		return
 	}
 
-	go c.watchConfigChanges()
+	go c.watchConfigChanges(ctx)
 }
 
 // watchConfigChanges continuously monitors the configuration file for changes
 // and triggers a reload when necessary.
-func (c *Config) watchConfigChanges() {
+func (c *Config) watchConfigChanges(ctx context.Context) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
 	hashCheckCount := 0
 	const hashCheckInterval = 12
-
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
 
 	for {
 		select {

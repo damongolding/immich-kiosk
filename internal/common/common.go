@@ -2,15 +2,43 @@
 package common
 
 import (
+	"context"
 	"fmt"
 	"net/url"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
+
+var (
+	Context     context.Context
+	cancel      context.CancelFunc
+	contextInit sync.Once
+)
+
+func init() {
+	contextInit.Do(func() {
+		Context, cancel = context.WithCancel(context.Background())
+	})
+
+	if err := InitializeSecret(); err != nil {
+		log.Fatal("failed to initialize shared secret", "error", err)
+	}
+
+	// Handle graceful shutdown on interrupt signals
+	go func() {
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+		<-sigChan
+		cancel()
+	}()
+}
 
 // SharedSecret stores the application-wide shared secret string
 var SharedSecret string
@@ -42,13 +70,6 @@ func InitializeSecret() error {
 	})
 
 	return initErr
-}
-
-// init initializes the package by generating the shared secret
-func init() {
-	if err := InitializeSecret(); err != nil {
-		log.Fatal("initialising secret", "error", err)
-	}
 }
 
 // ViewImageData contains the image data and metadata for displaying an image in the view
