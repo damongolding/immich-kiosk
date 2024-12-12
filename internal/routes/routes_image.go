@@ -97,6 +97,6 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 			return err
 		}
 
-		return c.Blob(http.StatusOK, immichImage.OriginalMimeType, imgBytes)
+		return c.Blob(http.StatusOK, "image/jpeg", imgBytes)
 	}
 }
