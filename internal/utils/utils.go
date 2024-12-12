@@ -293,20 +293,38 @@ func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error
 }
 
 // MergeQueries combines two url.Values objects into a single new url.Values object.
-// Values from both input objects are preserved, with values from urlQueriesB being added first,
-// followed by values from urlQueriesA. This effectively concatenates all values for each key
-// from both query objects into the merged result. If the same key exists in both objects,
-// the values will be concatenated in the order described above.
-// Returns the new merged url.Values object.
+// Values from both input objects are preserved while avoiding duplicate values.
+// The function processes values from urlQueriesB first, followed by values from urlQueriesA.
+// For each key-value pair, duplicates are detected and only unique values are included in the result.
+// A value is considered a duplicate if the same key-value combination already exists in the merged result.
+// The function uses a nested map structure to efficiently track seen values and prevent duplicates.
+// Returns a new url.Values object containing the combined unique values from both inputs.
 func MergeQueries(urlQueriesA, urlQueriesB url.Values) url.Values {
 	merged := make(url.Values)
+	seen := make(map[string]map[string]bool)
 
 	for key, values := range urlQueriesB {
-		merged[key] = append(merged[key], values...)
+		if seen[key] == nil {
+			seen[key] = make(map[string]bool)
+		}
+		for _, value := range values {
+			if !seen[key][value] {
+				merged[key] = append(merged[key], value)
+				seen[key][value] = true
+			}
+		}
 	}
 
 	for key, values := range urlQueriesA {
-		merged[key] = append(merged[key], values...)
+		if seen[key] == nil {
+			seen[key] = make(map[string]bool)
+		}
+		for _, value := range values {
+			if !seen[key][value] {
+				merged[key] = append(merged[key], value)
+				seen[key][value] = true
+			}
+		}
 	}
 
 	return merged

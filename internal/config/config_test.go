@@ -38,7 +38,7 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 
 	echoContenx := e.NewContext(req, rec)
 
-	err := c.ConfigWithOverrides(echoContenx)
+	err := c.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
 	assert.Equal(t, originalUrl, c.ImmichUrl, "ImmichUrl field was allowed to be changed")
@@ -62,7 +62,7 @@ func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 
 	t.Log("Trying to add:", echoContenx.QueryParams())
 
-	err := c.ConfigWithOverrides(echoContenx)
+	err := c.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
 	assert.Equal(t, 2, len(c.Person), "Expected 2 people to be added")
@@ -120,7 +120,7 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 
 	t.Log("Trying to add:", echoContenx.QueryParams())
 
-	err := configWithBase.ConfigWithOverrides(echoContenx)
+	err := configWithBase.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
 	t.Log("album", configWithBase.Album)
@@ -144,7 +144,7 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 
 	t.Log("Trying to add:", echoContenx.QueryParams())
 
-	err = configWithoutBase.ConfigWithOverrides(echoContenx)
+	err = configWithoutBase.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
 	t.Log("album", configWithoutBase.Album)
@@ -162,7 +162,7 @@ func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
 
 	echoContenx = e.NewContext(req, rec)
 
-	err = configWithBaseOnly.ConfigWithOverrides(echoContenx)
+	err = configWithBaseOnly.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
 	t.Log("album", configWithBaseOnly.Album)
