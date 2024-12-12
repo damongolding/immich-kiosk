@@ -23,6 +23,7 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"net/url"
 	"os"
 	"sync"
 	"time"
@@ -382,16 +383,11 @@ func (c *Config) Load() error {
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
-func (c *Config) ConfigWithOverrides(e echo.Context) error {
-
-	queries := e.QueryParams()
+func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	// check for person or album in quries and empty baseconfig slice if found
-	if queries.Has("person") {
+	if queries.Has("person") || queries.Has("album") {
 		c.Person = []string{}
-	}
-
-	if queries.Has("album") {
 		c.Album = []string{}
 	}
 

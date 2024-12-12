@@ -64,9 +64,8 @@ jobs:
       - if: ${{ matrix.build-mode == 'manual' }}
         name: Build Templ
         run: |
-          echo 'go install github.com/a-h/templ/cmd/templ@latest'
-          echo 'templ generate'
-          exit 1
+          go install github.com/a-h/templ/cmd/templ@latest
+          $HOME/go/bin/templ generate
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
