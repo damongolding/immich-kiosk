@@ -941,6 +941,12 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
             showElevation: true
 ```
 
+More documentation about WallPanel here: [https://github.com/j-a-n/lovelace-wallpanel](https://github.com/j-a-n/lovelace-wallpanel)
+
+### Using Kiosk, HomeAssistant View and Google Cast Blueprint
+
+You can include the slideshow as a custom dashboard view within Home Assistant and then cast the view to Google Cast devices.
+Please follow these steps provided by a community member: [chris-burrow-apps/immich_kiosk_mode](https://github.com/chris-burrow-apps/home-assistant-blueprints/blob/main/immich/immich_kiosk_mode.md)
 
 ------
 
