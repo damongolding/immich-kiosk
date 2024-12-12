@@ -67,6 +67,7 @@ jobs:
           go install github.com/a-h/templ/cmd/templ@latest
           templ generate
 
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
