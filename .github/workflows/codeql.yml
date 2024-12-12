@@ -65,8 +65,7 @@ jobs:
         name: Build Templ
         run: |
           go install github.com/a-h/templ/cmd/templ@latest
-          templ generate
-
+          $HOME/go/bin/templ generate
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
