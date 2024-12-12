@@ -86,6 +86,13 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
 
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Level: 6,
+		Skipper: func(c echo.Context) bool {
+			return strings.Contains(c.Path(), "image")
+		},
+	}))
+
 	if baseConfig.Kiosk.Password != "" {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 			Skipper: func(c echo.Context) bool {
