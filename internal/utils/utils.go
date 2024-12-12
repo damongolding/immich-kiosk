@@ -303,29 +303,23 @@ func MergeQueries(urlQueriesA, urlQueriesB url.Values) url.Values {
 	merged := make(url.Values)
 	seen := make(map[string]map[string]bool)
 
-	for key, values := range urlQueriesB {
-		if seen[key] == nil {
-			seen[key] = make(map[string]bool)
-		}
-		for _, value := range values {
-			if !seen[key][value] {
-				merged[key] = append(merged[key], value)
-				seen[key][value] = true
+	// Helper function to process values
+	processValues := func(values url.Values) {
+		for key, vals := range values {
+			if seen[key] == nil {
+				seen[key] = make(map[string]bool)
+			}
+			for _, value := range vals {
+				if !seen[key][value] {
+					merged[key] = append(merged[key], value)
+					seen[key][value] = true
+				}
 			}
 		}
 	}
 
-	for key, values := range urlQueriesA {
-		if seen[key] == nil {
-			seen[key] = make(map[string]bool)
-		}
-		for _, value := range values {
-			if !seen[key][value] {
-				merged[key] = append(merged[key], value)
-				seen[key][value] = true
-			}
-		}
-	}
+	processValues(urlQueriesB)
+	processValues(urlQueriesA)
 
 	return merged
 }
