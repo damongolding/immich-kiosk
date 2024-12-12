@@ -305,15 +305,9 @@ func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, req
 	return processViewImageData(imageOrientation, requestConfig, c, isPrefetch)
 }
 
-func imagePreFetch(requestConfig config.Config, c echo.Context) {
+func imagePreFetch(requestData *common.RouteRequestData, c echo.Context) {
 
-	requestData, err := InitializeRequestData(c, &requestConfig)
-	if err != nil {
-		log.Error("InitializeRequestData", "prefetch", true, "err", err)
-		return
-	}
-
-	requestConfig = requestData.RequestConfig
+	requestConfig := requestData.RequestConfig
 	requestID := requestData.RequestID
 	deviceID := requestData.DeviceID
 
@@ -345,12 +339,12 @@ func imagePreFetch(requestConfig config.Config, c echo.Context) {
 }
 
 // fromCache retrieves cached page data for a given request and device ID.
-func fromCache(c echo.Context, kioskDeviceID string) []common.ViewData {
+func fromCache(urlString string, kioskDeviceID string) []common.ViewData {
 
 	viewDataCacheMutex.Lock()
 	defer viewDataCacheMutex.Unlock()
 
-	cacheKey := c.Request().URL.String() + kioskDeviceID
+	cacheKey := urlString + kioskDeviceID
 	if data, found := ViewDataCache.Get(cacheKey); found {
 		cachedPageData := data.([]common.ViewData)
 		if len(cachedPageData) > 0 {

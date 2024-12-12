@@ -911,7 +911,7 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
 
 \* If you want to specify an album or a person you can also add that to the url e.g. http://192.168.0.123:3000/image?album=ALBUM_ID
 
-### Using Immich Kiosk as an image source for Wallpanel in HomeAssistant:
+### Using Immich Kiosk as an image source for Wallpanel in Home Assistant:
 
 ```yaml
   wallpanel:
@@ -941,6 +941,13 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
             showElevation: true
 ```
 
+More documentation about WallPanel here: [https://github.com/j-a-n/lovelace-wallpanel](https://github.com/j-a-n/lovelace-wallpanel)
+
+### Using Kiosk on Google Cast Devices
+
+Create a photo slideshow in Home Assistant and display it on any Google Cast device (like Chromecast or Nest Hub).
+
+Follow this community guide to get started: [Immich Kiosk Mode](https://github.com/chris-burrow-apps/home-assistant-blueprints/blob/main/immich/immich_kiosk_mode.md)
 
 ------
 
