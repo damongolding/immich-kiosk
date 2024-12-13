@@ -103,13 +103,15 @@ On the pi connected to the TV you want to display a random image from your libra
 Using this URL `http://{URL}?image_fit=cover&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID` would achieve what we want.
 
 ## Example 2
-Fanyang Meng created a digital picture frame using a Raspberry Pi Zero 2 W and Kiosk. You can read the blog post about the process [here](https://fanyangmeng.blog/build-a-selfhosted-digital-frame/).
+Fanyang Meng created a digital picture frame using a Raspberry Pi Zero 2 W and Kiosk. You can read the blog post about the process [here](https://fanyangmeng.blog/build-a-selfhosted-digital-frame/). 
+
+This example includes instructions on how to autoboot a Raspberry Pi directly into Immich Kiosk.
 
 
 ------
 
 ## Installation
-There are two main ways to install Kiosk.
+There are two main ways to install Kiosk: **Docker** or **Binary**.
 
 ### Docker (recommended)
 
@@ -117,9 +119,9 @@ There are two main ways to install Kiosk.
 
   1. Add the [kiosk service](#docker-compose) to your Immich `docker-compose.yaml` file.
 
-  Follow from step 3 in option 2 to create the `config.yaml` file.
+  Follow from *step 3* in *option 2* to create the `config.yaml` file.
 
-#### *Option 2: Create a seprate compose file for Kiosk.*
+#### *Option 2: Create a separate compose file for Kiosk.*
 
   1. Create a directory of your choice (e.g. ./immich-kiosk) to hold the `docker-compose.yaml` and config file.
      ```sh
@@ -150,10 +152,6 @@ There are two main ways to install Kiosk.
      Only the `immich_url` and `immich_api_key` are required fields.
 
   5. Start the container
-
-     ```sh
-     docker compose up -d
-     ```
 
 ### Binary
 
@@ -285,10 +283,40 @@ services:
     restart: always
 ```
 
+### When checking `config.yaml` into a repository
+
+It is recommended to avoid checking-in any secrets.
+
+  1. Create a `docker-compose.env` file.
+
+     ```sh
+     touch docker-compose.env
+     ```
+
+  2. Remove secrets from `config.yaml` (and `docker-compose.yaml`) - generally `immich_url` and `immich_api_key`.
+
+  3. Include your secrets in `docker-compose.env`.
+
+     ```sh
+     KIOSK_IMMICH_API_KEY=SECRET_KEY
+     KIOSK_IMMICH_URL=SECRET_URL
+     ```
+  
+  4. Update `docker-compose.yaml` to include `env_file:`.
+
+     ```yaml
+     services:
+       immich-kiosk:
+         env_file:
+           - docker-compose.env
+     ```
+    
+  5. Add `docker-compose.env` to `.gitignore`.
+
 ------
 
 ## Configuration
-See the file config.example.yaml for an example config file
+See the file `config.example.yaml` for an example config file
 
 | **yaml**                          | **ENV**                 | **Value**                  | **Default** | **Description**                                                                            |
 |-----------------------------------|-------------------------|----------------------------|-------------|--------------------------------------------------------------------------------------------|
@@ -371,7 +399,7 @@ kiosk:
 ## Changing settings via URL
 You can configure settings for individual devices through the URL. This feature is particularly useful when you need different settings for different devices, especially if the only input option available is a URL, such as with kiosk devices.
 
-example:
+Example:
 
 `https://{URL}?refresh=120&background_blur=false&transition=none`
 
