@@ -61,14 +61,24 @@ func (c *Config) checkLowercaseTaggedFields() {
 // Currently checks for:
 // - ImmichUrl: The base URL for the Immich server
 // - ImmichApiKey: The API key for authentication
+// - ImmichApiKeys: The API keys (per user) for authentication
 // If any required field is missing, the function logs a fatal error and exits.
 func (c *Config) checkRequiredFields() {
 	switch {
 	case c.ImmichUrl == "":
 		log.Fatal("Immich Url is missing")
+
+	case len(c.ImmichApiKeys) != 0:
+		if c.User == "" {
+			log.Fatal("User must be specified when using immich_api_keys")
+		}
+		if _, exists := c.ImmichApiKeys[c.User]; !exists {
+			log.Fatal("API key for user '" + c.User + "' is missing")
+		}
 	case c.ImmichApiKey == "":
-		log.Fatal("Immich API is missing")
+		log.Fatal("Immich API key is missing")
 	}
+
 }
 
 // checkDebuging enables the debug flag if verbose debugging is enabled.

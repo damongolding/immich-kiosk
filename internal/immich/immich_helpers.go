@@ -106,7 +106,17 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte,
 		}
 
 		req.Header.Set("Accept", "application/json")
-		req.Header.Set("x-api-key", requestConfig.ImmichApiKey)
+
+		apiKey := requestConfig.ImmichApiKey
+		if len(requestConfig.ImmichApiKeys) > 0 {
+			apiKey = requestConfig.ImmichApiKeys[requestConfig.User]
+		}
+		if apiKey == "" {
+			log.Error("No API key found for user", "user", requestConfig.User)
+			return responseBody, fmt.Errorf("No API key found for user %s", requestConfig.User)
+		}
+
+		req.Header.Set("x-api-key", apiKey)
 
 		if method == "POST" || method == "PUT" || method == "PATCH" {
 			req.Header.Set("Content-Type", "application/json")

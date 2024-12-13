@@ -147,7 +147,7 @@ There are two main ways to install Kiosk.
 
   4. Modify `config.yaml` file.
 
-     Only the `immich_url` and `immich_api_key` are required fields.
+     Only the `immich_url` and `immich_api_keys` are required fields.
 
   5. Start the container
 
@@ -173,7 +173,7 @@ There are two main ways to install Kiosk.
 
 3. Modify `config.yaml` file.
 
-   Only the `immich_url` and `immich_api_key` are required fields.
+   Only the `immich_url` and `immich_api_keys` are required fields.
 
 4. Start Kiosk
    ```sh
@@ -219,8 +219,10 @@ services:
     environment:
       TZ: "Europe/London"
       # Required settings
-      KIOSK_IMMICH_API_KEY: "****"
+      KIOSK_IMMICH_API_KEYS: "{\"default\":\"****\"}"
       KIOSK_IMMICH_URL: "****"
+      # Default User
+      KIOSK_USER: "default"
       # External url for image links/QR codes
       KIOSK_IMMICH_EXTERNAL_URL: ""
       # Clock
@@ -292,9 +294,10 @@ See the file config.example.yaml for an example config file
 
 | **yaml**                          | **ENV**                 | **Value**                  | **Default** | **Description**                                                                            |
 |-----------------------------------|-------------------------|----------------------------|-------------|--------------------------------------------------------------------------------------------|
-| immich_api_key                    | KIOSK_IMMICH_API_KEY    | string                     | ""          | The API for your Immich server.                                                            |
+| immich_api_keys                       | KIOSK_IMMICH_API_KEYS                | map[string]string          | ""          | The API key for each user for your Immich server. See [multiple users](#multiple-users) for more information                                                                                                                                                                    |
 | immich_url                        | KIOSK_IMMICH_URL        | string                     | ""          | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`. |
 | immich_external_url               | KIOSK_IMMICH_EXTERNAL_URL | string                   | ""          | The public URL of your Immich server used for generating links and QR codes in the additional information overlay. Useful when accessing Immich through a reverse proxy or different external URL. Example: "https://photos.example.com". If not set, falls back to immich_url. |
+| user                                    | KIOSK_USER                           | string                     | "default"   | The name of the user to use it's api key from `immich_api_keys`.                                                                                                                                                                                                                |
 | show_time                         | KIOSK_SHOW_TIME         | bool                       | false       | Display clock.                                                                             |
 | time_format                       | KIOSK_TIME_FORMAT       | 12 \| 24                   | 24          | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
@@ -342,7 +345,8 @@ The below options are NOT configurable through URL params. In the `config.yaml` 
 
 ```yaml
 immich_url: "****"
-immich_api_key: "****"
+immich_api_keys:
+  - default: "****"
 // all your other config options
 
 // 👇 Additional options
@@ -373,11 +377,26 @@ You can configure settings for individual devices through the URL. This feature 
 
 example:
 
-`https://{URL}?refresh=120&background_blur=false&transition=none`
+`https://{URL}?refresh=120&background_blur=false&transition=none&user=john`
 
-The above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
+The above would set refresh to 120 seconds (2 minutes), turn off the background blurred image, remove all transitions for this device/browser, and get photos for the user john.
 
 ------
+
+## Multiple Users
+If you want to use Immich Kiosk with multiple users, you can!
+You'll need to create an api key for each user, and add them to the `immich_api_keys` field in the `config.yaml` file:
+```yaml
+immich_api_keys:
+  - default: "****"
+  - john: "****"
+  - jane: "****"
+```
+
+Then you can specify which user to use in the URL:
+`https://{URL}?user=john`
+
+When no user is specified, Kiosk will use the user defined in the config under `user`.
 
 ## Albums
 
