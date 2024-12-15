@@ -1,6 +1,10 @@
 # Required settings
-immich_api_key: ""
+immich_api_keys:
+  - default: ""
 immich_url: ""
+
+# User to use from the api_keys
+user: default
 
 # Clock
 show_time: false # true or false

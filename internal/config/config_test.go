@@ -20,10 +20,12 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 
 	originalUrl := "https://my-server.com"
 	originalApi := "123456"
+	originalApiKeys := map[string]string{"default": "123456"}
 
 	c := New()
 	c.ImmichUrl = originalUrl
 	c.ImmichApiKey = originalApi
+	c.ImmichApiKeys = originalApiKeys
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -31,6 +33,7 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 	q := req.URL.Query()
 	q.Add("immich_url", "https://my-new-server.com")
 	q.Add("immich_api_key", "9999")
+	q.Add("immich_api_keys", "{\"default\": \"9999\"}")
 
 	req.URL.RawQuery = q.Encode()
 

@@ -139,7 +139,11 @@ type Config struct {
 	configHash string `json:"-"`
 
 	// ImmichApiKey Immich key to access assets
-	ImmichApiKey string `json:"-" mapstructure:"immich_api_key" default:""`
+	ImmichApiKey  string            `json:"-" mapstructure:"immich_api_key" default:""`
+	ImmichApiKeys map[string]string `json:"-" mapstructure:"immich_api_keys" default:""`
+
+	// User a user specified in the api keys map to use
+	User string `json:"-" mapstructure:"user" query:"user" form:"user" default:"default"`
 	// ImmichUrl Immuch base url
 	ImmichUrl string `json:"-" mapstructure:"immich_url" default:""`
 
@@ -364,8 +368,12 @@ func (c *Config) Load() error {
 
 	err = c.V.Unmarshal(&c)
 	if err != nil {
-		log.Error("Environment can't be loaded", "err", err)
-		return err
+		c.V.Set("immich_api_keys", c.V.GetStringMap("immich_api_keys")) // viper unmarshal on env doesn't handle map[string]string
+		err = c.V.Unmarshal(&c)
+		if err != nil {
+			log.Error("Environment can't be loaded", "err", err)
+			return err
+		}
 	}
 
 	c.checkRequiredFields()
