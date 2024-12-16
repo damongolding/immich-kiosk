@@ -11,6 +11,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
@@ -82,25 +83,25 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 	defer viewDataCacheMutex.Unlock()
 
 	switch pickedAsset.Type {
-	case "ALBUM":
+	case kiosk.SourceAlbums:
 		switch pickedAsset.ID {
-		case immich.AlbumKeywordAll:
+		case kiosk.AlbumKeywordAll:
 			pickedAlbumID, err := immichImage.RandomAlbumFromAllAlbums(requestID, excludedAlbums)
 			if err != nil {
 				return err
 			}
 			pickedAsset.ID = pickedAlbumID
-		case immich.AlbumKeywordShared:
+		case kiosk.AlbumKeywordShared:
 			pickedAlbumID, err := immichImage.RandomAlbumFromSharedAlbums(requestID, excludedAlbums)
 			if err != nil {
 				return err
 			}
 			pickedAsset.ID = pickedAlbumID
-		case immich.AlbumKeywordFavourites, immich.AlbumKeywordFavorites:
+		case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
 			return immichImage.RandomImageFromFavourites(requestID, kioskDeviceID, isPrefetch)
 		}
 		return immichImage.RandomImageFromAlbum(pickedAsset.ID, requestID, kioskDeviceID, isPrefetch)
-	case "PERSON":
+	case kiosk.SourcePerson:
 		return immichImage.RandomImageOfPerson(pickedAsset.ID, requestID, kioskDeviceID, isPrefetch)
 	default:
 		return immichImage.RandomImage(requestID, kioskDeviceID, isPrefetch)
@@ -147,6 +148,8 @@ func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, 
 	if err := retrieveImage(immichImage, pickedImage, requestConfig.ExcludedAlbums, requestID, kioskDeviceID, isPrefetch); err != nil {
 		return nil, err
 	}
+
+	immichImage.KioskSource = pickedImage.Type
 
 	return fetchImagePreview(immichImage, requestID, kioskDeviceID, isPrefetch)
 }

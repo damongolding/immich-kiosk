@@ -14,6 +14,8 @@ import (
 	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 type ImageOrientation string
@@ -28,11 +30,6 @@ const (
 	VideoType ImmichAssetType = "VIDEO"
 	AudioType ImmichAssetType = "AUDIO"
 	OtherType ImmichAssetType = "OTHER"
-
-	AlbumKeywordAll        string = "all"
-	AlbumKeywordShared     string = "shared"
-	AlbumKeywordFavourites string = "favourites"
-	AlbumKeywordFavorites  string = "favorites"
 
 	AssetSizeThumbnail string = "thumbnail"
 	AssetSizeOriginal  string = "original"
@@ -132,41 +129,46 @@ type Face struct {
 }
 
 type ImmichAsset struct {
-	ID               string           `json:"id"`
-	DeviceAssetID    string           `json:"-"` // `json:"deviceAssetId"`
-	OwnerID          string           `json:"-"` // `json:"ownerId"`
-	DeviceID         string           `json:"-"` // `json:"deviceId"`
-	LibraryID        string           `json:"-"` // `json:"libraryId"`
-	Type             ImmichAssetType  `json:"type"`
-	OriginalPath     string           `json:"-"` // `json:"originalPath"`
-	OriginalFileName string           `json:"originalFileName"`
-	OriginalMimeType string           `json:"originalMimeType"` // `json:"originalMimeType"`
-	Resized          bool             `json:"-"`                // `json:"resized"`
-	Thumbhash        string           `json:"-"`                // `json:"thumbhash"`
-	FileCreatedAt    time.Time        `json:"-"`                // `json:"fileCreatedAt"`
-	FileModifiedAt   time.Time        `json:"-"`                // `json:"fileModifiedAt"`
-	LocalDateTime    time.Time        `json:"localDateTime"`    // `json:"localDateTime"`
-	UpdatedAt        time.Time        `json:"-"`                // `json:"updatedAt"`
-	IsFavorite       bool             `json:"isFavorite"`
-	IsArchived       bool             `json:"isArchived"`
-	IsTrashed        bool             `json:"isTrashed"`
-	Duration         string           `json:"-"` // `json:"duration"`
-	ExifInfo         ExifInfo         `json:"exifInfo"`
-	LivePhotoVideoID any              `json:"-"` // `json:"livePhotoVideoId"`
-	People           []Person         `json:"people"`
-	UnassignedFaces  []Face           `json:"unassignedFaces"`
-	Checksum         string           `json:"checksum"` // `json:"checksum"`
-	StackCount       any              `json:"-"`        // `json:"stackCount"`
-	IsOffline        bool             `json:"-"`        // `json:"isOffline"`
-	HasMetadata      bool             `json:"-"`        // `json:"hasMetadata"`
-	DuplicateID      any              `json:"-"`        // `json:"duplicateId"`
-	RatioWanted      ImageOrientation `json:"-"`
-	IsPortrait       bool             `json:"-"`
-	IsLandscape      bool             `json:"-"`
+	ID               string          `json:"id"`
+	DeviceAssetID    string          `json:"-"` // `json:"deviceAssetId"`
+	OwnerID          string          `json:"-"` // `json:"ownerId"`
+	DeviceID         string          `json:"-"` // `json:"deviceId"`
+	LibraryID        string          `json:"-"` // `json:"libraryId"`
+	Type             ImmichAssetType `json:"type"`
+	OriginalPath     string          `json:"-"` // `json:"originalPath"`
+	OriginalFileName string          `json:"originalFileName"`
+	OriginalMimeType string          `json:"originalMimeType"`
+	Resized          bool            `json:"-"` // `json:"resized"`
+	Thumbhash        string          `json:"-"` // `json:"thumbhash"`
+	FileCreatedAt    time.Time       `json:"-"` // `json:"fileCreatedAt"`
+	FileModifiedAt   time.Time       `json:"-"` // `json:"fileModifiedAt"`
+	LocalDateTime    time.Time       `json:"localDateTime"`
+	UpdatedAt        time.Time       `json:"-"` // `json:"updatedAt"`
+	IsFavorite       bool            `json:"isFavorite"`
+	IsArchived       bool            `json:"isArchived"`
+	IsTrashed        bool            `json:"isTrashed"`
+	Duration         string          `json:"-"` // `json:"duration"`
+	ExifInfo         ExifInfo        `json:"exifInfo"`
+	LivePhotoVideoID any             `json:"-"` // `json:"livePhotoVideoId"`
+	People           []Person        `json:"people"`
+	UnassignedFaces  []Face          `json:"unassignedFaces"`
+	Checksum         string          `json:"checksum"`
+	StackCount       any             `json:"-"` // `json:"stackCount"`
+	IsOffline        bool            `json:"-"` // `json:"isOffline"`
+	HasMetadata      bool            `json:"-"` // `json:"hasMetadata"`
+	DuplicateID      any             `json:"-"` // `json:"duplicateId"`
+
+	// Data added and used by Kiosk
+	RatioWanted     ImageOrientation `json:"-"`
+	IsPortrait      bool             `json:"-"`
+	IsLandscape     bool             `json:"-"`
+	KioskSource     kiosk.Source     `json:"-"`
+	KioskSourceName string           `json:"-"`
 }
 
 type ImmichAlbum struct {
 	ID         string        `json:"id"`
+	AlbumName  string        `json:"albumName"`
 	Assets     []ImmichAsset `json:"assets"`
 	AssetCount int           `json:"assetCount"`
 }
@@ -229,7 +231,7 @@ func NewImage(base config.Config) ImmichAsset {
 type ImmichApiCall func(string, string, []byte) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face
+	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face | immich_open_api.PersonResponseDto
 }
 
 func FlushApiCache() {
