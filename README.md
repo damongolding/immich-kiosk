@@ -47,6 +47,7 @@
   - [Requirements](#requirements)
   - [Key features](#key-features)
   - [Example 1: Raspberry Pi](#example-1)
+  - [Community example: Raspberry Pi](#example-2)
 - [Installation](#installation)
 - [Docker Compose](#docker-compose)
 - [Configuration](#configuration)
@@ -103,7 +104,7 @@ On the pi connected to the TV you want to display a random image from your libra
 Using this URL `http://{URL}?image_fit=cover&transition=fade&person=PERSON_1_ID&person=PERSON_2_ID` would achieve what we want.
 
 ## Example 2
-Fanyang Meng created a digital picture frame using a Raspberry Pi Zero 2 W and Kiosk. You can read the blog post about the process [here](https://fanyangmeng.blog/build-a-selfhosted-digital-frame/). 
+Fanyang Meng created a digital picture frame using a Raspberry Pi Zero 2 W and Kiosk. You can read the blog post about the process [here](https://fanyangmeng.blog/build-a-selfhosted-digital-frame/).
 
 This example includes instructions on how to autoboot a Raspberry Pi directly into Immich Kiosk.
 
@@ -301,7 +302,7 @@ It is recommended to avoid checking-in any secrets.
      KIOSK_IMMICH_API_KEY=SECRET_KEY
      KIOSK_IMMICH_URL=SECRET_URL
      ```
-  
+
   4. Update `docker-compose.yaml` to include `env_file:`.
 
      ```yaml
@@ -310,7 +311,7 @@ It is recommended to avoid checking-in any secrets.
          env_file:
            - docker-compose.env
      ```
-    
+
   5. Add `docker-compose.env` to `.gitignore`.
 
 ------
