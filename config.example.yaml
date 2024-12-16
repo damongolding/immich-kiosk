@@ -1,33 +1,33 @@
-# Required settings
+## Required settings - move these to ENV if you want to check in this file
 immich_api_key: ""
 immich_url: ""
 
-# Clock
+## Clock
 show_time: false # true or false
 time_format: 24 # 12 or 24
 show_date: false # true or false
 date_format: YYYY/MM/DD
 
-# Kiosk behaviour
+## Kiosk behaviour
 refresh: 60 # in seconds
 disable_screensaver: false # Ask browser to request a lock that prevents device screens from dimming or locking.
 
-# Asset sources
+## Asset sources
 show_archived: false # Allow assets marked as archived to be displayed.
 
-# ID(s) of person or people to display
+## ID(s) of person or people to display
 person:
   - "PERSON_ID"
 
-# ID(s) of album or albums to display
+## ID(s) of album or albums to display
 album:
   - "ALBUM_ID"
-# Album IDs to exclude from being shown. Albums in this list will be filtered from
-# appearing in the frame even if they are included in the 'album' list.
+## Album IDs to exclude from being shown. Albums in this list will be filtered from
+## appearing in the frame even if they are included in the 'album' list.
 excluded_albums:
   - "ALBUM_ID"
 
-# UI
+## UI
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
 frameless: false # remove border around image and rounded corners.
 hide_cursor: false # Hide cursor/mouse via CSS.
@@ -36,24 +36,24 @@ background_blur: true # display a blurred version of image as background
 theme: fade # which theme to use. fade or solid
 layout: single # which layout to use. single, splitview or splitview-landscape
 
-# Sleep mode
+## Sleep mode
 # sleep_start: 22 # sleep mode start time
 # sleep_end: 7 # sleep mode end time
 sleep_icon: true
 
-# Transition options
+## Transition options
 transition: none # cross-fade, fade or none
 fade_transition_duration: 1 # in seconds
 cross_fade_transition_duration: 1 # in seconds
 
-# Image display settings
+## Image display settings
 show_progress: false # display a progress bar
 image_fit: contain # how the image fits the screen. Options are none, contain and cover
 image_effect: none
 image_effect_amount: 120
 use_original_image: false # use the original file.
 
-# Image METADATA
+## Image METADATA
 show_image_time: false # true or false
 image_time_format: 24 # 12 or 24
 show_image_date: false # true or false
@@ -68,6 +68,7 @@ show_more_info: true
 show_more_info_image_link: true
 show_more_info_qr_code: true
 
+## Weather feature - you’ll need an API key from OpenWeatherMap
 # weather:
 #   - name: london
 #     lat: 51.5285262
@@ -76,7 +77,7 @@ show_more_info_qr_code: true
 #     unit: metric
 #     lang: en
 
-# options that can NOT be changed via url params
+## Options that can NOT be changed via url params
 kiosk:
   port: 3000
   watch_config: false
