@@ -154,6 +154,10 @@ There are two main ways to install Kiosk: **Docker** or **Binary**.
 
   5. Start the container
 
+      ```sh
+       docker compose up -d
+       ```
+
 ### Binary
 
 > [!TIP]
