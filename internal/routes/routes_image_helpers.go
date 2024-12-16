@@ -37,7 +37,7 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 		}
 
 		peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: "PERSON", ID: person},
+			Asset:  utils.WeightedAsset{Type: kiosk.SourcePerson, ID: person},
 			Weight: personAssetCount,
 		})
 	}
@@ -55,7 +55,7 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 		}
 
 		peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: "ALBUM", ID: album},
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbums, ID: album},
 			Weight: albumAssetCount,
 		})
 	}
