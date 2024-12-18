@@ -26,6 +26,7 @@ interface HTMXEvent extends Event {
   preventDefault: () => void;
   detail: {
     successful: boolean;
+    parameters: Record<string, unknown>;
   };
 }
 
@@ -78,6 +79,7 @@ const fullScreenButtonSeperator = htmx.find(
   ".navigation--fullscreen-separator",
 ) as HTMLElement | null;
 const kiosk = htmx.find("#kiosk") as HTMLElement | null;
+const kioskQueries = htmx.findAll(".kiosk-param");
 const menu = htmx.find(".navigation") as HTMLElement | null;
 const menuInteraction = htmx.find(
   "#navigation-interaction-area--menu",
@@ -342,6 +344,51 @@ function clientData(): BrowserData {
     client_width: window.innerWidth,
     client_height: window.innerHeight,
   };
+}
+
+/**
+ * Sanitizes input string by removing angle brackets
+ * @param value - The input string to sanitize
+ * @returns Sanitized string with < and > characters removed
+ */
+function sanitiseInput(value: string): string {
+  return value.replace(/[<>]/g, "");
+}
+
+/**
+ * Updates request parameters by adding sanitized values
+ * @param params - Object containing request parameters
+ * @param name - Name of the parameter to update
+ * @param value - Value to add to the parameter
+ * @description Handles both single values and arrays:
+ * - For new parameters: sets sanitized value directly
+ * - For existing parameters: converts to array if needed
+ * - For array parameters: appends sanitized value
+ */
+function updateRequestParameters(
+  params: Record<string, unknown>,
+  name: string,
+  value: string,
+) {
+  const sanitisedValue = sanitiseInput(value);
+  if (params[name]) {
+    if (Array.isArray(params[name])) {
+      params[name].push(sanitisedValue);
+    } else {
+      params[name] = [params[name], sanitisedValue];
+    }
+  } else {
+    params[name] = sanitisedValue;
+  }
+}
+
+// Add kiosk query parameters to HTMX requests
+if (kioskQueries.length > 0) {
+  document.body.addEventListener("htmx:configRequest", function (e: HTMXEvent) {
+    kioskQueries.forEach((q: HTMLInputElement) => {
+      updateRequestParameters(e.detail.parameters, q.name, q.value);
+    });
+  });
 }
 
 // Initialize Kiosk when the DOM is fully loaded

@@ -72,24 +72,6 @@ templ Home(viewData common.ViewData) {
 				"showMoreInfo":       viewData.ShowMoreInfo,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
-			if len(viewData.Queries) > 0 {
-				<script>
-					const kioskQueries = document.body.querySelectorAll(".kiosk-param");
-					document.body.addEventListener("htmx:configRequest", (event) => {
-     					kioskQueries.forEach((q) => {
-      						if (event.detail.parameters[q.name]) {
-     							if (Array.isArray(event.detail.parameters[q.name])) {
-      								event.detail.parameters[q.name].push(q.value);
-     							} else {
-      								event.detail.parameters[q.name] = [event.detail.parameters[q.name], q.value];
-     							}
-      						} else {
-     							event.detail.parameters[q.name] = q.value;
-      						}
-     					});
-					});
-				</script>
-			}
 		}
 	</html>
 }
