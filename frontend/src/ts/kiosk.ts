@@ -347,9 +347,14 @@ function clientData(): BrowserData {
 }
 
 /**
- * Sanitizes input string by removing angle brackets
+ * Sanitizes input string by escaping special characters
  * @param value - The input string to sanitize
- * @returns Sanitized string with < and > characters removed
+ * @returns Sanitized string with HTML special characters escaped to prevent XSS:
+ * - < and > converted to empty string
+ * - & converted to &amp;
+ * - " converted to &quot;
+ * - ' converted to &#x27;
+ * - ` converted to &#x60;
  */
 function sanitiseInput(value: string): string {
   return value
@@ -374,24 +379,31 @@ function updateRequestParameters(
   params: Record<string, unknown>,
   name: string,
   value: string,
-) {
+): Record<string, unknown> {
+  const newParams = { ...params };
   const sanitisedValue = sanitiseInput(value);
   if (params[name]) {
     if (Array.isArray(params[name])) {
-      params[name].push(sanitisedValue);
+      newParams[name] = [...(newParams[name] as string), sanitisedValue];
     } else {
-      params[name] = [params[name], sanitisedValue];
+      newParams[name] = [newParams[name] as string, sanitisedValue];
     }
   } else {
-    params[name] = sanitisedValue;
+    newParams[name] = sanitisedValue;
   }
+
+  return newParams;
 }
 
 // Add kiosk query parameters to HTMX requests
 if (kioskQueries.length > 0) {
   document.body.addEventListener("htmx:configRequest", function (e: HTMXEvent) {
     kioskQueries.forEach((q: HTMLInputElement) => {
-      updateRequestParameters(e.detail.parameters, q.name, q.value);
+      e.detail.parameters = updateRequestParameters(
+        e.detail.parameters,
+        q.name,
+        q.value,
+      );
     });
   });
 }
