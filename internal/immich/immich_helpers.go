@@ -211,6 +211,7 @@ func (i *ImmichAsset) addRatio() {
 
 // AssetInfo fetches the image information from Immich
 func (i *ImmichAsset) AssetInfo(requestID string) {
+
 	var immichAsset ImmichAsset
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
