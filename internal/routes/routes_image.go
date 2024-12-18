@@ -23,6 +23,11 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			return err
 		}
 
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
+		}
+
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 		deviceID := requestData.DeviceID
@@ -73,6 +78,11 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
+		}
+
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
 		}
 
 		requestConfig := requestData.RequestConfig

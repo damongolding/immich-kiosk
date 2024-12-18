@@ -19,6 +19,11 @@ func Clock(baseConfig *config.Config) echo.HandlerFunc {
 			return err
 		}
 
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
+		}
+
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 

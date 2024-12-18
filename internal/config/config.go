@@ -212,6 +212,11 @@ type Config struct {
 	// CustomCSS use custom css file
 	CustomCSS bool `json:"customCSS" mapstructure:"custom_css" query:"custom_css" form:"custom_css" default:"true"`
 
+	// ShowAlbumName whether to display the album name
+	ShowAlbumName bool `json:"showAlbumName" mapstructure:"show_album_name" query:"show_album_name" form:"show_album_name" default:"false"`
+	// ShowPersonName whether to display the person name
+	ShowPersonName bool `json:"showPersonName" mapstructure:"show_person_name" query:"show_person_name" form:"show_person_name" default:"false"`
+
 	// ShowImageTime whether to display image time
 	ShowImageTime bool `json:"showImageTime" mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`
 	// ImageTimeFormat  whether to use 12 of 24 hour format

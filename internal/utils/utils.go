@@ -37,6 +37,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/disintegration/imaging"
 
 	"github.com/google/uuid"
@@ -55,8 +56,9 @@ const (
 
 // WeightedAsset represents an asset with a type and ID
 type WeightedAsset struct {
-	Type string
+	Type kiosk.Source
 	ID   string
+	Name string
 }
 
 // AssetWithWeighting represents a WeightedAsset with an associated weight value

@@ -19,6 +19,11 @@ func FlushCache(baseConfig *config.Config) echo.HandlerFunc {
 			return err
 		}
 
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
+		}
+
 		viewDataCacheMutex.Lock()
 		defer viewDataCacheMutex.Unlock()
 

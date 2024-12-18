@@ -9,6 +9,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
@@ -107,9 +108,15 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 // imageMetadata renders the metadata for an image, including date, time, EXIF information, location, and ID.
 // The display of each piece of information is controlled by the ViewData settings.
 templ imageMetadata(viewData common.ViewData, imageIndex int) {
+	{{ showAlbumPersonName := (viewData.ShowAlbumName && viewData.Images[imageIndex].ImmichImage.KioskSource == kiosk.SourceAlbums) || (viewData.ShowPersonName && viewData.Images[imageIndex].ImmichImage.KioskSource == kiosk.SourcePerson) }}
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" }}
 	<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
+		if showAlbumPersonName {
+			<div class="image--metadata--source">
+				{ viewData.Images[imageIndex].ImmichImage.KioskSourceName }
+			</div>
+		}
 		if showDateTime {
 			<div class="image--metadata--date">
 				{ ImageDateTime(viewData, imageIndex) }

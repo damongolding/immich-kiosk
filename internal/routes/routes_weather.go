@@ -19,6 +19,11 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 			return err
 		}
 
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
+		}
+
 		requestID := requestData.RequestID
 
 		weatherLocation := c.QueryParam("weather")
