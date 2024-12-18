@@ -96,7 +96,10 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 					image := immich.NewImage(requestConfig)
 					image.ID = imageID
 
-					image.AssetInfo(requestID)
+					err := image.AssetInfo(requestID)
+					if err != nil {
+						log.Error(err)
+					}
 
 					viewData.Images[i] = common.ViewImageData{
 						ImmichImage: image,
