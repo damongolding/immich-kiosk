@@ -352,7 +352,12 @@ function clientData(): BrowserData {
  * @returns Sanitized string with < and > characters removed
  */
 function sanitiseInput(value: string): string {
-  return value.replace(/[<>]/g, "");
+  return value
+    .replace(/[<>]/g, "")
+    .replace(/[&]/g, "&amp;")
+    .replace(/["]/g, "&quot;")
+    .replace(/[']/g, "&#x27;")
+    .replace(/[`]/g, "&#x60;");
 }
 
 /**
