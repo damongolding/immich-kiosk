@@ -15,7 +15,7 @@ func FlushCache(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
-		if err != nil {
+		if err != nil || requestData == nil {
 			return err
 		}
 

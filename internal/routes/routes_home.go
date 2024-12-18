@@ -24,7 +24,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 		})
 
 		requestData, err := InitializeRequestData(c, baseConfig)
-		if err != nil {
+		if err != nil || requestData == nil {
 			return err
 		}
 

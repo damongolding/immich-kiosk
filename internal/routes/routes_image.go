@@ -19,7 +19,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
-		if err != nil {
+		if err != nil || requestData == nil {
 			return err
 		}
 
@@ -71,7 +71,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
-		if err != nil {
+		if err != nil || requestData == nil {
 			return err
 		}
 
