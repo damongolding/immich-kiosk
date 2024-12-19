@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/immich"
 	"strings"
 )
 
@@ -31,6 +32,8 @@ templ layoutSplitView(viewData common.ViewData) {
 templ layoutView(viewData common.ViewData, isSingle bool) {
 	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
 		if isSingle {
+			if viewData.Images[0].ImmichImage.Type == immich.VideoType {
+			}
 			if len(viewData.Images) > 0 {
 				@renderSingleImage(viewData, viewData.Images[0], 0)
 			}

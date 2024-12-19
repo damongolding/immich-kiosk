@@ -30,7 +30,7 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 
 // immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
 func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID string, jsonShape T) ImmichApiCall {
-	return func(method, apiUrl string, body []byte) ([]byte, error) {
+	return func(method, apiUrl string, body []byte, headers ...map[string]string) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
 			return immichApiCall(method, apiUrl, body)
@@ -81,7 +81,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 }
 
 // immichApiCall bootstrap for immich api call
-func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte, error) {
+func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers ...map[string]string) ([]byte, error) {
 
 	var responseBody []byte
 	var lastErr error
@@ -110,6 +110,14 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte,
 
 		if method == "POST" || method == "PUT" || method == "PATCH" {
 			req.Header.Set("Content-Type", "application/json")
+		}
+
+		if len(headers) > 0 {
+			for _, headerMap := range headers {
+				for k, v := range headerMap {
+					req.Header.Set(k, v)
+				}
+			}
 		}
 
 		res, err := httpClient.Do(req)

@@ -138,6 +138,11 @@ func main() {
 
 	e.POST("/webhooks", routes.Webhooks(baseConfig), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
+	e.GET("/video", routes.Video(baseConfig))
+	e.GET("/getvideo", routes.GetVideo(baseConfig))
+
+
+
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
 	for _, w := range baseConfig.WeatherLocations {
