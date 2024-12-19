@@ -44,6 +44,16 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 
 	for _, album := range requestConfig.Album {
 
+		// fudge for now
+		// TODO: decide if we should obtain assets number for weighting
+		if strings.Contains(album, "between") {
+			peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
+				Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRangeAlbum, ID: album},
+				Weight: 1000,
+			})
+			continue
+		}
+
 		albumAssetCount, err := immichImage.AlbumImageCount(album, requestID)
 		if err != nil {
 			return nil, fmt.Errorf("getting album asset count: %w", err)
@@ -100,7 +110,12 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 		case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
 			return immichImage.RandomImageFromFavourites(requestID, kioskDeviceID, isPrefetch)
 		}
+
 		return immichImage.RandomImageFromAlbum(pickedAsset.ID, requestID, kioskDeviceID, isPrefetch)
+
+	case kiosk.SourceDateRangeAlbum:
+		return immichImage.RandomImageInDateRange(pickedAsset.ID, requestID, kioskDeviceID, isPrefetch)
+
 	case kiosk.SourcePerson:
 		return immichImage.RandomImageOfPerson(pickedAsset.ID, requestID, kioskDeviceID, isPrefetch)
 	default:
