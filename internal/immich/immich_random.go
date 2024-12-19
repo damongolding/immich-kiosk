@@ -107,6 +107,14 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 }
 
 func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, kioskDeviceID string, isPrefetch bool) error {
+	return i.randomImageInDateRange(dateRange, requestID, kioskDeviceID, isPrefetch, 0)
+}
+
+func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID string, isPrefetch bool, retires int) error {
+
+	if retires >= MaxRetries {
+		return fmt.Errorf("No images found for '%s'. Max retries reached.", dateRange)
+	}
 
 	dates := strings.Split(dateRange, "_")
 	dateStart, err := time.Parse("2006-01-02", dates[1])
@@ -183,7 +191,8 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, kioskDeviceID
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 		apiCache.Delete(apiUrl.String())
-		return i.RandomImageInDateRange(dateRange, requestID, kioskDeviceID, isPrefetch)
+		retires++
+		return i.randomImageInDateRange(dateRange, requestID, kioskDeviceID, isPrefetch, retires)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -217,5 +226,6 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, kioskDeviceID
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	apiCache.Delete(apiUrl.String())
-	return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
+	retires++
+	return i.randomImageInDateRange(dateRange, requestID, kioskDeviceID, isPrefetch, retires)
 }
