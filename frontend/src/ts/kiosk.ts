@@ -26,7 +26,8 @@ interface HTMXEvent extends Event {
   preventDefault: () => void;
   detail: {
     successful: boolean;
-    parameters: Record<string, unknown>;
+    parameters: FormData;
+    method: string;
   };
 }
 
@@ -365,46 +366,33 @@ function sanitiseInput(value: string): string {
     .replace(/[`]/g, "&#x60;");
 }
 
-/**
- * Updates request parameters by adding sanitized values
- * @param params - Object containing request parameters
- * @param name - Name of the parameter to update
- * @param value - Value to add to the parameter
- * @description Handles both single values and arrays:
- * - For new parameters: sets sanitized value directly
- * - For existing parameters: converts to array if needed
- * - For array parameters: appends sanitized value
- */
-function updateRequestParameters(
-  params: Record<string, unknown>,
-  name: string,
-  value: string,
-): Record<string, unknown> {
-  const newParams = { ...params };
-  const sanitisedValue = sanitiseInput(value);
-  if (params[name]) {
-    if (Array.isArray(params[name])) {
-      newParams[name] = [...(newParams[name] as string), sanitisedValue];
-    } else {
-      newParams[name] = [newParams[name] as string, sanitisedValue];
-    }
-  } else {
-    newParams[name] = sanitisedValue;
-  }
-
-  return newParams;
-}
-
 // Add kiosk query parameters to HTMX requests
 if (kioskQueries.length > 0) {
   document.body.addEventListener("htmx:configRequest", function (e: HTMXEvent) {
-    kioskQueries.forEach((q: HTMLInputElement) => {
-      e.detail.parameters = updateRequestParameters(
-        e.detail.parameters,
-        q.name,
-        q.value,
-      );
-    });
+    if (!e.detail?.parameters) {
+      console.warn("Request parameters object not found");
+      return;
+    }
+
+    try {
+      kioskQueries.forEach((q: HTMLInputElement) => {
+        if (!(q instanceof HTMLInputElement)) {
+          console.warn(`Element ${q} is not an input`);
+          return;
+        }
+
+        if (!q.name || !q.value) {
+          console.debug(`Skipping invalid input: ${q}`);
+          return;
+        }
+
+        const sanitizedValue = sanitiseInput(q.value);
+
+        e.detail.parameters.append(q.name, sanitizedValue);
+      });
+    } catch (error) {
+      console.error("Error processing parameters:", error);
+    }
   });
 }
 
