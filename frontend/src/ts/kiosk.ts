@@ -26,6 +26,8 @@ interface HTMXEvent extends Event {
   preventDefault: () => void;
   detail: {
     successful: boolean;
+    parameters: FormData;
+    method: string;
   };
 }
 
@@ -78,6 +80,7 @@ const fullScreenButtonSeperator = htmx.find(
   ".navigation--fullscreen-separator",
 ) as HTMLElement | null;
 const kiosk = htmx.find("#kiosk") as HTMLElement | null;
+const kioskQueries = htmx.findAll(".kiosk-param");
 const menu = htmx.find(".navigation") as HTMLElement | null;
 const menuInteraction = htmx.find(
   "#navigation-interaction-area--menu",
@@ -342,6 +345,55 @@ function clientData(): BrowserData {
     client_width: window.innerWidth,
     client_height: window.innerHeight,
   };
+}
+
+/**
+ * Sanitizes input string by escaping special characters
+ * @param value - The input string to sanitize
+ * @returns Sanitized string with HTML special characters escaped to prevent XSS:
+ * - < and > converted to empty string
+ * - & converted to &amp;
+ * - " converted to &quot;
+ * - ' converted to &#x27;
+ * - ` converted to &#x60;
+ */
+function sanitiseInput(value: string): string {
+  return value
+    .replace(/[<>]/g, "")
+    .replace(/[&]/g, "&amp;")
+    .replace(/["]/g, "&quot;")
+    .replace(/[']/g, "&#x27;")
+    .replace(/[`]/g, "&#x60;");
+}
+
+// Add kiosk query parameters to HTMX requests
+if (kioskQueries.length > 0) {
+  document.body.addEventListener("htmx:configRequest", function (e: HTMXEvent) {
+    if (!e.detail?.parameters) {
+      console.warn("Request parameters object not found");
+      return;
+    }
+
+    try {
+      kioskQueries.forEach((q: HTMLInputElement) => {
+        if (!(q instanceof HTMLInputElement)) {
+          console.warn(`Element ${q} is not an input`);
+          return;
+        }
+
+        if (!q.name || !q.value) {
+          console.debug(`Skipping invalid input: ${q}`);
+          return;
+        }
+
+        const sanitizedValue = sanitiseInput(q.value);
+
+        e.detail.parameters.append(q.name, sanitizedValue);
+      });
+    } catch (error) {
+      console.error("Error processing parameters:", error);
+    }
+  });
 }
 
 // Initialize Kiosk when the DOM is fully loaded

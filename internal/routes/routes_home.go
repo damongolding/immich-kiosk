@@ -28,6 +28,11 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			return err
 		}
 
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
+		}
+
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 
@@ -40,11 +45,9 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 
 		var customCss []byte
 
-		if utils.FileExists("./custom.css") {
-			customCss, err = os.ReadFile("./custom.css")
-			if err != nil {
-				log.Error("reading custom css", "err", err)
-			}
+		customCss, err = loadCustomCSS()
+		if err != nil {
+			log.Error("loading custom css", "err", err)
 		}
 
 		queryParams := c.QueryParams()
@@ -62,4 +65,11 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 
 		return Render(c, http.StatusOK, views.Home(viewData))
 	}
+}
+
+func loadCustomCSS() ([]byte, error) {
+	if !utils.FileExists("./custom.css") {
+		return nil, nil
+	}
+	return os.ReadFile("./custom.css")
 }

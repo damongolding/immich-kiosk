@@ -210,13 +210,13 @@ func (i *ImmichAsset) addRatio() {
 }
 
 // AssetInfo fetches the image information from Immich
-func (i *ImmichAsset) AssetInfo(requestID string) {
+func (i *ImmichAsset) AssetInfo(requestID string) error {
+
 	var immichAsset ImmichAsset
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		log.Error(err)
-		return
+		return err
 	}
 
 	apiUrl := url.URL{
@@ -229,18 +229,18 @@ func (i *ImmichAsset) AssetInfo(requestID string) {
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
-		log.Error("fetching asset info", "err", err)
-		return
+		return fmt.Errorf("fetching asset info: err %v", err)
 	}
 
 	err = json.Unmarshal(body, &immichAsset)
 	if err != nil {
 		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
-		log.Error("fetching asset info", "err", err)
-		return
+		return fmt.Errorf("fetching asset info: err %v", err)
 	}
 
 	*i = immichAsset
+
+	return nil
 }
 
 // ImagePreview fetches the raw image data from Immich

@@ -7,6 +7,7 @@ import (
 	"math/rand/v2"
 	"net/url"
 	"path"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/google/go-querystring/query"
@@ -206,10 +207,21 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 		}
 
 		*i = img
+
+		i.PersonName(personID)
+
 		return nil
 	}
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	apiCache.Delete(apiUrl.String())
 	return i.RandomImageOfPerson(personID, requestID, kioskDeviceID, isPrefetch)
+}
+
+func (i *ImmichAsset) PersonName(personID string) {
+	for _, person := range i.People {
+		if strings.EqualFold(person.ID, personID) {
+			i.KioskSourceName = person.Name
+		}
+	}
 }

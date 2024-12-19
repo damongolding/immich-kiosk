@@ -9,6 +9,7 @@ import (
 	"slices"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
@@ -37,7 +38,6 @@ func (i *ImmichAsset) albums(requestID string, shared bool) (ImmichAlbums, error
 	if err != nil {
 		return immichApiFail(albums, err, body, apiUrl.String())
 	}
-
 
 	err = json.Unmarshal(body, &albums)
 	if err != nil {
@@ -97,21 +97,21 @@ func (i *ImmichAsset) countAssetsInAlbums(albums ImmichAlbums) int {
 // AlbumImageCount retrieves the number of images in a specific album from Immich.
 func (i *ImmichAsset) AlbumImageCount(albumID string, requestID string) (int, error) {
 	switch albumID {
-	case AlbumKeywordAll:
+	case kiosk.AlbumKeywordAll:
 		albums, err := i.allAlbums(requestID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get all albums: %w", err)
 		}
 		return i.countAssetsInAlbums(albums), nil
 
-	case AlbumKeywordShared:
+	case kiosk.AlbumKeywordShared:
 		albums, err := i.allSharedAlbums(requestID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get shared albums: %w", err)
 		}
 		return i.countAssetsInAlbums(albums), nil
 
-	case AlbumKeywordFavourites, AlbumKeywordFavorites:
+	case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
 		favouriteImagesCount, err := i.favouriteImagesCount(requestID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get favorite images: %w", err)
@@ -157,6 +157,8 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, kioskDeviceID str
 		log.Error("no images found", "for album", albumID)
 		return fmt.Errorf("no images found for album %s", albumID)
 	}
+
+	i.KioskSourceName = album.AlbumName
 
 	return nil
 }

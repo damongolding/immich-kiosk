@@ -3,9 +3,9 @@ immich_api_key: ""
 immich_url: ""
 
 ## Clock
-show_time: false # true or false
+show_time: false
 time_format: 24 # 12 or 24
-show_date: false # true or false
+show_date: false
 date_format: YYYY/MM/DD
 
 ## Kiosk behaviour
@@ -48,15 +48,17 @@ cross_fade_transition_duration: 1 # in seconds
 
 ## Image display settings
 show_progress: false # display a progress bar
-image_fit: contain # how the image fits the screen. Options are none, contain and cover
-image_effect: none
+image_fit: contain # Options are none, contain and cover
+image_effect: none # Options are none, zoom and smart-zoom
 image_effect_amount: 120
 use_original_image: false # use the original file.
 
 ## Image METADATA
-show_image_time: false # true or false
+show_album_name: false
+show_person_name: false
+show_image_time: false
 image_time_format: 24 # 12 or 24
-show_image_date: false # true or false
+show_image_date: false
 image_date_format: YYYY-MM-DD
 show_image_description: false
 show_image_exif: false

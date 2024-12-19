@@ -28,6 +28,11 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 			return err
 		}
 
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
+		}
+
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 		kioskDeviceID := requestData.DeviceID
@@ -71,7 +76,10 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 				go func(image *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
 					defer wg.Done()
 
-					image.AssetInfo(requestID)
+					err := image.AssetInfo(requestID)
+					if err != nil {
+						log.Error(err)
+					}
 
 				}(&image, requestID, &wg)
 

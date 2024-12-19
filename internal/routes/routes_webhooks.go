@@ -23,6 +23,11 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			return err
 		}
 
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
+		}
+
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 		kioskDeviceID := requestData.DeviceID
@@ -91,7 +96,10 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 					image := immich.NewImage(requestConfig)
 					image.ID = imageID
 
-					image.AssetInfo(requestID)
+					err := image.AssetInfo(requestID)
+					if err != nil {
+						log.Error(err)
+					}
 
 					viewData.Images[i] = common.ViewImageData{
 						ImmichImage: image,
