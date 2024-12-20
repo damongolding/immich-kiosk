@@ -12,6 +12,8 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/goodsign/monday"
+	"golang.org/x/text/cases"
+    "golang.org/x/text/language"
 )
 
 // ImageLocation generates a formatted string of the image location based on EXIF information.
@@ -137,7 +139,14 @@ templ imageMetadata(viewData common.ViewData, imageIndex int) {
 	{{ showSourceName := shouldShowSourceName(viewData, imageIndex) }}
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" }}
+	{{ showUser := viewData.ShowUser }}
 	<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
+		if showUser {
+			<div class="image--metadata--user">
+				<img height="13em" style="filter: invert(1);" alt="account-icon" src="https://cdn-icons-png.flaticon.com/512/61/61205.png"/>
+				<span>{ cases.Title(language.English).String(viewData.Images[imageIndex].User) }</span>
+			</div>
+		}
 		if showSourceName {
 			<div class="image--metadata--source">
 				{ viewData.Images[imageIndex].ImmichImage.KioskSourceName }
