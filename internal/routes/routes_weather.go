@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -49,13 +50,23 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 			log.Debug("Using default weather location", "location", weatherLocation)
 		}
 
-		weatherData := weather.CurrentWeather(weatherLocation)
-		if !strings.EqualFold(weatherData.Name, weatherLocation) || len(weatherData.Data) == 0 {
-			log.Error("missing weather location data", "location", weatherData.Name)
-			return c.NoContent(http.StatusNoContent)
+		var weatherData weather.WeatherLocation
+
+		for attempts := 0; attempts < maxWeatherRetries; attempts++ {
+			weatherData = weather.CurrentWeather(weatherLocation)
+			if !strings.EqualFold(weatherData.Name, weatherLocation) || len(weatherData.Data) == 0 {
+				log.Warn("weather data fetch attempt failed",
+					"attempt", attempts+1,
+					"location", weatherLocation)
+				time.Sleep(time.Duration(1<<attempts) * time.Second)
+				continue
+			}
+			return Render(c, http.StatusOK, partials.WeatherLocation(weatherData))
 		}
 
-		return Render(c, http.StatusOK, partials.WeatherLocation(weatherData))
-
+		log.Error("failed to fetch weather data after all attempts",
+			"location", weatherLocation,
+			"received_name", weatherData.Name)
+		return c.NoContent(http.StatusNoContent)
 	}
 }
