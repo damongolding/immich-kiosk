@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"image"
+	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -41,6 +42,10 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 	for _, person := range requestConfig.Person {
 		personAssetCount, err := immichImage.PersonImageCount(person, requestID, deviceID)
 		if err != nil {
+			if requestConfig.SelectedUser != "" {
+				log.Debug(requestID+" User has no Person", "user", requestConfig.SelectedUser, "person", person)
+				continue
+			}
 			return nil, fmt.Errorf("getting person image count: %w", err)
 		}
 
@@ -59,6 +64,10 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 
 		albumAssetCount, err := immichImage.AlbumImageCount(album, requestID, deviceID)
 		if err != nil {
+			if requestConfig.SelectedUser != "" {
+				log.Debug(requestID+" User has no album", "user", requestConfig.SelectedUser, "album", album)
+				continue
+			}
 			return nil, fmt.Errorf("getting album asset count: %w", err)
 		}
 
@@ -71,6 +80,10 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbums, ID: album},
 			Weight: albumAssetCount,
 		})
+	}
+
+	if len(assets) == 0 && (len(requestConfig.Person) > 0 || len(requestConfig.Album) > 0) {
+		return nil, fmt.Errorf("no assets found for user %s with the wanted person or album", requestConfig.SelectedUser)
 	}
 
 	for _, date := range requestConfig.Date {
@@ -300,6 +313,14 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	deviceID := c.Request().Header.Get("kiosk-device-id")
 
+	if len(requestConfig.User) > 0 {
+		randomIndex := rand.Intn(len(requestConfig.User))
+
+		requestConfig.SelectedUser = requestConfig.User[randomIndex]
+	} else {
+		requestConfig.SelectedUser = ""
+	}
+
 	immichImage := immich.NewImage(requestConfig)
 
 	switch imageOrientation {
@@ -344,6 +365,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		ImmichImage:   immichImage,
 		ImageData:     imgString,
 		ImageBlurData: imgBlurString,
+		User:          requestConfig.SelectedUser,
 	}, nil
 }
 

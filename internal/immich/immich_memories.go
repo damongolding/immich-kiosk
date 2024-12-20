@@ -88,7 +88,7 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
 
 		if len(memories) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again for memories")

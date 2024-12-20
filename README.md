@@ -294,6 +294,7 @@ services:
       KIOSK_PREFETCH: true
       KIOSK_ASSET_WEIGHTING: true
       KIOSK_PORT: 3000
+      KIOSK_SHOW_USER: false
     ports:
       - 3000:3000
     restart: always
@@ -386,6 +387,8 @@ See the file `config.example.yaml` for an example config file
 | show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s) |
 | show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay |
 | show_more_info_qr_code            | KIOSK_SHOW_MORE_INFO_QR_CODE    | bool               | true        | Displays a QR code linking to the original image (in Immich) in the additional information overlay |
+| immich_users_api_keys                       | N/A                | map[string]string          | "{}"        | The API key for each user for your Immich server. See [multiple users](#multiple-users) for more information |
+| show_user                             | KIOSK_SHOW_USER                      | bool                       | false       | Display the User used to fetch the image. See [multiple users](#multiple-users) for more information|
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
 
 ### Additional options
@@ -397,6 +400,8 @@ immich_api_key: "****"
 // all your other config options
 
 // 👇 Additional options
+immich_users_api_keys:
+  john: "****"
 kiosk:
   password: ""
   cache: true
@@ -429,6 +434,20 @@ Example:
 The above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
 
 ------
+
+## Multiple Users
+If you want to use Immich Kiosk with multiple users, you can!
+You'll need to create an api key for each user, and add them to the `immich_users_api_keys` field in the `config.yaml` file:
+```yaml
+immich_users_api_keys:
+  john: "****"
+  jane: "****"
+```
+
+Then you can specify which user to use in the URL:
+`https://{URL}?user=john`
+
+When no user is specified, Kiosk will use the default api key (`immich_api_key`)
 
 ## Albums
 

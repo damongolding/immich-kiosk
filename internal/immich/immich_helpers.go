@@ -36,7 +36,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 			return immichApiCall(method, apiUrl, body)
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
 
 		if apiData, found := cache.Get(apiCacheKey); found {
 			if requestConfig.Kiosk.DebugVerbose {
@@ -105,7 +105,12 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte,
 		}
 
 		req.Header.Set("Accept", "application/json")
-		req.Header.Set("x-api-key", requestConfig.ImmichApiKey)
+		apiKey := requestConfig.ImmichApiKey
+		if requestConfig.SelectedUser != "" {
+			apiKey = requestConfig.ImmichUsersApiKeys[requestConfig.SelectedUser]
+		}
+
+		req.Header.Set("x-api-key", apiKey)
 
 		if method == "POST" || method == "PUT" || method == "PATCH" {
 			req.Header.Set("Content-Type", "application/json")
