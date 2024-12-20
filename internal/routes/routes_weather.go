@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -26,36 +27,46 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 
 		requestID := requestData.RequestID
 
-		weatherLocation := c.QueryParam("weather")
+		locationName := c.QueryParam("weather")
 
 		log.Debug(
 			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
-			"location", weatherLocation,
+			"location", locationName,
 		)
 
-		if weatherLocation == "" {
+		if locationName == "" {
 			if !baseConfig.HasWeatherDefault {
 				log.Warn("No weather location provided and no default set")
 				return c.NoContent(http.StatusNoContent)
 			}
 			for _, loc := range baseConfig.WeatherLocations {
 				if loc.Default {
-					weatherLocation = loc.Name
+					locationName = loc.Name
 					break
 				}
 			}
-			log.Debug("Using default weather location", "location", weatherLocation)
+			log.Debug("Using default weather location", "location", locationName)
 		}
 
-		weatherData := weather.CurrentWeather(weatherLocation)
-		if !strings.EqualFold(weatherData.Name, weatherLocation) || len(weatherData.Data) == 0 {
-			log.Error("missing weather location data", "location", weatherData.Name)
-			return c.NoContent(http.StatusNoContent)
+		var weatherLocation weather.WeatherLocation
+
+		for attempts := 0; attempts < maxWeatherRetries; attempts++ {
+			weatherLocation = weather.CurrentWeather(locationName)
+			if !strings.EqualFold(weatherLocation.Name, locationName) || len(weatherLocation.Data) == 0 {
+				log.Warn("weather data fetch attempt failed",
+					"attempt", attempts+1,
+					"location", locationName)
+				time.Sleep(time.Duration(1<<attempts) * time.Second)
+				continue
+			}
+			return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation))
 		}
 
-		return Render(c, http.StatusOK, partials.WeatherLocation(weatherData))
-
+		log.Error("failed to fetch weather data after all attempts",
+			"location", locationName,
+			"received_name", weatherLocation.Name)
+		return c.NoContent(http.StatusNoContent)
 	}
 }
