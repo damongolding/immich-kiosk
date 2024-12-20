@@ -39,7 +39,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 		mu.Lock()
 		defer mu.Unlock()
 
-		if apiData, found := apiCache.Get(apiUrl); found {
+		if apiData, found := apiCache.Get(GetApiCacheKey(apiUrl, &requestConfig)); found {
 			if requestConfig.Kiosk.DebugVerbose {
 				log.Debug(requestID+" Cache hit", "url", apiUrl)
 			}
@@ -71,7 +71,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 			return nil, err
 		}
 
-		apiCache.Set(apiUrl, jsonBytes, cache.DefaultExpiration)
+		apiCache.Set(GetApiCacheKey(apiUrl, &requestConfig), jsonBytes, cache.DefaultExpiration)
 		if requestConfig.Kiosk.DebugVerbose {
 			log.Debug(requestID+" Cache saved", "url", apiUrl)
 		}

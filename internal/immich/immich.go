@@ -6,6 +6,8 @@
 package immich
 
 import (
+	"encoding/json"
+	"fmt"
 	"net"
 	"net/http"
 	"sync"
@@ -240,4 +242,9 @@ func FlushApiCache() {
 
 func ApiCacheCount() int {
 	return apiCache.ItemCount()
+}
+
+func GetApiCacheKey(apiUrl string, requestConfig *config.Config) string {
+	configJson, _ := json.Marshal(requestConfig)
+	return fmt.Sprintf("%s:%s", apiUrl, configJson)
 }
