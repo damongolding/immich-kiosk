@@ -138,7 +138,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
-		apiCache.Delete(apiUrl.String())
+		apiCache.Delete(ApiCacheKey(apiUrl.String(), &requestConfig))
 		return i.RandomImageFromFavourites(requestID, kioskDeviceID, isPrefetch)
 	}
 
@@ -158,7 +158,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 			}
 
 			// replace cwith cache minus used image
-			err = apiCache.Replace(apiUrl.String(), jsonBytes, cache.DefaultExpiration)
+			err = apiCache.Replace(ApiCacheKey(apiUrl.String(), &requestConfig), jsonBytes, cache.DefaultExpiration)
 			if err != nil {
 				log.Debug("cache not found!")
 			}
@@ -169,6 +169,6 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 	}
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
-	apiCache.Delete(apiUrl.String())
+	apiCache.Delete(ApiCacheKey(apiUrl.String(), &requestConfig))
 	return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
 }

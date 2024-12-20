@@ -6,6 +6,7 @@
 package immich
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	"sync"
@@ -240,4 +241,8 @@ func FlushApiCache() {
 
 func ApiCacheCount() int {
 	return apiCache.ItemCount()
+}
+
+func ApiCacheKey(apiUrl string, requestConfig *config.Config) string {
+	return fmt.Sprintf("%s:%s", apiUrl, requestConfig.SelectedUser)
 }

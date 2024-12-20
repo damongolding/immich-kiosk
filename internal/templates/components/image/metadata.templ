@@ -11,6 +11,8 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"golang.org/x/text/cases"
+    "golang.org/x/text/language"
 )
 
 // ImageLocation generates a formatted string of the image location based on EXIF information.
@@ -110,8 +112,14 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 templ imageMetadata(viewData common.ViewData, imageIndex int) {
 	{{ showAlbumPersonName := (viewData.ShowAlbumName && viewData.Images[imageIndex].ImmichImage.KioskSource == kiosk.SourceAlbums) || (viewData.ShowPersonName && viewData.Images[imageIndex].ImmichImage.KioskSource == kiosk.SourcePerson) }}
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
+	{{ showUser := viewData.ShowUser }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" }}
 	<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
+        if showUser {
+    		<div class="image--metadata--source">
+    			{ cases.Title(language.English).String(viewData.Images[imageIndex].User) }
+    		</div>
+    	}
 		if showAlbumPersonName {
 			<div class="image--metadata--source">
 				{ viewData.Images[imageIndex].ImmichImage.KioskSourceName }

@@ -64,9 +64,15 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		g, _ := errgroup.WithContext(c.Request().Context())
 
-		for i, imageID := range prevImages {
-			i, imageID := i, imageID
+		for i, imageData := range prevImages {
+			i, imageID := i, imageData
+			parts := strings.Split(imageData, ":")
+			if len(parts) != 2 {
+				return fmt.Errorf("invalid history entry format: %s", imageData)
+			}
+			imageID, selectedUser := parts[0], parts[1]
 			g.Go(func() error {
+				requestConfig.SelectedUser = selectedUser
 				image := immich.NewImage(requestConfig)
 				image.ID = imageID
 
@@ -109,6 +115,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 					ImmichImage:   image,
 					ImageData:     imgString,
 					ImageBlurData: imgBlurString,
+					User:          selectedUser,
 				}
 				return nil
 			})

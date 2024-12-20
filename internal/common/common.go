@@ -97,6 +97,7 @@ type ViewImageData struct {
 	ImageData     string             // ImageData contains the image as base64 data
 	ImageBlurData string             // ImageBlurData contains the blurred image as base64 data
 	ImageDate     string             // ImageDate contains the date of the image
+	User          string
 }
 
 // ViewData contains all the data needed to render a view in the application
