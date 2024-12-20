@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"image"
+	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -253,6 +254,14 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
 
+	if len(requestConfig.User) > 0 {
+		randomIndex := rand.Intn(len(requestConfig.User))
+
+		requestConfig.SelectedUser = requestConfig.User[randomIndex]
+	} else {
+		requestConfig.SelectedUser = ""
+	}
+
 	immichImage := immich.NewImage(requestConfig)
 
 	switch imageOrientation {
@@ -297,6 +306,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		ImmichImage:   immichImage,
 		ImageData:     imgString,
 		ImageBlurData: imgBlurString,
+		User:          requestConfig.SelectedUser,
 	}, nil
 }
 

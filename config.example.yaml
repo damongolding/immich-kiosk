@@ -70,6 +70,11 @@ show_more_info: true
 show_more_info_image_link: true
 show_more_info_qr_code: true
 
+# Advanced - Immich API keys for specific users
+immich_users_api_keys:
+  user1: ""
+show_user: false # show user name
+
 ## Weather feature - you’ll need an API key from OpenWeatherMap
 # weather:
 #   - name: london

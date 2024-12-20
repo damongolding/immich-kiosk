@@ -51,6 +51,14 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 			log.Debug(requestID+" Cache miss", "url", apiUrl)
 		}
 
+		if requestConfig.SelectedUser != "" {
+			if requestConfig.ImmichUsersApiKeys[requestConfig.SelectedUser] == "" {
+				log.Error("No API key found for user", "user", requestConfig.SelectedUser)
+				return nil, fmt.Errorf("no API key found for user %s", requestConfig.SelectedUser)
+			}
+			log.Debug(requestID+" Using API key for user", "user", requestConfig.SelectedUser)
+		}
+
 		apiBody, err := immichApiCall(method, apiUrl, body)
 		if err != nil {
 			log.Error(err)
@@ -106,7 +114,13 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte,
 		}
 
 		req.Header.Set("Accept", "application/json")
-		req.Header.Set("x-api-key", requestConfig.ImmichApiKey)
+
+		apiKey := requestConfig.ImmichApiKey
+		if requestConfig.SelectedUser != "" {
+			apiKey = requestConfig.ImmichUsersApiKeys[requestConfig.SelectedUser]
+		}
+
+		req.Header.Set("x-api-key", apiKey)
 
 		if method == "POST" || method == "PUT" || method == "PATCH" {
 			req.Header.Set("Content-Type", "application/json")
