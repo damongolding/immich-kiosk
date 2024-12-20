@@ -27,46 +27,46 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 
 		requestID := requestData.RequestID
 
-		weatherLocation := c.QueryParam("weather")
+		locationName := c.QueryParam("weather")
 
 		log.Debug(
 			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
-			"location", weatherLocation,
+			"location", locationName,
 		)
 
-		if weatherLocation == "" {
+		if locationName == "" {
 			if !baseConfig.HasWeatherDefault {
 				log.Warn("No weather location provided and no default set")
 				return c.NoContent(http.StatusNoContent)
 			}
 			for _, loc := range baseConfig.WeatherLocations {
 				if loc.Default {
-					weatherLocation = loc.Name
+					locationName = loc.Name
 					break
 				}
 			}
-			log.Debug("Using default weather location", "location", weatherLocation)
+			log.Debug("Using default weather location", "location", locationName)
 		}
 
-		var weatherData weather.WeatherLocation
+		var weatherLocation weather.WeatherLocation
 
 		for attempts := 0; attempts < maxWeatherRetries; attempts++ {
-			weatherData = weather.CurrentWeather(weatherLocation)
-			if !strings.EqualFold(weatherData.Name, weatherLocation) || len(weatherData.Data) == 0 {
+			weatherLocation = weather.CurrentWeather(locationName)
+			if !strings.EqualFold(weatherLocation.Name, locationName) || len(weatherLocation.Data) == 0 {
 				log.Warn("weather data fetch attempt failed",
 					"attempt", attempts+1,
-					"location", weatherLocation)
+					"location", locationName)
 				time.Sleep(time.Duration(1<<attempts) * time.Second)
 				continue
 			}
-			return Render(c, http.StatusOK, partials.WeatherLocation(weatherData))
+			return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation))
 		}
 
 		log.Error("failed to fetch weather data after all attempts",
-			"location", weatherLocation,
-			"received_name", weatherData.Name)
+			"location", locationName,
+			"received_name", weatherLocation.Name)
 		return c.NoContent(http.StatusNoContent)
 	}
 }
