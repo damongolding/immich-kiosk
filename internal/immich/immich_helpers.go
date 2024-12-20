@@ -39,7 +39,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 		mu.Lock()
 		defer mu.Unlock()
 
-		if apiData, found := apiCache.Get(apiUrl); found {
+		if apiData, found := apiCache.Get(GetApiCacheKey(apiUrl, &requestConfig)); found {
 			if requestConfig.Kiosk.DebugVerbose {
 				log.Debug(requestID+" Cache hit", "url", apiUrl)
 			}
@@ -49,6 +49,14 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 
 		if requestConfig.Kiosk.DebugVerbose {
 			log.Debug(requestID+" Cache miss", "url", apiUrl)
+		}
+
+		if requestConfig.SelectedUser != "" {
+			if requestConfig.ImmichUsersApiKeys[requestConfig.SelectedUser] == "" {
+				log.Error("No API key found for user", "user", requestConfig.SelectedUser)
+				return nil, fmt.Errorf("no API key found for user %s", requestConfig.SelectedUser)
+			}
+			log.Debug(requestID+" Using API key for user", "user", requestConfig.SelectedUser)
 		}
 
 		apiBody, err := immichApiCall(method, apiUrl, body)
@@ -71,7 +79,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 			return nil, err
 		}
 
-		apiCache.Set(apiUrl, jsonBytes, cache.DefaultExpiration)
+		apiCache.Set(GetApiCacheKey(apiUrl, &requestConfig), jsonBytes, cache.DefaultExpiration)
 		if requestConfig.Kiosk.DebugVerbose {
 			log.Debug(requestID+" Cache saved", "url", apiUrl)
 		}
@@ -106,7 +114,13 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte,
 		}
 
 		req.Header.Set("Accept", "application/json")
-		req.Header.Set("x-api-key", requestConfig.ImmichApiKey)
+
+		apiKey := requestConfig.ImmichApiKey
+		if requestConfig.SelectedUser != "" {
+			apiKey = requestConfig.ImmichUsersApiKeys[requestConfig.SelectedUser]
+		}
+
+		req.Header.Set("x-api-key", apiKey)
 
 		if method == "POST" || method == "PUT" || method == "PATCH" {
 			req.Header.Set("Content-Type", "application/json")
