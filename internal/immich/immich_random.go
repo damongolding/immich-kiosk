@@ -117,17 +117,14 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID
 	}
 
 	dates := strings.Split(dateRange, "_")
-	dateStart, err := time.Parse("2006-01-02", dates[1])
+	dateStart, err := time.Parse("2006-01-02", dates[0])
 	if err != nil {
 		return err
 	}
-	dateEnd, err := time.Parse("2006-01-02", dates[3])
+	dateEnd, err := time.Parse("2006-01-02", dates[2])
 	if err != nil {
 		return err
 	}
-
-	dateStart = dateStart.AddDate(0, 0, -1)
-	dateEnd = dateEnd.AddDate(0, 0, 1)
 
 	if dateEnd.Before(dateStart) {
 		dateStart, dateEnd = dateEnd, dateStart
@@ -136,10 +133,12 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID
 	dateStartHuman := dateStart.Format("2006-01-02")
 	dateEndHuman := dateEnd.Format("2006-01-02")
 
+	dateEnd = dateEnd.Add(time.Hour * 23).Add(time.Minute * 59).Add(time.Second * 59)
+
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", kioskDeviceID, "Getting Random image between", dateStartHuman, "and", dateEndHuman)
+		log.Debug(requestID, "PREFETCH", kioskDeviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
 	} else {
-		log.Debug(requestID+" Getting Random image", "between", dateStartHuman, "and", dateEndHuman)
+		log.Debug(requestID+" Getting Random image", "from", dateStartHuman, "to", dateEndHuman)
 	}
 
 	var immichAssets []ImmichAsset
@@ -220,7 +219,7 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID
 			}
 		}
 
-		img.KioskSourceName = fmt.Sprintf("Between %s and %s", dateStartHuman, dateEndHuman)
+		img.KioskSourceName = fmt.Sprintf("%s to %s", dateStartHuman, dateEndHuman)
 
 		*i = img
 

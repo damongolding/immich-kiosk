@@ -20,10 +20,22 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-// gatherPeopleAndAlbums collects asset weightings for people and albums.
-// It returns a slice of AssetWithWeighting and an error if any occurs during the process.
-func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID string) ([]utils.AssetWithWeighting, error) {
-	peopleAndAlbums := []utils.AssetWithWeighting{}
+// gatherAssetBuckets collects asset weightings for people, albums and date ranges.
+// For each person, it gets the count of images containing that person.
+// For each album, it gets the total count of images in the album.
+// For date ranges, it currently assigns a fixed weighting of 1000.
+// These weightings are used to determine the probability of selecting images from each source.
+//
+// Parameters:
+//   - immichImage: The Immich asset used to query image counts
+//   - requestConfig: Configuration containing people, albums and dates to gather assets for
+//   - requestID: Identifier for the current request for logging
+//
+// Returns:
+//   - A slice of AssetWithWeighting containing the weightings for each asset source
+//   - An error if any database queries fail
+func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID string) ([]utils.AssetWithWeighting, error) {
+	assets := []utils.AssetWithWeighting{}
 
 	for _, person := range requestConfig.Person {
 		personAssetCount, err := immichImage.PersonImageCount(person, requestID)
@@ -36,23 +48,13 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 			continue
 		}
 
-		peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
+		assets = append(assets, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourcePerson, ID: person},
 			Weight: personAssetCount,
 		})
 	}
 
 	for _, album := range requestConfig.Album {
-
-		// fudge for now
-		// TODO: decide if we should obtain assets number for weighting
-		if strings.Contains(album, "between") {
-			peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
-				Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRangeAlbum, ID: album},
-				Weight: 1000,
-			})
-			continue
-		}
 
 		albumAssetCount, err := immichImage.AlbumImageCount(album, requestID)
 		if err != nil {
@@ -64,13 +66,24 @@ func gatherPeopleAndAlbums(immichImage *immich.ImmichAsset, requestConfig config
 			continue
 		}
 
-		peopleAndAlbums = append(peopleAndAlbums, utils.AssetWithWeighting{
+		assets = append(assets, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbums, ID: album},
 			Weight: albumAssetCount,
 		})
 	}
 
-	return peopleAndAlbums, nil
+	for _, date := range requestConfig.Date {
+
+		// fudge for now
+		// TODO: decide if we should obtain assets number for weighting
+		assets = append(assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRangeAlbum, ID: date},
+			Weight: 1000,
+		})
+
+	}
+
+	return assets, nil
 }
 
 func isSleepMode(requestConfig config.Config) bool {
@@ -153,18 +166,18 @@ func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, kioskDeviceID
 // It returns the image bytes and an error if any step fails.
 func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID string, kioskDeviceID string, isPrefetch bool) (image.Image, error) {
 
-	peopleAndAlbums, err := gatherPeopleAndAlbums(immichImage, requestConfig, requestID)
+	assets, err := gatherAssetBuckets(immichImage, requestConfig, requestID)
 	if err != nil {
 		return nil, err
 	}
 
-	pickedImage := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, peopleAndAlbums)
+	pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
 
-	if err := retrieveImage(immichImage, pickedImage, requestConfig.ExcludedAlbums, requestID, kioskDeviceID, isPrefetch); err != nil {
+	if err := retrieveImage(immichImage, pickedAsset, requestConfig.ExcludedAlbums, requestID, kioskDeviceID, isPrefetch); err != nil {
 		return nil, err
 	}
 
-	immichImage.KioskSource = pickedImage.Type
+	immichImage.KioskSource = pickedAsset.Type
 
 	return fetchImagePreview(immichImage, requestID, kioskDeviceID, isPrefetch)
 }
