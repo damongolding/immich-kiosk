@@ -126,6 +126,9 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID
 		return err
 	}
 
+	dateStart = dateStart.AddDate(0, 0, -1)
+	dateEnd = dateEnd.AddDate(0, 0, 1)
+
 	if dateEnd.Before(dateStart) {
 		dateStart, dateEnd = dateEnd, dateStart
 	}
