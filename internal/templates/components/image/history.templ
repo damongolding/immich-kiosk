@@ -13,7 +13,7 @@ func newHistoryEntry(images []common.ViewImageData) string {
 	newImages := make([]string, len(images))
 	for i, entry := range images {
 		sanitisedID := template.HTMLEscapeString(entry.ImmichImage.ID)
-		newImages[i] = sanitisedID
+		newImages[i] = sanitisedID + ":" + entry.User
 	}
 	return strings.Join(newImages, ",")
 }
