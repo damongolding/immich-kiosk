@@ -89,7 +89,7 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 - Define default settings for all devices through environment variables or YAML config files.
 - Configure device-specific settings using URL parameters.
 
-![Kiosk theme fade](/assets/theme-fade.jpeg)
+![Kiosk theme fade](/assets/preview.jpeg)
 **Image shot by Damon Golding**
 
 ## Example 1
