@@ -136,8 +136,6 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, deviceID string, 
 		return err
 	}
 
-	log.Info("Assets in album (cache): Before", "#", len(album.Assets))
-
 	apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
 
 	if len(album.Assets) == 0 {
@@ -178,7 +176,6 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, deviceID string, 
 				log.Debug("cache not found!")
 			}
 
-			log.Info("Assets in album (cache): After", "#", len(assetsToCache.Assets))
 		}
 
 		*i = asset
