@@ -57,19 +57,21 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
 	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
-		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+		_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err
 	}
 
 	err = json.Unmarshal(apiBody, &immichAssets)
 	if err != nil {
-		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+		_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err
 	}
 
+	apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID)
+
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
-		cache.Delete(apiUrl.String())
+		cache.Delete(apiCacheKey)
 		return i.RandomImage(requestID, deviceID, isPrefetch)
 	}
 
@@ -89,7 +91,7 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 			}
 
 			// replace cwith cache minus used image
-			err = cache.Replace(apiUrl.String(), jsonBytes)
+			err = cache.Replace(apiCacheKey, jsonBytes)
 			if err != nil {
 				log.Debug("cache not found!")
 			}
@@ -100,6 +102,6 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 	}
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
-	cache.Delete(apiUrl.String())
+	cache.Delete(apiCacheKey)
 	return i.RandomImage(requestID, deviceID, isPrefetch)
 }

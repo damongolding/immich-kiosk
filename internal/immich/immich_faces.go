@@ -26,14 +26,14 @@ func (i *ImmichAsset) CheckForFaces(requestID, deviceID string) {
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, faces)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
-		_, err = immichApiFail(faces, err, body, apiUrl.String())
+		_, _, err = immichApiFail(faces, err, body, apiUrl.String())
 		log.Error("adding faces", "err", err)
 		return
 	}
 
 	err = json.Unmarshal(body, &faces)
 	if err != nil {
-		_, err = immichApiFail(faces, err, body, apiUrl.String())
+		_, _, err = immichApiFail(faces, err, body, apiUrl.String())
 		log.Error("adding faces", "err", err)
 		return
 	}

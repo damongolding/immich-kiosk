@@ -9,13 +9,14 @@ import (
 	"slices"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
 // albums retrieves albums from Immich based on the shared parameter.
 // It constructs the API URL, makes the API call, and returns the albums.
-func (i *ImmichAsset) albums(requestID, deviceID string, shared bool) (ImmichAlbums, error) {
+func (i *ImmichAsset) albums(requestID, deviceID string, shared bool) (ImmichAlbums, string, error) {
 	var albums ImmichAlbums
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
@@ -44,21 +45,21 @@ func (i *ImmichAsset) albums(requestID, deviceID string, shared bool) (ImmichAlb
 		return immichApiFail(albums, err, body, apiUrl.String())
 	}
 
-	return albums, nil
+	return albums, apiUrl.String(), nil
 }
 
 // allSharedAlbums retrieves all shared albums from Immich.
-func (i *ImmichAsset) allSharedAlbums(requestID, deviceID string) (ImmichAlbums, error) {
+func (i *ImmichAsset) allSharedAlbums(requestID, deviceID string) (ImmichAlbums, string, error) {
 	return i.albums(requestID, deviceID, true)
 }
 
 // allAlbums retrieves all non-shared albums from Immich.
-func (i *ImmichAsset) allAlbums(requestID, deviceID string) (ImmichAlbums, error) {
+func (i *ImmichAsset) allAlbums(requestID, deviceID string) (ImmichAlbums, string, error) {
 	return i.albums(requestID, deviceID, false)
 }
 
 // albumAssets retrieves all assets associated with a specific album from Immich.
-func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAlbum, error) {
+func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAlbum, string, error) {
 	var album ImmichAlbum
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
@@ -83,7 +84,7 @@ func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAl
 		return immichApiFail(album, err, body, apiUrl.String())
 	}
 
-	return album, nil
+	return album, apiUrl.String(), nil
 }
 
 func (i *ImmichAsset) countAssetsInAlbums(albums ImmichAlbums) int {
@@ -98,14 +99,14 @@ func (i *ImmichAsset) countAssetsInAlbums(albums ImmichAlbums) int {
 func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string) (int, error) {
 	switch albumID {
 	case kiosk.AlbumKeywordAll:
-		albums, err := i.allAlbums(requestID, deviceID)
+		albums, _, err := i.allAlbums(requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get all albums: %w", err)
 		}
 		return i.countAssetsInAlbums(albums), nil
 
 	case kiosk.AlbumKeywordShared:
-		albums, err := i.allSharedAlbums(requestID, deviceID)
+		albums, _, err := i.allSharedAlbums(requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get shared albums: %w", err)
 		}
@@ -119,7 +120,7 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string
 		return favouriteImagesCount, nil
 
 	default:
-		album, err := i.albumAssets(albumID, requestID, deviceID)
+		album, _, err := i.albumAssets(albumID, requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get album assets for album %s: %w", albumID, err)
 		}
@@ -129,38 +130,61 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string
 
 // RandomImageFromAlbum retrieve random image within a specified album from Immich
 func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, deviceID string, isPrefetch bool) error {
-	album, err := i.albumAssets(albumID, requestID, deviceID)
+
+	album, apiUrl, err := i.albumAssets(albumID, requestID, deviceID)
 	if err != nil {
 		return err
 	}
 
+	log.Info("Assets in album (cache): Before", "#", len(album.Assets))
+
+	apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
+
 	if len(album.Assets) == 0 {
-		log.Error("no images found", "for album", albumID)
-		return fmt.Errorf("no images found for album %s", albumID)
+		log.Debug(requestID+" No images left in cache. Refreshing and trying again for album", albumID)
+		cache.Delete(apiCacheKey)
+		return i.RandomImageFromAlbum(albumID, requestID, deviceID, isPrefetch)
 	}
 
 	rand.Shuffle(len(album.Assets), func(i, j int) {
 		album.Assets[i], album.Assets[j] = album.Assets[j], album.Assets[i]
 	})
 
-	for _, pick := range album.Assets {
+	for assetIndex, asset := range album.Assets {
 		// We only want images and that are not trashed or archived (unless wanted by user)
-		if pick.Type != ImageType || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&pick) {
+		if asset.Type != ImageType || asset.IsTrashed || (asset.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&asset) {
 			continue
 		}
 
-		*i = pick
-		break
+		if requestConfig.Kiosk.Cache {
+			// Remove the current image from the slice
+			assetsToCache := album
+			assetsToCache.Assets = append(album.Assets[:assetIndex], album.Assets[assetIndex+1:]...)
+			jsonBytes, err := json.Marshal(assetsToCache)
+			if err != nil {
+				log.Error("Failed to marshal assetsToCache", "error", err)
+				return err
+			}
+
+			// replace cwith cache minus used asset
+			err = cache.Replace(apiCacheKey, jsonBytes)
+			if err != nil {
+				log.Debug("cache not found!")
+			}
+
+			log.Info("Assets in album (cache): After", "#", len(assetsToCache.Assets))
+		}
+
+		*i = asset
+
+		i.KioskSourceName = album.AlbumName
+
+		return nil
 	}
 
-	if i.ID == "" {
-		log.Error("no images found", "for album", albumID)
-		return fmt.Errorf("no images found for album %s", albumID)
-	}
-
-	i.KioskSourceName = album.AlbumName
-
-	return nil
+	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
+	cache.Delete(apiCacheKey)
+	return i.RandomImageFromAlbum(albumID, requestID, deviceID, isPrefetch)
 }
 
 // selectRandomAlbum selects a random album from the given list of albums, excluding specific albums.
@@ -192,7 +216,7 @@ func (i *ImmichAsset) selectRandomAlbum(albums ImmichAlbums, excludedAlbums []st
 // The selection is weighted based on the number of assets in each album.
 // Returns an error if there are no available albums after exclusions or if the API call fails.
 func (i *ImmichAsset) RandomAlbumFromSharedAlbums(requestID, deviceID string, excludedAlbums []string) (string, error) {
-	albums, err := i.allSharedAlbums(requestID, deviceID)
+	albums, _, err := i.allSharedAlbums(requestID, deviceID)
 	if err != nil {
 		return "", err
 	}
@@ -205,7 +229,7 @@ func (i *ImmichAsset) RandomAlbumFromSharedAlbums(requestID, deviceID string, ex
 // The selection is weighted based on the number of assets in each album.
 // Returns an error if there are no available albums after exclusions or if the API call fails.
 func (i *ImmichAsset) RandomAlbumFromAllAlbums(requestID, deviceID string, excludedAlbums []string) (string, error) {
-	albums, err := i.allAlbums(requestID, deviceID)
+	albums, _, err := i.allAlbums(requestID, deviceID)
 	if err != nil {
 		return "", err
 	}

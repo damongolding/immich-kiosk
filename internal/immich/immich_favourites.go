@@ -58,13 +58,13 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, favourites)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
-			_, err = immichApiFail(favourites, err, apiBody, apiUrl.String())
+			_, _, err = immichApiFail(favourites, err, apiBody, apiUrl.String())
 			return allFavouritesCount, err
 		}
 
 		err = json.Unmarshal(apiBody, &favourites)
 		if err != nil {
-			_, err = immichApiFail(favourites, err, apiBody, apiUrl.String())
+			_, _, err = immichApiFail(favourites, err, apiBody, apiUrl.String())
 			return allFavouritesCount, err
 		}
 
@@ -126,19 +126,21 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
 	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
-		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+		_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err
 	}
 
 	err = json.Unmarshal(apiBody, &immichAssets)
 	if err != nil {
-		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+		_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err
 	}
 
+	apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID)
+
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
-		cache.Delete(apiUrl.String())
+		cache.Delete(apiCacheKey)
 		return i.RandomImageFromFavourites(requestID, deviceID, isPrefetch)
 	}
 
@@ -158,7 +160,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 			}
 
 			// replace cwith cache minus used image
-			err = cache.Replace(apiUrl.String(), jsonBytes)
+			err = cache.Replace(apiCacheKey, jsonBytes)
 			if err != nil {
 				log.Debug("cache not found!")
 			}
@@ -169,6 +171,6 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 	}
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
-	cache.Delete(apiUrl.String())
+	cache.Delete(apiCacheKey)
 	return i.RandomImage(requestID, deviceID, isPrefetch)
 }
