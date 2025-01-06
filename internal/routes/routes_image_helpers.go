@@ -334,15 +334,15 @@ func imagePreFetch(requestData *common.RouteRequestData, c echo.Context) {
 
 	cachedViewData := []common.ViewData{}
 
-	cacheKey := c.Request().URL.String() + deviceID
+	viewCacheKey := cache.ViewCacheKey(c.Request().URL.String(), deviceID)
 
-	if data, found := cache.Get(cacheKey); found {
+	if data, found := cache.Get(viewCacheKey); found {
 		cachedViewData = data.([]common.ViewData)
 	}
 
 	cachedViewData = append(cachedViewData, viewDataToAdd)
 
-	cache.Set(cacheKey, cachedViewData)
+	cache.Set(viewCacheKey, cachedViewData)
 
 	go webhooks.Trigger(requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
 
