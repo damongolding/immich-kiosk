@@ -12,7 +12,7 @@ import (
 )
 
 // favouriteImagesCount retrieves the total count of favorite images from the Immich server.
-func (i *ImmichAsset) favouriteImagesCount(requestID string) (int, error) {
+func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, error) {
 
 	var allFavouritesCount int
 	pageCount := 1
@@ -55,7 +55,7 @@ func (i *ImmichAsset) favouriteImagesCount(requestID string) (int, error) {
 			log.Fatal("marshaling request body", err)
 		}
 
-		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, favourites)
+		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, favourites)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, err = immichApiFail(favourites, err, apiBody, apiUrl.String())
@@ -81,10 +81,10 @@ func (i *ImmichAsset) favouriteImagesCount(requestID string) (int, error) {
 }
 
 // RandomImageFromFavourites retrieves a random favorite image from the Immich server.
-func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", kioskDeviceID, "Getting Random favourite image", true)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite image", true)
 	} else {
 		log.Debug(requestID + " Getting Random favourite image")
 	}
@@ -123,7 +123,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 		log.Fatal("marshaling request body", err)
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAssets)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
 	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
 		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
@@ -139,7 +139,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 		apiCache.Delete(apiUrl.String())
-		return i.RandomImageFromFavourites(requestID, kioskDeviceID, isPrefetch)
+		return i.RandomImageFromFavourites(requestID, deviceID, isPrefetch)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -170,5 +170,5 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, kioskDeviceID string,
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	apiCache.Delete(apiUrl.String())
-	return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
+	return i.RandomImage(requestID, deviceID, isPrefetch)
 }

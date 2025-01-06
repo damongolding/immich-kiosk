@@ -12,10 +12,10 @@ import (
 )
 
 // GetRandomImage retrieve a random image from Immich
-func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", kioskDeviceID, "Getting Random image", true)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image", true)
 	} else {
 		log.Debug(requestID + " Getting Random image")
 	}
@@ -54,7 +54,7 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 		log.Fatal("marshaling request body", err)
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAssets)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
 	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
 		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
@@ -70,7 +70,7 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 		apiCache.Delete(apiUrl.String())
-		return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
+		return i.RandomImage(requestID, deviceID, isPrefetch)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -101,5 +101,5 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	apiCache.Delete(apiUrl.String())
-	return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
+	return i.RandomImage(requestID, deviceID, isPrefetch)
 }

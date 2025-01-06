@@ -16,7 +16,7 @@ import (
 
 // DEPRECIATED
 // personAssets retrieves all assets associated with a specific person from Immich.
-func (i *ImmichAsset) personAssets(personID, requestID string) ([]ImmichAsset, error) {
+func (i *ImmichAsset) personAssets(personID, requestID, deviceID string) ([]ImmichAsset, error) {
 
 	var images []ImmichAsset
 
@@ -31,7 +31,7 @@ func (i *ImmichAsset) personAssets(personID, requestID string) ([]ImmichAsset, e
 		Path:   path.Join("api", "people", personID, "assets"),
 	}
 
-	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestID, images)
+	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, images)
 	body, err := immichApiCal("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(images, err, body, apiUrl.String())
@@ -46,7 +46,7 @@ func (i *ImmichAsset) personAssets(personID, requestID string) ([]ImmichAsset, e
 }
 
 // PersonImageCount returns the number of images associated with a specific person in Immich.
-func (i *ImmichAsset) PersonImageCount(personID, requestID string) (int, error) {
+func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
 
 	var personStatistics ImmichPersonStatistics
 
@@ -61,7 +61,7 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID string) (int, error) 
 		Path:   path.Join("api", "people", personID, "statistics"),
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, personStatistics)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, personStatistics)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, err = immichApiFail(personStatistics, err, body, apiUrl.String())
@@ -79,9 +79,9 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID string) (int, error) 
 
 // DEPRECIATED
 // RandomImageOfPerson retrieve random image of person from Immich
-func (i *ImmichAsset) OLDRandomImageOfPerson(personID, requestID, kioskDeviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) OLDRandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
 
-	images, err := i.personAssets(personID, requestID)
+	images, err := i.personAssets(personID, requestID, deviceID)
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func (i *ImmichAsset) OLDRandomImageOfPerson(personID, requestID, kioskDeviceID 
 			if per.ID == personID {
 
 				if isPrefetch {
-					log.Debug(requestID, "PREFETCH", kioskDeviceID, "Got image of person", per.Name)
+					log.Debug(requestID, "PREFETCH", deviceID, "Got image of person", per.Name)
 				} else {
 					log.Debug(requestID, "Got image of person", per.Name)
 				}
@@ -129,7 +129,7 @@ func (i *ImmichAsset) OLDRandomImageOfPerson(personID, requestID, kioskDeviceID 
 }
 
 // RandomImageOfPerson retrieve random image of person from Immich
-func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
 
 	var immichAssets []ImmichAsset
 
@@ -165,7 +165,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 		log.Fatal("marshaling request body", err)
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAssets)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
 	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
 		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
@@ -181,7 +181,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 		apiCache.Delete(apiUrl.String())
-		return i.RandomImageOfPerson(personID, requestID, kioskDeviceID, isPrefetch)
+		return i.RandomImageOfPerson(personID, requestID, deviceID, isPrefetch)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -215,7 +215,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, kioskDeviceID str
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	apiCache.Delete(apiUrl.String())
-	return i.RandomImageOfPerson(personID, requestID, kioskDeviceID, isPrefetch)
+	return i.RandomImageOfPerson(personID, requestID, deviceID, isPrefetch)
 }
 
 func (i *ImmichAsset) PersonName(personID string) {

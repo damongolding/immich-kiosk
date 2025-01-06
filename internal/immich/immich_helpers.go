@@ -29,7 +29,7 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 }
 
 // immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
-func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID string, jsonShape T) ImmichApiCall {
+func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID, deviceID string, jsonShape T) ImmichApiCall {
 	return func(method, apiUrl string, body []byte) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
@@ -210,7 +210,7 @@ func (i *ImmichAsset) addRatio() {
 }
 
 // AssetInfo fetches the image information from Immich
-func (i *ImmichAsset) AssetInfo(requestID string) error {
+func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 
 	var immichAsset ImmichAsset
 
@@ -225,7 +225,7 @@ func (i *ImmichAsset) AssetInfo(requestID string) error {
 		Path:   path.Join("api", "assets", i.ID),
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAsset)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAsset)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
