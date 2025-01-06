@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/google/go-querystring/query"
-	"github.com/patrickmn/go-cache"
 )
 
 // DEPRECIATED
@@ -180,7 +180,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
-		apiCache.Delete(apiUrl.String())
+		cache.Delete(apiUrl.String())
 		return i.RandomImageOfPerson(personID, requestID, deviceID, isPrefetch)
 	}
 
@@ -200,7 +200,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 			}
 
 			// replace cwith cache minus used image
-			err = apiCache.Replace(apiUrl.String(), jsonBytes, cache.DefaultExpiration)
+			err = cache.Replace(apiUrl.String(), jsonBytes)
 			if err != nil {
 				log.Debug("cache not found!")
 			}
@@ -214,7 +214,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 	}
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
-	apiCache.Delete(apiUrl.String())
+	cache.Delete(apiUrl.String())
 	return i.RandomImageOfPerson(personID, requestID, deviceID, isPrefetch)
 }
 

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	"github.com/patrickmn/go-cache"
+	"github.com/damongolding/immich-kiosk/internal/cache"
 )
 
 // immichApiFail handles failures in Immich API calls by unmarshaling the error response,
@@ -39,7 +39,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 		mu.Lock()
 		defer mu.Unlock()
 
-		if apiData, found := apiCache.Get(apiUrl); found {
+		if apiData, found := cache.Get(cache.ApiCacheKey(apiUrl, deviceID)); found {
 			if requestConfig.Kiosk.DebugVerbose {
 				log.Debug(requestID+" Cache hit", "url", apiUrl)
 			}
@@ -71,7 +71,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 			return nil, err
 		}
 
-		apiCache.Set(apiUrl, jsonBytes, cache.DefaultExpiration)
+		cache.Set(apiUrl, jsonBytes)
 		if requestConfig.Kiosk.DebugVerbose {
 			log.Debug(requestID+" Cache saved", "url", apiUrl)
 		}

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
@@ -17,7 +18,6 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 	"github.com/fogleman/gg"
 	"github.com/labstack/echo/v4"
-	"github.com/patrickmn/go-cache"
 )
 
 // gatherAssetBuckets collects asset weightings for people, albums and date ranges.
@@ -91,9 +91,6 @@ func isSleepMode(requestConfig config.Config) bool {
 // It returns an error if the image retrieval fails.
 func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAsset, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
 
-	viewDataCacheMutex.Lock()
-	defer viewDataCacheMutex.Unlock()
-
 	switch pickedAsset.Type {
 	case kiosk.SourceAlbums:
 		switch pickedAsset.ID {
@@ -123,7 +120,7 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 
 // fetchImagePreview retrieves the preview of an image and logs the time taken.
 // It returns the image bytes and an error if any occurs.
-func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, kioskDeviceID string, isPrefetch bool) (image.Image, error) {
+func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, deviceID string, isPrefetch bool) (image.Image, error) {
 	imageGet := time.Now()
 
 	imgBytes, err := immichImage.ImagePreview()
@@ -137,7 +134,7 @@ func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, kioskDeviceID
 	}
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", kioskDeviceID, "Got image in", time.Since(imageGet).Seconds())
+		log.Debug(requestID, "PREFETCH", deviceID, "Got image in", time.Since(imageGet).Seconds())
 	} else {
 		log.Debug(requestID, "Got image in", time.Since(imageGet).Seconds())
 	}
@@ -169,7 +166,7 @@ func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, 
 
 // imageToBase64 converts image bytes to a base64 string and logs the processing time.
 // It returns the base64 string and an error if conversion fails.
-func imageToBase64(img image.Image, config config.Config, requestID, kioskDeviceID string, action string, isPrefetch bool) (string, error) {
+func imageToBase64(img image.Image, config config.Config, requestID, deviceID string, action string, isPrefetch bool) (string, error) {
 	startTime := time.Now()
 
 	imgBytes, err := utils.ImageToBase64(img)
@@ -177,13 +174,13 @@ func imageToBase64(img image.Image, config config.Config, requestID, kioskDevice
 		return "", fmt.Errorf("converting image to base64: %w", err)
 	}
 
-	logImageProcessing(config, requestID, kioskDeviceID, isPrefetch, action, startTime)
+	logImageProcessing(config, requestID, deviceID, isPrefetch, action, startTime)
 	return imgBytes, nil
 }
 
 // processBlurredImage applies a blur effect to the image if required by the configuration.
 // It returns the blurred image as a base64 string and an error if any occurs.
-func processBlurredImage(img image.Image, config config.Config, requestID, kioskDeviceID string, isPrefetch bool) (string, error) {
+func processBlurredImage(img image.Image, config config.Config, requestID, deviceID string, isPrefetch bool) (string, error) {
 	if !config.BackgroundBlur || strings.EqualFold(config.ImageFit, "cover") || (config.ImageEffect != "" && config.ImageEffect != "none") {
 		return "", nil
 	}
@@ -194,20 +191,20 @@ func processBlurredImage(img image.Image, config config.Config, requestID, kiosk
 		return "", fmt.Errorf("blurring image: %w", err)
 	}
 
-	logImageProcessing(config, requestID, kioskDeviceID, isPrefetch, "Blurred", startTime)
+	logImageProcessing(config, requestID, deviceID, isPrefetch, "Blurred", startTime)
 
-	return imageToBase64(imgBlur, config, requestID, kioskDeviceID, "Coverted blurred", isPrefetch)
+	return imageToBase64(imgBlur, config, requestID, deviceID, "Coverted blurred", isPrefetch)
 }
 
 // logImageProcessing logs the time taken for image processing if debug verbose is enabled.
-func logImageProcessing(config config.Config, requestID, kioskDeviceID string, isPrefetch bool, action string, startTime time.Time) {
+func logImageProcessing(config config.Config, requestID, deviceID string, isPrefetch bool, action string, startTime time.Time) {
 	if !config.Kiosk.DebugVerbose {
 		return
 	}
 
 	duration := time.Since(startTime).Seconds()
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", kioskDeviceID, action+" image in", duration)
+		log.Debug(requestID, "PREFETCH", deviceID, action+" image in", duration)
 	} else {
 		log.Debug(requestID, action+" image in", duration)
 	}
@@ -337,51 +334,43 @@ func imagePreFetch(requestData *common.RouteRequestData, c echo.Context) {
 
 	cachedViewData := []common.ViewData{}
 
-	viewDataCacheMutex.Lock()
-	defer viewDataCacheMutex.Unlock()
-
 	cacheKey := c.Request().URL.String() + deviceID
 
-	if data, found := ViewDataCache.Get(cacheKey); found {
+	if data, found := cache.Get(cacheKey); found {
 		cachedViewData = data.([]common.ViewData)
 	}
 
 	cachedViewData = append(cachedViewData, viewDataToAdd)
 
-	ViewDataCache.Set(cacheKey, cachedViewData, cache.DefaultExpiration)
+	cache.Set(cacheKey, cachedViewData)
 
 	go webhooks.Trigger(requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
 
 }
 
 // fromCache retrieves cached page data for a given request and device ID.
-func fromCache(urlString string, kioskDeviceID string) []common.ViewData {
+func fromCache(urlString string, deviceID string) []common.ViewData {
 
-	viewDataCacheMutex.Lock()
-	defer viewDataCacheMutex.Unlock()
-
-	cacheKey := urlString + kioskDeviceID
-	if data, found := ViewDataCache.Get(cacheKey); found {
+	cacheKey := cache.ViewCacheKey(urlString, deviceID)
+	if data, found := cache.Get(cacheKey); found {
 		cachedPageData := data.([]common.ViewData)
 		if len(cachedPageData) > 0 {
 			return cachedPageData
 		}
-		ViewDataCache.Delete(cacheKey)
+		cache.Delete(cacheKey)
 	}
 	return nil
 }
 
 // renderCachedViewData renders cached page data and updates the cache.
-func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requestConfig *config.Config, requestID string, kioskDeviceID string) error {
-	viewDataCacheMutex.Lock()
-	defer viewDataCacheMutex.Unlock()
+func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requestConfig *config.Config, requestID string, deviceID string) error {
 
-	log.Debug(requestID, "deviceID", kioskDeviceID, "cache hit for new image", true)
+	log.Debug(requestID, "deviceID", deviceID, "cache hit for new image", true)
 
-	cacheKey := c.Request().URL.String() + kioskDeviceID
+	cacheKey := cache.ViewCacheKey(c.Request().URL.String(), deviceID)
 
 	viewDataToRender := cachedViewData[0]
-	ViewDataCache.Set(cacheKey, cachedViewData[1:], cache.DefaultExpiration)
+	cache.Set(cacheKey, cachedViewData[1:])
 
 	// Update history which will be outdated in cache
 	trimHistory(&requestConfig.History, 10)
@@ -391,12 +380,12 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 }
 
 // generateViewData generates page data for the current request.
-func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID string, isPrefetch bool) (common.ViewData, error) {
+func generateViewData(requestConfig config.Config, c echo.Context, deviceID string, isPrefetch bool) (common.ViewData, error) {
 
 	const maxImageRetrievalAttepmts = 3
 
 	viewData := common.ViewData{
-		DeviceID: kioskDeviceID,
+		DeviceID: deviceID,
 		Config:   requestConfig,
 	}
 
