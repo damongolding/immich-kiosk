@@ -25,7 +25,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, kioskDeviceID
 // randomImageInDateRange is the internal implementation of RandomImageInDateRange that includes retry logic
 // It makes requests to the Immich API to get random images within the date range and handles caching
 // retries tracks the number of retry attempts made
-func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID string, isPrefetch bool, retires int) error {
+func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID string, isPrefetch bool, retries int) error {
 
 	if retires >= MaxRetries {
 		return fmt.Errorf("No images found for '%s'. Max retries reached.", dateRange)
