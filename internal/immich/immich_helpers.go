@@ -36,9 +36,6 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 			return immichApiCall(method, apiUrl, body)
 		}
 
-		mu.Lock()
-		defer mu.Unlock()
-
 		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
 
 		if apiData, found := cache.Get(apiCacheKey); found {

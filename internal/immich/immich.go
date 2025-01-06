@@ -8,7 +8,6 @@ package immich
 import (
 	"net"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -36,9 +35,6 @@ const (
 var (
 	// requestConfig the config for this request
 	requestConfig config.Config
-
-	// mu is a mutual exclusion lock for managing concurrent access to shared resources
-	mu sync.Mutex
 
 	// httpTransport defines the transport layer configuration for HTTP requests to the Immich API.
 	// It manages connection pooling, keepalive settings, and connection timeouts.
