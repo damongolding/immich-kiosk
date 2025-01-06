@@ -143,6 +143,12 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, deviceID string, 
 	if len(album.Assets) == 0 {
 		log.Debug(requestID+" No images left in cache. Refreshing and trying again for album", albumID)
 		cache.Delete(apiCacheKey)
+
+		album, _, retryErr := i.albumAssets(albumID, requestID, deviceID)
+		if retryErr != nil || len(album.Assets) == 0 {
+			return fmt.Errorf("no assets found for album %s after refresh", albumID)
+		}
+
 		return i.RandomImageFromAlbum(albumID, requestID, deviceID, isPrefetch)
 	}
 
@@ -166,7 +172,7 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, deviceID string, 
 				return err
 			}
 
-			// replace cwith cache minus used asset
+			// replace with cache minus used asset
 			err = cache.Replace(apiCacheKey, jsonBytes)
 			if err != nil {
 				log.Debug("cache not found!")
