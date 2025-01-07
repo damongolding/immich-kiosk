@@ -9,23 +9,23 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/google/go-querystring/query"
-	"github.com/patrickmn/go-cache"
 )
 
 // RandomImageInDateRange gets a random image from the Immich server within the specified date range.
 // dateRange should be in the format "YYYY-MM-DD_to_YYYY-MM-DD"
 // requestID is used for tracing the request through logs
-// kioskDeviceID identifies the kiosk device making the request
+// deviceID identifies the kiosk device making the request
 // isPrefetch indicates if this is a prefetch request
-func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, kioskDeviceID string, isPrefetch bool) error {
-	return i.randomImageInDateRange(dateRange, requestID, kioskDeviceID, isPrefetch, 0)
+func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
+	return i.randomImageInDateRange(dateRange, requestID, deviceID, isPrefetch, 0)
 }
 
 // randomImageInDateRange is the internal implementation of RandomImageInDateRange that includes retry logic
 // It makes requests to the Immich API to get random images within the date range and handles caching
 // retries tracks the number of retry attempts made
-func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID string, isPrefetch bool, retries int) error {
+func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool, retries int) error {
 
 	if retries >= MaxRetries {
 		return fmt.Errorf("No images found for '%s'. Max retries reached.", dateRange)
@@ -57,7 +57,7 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID
 	dateEnd = dateEnd.Add(time.Hour * 23).Add(time.Minute * 59).Add(time.Second * 59)
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", kioskDeviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
 	} else {
 		log.Debug(requestID+" Getting Random image", "from", dateStartHuman, "to", dateEndHuman)
 	}
@@ -98,24 +98,26 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID
 		log.Fatal("marshaling request body", err)
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAssets)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
 	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
-		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+		_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err
 	}
 
 	err = json.Unmarshal(apiBody, &immichAssets)
 	if err != nil {
-		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+		_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err
 	}
 
+	apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID)
+
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
-		apiCache.Delete(apiUrl.String())
+		cache.Delete(apiCacheKey)
 		retries++
-		return i.randomImageInDateRange(dateRange, requestID, kioskDeviceID, isPrefetch, retries)
+		return i.randomImageInDateRange(dateRange, requestID, deviceID, isPrefetch, retries)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -134,7 +136,7 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID
 			}
 
 			// replace cache with used image(s) removed
-			err = apiCache.Replace(apiUrl.String(), jsonBytes, cache.DefaultExpiration)
+			err = cache.Replace(apiCacheKey, jsonBytes)
 			if err != nil {
 				log.Debug("Failed to update cache", "error", err, "url", apiUrl.String())
 			}
@@ -148,7 +150,7 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID
 	}
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
-	apiCache.Delete(apiUrl.String())
+	cache.Delete(apiUrl.String())
 	retries++
-	return i.randomImageInDateRange(dateRange, requestID, kioskDeviceID, isPrefetch, retries)
+	return i.randomImageInDateRange(dateRange, requestID, deviceID, isPrefetch, retries)
 }

@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"math/rand/v2"
 	"net/url"
 	"path"
 	"strings"
@@ -13,37 +12,6 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/google/go-querystring/query"
 )
-
-// DEPRECIATED
-// personAssets retrieves all assets associated with a specific person from Immich.
-func (i *ImmichAsset) personAssets(personID, requestID, deviceID string) ([]ImmichAsset, string, error) {
-
-	var images []ImmichAsset
-
-	u, err := url.Parse(requestConfig.ImmichUrl)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	apiUrl := url.URL{
-		Scheme: u.Scheme,
-		Host:   u.Host,
-		Path:   path.Join("api", "people", personID, "assets"),
-	}
-
-	immichApiCal := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, images)
-	body, err := immichApiCal("GET", apiUrl.String(), nil)
-	if err != nil {
-		return immichApiFail(images, err, body, apiUrl.String())
-	}
-
-	err = json.Unmarshal(body, &images)
-	if err != nil {
-		return immichApiFail(images, err, body, apiUrl.String())
-	}
-
-	return images, apiUrl.String(), nil
-}
 
 // PersonImageCount returns the number of images associated with a specific person in Immich.
 func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
@@ -75,57 +43,6 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (in
 	}
 
 	return personStatistics.Assets, err
-}
-
-// DEPRECIATED
-// RandomImageOfPerson retrieve random image of person from Immich
-func (i *ImmichAsset) OLDRandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
-
-	images, _, err := i.personAssets(personID, requestID, deviceID)
-	if err != nil {
-		return err
-	}
-
-	if len(images) == 0 {
-		log.Error("no images found", "for person", personID)
-		return fmt.Errorf("no images found for person %s", personID)
-	}
-
-	rand.Shuffle(len(images), func(i, j int) {
-		images[i], images[j] = images[j], images[i]
-	})
-
-	for _, pick := range images {
-		// Filter out non-image assets, trashed, archived (unless configured), and incorrect ratio
-		if pick.Type != ImageType || pick.IsTrashed || (pick.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&pick) {
-			continue
-		}
-
-		*i = pick
-		break
-	}
-
-	if i.ID == "" {
-		log.Error("no images found", "for person", personID)
-		return fmt.Errorf("no images found for person %s", personID)
-	}
-
-	if log.GetLevel() == log.DebugLevel {
-		for _, per := range i.People {
-			if per.ID == personID {
-
-				if isPrefetch {
-					log.Debug(requestID, "PREFETCH", deviceID, "Got image of person", per.Name)
-				} else {
-					log.Debug(requestID, "Got image of person", per.Name)
-				}
-
-				break
-			}
-		}
-	}
-
-	return nil
 }
 
 // RandomImageOfPerson retrieve random image of person from Immich
