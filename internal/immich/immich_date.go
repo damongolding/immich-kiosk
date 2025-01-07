@@ -31,7 +31,13 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID
 		return fmt.Errorf("No images found for '%s'. Max retries reached.", dateRange)
 	}
 
+	if !strings.Contains(dateRange, "_to_") {
+		return fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
+	}
 	dates := strings.Split(dateRange, "_")
+	if len(dates) != 3 || dates[1] != "to" {
+		return fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
+	}
 	dateStart, err := time.Parse("2006-01-02", dates[0])
 	if err != nil {
 		return err
