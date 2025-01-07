@@ -128,7 +128,7 @@
     animation-fill-mode: forwards;
     transform-origin: inherit;
     object-position: inherit;
-    will-change: scale;
+    will-change: transform;
 }
 
 .frame .frame--image-zoom-in img {
