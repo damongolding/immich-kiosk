@@ -347,7 +347,7 @@ See the file `config.example.yaml` for an example config file
 | font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
 | [theme](#themes)                  | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. See [Themes](#themes) for more information.                            |
-| [layout](#layouts)                | KIOSK_LAYOUT            | single \| splitview        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
+| [layout](#layouts)                | KIOSK_LAYOUT            | [Layouts](#layouts)        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
 | [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [custom_css](#custom-css)         | N/A                     | bool                       | true        | Allow custom CSS to be used. See [Custom CSS](#custom-css) for more information.           |
@@ -638,17 +638,25 @@ Solid background for the clock and image metadata.
 
 ## Layouts
 
+> [!NOTE]
+> Throughout all layouts: Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
+> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
+
+The following layout options determine how images are displayed:
+
 ### Single (the default)
-Display one image.
+This is the standard layout that displays one image at a time, regardless of orientation.
+It works with both portrait and landscape images.
 
 ![Kiosk theme fade](/assets/theme-fade.jpeg)
 
+### Portrait
+This layout displays one portrait-oriented image at a time.
+
+### Landscape
+This layout displays one landscape-oriented image at a time.
+
 ### Splitview
-
-> [!NOTE]
-> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
-> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
-
 When a portrait image is fetched, Kiosk automatically retrieves a second portrait image\* and displays them side by side vertically. Landscape and square images are displayed individually.
 
 \* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
@@ -656,11 +664,6 @@ When a portrait image is fetched, Kiosk automatically retrieves a second portrai
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
 
 ### Splitview landscape
-
-> [!NOTE]
-> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
-> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
-
 When a landscape image is fetched, Kiosk automatically retrieves a second landscape image\* and displays them stacked horizontally. portrait and square images are displayed individually.
 
 \* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
