@@ -19,6 +19,8 @@ type ImageOrientation string
 type ImmichAssetType string
 
 const (
+	MaxRetries = 3
+
 	PortraitOrientation  ImageOrientation = "PORTRAIT"
 	LandscapeOrientation ImageOrientation = "LANDSCAPE"
 	SquareOrientation    ImageOrientation = "SQUARE"

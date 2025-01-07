@@ -35,6 +35,7 @@ import (
 //   - A slice of AssetWithWeighting containing the weightings for each asset source
 //   - An error if any database queries fail
 func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID, deviceID string) ([]utils.AssetWithWeighting, error) {
+
 	assets := []utils.AssetWithWeighting{}
 
 	for _, person := range requestConfig.Person {
@@ -70,6 +71,18 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbums, ID: album},
 			Weight: albumAssetCount,
 		})
+	}
+
+
+	for _, date := range requestConfig.Date {
+
+		// fudge for now
+		// TODO: decide if we should obtain assets number for weighting
+		assets = append(assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRangeAlbum, ID: date},
+			Weight: 1000,
+		})
+
 	}
 
 	return assets, nil
@@ -109,6 +122,7 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 		case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
 			return immichImage.RandomImageFromFavourites(requestID, deviceID, isPrefetch)
 		}
+    
 		return immichImage.RandomImageFromAlbum(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourcePerson:
@@ -147,6 +161,7 @@ func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, deviceID stri
 // processImage handles the entire process of selecting and retrieving an image.
 // It returns the image bytes and an error if any step fails.
 func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
+
 
 	assets, err := gatherAssetBuckets(immichImage, requestConfig, requestID, deviceID)
 	if err != nil {
@@ -390,6 +405,17 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 	}
 
 	switch requestConfig.Layout {
+	case "landscape", "portrait":
+		orientation := immich.LandscapeOrientation
+		if requestConfig.Layout == "portrait" {
+			orientation = immich.PortraitOrientation
+		}
+		viewDataSingle, err := ProcessViewImageDataWithRatio(orientation, requestConfig, c, isPrefetch)
+		if err != nil {
+			return viewData, err
+		}
+		viewData.Images = append(viewData.Images, viewDataSingle)
+
 	case "splitview":
 		viewDataSplitView, err := ProcessViewImageData(requestConfig, c, isPrefetch)
 		if err != nil {
