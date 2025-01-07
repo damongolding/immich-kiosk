@@ -112,7 +112,7 @@ func (c *Config) checkAssetBuckets() {
 
 	newDateRange := []string{}
 	for _, date := range c.Date {
-		if date != "" && date != "DATE_RANGE" && date != "YYYY-MM-DD_to_YYY-MM-DD" {
+		if date != "" && date != "DATE_RANGE" && date != "YYYY-MM-DD_to_YYYY-MM-DD" {
 			newDateRange = append(newDateRange, strings.TrimSpace(date))
 		}
 	}
