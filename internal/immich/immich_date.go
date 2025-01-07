@@ -133,10 +133,10 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, kioskDeviceID
 				return err
 			}
 
-			// replace cwith cache minus used image
+			// replace cache with used image(s) removed
 			err = apiCache.Replace(apiUrl.String(), jsonBytes, cache.DefaultExpiration)
 			if err != nil {
-				log.Debug("cache not found!")
+				log.Debug("Failed to update cache", "error", err, "url", apiUrl.String())
 			}
 		}
 
