@@ -388,15 +388,12 @@ func generateViewData(requestConfig config.Config, c echo.Context, kioskDeviceID
 	}
 
 	switch requestConfig.Layout {
-	case "landscape":
-		viewDataSingle, err := ProcessViewImageDataWithRatio(immich.LandscapeOrientation, requestConfig, c, isPrefetch)
-		if err != nil {
-			return viewData, err
+	case "landscape", "portrait":
+		orientation := immich.LandscapeOrientation
+		if requestConfig.Layout == "portrait" {
+			orientation = immich.PortraitOrientation
 		}
-		viewData.Images = append(viewData.Images, viewDataSingle)
-
-	case "portrait":
-		viewDataSingle, err := ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
+		viewDataSingle, err := ProcessViewImageDataWithRatio(orientation, requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
 		}
