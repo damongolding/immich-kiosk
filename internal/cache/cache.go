@@ -69,6 +69,8 @@ func Set(key string, x any) {
 	kioskCache.Set(key, x, gocache.DefaultExpiration)
 }
 
+// SetWithExpiration adds an item to the cache with the specified expiration duration.
+// The item will expire after the given duration has elapsed.
 func SetWithExpiration(key string, x any, t time.Duration) {
 	mu.RLock()
 	defer mu.RUnlock()
