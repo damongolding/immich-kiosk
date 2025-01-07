@@ -224,7 +224,7 @@ func TestAlbumAndPerson(t *testing.T) {
 				Person: tc.inputPerson,
 			}
 
-			c.checkAlbumAndPerson()
+			c.checkAssetBuckets()
 
 			assert.Equal(t, tc.expectedAlbum, c.Album, "Album mismatch")
 			assert.Equal(t, tc.expectedPerson, c.Person, "Person mismatch")
