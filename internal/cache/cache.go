@@ -10,13 +10,17 @@ import (
 
 var (
 	kioskCache *gocache.Cache
-	mu         sync.RWMutex
+
+	defaultExpiration = 5 * time.Minute
+	cleanupInterval   = 10 * time.Minute
+
+	mu sync.RWMutex
 )
 
 // init initializes the kiosk cache with a 5 minute default expiration and 10 minute cleanup interval
 func init() {
 	// Setting up Immich api cache
-	kioskCache = gocache.New(5*time.Minute, 10*time.Minute)
+	kioskCache = gocache.New(defaultExpiration, cleanupInterval)
 }
 
 // Flush removes all items from the cache
