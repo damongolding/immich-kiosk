@@ -638,6 +638,10 @@ Solid background for the clock and image metadata.
 
 ## Layouts
 
+> [!NOTE]
+> Throughout all layouts: Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
+> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
+
 The following layout options determine how images are displayed:
 
 ### Single (the default)
@@ -647,27 +651,12 @@ It works with both portrait and landscape images.
 ![Kiosk theme fade](/assets/theme-fade.jpeg)
 
 ### Portrait
-
-> [!NOTE]
-> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
-> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
-
 This layout displays one portrait-oriented image at a time.
 
 ### Landscape
-
-> [!NOTE]
-> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
-> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
-
 This layout displays one landscape-oriented image at a time.
 
 ### Splitview
-
-> [!NOTE]
-> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
-> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
-
 When a portrait image is fetched, Kiosk automatically retrieves a second portrait image\* and displays them side by side vertically. Landscape and square images are displayed individually.
 
 \* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
@@ -675,11 +664,6 @@ When a portrait image is fetched, Kiosk automatically retrieves a second portrai
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
 
 ### Splitview landscape
-
-> [!NOTE]
-> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
-> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
-
 When a landscape image is fetched, Kiosk automatically retrieves a second landscape image\* and displays them stacked horizontally. portrait and square images are displayed individually.
 
 \* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
