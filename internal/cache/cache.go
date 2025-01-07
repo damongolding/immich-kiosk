@@ -38,18 +38,12 @@ func ItemCount() int {
 // ViewCacheKey generates a cache key from the API URL and device ID by combining them
 // with ':view' suffix for cache view operations
 func ViewCacheKey(apiUrl, deviceID string) string {
-	mu.RLock()
-	defer mu.RUnlock()
-
 	return fmt.Sprintf("%s:%s:view", apiUrl, deviceID)
 }
 
 // ApiCacheKey generates a cache key from the API URL and device ID by combining them
 // with ':api' suffix for cache API operations
 func ApiCacheKey(apiUrl, deviceID string) string {
-	mu.RLock()
-	defer mu.RUnlock()
-
 	return fmt.Sprintf("%s:%s:api", apiUrl, deviceID)
 }
 
@@ -63,8 +57,8 @@ func Get(s string) (any, bool) {
 
 // Set adds an item to the cache with the default expiration time
 func Set(key string, x any) {
-	mu.RLock()
-	defer mu.RUnlock()
+	mu.Lock()
+	defer mu.Unlock()
 
 	kioskCache.Set(key, x, gocache.DefaultExpiration)
 }
@@ -72,8 +66,8 @@ func Set(key string, x any) {
 // SetWithExpiration adds an item to the cache with the specified expiration duration.
 // The item will expire after the given duration has elapsed.
 func SetWithExpiration(key string, x any, t time.Duration) {
-	mu.RLock()
-	defer mu.RUnlock()
+	mu.Lock()
+	defer mu.Unlock()
 
 	kioskCache.Set(key, x, t)
 }
