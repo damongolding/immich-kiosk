@@ -173,7 +173,7 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, deviceID string, 
 			// replace with cache minus used asset
 			err = cache.Replace(apiCacheKey, jsonBytes)
 			if err != nil {
-				log.Debug("cache not found!")
+				log.Debug("Failed to update device cache for album", "albumID", albumID, "deviceID", deviceID)
 			}
 
 		}
