@@ -69,6 +69,13 @@ func Set(key string, x any) {
 	kioskCache.Set(key, x, gocache.DefaultExpiration)
 }
 
+func SetWithExpiration(key string, x any, t time.Duration) {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	kioskCache.Set(key, x, t)
+}
+
 // Delete removes an item from the cache by key
 func Delete(key string) {
 	mu.Lock()
