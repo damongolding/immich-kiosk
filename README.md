@@ -240,6 +240,7 @@ services:
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
+      KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
       # UI
       KIOSK_DISABLE_UI: false
       KIOSK_FRAMELESS: false
@@ -341,6 +342,7 @@ See the file `config.example.yaml` for an example config file
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
+| [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges in `YYYY-MM-DD_to_YYYY-MM-DD` format. See [Date range](#date-range) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
@@ -551,6 +553,42 @@ environment:
 ```url
 http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 ```
+
+------
+
+### Date range
+
+### How multiple date ranges work
+When you specify multiple date ranges, Immich Kiosk creates a pool of all the requested date ranges.
+For each image refresh, Kiosk randomly selects one date range from this pool and fetches an image within that date range.
+
+There are **three** ways you can set date ranges:
+
+> [!NOTE]
+> These methods are applied in order of precedence. URL queries take the highest priority, followed by environment variables, and finally the config.yaml file.
+> Each subsequent method overwrites the settings from the previous ones.
+
+1. via config.yaml file
+
+```yaml
+date:
+  - 2023-01-01_to_2023-02-01
+  - 2024-11-12_to_2023-11-18
+```
+
+2. via ENV in your docker-compose file use a `,` to separate IDs
+
+```yaml
+environment:
+  KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
+```
+
+3. via url quires
+
+```url
+http://{URL}?date=DATE_RANGE&date=DATE_RANGE&date=DATE_RANGE
+```
+
 ------
 
 ## Image fit
