@@ -11,6 +11,8 @@ date_format: YYYY/MM/DD
 ## Kiosk behaviour
 refresh: 60 # in seconds
 disable_screensaver: false # Ask browser to request a lock that prevents device screens from dimming or locking.
+optimize_images: false # Whether Kiosk should resize images to match your browser screen dimensions for better performance.
+use_gpu: true # Enable GPU acceleration for improved performance.
 
 ## Asset sources
 show_archived: false # Allow assets marked as archived to be displayed.

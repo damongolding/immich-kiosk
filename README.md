@@ -89,7 +89,7 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 - Define default settings for all devices through environment variables or YAML config files.
 - Configure device-specific settings using URL parameters.
 
-![Kiosk theme fade](/assets/theme-fade.jpeg)
+![Kiosk theme fade](/assets/preview.jpeg)
 **Image shot by Damon Golding**
 
 ## Example 1
@@ -235,6 +235,7 @@ services:
       KIOSK_REFRESH: 60
       KIOSK_DISABLE_SCREENSAVER: false
       KIOSK_OPTIMIZE_IMAGES: false
+      KIOSK_USE_GPU: true
       # Asset sources
       KIOSK_SHOW_ARCHIVED: false
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
@@ -338,6 +339,7 @@ See the file `config.example.yaml` for an example config file
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
 | disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
 | optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low-powered device, this may help. |
+| use_gpu                           | KIOSK_USE_GPU           | bool                       | true        | Enable GPU acceleration for improved performance (e.g., CSS transforms) |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
