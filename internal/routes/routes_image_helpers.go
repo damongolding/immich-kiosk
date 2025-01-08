@@ -73,14 +73,12 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 		})
 	}
 
-
 	for _, date := range requestConfig.Date {
 
-		// fudge for now
-		// TODO: decide if we should obtain assets number for weighting
+		// use FetchedAssetsSize as a weighting for date ranges
 		assets = append(assets, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRangeAlbum, ID: date},
-			Weight: 1000,
+			Weight: requestConfig.Kiosk.FetchedAssetsSize,
 		})
 
 	}
@@ -122,7 +120,7 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 		case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
 			return immichImage.RandomImageFromFavourites(requestID, deviceID, isPrefetch)
 		}
-    
+
 		return immichImage.RandomImageFromAlbum(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourcePerson:
@@ -161,7 +159,6 @@ func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, deviceID stri
 // processImage handles the entire process of selecting and retrieving an image.
 // It returns the image bytes and an error if any step fails.
 func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
-
 
 	assets, err := gatherAssetBuckets(immichImage, requestConfig, requestID, deviceID)
 	if err != nil {
