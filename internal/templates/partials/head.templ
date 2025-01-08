@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"math"
+	"strings"
 )
 
 // baseFontSize generates CSS for font sizing
@@ -26,10 +27,18 @@ func baseFontSize(fontSize int) string {
 }
 
 // imageSmartZoomKeyframes generates CSS keyframes for smart zoom animations
-func imageSmartZoomKeyframes(zoomAmount int) string {
+func imageSmartZoomKeyframes(zoomAmount int, useGpu bool) string {
 	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
-	scale3d := "%.2f, %.2f, %.2f"
-	template := `
+
+	scaleFunction := "scale3d"
+	scaleValues := "%.2f, %.2f, %.2f"
+
+	if !useGpu {
+		scaleFunction = "scale"
+		scaleValues = "%.2f"
+	}
+
+	template := strings.ReplaceAll(`
     <style>
         @-webkit-keyframes image-smart-zoom-out {
             from {
@@ -168,17 +177,31 @@ func imageSmartZoomKeyframes(zoomAmount int) string {
                 transform-origin: inherit;
             }
         }
-    </style>`
+    </style>`, "scale3d", scaleFunction)
 
-	return fmt.Sprintf(template, fmt.Sprintf(scale3d, zoom, zoom, zoom))
+	formattedScale := fmt.Sprintf(scaleValues, zoom, zoom, zoom)
+
+	if !useGpu {
+		formattedScale = fmt.Sprintf(scaleValues, zoom)
+		template = strings.ReplaceAll(template, "1, 1, 1", "1")
+	}
+
+	return fmt.Sprintf(template, formattedScale)
 }
 
 // imageZoomKeyframes generates CSS keyframes for basic zoom animations
-func imageZoomKeyframes(zoomAmount int) string {
+func imageZoomKeyframes(zoomAmount int, useGpu bool) string {
 	zoom := math.Max(float64(zoomAmount)/100.0, 1.0)
 
-	scale3d := "%.2f, %.2f, %.2f"
-	template := `
+	scaleFunction := "scale3d"
+	scaleValues := "%.2f, %.2f, %.2f"
+
+	if !useGpu {
+		scaleFunction = "scale"
+		scaleValues = "%.2f"
+	}
+
+	template := strings.ReplaceAll(`
 	<style>
         @-webkit-keyframes image-zoom-out {
             from {
@@ -318,9 +341,16 @@ func imageZoomKeyframes(zoomAmount int) string {
                 transform-origin: center;
             }
         }
-	</style>`
+	</style>`, "scale3d", scaleFunction)
 
-	return fmt.Sprintf(template, fmt.Sprintf(scale3d, zoom, zoom, zoom))
+	formattedScale := fmt.Sprintf(scaleValues, zoom, zoom, zoom)
+
+	if !useGpu {
+		formattedScale = fmt.Sprintf(scaleValues, zoom)
+		template = strings.ReplaceAll(template, "1, 1, 1", "1")
+	}
+
+	return fmt.Sprintf(template, formattedScale)
 
 }
 
@@ -356,9 +386,9 @@ templ Head(viewData common.ViewData) {
 	}
 	switch viewData.ImageEffect {
 		case "zoom":
-			@templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount))
+			@templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount, viewData.UseGpu))
 		case "smart-zoom":
-			@templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount))
+			@templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount, viewData.UseGpu))
 	}
 	@templ.Raw(baseFontSize(viewData.FontSize))
 	if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
