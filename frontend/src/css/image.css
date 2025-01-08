@@ -124,7 +124,8 @@
 .frame--image-zoom img {
     animation-direction: normal;
     animation-duration: inherit;
-    transition-timing-function: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+    /* transition-timing-function: cubic-bezier(0.455, 0.03, 0.515, 0.955); */
+    transition-timing-function: linear;
     animation-fill-mode: forwards;
     transform-origin: inherit;
     object-position: inherit;

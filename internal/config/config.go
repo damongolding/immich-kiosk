@@ -189,6 +189,8 @@ type Config struct {
 	// Album ID of album(s) to display
 	Album          []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
 	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
+	// Date date filter
+	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
@@ -377,7 +379,7 @@ func (c *Config) Load() error {
 
 	c.checkRequiredFields()
 	c.checkLowercaseTaggedFields()
-	c.checkAlbumAndPerson()
+	c.checkAssetBuckets()
 	c.checkExcludedAlbums()
 	c.checkUrlScheme()
 	c.checkHideCountries()
@@ -393,9 +395,10 @@ func (c *Config) Load() error {
 func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	// check for person or album in quries and empty baseconfig slice if found
-	if queries.Has("person") || queries.Has("album") {
+	if queries.Has("person") || queries.Has("album") || queries.Has("date") {
 		c.Person = []string{}
 		c.Album = []string{}
+		c.Date = []string{}
 	}
 
 	err := e.Bind(c)

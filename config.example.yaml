@@ -29,6 +29,10 @@ album:
 excluded_albums:
   - "ALBUM_ID"
 
+## Date range or ranges to display
+date:
+  - "YYYY-MM-DD_to_YYYY-MM-DD"
+
 ## UI
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
 frameless: false # remove border around image and rounded corners.

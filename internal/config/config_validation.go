@@ -79,10 +79,13 @@ func (c *Config) checkDebuging() {
 	}
 }
 
-// checkAlbumAndPerson validates and cleans up the Album and Person slices in the Config.
-// It removes any empty strings or placeholder values ("ALBUM_ID" or "PERSON_ID"),
-// and trims whitespace from the remaining values.
-func (c *Config) checkAlbumAndPerson() {
+// checkAssetBuckets validates and cleans up various asset filter lists in the Config.
+// It processes Album, ExcludedAlbums, Person, and Date slices by:
+// - Removing empty strings and placeholder values like "ALBUM_ID", "PERSON_ID", etc.
+// - Trimming whitespace from all remaining values
+// - Filtering out invalid date range formats
+// The cleaned lists are then stored back in their respective Config fields.
+func (c *Config) checkAssetBuckets() {
 	newAlbum := []string{}
 	for _, album := range c.Album {
 		if album != "" && album != "ALBUM_ID" {
@@ -106,6 +109,14 @@ func (c *Config) checkAlbumAndPerson() {
 		}
 	}
 	c.Person = newPerson
+
+	newDateRange := []string{}
+	for _, date := range c.Date {
+		if date != "" && date != "DATE_RANGE" && date != "YYYY-MM-DD_to_YYYY-MM-DD" {
+			newDateRange = append(newDateRange, strings.TrimSpace(date))
+		}
+	}
+	c.Date = newDateRange
 }
 
 // checkExcludedAlbums filters out any albums from c.Album that are present in

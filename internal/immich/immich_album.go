@@ -178,7 +178,7 @@ func (i *ImmichAsset) selectRandomAlbum(albums ImmichAlbums, excludedAlbums []st
 	albumsWithWeighting := []utils.AssetWithWeighting{}
 	for _, album := range albums {
 		albumsWithWeighting = append(albumsWithWeighting, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: "ALBUM", ID: album.ID},
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbums, ID: album.ID},
 			Weight: album.AssetCount,
 		})
 	}
