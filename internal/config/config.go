@@ -29,7 +29,6 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/goodsign/monday"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
@@ -273,7 +272,6 @@ func New() *Config {
 		V:               viper.NewWithOptions(viper.ExperimentalBindStruct()),
 		mu:              &sync.RWMutex{},
 		ReloadTimeStamp: time.Now().Format(time.RFC3339),
-		SystemLang:      monday.Locale(utils.SystemLanguage()),
 	}
 	defaults.SetDefaults(c)
 	return c
