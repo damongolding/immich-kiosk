@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/goodsign/monday"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
@@ -137,6 +138,8 @@ type Config struct {
 	configLastModTime time.Time `json:"-"`
 	// configHash stores the SHA-256 hash of the configuration file
 	configHash string `json:"-"`
+	// SystemLang the system language
+	SystemLang monday.Locale `json:"-" default:"en_GB"`
 
 	// ImmichApiKey Immich key to access assets
 	ImmichApiKey string `json:"-" mapstructure:"immich_api_key" default:""`

@@ -21,6 +21,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
+	"github.com/goodsign/monday"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/time/rate"
@@ -28,6 +29,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/routes"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/weather"
 )
 
@@ -54,6 +56,10 @@ func main() {
 	}
 
 	baseConfig := config.New()
+
+	systemLang := monday.Locale(utils.SystemLanguage())
+	baseConfig.SystemLang = systemLang
+	log.Infof("System language set as %s", systemLang)
 
 	err := baseConfig.Load()
 	if err != nil {

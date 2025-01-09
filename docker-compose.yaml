@@ -4,6 +4,7 @@ services:
     container_name: immich-kiosk
     tty: true
     environment:
+      LANG: "en_GB"
       TZ: "Europe/London"
     ports:
       - 3000:3000
