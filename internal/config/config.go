@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
@@ -137,6 +138,8 @@ type Config struct {
 	configLastModTime time.Time `json:"-"`
 	// configHash stores the SHA-256 hash of the configuration file
 	configHash string `json:"-"`
+	// SystemLang the system language
+	SystemLang string `json:"-" default:"en"`
 
 	// ImmichApiKey Immich key to access assets
 	ImmichApiKey string `json:"-" mapstructure:"immich_api_key" default:""`
@@ -269,6 +272,7 @@ func New() *Config {
 		V:               viper.NewWithOptions(viper.ExperimentalBindStruct()),
 		mu:              &sync.RWMutex{},
 		ReloadTimeStamp: time.Now().Format(time.RFC3339),
+		SystemLang:      utils.SystemLanguage(),
 	}
 	defaults.SetDefaults(c)
 	return c

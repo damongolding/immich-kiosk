@@ -36,7 +36,6 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
-	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/disintegration/imaging"
 
@@ -126,7 +125,7 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 	var img image.Image
 	var err error
 
-	imageMime := GetImageMimeType(bytes.NewReader(imgBytes))
+	imageMime := ImageMimeType(bytes.NewReader(imgBytes))
 
 	switch imageMime {
 	case "image/webp":
@@ -237,15 +236,15 @@ func BytesToBase64(imgBytes []byte) (string, error) {
 	return base64Encoding, nil
 }
 
-// getImageFormat retrieves the format name from the image decode config
-func getImageFormat(r io.Reader) (string, error) {
+// imageFormat retrieves the format name from the image decode config
+func imageFormat(r io.Reader) (string, error) {
 	_, format, err := image.DecodeConfig(r)
 	return format, err
 }
 
-// GetImageMimeType returns the MIME type (gif/jpeg/png/webp) for an image reader
-func GetImageMimeType(r io.Reader) string {
-	format, err := getImageFormat(r)
+// ImageMimeType returns the MIME type (gif/jpeg/png/webp) for an image reader
+func ImageMimeType(r io.Reader) string {
+	format, err := imageFormat(r)
 	if err != nil || format == "" {
 		log.Error("getting mime", "err", err)
 		return ""
@@ -256,12 +255,12 @@ func GetImageMimeType(r io.Reader) string {
 
 // BlurImage applies a Gaussian blur to an image with normalized sigma based on image dimensions.
 // It can optionally resize the image first based on client data dimensions.
-func BlurImage(img image.Image, isOptimized bool, clientData config.ClientData) (image.Image, error) {
+func BlurImage(img image.Image, isOptimized bool, clientWidth, clientHeight int) (image.Image, error) {
 
 	blurredImage := img
 
-	if clientData.Width != 0 && clientData.Height != 0 && !isOptimized {
-		blurredImage = imaging.Fit(blurredImage, clientData.Width, clientData.Height, imaging.Lanczos)
+	if clientWidth != 0 && clientHeight != 0 && !isOptimized {
+		blurredImage = imaging.Fit(blurredImage, clientWidth, clientHeight, imaging.Lanczos)
 	}
 
 	sigma := calculateNormalizedSigma(SigmaBase, blurredImage.Bounds().Dx(), blurredImage.Bounds().Dy(), SigmaConstant)
@@ -691,4 +690,35 @@ func OptimizeImage(img image.Image, width, height int) (image.Image, error) {
 func calculateNormalizedSigma(baseSigma float64, width, height int, constant float64) float64 {
 	diagonal := math.Sqrt(float64(width*width + height*height))
 	return baseSigma * diagonal / constant
+}
+
+// SystemLanguage attempts to detect the system's primary language by examining
+// environment variables in a specific order of precedence. It checks LANG, LC_ALL,
+// and LC_MESSAGES variables, extracting and normalizing the language code portion.
+//
+// The function parses environment variables in formats like:
+// - "en_US.UTF-8"
+// - "fr_FR.ISO8859-1"
+// - "de_DE"
+//
+// It extracts just the language code portion (e.g. "en", "fr", "de") and returns
+// it in lowercase. If no valid language code can be determined from the environment,
+// it returns "en" as a default fallback.
+//
+// Returns:
+//   - A lowercase two-letter language code (e.g. "en", "fr", "de")
+//   - "en" if no valid system language can be detected
+func SystemLanguage() string {
+	for _, envVar := range []string{"LANG", "LC_ALL", "LC_MESSAGES"} {
+		if lang := os.Getenv(envVar); lang != "" {
+			if parts := strings.Split(lang, ".")[0]; parts != "" {
+				if code := strings.Split(parts, "_")[0]; code != "" {
+					fmt.Println("LANG", strings.ToLower(code))
+					return strings.ToLower(code)
+				}
+			}
+		}
+	}
+
+	return "en"
 }

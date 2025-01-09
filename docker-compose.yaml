@@ -5,9 +5,10 @@ services:
     tty: true
     environment:
       TZ: "Europe/London"
+      LANG: "de_DE.UTF-8"
     ports:
       - 3000:3000
     volumes:
-      - ./config:/config
+      - ./config.yaml:/config.yaml
       # - ./custom.css:/custom.css
     restart: always
