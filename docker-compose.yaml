@@ -9,6 +9,6 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./config.yaml:/config.yaml
+      - ./config:/config
       # - ./custom.css:/custom.css
     restart: always
