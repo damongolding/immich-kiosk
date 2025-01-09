@@ -135,6 +135,7 @@ There are two main ways to install Kiosk: **Docker** or **Binary**.
      wget -O docker-compose.yaml https://raw.githubusercontent.com/damongolding/immich-kiosk/refs/heads/main/docker-compose.yaml
      ```
 
+     Set `Lang` to a `language code` from [this list](/assets/locals.md))
      Set `TZ` to a `TZ identifier` from [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
 
   3. Create the `config.yaml` file.
@@ -190,6 +191,7 @@ There are two main ways to install Kiosk: **Docker** or **Binary**.
 
 > [!NOTE]
 > You can use both a yaml file and environment variables but environment variables will overwrite settings from the yaml file
+> Set `Lang` to a `language code` from [this list](/assets/locals.md))
 > Set `TZ` to a `TZ identifier` from [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)
 
 ### When using a `config.yaml` config file
@@ -199,6 +201,7 @@ services:
     image: damongolding/immich-kiosk:latest
     container_name: immich-kiosk
     environment:
+      LANG: "en_GB"
       TZ: "Europe/London"
     volumes:
       # Mount the directory with config.yaml inside
