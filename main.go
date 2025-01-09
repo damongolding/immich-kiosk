@@ -43,6 +43,24 @@ func init() {
 	routes.KioskVersion = version
 }
 
+// Main entry point for the Immich Kiosk application, responsible for initializing the application, loading configuration, setting up the web server, and managing the application lifecycle.
+// 
+// The function performs several key tasks:
+// - Displays application banner and version
+// - Initializes logging and common packages
+// - Loads and configures system settings
+// - Sets up an Echo web server with middleware
+// - Configures routes for various application functionalities
+// - Manages server startup and graceful shutdown
+//
+// The application supports features like:
+// - System language detection
+// - Optional password authentication
+// - Static asset serving
+// - Weather location tracking
+// - Configurable debug modes
+//
+// Handles server startup and listens for shutdown signals to ensure clean application termination.
 func main() {
 
 	fmt.Println(kioskBanner)

@@ -119,7 +119,7 @@ func ImageToBytes(img image.Image) ([]byte, error) {
 // BytesToImage converts a byte slice to an image.Image.
 // It takes a byte slice as input and returns an image.Image and any error encountered.
 // It handles both WebP and other common image formats (JPEG, PNG, GIF) automatically
-// by detecting the MIME type and using the appropriate decoder.
+// BytesToImage converts a byte slice to an image by detecting the MIME type and using the appropriate decoder. It supports WebP and other image formats supported by the imaging library. If decoding fails, it returns an error with details about the failure.
 func BytesToImage(imgBytes []byte) (image.Image, error) {
 
 	var img image.Image
@@ -223,7 +223,7 @@ func ImageToBase64(img image.Image) (string, error) {
 // BytesToBase64 converts a byte slice to a base64 encoded string with MIME type prefix.
 // It takes a byte slice representing an image and returns a data URI string suitable
 // for use in HTML/CSS, such as "data:image/jpeg;base64,/9j/4AAQSkZJ...".
-// The function detects the MIME type of the image automatically.
+// BytesToBase64 converts a byte slice to a base64 encoded string with a MIME type prefix. It automatically detects the content type of the input bytes and prepends the appropriate MIME type to the base64-encoded data. Returns the complete base64 data URI string.
 func BytesToBase64(imgBytes []byte) (string, error) {
 	var base64Encoding string
 
@@ -236,13 +236,13 @@ func BytesToBase64(imgBytes []byte) (string, error) {
 	return base64Encoding, nil
 }
 
-// imageFormat retrieves the format name from the image decode config
+// imageFormat retrieves the image format from a reader by decoding its configuration. It returns the format name (such as "jpeg", "png", "gif") and any error encountered during decoding.
 func imageFormat(r io.Reader) (string, error) {
 	_, format, err := image.DecodeConfig(r)
 	return format, err
 }
 
-// ImageMimeType returns the MIME type (gif/jpeg/png/webp) for an image reader
+// If an error occurs during format detection, it logs the error and returns an empty string.
 func ImageMimeType(r io.Reader) string {
 	format, err := imageFormat(r)
 	if err != nil || format == "" {
@@ -254,7 +254,23 @@ func ImageMimeType(r io.Reader) string {
 }
 
 // BlurImage applies a Gaussian blur to an image with normalized sigma based on image dimensions.
-// It can optionally resize the image first based on client data dimensions.
+// BlurImage applies a Gaussian blur to an image, with optional resizing based on client dimensions.
+// The function first resizes the image if client width and height are provided and the image is not already optimized.
+// It then calculates a normalized sigma value for the Gaussian blur based on the image dimensions.
+// The blur is applied, followed by a brightness adjustment to reduce the image's brightness.
+//
+// Parameters:
+//   - img: The source image to be blurred
+//   - isOptimized: Flag indicating whether the image has already been optimized
+//   - clientWidth: Target width for image resizing (0 if no resizing needed)
+//   - clientHeight: Target height for image resizing (0 if no resizing needed)
+//
+// Returns:
+//   - A blurred and optionally resized image
+//   - An error (always nil in this implementation)
+//
+// Example:
+//   blurredImg, _ := BlurImage(originalImg, false, 800, 600)
 func BlurImage(img image.Image, isOptimized bool, clientWidth, clientHeight int) (image.Image, error) {
 
 	blurredImage := img
@@ -686,7 +702,7 @@ func OptimizeImage(img image.Image, width, height int) (image.Image, error) {
 // ensuring consistent visual effects across different image sizes. The constant value helps maintain
 // a balanced blur effect for typical screen resolutions.
 //
-// The formula is: sigma = baseSigma * sqrt(width² + height²) / constant
+// Returns a float64 representing the normalized sigma value for Gaussian blur.
 func calculateNormalizedSigma(baseSigma float64, width, height int, constant float64) float64 {
 	diagonal := math.Sqrt(float64(width*width + height*height))
 	return baseSigma * diagonal / constant
@@ -711,7 +727,7 @@ func calculateNormalizedSigma(baseSigma float64, width, height int, constant flo
 //
 // Returns:
 // - Normalized "language_REGION" code if valid language found
-// - "en_GB" as fallback if no valid system language detected
+// is detected, it returns "en_GB" as the default fallback.
 func SystemLanguage() string {
 	for _, envVar := range []string{"LANG", "LC_ALL", "LC_MESSAGES"} {
 		if lang := os.Getenv(envVar); lang != "" {
