@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
-	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 	"github.com/labstack/echo/v4"
 )
@@ -24,15 +24,11 @@ func FlushCache(baseConfig *config.Config) echo.HandlerFunc {
 			return nil
 		}
 
-		viewDataCacheMutex.Lock()
-		defer viewDataCacheMutex.Unlock()
+		log.Info("Cache before flush", "cache_items", cache.ItemCount())
 
-		log.Info("Cache before flush", "viewDataCache_items", ViewDataCache.ItemCount(), "apiCache_items", immich.ApiCacheCount())
+		cache.Flush()
 
-		ViewDataCache.Flush()
-		immich.FlushApiCache()
-
-		log.Info("Cache after flush ", "viewDataCache_items", ViewDataCache.ItemCount(), "apiCache_items", immich.ApiCacheCount())
+		log.Info("Cache after flush ", "cache_items", cache.ItemCount())
 
 		c.Response().Header().Set("HX-Refresh", "true")
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.CacheFlush, common.ViewData{})

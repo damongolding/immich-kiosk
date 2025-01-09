@@ -8,10 +8,7 @@ package immich
 import (
 	"net"
 	"net/http"
-	"sync"
 	"time"
-
-	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
@@ -40,10 +37,6 @@ const (
 var (
 	// requestConfig the config for this request
 	requestConfig config.Config
-	// apiCache cache store for immich api call(s)
-	apiCache *cache.Cache
-	// mu is a mutual exclusion lock for managing concurrent access to shared resources
-	mu sync.Mutex
 
 	// httpTransport defines the transport layer configuration for HTTP requests to the Immich API.
 	// It manages connection pooling, keepalive settings, and connection timeouts.
@@ -219,11 +212,6 @@ type ImmichSearchMetadataResponse struct {
 	} `json:"assets"`
 }
 
-func init() {
-	// Setting up Immich api cache
-	apiCache = cache.New(5*time.Minute, 10*time.Minute)
-}
-
 // NewImage returns a new image instance
 func NewImage(base config.Config) ImmichAsset {
 	requestConfig = base
@@ -234,12 +222,4 @@ type ImmichApiCall func(string, string, []byte) ([]byte, error)
 
 type ImmichApiResponse interface {
 	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face | immich_open_api.PersonResponseDto
-}
-
-func FlushApiCache() {
-	apiCache.Flush()
-}
-
-func ApiCacheCount() int {
-	return apiCache.ItemCount()
 }
