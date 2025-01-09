@@ -692,33 +692,36 @@ func calculateNormalizedSigma(baseSigma float64, width, height int, constant flo
 	return baseSigma * diagonal / constant
 }
 
-// SystemLanguage attempts to detect the system's primary language by examining
-// environment variables in a specific order of precedence. It checks LANG, LC_ALL,
-// and LC_MESSAGES variables, extracting and normalizing the language code portion.
+// SystemLanguage detects the system's primary language by examining environment
+// variables LANG, LC_ALL, and LC_MESSAGES in order of precedence.
 //
-// The function parses environment variables in formats like:
+// The function parses environment variable formats like:
 // - "en_US.UTF-8"
 // - "fr_FR.ISO8859-1"
 // - "de_DE"
 //
-// It extracts just the language code portion (e.g. "en", "fr", "de") and returns
-// it in lowercase. If no valid language code can be determined from the environment,
-// it returns "en" as a default fallback.
+// For each environment variable, it:
+// 1. Extracts the language code before any '.' separator
+// 2. Splits on '_' to separate language and region codes
+// 3. Normalizes to lowercase language code and uppercase region code
+//
+// Example outputs:
+// - "en_US" (from "en_US.UTF-8")
+// - "fr_FR" (from "fr_FR.ISO8859-1")
 //
 // Returns:
-//   - A lowercase two-letter language code (e.g. "en", "fr", "de")
-//   - "en" if no valid system language can be detected
+// - Normalized "language_REGION" code if valid language found
+// - "en_GB" as fallback if no valid system language detected
 func SystemLanguage() string {
 	for _, envVar := range []string{"LANG", "LC_ALL", "LC_MESSAGES"} {
 		if lang := os.Getenv(envVar); lang != "" {
 			if parts := strings.Split(lang, ".")[0]; parts != "" {
-				if code := strings.Split(parts, "_")[0]; code != "" {
-					fmt.Println("LANG", strings.ToLower(code))
-					return strings.ToLower(code)
+				if code := strings.Split(parts, "_"); len(code) == 2 {
+					return strings.ToLower(code[0]) + "_" + strings.ToUpper(code[1])
 				}
 			}
 		}
 	}
 
-	return "en"
+	return "en_GB"
 }

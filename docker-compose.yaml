@@ -5,7 +5,7 @@ services:
     tty: true
     environment:
       TZ: "Europe/London"
-      LANG: "de_DE.UTF-8"
+      LANG: "en_GB"
     ports:
       - 3000:3000
     volumes:

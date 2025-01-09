@@ -11,8 +11,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
+	"github.com/goodsign/monday"
 )
 
 // ImageLocation generates a formatted string of the image location based on EXIF information.
@@ -95,21 +94,18 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 		imageDateFormat = config.DefaultDateLayout
 	}
 
-	tag := language.Make(utils.GetSystemLanguage())
-	printer := message.NewPrinter(tag)
-
 	localDateTime := viewData.Images[imageIndex].ImmichImage.LocalDateTime
 	switch {
 	case viewData.ShowImageDate && viewData.ShowImageTime:
 		imageDate = fmt.Sprintf(
 			"%s %s",
-			printer.Sprintf(localDateTime.Format(imageDateFormat)),
-			printer.Sprintf(localDateTime.Format(imageTimeFormat)),
+			monday.Format(localDateTime, imageDateFormat, viewData.SystemLang),
+			localDateTime.Format(imageTimeFormat),
 		)
 	case viewData.ShowImageDate:
-		imageDate = printer.Sprintf(localDateTime.Format(imageDateFormat))
+		imageDate = monday.Format(localDateTime, imageDateFormat, viewData.SystemLang)
 	case viewData.ShowImageTime:
-		imageDate = printer.Sprintf(localDateTime.Format(imageTimeFormat))
+		imageDate = localDateTime.Format(imageTimeFormat)
 	}
 
 	return imageDate
