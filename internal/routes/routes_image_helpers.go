@@ -204,7 +204,7 @@ func processBlurredImage(img image.Image, config config.Config, requestID, kiosk
 	}
 
 	startTime := time.Now()
-	imgBlur, err := utils.BlurImage(img, config.OptimizeImages, config.ClientData)
+	imgBlur, err := utils.BlurImage(img, config.OptimizeImages, config.ClientData.Width, config.ClientData.Height)
 	if err != nil {
 		return "", fmt.Errorf("blurring image: %w", err)
 	}

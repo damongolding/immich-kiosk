@@ -11,6 +11,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/goodsign/monday"
 )
 
 // ImageLocation generates a formatted string of the image location based on EXIF information.
@@ -93,16 +94,22 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 		imageDateFormat = config.DefaultDateLayout
 	}
 
+	localDateTime := viewData.Images[imageIndex].ImmichImage.LocalDateTime
 	switch {
-	case (viewData.ShowImageDate && viewData.ShowImageTime):
-		imageDate = fmt.Sprintf("%s %s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageTimeFormat), viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageDateFormat))
+	case viewData.ShowImageDate && viewData.ShowImageTime:
+		imageDate = fmt.Sprintf(
+			"%s %s",
+			monday.Format(localDateTime, imageDateFormat, viewData.SystemLang),
+			localDateTime.Format(imageTimeFormat),
+		)
 	case viewData.ShowImageDate:
-		imageDate = fmt.Sprintf("%s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageDateFormat))
+		imageDate = monday.Format(localDateTime, imageDateFormat, viewData.SystemLang)
 	case viewData.ShowImageTime:
-		imageDate = fmt.Sprintf("%s", viewData.Images[imageIndex].ImmichImage.LocalDateTime.Format(imageTimeFormat))
+		imageDate = localDateTime.Format(imageTimeFormat)
 	}
 
 	return imageDate
+
 }
 
 // shouldShowAlbumPersonName determines whether to display album or person name in the image metadata.

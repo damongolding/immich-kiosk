@@ -157,8 +157,14 @@ body {
     sans-serif;
   letter-spacing: 0.0625rem;
   background-color: #000;
+  width: 100%;
   width: 100vw;
+  min-width: 100%;
+  min-width: 100vw;
+  height: 100%;
   height: 100vh;
+  min-height: 100%;
+  min-height: 100vh;
   overflow: hidden;
 }
 @media screen and (max-width: 31.25rem) {
@@ -166,6 +172,9 @@ body {
   body {
     font-size: 80%;
   }
+}
+form {
+  display: none;
 }
 
 /* src/css/container.css */
@@ -753,8 +762,12 @@ body {
   -moz-box-pack: justify;
        justify-content: space-between;
   height: 100%;
+  height: 100vh;
+  min-height: 100%;
+  min-height: 100vh;
   top: 0;
   left: 0;
+  bottom: 0;
   z-index: var(--z-clock);
 }
 .layout-splitview #clock-weather-container {
@@ -763,6 +776,8 @@ body {
        flex-direction: row;
   width: 100%;
   height: auto;
+  min-height: auto;
+  bottom: unset;
 }
 .sleep #clock-weather-container {
   height: 100%;
