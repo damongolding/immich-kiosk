@@ -256,7 +256,7 @@ type Config struct {
 	// OptimizeImages tells Kiosk to optimize imahes
 	OptimizeImages bool `json:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
 	// UseGpu tells Kiosk to use GPU where possible
-	UseGpu bool `json:"useGpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
+	UseGpu bool `json:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
 
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
 	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`

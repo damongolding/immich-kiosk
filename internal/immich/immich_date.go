@@ -34,8 +34,9 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, deviceID stri
 	if !strings.Contains(dateRange, "_to_") {
 		return fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
 	}
-	dates := strings.Split(dateRange, "_")
-	if len(dates) != 3 || dates[1] != "to" {
+
+	dates := strings.SplitN(dateRange, "_to_", 2)
+	if len(dates) != 2 {
 		return fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
 	}
 	dateStart, err := time.Parse("2006-01-02", dates[0])
@@ -54,7 +55,7 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, deviceID stri
 	dateStartHuman := dateStart.Format("2006-01-02")
 	dateEndHuman := dateEnd.Format("2006-01-02")
 
-	dateEnd = dateEnd.Add(time.Hour * 23).Add(time.Minute * 59).Add(time.Second * 59)
+	dateEnd = dateEnd.AddDate(0, 0, 1).Add(-time.Nanosecond)
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
@@ -66,8 +67,7 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, deviceID stri
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		log.Fatal("parsing url", err)
-		return err
+		return fmt.Errorf("parsing url: %w", err)
 	}
 
 	requestBody := ImmichSearchRandomBody{
@@ -95,7 +95,7 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, deviceID stri
 
 	jsonBody, err := json.Marshal(requestBody)
 	if err != nil {
-		log.Fatal("marshaling request body", err)
+		return fmt.Errorf("marshaling request body: %w", err)
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
@@ -150,7 +150,7 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, deviceID stri
 	}
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
-	cache.Delete(apiUrl.String())
+	cache.Delete(apiCacheKey)
 	retries++
 	return i.randomImageInDateRange(dateRange, requestID, deviceID, isPrefetch, retries)
 }

@@ -7,6 +7,8 @@ import (
 )
 
 // animationDuration sets the CSS animation duration
+// Add 50% to the base duration to account for the ease-in-out timing function
+// This ensures the animation completes smoothly before the next refresh
 
 css animationDuration(duration float32) {
 	animation-duration: { fmt.Sprintf("%.2fs", duration+(duration/2)) };

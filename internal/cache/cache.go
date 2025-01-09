@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"sync"
 	"time"
@@ -42,13 +43,16 @@ func ItemCount() int {
 // ViewCacheKey generates a cache key from the API URL and device ID by combining them
 // with ':view' suffix for cache view operations
 func ViewCacheKey(apiUrl, deviceID string) string {
-	return fmt.Sprintf("%s:%s:view", apiUrl, deviceID)
+	key := fmt.Sprintf("%s:%s:view", apiUrl, deviceID)
+	return fmt.Sprintf("%x", sha256.Sum256([]byte(key)))
+
 }
 
 // ApiCacheKey generates a cache key from the API URL and device ID by combining them
 // with ':api' suffix for cache API operations
 func ApiCacheKey(apiUrl, deviceID string) string {
-	return fmt.Sprintf("%s:%s:api", apiUrl, deviceID)
+	key := fmt.Sprintf("%s:%s:api", apiUrl, deviceID)
+	return fmt.Sprintf("%x", sha256.Sum256([]byte(key)))
 }
 
 // Get retrieves an item from the cache by key, returning the item and whether it was found
@@ -90,4 +94,13 @@ func Replace(key string, x any) error {
 	defer mu.Unlock()
 
 	return kioskCache.Replace(key, x, gocache.DefaultExpiration)
+}
+
+// ReplaceWithExpiration updates an existing item in the cache with a new value and specified expiration time.
+// The item will expire after the given duration has elapsed.
+func ReplaceWithExpiration(key string, x any, t time.Duration) error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	return kioskCache.Replace(key, x, t)
 }

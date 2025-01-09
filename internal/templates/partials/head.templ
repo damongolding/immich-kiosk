@@ -271,6 +271,10 @@ func imageZoomKeyframes(zoomAmount int, useGpu bool) string {
             to {
                 -webkit-transform: scale3d(1, 1, 1);
                 -moz-transform: scale3d(1, 1, 1);
+                transform: scale3d(1, 1, 1);
+                -moz-transform-origin: center;
+                -o-transform-origin: center;
+                transform-origin: center;
             }
         }
 

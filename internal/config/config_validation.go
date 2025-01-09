@@ -79,6 +79,18 @@ func (c *Config) checkDebuging() {
 	}
 }
 
+// cleanupSlice removes empty strings and placeholder values from a slice,
+// and trims whitespace from remaining values.
+func (c *Config) cleanupSlice(slice []string, placeholder string) []string {
+	cleaned := []string{}
+	for _, item := range slice {
+		if item != "" && item != placeholder {
+			cleaned = append(cleaned, strings.TrimSpace(item))
+		}
+	}
+	return cleaned
+}
+
 // checkAssetBuckets validates and cleans up various asset filter lists in the Config.
 // It processes Album, ExcludedAlbums, Person, and Date slices by:
 // - Removing empty strings and placeholder values like "ALBUM_ID", "PERSON_ID", etc.
@@ -86,37 +98,14 @@ func (c *Config) checkDebuging() {
 // - Filtering out invalid date range formats
 // The cleaned lists are then stored back in their respective Config fields.
 func (c *Config) checkAssetBuckets() {
-	newAlbum := []string{}
-	for _, album := range c.Album {
-		if album != "" && album != "ALBUM_ID" {
-			newAlbum = append(newAlbum, strings.TrimSpace(album))
-		}
-	}
-	c.Album = newAlbum
 
-	newExcludedAlbums := []string{}
-	for _, album := range c.ExcludedAlbums {
-		if album != "" && album != "ALBUM_ID" {
-			newExcludedAlbums = append(newExcludedAlbums, strings.TrimSpace(album))
-		}
-	}
-	c.ExcludedAlbums = newExcludedAlbums
+	c.Album = c.cleanupSlice(c.Album, "ALBUM_ID")
 
-	newPerson := []string{}
-	for _, person := range c.Person {
-		if person != "" && person != "PERSON_ID" {
-			newPerson = append(newPerson, strings.TrimSpace(person))
-		}
-	}
-	c.Person = newPerson
+	c.ExcludedAlbums = c.cleanupSlice(c.ExcludedAlbums, "ALBUM_ID")
 
-	newDateRange := []string{}
-	for _, date := range c.Date {
-		if date != "" && date != "DATE_RANGE" && date != "YYYY-MM-DD_to_YYYY-MM-DD" {
-			newDateRange = append(newDateRange, strings.TrimSpace(date))
-		}
-	}
-	c.Date = newDateRange
+	c.Person = c.cleanupSlice(c.Person, "PERSON_ID")
+
+	c.Date = c.cleanupSlice(c.cleanupSlice(c.Date, "DATE_RANGE"), "YYYY-MM-DD_to_YYYY-MM-DD")
 }
 
 // checkExcludedAlbums filters out any albums from c.Album that are present in

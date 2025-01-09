@@ -118,7 +118,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 				return err
 			}
 
-			// replace cwith cache minus used image
+			// Replace cache with remaining images after removing used image(s)
 			err = cache.Replace(apiCacheKey, jsonBytes)
 			if err != nil {
 				log.Debug("cache not found!")
