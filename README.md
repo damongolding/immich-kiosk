@@ -223,6 +223,7 @@ services:
     image: damongolding/immich-kiosk:latest
     container_name: immich-kiosk
     environment:
+      LANG: "en_GB"
       TZ: "Europe/London"
       # Required settings
       KIOSK_IMMICH_API_KEY: "****"
