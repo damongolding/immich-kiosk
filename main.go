@@ -28,6 +28,7 @@ import (
 
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/routes"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/weather"
@@ -151,6 +152,8 @@ func main() {
 	for _, w := range baseConfig.WeatherLocations {
 		go weather.AddWeatherLocation(common.Context, w)
 	}
+
+	immich.VideoInit(common.Context)
 
 	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(fmt.Sprintf("%v", baseConfig.Kiosk.Port)))
 
