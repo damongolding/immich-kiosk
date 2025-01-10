@@ -30,7 +30,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
-		kioskDeviceID := requestData.DeviceID
+		deviceID := requestData.DeviceID
 
 		receivedSignature := c.Request().Header.Get("X-Signature")
 		receivedTimestamp := c.Request().Header.Get("X-Timestamp")
@@ -83,7 +83,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 
 			viewData := common.ViewData{
 				KioskVersion: KioskVersion,
-				DeviceID:     kioskDeviceID,
+				DeviceID:     deviceID,
 				Images:       make([]common.ViewImageData, len(prevImages)),
 				Config:       requestConfig,
 			}
@@ -96,7 +96,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 					image := immich.NewImage(requestConfig)
 					image.ID = imageID
 
-					err := image.AssetInfo(requestID)
+					err := image.AssetInfo(requestID, deviceID)
 					if err != nil {
 						log.Error(err)
 					}

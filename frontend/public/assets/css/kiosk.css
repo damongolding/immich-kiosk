@@ -481,8 +481,8 @@ form {
        animation-direction: normal;
   -moz-animation-duration: inherit;
        animation-duration: inherit;
-  -moz-transition-timing-function: cubic-bezier(0.455, 0.03, 0.515, 0.955);
-       transition-timing-function: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  -moz-transition-timing-function: linear;
+       transition-timing-function: linear;
   -moz-animation-fill-mode: forwards;
        animation-fill-mode: forwards;
   -moz-transform-origin: inherit;
@@ -490,7 +490,7 @@ form {
        transform-origin: inherit;
   -o-object-position: inherit;
      object-position: inherit;
-  will-change: scale;
+  will-change: transform;
 }
 .frame .frame--image-zoom-in img {
   -moz-animation-name: image-zoom-in;

@@ -12,34 +12,33 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	"github.com/patrickmn/go-cache"
+	"github.com/damongolding/immich-kiosk/internal/cache"
 )
 
 // immichApiFail handles failures in Immich API calls by unmarshaling the error response,
 // logging the error, and returning a formatted error along with the original value.
-func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl string) (T, error) {
+func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl string) (T, string, error) {
 	var immichError ImmichError
 	errorUnmarshalErr := json.Unmarshal(body, &immichError)
 	if errorUnmarshalErr != nil {
 		log.Error("Couldn't read error", "body", string(body), "url", apiUrl)
-		return value, err
+		return value, apiUrl, err
 	}
 	log.Errorf("%s : %v", immichError.Error, immichError.Message)
-	return value, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
+	return value, apiUrl, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 }
 
 // immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
-func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID string, jsonShape T) ImmichApiCall {
+func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID, deviceID string, jsonShape T) ImmichApiCall {
 	return func(method, apiUrl string, body []byte) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
 			return immichApiCall(method, apiUrl, body)
 		}
 
-		mu.Lock()
-		defer mu.Unlock()
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
 
-		if apiData, found := apiCache.Get(apiUrl); found {
+		if apiData, found := cache.Get(apiCacheKey); found {
 			if requestConfig.Kiosk.DebugVerbose {
 				log.Debug(requestID+" Cache hit", "url", apiUrl)
 			}
@@ -71,7 +70,7 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 			return nil, err
 		}
 
-		apiCache.Set(apiUrl, jsonBytes, cache.DefaultExpiration)
+		cache.Set(apiCacheKey, jsonBytes)
 		if requestConfig.Kiosk.DebugVerbose {
 			log.Debug(requestID+" Cache saved", "url", apiUrl)
 		}
@@ -210,7 +209,7 @@ func (i *ImmichAsset) addRatio() {
 }
 
 // AssetInfo fetches the image information from Immich
-func (i *ImmichAsset) AssetInfo(requestID string) error {
+func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 
 	var immichAsset ImmichAsset
 
@@ -225,16 +224,16 @@ func (i *ImmichAsset) AssetInfo(requestID string) error {
 		Path:   path.Join("api", "assets", i.ID),
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAsset)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAsset)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
-		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
+		_, _, err = immichApiFail(immichAsset, err, body, apiUrl.String())
 		return fmt.Errorf("fetching asset info: err %v", err)
 	}
 
 	err = json.Unmarshal(body, &immichAsset)
 	if err != nil {
-		_, err = immichApiFail(immichAsset, err, body, apiUrl.String())
+		_, _, err = immichApiFail(immichAsset, err, body, apiUrl.String())
 		return fmt.Errorf("fetching asset info: err %v", err)
 	}
 

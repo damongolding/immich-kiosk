@@ -192,6 +192,8 @@ type Config struct {
 	// Album ID of album(s) to display
 	Album          []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
 	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
+	// Date date filter
+	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
@@ -253,6 +255,8 @@ type Config struct {
 
 	// OptimizeImages tells Kiosk to optimize imahes
 	OptimizeImages bool `json:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
+	// UseGpu tells Kiosk to use GPU where possible
+	UseGpu bool `json:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
 
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
 	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`
@@ -378,7 +382,7 @@ func (c *Config) Load() error {
 
 	c.checkRequiredFields()
 	c.checkLowercaseTaggedFields()
-	c.checkAlbumAndPerson()
+	c.checkAssetBuckets()
 	c.checkExcludedAlbums()
 	c.checkUrlScheme()
 	c.checkHideCountries()
@@ -394,9 +398,10 @@ func (c *Config) Load() error {
 func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	// check for person or album in quries and empty baseconfig slice if found
-	if queries.Has("person") || queries.Has("album") {
+	if queries.Has("person") || queries.Has("album") || queries.Has("date") {
 		c.Person = []string{}
 		c.Album = []string{}
+		c.Date = []string{}
 	}
 
 	err := e.Bind(c)

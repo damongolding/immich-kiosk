@@ -35,7 +35,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
-		kioskDeviceID := requestData.DeviceID
+		deviceID := requestData.DeviceID
 
 		log.Debug(
 			requestID,
@@ -56,7 +56,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		ViewData := common.ViewData{
 			KioskVersion: KioskVersion,
-			DeviceID:     kioskDeviceID,
+			DeviceID:     deviceID,
 			Images:       make([]common.ViewImageData, len(prevImages)),
 			Queries:      c.QueryParams(),
 			Config:       requestConfig,
@@ -76,7 +76,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 				go func(image *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
 					defer wg.Done()
 
-					err := image.AssetInfo(requestID)
+					err := image.AssetInfo(requestID, deviceID)
 					if err != nil {
 						log.Error(err)
 					}
@@ -93,12 +93,12 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 					return err
 				}
 
-				imgString, err := imageToBase64(img, requestConfig, requestID, kioskDeviceID, "Converted", false)
+				imgString, err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
 				if err != nil {
 					return fmt.Errorf("converting image to base64: %w", err)
 				}
 
-				imgBlurString, err := processBlurredImage(img, requestConfig, requestID, kioskDeviceID, false)
+				imgBlurString, err := processBlurredImage(img, requestConfig, requestID, deviceID, false)
 				if err != nil {
 					return fmt.Errorf("converting blurred image to base64: %w", err)
 				}
