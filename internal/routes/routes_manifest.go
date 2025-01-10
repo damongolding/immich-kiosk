@@ -34,6 +34,9 @@ type ManifestIcons struct {
 // and formats the manifest data according to the Web App Manifest spec.
 func Manifest(c echo.Context) error {
 	refererURL := c.Request().Referer()
+	if refererURL == "" {
+		refererURL = "/"
+	}
 
 	referer, err := url.Parse(refererURL)
 	if err != nil {
