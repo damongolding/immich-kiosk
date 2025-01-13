@@ -243,6 +243,7 @@ services:
       # Asset sources
       KIOSK_SHOW_ARCHIVED: false
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
+      KIOSK_ALBUM_ORDER: random
       KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
       KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
@@ -346,6 +347,7 @@ See the file `config.example.yaml` for an example config file
 | use_gpu                           | KIOSK_USE_GPU           | bool                       | true        | Enable GPU acceleration for improved performance (e.g., CSS transforms) |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
+| [album_order](#album-order)       | KIOSK_ALBUM_ORDER       | string                     | random      | The order a albums assets will be displayed. See [Album order](#album-order) for more information. |
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges in `YYYY-MM-DD_to_YYYY-MM-DD` format. See [Date range](#date-range) for more information. |
@@ -474,6 +476,31 @@ e.g. `http://{URL}?album=shared`
 ####  ` favorites ` or ` favourites `
 Will use only favourited assets.
 e.g. `http://{URL}?album=favorites` or `http://{URL}?album=favourites`
+
+------
+
+## Album order
+
+> [!NOTE]
+> When using multiple albums, the order of the albums is random.
+
+> [!NOTE]
+> When using splitview layouts, Kiosk will look for a second image with matching orientation.
+> This means the second image shown may not be the next sequential image in the album,
+> as Kiosk prioritizes finding an image with the right aspect ratio to create a balanced display.
+
+This controls the order in which the assets from the selected album(s) are displayed.
+
+The options are:
+
+### `random` (the default)
+The assets are displayed in a random order.
+
+### `newest`, `descending` or `desc`
+The newest assets are displayed first.
+
+### `oldest`, `ascending` or `asc`
+The oldest assets are displayed first.
 
 ------
 
