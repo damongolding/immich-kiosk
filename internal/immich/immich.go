@@ -17,6 +17,7 @@ import (
 
 type ImageOrientation string
 type ImmichAssetType string
+type ImmichAssetOrder string
 
 const (
 	MaxRetries = 3
@@ -32,6 +33,10 @@ const (
 
 	AssetSizeThumbnail string = "thumbnail"
 	AssetSizeOriginal  string = "original"
+
+	Asc  ImmichAssetOrder = "asc"
+	Desc ImmichAssetOrder = "desc"
+	Rand ImmichAssetOrder = "rand"
 )
 
 var (
@@ -162,10 +167,11 @@ type ImmichAsset struct {
 }
 
 type ImmichAlbum struct {
-	ID         string        `json:"id"`
-	AlbumName  string        `json:"albumName"`
-	Assets     []ImmichAsset `json:"assets"`
-	AssetCount int           `json:"assetCount"`
+	ID            string        `json:"id"`
+	AlbumName     string        `json:"albumName"`
+	Assets        []ImmichAsset `json:"assets"`
+	AssetCount    int           `json:"assetCount"`
+	AssetsOrdered bool          `json:"assetsOrdered"`
 }
 
 type ImmichAlbums []ImmichAlbum

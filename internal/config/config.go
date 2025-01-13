@@ -42,6 +42,14 @@ const (
 	defaultScheme     = "http://"
 	DefaultDateLayout = "02/01/2006"
 	defaultConfigFile = "config.yaml"
+
+	AlbumOrderRandom     = "random"
+	AlbumOrderAscending  = "ascending"
+	AlbumOrderAsc        = "asc"
+	AlbumOrderOldest     = "oldest"
+	AlbumOrderDescending = "descending"
+	AlbumOrderDesc       = "desc"
+	AlbumOrderNewest     = "newest"
 )
 
 // Redirect represents a URL redirection configuration with a friendly name.
@@ -190,7 +198,9 @@ type Config struct {
 	// Person ID of person to display
 	Person []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
 	// Album ID of album(s) to display
-	Album          []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
+	Album []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
+	// AlbumOrder specifies the order in which album assets are displayed.
+	AlbumOrder     string   `json:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
 	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
 	// Date date filter
 	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
@@ -383,6 +393,7 @@ func (c *Config) Load() error {
 	c.checkRequiredFields()
 	c.checkLowercaseTaggedFields()
 	c.checkAssetBuckets()
+	c.checkAlbumOrder()
 	c.checkExcludedAlbums()
 	c.checkUrlScheme()
 	c.checkHideCountries()

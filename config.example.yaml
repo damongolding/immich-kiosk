@@ -26,6 +26,7 @@ album:
   - "ALBUM_ID"
 ## Album IDs to exclude from being shown. Albums in this list will be filtered from
 ## appearing in the frame even if they are included in the 'album' list.
+album_order: random # random | newest | oldest
 excluded_albums:
   - "ALBUM_ID"
 
@@ -40,7 +41,7 @@ hide_cursor: false # Hide cursor/mouse via CSS.
 font_size: 100 # the base font size as a percentage. OMIT the % character
 background_blur: true # display a blurred version of image as background
 theme: fade # which theme to use. fade or solid
-layout: single # which layout to use. single, splitview or splitview-landscape
+layout: single # which layout to use. single | splitview | splitview-landscape | portrait | landscape
 
 ## Sleep mode
 # sleep_start: 22 # sleep mode start time
@@ -54,8 +55,8 @@ cross_fade_transition_duration: 1 # in seconds
 
 ## Image display settings
 show_progress: false # display a progress bar
-image_fit: contain # Options are none, contain and cover
-image_effect: none # Options are none, zoom and smart-zoom
+image_fit: contain # none | contain | cover
+image_effect: none # none | zoom | smart-zoom
 image_effect_amount: 120
 use_original_image: false # use the original file.
 
