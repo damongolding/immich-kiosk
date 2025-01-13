@@ -297,21 +297,28 @@ func (c *Config) checkRedirects() {
 
 // checkAlbumOrder validates the album order value and sets it to the default if invalid.
 // The valid values are:
-// - "random": Random order (default)
-// - "asc"/"ascending"/"oldest": Ascending chronological order
-// - "desc"/"descending"/"newest": Descending chronological order
-// If an invalid value is provided, it will be set to "random" with a warning.
+// - "random": Random order (default) - Display albums in random order
+// - "asc"/"ascending"/"oldest": Ascending chronological order - Display albums from oldest to newest
+// - "desc"/"descending"/"newest": Descending chronological order - Display albums from newest to oldest
+// If an invalid value is provided, it will be set to "random" and a warning will be logged.
 func (c *Config) checkAlbumOrder() {
-	validOrders := map[string]bool{
-		AlbumOrderRandom:     true,
-		AlbumOrderAsc:        true,
-		AlbumOrderAscending:  true,
-		AlbumOrderOldest:     true,
-		AlbumOrderDesc:       true,
-		AlbumOrderDescending: true,
-		AlbumOrderNewest:     true,
+	validOrders := []string{
+		AlbumOrderRandom,
+		AlbumOrderAsc,
+		AlbumOrderAscending,
+		AlbumOrderOldest,
+		AlbumOrderDesc,
+		AlbumOrderDescending,
+		AlbumOrderNewest,
 	}
-	if !validOrders[c.AlbumOrder] {
+	isValid := false
+	for _, order := range validOrders {
+		if order == c.AlbumOrder {
+			isValid = true
+			break
+		}
+	}
+	if !isValid {
 		log.Warnf("Invalid album_order value: %s. Using default: random", c.AlbumOrder)
 		c.AlbumOrder = AlbumOrderRandom
 	}
