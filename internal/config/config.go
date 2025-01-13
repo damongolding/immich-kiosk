@@ -191,6 +191,7 @@ type Config struct {
 	Person []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
 	// Album ID of album(s) to display
 	Album          []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
+	AlbumOrder     string   `json:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
 	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
 	// Date date filter
 	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`

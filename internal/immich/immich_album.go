@@ -128,8 +128,8 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string
 	}
 }
 
-// RandomImageFromAlbum retrieve random image within a specified album from Immich
-func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, deviceID string, isPrefetch bool) error {
+// ImageFromAlbumRandom retrieve random image within a specified album from Immich
+func (i *ImmichAsset) ImageFromAlbum(albumID, requestID, deviceID string, order ImmichAssetOrder, isPrefetch bool) error {
 
 	album, apiUrl, err := i.albumAssets(albumID, requestID, deviceID)
 	if err != nil {
@@ -147,12 +147,20 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, deviceID string, 
 			return fmt.Errorf("no assets found for album %s after refresh", albumID)
 		}
 
-		return i.RandomImageFromAlbum(albumID, requestID, deviceID, isPrefetch)
+		return i.ImageFromAlbum(albumID, requestID, deviceID, order, isPrefetch)
 	}
 
-	rand.Shuffle(len(album.Assets), func(i, j int) {
-		album.Assets[i], album.Assets[j] = album.Assets[j], album.Assets[i]
-	})
+	switch order {
+	case Rand:
+		rand.Shuffle(len(album.Assets), func(i, j int) {
+			album.Assets[i], album.Assets[j] = album.Assets[j], album.Assets[i]
+		})
+	case Asc:
+		if !album.AssetsOrdered {
+			slices.Reverse(album.Assets)
+			album.AssetsOrdered = true
+		}
+	}
 
 	for assetIndex, asset := range album.Assets {
 		// We only want images and that are not trashed or archived (unless wanted by user)
@@ -187,7 +195,7 @@ func (i *ImmichAsset) RandomImageFromAlbum(albumID, requestID, deviceID string, 
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	cache.Delete(apiCacheKey)
-	return i.RandomImageFromAlbum(albumID, requestID, deviceID, isPrefetch)
+	return i.ImageFromAlbum(albumID, requestID, deviceID, order, isPrefetch)
 }
 
 // selectRandomAlbum selects a random album from the given list of albums, excluding specific albums.
