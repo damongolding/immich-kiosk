@@ -42,6 +42,14 @@ const (
 	defaultScheme     = "http://"
 	DefaultDateLayout = "02/01/2006"
 	defaultConfigFile = "config.yaml"
+
+	AlbumOrderRandom     = "random"
+	AlbumOrderAscending  = "ascending"
+	AlbumOrderAsc        = "asc"
+	AlbumOrderOldest     = "oldest"
+	AlbumOrderDescending = "descending"
+	AlbumOrderDesc       = "desc"
+	AlbumOrderNewest     = "newest"
 )
 
 // Redirect represents a URL redirection configuration with a friendly name.

@@ -121,10 +121,10 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 			return immichImage.RandomImageFromFavourites(requestID, deviceID, isPrefetch)
 		}
 
-		switch strings.ToUpper(albumOrder) {
-		case "DESCENDING", "DESC", "NEWEST":
+		switch strings.ToLower(albumOrder) {
+		case config.AlbumOrderDescending, config.AlbumOrderDesc, config.AlbumOrderNewest:
 			return immichImage.ImageFromAlbum(pickedAsset.ID, immich.Desc, requestID, deviceID, isPrefetch)
-		case "ASCENDING", "ASC", "OLDEST":
+		case config.AlbumOrderAscending, config.AlbumOrderAsc, config.AlbumOrderOldest:
 			return immichImage.ImageFromAlbum(pickedAsset.ID, immich.Asc, requestID, deviceID, isPrefetch)
 		default:
 			return immichImage.ImageFromAlbum(pickedAsset.ID, immich.Rand, requestID, deviceID, isPrefetch)
