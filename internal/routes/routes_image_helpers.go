@@ -122,12 +122,12 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 		}
 
 		switch strings.ToUpper(albumOrder) {
-		case "DECENDING", "DESC", "NEWEST":
-			return immichImage.ImageFromAlbum(pickedAsset.ID, requestID, deviceID, immich.Desc, isPrefetch)
+		case "DESCENDING", "DESC", "NEWEST":
+			return immichImage.ImageFromAlbum(pickedAsset.ID, immich.Desc, requestID, deviceID, isPrefetch)
 		case "ASCENDING", "ASC", "OLDEST":
-			return immichImage.ImageFromAlbum(pickedAsset.ID, requestID, deviceID, immich.Asc, isPrefetch)
+			return immichImage.ImageFromAlbum(pickedAsset.ID, immich.Asc, requestID, deviceID, isPrefetch)
 		default:
-			return immichImage.ImageFromAlbum(pickedAsset.ID, requestID, deviceID, immich.Rand, isPrefetch)
+			return immichImage.ImageFromAlbum(pickedAsset.ID, immich.Rand, requestID, deviceID, isPrefetch)
 		}
 
 	case kiosk.SourcePerson:

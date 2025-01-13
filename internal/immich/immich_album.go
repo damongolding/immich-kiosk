@@ -129,7 +129,7 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string
 }
 
 // ImageFromAlbumRandom retrieve random image within a specified album from Immich
-func (i *ImmichAsset) ImageFromAlbum(albumID, requestID, deviceID string, order ImmichAssetOrder, isPrefetch bool) error {
+func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAssetOrder, requestID, deviceID string, isPrefetch bool) error {
 
 	album, apiUrl, err := i.albumAssets(albumID, requestID, deviceID)
 	if err != nil {
@@ -147,10 +147,10 @@ func (i *ImmichAsset) ImageFromAlbum(albumID, requestID, deviceID string, order 
 			return fmt.Errorf("no assets found for album %s after refresh", albumID)
 		}
 
-		return i.ImageFromAlbum(albumID, requestID, deviceID, order, isPrefetch)
+		return i.ImageFromAlbum(albumID, albumAssetsOrder, requestID, deviceID, isPrefetch)
 	}
 
-	switch order {
+	switch albumAssetsOrder {
 	case Rand:
 		rand.Shuffle(len(album.Assets), func(i, j int) {
 			album.Assets[i], album.Assets[j] = album.Assets[j], album.Assets[i]
@@ -195,7 +195,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID, requestID, deviceID string, order 
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	cache.Delete(apiCacheKey)
-	return i.ImageFromAlbum(albumID, requestID, deviceID, order, isPrefetch)
+	return i.ImageFromAlbum(albumID, albumAssetsOrder, requestID, deviceID, isPrefetch)
 }
 
 // selectRandomAlbum selects a random album from the given list of albums, excluding specific albums.

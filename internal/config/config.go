@@ -384,6 +384,7 @@ func (c *Config) Load() error {
 	c.checkRequiredFields()
 	c.checkLowercaseTaggedFields()
 	c.checkAssetBuckets()
+	c.checkAlbumOrder()
 	c.checkExcludedAlbums()
 	c.checkUrlScheme()
 	c.checkHideCountries()

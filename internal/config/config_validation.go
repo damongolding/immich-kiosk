@@ -294,3 +294,25 @@ func (c *Config) checkRedirects() {
 
 	c.Kiosk.RedirectsMap = redirects
 }
+
+// checkAlbumOrder validates the album order value and sets it to the default if invalid.
+// The valid values are:
+// - "random": Random order (default)
+// - "asc"/"ascending"/"oldest": Ascending chronological order
+// - "desc"/"descending"/"newest": Descending chronological order
+// If an invalid value is provided, it will be set to "random" with a warning.
+func (c *Config) checkAlbumOrder() {
+	validOrders := map[string]bool{
+		"random":     true,
+		"asc":        true,
+		"ascending":  true,
+		"oldest":     true,
+		"desc":       true,
+		"descending": true,
+		"newest":     true,
+	}
+	if !validOrders[c.AlbumOrder] {
+		log.Warnf("Invalid album_order value: %s. Using default: random", c.AlbumOrder)
+		c.AlbumOrder = "random"
+	}
+}
