@@ -59,7 +59,9 @@ func (i *ImmichAsset) allAlbums(requestID, deviceID string) (ImmichAlbums, strin
 }
 
 // albumAssets retrieves all assets associated with a specific album from Immich.
-func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAlbum, string, error) {
+// It takes an ImmichAsset pointer, album ID, request ID, device ID and assetCount flag.
+// Returns the album details, API URL used, and any error encountered.
+func albumAssets(i *ImmichAsset, albumID, requestID, deviceID string, assetCount bool) (ImmichAlbum, string, error) {
 	var album ImmichAlbum
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
@@ -71,6 +73,10 @@ func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAl
 		Scheme: u.Scheme,
 		Host:   u.Host,
 		Path:   path.Join("api", "albums", albumID),
+	}
+
+	if assetCount {
+		apiUrl.RawQuery = "count=true"
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, album)
@@ -85,6 +91,20 @@ func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAl
 	}
 
 	return album, apiUrl.String(), nil
+}
+
+// albumAssets retrieves all assets associated with a specific album from Immich.
+// It takes an album ID, request ID, and device ID.
+// Returns the album details, API URL used, and any error encountered.
+func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAlbum, string, error) {
+	return albumAssets(i, albumID, requestID, deviceID, false)
+}
+
+// albumAssetsForCounting retrieves album details with asset count from Immich.
+// It takes an album ID, request ID, and device ID.
+// Returns the album details with count information, API URL used, and any error encountered.
+func (i *ImmichAsset) albumAssetsForCounting(albumID, requestID, deviceID string) (ImmichAlbum, string, error) {
+	return albumAssets(i, albumID, requestID, deviceID, true)
 }
 
 func (i *ImmichAsset) countAssetsInAlbums(albums ImmichAlbums) int {
@@ -120,7 +140,7 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string
 		return favouriteImagesCount, nil
 
 	default:
-		album, _, err := i.albumAssets(albumID, requestID, deviceID)
+		album, _, err := i.albumAssetsForCounting(albumID, requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get album assets for album %s: %w", albumID, err)
 		}
