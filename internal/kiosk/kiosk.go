@@ -12,4 +12,5 @@ const (
 	SourceDateRangeAlbum Source = "DATE_RANGE_ALBUM"
 	SourcePerson         Source = "PERSON"
 	SourceRandom         Source = "RANDOM"
+	SourceMemories       Source = "MEMORIES"
 )

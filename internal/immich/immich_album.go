@@ -27,7 +27,7 @@ func (i *ImmichAsset) albums(requestID, deviceID string, shared bool) (ImmichAlb
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   "api/albums",
+		Path:   path.Join("api", "albums"),
 	}
 
 	if shared {
@@ -102,7 +102,7 @@ func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAl
 //
 // Returns:
 //   - int: Total number of assets across all provided albums
-func (i *ImmichAsset) countAssetsInAlbums(albums ImmichAlbums) int {
+func countAssetsInAlbums(albums ImmichAlbums) int {
 	total := 0
 	for _, album := range albums {
 		total += album.AssetCount
@@ -118,14 +118,14 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string
 		if err != nil {
 			return 0, fmt.Errorf("failed to get all albums: %w", err)
 		}
-		return i.countAssetsInAlbums(albums), nil
+		return countAssetsInAlbums(albums), nil
 
 	case kiosk.AlbumKeywordShared:
 		albums, _, err := i.allSharedAlbums(requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get shared albums: %w", err)
 		}
-		return i.countAssetsInAlbums(albums), nil
+		return countAssetsInAlbums(albums), nil
 
 	case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
 		favouriteImagesCount, err := i.favouriteImagesCount(requestID, deviceID)

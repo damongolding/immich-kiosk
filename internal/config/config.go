@@ -204,6 +204,8 @@ type Config struct {
 	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
 	// Date date filter
 	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
+	// Memories show memories
+	Memories bool `json:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
@@ -409,7 +411,7 @@ func (c *Config) Load() error {
 func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	// check for person or album in quries and empty baseconfig slice if found
-	if queries.Has("person") || queries.Has("album") || queries.Has("date") {
+	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("memories") {
 		c.Person = []string{}
 		c.Album = []string{}
 		c.Date = []string{}
