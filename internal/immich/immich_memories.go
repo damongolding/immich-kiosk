@@ -121,8 +121,16 @@ func (i *ImmichAsset) randomMemoryLaneImage(requestID, deviceID string, isPrefet
 		}
 
 		if requestConfig.Kiosk.Cache {
+			// Deep copy the memories slice
+			assetsToCache := make(MemoryLaneResponse, len(memories))
+			for i, memory := range memories {
+				assetsToCache[i].YearsAgo = memory.YearsAgo
+				assetsToCache[i].Title = memory.Title
+				assetsToCache[i].Assets = make([]ImmichAsset, len(memory.Assets))
+				copy(assetsToCache[i].Assets, memory.Assets)
+			}
+
 			// Remove the current image from the slice
-			assetsToCache := memories
 			assetsToCache[pickedMemoryIndex].Assets = append(assetsToCache[pickedMemoryIndex].Assets[:assetIndex], assetsToCache[pickedMemoryIndex].Assets[assetIndex+1:]...)
 
 			if len(assetsToCache[pickedMemoryIndex].Assets) == 0 {
