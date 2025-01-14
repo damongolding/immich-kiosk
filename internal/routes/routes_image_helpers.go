@@ -80,7 +80,18 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRangeAlbum, ID: date},
 			Weight: requestConfig.Kiosk.FetchedAssetsSize,
 		})
+	}
 
+	if requestConfig.Memories {
+		memories := immichImage.MemoryLaneAssetsCount(requestID, deviceID)
+		if memories == 0 {
+			log.Error("No assets found for memories")
+		} else {
+			assets = append(assets, utils.AssetWithWeighting{
+				Asset:  utils.WeightedAsset{Type: kiosk.SourceMemories, ID: "MEM Damon"},
+				Weight: memories,
+			})
+		}
 	}
 
 	return assets, nil

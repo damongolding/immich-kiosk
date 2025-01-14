@@ -218,6 +218,12 @@ type ImmichSearchMetadataResponse struct {
 	} `json:"assets"`
 }
 
+type MemoryLaneResponse []struct {
+	YearsAgo int           `json:"yearsAgo"`
+	Title    string        `json:"title"`
+	Assets   []ImmichAsset `json:"assets"`
+}
+
 // NewImage returns a new image instance
 func NewImage(base config.Config) ImmichAsset {
 	requestConfig = base
@@ -227,5 +233,5 @@ func NewImage(base config.Config) ImmichAsset {
 type ImmichApiCall func(string, string, []byte) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face | immich_open_api.PersonResponseDto
+	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face | immich_open_api.PersonResponseDto | MemoryLaneResponse
 }
