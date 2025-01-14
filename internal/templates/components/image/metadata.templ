@@ -109,7 +109,6 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 	}
 
 	return imageDate
-
 }
 
 // shouldShowAlbumPersonName determines whether to display album or person name in the image metadata.
@@ -121,11 +120,11 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 //
 // Returns:
 //   - bool: true if album/person name should be displayed, false otherwise
-func shouldShowAlbumPersonName(viewData common.ViewData, imageIndex int) bool {
+func shouldShowSourceName(viewData common.ViewData, imageIndex int) bool {
 	image := viewData.Images[imageIndex].ImmichImage
 	source := image.KioskSource
 
-	isAlbumSource := source == kiosk.SourceAlbums || source == kiosk.SourceDateRangeAlbum
+	isAlbumSource := source == kiosk.SourceAlbums || source == kiosk.SourceDateRangeAlbum || source == kiosk.SourceMemories
 	shouldShowAlbum := viewData.ShowAlbumName && isAlbumSource
 	shouldShowPerson := viewData.ShowPersonName && source == kiosk.SourcePerson
 
@@ -135,11 +134,11 @@ func shouldShowAlbumPersonName(viewData common.ViewData, imageIndex int) bool {
 // imageMetadata renders the metadata for an image, including date, time, EXIF information, location, and ID.
 // The display of each piece of information is controlled by the ViewData settings.
 templ imageMetadata(viewData common.ViewData, imageIndex int) {
-	{{ showAlbumPersonName := shouldShowAlbumPersonName(viewData, imageIndex) }}
+	{{ showSourceName := shouldShowSourceName(viewData, imageIndex) }}
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" }}
 	<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
-		if showAlbumPersonName {
+		if showSourceName {
 			<div class="image--metadata--source">
 				{ viewData.Images[imageIndex].ImmichImage.KioskSourceName }
 			</div>

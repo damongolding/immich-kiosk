@@ -12,7 +12,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/cache"
 )
 
-func (i *ImmichAsset) memories(requestID, deviceID string) (MemoryLaneResponse, string, error) {
+func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (MemoryLaneResponse, string, error) {
 	var memoryLane MemoryLaneResponse
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
@@ -27,6 +27,12 @@ func (i *ImmichAsset) memories(requestID, deviceID string) (MemoryLaneResponse, 
 		Host:     u.Host,
 		Path:     path.Join("api", "assets", "memory-lane"),
 		RawQuery: fmt.Sprintf("month=%d&day=%d", now.Month(), now.Day()),
+	}
+
+	// If we want the memories assets count we will use a seperate cache entry
+	// becasue Kiosk removes used assets from the normal cache entry
+	if assetCount {
+		apiUrl.RawQuery += "&count=true"
 	}
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, memoryLane)
@@ -52,7 +58,7 @@ func memoriesCount(memories MemoryLaneResponse) int {
 }
 
 func (i *ImmichAsset) MemoryLaneAssetsCount(requestID, deviceID string) int {
-	m, _, err := i.memories(requestID, deviceID)
+	m, _, err := i.memories(requestID, deviceID, true)
 	if err != nil {
 		return 0
 	}
@@ -62,7 +68,7 @@ func (i *ImmichAsset) MemoryLaneAssetsCount(requestID, deviceID string) int {
 
 func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefetch bool) error {
 
-	memories, apiUrl, err := i.memories(requestID, deviceID)
+	memories, apiUrl, err := i.memories(requestID, deviceID, false)
 	if err != nil {
 		return err
 	}
@@ -73,7 +79,7 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again for memories")
 		cache.Delete(apiCacheKey)
 
-		memories, _, retryErr := i.memories(requestID, deviceID)
+		memories, _, retryErr := i.memories(requestID, deviceID, false)
 		if retryErr != nil || len(memories) == 0 {
 			return fmt.Errorf("no assets found for memories after refresh")
 		}
@@ -81,7 +87,7 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 		return i.RandomMemoryLaneImage(requestID, deviceID, isPrefetch)
 	}
 
-	pickedMemoryIndex := rand.IntN(len(memories) - 1)
+	pickedMemoryIndex := rand.IntN(len(memories))
 
 	rand.Shuffle(len(memories[pickedMemoryIndex].Assets), func(i, j int) {
 		memories[pickedMemoryIndex].Assets[i], memories[pickedMemoryIndex].Assets[j] = memories[pickedMemoryIndex].Assets[j], memories[pickedMemoryIndex].Assets[i]
