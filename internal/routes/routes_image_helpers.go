@@ -141,6 +141,9 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 			return immichImage.ImageFromAlbum(pickedAsset.ID, immich.Rand, requestID, deviceID, isPrefetch)
 		}
 
+	case kiosk.SourceDateRangeAlbum:
+		return immichImage.RandomImageInDateRange(pickedAsset.ID, requestID, deviceID, isPrefetch)
+
 	case kiosk.SourcePerson:
 		return immichImage.RandomImageOfPerson(pickedAsset.ID, requestID, deviceID, isPrefetch)
 	default:
