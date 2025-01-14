@@ -11,6 +11,8 @@ date_format: YYYY/MM/DD
 ## Kiosk behaviour
 refresh: 60 # in seconds
 disable_screensaver: false # Ask browser to request a lock that prevents device screens from dimming or locking.
+optimize_images: false # Whether Kiosk should resize images to match your browser screen dimensions for better performance.
+use_gpu: true # Enable GPU acceleration for improved performance.
 
 ## Asset sources
 show_archived: false # Allow assets marked as archived to be displayed.
@@ -24,8 +26,15 @@ album:
   - "ALBUM_ID"
 ## Album IDs to exclude from being shown. Albums in this list will be filtered from
 ## appearing in the frame even if they are included in the 'album' list.
+album_order: random # random | newest | oldest
 excluded_albums:
   - "ALBUM_ID"
+
+## Date range or ranges to display
+date:
+  - "YYYY-MM-DD_to_YYYY-MM-DD"
+
+memories: false # show memories
 
 ## UI
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
@@ -34,7 +43,7 @@ hide_cursor: false # Hide cursor/mouse via CSS.
 font_size: 100 # the base font size as a percentage. OMIT the % character
 background_blur: true # display a blurred version of image as background
 theme: fade # which theme to use. fade or solid
-layout: single # which layout to use. single, splitview or splitview-landscape
+layout: single # which layout to use. single | splitview | splitview-landscape | portrait | landscape
 
 ## Sleep mode
 # sleep_start: 22 # sleep mode start time
@@ -48,8 +57,8 @@ cross_fade_transition_duration: 1 # in seconds
 
 ## Image display settings
 show_progress: false # display a progress bar
-image_fit: contain # Options are none, contain and cover
-image_effect: none # Options are none, zoom and smart-zoom
+image_fit: contain # none | contain | cover
+image_effect: none # none | zoom | smart-zoom
 image_effect_amount: 120
 use_original_image: false # use the original file.
 

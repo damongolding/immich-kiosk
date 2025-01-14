@@ -8,10 +8,7 @@ package immich
 import (
 	"net"
 	"net/http"
-	"sync"
 	"time"
-
-	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
@@ -20,8 +17,11 @@ import (
 
 type ImageOrientation string
 type ImmichAssetType string
+type ImmichAssetOrder string
 
 const (
+	MaxRetries = 3
+
 	PortraitOrientation  ImageOrientation = "PORTRAIT"
 	LandscapeOrientation ImageOrientation = "LANDSCAPE"
 	SquareOrientation    ImageOrientation = "SQUARE"
@@ -33,15 +33,15 @@ const (
 
 	AssetSizeThumbnail string = "thumbnail"
 	AssetSizeOriginal  string = "original"
+
+	Asc  ImmichAssetOrder = "asc"
+	Desc ImmichAssetOrder = "desc"
+	Rand ImmichAssetOrder = "rand"
 )
 
 var (
 	// requestConfig the config for this request
 	requestConfig config.Config
-	// apiCache cache store for immich api call(s)
-	apiCache *cache.Cache
-	// mu is a mutual exclusion lock for managing concurrent access to shared resources
-	mu sync.Mutex
 
 	// httpTransport defines the transport layer configuration for HTTP requests to the Immich API.
 	// It manages connection pooling, keepalive settings, and connection timeouts.
@@ -167,10 +167,11 @@ type ImmichAsset struct {
 }
 
 type ImmichAlbum struct {
-	ID         string        `json:"id"`
-	AlbumName  string        `json:"albumName"`
-	Assets     []ImmichAsset `json:"assets"`
-	AssetCount int           `json:"assetCount"`
+	ID            string        `json:"id"`
+	AlbumName     string        `json:"albumName"`
+	Assets        []ImmichAsset `json:"assets"`
+	AssetCount    int           `json:"assetCount"`
+	AssetsOrdered bool          `json:"assetsOrdered"`
 }
 
 type ImmichAlbums []ImmichAlbum
@@ -217,9 +218,10 @@ type ImmichSearchMetadataResponse struct {
 	} `json:"assets"`
 }
 
-func init() {
-	// Setting up Immich api cache
-	apiCache = cache.New(5*time.Minute, 10*time.Minute)
+type MemoryLaneResponse []struct {
+	YearsAgo int           `json:"yearsAgo"`
+	Title    string        `json:"title"`
+	Assets   []ImmichAsset `json:"assets"`
 }
 
 // NewImage returns a new image instance
@@ -231,13 +233,5 @@ func NewImage(base config.Config) ImmichAsset {
 type ImmichApiCall func(string, string, []byte) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face | immich_open_api.PersonResponseDto
-}
-
-func FlushApiCache() {
-	apiCache.Flush()
-}
-
-func ApiCacheCount() int {
-	return apiCache.ItemCount()
+	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face | immich_open_api.PersonResponseDto | MemoryLaneResponse
 }

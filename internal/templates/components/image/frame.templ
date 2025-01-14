@@ -7,9 +7,11 @@ import (
 )
 
 // animationDuration sets the CSS animation duration
+// Add 50% to the base duration to account for the ease-in-out timing function
+// This ensures the animation completes smoothly before the next refresh
 
-css animationDuration(duration int) {
-	animation-duration: { fmt.Sprintf("%ds", duration) };
+css animationDuration(duration float32) {
+	animation-duration: { fmt.Sprintf("%.2fs", duration+(duration/2)) };
 }
 
 // zoomInOrOut generates a random zoom in/out animation class name
@@ -56,11 +58,11 @@ func smartZoom(image immich.ImmichAsset) templ.CSSClass {
 templ frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) {
 	switch imageEffect {
 		case "smart-zoom":
-			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect), smartZoom(img) }>
+			<div class={ "frame--image", "frame--image-zoom" , animationDuration(float32(refresh)), zoomInOrOut(imageEffect), smartZoom(img) }>
 				{ children... }
 			</div>
 		default:
-			<div class={ "frame--image", "frame--image-zoom" , animationDuration(refresh), zoomInOrOut(imageEffect) }>
+			<div class={ "frame--image", "frame--image-zoom" , animationDuration(float32(refresh)), zoomInOrOut(imageEffect) }>
 				{ children... }
 			</div>
 	}

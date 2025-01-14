@@ -7,15 +7,15 @@ import (
 	"net/url"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/google/go-querystring/query"
-	"github.com/patrickmn/go-cache"
 )
 
 // GetRandomImage retrieve a random image from Immich
-func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", kioskDeviceID, "Getting Random image", true)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image", true)
 	} else {
 		log.Debug(requestID + " Getting Random image")
 	}
@@ -54,23 +54,25 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 		log.Fatal("marshaling request body", err)
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, immichAssets)
+	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
 	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
-		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+		_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err
 	}
 
 	err = json.Unmarshal(apiBody, &immichAssets)
 	if err != nil {
-		_, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+		_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
 		return err
 	}
 
+	apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID)
+
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
-		apiCache.Delete(apiUrl.String())
-		return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
+		cache.Delete(apiCacheKey)
+		return i.RandomImage(requestID, deviceID, isPrefetch)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -89,7 +91,7 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 			}
 
 			// replace cwith cache minus used image
-			err = apiCache.Replace(apiUrl.String(), jsonBytes, cache.DefaultExpiration)
+			err = cache.Replace(apiCacheKey, jsonBytes)
 			if err != nil {
 				log.Debug("cache not found!")
 			}
@@ -100,6 +102,6 @@ func (i *ImmichAsset) RandomImage(requestID, kioskDeviceID string, isPrefetch bo
 	}
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
-	apiCache.Delete(apiUrl.String())
-	return i.RandomImage(requestID, kioskDeviceID, isPrefetch)
+	cache.Delete(apiCacheKey)
+	return i.RandomImage(requestID, deviceID, isPrefetch)
 }

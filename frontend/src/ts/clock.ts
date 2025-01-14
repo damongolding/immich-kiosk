@@ -33,7 +33,16 @@ class Clock {
 
   private initialiseElements(): ClockElements {
     const main = document.getElementById("clock");
-    if (!main) throw new Error("Clock element not found");
+    if (!main) {
+      console.warn(
+        "Clock element not found - this is expected if UI is disabled",
+      );
+      return {
+        main: null,
+        date: null,
+        time: null,
+      };
+    }
     return {
       main: main as HTMLElement,
       date: document.querySelector(".clock--date"),

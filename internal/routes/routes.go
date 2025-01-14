@@ -7,13 +7,10 @@ package routes
 
 import (
 	"net/http"
-	"sync"
-	"time"
 
 	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
-	"github.com/patrickmn/go-cache"
 
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -30,9 +27,6 @@ const (
 var (
 	KioskVersion string
 
-	ViewDataCache      *cache.Cache
-	viewDataCacheMutex sync.Mutex
-
 	drawFacesOnImages string
 )
 
@@ -43,12 +37,6 @@ type PersonOrAlbum struct {
 
 func ShouldDrawFacesOnImages() bool {
 	return drawFacesOnImages == "true"
-}
-
-func init() {
-	// Setting up Immich api cache
-	ViewDataCache = cache.New(5*time.Minute, 10*time.Minute)
-
 }
 
 // InitializeRequestData processes incoming request context and configuration to create RouteRequestData.
@@ -64,7 +52,7 @@ func init() {
 func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.RouteRequestData, error) {
 
 	kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
-	kioskDeviceID := c.Request().Header.Get("kiosk-device-id")
+	deviceID := c.Request().Header.Get("kiosk-device-id")
 	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	clientName := c.QueryParams().Get("client")
 	if clientName == "" {
@@ -97,7 +85,7 @@ func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.R
 
 	return &common.RouteRequestData{
 		RequestConfig: requestConfig,
-		DeviceID:      kioskDeviceID,
+		DeviceID:      deviceID,
 		RequestID:     requestID,
 		ClientName:    clientName,
 	}, nil

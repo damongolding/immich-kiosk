@@ -8,7 +8,9 @@ const (
 	AlbumKeywordFavourites string = "favourites"
 	AlbumKeywordFavorites  string = "favorites"
 
-	SourceAlbums Source = "ALBUM"
-	SourcePerson Source = "PERSON"
-	SourceRandom Source = "RANDOM"
+	SourceAlbums         Source = "ALBUM"
+	SourceDateRangeAlbum Source = "DATE_RANGE_ALBUM"
+	SourcePerson         Source = "PERSON"
+	SourceRandom         Source = "RANDOM"
+	SourceMemories       Source = "MEMORIES"
 )

@@ -34,7 +34,7 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 		RawQuery: fmt.Sprintf("month=%d&day=%d", now.Month(), now.Day()),
 	}
 
-	// If we want the memories assets count we will use a separate cache entry
+	// If we want the memories assets count we will use a seperate cache entry
 	// because Kiosk removes used assets from the normal cache entry
 	if assetCount {
 		apiUrl.RawQuery += "&count=true"
