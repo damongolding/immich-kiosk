@@ -146,6 +146,10 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 
 	case kiosk.SourcePerson:
 		return immichImage.RandomImageOfPerson(pickedAsset.ID, requestID, deviceID, isPrefetch)
+
+	case kiosk.SourceMemories:
+		return immichImage.RandomMemoryLaneImage(requestID, deviceID, isPrefetch)
+
 	default:
 		return immichImage.RandomImage(requestID, deviceID, isPrefetch)
 	}

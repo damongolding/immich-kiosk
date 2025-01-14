@@ -60,7 +60,7 @@ func (i *ImmichAsset) MemoryLaneAssetsCount(requestID, deviceID string) int {
 	return memoriesCount(m)
 }
 
-func (i *ImmichAsset) ImageFromMemories(requestID, deviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefetch bool) error {
 
 	memories, apiUrl, err := i.memories(requestID, deviceID)
 	if err != nil {
@@ -78,7 +78,7 @@ func (i *ImmichAsset) ImageFromMemories(requestID, deviceID string, isPrefetch b
 			return fmt.Errorf("no assets found for memories after refresh")
 		}
 
-		return i.ImageFromMemories(requestID, deviceID, isPrefetch)
+		return i.RandomMemoryLaneImage(requestID, deviceID, isPrefetch)
 	}
 
 	pickedMemoryIndex := rand.IntN(len(memories) - 1)
@@ -124,5 +124,5 @@ func (i *ImmichAsset) ImageFromMemories(requestID, deviceID string, isPrefetch b
 	}
 
 	log.Debug(requestID + " No viable images left in memory. Refreshing and trying again")
-	return i.ImageFromMemories(requestID, deviceID, isPrefetch)
+	return i.RandomMemoryLaneImage(requestID, deviceID, isPrefetch)
 }

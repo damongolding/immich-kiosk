@@ -39,11 +39,13 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, deviceID stri
 	if len(dates) != 2 {
 		return fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
 	}
+
 	dateStart, err := time.Parse("2006-01-02", dates[0])
 	if err != nil {
 		return err
 	}
-	dateEnd, err := time.Parse("2006-01-02", dates[2])
+
+	dateEnd, err := time.Parse("2006-01-02", dates[1])
 	if err != nil {
 		return err
 	}
