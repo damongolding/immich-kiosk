@@ -387,10 +387,14 @@ func imagePreFetch(requestData *common.RouteRequestData, c echo.Context) {
 
 // fromCache retrieves cached page data for a given request and device ID.
 func fromCache(urlString string, deviceID string) []common.ViewData {
-
 	cacheKey := cache.ViewCacheKey(urlString, deviceID)
 	if data, found := cache.Get(cacheKey); found {
-		cachedPageData := data.([]common.ViewData)
+		cachedPageData, ok := data.([]common.ViewData)
+		if !ok {
+			log.Error("cache: invalid data type", "key", cacheKey)
+			cache.Delete(cacheKey)
+			return nil
+		}
 		if len(cachedPageData) > 0 {
 			return cachedPageData
 		}
