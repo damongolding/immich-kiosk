@@ -35,7 +35,7 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 	}
 
 	// If we want the memories assets count we will use a seperate cache entry
-	// becasue Kiosk removes used assets from the normal cache entry
+	// because Kiosk removes used assets from the normal cache entry
 	if assetCount {
 		apiUrl.RawQuery += "&count=true"
 	}
@@ -55,7 +55,7 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 }
 
 // memoriesCount is the internal implementation of MemoryLaneAssetsCount
-// that counts the total assets in memory lane using a sepetate cache entry
+// that counts the total assets in memory lane using a separate cache entry
 func memoriesCount(memories MemoryLaneResponse) int {
 	total := 0
 	for _, memory := range memories {
@@ -115,7 +115,7 @@ func (i *ImmichAsset) randomMemoryLaneImage(requestID, deviceID string, isPrefet
 	})
 
 	for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
-		// We only want images and that are not trashed or archived (unless wanted by user)
+		// We only want images that are not trashed or archived (unless desired by user)
 		if asset.Type != ImageType || asset.IsTrashed || (asset.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&asset) {
 			continue
 		}
