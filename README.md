@@ -239,11 +239,15 @@ services:
       KIOSK_REFRESH: 60
       KIOSK_DISABLE_SCREENSAVER: false
       KIOSK_OPTIMIZE_IMAGES: false
+      KIOSK_USE_GPU: true
       # Asset sources
       KIOSK_SHOW_ARCHIVED: false
       KIOSK_ALBUM: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
+      KIOSK_ALBUM_ORDER: random
       KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
+      KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
+      KIOSK_MEMORIES: false
       # UI
       KIOSK_DISABLE_UI: false
       KIOSK_FRAMELESS: false
@@ -341,17 +345,21 @@ See the file `config.example.yaml` for an example config file
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
 | disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
 | optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low-powered device, this may help. |
+| use_gpu                           | KIOSK_USE_GPU           | bool                       | true        | Enable GPU acceleration for improved performance (e.g., CSS transforms) |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
+| [album_order](#album-order)       | KIOSK_ALBUM_ORDER       | string                     | random      | The order an album's assets will be displayed. See [Album order](#album-order) for more information. |
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
+| [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges in `YYYY-MM-DD_to_YYYY-MM-DD` format. See [Date range](#date-range) for more information. |
+| memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memory lane assets. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
 | [theme](#themes)                  | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. See [Themes](#themes) for more information.                            |
-| [layout](#layouts)                | KIOSK_LAYOUT            | single \| splitview        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
+| [layout](#layouts)                | KIOSK_LAYOUT            | [Layouts](#layouts)        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
 | [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [custom_css](#custom-css)         | N/A                     | bool                       | true        | Allow custom CSS to be used. See [Custom CSS](#custom-css) for more information.           |
@@ -473,6 +481,30 @@ e.g. `http://{URL}?album=favorites` or `http://{URL}?album=favourites`
 
 ------
 
+## Album order
+
+> [!NOTE]
+> - When using multiple albums, the order of the albums is random.
+> - When using splitview layouts:
+>   - Kiosk will look for a second image with matching orientation
+>   - The second image shown may not be the next sequential image
+>   - Priority is given to finding images with the right aspect ratio for a balanced display
+
+This controls the order in which the assets from the selected album(s) are displayed.
+
+The options are:
+
+### `random` (the default)
+The assets are displayed in a random order.
+
+### `newest`, `descending` or `desc`
+The newest assets are displayed first.
+
+### `oldest`, `ascending` or `asc`
+The oldest assets are displayed first.
+
+------
+
 ## Exclude albums
 
 This feature allows you to prevent specific albums from being displayed in the slideshow, even when using broad album selection methods like `all` or `shared`.
@@ -555,6 +587,42 @@ environment:
 ```url
 http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 ```
+
+------
+
+### Date range
+
+### How multiple date ranges work
+When you specify multiple date ranges, Immich Kiosk creates a pool of all the requested date ranges.
+For each image refresh, Kiosk randomly selects one date range from this pool and fetches an image within that date range.
+
+There are **three** ways you can set date ranges:
+
+> [!NOTE]
+> These methods are applied in order of precedence. URL queries take the highest priority, followed by environment variables, and finally the config.yaml file.
+> Each subsequent method overwrites the settings from the previous ones.
+
+1. via config.yaml file
+
+```yaml
+date:
+  - 2023-01-01_to_2023-02-01
+  - 2024-11-12_to_2023-11-18
+```
+
+2. via ENV in your docker-compose file use a `,` to separate IDs
+
+```yaml
+environment:
+  KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
+```
+
+3. via url quires
+
+```url
+http://{URL}?date=DATE_RANGE&date=DATE_RANGE&date=DATE_RANGE
+```
+
 ------
 
 ## Image fit
@@ -642,17 +710,25 @@ Solid background for the clock and image metadata.
 
 ## Layouts
 
+> [!NOTE]
+> Throughout all layouts: Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
+> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
+
+The following layout options determine how images are displayed:
+
 ### Single (the default)
-Display one image.
+This is the standard layout that displays one image at a time, regardless of orientation.
+It works with both portrait and landscape images.
 
 ![Kiosk theme fade](/assets/theme-fade.jpeg)
 
+### Portrait
+This layout displays one portrait-oriented image at a time.
+
+### Landscape
+This layout displays one landscape-oriented image at a time.
+
 ### Splitview
-
-> [!NOTE]
-> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
-> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
-
 When a portrait image is fetched, Kiosk automatically retrieves a second portrait image\* and displays them side by side vertically. Landscape and square images are displayed individually.
 
 \* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
@@ -660,11 +736,6 @@ When a portrait image is fetched, Kiosk automatically retrieves a second portrai
 ![Kiosk layout splitview](/assets/layout-splitview.jpg)
 
 ### Splitview landscape
-
-> [!NOTE]
-> Kiosk attempts to determine the orientation of each image. However, if an image lacks EXIF data,
-> it may be displayed in an incorrect orientation (e.g., a portrait image shown in landscape format).
-
 When a landscape image is fetched, Kiosk automatically retrieves a second landscape image\* and displays them stacked horizontally. portrait and square images are displayed individually.
 
 \* If Kiosk is unable to retrieve a second unique image, the first image will be displayed individually.
