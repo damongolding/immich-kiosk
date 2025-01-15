@@ -111,6 +111,14 @@ func countAssetsInAlbums(albums ImmichAlbums) int {
 }
 
 // AlbumImageCount retrieves the number of images in a specific album from Immich.
+// Parameters:
+//   - albumID: ID of the album to count images from, can be a special keyword
+//   - requestID: ID used for tracking API call
+//   - deviceID: ID of the device making the request
+//
+// Returns:
+//   - int: Number of images in the album
+//   - error: Any error encountered during the request
 func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string) (int, error) {
 	switch albumID {
 	case kiosk.AlbumKeywordAll:
@@ -143,8 +151,12 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string
 	}
 }
 
-// ImageFromAlbumRandom retrieve random image within a specified album from Immich
-func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAssetOrder, requestID, deviceID string, isPrefetch bool) error {
+// imageFromAlbum is the internal implementation of ImageFromAlbum that includes retry logic.
+func (i *ImmichAsset) imageFromAlbum(albumID string, albumAssetsOrder ImmichAssetOrder, requestID, deviceID string, isPrefetch bool, retries int) error {
+
+	if retries >= MaxRetries {
+		return fmt.Errorf("No images found for '%s'. Max retries reached.", albumID)
+	}
 
 	album, apiUrl, err := i.albumAssets(albumID, requestID, deviceID)
 	if err != nil {
@@ -162,7 +174,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 			return fmt.Errorf("no assets found for album %s after refresh", albumID)
 		}
 
-		return i.ImageFromAlbum(albumID, albumAssetsOrder, requestID, deviceID, isPrefetch)
+		return i.imageFromAlbum(albumID, albumAssetsOrder, requestID, deviceID, isPrefetch, retries+1)
 	}
 
 	switch albumAssetsOrder {
@@ -210,7 +222,22 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	cache.Delete(apiCacheKey)
-	return i.ImageFromAlbum(albumID, albumAssetsOrder, requestID, deviceID, isPrefetch)
+	return i.imageFromAlbum(albumID, albumAssetsOrder, requestID, deviceID, isPrefetch, retries+1)
+}
+
+// ImageFromAlbum retrieves an image from the specified album based on the provided ordering strategy.
+// Parameters:
+//   - albumID: ID of the album to retrieve image from
+//   - albumAssetsOrder: Ordering strategy for selecting assets (random or ascending)
+//   - requestID: ID used for tracking API call
+//   - deviceID: ID of the device making the request
+//   - isPrefetch: Whether this is a prefetch request to warm the cache
+//
+// Returns:
+//   - error: Any error encountered during the request. Returns nil on success.
+//     On success, updates the receiver ImmichAsset with the selected image details.
+func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAssetOrder, requestID, deviceID string, isPrefetch bool) error {
+	return i.imageFromAlbum(albumID, albumAssetsOrder, requestID, deviceID, isPrefetch, 0)
 }
 
 // selectRandomAlbum selects a random album from the given list of albums, excluding specific albums.
