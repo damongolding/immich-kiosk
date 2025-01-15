@@ -13,7 +13,9 @@ func (i *ImmichAsset) CheckForFaces(requestID, deviceID string) {
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		log.Fatal(err)
+		_, _, err = immichApiFail(faces, err, nil, "")
+		log.Error("parsing faces url", "err", err)
+		return
 	}
 
 	apiUrl := url.URL{

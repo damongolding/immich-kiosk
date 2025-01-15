@@ -22,7 +22,7 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		log.Fatal(err)
+		return immichApiFail(memoryLane, err, nil, "")
 	}
 
 	now := time.Now()
@@ -74,90 +74,86 @@ func (i *ImmichAsset) MemoryLaneAssetsCount(requestID, deviceID string) int {
 	return memoriesCount(m)
 }
 
-// RandomMemoryLaneImage fetches a random image from memory lane
-// requestID is used for request tracking
-// deviceID identifies the requesting device
-// isPrefetch indicates if this is a prefetch request
+// RandomMemoryLaneImage retrieves a random image from the memory lane assets
+// requestID: Unique identifier for tracking the request
+// deviceID: ID of the requesting device
+// isPrefetch: Indicates if this is a prefetch request to warm the cache
+// Returns error if unable to find a valid image after max retries
 func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefetch bool) error {
-	return i.randomMemoryLaneImage(requestID, deviceID, isPrefetch, 0)
-}
 
-// randomMemoryLaneImage is the internal implementation of RandomMemoryLaneImage that handles retries
-func (i *ImmichAsset) randomMemoryLaneImage(requestID, deviceID string, isPrefetch bool, retries int) error {
+	for retries := 0; retries < MaxRetries; retries++ {
 
-	if retries >= MaxRetries {
-		return fmt.Errorf("no assets found for memories after %d retries", MaxRetries)
-	}
-
-	memories, apiUrl, err := i.memories(requestID, deviceID, false)
-	if err != nil {
-		return err
-	}
-
-	apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
-
-	if len(memories) == 0 {
-		log.Debug(requestID + " No images left in cache. Refreshing and trying again for memories")
-		cache.Delete(apiCacheKey)
-
-		memories, _, retryErr := i.memories(requestID, deviceID, false)
-		if retryErr != nil || len(memories) == 0 {
-			return fmt.Errorf("no assets found for memories after refresh")
+		memories, apiUrl, err := i.memories(requestID, deviceID, false)
+		if err != nil {
+			return err
 		}
 
-		return i.randomMemoryLaneImage(requestID, deviceID, isPrefetch, retries+1)
-	}
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
 
-	pickedMemoryIndex := rand.IntN(len(memories))
+		if len(memories) == 0 {
+			log.Debug(requestID + " No images left in cache. Refreshing and trying again for memories")
+			cache.Delete(apiCacheKey)
 
-	rand.Shuffle(len(memories[pickedMemoryIndex].Assets), func(i, j int) {
-		memories[pickedMemoryIndex].Assets[i], memories[pickedMemoryIndex].Assets[j] = memories[pickedMemoryIndex].Assets[j], memories[pickedMemoryIndex].Assets[i]
-	})
-
-	for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
-		// We only want images that are not trashed or archived (unless desired by user)
-		if asset.Type != ImageType || asset.IsTrashed || (asset.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&asset) {
 			continue
 		}
 
-		if requestConfig.Kiosk.Cache {
-			// Deep copy the memories slice
-			assetsToCache := make(MemoryLaneResponse, len(memories))
-			for i, memory := range memories {
-				assetsToCache[i].YearsAgo = memory.YearsAgo
-				assetsToCache[i].Title = memory.Title
-				assetsToCache[i].Assets = make([]ImmichAsset, len(memory.Assets))
-				copy(assetsToCache[i].Assets, memory.Assets)
+		pickedMemoryIndex := rand.IntN(len(memories))
+
+		rand.Shuffle(len(memories[pickedMemoryIndex].Assets), func(i, j int) {
+			memories[pickedMemoryIndex].Assets[i], memories[pickedMemoryIndex].Assets[j] = memories[pickedMemoryIndex].Assets[j], memories[pickedMemoryIndex].Assets[i]
+		})
+
+		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
+
+			// We only want images that are not trashed or archived (unless desired by user)
+			isInvalidType := asset.Type != ImageType
+			isTrashed := asset.IsTrashed
+			isArchived := asset.IsArchived && !requestConfig.ShowArchived
+			isInvalidRatio := !i.ratioCheck(&asset)
+
+			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
+				continue
 			}
 
-			// Remove the current image from the slice
-			assetsToCache[pickedMemoryIndex].Assets = append(assetsToCache[pickedMemoryIndex].Assets[:assetIndex], assetsToCache[pickedMemoryIndex].Assets[assetIndex+1:]...)
+			if requestConfig.Kiosk.Cache {
+				// Deep copy the memories slice
+				assetsToCache := make(MemoryLaneResponse, len(memories))
+				for i, memory := range memories {
+					assetsToCache[i].YearsAgo = memory.YearsAgo
+					assetsToCache[i].Title = memory.Title
+					assetsToCache[i].Assets = make([]ImmichAsset, len(memory.Assets))
+					copy(assetsToCache[i].Assets, memory.Assets)
+				}
 
-			if len(assetsToCache[pickedMemoryIndex].Assets) == 0 {
-				assetsToCache = append(assetsToCache[:pickedMemoryIndex], assetsToCache[pickedMemoryIndex+1:]...)
+				// Remove the current image from the slice
+				assetsToCache[pickedMemoryIndex].Assets = append(assetsToCache[pickedMemoryIndex].Assets[:assetIndex], assetsToCache[pickedMemoryIndex].Assets[assetIndex+1:]...)
+
+				if len(assetsToCache[pickedMemoryIndex].Assets) == 0 {
+					assetsToCache = append(assetsToCache[:pickedMemoryIndex], assetsToCache[pickedMemoryIndex+1:]...)
+				}
+
+				jsonBytes, err := json.Marshal(assetsToCache)
+				if err != nil {
+					log.Error("Failed to marshal assetsToCache", "error", err)
+					return err
+				}
+
+				// replace with cache minus used asset
+				err = cache.Replace(apiCacheKey, jsonBytes)
+				if err != nil {
+					log.Debug("Failed to update device cache for memories", "deviceID", deviceID)
+				}
+
 			}
 
-			jsonBytes, err := json.Marshal(assetsToCache)
-			if err != nil {
-				log.Error("Failed to marshal assetsToCache", "error", err)
-				return err
-			}
+			*i = asset
 
-			// replace with cache minus used asset
-			err = cache.Replace(apiCacheKey, jsonBytes)
-			if err != nil {
-				log.Debug("Failed to update device cache for memories", "deviceID", deviceID)
-			}
+			i.KioskSourceName = memories[pickedMemoryIndex].Title
 
+			return nil
 		}
 
-		*i = asset
-
-		i.KioskSourceName = memories[pickedMemoryIndex].Title
-
-		return nil
+		log.Debug(requestID + " No viable images left in memory. Refreshing and trying again")
 	}
-
-	log.Debug(requestID + " No viable images left in memory. Refreshing and trying again")
-	return i.randomMemoryLaneImage(requestID, deviceID, isPrefetch, retries+1)
+	return fmt.Errorf("no assets found for memories after %d retries", MaxRetries)
 }
