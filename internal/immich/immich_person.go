@@ -45,8 +45,27 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (in
 	return personStatistics.Assets, err
 }
 
-// RandomImageOfPerson retrieve random image of person from Immich
+// RandomImageOfPerson retrieves a random image of a person from Immich.
+// The personID identifies the person whose images to search.
+// The requestID and deviceID identify the request and device making the call.
+// isPrefetch indicates if this is a prefetch request.
+// Returns an error if no suitable image is found after MaxRetries attempts.
 func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
+	return i.randomImageOfPerson(personID, requestID, deviceID, isPrefetch, 0)
+}
+
+// randomImageOfPerson implements the core logic for retrieving a random image.
+// It handles retries, caching, and filtering of the results.
+// The personID identifies the person whose images to search.
+// The requestID and deviceID identify the request and device making the call.
+// isPrefetch indicates if this is a prefetch request.
+// retries tracks the number of retry attempts made.
+// Returns an error if no suitable image is found.
+func (i *ImmichAsset) randomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool, retries int) error {
+
+	if retries >= MaxRetries {
+		return fmt.Errorf("No images found for person '%s'. Max retries reached.", personID)
+	}
 
 	var immichAssets []ImmichAsset
 
@@ -100,7 +119,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
-		return i.RandomImageOfPerson(personID, requestID, deviceID, isPrefetch)
+		return i.randomImageOfPerson(personID, requestID, deviceID, isPrefetch, retries+1)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -134,7 +153,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	cache.Delete(apiCacheKey)
-	return i.RandomImageOfPerson(personID, requestID, deviceID, isPrefetch)
+	return i.randomImageOfPerson(personID, requestID, deviceID, isPrefetch, retries+1)
 }
 
 func (i *ImmichAsset) PersonName(personID string) {

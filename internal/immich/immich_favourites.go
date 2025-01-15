@@ -80,8 +80,23 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 	return allFavouritesCount, nil
 }
 
-// RandomImageFromFavourites retrieves a random favorite image from the Immich server.
-func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPrefetch bool) error {
+// randomImageFromFavourites retrieves a random favorite image from the Immich server.
+// It makes an API request to get random favorite images and caches them for future use.
+// The function includes retries if no viable images are found.
+//
+// Parameters:
+//   - requestID: Unique identifier for the request
+//   - deviceID: ID of the device making the request
+//   - isPrefetch: Boolean indicating if this is a prefetch request
+//   - retries: Number of retry attempts made
+//
+// Returns:
+//   - error: Any error encountered during the operation
+func (i *ImmichAsset) randomImageFromFavourites(requestID, deviceID string, isPrefetch bool, retries int) error {
+
+	if retries >= MaxRetries {
+		return fmt.Errorf("No images found for favourites. Max retries reached.")
+	}
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite image", true)
@@ -141,7 +156,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
-		return i.RandomImageFromFavourites(requestID, deviceID, isPrefetch)
+		return i.randomImageFromFavourites(requestID, deviceID, isPrefetch, retries+1)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -172,5 +187,19 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	cache.Delete(apiCacheKey)
-	return i.RandomImage(requestID, deviceID, isPrefetch)
+	return i.randomImageFromFavourites(requestID, deviceID, isPrefetch, retries+1)
+}
+
+// RandomImageFromFavourites is the public interface for retrieving a random favorite image.
+// It initializes the retry counter and calls the internal randomImageFromFavourites function.
+//
+// Parameters:
+//   - requestID: Unique identifier for the request
+//   - deviceID: ID of the device making the request
+//   - isPrefetch: Boolean indicating if this is a prefetch request
+//
+// Returns:
+//   - error: Any error encountered during the operation
+func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPrefetch bool) error {
+	return i.randomImageFromFavourites(requestID, deviceID, isPrefetch, 0)
 }

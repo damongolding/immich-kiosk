@@ -11,8 +11,21 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-// GetRandomImage retrieve a random image from Immich
+// RandomImage retrieves a random image from the Immich server and updates the ImmichAsset object.
+// It takes a requestID and deviceID for request tracking, and an isPrefetch flag to indicate if this
+// is a prefetch request. Returns an error if no suitable image could be found after maximum retries.
 func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
+	return i.randomImage(requestID, deviceID, isPrefetch, 0)
+}
+
+// randomImage is an internal helper that handles the recursive retry logic for retrieving random images.
+// It takes a requestID and deviceID for tracking, isPrefetch flag, and retry count.
+// Returns an error if no suitable image is found after MaxRetries attempts.
+func (i *ImmichAsset) randomImage(requestID, deviceID string, isPrefetch bool, retries int) error {
+
+	if retries >= MaxRetries {
+		return fmt.Errorf("No images found for random. Max retries reached.")
+	}
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image", true)
@@ -72,7 +85,7 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 	if len(immichAssets) == 0 {
 		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
-		return i.RandomImage(requestID, deviceID, isPrefetch)
+		return i.randomImage(requestID, deviceID, isPrefetch, retries+1)
 	}
 
 	for immichAssetIndex, img := range immichAssets {
@@ -103,5 +116,5 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 
 	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 	cache.Delete(apiCacheKey)
-	return i.RandomImage(requestID, deviceID, isPrefetch)
+	return i.randomImage(requestID, deviceID, isPrefetch, retries+1)
 }
