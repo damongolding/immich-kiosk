@@ -94,8 +94,14 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 		}
 
 		for immichAssetIndex, img := range immichAssets {
+
 			// We only want images and that are not trashed or archived (unless wanted by user)
-			if img.Type != ImageType || img.IsTrashed || (img.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&img) {
+			isInvalidType := img.Type != ImageType
+			isTrashed := img.IsTrashed
+			isArchived := img.IsArchived && !requestConfig.ShowArchived
+			isInvalidRatio := !i.ratioCheck(&img)
+
+			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
 				continue
 			}
 
