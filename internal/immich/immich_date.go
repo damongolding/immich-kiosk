@@ -40,14 +40,22 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, deviceID stri
 		return fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
 	}
 
-	dateStart, err := time.Parse("2006-01-02", dates[0])
-	if err != nil {
-		return err
+	dateStart := time.Now()
+	dateEnd := time.Now()
+	var err error
+
+	if !strings.EqualFold(dates[0], "today") {
+		dateStart, err = time.Parse("2006-01-02", dates[0])
+		if err != nil {
+			return err
+		}
 	}
 
-	dateEnd, err := time.Parse("2006-01-02", dates[1])
-	if err != nil {
-		return err
+	if !strings.EqualFold(dates[1], "today") {
+		dateEnd, err = time.Parse("2006-01-02", dates[1])
+		if err != nil {
+			return err
+		}
 	}
 
 	if dateEnd.Before(dateStart) {
@@ -121,6 +129,8 @@ func (i *ImmichAsset) randomImageInDateRange(dateRange, requestID, deviceID stri
 		retries++
 		return i.randomImageInDateRange(dateRange, requestID, deviceID, isPrefetch, retries)
 	}
+
+	log.Info("Date range res", "items", len(immichAssets))
 
 	for immichAssetIndex, img := range immichAssets {
 		// We only want images and that are not trashed or archived (unless wanted by user)
