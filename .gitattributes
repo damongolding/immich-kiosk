@@ -1,1 +1,2 @@
 frontend/public/** linguist-vendored
+*.templ linguist-vendored
