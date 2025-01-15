@@ -19,7 +19,8 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		log.Fatal("parsing url", err)
+		_, _, err = immichApiFail(allFavouritesCount, err, nil, "")
+		return allFavouritesCount, err
 	}
 
 	requestBody := ImmichSearchRandomBody{
@@ -52,7 +53,8 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 
 		jsonBody, err := json.Marshal(requestBody)
 		if err != nil {
-			log.Fatal("marshaling request body", err)
+			_, _, err = immichApiFail(allFavouritesCount, err, nil, apiUrl.String())
+			return allFavouritesCount, err
 		}
 
 		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, favourites)
@@ -120,7 +122,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 
 		u, err := url.Parse(requestConfig.ImmichUrl)
 		if err != nil {
-			log.Fatal("parsing url", err)
+			return fmt.Errorf("parsing url: %w", err)
 		}
 
 		requestBody := ImmichSearchRandomBody{
@@ -147,7 +149,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 
 		jsonBody, err := json.Marshal(requestBody)
 		if err != nil {
-			log.Fatal("marshaling request body", err)
+			return fmt.Errorf("marshaling request body: %w", err)
 		}
 
 		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)

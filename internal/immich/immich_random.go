@@ -41,7 +41,7 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 
 		u, err := url.Parse(requestConfig.ImmichUrl)
 		if err != nil {
-			log.Fatal("parsing url", err)
+			_, _, err = immichApiFail(immichAssets, err, nil, "")
 			return err
 		}
 
@@ -68,7 +68,8 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 
 		jsonBody, err := json.Marshal(requestBody)
 		if err != nil {
-			log.Fatal("marshaling request body", err)
+			_, _, err = immichApiFail(immichAssets, err, nil, "")
+			return err
 		}
 
 		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)

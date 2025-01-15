@@ -22,7 +22,7 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		log.Fatal(err)
+		return immichApiFail(memoryLane, err, nil, "")
 	}
 
 	now := time.Now()

@@ -20,7 +20,8 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (in
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		log.Fatal(err)
+		_, _, err = immichApiFail(personStatistics, err, nil, "")
+		return 0, err
 	}
 
 	apiUrl := url.URL{
@@ -69,7 +70,8 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 		u, err := url.Parse(requestConfig.ImmichUrl)
 		if err != nil {
-			log.Fatal("parsing url", err)
+			_, _, err = immichApiFail(immichAssets, err, nil, "")
+			return err
 		}
 
 		requestBody := ImmichSearchRandomBody{
@@ -96,7 +98,8 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 		jsonBody, err := json.Marshal(requestBody)
 		if err != nil {
-			log.Fatal("marshaling request body", err)
+			_, _, err = immichApiFail(immichAssets, err, nil, apiUrl.String())
+			return err
 		}
 
 		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)

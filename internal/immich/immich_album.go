@@ -21,7 +21,7 @@ func (i *ImmichAsset) albums(requestID, deviceID string, shared bool) (ImmichAlb
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		log.Fatal(err)
+		return immichApiFail(albums, err, nil, "")
 	}
 
 	apiUrl := url.URL{
@@ -73,7 +73,7 @@ func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAl
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		log.Fatal(err)
+		return immichApiFail(album, err, nil, "")
 	}
 
 	apiUrl := url.URL{
