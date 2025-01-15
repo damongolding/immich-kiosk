@@ -54,6 +54,7 @@
   - [Changing settings via URL](#changing-settings-via-url)
   - [Albums](#albums)
   - [People](#people)
+  - [Date range](#date-range)
   - [Image fit](#image-fit)
   - [Image effects](#image-effects)
   - [Date format](#date-format)
