@@ -151,93 +151,91 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string
 	}
 }
 
-// imageFromAlbum is the internal implementation of ImageFromAlbum that includes retry logic.
-func (i *ImmichAsset) imageFromAlbum(albumID string, albumAssetsOrder ImmichAssetOrder, requestID, deviceID string, isPrefetch bool, retries int) error {
+// ImageFromAlbum retrieves and returns an image from an album in the Immich server.
+// It handles retrying failed requests, caching of album assets, and filtering of images based on type and status.
+// The returned image is set into the ImmichAsset receiver.
+//
+// Parameters:
+//   - albumID: The ID of the album to get an image from
+//   - albumAssetsOrder: The order to return assets (Rand for random, Asc for ascending)
+//   - requestID: ID used to track the API request chain
+//   - deviceID: ID of the device making the request
+//   - isPrefetch: Whether this is a prefetch request for caching
+//
+// Returns:
+//   - error: Any error encountered during the image retrieval process, including when no viable images are found
+//     after maximum retry attempts
+func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAssetOrder, requestID, deviceID string, isPrefetch bool) error {
 
-	if retries >= MaxRetries {
-		return fmt.Errorf("No images found for '%s'. Max retries reached.", albumID)
-	}
+	for retries := 0; retries < MaxRetries; retries++ {
 
-	album, apiUrl, err := i.albumAssets(albumID, requestID, deviceID)
-	if err != nil {
-		return err
-	}
-
-	apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
-
-	if len(album.Assets) == 0 {
-		log.Debug(requestID+" No images left in cache. Refreshing and trying again for album", albumID)
-		cache.Delete(apiCacheKey)
-
-		album, _, retryErr := i.albumAssets(albumID, requestID, deviceID)
-		if retryErr != nil || len(album.Assets) == 0 {
-			return fmt.Errorf("no assets found for album %s after refresh", albumID)
+		album, apiUrl, err := i.albumAssets(albumID, requestID, deviceID)
+		if err != nil {
+			return err
 		}
 
-		return i.imageFromAlbum(albumID, albumAssetsOrder, requestID, deviceID, isPrefetch, retries+1)
-	}
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
 
-	switch albumAssetsOrder {
-	case Rand:
-		rand.Shuffle(len(album.Assets), func(i, j int) {
-			album.Assets[i], album.Assets[j] = album.Assets[j], album.Assets[i]
-		})
-	case Asc:
-		if !album.AssetsOrdered {
-			slices.Reverse(album.Assets)
-			album.AssetsOrdered = true
-		}
-	}
+		if len(album.Assets) == 0 {
+			log.Debug(requestID+" No images left in cache. Refreshing and trying again for album", albumID)
+			cache.Delete(apiCacheKey)
 
-	for assetIndex, asset := range album.Assets {
-		// We only want images and that are not trashed or archived (unless wanted by user)
-		if asset.Type != ImageType || asset.IsTrashed || (asset.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&asset) {
+			album, _, retryErr := i.albumAssets(albumID, requestID, deviceID)
+			if retryErr != nil || len(album.Assets) == 0 {
+				return fmt.Errorf("no assets found for album %s after refresh", albumID)
+			}
+
 			continue
 		}
 
-		if requestConfig.Kiosk.Cache {
-			// Remove the current image from the slice
-			assetsToCache := album
-			assetsToCache.Assets = append(album.Assets[:assetIndex], album.Assets[assetIndex+1:]...)
-			jsonBytes, err := json.Marshal(assetsToCache)
-			if err != nil {
-				log.Error("Failed to marshal assetsToCache", "error", err)
-				return err
+		switch albumAssetsOrder {
+		case Rand:
+			rand.Shuffle(len(album.Assets), func(i, j int) {
+				album.Assets[i], album.Assets[j] = album.Assets[j], album.Assets[i]
+			})
+		case Asc:
+			if !album.AssetsOrdered {
+				slices.Reverse(album.Assets)
+				album.AssetsOrdered = true
 			}
-
-			// replace with cache minus used asset
-			err = cache.Replace(apiCacheKey, jsonBytes)
-			if err != nil {
-				log.Debug("Failed to update device cache for album", "albumID", albumID, "deviceID", deviceID)
-			}
-
 		}
 
-		*i = asset
+		for assetIndex, asset := range album.Assets {
+			// We only want images and that are not trashed or archived (unless wanted by user)
+			if asset.Type != ImageType || asset.IsTrashed || (asset.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&asset) {
+				continue
+			}
 
-		i.KioskSourceName = album.AlbumName
+			if requestConfig.Kiosk.Cache {
+				// Remove the current image from the slice
+				assetsToCache := album
+				assetsToCache.Assets = append(album.Assets[:assetIndex], album.Assets[assetIndex+1:]...)
+				jsonBytes, err := json.Marshal(assetsToCache)
+				if err != nil {
+					log.Error("Failed to marshal assetsToCache", "error", err)
+					return err
+				}
 
-		return nil
+				// replace with cache minus used asset
+				err = cache.Replace(apiCacheKey, jsonBytes)
+				if err != nil {
+					log.Debug("Failed to update device cache for album", "albumID", albumID, "deviceID", deviceID)
+				}
+
+			}
+
+			*i = asset
+
+			i.KioskSourceName = album.AlbumName
+
+			return nil
+		}
+
+		log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
+		cache.Delete(apiCacheKey)
 	}
 
-	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
-	cache.Delete(apiCacheKey)
-	return i.imageFromAlbum(albumID, albumAssetsOrder, requestID, deviceID, isPrefetch, retries+1)
-}
-
-// ImageFromAlbum retrieves an image from the specified album based on the provided ordering strategy.
-// Parameters:
-//   - albumID: ID of the album to retrieve image from
-//   - albumAssetsOrder: Ordering strategy for selecting assets (random or ascending)
-//   - requestID: ID used for tracking API call
-//   - deviceID: ID of the device making the request
-//   - isPrefetch: Whether this is a prefetch request to warm the cache
-//
-// Returns:
-//   - error: Any error encountered during the request. Returns nil on success.
-//     On success, updates the receiver ImmichAsset with the selected image details.
-func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAssetOrder, requestID, deviceID string, isPrefetch bool) error {
-	return i.imageFromAlbum(albumID, albumAssetsOrder, requestID, deviceID, isPrefetch, 0)
+	return fmt.Errorf("No images found for '%s'. Max retries reached.", albumID)
 }
 
 // selectRandomAlbum selects a random album from the given list of albums, excluding specific albums.

@@ -45,115 +45,114 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (in
 	return personStatistics.Assets, err
 }
 
-// RandomImageOfPerson retrieves a random image of a person from Immich.
-// The personID identifies the person whose images to search.
-// The requestID and deviceID identify the request and device making the call.
-// isPrefetch indicates if this is a prefetch request.
-// Returns an error if no suitable image is found after MaxRetries attempts.
+// RandomImageOfPerson retrieves a random image for a given person from the Immich API.
+// It handles retries, caching, and filtering to find suitable images. The function will make
+// multiple attempts to find a valid image that matches the criteria (not trashed, correct type, etc).
+// If caching is enabled, it will maintain a cache of unused images for future requests.
+//
+// Parameters:
+//   - personID: The ID of the person whose images to search for
+//   - requestID: The ID of the API request for tracking purposes
+//   - deviceID: The ID of the device making the request
+//   - isPrefetch: Whether this is a prefetch request that runs ahead of actual usage
+//
+// Returns:
+//   - error: nil if successful, error otherwise. Returns specific error if no suitable
+//     image is found after MaxRetries attempts or if there are API/parsing failures
+//
+// The function mutates the receiver (i *ImmichAsset) to store the selected image if successful.
 func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
-	return i.randomImageOfPerson(personID, requestID, deviceID, isPrefetch, 0)
-}
 
-// randomImageOfPerson implements the core logic for retrieving a random image.
-// It handles retries, caching, and filtering of the results.
-// The personID identifies the person whose images to search.
-// The requestID and deviceID identify the request and device making the call.
-// isPrefetch indicates if this is a prefetch request.
-// retries tracks the number of retry attempts made.
-// Returns an error if no suitable image is found.
-func (i *ImmichAsset) randomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool, retries int) error {
+	for retries := 0; retries < MaxRetries; retries++ {
 
-	if retries >= MaxRetries {
-		return fmt.Errorf("No images found for person '%s'. Max retries reached.", personID)
-	}
+		var immichAssets []ImmichAsset
 
-	var immichAssets []ImmichAsset
+		u, err := url.Parse(requestConfig.ImmichUrl)
+		if err != nil {
+			log.Fatal("parsing url", err)
+		}
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
-	if err != nil {
-		log.Fatal("parsing url", err)
-	}
+		requestBody := ImmichSearchRandomBody{
+			PersonIds:  []string{personID},
+			Type:       string(ImageType),
+			WithExif:   true,
+			WithPeople: true,
+			Size:       requestConfig.Kiosk.FetchedAssetsSize,
+		}
 
-	requestBody := ImmichSearchRandomBody{
-		PersonIds:  []string{personID},
-		Type:       string(ImageType),
-		WithExif:   true,
-		WithPeople: true,
-		Size:       requestConfig.Kiosk.FetchedAssetsSize,
-	}
+		if requestConfig.ShowArchived {
+			requestBody.WithArchived = true
+		}
 
-	if requestConfig.ShowArchived {
-		requestBody.WithArchived = true
-	}
+		// convert body to queries so url is unique and can be cached
+		queries, _ := query.Values(requestBody)
 
-	// convert body to queries so url is unique and can be cached
-	queries, _ := query.Values(requestBody)
+		apiUrl := url.URL{
+			Scheme:   u.Scheme,
+			Host:     u.Host,
+			Path:     "api/search/random",
+			RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
+		}
 
-	apiUrl := url.URL{
-		Scheme:   u.Scheme,
-		Host:     u.Host,
-		Path:     "api/search/random",
-		RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
-	}
+		jsonBody, err := json.Marshal(requestBody)
+		if err != nil {
+			log.Fatal("marshaling request body", err)
+		}
 
-	jsonBody, err := json.Marshal(requestBody)
-	if err != nil {
-		log.Fatal("marshaling request body", err)
-	}
+		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
+		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
+		if err != nil {
+			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			return err
+		}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
-	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
-	if err != nil {
-		_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
-		return err
-	}
+		err = json.Unmarshal(apiBody, &immichAssets)
+		if err != nil {
+			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			return err
+		}
 
-	err = json.Unmarshal(apiBody, &immichAssets)
-	if err != nil {
-		_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
-		return err
-	}
+		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID)
 
-	apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID)
-
-	if len(immichAssets) == 0 {
-		log.Debug(requestID + " No images left in cache. Refreshing and trying again")
-		cache.Delete(apiCacheKey)
-		return i.randomImageOfPerson(personID, requestID, deviceID, isPrefetch, retries+1)
-	}
-
-	for immichAssetIndex, img := range immichAssets {
-		// We only want images and that are not trashed or archived (unless wanted by user)
-		if img.Type != ImageType || img.IsTrashed || (img.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&img) {
+		if len(immichAssets) == 0 {
+			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
+			cache.Delete(apiCacheKey)
 			continue
 		}
 
-		if requestConfig.Kiosk.Cache {
-			// Remove the current image from the slice
-			immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
-			jsonBytes, err := json.Marshal(immichAssetsToCache)
-			if err != nil {
-				log.Error("Failed to marshal immichAssetsToCache", "error", err)
-				return err
+		for immichAssetIndex, img := range immichAssets {
+			// We only want images and that are not trashed or archived (unless wanted by user)
+			if img.Type != ImageType || img.IsTrashed || (img.IsArchived && !requestConfig.ShowArchived) || !i.ratioCheck(&img) {
+				continue
 			}
 
-			// Replace cache with remaining images after removing used image(s)
-			err = cache.Replace(apiCacheKey, jsonBytes)
-			if err != nil {
-				log.Debug("cache not found!")
+			if requestConfig.Kiosk.Cache {
+				// Remove the current image from the slice
+				immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
+				jsonBytes, err := json.Marshal(immichAssetsToCache)
+				if err != nil {
+					log.Error("Failed to marshal immichAssetsToCache", "error", err)
+					return err
+				}
+
+				// Replace cache with remaining images after removing used image(s)
+				err = cache.Replace(apiCacheKey, jsonBytes)
+				if err != nil {
+					log.Debug("cache not found!")
+				}
 			}
+
+			*i = img
+
+			i.PersonName(personID)
+
+			return nil
 		}
 
-		*i = img
-
-		i.PersonName(personID)
-
-		return nil
+		log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
+		cache.Delete(apiCacheKey)
 	}
-
-	log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
-	cache.Delete(apiCacheKey)
-	return i.randomImageOfPerson(personID, requestID, deviceID, isPrefetch, retries+1)
+	return fmt.Errorf("No images found for person '%s'. Max retries reached.", personID)
 }
 
 func (i *ImmichAsset) PersonName(personID string) {
