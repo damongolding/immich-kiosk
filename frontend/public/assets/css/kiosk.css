@@ -1230,6 +1230,18 @@ form {
     width: 1.5rem;
     height: 1.5rem;
   }
+.polling-paused.more-info .navigation--more-info {
+      background-color: var(--mint-green);
+    }
+.polling-paused.more-info .navigation--more-info svg {
+        fill: var(--cool-grey);
+      }
+.polling-paused.links .navigation--links {
+      background-color: var(--mint-green);
+    }
+.polling-paused.links .navigation--links svg {
+        fill: var(--cool-grey);
+      }
 .navigation--media-buttons {
   display: -moz-box;
   display: flex;
