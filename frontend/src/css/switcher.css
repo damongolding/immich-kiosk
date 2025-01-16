@@ -1,0 +1,54 @@
+.polling-paused.links {
+    .frame--image img {
+        filter: grayscale(1) blur(4px) brightness(0.4);
+    }
+
+    .switcher {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        padding: 8.12rem 2rem 2rem 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(51 52 96 / 60%);
+
+        z-index: var(--z-overlay);
+    }
+
+    .switcher .switcher--links {
+        width: 100%;
+        max-width: 40rem;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        overflow: scroll;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .switcher--links a:first-child {
+        padding-top: 1rem;
+    }
+
+    .switcher--links a:last-child {
+        padding-top: 1rem;
+    }
+
+    .switcher--links a {
+        display: block;
+        padding: 1.5rem 1rem;
+        border-bottom: 1px solid rgba(255, 2555, 255, 0.2);
+        text-decoration: none;
+        color: #fff;
+    }
+
+    .switcher--links a:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+}

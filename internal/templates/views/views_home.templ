@@ -51,7 +51,7 @@ templ Home(viewData common.ViewData) {
 					</div>
 				</section>
 			}
-			@partials.Menu(viewData.ShowMoreInfo)
+			@partials.Menu(viewData.ShowMoreInfo, viewData.Kiosk.Links)
 			@partials.Params(viewData.Queries)
 			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd)
 			@partials.History()

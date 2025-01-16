@@ -1,0 +1,13 @@
+package partials
+
+import "github.com/damongolding/immich-kiosk/internal/config"
+
+templ Switcher(links []config.Link) {
+	<div class="switcher">
+		<div class="switcher--links">
+			for _ , link := range links {
+				<a href={ templ.SafeURL(link.URL) }>{ link.Name }</a>
+			}
+		</div>
+	</div>
+}

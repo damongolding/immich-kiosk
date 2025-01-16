@@ -16,6 +16,7 @@ import {
   disableImageNavigationButtons,
   enableImageNavigationButtons,
   toggleImageOverlay,
+  toggleLinksOverlay,
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
@@ -97,6 +98,7 @@ const prevImageMenuButton = htmx.find(
 const moreInfoButton = htmx.find(
   ".navigation--more-info",
 ) as HTMLElement | null;
+const linksButton = htmx.find(".navigation--links") as HTMLElement | null;
 const offlineSVG = htmx.find("#offline") as HTMLElement | null;
 
 let requestInFlight = false;
@@ -231,6 +233,9 @@ function addEventListeners(): void {
 
   // More info overlay
   moreInfoButton?.addEventListener("click", () => toggleImageOverlay());
+
+  // Links overlay
+  linksButton?.addEventListener("click", () => toggleLinksOverlay());
 
   // Unable to send ajax. probably offline.
   htmx.on("htmx:sendError", () => {

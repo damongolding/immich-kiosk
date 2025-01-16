@@ -9,7 +9,12 @@ let nextImageMenuButton: HTMLElement;
 let prevImageMenuButton: HTMLElement;
 
 let imageOverlayVisible: boolean = false;
+let linkOverlayVisible: boolean = false;
 
+/**
+ * Disables the image navigation buttons by adding a 'disabled' class
+ * Logs an error if buttons are not properly initialized
+ */
 function disableImageNavigationButtons(): void {
   if (!nextImageMenuButton || !prevImageMenuButton) {
     console.error("Navigation buttons not initialized");
@@ -19,6 +24,10 @@ function disableImageNavigationButtons(): void {
   htmx.addClass(prevImageMenuButton, "disabled");
 }
 
+/**
+ * Enables the image navigation buttons by removing the 'disabled' class
+ * Logs an error if buttons are not properly initialized
+ */
 function enableImageNavigationButtons(): void {
   if (!nextImageMenuButton || !prevImageMenuButton) {
     console.error("Navigation buttons not initialized");
@@ -28,21 +37,62 @@ function enableImageNavigationButtons(): void {
   htmx.removeClass(prevImageMenuButton as Element, "disabled");
 }
 
+/**
+ * Shows the image information overlay
+ * Only works when polling is paused
+ * Hides links overlay if visible
+ */
 function showImageOverlay(): void {
   if (!document.body) return;
   if (!document.body.classList.contains("polling-paused")) return;
+  hideLinksOverlay();
   document.body.classList.add("more-info");
   imageOverlayVisible = true;
 }
 
+/**
+ * Hides the image information overlay
+ */
 function hideImageOverlay(): void {
   if (!document.body) return;
   document.body.classList.remove("more-info");
   imageOverlayVisible = false;
 }
 
+/**
+ * Toggles the image information overlay visibility
+ */
 function toggleImageOverlay(): void {
   imageOverlayVisible ? hideImageOverlay() : showImageOverlay();
+}
+
+/**
+ * Shows the links overlay
+ * Only works when polling is paused
+ * Hides image overlay if visible
+ */
+function showLinksOverlay(): void {
+  if (!document.body) return;
+  if (!document.body.classList.contains("polling-paused")) return;
+  hideImageOverlay();
+  document.body.classList.add("links");
+  linkOverlayVisible = true;
+}
+
+/**
+ * Hides the links overlay
+ */
+function hideLinksOverlay(): void {
+  if (!document.body) return;
+  document.body.classList.remove("links");
+  linkOverlayVisible = false;
+}
+
+/**
+ * Toggles the links overlay visibility
+ */
+function toggleLinksOverlay(): void {
+  linkOverlayVisible ? hideLinksOverlay() : showLinksOverlay();
 }
 
 /**
@@ -68,4 +118,5 @@ export {
   showImageOverlay,
   hideImageOverlay,
   toggleImageOverlay,
+  toggleLinksOverlay,
 };
