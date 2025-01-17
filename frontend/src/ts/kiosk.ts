@@ -60,6 +60,7 @@ type KioskData = {
   timeFormat: TimeFormat;
   transition: string;
   showMoreInfo: boolean;
+  showRedirects: boolean;
 };
 
 const MAX_FRAMES: number = 2 as const;
@@ -197,6 +198,21 @@ function handleInfoKeyPress(): void {
   }
 }
 
+function handleRedirectstKeyPress(): void {
+  const isPollingPaused = document.body.classList.contains("polling-paused");
+  const isRedirectsOpen = document.body.classList.contains("redirects-open");
+
+  if (isPollingPaused && isRedirectsOpen) {
+    togglePolling();
+    toggleRedirectsOverlay();
+  } else {
+    if (!isPollingPaused) {
+      togglePolling();
+    }
+    toggleRedirectsOverlay();
+  }
+}
+
 /**
  * Add event listeners to Kiosk elements
  * @description Configures interactive behavior by setting up:
@@ -223,6 +239,12 @@ function addEventListeners(): void {
         if (!kioskData.showMoreInfo) return;
         e.preventDefault();
         handleInfoKeyPress();
+        break;
+      case "KeyR":
+        if (!kioskData.showRedirects) return;
+        if (e.ctrlKey || e.metaKey) return;
+        e.preventDefault();
+        handleRedirectstKeyPress();
         break;
     }
   });

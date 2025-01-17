@@ -70,6 +70,7 @@ templ Home(viewData common.ViewData) {
 				"timeFormat":         viewData.TimeFormat,
 				"transition":         viewData.Transition,
 				"showMoreInfo":       viewData.ShowMoreInfo,
+				"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 		}
