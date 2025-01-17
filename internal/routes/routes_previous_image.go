@@ -46,7 +46,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 		)
 		historyLen := len(requestConfig.History)
 
-		if isSleepMode(requestConfig) || historyLen < 2 {
+		if (!requestConfig.DisableSleep && isSleepMode(requestConfig)) || historyLen < 2 {
 			return c.NoContent(http.StatusNoContent)
 		}
 
