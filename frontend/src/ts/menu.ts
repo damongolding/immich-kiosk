@@ -73,17 +73,20 @@ function toggleImageOverlay(): void {
 }
 
 function redirectKeyHandler(e: KeyboardEvent) {
-  if (redirects) {
-    if (e.key === "ArrowDown") {
+  if (!redirects) return;
+
+  switch (e.code) {
+    case "ArrowDown":
       e.preventDefault(); // Prevent page scrolling
       currentRedirectIndex = (currentRedirectIndex + 1) % redirects.length;
       redirects[currentRedirectIndex].focus();
-    } else if (e.key === "ArrowUp") {
+      break;
+    case "ArrowUp":
       e.preventDefault(); // Prevent page scrolling
       currentRedirectIndex =
         (currentRedirectIndex - 1 + redirects.length) % redirects.length;
       redirects[currentRedirectIndex].focus();
-    }
+      break;
   }
 }
 

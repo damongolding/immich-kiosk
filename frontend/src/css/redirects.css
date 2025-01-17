@@ -37,17 +37,38 @@
         height: 100%;
         padding: 0;
         margin: 0;
-        overflow: scroll;
+        overflow-y: scroll;
         display: flex;
         flex-direction: column;
-    }
 
-    .redirects a:first-child {
-        padding-top: 1rem;
-    }
+        .redirects--shadow {
+            position: relative;
+            z-index: var(--z-base);
+            &::before,
+            &::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                height: 20%;
+                pointer-events: none;
+                background-image: radial-gradient(
+                    60% 50% at 50% 0%,
+                    var(--fade-gradient)
+                );
+                z-index: var(--z-below);
+                opacity: 0.6;
+            }
 
-    .redirects a:last-child {
-        padding-top: 1rem;
+            &::after {
+                bottom: 0;
+                top: unset;
+                background-image: radial-gradient(
+                    60% 50% at 50% 100%,
+                    var(--fade-gradient)
+                );
+            }
+        }
     }
 
     .redirects a {

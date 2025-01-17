@@ -4,6 +4,7 @@
   --cool-grey: #333460;
   --mint-green: #1ed2bb;
   --yellow: #e7e65f;
+  --z-below: -1;
   --z-base: 0;
   --z-clock: 100;
   --z-progress: 150;
@@ -1359,23 +1360,40 @@ form {
     height: 100%;
     padding: 0;
     margin: 0;
-    overflow: scroll;
+    overflow-y: scroll;
     display: -moz-box;
     display: flex;
     -moz-box-orient: vertical;
     -moz-box-direction: normal;
          flex-direction: column;
   }
-.polling-paused.redirects-open .redirects a:first-child {
-    padding-top: 1rem;
-  }
-.polling-paused.redirects-open .redirects a:last-child {
-    padding-top: 1rem;
-  }
+.polling-paused.redirects-open #redirects-container .redirects .redirects--shadow {
+      position: relative;
+      z-index: var(--z-base);
+    }
+.polling-paused.redirects-open #redirects-container .redirects .redirects--shadow::before,
+      .polling-paused.redirects-open #redirects-container .redirects .redirects--shadow::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 20%;
+        pointer-events: none;
+        background-image: -moz-radial-gradient(50% 0%, 60% 50%, var(--fade-gradient));
+        background-image: radial-gradient(60% 50% at 50% 0%, var(--fade-gradient));
+        z-index: var(--z-below);
+        opacity: 0.6;
+      }
+.polling-paused.redirects-open #redirects-container .redirects .redirects--shadow::after {
+        bottom: 0;
+        top: unset;
+        background-image: -moz-radial-gradient(50% 100%, 60% 50%, var(--fade-gradient));
+        background-image: radial-gradient(60% 50% at 50% 100%, var(--fade-gradient));
+      }
 .polling-paused.redirects-open .redirects a {
     display: block;
     padding: 1.5rem 1rem;
-    border-bottom: 1px solid rgba(255, 2555, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     text-decoration: none;
     color: #fff;
   }
