@@ -2,13 +2,19 @@ package partials
 
 import "github.com/damongolding/immich-kiosk/internal/config"
 
-templ Redirects(redirects []config.Redirect) {
+templ Redirects(redirects []config.Redirect, password string) {
 	<div id="redirects-container">
 		<div class="redirects">
 			<div class="redirects--shadow">
-				<a href="/">Home</a>
+				if password != "" {
+					<a href={ templ.SafeURL("/?password=" + password) }>Home</a>
+				}
 				for _ , redirect := range redirects {
-					<a href={ templ.SafeURL(redirect.Name) }>{ redirect.Name }</a>
+					if password != "" {
+						<a href={ templ.SafeURL(redirect.Name + "?password=" + password) }>{ redirect.Name }</a>
+					} else {
+						<a href={ templ.SafeURL(redirect.Name) }>{ redirect.Name }</a>
+					}
 				}
 			</div>
 		</div>

@@ -2,7 +2,7 @@ package partials
 
 import "github.com/damongolding/immich-kiosk/internal/config"
 
-templ Menu(showModeInfo bool, redirects []config.Redirect) {
+templ Menu(showModeInfo bool, redirects []config.Redirect, password string) {
 	<nav id="navigation-interaction-area">
 		<div
 			id="navigation-interaction-area--previous-image"
@@ -24,7 +24,7 @@ templ Menu(showModeInfo bool, redirects []config.Redirect) {
 	</nav>
 	<div id="more-info" hx-swap-oob="true"></div>
 	if len(redirects) > 0 {
-		@Redirects(redirects)
+		@Redirects(redirects, password)
 	}
 	<nav class="navigation navigation-hidden">
 		<div class="navigation--media-buttons rounded">
