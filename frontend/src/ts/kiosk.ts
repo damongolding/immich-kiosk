@@ -177,40 +177,45 @@ function handleFullscreenClick(): void {
 }
 
 /**
- * Handle 'i' key press events
- * @description Controls polling and image overlay states:
- * - If polling is paused and overlay shown: resumes polling and hides overlay
- * - Otherwise: ensures polling is paused and toggles overlay visibility
- * This allows for synchronized control of polling and overlay display
+ * Handles toggling of overlays with associated polling state management
+ * @param overlayClass - CSS class name that identifies the overlay
+ * @param toggleFn - Function to toggle the overlay visibility
+ * @description Manages overlay state by:
+ * - Checking current polling and overlay states
+ * - Toggling polling if needed based on overlay state
+ * - Toggling the overlay visibility
  */
-function handleInfoKeyPress(): void {
+function handleOverlayToggle(overlayClass: string, toggleFn: () => void): void {
   const isPollingPaused = document.body.classList.contains("polling-paused");
-  const hasMoreInfo = document.body.classList.contains("more-info");
+  const isOverlayOpen = document.body.classList.contains(overlayClass);
 
-  if (isPollingPaused && hasMoreInfo) {
+  if (isPollingPaused && isOverlayOpen) {
     togglePolling();
-    toggleImageOverlay();
+    toggleFn();
   } else {
     if (!isPollingPaused) {
       togglePolling();
     }
-    toggleImageOverlay();
+    toggleFn();
   }
 }
 
-function handleRedirectstKeyPress(): void {
-  const isPollingPaused = document.body.classList.contains("polling-paused");
-  const isRedirectsOpen = document.body.classList.contains("redirects-open");
+/**
+ * Handles keyboard shortcut for toggling image info overlay
+ * @description Toggles the image info overlay and manages polling state
+ * when 'i' key is pressed
+ */
+function handleInfoKeyPress(): void {
+  handleOverlayToggle("more-info", toggleImageOverlay);
+}
 
-  if (isPollingPaused && isRedirectsOpen) {
-    togglePolling();
-    toggleRedirectsOverlay();
-  } else {
-    if (!isPollingPaused) {
-      togglePolling();
-    }
-    toggleRedirectsOverlay();
-  }
+/**
+ * Handles keyboard shortcut for toggling redirects overlay
+ * @description Toggles the redirects overlay and manages polling state
+ * when 'r' key is pressed
+ */
+function handleRedirectsKeyPress(): void {
+  handleOverlayToggle("redirects-open", toggleRedirectsOverlay);
 }
 
 /**
@@ -244,7 +249,7 @@ function addEventListeners(): void {
         if (!kioskData.showRedirects) return;
         if (e.ctrlKey || e.metaKey) return;
         e.preventDefault();
-        handleRedirectstKeyPress();
+        handleRedirectsKeyPress();
         break;
     }
   });
