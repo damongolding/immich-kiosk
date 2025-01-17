@@ -46,6 +46,7 @@ interface HTMXEvent extends Event {
  * @property timeFormat - Format for time display
  * @property transition - Type of transition animation
  * @property showMoreInfo - Show the more info image overlay
+ * @property showRedirects - Whether to display the redirects overlay
  */
 type KioskData = {
   debug: boolean;
