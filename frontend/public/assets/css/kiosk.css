@@ -1360,7 +1360,7 @@ form {
     height: 100%;
     padding: 0;
     margin: 0;
-    overflow-y: scroll;
+    overflow-y: auto;
     display: -moz-box;
     display: flex;
     -moz-box-orient: vertical;

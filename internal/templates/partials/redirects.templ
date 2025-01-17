@@ -6,6 +6,7 @@ templ Redirects(redirects []config.Redirect) {
 	<div id="redirects-container">
 		<div class="redirects">
 			<div class="redirects--shadow">
+				<a href="/">Home</a>
 				for _ , redirect := range redirects {
 					<a href={ templ.SafeURL(redirect.Name) }>{ redirect.Name }</a>
 				}
