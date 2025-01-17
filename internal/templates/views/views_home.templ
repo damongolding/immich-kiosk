@@ -53,7 +53,7 @@ templ Home(viewData common.ViewData) {
 			}
 			@partials.Menu(viewData.ShowMoreInfo)
 			@partials.Params(viewData.Queries)
-			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd)
+			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd, viewData.DisableSleep)
 			@partials.History()
 			@partials.RefreshCheck(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
 			@partials.OfflineIcon()
