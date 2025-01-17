@@ -16,7 +16,7 @@ import {
   disableImageNavigationButtons,
   enableImageNavigationButtons,
   toggleImageOverlay,
-  toggleLinksOverlay,
+  toggleRedirectsOverlay,
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
@@ -235,7 +235,7 @@ function addEventListeners(): void {
   moreInfoButton?.addEventListener("click", () => toggleImageOverlay());
 
   // Links overlay
-  linksButton?.addEventListener("click", () => toggleLinksOverlay());
+  linksButton?.addEventListener("click", () => toggleRedirectsOverlay());
 
   // Unable to send ajax. probably offline.
   htmx.on("htmx:sendError", () => {

@@ -62,20 +62,11 @@ type Redirect struct {
 	Type string `mapstructure:"type"`
 }
 
-type Link struct {
-	// Name is the friendly identifier used to access the redirect
-	Name string `mapstructure:"name"`
-	// URL is the destination address for the redirect
-	URL string `mapstructure:"url"`
-}
-
 type KioskSettings struct {
 	// Redirects defines a list of URL redirections with friendly names
 	Redirects []Redirect `mapstructure:"redirects" default:"[]"`
 	//RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
 	RedirectsMap map[string]Redirect `json:"-"`
-
-	Links []Link `json:"-" mapstructure:"links" default:"[]"`
 
 	// Port which port to use
 	Port int `json:"port" mapstructure:"port" default:"3000"`

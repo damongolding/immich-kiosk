@@ -11,6 +11,12 @@ let prevImageMenuButton: HTMLElement;
 let imageOverlayVisible: boolean = false;
 let linkOverlayVisible: boolean = false;
 
+const redirectsContainer = document.getElementById(
+  "redirects-container",
+) as HTMLElement | null;
+let redirects: NodeListOf<HTMLAnchorElement> | null;
+let currentRedirectIndex = -1;
+
 /**
  * Disables the image navigation buttons by adding a 'disabled' class
  * Logs an error if buttons are not properly initialized
@@ -45,7 +51,7 @@ function enableImageNavigationButtons(): void {
 function showImageOverlay(): void {
   if (!document.body) return;
   if (!document.body.classList.contains("polling-paused")) return;
-  hideLinksOverlay();
+  hideRedirectsOverlay();
   document.body.classList.add("more-info");
   imageOverlayVisible = true;
 }
@@ -66,33 +72,54 @@ function toggleImageOverlay(): void {
   imageOverlayVisible ? hideImageOverlay() : showImageOverlay();
 }
 
+function redirectKeyHandler(e: KeyboardEvent) {
+  if (redirects) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault(); // Prevent page scrolling
+      currentRedirectIndex = (currentRedirectIndex + 1) % redirects.length;
+      redirects[currentRedirectIndex].focus();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault(); // Prevent page scrolling
+      currentRedirectIndex =
+        (currentRedirectIndex - 1 + redirects.length) % redirects.length;
+      redirects[currentRedirectIndex].focus();
+    }
+  }
+}
+
 /**
  * Shows the links overlay
  * Only works when polling is paused
  * Hides image overlay if visible
  */
-function showLinksOverlay(): void {
+function showRedirectsOverlay(): void {
   if (!document.body) return;
   if (!document.body.classList.contains("polling-paused")) return;
+
+  document.addEventListener("keydown", redirectKeyHandler);
+
   hideImageOverlay();
-  document.body.classList.add("links");
+  document.body.classList.add("redirects-open");
   linkOverlayVisible = true;
 }
 
 /**
  * Hides the links overlay
  */
-function hideLinksOverlay(): void {
+function hideRedirectsOverlay(): void {
   if (!document.body) return;
-  document.body.classList.remove("links");
+  document.body.classList.remove("redirects-open");
+
+  document.removeEventListener("keydown", redirectKeyHandler);
+
   linkOverlayVisible = false;
 }
 
 /**
  * Toggles the links overlay visibility
  */
-function toggleLinksOverlay(): void {
-  linkOverlayVisible ? hideLinksOverlay() : showLinksOverlay();
+function toggleRedirectsOverlay(): void {
+  linkOverlayVisible ? hideRedirectsOverlay() : showRedirectsOverlay();
 }
 
 /**
@@ -109,6 +136,10 @@ function initMenu(
   }
   nextImageMenuButton = nextImageButton;
   prevImageMenuButton = prevImageButton;
+
+  if (redirectsContainer) {
+    redirects = redirectsContainer.querySelectorAll("a");
+  }
 }
 
 export {
@@ -118,5 +149,5 @@ export {
   showImageOverlay,
   hideImageOverlay,
   toggleImageOverlay,
-  toggleLinksOverlay,
+  toggleRedirectsOverlay,
 };

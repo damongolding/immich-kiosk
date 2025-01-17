@@ -1,0 +1,13 @@
+package partials
+
+import "github.com/damongolding/immich-kiosk/internal/config"
+
+templ Redirects(redirects []config.Redirect) {
+	<div id="redirects-container">
+		<div class="redirects">
+			for _ , redirect := range redirects {
+				<a href={ templ.SafeURL(redirect.URL) }>{ redirect.Name }</a>
+			}
+		</div>
+	</div>
+}

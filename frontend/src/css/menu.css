@@ -122,7 +122,7 @@
         }
     }
 
-    &.links {
+    &.redirects-open {
         .navigation--links {
             background-color: var(--mint-green);
             svg {

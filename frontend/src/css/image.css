@@ -1,6 +1,6 @@
 /* --- image metadata --- */
 .polling-paused.more-info,
-.polling-paused.links {
+.polling-paused.redirects-open {
     .image--metadata {
         opacity: 0.2;
     }
