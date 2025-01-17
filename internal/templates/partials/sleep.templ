@@ -20,8 +20,8 @@ templ SleepController(sleepMode bool, sleepIcon bool) {
 }
 
 // Sleep renders a form for sleep mode functionality
-templ Sleep(sleepStart, sleepEnd string) {
-	if sleepStart != "" && sleepEnd != "" {
+templ Sleep(sleepStart, sleepEnd string, disableSleep bool) {
+	if sleepStart != "" && sleepEnd != "" && !disableSleep {
 		<form
 			hx-get="/sleep"
 			hx-trigger="load, every 15s"
