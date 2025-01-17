@@ -162,6 +162,9 @@ async function init(): Promise<void> {
     initMenu(
       nextImageMenuButton as HTMLElement,
       prevImageMenuButton as HTMLElement,
+      kioskData.showMoreInfo,
+      handleInfoKeyPress,
+      handleRedirectsKeyPress,
     );
   } else {
     console.error("Menu buttons not found");

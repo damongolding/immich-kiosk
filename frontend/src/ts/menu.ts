@@ -17,6 +17,10 @@ const redirectsContainer = document.getElementById(
 let redirects: NodeListOf<HTMLAnchorElement> | null;
 let currentRedirectIndex = -1;
 
+let allowMoreInfo: boolean;
+let infoKeyPress: Function;
+let redirectsKeyPress: Function;
+
 /**
  * Disables the image navigation buttons by adding a 'disabled' class
  * Logs an error if buttons are not properly initialized
@@ -87,6 +91,16 @@ function redirectKeyHandler(e: KeyboardEvent) {
         (currentRedirectIndex - 1 + redirects.length) % redirects.length;
       redirects[currentRedirectIndex].focus();
       break;
+    case "KeyI":
+      if (!allowMoreInfo) return;
+      e.preventDefault();
+      infoKeyPress();
+      break;
+    case "KeyR":
+      if (e.ctrlKey || e.metaKey) return;
+      e.preventDefault();
+      redirectsKeyPress();
+      break;
   }
 }
 
@@ -133,6 +147,9 @@ function toggleRedirectsOverlay(): void {
 function initMenu(
   nextImageButton: HTMLElement,
   prevImageButton: HTMLElement,
+  showMoreInfo: boolean,
+  handleInfoKeyPress: Function,
+  handleRedirectsKeyPress: Function,
 ): void {
   if (!nextImageButton || !prevImageButton) {
     throw new Error("Both navigation buttons must be provided");
@@ -143,6 +160,10 @@ function initMenu(
   if (redirectsContainer) {
     redirects = redirectsContainer.querySelectorAll("a");
   }
+
+  allowMoreInfo = showMoreInfo;
+  infoKeyPress = handleInfoKeyPress;
+  redirectsKeyPress = handleRedirectsKeyPress;
 }
 
 export {
