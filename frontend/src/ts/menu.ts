@@ -148,8 +148,8 @@ function initMenu(
   nextImageButton: HTMLElement,
   prevImageButton: HTMLElement,
   showMoreInfo: boolean,
-  handleInfoKeyPress: Function,
-  handleRedirectsKeyPress: Function,
+  handleInfoKeyPress: () => void,
+  handleRedirectsKeyPress: () => void,
 ): void {
   if (!nextImageButton || !prevImageButton) {
     throw new Error("Both navigation buttons must be provided");
