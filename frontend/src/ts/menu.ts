@@ -18,8 +18,8 @@ let redirects: NodeListOf<HTMLAnchorElement> | null;
 let currentRedirectIndex = -1;
 
 let allowMoreInfo: boolean;
-let infoKeyPress: Function;
-let redirectsKeyPress: Function;
+let infoKeyPress: () => void;
+let redirectsKeyPress: () => void;
 
 /**
  * Disables the image navigation buttons by adding a 'disabled' class
