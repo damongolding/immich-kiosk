@@ -9,7 +9,22 @@ let nextImageMenuButton: HTMLElement;
 let prevImageMenuButton: HTMLElement;
 
 let imageOverlayVisible: boolean = false;
+let linkOverlayVisible: boolean = false;
 
+const redirectsContainer = document.getElementById(
+  "redirects-container",
+) as HTMLElement | null;
+let redirects: NodeListOf<HTMLAnchorElement> | null;
+let currentRedirectIndex = -1;
+
+let allowMoreInfo: boolean;
+let infoKeyPress: () => void;
+let redirectsKeyPress: () => void;
+
+/**
+ * Disables the image navigation buttons by adding a 'disabled' class
+ * Logs an error if buttons are not properly initialized
+ */
 function disableImageNavigationButtons(): void {
   if (!nextImageMenuButton || !prevImageMenuButton) {
     console.error("Navigation buttons not initialized");
@@ -19,6 +34,10 @@ function disableImageNavigationButtons(): void {
   htmx.addClass(prevImageMenuButton, "disabled");
 }
 
+/**
+ * Enables the image navigation buttons by removing the 'disabled' class
+ * Logs an error if buttons are not properly initialized
+ */
 function enableImageNavigationButtons(): void {
   if (!nextImageMenuButton || !prevImageMenuButton) {
     console.error("Navigation buttons not initialized");
@@ -28,21 +47,96 @@ function enableImageNavigationButtons(): void {
   htmx.removeClass(prevImageMenuButton as Element, "disabled");
 }
 
+/**
+ * Shows the image information overlay
+ * Only works when polling is paused
+ * Hides links overlay if visible
+ */
 function showImageOverlay(): void {
   if (!document.body) return;
   if (!document.body.classList.contains("polling-paused")) return;
+  hideRedirectsOverlay();
   document.body.classList.add("more-info");
   imageOverlayVisible = true;
 }
 
+/**
+ * Hides the image information overlay
+ */
 function hideImageOverlay(): void {
   if (!document.body) return;
   document.body.classList.remove("more-info");
   imageOverlayVisible = false;
 }
 
+/**
+ * Toggles the image information overlay visibility
+ */
 function toggleImageOverlay(): void {
   imageOverlayVisible ? hideImageOverlay() : showImageOverlay();
+}
+
+function redirectKeyHandler(e: KeyboardEvent) {
+  if (!redirects) return;
+
+  switch (e.code) {
+    case "ArrowDown":
+      e.preventDefault(); // Prevent page scrolling
+      currentRedirectIndex = (currentRedirectIndex + 1) % redirects.length;
+      redirects[currentRedirectIndex].focus();
+      break;
+    case "ArrowUp":
+      e.preventDefault(); // Prevent page scrolling
+      currentRedirectIndex =
+        (currentRedirectIndex - 1 + redirects.length) % redirects.length;
+      redirects[currentRedirectIndex].focus();
+      break;
+    case "KeyI":
+      if (!allowMoreInfo) return;
+      e.preventDefault();
+      infoKeyPress();
+      break;
+    case "KeyR":
+      if (e.ctrlKey || e.metaKey) return;
+      e.preventDefault();
+      redirectsKeyPress();
+      break;
+  }
+}
+
+/**
+ * Shows the links overlay
+ * Only works when polling is paused
+ * Hides image overlay if visible
+ */
+function showRedirectsOverlay(): void {
+  if (!document.body) return;
+  if (!document.body.classList.contains("polling-paused")) return;
+
+  document.addEventListener("keydown", redirectKeyHandler);
+
+  hideImageOverlay();
+  document.body.classList.add("redirects-open");
+  linkOverlayVisible = true;
+}
+
+/**
+ * Hides the links overlay
+ */
+function hideRedirectsOverlay(): void {
+  if (!document.body) return;
+  document.body.classList.remove("redirects-open");
+
+  document.removeEventListener("keydown", redirectKeyHandler);
+
+  linkOverlayVisible = false;
+}
+
+/**
+ * Toggles the links overlay visibility
+ */
+function toggleRedirectsOverlay(): void {
+  linkOverlayVisible ? hideRedirectsOverlay() : showRedirectsOverlay();
 }
 
 /**
@@ -53,12 +147,23 @@ function toggleImageOverlay(): void {
 function initMenu(
   nextImageButton: HTMLElement,
   prevImageButton: HTMLElement,
+  showMoreInfo: boolean,
+  handleInfoKeyPress: () => void,
+  handleRedirectsKeyPress: () => void,
 ): void {
   if (!nextImageButton || !prevImageButton) {
     throw new Error("Both navigation buttons must be provided");
   }
   nextImageMenuButton = nextImageButton;
   prevImageMenuButton = prevImageButton;
+
+  if (redirectsContainer) {
+    redirects = redirectsContainer.querySelectorAll("a");
+  }
+
+  allowMoreInfo = showMoreInfo;
+  infoKeyPress = handleInfoKeyPress;
+  redirectsKeyPress = handleRedirectsKeyPress;
 }
 
 export {
@@ -68,4 +173,5 @@ export {
   showImageOverlay,
   hideImageOverlay,
   toggleImageOverlay,
+  toggleRedirectsOverlay,
 };

@@ -16,6 +16,7 @@ import {
   disableImageNavigationButtons,
   enableImageNavigationButtons,
   toggleImageOverlay,
+  toggleRedirectsOverlay,
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
@@ -45,6 +46,7 @@ interface HTMXEvent extends Event {
  * @property timeFormat - Format for time display
  * @property transition - Type of transition animation
  * @property showMoreInfo - Show the more info image overlay
+ * @property showRedirects - Whether to display the redirects overlay
  */
 type KioskData = {
   debug: boolean;
@@ -59,6 +61,7 @@ type KioskData = {
   timeFormat: TimeFormat;
   transition: string;
   showMoreInfo: boolean;
+  showRedirects: boolean;
 };
 
 const MAX_FRAMES: number = 2 as const;
@@ -97,6 +100,7 @@ const prevImageMenuButton = htmx.find(
 const moreInfoButton = htmx.find(
   ".navigation--more-info",
 ) as HTMLElement | null;
+const linksButton = htmx.find(".navigation--links") as HTMLElement | null;
 const offlineSVG = htmx.find("#offline") as HTMLElement | null;
 
 let requestInFlight = false;
@@ -158,6 +162,9 @@ async function init(): Promise<void> {
     initMenu(
       nextImageMenuButton as HTMLElement,
       prevImageMenuButton as HTMLElement,
+      kioskData.showMoreInfo,
+      handleInfoKeyPress,
+      handleRedirectsKeyPress,
     );
   } else {
     console.error("Menu buttons not found");
@@ -174,25 +181,45 @@ function handleFullscreenClick(): void {
 }
 
 /**
- * Handle 'i' key press events
- * @description Controls polling and image overlay states:
- * - If polling is paused and overlay shown: resumes polling and hides overlay
- * - Otherwise: ensures polling is paused and toggles overlay visibility
- * This allows for synchronized control of polling and overlay display
+ * Handles toggling of overlays with associated polling state management
+ * @param overlayClass - CSS class name that identifies the overlay
+ * @param toggleFn - Function to toggle the overlay visibility
+ * @description Manages overlay state by:
+ * - Checking current polling and overlay states
+ * - Toggling polling if needed based on overlay state
+ * - Toggling the overlay visibility
  */
-function handleInfoKeyPress(): void {
+function handleOverlayToggle(overlayClass: string, toggleFn: () => void): void {
   const isPollingPaused = document.body.classList.contains("polling-paused");
-  const hasMoreInfo = document.body.classList.contains("more-info");
+  const isOverlayOpen = document.body.classList.contains(overlayClass);
 
-  if (isPollingPaused && hasMoreInfo) {
+  if (isPollingPaused && isOverlayOpen) {
     togglePolling();
-    toggleImageOverlay();
+    toggleFn();
   } else {
     if (!isPollingPaused) {
       togglePolling();
     }
-    toggleImageOverlay();
+    toggleFn();
   }
+}
+
+/**
+ * Handles keyboard shortcut for toggling image info overlay
+ * @description Toggles the image info overlay and manages polling state
+ * when 'i' key is pressed
+ */
+function handleInfoKeyPress(): void {
+  handleOverlayToggle("more-info", toggleImageOverlay);
+}
+
+/**
+ * Handles keyboard shortcut for toggling redirects overlay
+ * @description Toggles the redirects overlay and manages polling state
+ * when 'r' key is pressed
+ */
+function handleRedirectsKeyPress(): void {
+  handleOverlayToggle("redirects-open", toggleRedirectsOverlay);
 }
 
 /**
@@ -222,6 +249,12 @@ function addEventListeners(): void {
         e.preventDefault();
         handleInfoKeyPress();
         break;
+      case "KeyR":
+        if (!kioskData.showRedirects) return;
+        if (e.ctrlKey || e.metaKey) return;
+        e.preventDefault();
+        handleRedirectsKeyPress();
+        break;
     }
   });
 
@@ -231,6 +264,9 @@ function addEventListeners(): void {
 
   // More info overlay
   moreInfoButton?.addEventListener("click", () => toggleImageOverlay());
+
+  // Links overlay
+  linksButton?.addEventListener("click", () => toggleRedirectsOverlay());
 
   // Unable to send ajax. probably offline.
   htmx.on("htmx:sendError", () => {
