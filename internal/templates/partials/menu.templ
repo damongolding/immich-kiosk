@@ -1,11 +1,12 @@
 package partials
 
 import (
+	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"net/url"
 )
 
-templ Menu(showModeInfo bool, redirects []config.Redirect, queries url.Values) {
+templ Menu(showModeInfo bool, redirects []config.Redirect, queries url.Values, viewData common.ViewData) {
 	<nav id="navigation-interaction-area">
 		<div
 			id="navigation-interaction-area--previous-image"
@@ -27,7 +28,7 @@ templ Menu(showModeInfo bool, redirects []config.Redirect, queries url.Values) {
 	</nav>
 	<div id="more-info" hx-swap-oob="true"></div>
 	if len(redirects) > 0 {
-		@Redirects(redirects, queries)
+		@Redirects(redirects, queries, viewData)
 	}
 	<nav class="navigation navigation-hidden">
 		<div class="navigation--media-buttons rounded">

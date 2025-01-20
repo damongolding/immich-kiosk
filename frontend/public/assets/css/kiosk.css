@@ -1390,19 +1390,22 @@ form {
         background-image: -moz-radial-gradient(50% 100%, 60% 50%, var(--fade-gradient));
         background-image: radial-gradient(60% 50% at 50% 100%, var(--fade-gradient));
       }
+.polling-paused.redirects-open .redirects h2 {
+      color: #fff;
+    }
 .polling-paused.redirects-open .redirects a {
-    display: block;
-    padding: 1.5rem 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    text-decoration: none;
-    color: #fff;
-  }
+      display: block;
+      padding: 1.5rem 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      text-decoration: none;
+      color: #fff;
+    }
 .polling-paused.redirects-open .redirects a:hover,
-  .polling-paused.redirects-open .redirects a:focus {
-    background-color: var(--mint-green);
-    color: var(--cool-grey);
-    font-weight: bold;
-  }
+      .polling-paused.redirects-open .redirects a:focus {
+        background-color: var(--mint-green);
+        color: var(--cool-grey);
+        font-weight: bold;
+      }
 .frameless.redirects-open #redirects-container {
     margin: 0;
     width: 100%;

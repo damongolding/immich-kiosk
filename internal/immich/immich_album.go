@@ -58,6 +58,11 @@ func (i *ImmichAsset) allAlbums(requestID, deviceID string) (ImmichAlbums, strin
 	return i.albums(requestID, deviceID, false)
 }
 
+// allAlbums retrieves all non-shared albums from Immich.
+func (i *ImmichAsset) AllAlbums(requestID, deviceID string) (ImmichAlbums, string, error) {
+	return i.albums(requestID, deviceID, false)
+}
+
 // albumAssets retrieves details and assets for a specific album from Immich.
 // Parameters:
 //   - albumID: The ID of the album to fetch

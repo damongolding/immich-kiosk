@@ -1,14 +1,35 @@
 package partials
 
 import (
+	"fmt"
+	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich"
 	"net/url"
 )
 
-templ Redirects(redirects []config.Redirect, queries url.Values) {
+func allAlbums(viewData common.ViewData) immich.ImmichAlbums {
+	var albums immich.ImmichAlbums
+
+	i := immich.NewImage(viewData.Config)
+
+	albums, _, err := i.AllAlbums("", viewData.DeviceID)
+	if err != nil {
+		log.Error(err)
+		return albums
+	}
+
+	return albums
+}
+
+templ Redirects(redirects []config.Redirect, queries url.Values, viewData common.ViewData) {
 	<div id="redirects-container">
 		<div class="redirects">
 			<div class="redirects--shadow">
+				<h2>
+					Redirects
+				</h2>
 				if queries.Has("password") {
 					<a href={ templ.SafeURL("/?password=" + queries.Get("password")) }>Home</a>
 				}
@@ -17,6 +38,16 @@ templ Redirects(redirects []config.Redirect, queries url.Values) {
 						<a href={ templ.SafeURL(redirect.Name + "?password=" + queries.Get("password")) }>{ redirect.Name }</a>
 					} else {
 						<a href={ templ.SafeURL(redirect.Name) }>{ redirect.Name }</a>
+					}
+				}
+				<h2>
+					Albums
+				</h2>
+				for _, album := range allAlbums(viewData) {
+					if queries.Has("password") {
+						<a href={ templ.SafeURL(fmt.Sprintf("/?album=%s&password=%s", album.ID, queries.Get("password"))) }>{ album.AlbumName } { fmt.Sprintf("Images: %v", album.AssetCount) }</a>
+					} else {
+						<a href={ templ.SafeURL(fmt.Sprintf("/?album=%s", album.ID)) }>{ album.AlbumName } { fmt.Sprintf("Images: %v", album.AssetCount) }</a>
 					}
 				}
 			</div>
