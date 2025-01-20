@@ -89,8 +89,7 @@ templ Weather(theme string) {
 	<div
 		id="weather"
 		class={ fmt.Sprintf("weather--theme-%s", theme) }
-		hx-get="/weather"
-		hx-include=".kiosk-param"
+		hx-post="/weather"
 		hx-trigger="load, every 61s"
 		hx-swap="innerHTML"
 	></div>

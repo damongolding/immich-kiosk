@@ -136,7 +136,7 @@ func main() {
 
 	e.GET("/clock", routes.Clock(baseConfig))
 
-	e.GET("/weather", routes.Weather(baseConfig))
+	e.POST("/weather", routes.Weather(baseConfig))
 
 	e.GET("/sleep", routes.Sleep(baseConfig))
 
