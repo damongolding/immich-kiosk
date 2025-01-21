@@ -13,7 +13,7 @@ templ Video(viewData common.ViewData) {
 				muted
 				autoplay
 				playsinline
-				src={ fmt.Sprintf("/video/%s", viewData.Images[0].ImmichImage.ID) }
+				src={ fmt.Sprintf("/video/%s", viewData.Images[0].ImmichAsset.ID) }
 			></video>
 		</div>
 	</div>

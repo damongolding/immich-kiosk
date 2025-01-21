@@ -14,6 +14,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
+	videoComponent "github.com/damongolding/immich-kiosk/internal/templates/components/video"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 	"github.com/fogleman/gg"
@@ -111,7 +112,7 @@ func isSleepMode(requestConfig config.Config) bool {
 
 // retrieveImage fetches a random image based on the picked image type.
 // It returns an error if the image retrieval fails.
-func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
+func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, allowedAssetType []immich.ImmichAssetType, requestID, deviceID string, isPrefetch bool) error {
 
 	switch pickedAsset.Type {
 	case kiosk.SourceAlbums:
@@ -129,7 +130,7 @@ func retrieveImage(immichImage *immich.ImmichAsset, pickedAsset utils.WeightedAs
 			}
 			pickedAsset.ID = pickedAlbumID
 		case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
-			return immichImage.RandomImageFromFavourites(requestID, deviceID, isPrefetch)
+			return immichImage.RandomImageFromFavourites(requestID, deviceID, allowedAssetType, isPrefetch)
 		}
 
 		switch strings.ToLower(albumOrder) {
@@ -181,9 +182,9 @@ func fetchImagePreview(immichImage *immich.ImmichAsset, requestID, deviceID stri
 	return img, nil
 }
 
-// processImage handles the entire process of selecting and retrieving an image.
+// processAsset handles the entire process of selecting and retrieving an image.
 // It returns the image bytes and an error if any step fails.
-func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
+func processAsset(immichImage *immich.ImmichAsset, allowedAssetTypes []immich.ImmichAssetType, requestConfig config.Config, requestID string, deviceID string, requestUrl string, isPrefetch bool) (image.Image, error) {
 
 	assets, err := gatherAssetBuckets(immichImage, requestConfig, requestID, deviceID)
 	if err != nil {
@@ -192,11 +193,40 @@ func processImage(immichImage *immich.ImmichAsset, requestConfig config.Config, 
 
 	pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
 
-	if err := retrieveImage(immichImage, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch); err != nil {
+	if err := retrieveImage(immichImage, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, allowedAssetTypes, requestID, deviceID, isPrefetch); err != nil {
 		return nil, err
 	}
 
-	immichImage.KioskSource = pickedAsset.Type
+	//  At this point immichImage could be a video or an image
+	if immichImage.Type == immich.VideoType {
+		return processVideo(immichImage, pickedAsset.Type, requestConfig, requestID, deviceID, requestUrl, isPrefetch)
+	}
+
+	return processImage(immichImage, pickedAsset.Type, requestID, deviceID, isPrefetch)
+}
+
+func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requestConfig config.Config, requestID string, deviceID string, requestUrl string, isPrefetch bool) (image.Image, error) {
+	// We need to see if the video has been downloaded
+	// if so, return nil
+	// if it hasn't been downloaded, download it and return a image
+	//
+	// if the video is not available, run processAsset again to get a new image
+	if VideoManager.IsDownloaded(immichImage.ID) {
+		immichImage.KioskSource = sourceType
+
+		return nil, nil
+	}
+
+	if !VideoManager.IsDownloading(immichImage.ID) {
+		go VideoManager.DownloadVideo(*immichImage, requestConfig, deviceID, requestUrl)
+	}
+
+	return processAsset(immichImage, []immich.ImmichAssetType{immich.VideoType}, requestConfig, requestID, deviceID, requestUrl, isPrefetch)
+}
+
+func processImage(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
+
+	immichImage.KioskSource = sourceType
 
 	return fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
 }
@@ -244,13 +274,6 @@ func logImageProcessing(config config.Config, requestID, deviceID string, isPref
 		log.Debug(requestID, "PREFETCH", deviceID, action+" image in", duration)
 	} else {
 		log.Debug(requestID, action+" image in", duration)
-	}
-}
-
-// trimHistory ensures that the history slice doesn't exceed the specified maximum length.
-func trimHistory(history *[]string, maxLength int) {
-	if len(*history) > maxLength {
-		*history = (*history)[len(*history)-maxLength:]
 	}
 }
 
@@ -309,9 +332,21 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		immichImage.RatioWanted = imageOrientation
 	}
 
-	img, err := processImage(&immichImage, requestConfig, requestID, deviceID, isPrefetch)
+	// TODO: add user preferences for video and enfore isPrefetch
+	allowedAssetTypes := []immich.ImmichAssetType{immich.ImageType, immich.VideoType}
+
+	img, err := processAsset(&immichImage, allowedAssetTypes, requestConfig, requestID, deviceID, c.Request().URL.String(), isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, fmt.Errorf("selecting image: %w", err)
+	}
+
+	// Video has been chosen
+	if img == nil {
+		return common.ViewImageData{
+			ImmichAsset:   immichImage,
+			ImageData:     "",
+			ImageBlurData: "",
+		}, nil
 	}
 
 	if strings.EqualFold(requestConfig.ImageEffect, "smart-zoom") && len(immichImage.People)+len(immichImage.UnassignedFaces) == 0 {
@@ -341,7 +376,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	}
 
 	return common.ViewImageData{
-		ImmichImage:   immichImage,
+		ImmichAsset:   immichImage,
 		ImageData:     imgString,
 		ImageBlurData: imgBlurString,
 	}, nil
@@ -355,19 +390,8 @@ func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, req
 	return processViewImageData(imageOrientation, requestConfig, c, isPrefetch)
 }
 
-func imagePreFetch(requestData *common.RouteRequestData, c echo.Context) {
-
-	requestConfig := requestData.RequestConfig
-	requestID := requestData.RequestID
-	deviceID := requestData.DeviceID
-
-	viewDataToAdd, err := generateViewData(requestConfig, c, requestID, true)
-	if err != nil {
-		log.Error("generateViewData", "prefetch", true, "err", err)
-		return
-	}
-
-	trimHistory(&requestConfig.History, 10)
+func assetToCache(viewDataToAdd common.ViewData, requestConfig *config.Config, deviceID string, requestData *common.RouteRequestData, c echo.Context) {
+	utils.TrimHistory(&requestConfig.History, 10)
 
 	cachedViewData := []common.ViewData{}
 
@@ -382,7 +406,21 @@ func imagePreFetch(requestData *common.RouteRequestData, c echo.Context) {
 	cache.Set(viewCacheKey, cachedViewData)
 
 	go webhooks.Trigger(requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
+}
 
+func imagePreFetch(requestData *common.RouteRequestData, c echo.Context) {
+
+	requestConfig := requestData.RequestConfig
+	requestID := requestData.RequestID
+	deviceID := requestData.DeviceID
+
+	viewDataToAdd, err := generateViewData(requestConfig, c, requestID, true)
+	if err != nil {
+		log.Error("generateViewData", "prefetch", true, "err", err)
+		return
+	}
+
+	assetToCache(viewDataToAdd, &requestConfig, deviceID, requestData, c)
 }
 
 // fromCache retrieves cached page data for a given request and device ID.
@@ -391,13 +429,15 @@ func fromCache(urlString string, deviceID string) []common.ViewData {
 	if data, found := cache.Get(cacheKey); found {
 		cachedPageData, ok := data.([]common.ViewData)
 		if !ok {
-			log.Error("cache: invalid data type", "key", cacheKey)
+			log.Error("cache: invalid data type", "type", fmt.Sprintf("%T", data), "key", cacheKey)
 			cache.Delete(cacheKey)
 			return nil
 		}
+
 		if len(cachedPageData) > 0 {
 			return cachedPageData
 		}
+
 		cache.Delete(cacheKey)
 	}
 	return nil
@@ -414,8 +454,12 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 	cache.Set(cacheKey, cachedViewData[1:])
 
 	// Update history which will be outdated in cache
-	trimHistory(&requestConfig.History, 10)
+	utils.TrimHistory(&requestConfig.History, 10)
 	viewDataToRender.History = requestConfig.History
+
+	if viewDataToRender.Images[0].ImmichAsset.Type == immich.VideoType {
+		return Render(c, http.StatusOK, videoComponent.Video(viewDataToRender))
+	}
 
 	return Render(c, http.StatusOK, imageComponent.Image(viewDataToRender))
 }
@@ -449,7 +493,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 		}
 		viewData.Images = append(viewData.Images, viewDataSplitView)
 
-		if viewDataSplitView.ImmichImage.IsLandscape {
+		if viewDataSplitView.ImmichAsset.IsLandscape {
 			return viewData, nil
 		}
 
@@ -460,7 +504,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 				return viewData, err
 			}
 
-			if viewDataSplitView.ImmichImage.ID != viewDataSplitViewSecond.ImmichImage.ID {
+			if viewDataSplitView.ImmichAsset.ID != viewDataSplitViewSecond.ImmichAsset.ID {
 				viewData.Images = append(viewData.Images, viewDataSplitViewSecond)
 				break
 			}
@@ -473,7 +517,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 		}
 		viewData.Images = append(viewData.Images, viewDataSplitView)
 
-		if viewDataSplitView.ImmichImage.IsPortrait {
+		if viewDataSplitView.ImmichAsset.IsPortrait {
 			return viewData, nil
 		}
 
@@ -484,7 +528,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 				return viewData, err
 			}
 
-			if viewDataSplitView.ImmichImage.ID != viewDataSplitViewSecond.ImmichImage.ID {
+			if viewDataSplitView.ImmichAsset.ID != viewDataSplitViewSecond.ImmichAsset.ID {
 				viewData.Images = append(viewData.Images, viewDataSplitViewSecond)
 				break
 			}

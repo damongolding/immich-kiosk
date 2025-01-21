@@ -78,7 +78,7 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 	if imageIndex < 0 || imageIndex >= len(viewData.Images) {
 		return ""
 	}
-	if viewData.Images[imageIndex].ImmichImage.LocalDateTime.IsZero() {
+	if viewData.Images[imageIndex].ImmichAsset.LocalDateTime.IsZero() {
 		return ""
 	}
 
@@ -94,7 +94,7 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 		imageDateFormat = config.DefaultDateLayout
 	}
 
-	localDateTime := viewData.Images[imageIndex].ImmichImage.LocalDateTime
+	localDateTime := viewData.Images[imageIndex].ImmichAsset.LocalDateTime
 	switch {
 	case viewData.ShowImageDate && viewData.ShowImageTime:
 		imageDate = fmt.Sprintf(
@@ -121,7 +121,7 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 // Returns:
 //   - bool: true if album/person name should be displayed, false otherwise
 func shouldShowSourceName(viewData common.ViewData, imageIndex int) bool {
-	image := viewData.Images[imageIndex].ImmichImage
+	image := viewData.Images[imageIndex].ImmichAsset
 	source := image.KioskSource
 
 	isAlbumSource := source == kiosk.SourceAlbums || source == kiosk.SourceDateRangeAlbum || source == kiosk.SourceMemories
@@ -136,11 +136,11 @@ func shouldShowSourceName(viewData common.ViewData, imageIndex int) bool {
 templ imageMetadata(viewData common.ViewData, imageIndex int) {
 	{{ showSourceName := shouldShowSourceName(viewData, imageIndex) }}
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
-	{{ showDescription := viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichImage.ExifInfo.Description != "" }}
+	{{ showDescription := viewData.ShowImageDescription && viewData.Images[imageIndex].ImmichAsset.ExifInfo.Description != "" }}
 	<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
 		if showSourceName {
 			<div class="image--metadata--source">
-				{ viewData.Images[imageIndex].ImmichImage.KioskSourceName }
+				{ viewData.Images[imageIndex].ImmichAsset.KioskSourceName }
 			</div>
 		}
 		if showDateTime {
@@ -151,23 +151,23 @@ templ imageMetadata(viewData common.ViewData, imageIndex int) {
 		if showDescription {
 			<div class="image--metadata--desciption">
 				<small>
-					{ viewData.Images[imageIndex].ImmichImage.ExifInfo.Description }
+					{ viewData.Images[imageIndex].ImmichAsset.ExifInfo.Description }
 				</small>
 			</div>
 		}
 		if viewData.ShowImageExif {
 			<div class="image--metadata--exif">
-				@templ.Raw(ImageExif(viewData.Images[imageIndex].ImmichImage.ExifInfo))
+				@templ.Raw(ImageExif(viewData.Images[imageIndex].ImmichAsset.ExifInfo))
 			</div>
 		}
 		if viewData.ShowImageLocation {
 			<div class="image--metadata--location">
-				@templ.Raw(ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo, viewData.HideCountries))
+				@templ.Raw(ImageLocation(viewData.Images[imageIndex].ImmichAsset.ExifInfo, viewData.HideCountries))
 			</div>
 		}
 		if viewData.ShowImageID {
 			<div class="image--metadata--id">
-				{ viewData.Images[imageIndex].ImmichImage.ID }
+				{ viewData.Images[imageIndex].ImmichAsset.ID }
 			</div>
 		}
 	</div>

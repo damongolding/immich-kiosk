@@ -26,12 +26,12 @@ templ renderMoreInfo(viewData common.ViewData) {
 			<div class="more-info--image">
 				<div class="more-info--image--data">
 					@originalImageTimeLocation(viewData, i, viewData.HideCountries)
-					@cameraData(img.ImmichImage.ExifInfo)
-					@originalImageData(img.ImmichImage)
-					@people(img.ImmichImage.People)
+					@cameraData(img.ImmichAsset.ExifInfo)
+					@originalImageData(img.ImmichAsset)
+					@people(img.ImmichAsset.People)
 					<div class="more-info--button-group">
 						if viewData.ShowMoreInfoImageLink {
-							<a class="more-info--image-link" href={ templ.SafeURL(immichImageUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichImage.ID)) } target="_blank">
+							<a class="more-info--image-link" href={ templ.SafeURL(immichImageUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichAsset.ID)) } target="_blank">
 								View image in Immich
 							</a>
 						}
@@ -51,7 +51,7 @@ templ renderMoreInfo(viewData common.ViewData) {
 				</div>
 				if viewData.ShowMoreInfoQrCode {
 					<div class="more-info--image--qr-code">
-						<img src={ utils.CreateQrCode(immichImageUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichImage.ID)) }/>
+						<img src={ utils.CreateQrCode(immichImageUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichAsset.ID)) }/>
 					</div>
 				}
 			</div>
@@ -108,7 +108,7 @@ templ originalImageData(img immich.ImmichAsset) {
 //   - hideCountries: List of country names to hide from location display
 templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCountries []string) {
 	{{ 	imageDatetime := ImageDateTime(viewData, imageIndex) }}
-	{{ location := ImageLocation(viewData.Images[imageIndex].ImmichImage.ExifInfo, hideCountries) }}
+	{{ location := ImageLocation(viewData.Images[imageIndex].ImmichAsset.ExifInfo, hideCountries) }}
 	<div>
 		<div>
 			<h3>
@@ -121,8 +121,8 @@ templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCo
 		</div>
 		<div>
 			if location != "" {
-				{{ latitude := viewData.Images[imageIndex].ImmichImage.ExifInfo.Latitude }}
-				{{ longitude := viewData.Images[imageIndex].ImmichImage.ExifInfo.Longitude }}
+				{{ latitude := viewData.Images[imageIndex].ImmichAsset.ExifInfo.Latitude }}
+				{{ longitude := viewData.Images[imageIndex].ImmichAsset.ExifInfo.Longitude }}
 				if latitude != 0 && longitude != 0 {
 					<a class="more-info--image--maps-link" href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", latitude, longitude)) } target="_blank">
 						@templ.Raw(location)

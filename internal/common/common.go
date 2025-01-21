@@ -93,7 +93,7 @@ func InitializeSecret() error {
 
 // ViewImageData contains the image data and metadata for displaying an image in the view
 type ViewImageData struct {
-	ImmichImage   immich.ImmichAsset // ImmichImage contains immich asset data
+	ImmichAsset   immich.ImmichAsset // ImmichImage contains immich asset data
 	ImageData     string             // ImageData contains the image as base64 data
 	ImageBlurData string             // ImageBlurData contains the blurred image as base64 data
 	ImageDate     string             // ImageDate contains the date of the image

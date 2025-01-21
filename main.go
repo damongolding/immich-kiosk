@@ -67,12 +67,14 @@ func main() {
 		log.Error("Failed to load config", "err", err)
 	}
 
-	videoManager, err := video.New(common.Context)
+	videoManager, err := video.New(common.Context, *baseConfig)
 	if err != nil {
 		log.Error("Failed to initialize video manager", "err", err)
 	}
 
-	log.Info(videoManager.DownloadQueue)
+	videoManager.MaxAge = time.Duration(10) * time.Minute
+
+	routes.VideoManager = videoManager
 
 	if baseConfig.Kiosk.WatchConfig {
 		log.Infof("Watching %s for changes", baseConfig.V.ConfigFileUsed())
@@ -154,6 +156,8 @@ func main() {
 
 	e.POST("/webhooks", routes.Webhooks(baseConfig), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
+	e.GET("/video/:videoID", routes.NewVideo(baseConfig))
+
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
 	for _, w := range baseConfig.WeatherLocations {
@@ -170,6 +174,8 @@ func main() {
 	}()
 
 	<-common.Context.Done()
+
+	video.Delete()
 
 	fmt.Println("")
 	log.Info("Kiosk shutting down")

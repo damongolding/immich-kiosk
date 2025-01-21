@@ -13,18 +13,6 @@ templ History() {
 	</form>
 }
 
-func newHistoryEntry(images []common.ViewImageData) string {
-	if len(images) == 0 {
-		return ""
-	}
-	newImages := make([]string, len(images))
-	for i, entry := range images {
-		sanitisedID := template.HTMLEscapeString(entry.ImmichImage.ID)
-		newImages[i] = sanitisedID
-	}
-	return strings.Join(newImages, ",")
-}
-
 // renderHistory renders a form containing the viewing history of images.
 //
 // Parameters:
@@ -36,4 +24,16 @@ templ RenderHistory(viewData common.ViewData) {
 		}
 		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Images) }/>
 	</form>
+}
+
+func newHistoryEntry(images []common.ViewImageData) string {
+	if len(images) == 0 {
+		return ""
+	}
+	newImages := make([]string, len(images))
+	for i, entry := range images {
+		sanitisedID := template.HTMLEscapeString(entry.ImmichAsset.ID)
+		newImages[i] = sanitisedID
+	}
+	return strings.Join(newImages, ",")
 }

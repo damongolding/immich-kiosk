@@ -102,7 +102,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 					}
 
 					viewData.Images[i] = common.ViewImageData{
-						ImmichImage: image,
+						ImmichAsset: image,
 					}
 					return nil
 				})

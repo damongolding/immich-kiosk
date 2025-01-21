@@ -50,6 +50,9 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 				requestEchoCtx := c
 				go imagePreFetch(requestData, requestEchoCtx)
 				go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
+
+				log.Info("cachedViewData", "is a", cachedViewData[0].Images[0].ImmichAsset.Type)
+
 				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID)
 			}
 			log.Debug(requestID, "deviceID", deviceID, "cache miss for new image")
@@ -66,7 +69,9 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)
+
 		return Render(c, http.StatusOK, imageComponent.Image(viewData))
+
 	}
 }
 
@@ -97,7 +102,9 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		immichImage := immich.NewImage(requestConfig)
 
-		img, err := processImage(&immichImage, requestConfig, requestID, "", false)
+		allowedAssetTypes := []immich.ImmichAssetType{immich.ImageType}
+
+		img, err := processAsset(&immichImage, allowedAssetTypes, requestConfig, requestID, "", "", false)
 		if err != nil {
 			return err
 		}

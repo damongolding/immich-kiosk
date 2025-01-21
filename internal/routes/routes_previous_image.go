@@ -106,7 +106,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 				wg.Wait()
 
 				ViewData.Images[i] = common.ViewImageData{
-					ImmichImage:   image,
+					ImmichAsset:   image,
 					ImageData:     imgString,
 					ImageBlurData: imgBlurString,
 				}

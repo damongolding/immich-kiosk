@@ -83,7 +83,7 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 		images := make([]immich.ImmichAsset, len(viewData.Images))
 
 		for i, image := range viewData.Images {
-			images[i] = image.ImmichImage
+			images[i] = image.ImmichAsset
 		}
 
 		payload := Payload{

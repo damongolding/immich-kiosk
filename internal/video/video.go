@@ -13,13 +13,19 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
 var (
 	tmpDirectory       string
 	videoDirectory     string
 	customTempVideoDir = filepath.Join(os.TempDir(), "immich-kiosk", "videos")
+
+	requestConfig config.Config
 )
 
 type Video struct {
@@ -27,12 +33,11 @@ type Video struct {
 	LastAccessed time.Time
 	FileName     string
 	FilePath     string
+	ImmichAsset  immich.ImmichAsset
 }
 
 type VideoManager struct {
 	mu sync.RWMutex
-
-	baseConfig config.Config
 
 	DownloadQueue []string
 
@@ -40,10 +45,12 @@ type VideoManager struct {
 	MaxAge time.Duration
 }
 
-func New(ctx context.Context) (*VideoManager, error) {
+func New(ctx context.Context, base config.Config) (*VideoManager, error) {
 	if err := VideoInit(); err != nil {
 		return nil, err
 	}
+
+	requestConfig = base
 
 	v := &VideoManager{}
 	go v.VideoCleanup(ctx)
@@ -69,19 +76,23 @@ func (v *VideoManager) VideoCleanup(ctx context.Context) {
 	// Run cleanup every minute
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
-
+	// Add cleanup on function exit
 	for {
 		select {
 		case <-ctx.Done():
-			log.Debug("Remove custom temp video directory")
-			err := os.Remove(customTempVideoDir)
-			if err != nil {
-				log.Error("Error removing custom temp directory", "err", err)
-			}
 			return
 		case <-ticker.C:
 			v.cleanup()
 		}
+	}
+}
+
+func Delete() {
+	log.Debug("Remove custom temp video directory")
+	err := os.RemoveAll(customTempVideoDir)
+	if err != nil {
+		log.Error("Error removing custom temp directory", "err", err)
+		fmt.Print(err)
 	}
 }
 
@@ -122,9 +133,18 @@ func (v *VideoManager) cleanup() {
 	}
 }
 
+func (v *VideoManager) IsDownloaded(id string) bool {
+
+	if _, err := v.GetVideo(id); err == nil {
+		return true
+	}
+
+	return false
+}
+
 func (v *VideoManager) IsDownloading(id string) bool {
 	v.mu.RLock()
-	defer v.mu.Unlock()
+	defer v.mu.RUnlock()
 
 	return slices.Contains(v.DownloadQueue, id)
 }
@@ -135,6 +155,7 @@ func (v *VideoManager) GetVideo(id string) (Video, error) {
 
 	for _, video := range v.Videos {
 		if video.ID == id {
+			video.LastAccessed = time.Now()
 			return video, nil
 		}
 	}
@@ -142,7 +163,7 @@ func (v *VideoManager) GetVideo(id string) (Video, error) {
 	return Video{}, fmt.Errorf("video not found")
 }
 
-func (v *VideoManager) AddVideo(id, fileName, filePath string) {
+func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, requestConfig *config.Config, deviceID, requestUrl string, immichAsset immich.ImmichAsset) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
@@ -151,7 +172,22 @@ func (v *VideoManager) AddVideo(id, fileName, filePath string) {
 		FileName:     fileName,
 		FilePath:     filePath,
 		LastAccessed: time.Now(),
+		ImmichAsset:  immichAsset,
 	})
+
+	viewDataToAdd := common.ViewData{
+		DeviceID: deviceID,
+		Config:   *requestConfig,
+		Images: []common.ViewImageData{
+			common.ViewImageData{
+				ImmichAsset: immichAsset,
+			},
+		},
+	}
+
+	log.Info("Adding video to cache")
+
+	ViewDataToCache(viewDataToAdd, requestConfig, deviceID, nil, requestUrl)
 }
 
 func (v *VideoManager) updateLastAccessed(id string) {
@@ -166,9 +202,28 @@ func (v *VideoManager) updateLastAccessed(id string) {
 	}
 }
 
-func (v *VideoManager) downloadVideo(id string) {
+func (v *VideoManager) removeFromQueue(id string) {
+	v.mu.Lock()
+	defer v.mu.Unlock()
 
-	u, err := url.Parse(v.baseConfig.ImmichUrl)
+	for i, videoID := range v.DownloadQueue {
+		if videoID == id {
+			v.DownloadQueue = append(v.DownloadQueue[:i], v.DownloadQueue[i+1:]...)
+			break
+		}
+	}
+}
+
+func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConfig config.Config, deviceID string, requestUrl string) {
+
+	log.Info("Downloading video")
+
+	videoID := immichAsset.ID
+
+	v.DownloadQueue = append(v.DownloadQueue, videoID)
+	defer v.removeFromQueue(videoID)
+
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		log.Error(err)
 		return
@@ -177,7 +232,7 @@ func (v *VideoManager) downloadVideo(id string) {
 	apiUrl := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   path.Join("api", "assets", id, "video", "playback"),
+		Path:   path.Join("api", "assets", videoID, "video", "playback"),
 	}
 
 	// Create HTTP client
@@ -186,23 +241,25 @@ func (v *VideoManager) downloadVideo(id string) {
 	// Create request to your API
 	req, err := http.NewRequest("GET", apiUrl.String(), nil)
 	if err != nil {
-		log.Error("Error fetching video")
+		log.Error("Error fetching video: NewRequest", "err", err)
 		return
 	}
 
 	req.Header.Set("Accept", "application/octet-stream")
-	req.Header.Set("x-api-key", v.baseConfig.ImmichApiKey)
+	req.Header.Set("x-api-key", requestConfig.ImmichApiKey)
 
 	// Make the request
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Error("Error fetching video")
+		log.Error("Error fetching video: Do", "err", err)
 		return
 	}
 	defer resp.Body.Close()
 
+	ext := filepath.Ext(immichAsset.OriginalFileName)
+
 	// Get the video filename
-	filename := id + ".mp4"
+	filename := videoID + ext
 	filePath := filepath.Join(customTempVideoDir, filename)
 
 	// Create a file to save the video
@@ -220,6 +277,25 @@ func (v *VideoManager) downloadVideo(id string) {
 		return
 	}
 
-	v.AddVideo(id, filename, filePath)
+	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestUrl, immichAsset)
+
 	log.Debug("downloaded video", "path", filePath)
+}
+
+func ViewDataToCache(viewDataToAdd common.ViewData, requestConfig *config.Config, deviceID string, requestData any, url string) {
+	utils.TrimHistory(&requestConfig.History, 10)
+
+	cachedViewData := []common.ViewData{}
+
+	viewCacheKey := cache.ViewCacheKey(url, deviceID)
+
+	if data, found := cache.Get(viewCacheKey); found {
+		cachedViewData = data.([]common.ViewData)
+	}
+
+	cachedViewData = append(cachedViewData, viewDataToAdd)
+
+	cache.Set(viewCacheKey, cachedViewData)
+
+	// go webhooks.Trigger(requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
 }

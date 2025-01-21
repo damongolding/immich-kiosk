@@ -69,7 +69,7 @@ templ renderImageBackground(viewData common.ViewData, imageData common.ViewImage
 templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 	switch viewData.ImageEffect {
 		case "zoom", "smart-zoom":
-			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichImage) {
+			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
 				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
 			}
 		default:
