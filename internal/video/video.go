@@ -2,13 +2,18 @@ package video
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"slices"
 	"sync"
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/config"
 )
 
 var (
@@ -21,10 +26,13 @@ type Video struct {
 	ID           string
 	LastAccessed time.Time
 	FileName     string
+	FilePath     string
 }
 
 type VideoManager struct {
 	mu sync.RWMutex
+
+	baseConfig config.Config
 
 	DownloadQueue []string
 
@@ -121,13 +129,27 @@ func (v *VideoManager) IsDownloading(id string) bool {
 	return slices.Contains(v.DownloadQueue, id)
 }
 
-func (v *VideoManager) AddVideo(id, fileName string) {
+func (v *VideoManager) GetVideo(id string) (Video, error) {
+	v.mu.RLock()
+	defer v.mu.RUnlock()
+
+	for _, video := range v.Videos {
+		if video.ID == id {
+			return video, nil
+		}
+	}
+
+	return Video{}, fmt.Errorf("video not found")
+}
+
+func (v *VideoManager) AddVideo(id, fileName, filePath string) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
 	v.Videos = append(v.Videos, Video{
 		ID:           id,
 		FileName:     fileName,
+		FilePath:     filePath,
 		LastAccessed: time.Now(),
 	})
 }
@@ -146,4 +168,58 @@ func (v *VideoManager) updateLastAccessed(id string) {
 
 func (v *VideoManager) downloadVideo(id string) {
 
+	u, err := url.Parse(v.baseConfig.ImmichUrl)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	apiUrl := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   path.Join("api", "assets", id, "video", "playback"),
+	}
+
+	// Create HTTP client
+	client := &http.Client{}
+
+	// Create request to your API
+	req, err := http.NewRequest("GET", apiUrl.String(), nil)
+	if err != nil {
+		log.Error("Error fetching video")
+		return
+	}
+
+	req.Header.Set("Accept", "application/octet-stream")
+	req.Header.Set("x-api-key", v.baseConfig.ImmichApiKey)
+
+	// Make the request
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error("Error fetching video")
+		return
+	}
+	defer resp.Body.Close()
+
+	// Get the video filename
+	filename := id + ".mp4"
+	filePath := filepath.Join(customTempVideoDir, filename)
+
+	// Create a file to save the video
+	out, err := os.Create(filePath)
+	if err != nil {
+		log.Error("Error creating video file", "err", err)
+		return
+	}
+	defer out.Close()
+
+	// Copy the video data to the file
+	_, err = out.ReadFrom(resp.Body)
+	if err != nil {
+		log.Error("Error writing video file", "err", err)
+		return
+	}
+
+	v.AddVideo(id, filename, filePath)
+	log.Debug("downloaded video", "path", filePath)
 }

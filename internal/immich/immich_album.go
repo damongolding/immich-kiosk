@@ -203,7 +203,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 		for assetIndex, asset := range album.Assets {
 
 			// We only want images and that are not trashed or archived (unless wanted by user)
-			isInvalidType := asset.Type != ImageType
+			isInvalidType := asset.Type == AudioType || asset.Type == OtherType
 			isTrashed := asset.IsTrashed
 			isArchived := asset.IsArchived && !requestConfig.ShowArchived
 			isInvalidRatio := !i.ratioCheck(&asset)

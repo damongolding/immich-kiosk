@@ -1,0 +1,19 @@
+package components
+
+import (
+	"fmt"
+	"github.com/damongolding/immich-kiosk/internal/common"
+)
+
+templ Video(viewData common.ViewData) {
+	<div class="frame">
+		<div class="frame--video">
+			<video
+				muted
+				autoplay
+				src={ fmt.Sprintf("/video/%s", viewData.Images[0].ImmichImage.ID) }
+			></video>
+		</div>
+	</div>
+	@renderHistory(viewData)
+}
