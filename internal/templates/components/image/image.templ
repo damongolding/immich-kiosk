@@ -1,6 +1,9 @@
 package components
 
-import "github.com/damongolding/immich-kiosk/internal/common"
+import (
+	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+)
 
 // Image is the main entry point for rendering images.
 // It determines whether to use a single or split view layout based on the number of images,
@@ -14,7 +17,7 @@ templ Image(viewData common.ViewData) {
 	} else {
 		@layoutSplitView(viewData)
 	}
-	@renderHistory(viewData)
+	@partials.RenderHistory(viewData)
 	if viewData.ShowMoreInfo {
 		@renderMoreInfo(viewData)
 	}

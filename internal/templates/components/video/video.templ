@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 )
 
 templ Video(viewData common.ViewData) {
@@ -16,5 +17,5 @@ templ Video(viewData common.ViewData) {
 			></video>
 		</div>
 	</div>
-	@renderHistory(viewData)
+	@partials.RenderHistory(viewData)
 }
