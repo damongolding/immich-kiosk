@@ -30,6 +30,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/routes"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/damongolding/immich-kiosk/internal/video"
 	"github.com/damongolding/immich-kiosk/internal/weather"
 )
 
@@ -65,6 +66,13 @@ func main() {
 	if err != nil {
 		log.Error("Failed to load config", "err", err)
 	}
+
+	videoManager, err := video.New(common.Context)
+	if err != nil {
+		log.Error("Failed to initialize video manager", "err", err)
+	}
+
+	log.Info(videoManager.DownloadQueue)
 
 	if baseConfig.Kiosk.WatchConfig {
 		log.Infof("Watching %s for changes", baseConfig.V.ConfigFileUsed())

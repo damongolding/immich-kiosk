@@ -52,7 +52,7 @@ func VideoInit() error {
 		return err
 	}
 
-	log.Debug("created video tmp dir at", "path", customTempVideoDir)
+	log.Info("created video tmp dir at", "path", customTempVideoDir)
 
 	return nil
 }
@@ -142,4 +142,8 @@ func (v *VideoManager) updateLastAccessed(id string) {
 			break
 		}
 	}
+}
+
+func (v *VideoManager) downloadVideo(id string) {
+
 }
