@@ -1307,6 +1307,7 @@ form {
 
 /* src/css/video.css */
 .frame--video {
+  position: relative;
   display: -moz-box;
   display: flex;
   -moz-box-pack: center;

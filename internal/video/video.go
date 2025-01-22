@@ -173,7 +173,7 @@ func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, reques
 		DeviceID: deviceID,
 		Config:   *requestConfig,
 		Images: []common.ViewImageData{
-			common.ViewImageData{
+			{
 				ImmichAsset:   immichAsset,
 				ImageBlurData: imageBlurData,
 			},
@@ -274,27 +274,27 @@ func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConf
 
 	imgBytes, err := immichAsset.ImagePreview()
 	if err != nil {
-		log.Errorf("getting image preview: %w", err)
+		log.Error("getting image preview", "err", err)
 	}
 
 	img, err := utils.BytesToImage(imgBytes)
 	if err != nil {
-		log.Errorf("image BytesToImage: %w", err)
+		log.Error("image BytesToImage", "err", err)
 	}
 
 	img = utils.ApplyExifOrientation(img, immichAsset.IsLandscape, immichAsset.ExifInfo.Orientation)
 
 	img, err = utils.BlurImage(img, false, 0, 0)
 	if err != nil {
-		log.Errorf("getting image preview: %w", err)
+		log.Error("getting image preview", "err", err)
 	}
 
 	imageBlurData, err := utils.ImageToBase64(img)
 	if err != nil {
-		log.Errorf("converting image to base64: %w", err)
+		log.Error("converting image to base64", "err", err)
 	}
 
-	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestUrl, immichAsset, imageBlurData)
-
 	log.Debug("downloaded video", "path", filePath)
+
+	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestUrl, immichAsset, imageBlurData)
 }

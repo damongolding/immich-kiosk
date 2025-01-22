@@ -51,8 +51,6 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 				go imagePreFetch(requestData, requestEchoCtx)
 				go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
 
-				log.Info("cachedViewData", "is a", cachedViewData[0].Images[0].ImmichAsset.Type)
-
 				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID)
 			}
 			log.Debug(requestID, "deviceID", deviceID, "cache miss for new image")

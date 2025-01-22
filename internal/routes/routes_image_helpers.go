@@ -340,15 +340,16 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	}
 
 	// TODO: add user preferences for video and enfore isPrefetch
-	allowedAssetTypes := []immich.ImmichAssetType{immich.ImageType, immich.VideoType}
+	allowedAssetTypes := []immich.ImmichAssetType{immich.ImageType}
+
+	if isPrefetch {
+		log.Info("allowing video")
+		allowedAssetTypes = append(allowedAssetTypes, immich.VideoType)
+	}
 
 	img, err := processAsset(&immichImage, allowedAssetTypes, requestConfig, requestID, deviceID, c.Request().URL.String(), isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, fmt.Errorf("selecting image: %w", err)
-	}
-
-	if immichImage.Type == immich.VideoType {
-		log.Info("Video found", "img", img)
 	}
 
 	if strings.EqualFold(requestConfig.ImageEffect, "smart-zoom") && len(immichImage.People)+len(immichImage.UnassignedFaces) == 0 {
