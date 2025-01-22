@@ -219,6 +219,7 @@ function addEventListeners(): void {
         break;
       case "KeyI":
         if (!kioskData.showMoreInfo) return;
+        if (e.ctrlKey || e.metaKey) return;
         e.preventDefault();
         handleInfoKeyPress();
         break;
