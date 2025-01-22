@@ -17,6 +17,7 @@ templ Video(viewData common.ViewData) {
 				autoplay
 				playsinline
 				preload="auto"
+				poster={ viewData.Images[0].ImageData }
 			>
 				<source
 					src={ fmt.Sprintf("/video/%s", viewData.Images[0].ImmichAsset.ID) }

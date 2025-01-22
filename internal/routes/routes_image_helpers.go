@@ -212,11 +212,12 @@ func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requ
 
 	// Video is available
 	if VideoManager.IsDownloaded(immichImage.ID) {
+
 		immichImage.KioskSource = sourceType
 
-		img, err := fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
+		log.Info("Video is downloaded", "id", immichImage.ID)
 
-		return img, err
+		return fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
 	}
 
 	//  video is not available, is video downloading?
@@ -254,8 +255,13 @@ func imageToBase64(img image.Image, config config.Config, requestID, deviceID st
 
 // processBlurredImage applies a blur effect to the image if required by the configuration.
 // It returns the blurred image as a base64 string and an error if any occurs.
-func processBlurredImage(img image.Image, config config.Config, requestID, deviceID string, isPrefetch bool) (string, error) {
-	if !config.BackgroundBlur || strings.EqualFold(config.ImageFit, "cover") || (config.ImageEffect != "" && config.ImageEffect != "none") {
+func processBlurredImage(img image.Image, assetType immich.ImmichAssetType, config config.Config, requestID, deviceID string, isPrefetch bool) (string, error) {
+	isImage := assetType == immich.ImageType
+	shouldSkipBlur := !config.BackgroundBlur ||
+		strings.EqualFold(config.ImageFit, "cover") ||
+		(config.ImageEffect != "" && config.ImageEffect != "none")
+
+	if isImage && shouldSkipBlur {
 		return "", nil
 	}
 
@@ -343,7 +349,6 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	allowedAssetTypes := []immich.ImmichAssetType{immich.ImageType}
 
 	if isPrefetch {
-		log.Info("allowing video")
 		allowedAssetTypes = append(allowedAssetTypes, immich.VideoType)
 	}
 
@@ -373,7 +378,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		return common.ViewImageData{}, err
 	}
 
-	imgBlurString, err := processBlurredImage(img, requestConfig, requestID, deviceID, isPrefetch)
+	imgBlurString, err := processBlurredImage(img, immichImage.Type, requestConfig, requestID, deviceID, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, err
 	}
@@ -485,7 +490,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 		}
 		viewData.Images = append(viewData.Images, viewDataSplitView)
 
-		if viewDataSplitView.ImmichAsset.IsLandscape {
+		if viewDataSplitView.ImmichAsset.Type == immich.VideoType || viewDataSplitView.ImmichAsset.IsLandscape {
 			return viewData, nil
 		}
 

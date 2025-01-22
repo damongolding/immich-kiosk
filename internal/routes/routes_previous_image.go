@@ -98,7 +98,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 					return fmt.Errorf("converting image to base64: %w", err)
 				}
 
-				imgBlurString, err := processBlurredImage(img, requestConfig, requestID, deviceID, false)
+				imgBlurString, err := processBlurredImage(img, image.Type, requestConfig, requestID, deviceID, false)
 				if err != nil {
 					return fmt.Errorf("converting blurred image to base64: %w", err)
 				}

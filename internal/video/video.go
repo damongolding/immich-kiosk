@@ -157,7 +157,7 @@ func (v *VideoManager) GetVideo(id string) (Video, error) {
 	return Video{}, fmt.Errorf("video not found")
 }
 
-func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, requestConfig *config.Config, deviceID, requestUrl string, immichAsset immich.ImmichAsset, imageBlurData string) {
+func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, requestConfig *config.Config, deviceID, requestUrl string, immichAsset immich.ImmichAsset, imageData, imageBlurData string) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
@@ -175,6 +175,7 @@ func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, reques
 		Images: []common.ViewImageData{
 			{
 				ImmichAsset:   immichAsset,
+				ImageData:     imageData,
 				ImageBlurData: imageBlurData,
 			},
 		},
@@ -211,7 +212,7 @@ func (v *VideoManager) removeFromQueue(id string) {
 
 func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConfig config.Config, deviceID string, requestUrl string) {
 
-	log.Info("Downloading video")
+	log.Info("Downloading video", "id", immichAsset.ID)
 
 	videoID := immichAsset.ID
 
@@ -284,17 +285,29 @@ func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConf
 
 	img = utils.ApplyExifOrientation(img, immichAsset.IsLandscape, immichAsset.ExifInfo.Orientation)
 
-	img, err = utils.BlurImage(img, false, 0, 0)
+	if requestConfig.OptimizeImages {
+		img, err = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
+		if err != nil {
+			log.Error("OptimizeImages", "err", err)
+		}
+	}
+
+	imgBlur, err := utils.BlurImage(img, false, 0, 0)
 	if err != nil {
 		log.Error("getting image preview", "err", err)
 	}
 
-	imageBlurData, err := utils.ImageToBase64(img)
+	imageData, err := utils.ImageToBase64(img)
+	if err != nil {
+		log.Error("converting image to base64", "err", err)
+	}
+
+	imageBlurData, err := utils.ImageToBase64(imgBlur)
 	if err != nil {
 		log.Error("converting image to base64", "err", err)
 	}
 
 	log.Debug("downloaded video", "path", filePath)
 
-	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestUrl, immichAsset, imageBlurData)
+	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestUrl, immichAsset, imageData, imageBlurData)
 }
