@@ -21,11 +21,7 @@ import (
 )
 
 var (
-	tmpDirectory       string
-	videoDirectory     string
 	customTempVideoDir = filepath.Join(os.TempDir(), "immich-kiosk", "videos")
-
-	requestConfig config.Config
 )
 
 type Video struct {
@@ -49,8 +45,6 @@ func New(ctx context.Context, base config.Config) (*VideoManager, error) {
 	if err := VideoInit(); err != nil {
 		return nil, err
 	}
-
-	requestConfig = base
 
 	v := &VideoManager{}
 	go v.VideoCleanup(ctx)
@@ -163,7 +157,7 @@ func (v *VideoManager) GetVideo(id string) (Video, error) {
 	return Video{}, fmt.Errorf("video not found")
 }
 
-func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, requestConfig *config.Config, deviceID, requestUrl string, immichAsset immich.ImmichAsset) {
+func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, requestConfig *config.Config, deviceID, requestUrl string, immichAsset immich.ImmichAsset, imageBlurData string) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
@@ -180,14 +174,15 @@ func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, reques
 		Config:   *requestConfig,
 		Images: []common.ViewImageData{
 			common.ViewImageData{
-				ImmichAsset: immichAsset,
+				ImmichAsset:   immichAsset,
+				ImageBlurData: imageBlurData,
 			},
 		},
 	}
 
 	log.Info("Adding video to cache")
 
-	ViewDataToCache(viewDataToAdd, requestConfig, deviceID, nil, requestUrl)
+	cache.AssetToCache(viewDataToAdd, requestConfig, deviceID, requestUrl)
 }
 
 func (v *VideoManager) updateLastAccessed(id string) {
@@ -277,25 +272,29 @@ func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConf
 		return
 	}
 
-	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestUrl, immichAsset)
-
-	log.Debug("downloaded video", "path", filePath)
-}
-
-func ViewDataToCache(viewDataToAdd common.ViewData, requestConfig *config.Config, deviceID string, requestData any, url string) {
-	utils.TrimHistory(&requestConfig.History, 10)
-
-	cachedViewData := []common.ViewData{}
-
-	viewCacheKey := cache.ViewCacheKey(url, deviceID)
-
-	if data, found := cache.Get(viewCacheKey); found {
-		cachedViewData = data.([]common.ViewData)
+	imgBytes, err := immichAsset.ImagePreview()
+	if err != nil {
+		log.Errorf("getting image preview: %w", err)
 	}
 
-	cachedViewData = append(cachedViewData, viewDataToAdd)
+	img, err := utils.BytesToImage(imgBytes)
+	if err != nil {
+		log.Errorf("image BytesToImage: %w", err)
+	}
 
-	cache.Set(viewCacheKey, cachedViewData)
+	img = utils.ApplyExifOrientation(img, immichAsset.IsLandscape, immichAsset.ExifInfo.Orientation)
 
-	// go webhooks.Trigger(requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
+	img, err = utils.BlurImage(img, false, 0, 0)
+	if err != nil {
+		log.Errorf("getting image preview: %w", err)
+	}
+
+	imageBlurData, err := utils.ImageToBase64(img)
+	if err != nil {
+		log.Errorf("converting image to base64: %w", err)
+	}
+
+	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestUrl, immichAsset, imageBlurData)
+
+	log.Debug("downloaded video", "path", filePath)
 }

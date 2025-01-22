@@ -209,18 +209,22 @@ func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requ
 	// We need to see if the video has been downloaded
 	// if so, return nil
 	// if it hasn't been downloaded, download it and return a image
-	//
-	// if the video is not available, run processAsset again to get a new image
+
+	// Video is available
 	if VideoManager.IsDownloaded(immichImage.ID) {
 		immichImage.KioskSource = sourceType
 
-		return nil, nil
+		img, err := fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
+
+		return img, err
 	}
 
+	//  video is not available, is video downloading?
 	if !VideoManager.IsDownloading(immichImage.ID) {
 		go VideoManager.DownloadVideo(*immichImage, requestConfig, deviceID, requestUrl)
 	}
 
+	// if the video is not available, run processAsset again to get a new image
 	return processAsset(immichImage, []immich.ImmichAssetType{immich.VideoType}, requestConfig, requestID, deviceID, requestUrl, isPrefetch)
 }
 
@@ -228,7 +232,10 @@ func processImage(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requ
 
 	immichImage.KioskSource = sourceType
 
-	return fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
+	img, err := fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
+
+	return img, err
+
 }
 
 // imageToBase64 converts image bytes to a base64 string and logs the processing time.
@@ -340,13 +347,8 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		return common.ViewImageData{}, fmt.Errorf("selecting image: %w", err)
 	}
 
-	// Video has been chosen
-	if img == nil {
-		return common.ViewImageData{
-			ImmichAsset:   immichImage,
-			ImageData:     "",
-			ImageBlurData: "",
-		}, nil
+	if immichImage.Type == immich.VideoType {
+		log.Info("Video found", "img", img)
 	}
 
 	if strings.EqualFold(requestConfig.ImageEffect, "smart-zoom") && len(immichImage.People)+len(immichImage.UnassignedFaces) == 0 {
@@ -391,19 +393,8 @@ func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, req
 }
 
 func assetToCache(viewDataToAdd common.ViewData, requestConfig *config.Config, deviceID string, requestData *common.RouteRequestData, c echo.Context) {
-	utils.TrimHistory(&requestConfig.History, 10)
 
-	cachedViewData := []common.ViewData{}
-
-	viewCacheKey := cache.ViewCacheKey(c.Request().URL.String(), deviceID)
-
-	if data, found := cache.Get(viewCacheKey); found {
-		cachedViewData = data.([]common.ViewData)
-	}
-
-	cachedViewData = append(cachedViewData, viewDataToAdd)
-
-	cache.Set(viewCacheKey, cachedViewData)
+	cache.AssetToCache(viewDataToAdd, requestConfig, deviceID, c.Request().URL.String())
 
 	go webhooks.Trigger(requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
 }

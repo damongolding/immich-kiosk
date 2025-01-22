@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	gocache "github.com/patrickmn/go-cache"
 )
 
@@ -87,4 +89,21 @@ func Replace(key string, x any) error {
 // The item will expire after the given duration has elapsed. Returns an error if the key does not exist.
 func ReplaceWithExpiration(key string, x any, t time.Duration) error {
 	return kioskCache.Replace(key, x, t)
+}
+
+func AssetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string) {
+	utils.TrimHistory(&requestConfig.History, 10)
+
+	cachedViewData := []T{}
+
+	viewCacheKey := ViewCacheKey(url, deviceID)
+
+	if data, found := Get(viewCacheKey); found {
+		cachedViewData = data.([]T)
+	}
+
+	cachedViewData = append(cachedViewData, viewDataToAdd)
+
+	Set(viewCacheKey, cachedViewData)
+
 }

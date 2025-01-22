@@ -8,13 +8,21 @@ import (
 
 templ Video(viewData common.ViewData) {
 	<div class="frame">
+		<div class="frame--background">
+			<img src={ viewData.Images[0].ImageBlurData } alt="Blurred image background"/>
+		</div>
 		<div class="frame--video">
 			<video
 				muted
 				autoplay
 				playsinline
-				src={ fmt.Sprintf("/video/%s", viewData.Images[0].ImmichAsset.ID) }
-			></video>
+				preload="auto"
+			>
+				<source
+					src={ fmt.Sprintf("/video/%s", viewData.Images[0].ImmichAsset.ID) }
+					type={ viewData.Images[0].ImmichAsset.OriginalMimeType }
+				/>
+			</video>
 		</div>
 	</div>
 	@partials.RenderHistory(viewData)

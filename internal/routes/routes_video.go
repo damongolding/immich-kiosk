@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/labstack/echo/v4"
 )
@@ -52,6 +53,7 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 		end = fileSize - 1
 
 		if rangeHeader != "" {
+			log.Info("using rangeHeader")
 			// Remove "bytes=" prefix
 			rangeStr := strings.Replace(rangeHeader, "bytes=", "", 1)
 			// Split the range into start-end
@@ -98,13 +100,12 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 		c.Response().Header().Set("Content-Length", strconv.FormatInt(chunkSize, 10))
 		c.Response().Header().Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end, fileSize))
 		c.Response().Header().Set("Accept-Ranges", "bytes")
-		c.Response().Header().Set("Connection", "keep-alive")
-		c.Response().Header().Set("Keep-Alive", "timeout=5, max=100")
+		// c.Response().Header().Set("Connection", "keep-alive")
+		// c.Response().Header().Set("Keep-Alive", "timeout=5, max=100")
 
 		// Create a limited reader for the chunk
 		chunk := io.LimitReader(video, chunkSize)
 
-		// Stream the chunk
 		return c.Stream(http.StatusPartialContent, vid.ImmichAsset.OriginalMimeType, chunk)
 	}
 }
