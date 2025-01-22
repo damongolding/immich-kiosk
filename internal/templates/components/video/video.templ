@@ -26,5 +26,6 @@ templ Video(viewData common.ViewData) {
 			</video>
 		</div>
 	</div>
+	<div hx-on::load="kiosk.stopPolling()" hidden></div>
 	@partials.RenderHistory(viewData)
 }

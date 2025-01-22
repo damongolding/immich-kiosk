@@ -7,6 +7,7 @@ import {
 import {
   initPolling,
   startPolling,
+  stopPolling,
   togglePolling,
   pausePolling,
 } from "./polling";
@@ -405,6 +406,7 @@ document.addEventListener("DOMContentLoaded", () => {
 export {
   cleanupFrames,
   startPolling,
+  stopPolling,
   setRequestLock,
   releaseRequestLock,
   checkHistoryExists,

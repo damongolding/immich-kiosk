@@ -129,6 +129,7 @@ export {
   initPolling,
   startPolling,
   pausePolling,
+  stopPolling,
   resumePolling,
   togglePolling,
 };
