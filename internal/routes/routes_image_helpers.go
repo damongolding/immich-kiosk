@@ -454,7 +454,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 	utils.TrimHistory(&requestConfig.History, 10)
 	viewDataToRender.History = requestConfig.History
 
-	if viewDataToRender.Images[0].ImmichAsset.Type == immich.VideoType {
+	if viewDataToRender.Assets[0].ImmichAsset.Type == immich.VideoType {
 		return Render(c, http.StatusOK, videoComponent.Video(viewDataToRender))
 	}
 
@@ -481,14 +481,14 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 		if err != nil {
 			return viewData, err
 		}
-		viewData.Images = append(viewData.Images, viewDataSingle)
+		viewData.Assets = append(viewData.Assets, viewDataSingle)
 
 	case "splitview":
 		viewDataSplitView, err := ProcessViewImageData(requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
 		}
-		viewData.Images = append(viewData.Images, viewDataSplitView)
+		viewData.Assets = append(viewData.Assets, viewDataSplitView)
 
 		if viewDataSplitView.ImmichAsset.Type == immich.VideoType || viewDataSplitView.ImmichAsset.IsLandscape {
 			return viewData, nil
@@ -502,7 +502,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 			}
 
 			if viewDataSplitView.ImmichAsset.ID != viewDataSplitViewSecond.ImmichAsset.ID {
-				viewData.Images = append(viewData.Images, viewDataSplitViewSecond)
+				viewData.Assets = append(viewData.Assets, viewDataSplitViewSecond)
 				break
 			}
 		}
@@ -512,7 +512,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 		if err != nil {
 			return viewData, err
 		}
-		viewData.Images = append(viewData.Images, viewDataSplitView)
+		viewData.Assets = append(viewData.Assets, viewDataSplitView)
 
 		if viewDataSplitView.ImmichAsset.IsPortrait {
 			return viewData, nil
@@ -526,7 +526,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 			}
 
 			if viewDataSplitView.ImmichAsset.ID != viewDataSplitViewSecond.ImmichAsset.ID {
-				viewData.Images = append(viewData.Images, viewDataSplitViewSecond)
+				viewData.Assets = append(viewData.Assets, viewDataSplitViewSecond)
 				break
 			}
 		}
@@ -536,7 +536,7 @@ func generateViewData(requestConfig config.Config, c echo.Context, deviceID stri
 		if err != nil {
 			return viewData, err
 		}
-		viewData.Images = append(viewData.Images, viewDataSingle)
+		viewData.Assets = append(viewData.Assets, viewDataSingle)
 	}
 
 	return viewData, nil

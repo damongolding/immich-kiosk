@@ -9,6 +9,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
+	videoComponent "github.com/damongolding/immich-kiosk/internal/templates/components/video"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
@@ -67,6 +68,10 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)
+
+		if viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+			return Render(c, http.StatusOK, videoComponent.Video(viewData))
+		}
 
 		return Render(c, http.StatusOK, imageComponent.Image(viewData))
 

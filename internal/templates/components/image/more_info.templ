@@ -22,7 +22,7 @@ import (
 //   - viewData: The view data containing images and display options
 templ renderMoreInfo(viewData common.ViewData) {
 	<div id="more-info" hx-swap-oob="true">
-		for i, img := range viewData.Images {
+		for i, img := range viewData.Assets {
 			<div class="more-info--image">
 				<div class="more-info--image--data">
 					@originalImageTimeLocation(viewData, i, viewData.HideCountries)
@@ -108,7 +108,7 @@ templ originalImageData(img immich.ImmichAsset) {
 //   - hideCountries: List of country names to hide from location display
 templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCountries []string) {
 	{{ 	imageDatetime := ImageDateTime(viewData, imageIndex) }}
-	{{ location := ImageLocation(viewData.Images[imageIndex].ImmichAsset.ExifInfo, hideCountries) }}
+	{{ location := ImageLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo, hideCountries) }}
 	<div>
 		<div>
 			<h3>
@@ -121,8 +121,8 @@ templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCo
 		</div>
 		<div>
 			if location != "" {
-				{{ latitude := viewData.Images[imageIndex].ImmichAsset.ExifInfo.Latitude }}
-				{{ longitude := viewData.Images[imageIndex].ImmichAsset.ExifInfo.Longitude }}
+				{{ latitude := viewData.Assets[imageIndex].ImmichAsset.ExifInfo.Latitude }}
+				{{ longitude := viewData.Assets[imageIndex].ImmichAsset.ExifInfo.Longitude }}
 				if latitude != 0 && longitude != 0 {
 					<a class="more-info--image--maps-link" href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", latitude, longitude)) } target="_blank">
 						@templ.Raw(location)

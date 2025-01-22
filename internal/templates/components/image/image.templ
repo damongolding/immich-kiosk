@@ -12,7 +12,7 @@ import (
 // Parameters:
 //   - viewData: ViewData containing all necessary information for rendering the images.
 templ Image(viewData common.ViewData) {
-	if len(viewData.Images) < 2 {
+	if len(viewData.Assets) < 2 {
 		@layoutSingleView(viewData)
 	} else {
 		@layoutSplitView(viewData)

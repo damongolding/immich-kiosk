@@ -9,7 +9,7 @@ import (
 templ Video(viewData common.ViewData) {
 	<div class="frame">
 		<div class="frame--background">
-			<img src={ viewData.Images[0].ImageBlurData } alt="Blurred image background"/>
+			<img src={ viewData.Assets[0].ImageBlurData } alt="Blurred image background"/>
 		</div>
 		<div class="frame--video">
 			<video
@@ -17,11 +17,11 @@ templ Video(viewData common.ViewData) {
 				autoplay
 				playsinline
 				preload="auto"
-				poster={ viewData.Images[0].ImageData }
+				poster={ viewData.Assets[0].ImageData }
 			>
 				<source
-					src={ fmt.Sprintf("/video/%s", viewData.Images[0].ImmichAsset.ID) }
-					type={ viewData.Images[0].ImmichAsset.OriginalMimeType }
+					src={ fmt.Sprintf("/video/%s", viewData.Assets[0].ImmichAsset.ID) }
+					type={ viewData.Assets[0].ImmichAsset.OriginalMimeType }
 				/>
 			</video>
 		</div>

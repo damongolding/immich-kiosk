@@ -103,7 +103,7 @@ type ViewImageData struct {
 type ViewData struct {
 	KioskVersion  string          // KioskVersion contains the current build version of Kiosk
 	DeviceID      string          // DeviceID contains the unique identifier for the device
-	Images        []ViewImageData // Images contains the collection of images to display in view
+	Assets        []ViewImageData // Assets contains the collection of assets to display in view
 	Queries       url.Values      // Queries contains the URL query parameters
 	CustomCss     []byte          // CustomCss contains custom CSS styling as bytes
 	config.Config                 // Config contains the instance configuration

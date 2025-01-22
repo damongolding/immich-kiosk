@@ -22,7 +22,7 @@ templ RenderHistory(viewData common.ViewData) {
 		for _, historyEntry := range viewData.History {
 			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
 		}
-		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Images) }/>
+		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Assets) }/>
 	</form>
 }
 

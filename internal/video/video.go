@@ -172,7 +172,7 @@ func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, reques
 	viewDataToAdd := common.ViewData{
 		DeviceID: deviceID,
 		Config:   *requestConfig,
-		Images: []common.ViewImageData{
+		Assets: []common.ViewImageData{
 			{
 				ImmichAsset:   immichAsset,
 				ImageData:     imageData,
@@ -186,17 +186,17 @@ func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, reques
 	cache.AssetToCache(viewDataToAdd, requestConfig, deviceID, requestUrl)
 }
 
-func (v *VideoManager) updateLastAccessed(id string) {
-	v.mu.Lock()
-	defer v.mu.Unlock()
+// func (v *VideoManager) updateLastAccessed(id string) {
+// 	v.mu.Lock()
+// 	defer v.mu.Unlock()
 
-	for i := range v.Videos {
-		if v.Videos[i].ID == id {
-			v.Videos[i].LastAccessed = time.Now()
-			break
-		}
-	}
-}
+// 	for i := range v.Videos {
+// 		if v.Videos[i].ID == id {
+// 			v.Videos[i].LastAccessed = time.Now()
+// 			break
+// 		}
+// 	}
+// }
 
 func (v *VideoManager) removeFromQueue(id string) {
 	v.mu.Lock()
