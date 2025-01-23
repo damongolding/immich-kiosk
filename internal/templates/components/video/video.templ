@@ -26,7 +26,6 @@ templ Video(viewData common.ViewData) {
 			>
 				<source
 					src={ fmt.Sprintf("/video/%s", viewData.Assets[0].ImmichAsset.ID) }
-					type={ viewData.Assets[0].ImmichAsset.OriginalMimeType }
 				/>
 			</video>
 		</div>
