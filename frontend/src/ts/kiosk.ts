@@ -20,6 +20,7 @@ import {
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
+import { videoHandler } from "./video";
 
 ("use strict");
 
@@ -411,4 +412,5 @@ export {
   releaseRequestLock,
   checkHistoryExists,
   clientData,
+  videoHandler,
 };

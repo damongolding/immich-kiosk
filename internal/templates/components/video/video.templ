@@ -3,16 +3,21 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/google/uuid"
 )
 
 templ Video(viewData common.ViewData) {
-	<div class="frame">
+	{{ ID := uuid.New().String() }}
+	<div class="frame" hx-on::load="kiosk.stopPolling()">
 		<div class="frame--background">
 			<img src={ viewData.Assets[0].ImageBlurData } alt="Blurred image background"/>
 		</div>
 		<div class="frame--video">
 			<video
+				id={ ID }
+				hx-on:play="kiosk.videoHandler(this.id)"
 				muted
 				autoplay
 				playsinline
@@ -26,6 +31,5 @@ templ Video(viewData common.ViewData) {
 			</video>
 		</div>
 	</div>
-	<div hx-on::load="kiosk.stopPolling()" hidden></div>
-	@partials.RenderHistory(viewData)
+	@partials.RenderHistory(viewData, immich.VideoType)
 }

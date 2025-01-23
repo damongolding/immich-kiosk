@@ -10,6 +10,13 @@ import (
 	gocache "github.com/patrickmn/go-cache"
 )
 
+type CachePosition string
+
+const (
+	PREPEND CachePosition = "prepend"
+	APPEND  CachePosition = "append"
+)
+
 // Package cache provides a simple in-memory cache implementation using github.com/patrickmn/go-cache
 var (
 	kioskCache *gocache.Cache
@@ -92,6 +99,14 @@ func ReplaceWithExpiration(key string, x any, t time.Duration) error {
 }
 
 func AssetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string) {
+	assetToCache(viewDataToAdd, requestConfig, deviceID, url, APPEND)
+}
+
+func AssetToCacheWithPosition[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string, position CachePosition) {
+	assetToCache(viewDataToAdd, requestConfig, deviceID, url, position)
+}
+
+func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string, position CachePosition) {
 	utils.TrimHistory(&requestConfig.History, 10)
 
 	cachedViewData := []T{}
@@ -102,8 +117,12 @@ func AssetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID
 		cachedViewData = data.([]T)
 	}
 
-	cachedViewData = append(cachedViewData, viewDataToAdd)
+	switch position {
+	case APPEND:
+		cachedViewData = append(cachedViewData, viewDataToAdd)
+	case PREPEND:
+		cachedViewData = append([]T{viewDataToAdd}, cachedViewData...)
+	}
 
 	Set(viewCacheKey, cachedViewData)
-
 }

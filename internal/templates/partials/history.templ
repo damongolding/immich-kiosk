@@ -2,6 +2,7 @@ package partials
 
 import (
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/immich"
 	"html/template"
 	"strings"
 )
@@ -17,12 +18,16 @@ templ History() {
 //
 // Parameters:
 //   - viewData: ViewData containing the history and current images.
-templ RenderHistory(viewData common.ViewData) {
+templ RenderHistory(viewData common.ViewData, assetType immich.ImmichAssetType) {
 	<form id="kiosk-history" hx-swap-oob="true">
 		for _, historyEntry := range viewData.History {
 			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
 		}
-		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Assets) }/>
+		if assetType == immich.VideoType {
+			<input type="hidden" class="kiosk-history--entry" name="history" value={ viewData.Assets[0].ImmichAsset.ID + ":video" }/>
+		} else {
+			<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Assets) }/>
+		}
 	</form>
 }
 

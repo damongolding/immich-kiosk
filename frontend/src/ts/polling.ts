@@ -125,11 +125,16 @@ function togglePolling(hideOverlay: boolean = false) {
   isPaused ? resumePolling(hideOverlay) : pausePolling();
 }
 
+function nextAsset() {
+  htmx.trigger(kioskElement as HTMLElement, "kiosk-new-image");
+}
+
 export {
   initPolling,
   startPolling,
   pausePolling,
   stopPolling,
+  nextAsset,
   resumePolling,
   togglePolling,
 };

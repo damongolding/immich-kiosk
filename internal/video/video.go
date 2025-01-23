@@ -181,9 +181,7 @@ func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, reques
 		},
 	}
 
-	log.Info("Adding video to cache")
-
-	cache.AssetToCache(viewDataToAdd, requestConfig, deviceID, requestUrl)
+	cache.AssetToCacheWithPosition(viewDataToAdd, requestConfig, deviceID, requestUrl, cache.PREPEND)
 }
 
 // func (v *VideoManager) updateLastAccessed(id string) {

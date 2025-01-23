@@ -14,6 +14,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
+	videoComponent "github.com/damongolding/immich-kiosk/internal/templates/components/video"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
@@ -44,6 +45,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 			"path", c.Request().URL.String(),
 			"requestConfig", requestConfig.String(),
 		)
+
 		historyLen := len(requestConfig.History)
 
 		if isSleepMode(requestConfig) || historyLen < 2 {
@@ -64,26 +66,26 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		g, _ := errgroup.WithContext(c.Request().Context())
 
-		for i, imageID := range prevImages {
-			i, imageID := i, imageID
+		for i, assetID := range prevImages {
+			i, assetID := i, strings.Replace(assetID, ":video", "", 1)
 			g.Go(func() error {
-				image := immich.NewImage(requestConfig)
-				image.ID = imageID
+				asset := immich.NewImage(requestConfig)
+				asset.ID = assetID
 
 				var wg sync.WaitGroup
 				wg.Add(1)
 
-				go func(image *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
+				go func(asset *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
 					defer wg.Done()
 
-					err := image.AssetInfo(requestID, deviceID)
+					err := asset.AssetInfo(requestID, deviceID)
 					if err != nil {
 						log.Error(err)
 					}
 
-				}(&image, requestID, &wg)
+				}(&asset, requestID, &wg)
 
-				imgBytes, err := image.ImagePreview()
+				imgBytes, err := asset.ImagePreview()
 				if err != nil {
 					return fmt.Errorf("retrieving image: %w", err)
 				}
@@ -98,7 +100,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 					return fmt.Errorf("converting image to base64: %w", err)
 				}
 
-				imgBlurString, err := processBlurredImage(img, image.Type, requestConfig, requestID, deviceID, false)
+				imgBlurString, err := processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
 				if err != nil {
 					return fmt.Errorf("converting blurred image to base64: %w", err)
 				}
@@ -106,7 +108,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 				wg.Wait()
 
 				ViewData.Assets[i] = common.ViewImageData{
-					ImmichAsset:   image,
+					ImmichAsset:   asset,
 					ImageData:     imgString,
 					ImageBlurData: imgBlurString,
 				}
@@ -120,6 +122,11 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.PreviousAsset, ViewData)
+
+		if ViewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+			return Render(c, http.StatusOK, videoComponent.Video(ViewData))
+		}
+
 		return Render(c, http.StatusOK, imageComponent.Image(ViewData))
 	}
 }
