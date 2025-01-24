@@ -123,7 +123,7 @@ func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.PreviousAsset, ViewData)
 
-		if ViewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+		if requestConfig.ShowTime && ViewData.Assets[0].ImmichAsset.Type == immich.VideoType {
 			return Render(c, http.StatusOK, videoComponent.Video(ViewData))
 		}
 

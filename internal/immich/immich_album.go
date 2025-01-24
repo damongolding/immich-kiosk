@@ -200,10 +200,15 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 			}
 		}
 
+		allowedTypes := []ImmichAssetType{ImageType}
+
+		if requestConfig.ShowVideo {
+			allowedTypes = append(allowedTypes, VideoType)
+		}
+
 		for assetIndex, asset := range album.Assets {
 
-			// We only want images and that are not trashed or archived (unless wanted by user)
-			isInvalidType := asset.Type == AudioType || asset.Type == OtherType
+			isInvalidType := !slices.Contains(allowedTypes, asset.Type)
 			isTrashed := asset.IsTrashed
 			isArchived := asset.IsArchived && !requestConfig.ShowArchived
 			isInvalidRatio := !i.ratioCheck(&asset)

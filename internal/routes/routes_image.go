@@ -69,7 +69,7 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)
 
-		if viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+		if requestConfig.ShowVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
 			return Render(c, http.StatusOK, videoComponent.Video(viewData))
 		}
 

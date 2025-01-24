@@ -98,6 +98,10 @@ function pausePolling(showMenu: boolean = true) {
     document.body.classList.add("polling-paused");
   }
 
+  if (video) {
+    video.pause();
+  }
+
   isPaused = true;
 }
 
@@ -107,7 +111,11 @@ function pausePolling(showMenu: boolean = true) {
 function resumePolling(hideOverlay: boolean = false) {
   if (!isPaused) return;
 
-  animationFrameId = requestAnimationFrame(updateKiosk);
+  if (video) {
+    video.play();
+  } else {
+    animationFrameId = requestAnimationFrame(updateKiosk);
+  }
 
   progressBarElement?.classList.remove("progress--bar-paused");
   menuElement?.classList.add("navigation-hidden");
@@ -129,6 +137,56 @@ function nextAsset() {
   htmx.trigger(kioskElement as HTMLElement, "kiosk-new-image");
 }
 
+let video: HTMLVideoElement | null = null;
+
+function videoHandler(id: string): void {
+  if (!id) return;
+
+  video = document.getElementById(id) as HTMLVideoElement;
+
+  if (!video) {
+    console.error("Video element not found");
+    return;
+  }
+
+  progressBarElement?.classList.remove("progress--bar-paused");
+
+  // Start the smooth progress update
+  startSmoothProgress();
+
+  video.addEventListener(
+    "ended",
+    () => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      videoCleanup();
+      nextAsset();
+    },
+    false,
+  );
+}
+
+function startSmoothProgress(): void {
+  function updateProgressSmooth() {
+    if (!video || !progressBarElement) return;
+
+    const percentage = (video.currentTime / video.duration) * 100;
+    progressBarElement.style.width = `${percentage}%`;
+
+    animationFrameId = requestAnimationFrame(updateProgressSmooth);
+  }
+
+  updateProgressSmooth();
+}
+
+// Clean up function when needed
+function videoCleanup(): void {
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId);
+  }
+}
+
 export {
   initPolling,
   startPolling,
@@ -137,4 +195,5 @@ export {
   nextAsset,
   resumePolling,
   togglePolling,
+  videoHandler,
 };

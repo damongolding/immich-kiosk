@@ -10,6 +10,7 @@ import {
   stopPolling,
   togglePolling,
   pausePolling,
+  videoHandler,
 } from "./polling";
 import { preventSleep } from "./wakelock";
 import {
@@ -20,7 +21,6 @@ import {
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
-import { videoHandler } from "./video";
 
 ("use strict");
 

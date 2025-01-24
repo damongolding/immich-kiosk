@@ -206,6 +206,9 @@ type Config struct {
 	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
 	// Memories show memories
 	Memories bool `json:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
+	// ShowVideo whether to display videos
+	// Currently limited to albums
+	ShowVideo bool `json:"showVideo" mapstructure:"show_video" query:"show_video" form:"show_video" default:"false"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
