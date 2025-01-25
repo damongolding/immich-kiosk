@@ -593,11 +593,6 @@ http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 
 ### Date range
 
-> [!WARNING]
-> I have found an issue in the Immich API which means that the date range is not working as expected.
-> It seems API is matching against "createdBefore" and "createdAfter" instead of the EXIF meta data.
-> I have raised this with the Immich team and will update this when it is fixed.
-
 > [!TIP]
 > You can use `today` as an alias for the current date.
 > e.g. `http://{URL}?date=2023-01-01_to_today`
