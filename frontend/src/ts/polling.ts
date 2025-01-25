@@ -51,6 +51,50 @@ function updateKiosk(timestamp: number) {
   animationFrameId = requestAnimationFrame(updateKiosk);
 }
 
+type ProgressSource = {
+  type: "image" | "video";
+  startTime?: number;
+  duration?: number;
+  element?: HTMLVideoElement;
+};
+
+let currentProgressSource: ProgressSource | null = null;
+
+function updateProgress(timestamp: number) {
+  if (!progressBarElement) return;
+
+  if (!currentProgressSource) return;
+
+  let progress: number;
+
+  if (currentProgressSource.type === "video") {
+    if (!currentProgressSource.element) return;
+    progress =
+      (currentProgressSource.element.currentTime /
+        currentProgressSource.element.duration) *
+      100;
+  } else {
+    // image
+    if (pausedTime !== null) {
+      lastPollTime! += timestamp - pausedTime;
+      pausedTime = null;
+    }
+
+    const elapsed = timestamp - lastPollTime!;
+    progress = Math.min(elapsed / pollInterval, 1) * 100;
+
+    if (elapsed >= pollInterval) {
+      htmx.trigger(kioskElement as HTMLElement, "kiosk-new-image");
+      lastPollTime = timestamp;
+      stopPolling();
+      return;
+    }
+  }
+
+  progressBarElement.style.width = `${progress}%`;
+  animationFrameId = requestAnimationFrame(updateProgress);
+}
+
 /**
  * Start the polling process to fetch new images
  */
@@ -63,7 +107,13 @@ function startPolling() {
   lastPollTime = performance.now();
   pausedTime = null;
 
-  animationFrameId = requestAnimationFrame(updateKiosk);
+  currentProgressSource = {
+    type: "image",
+    startTime: lastPollTime,
+    duration: pollInterval,
+  };
+
+  animationFrameId = requestAnimationFrame(updateProgress);
 
   document.body.classList.remove("polling-paused");
   hideImageOverlay();
@@ -91,15 +141,15 @@ function pausePolling(showMenu: boolean = true) {
   cancelAnimationFrame(animationFrameId as number);
   pausedTime = performance.now();
 
+  if (currentProgressSource?.type === "video" && video) {
+    video.pause();
+  }
+
   progressBarElement?.classList.add("progress--bar-paused");
 
   if (showMenu) {
     menuElement?.classList.remove("navigation-hidden");
     document.body.classList.add("polling-paused");
-  }
-
-  if (video) {
-    video.pause();
   }
 
   isPaused = true;
@@ -111,11 +161,18 @@ function pausePolling(showMenu: boolean = true) {
 function resumePolling(hideOverlay: boolean = false) {
   if (!isPaused) return;
 
-  if (video) {
+  if (currentProgressSource?.type === "video" && video) {
     video.play();
   } else {
-    animationFrameId = requestAnimationFrame(updateKiosk);
+    // For image polling
+    currentProgressSource = {
+      type: "image",
+      startTime: performance.now(),
+      duration: pollInterval,
+    };
   }
+
+  animationFrameId = requestAnimationFrame(updateProgress);
 
   progressBarElement?.classList.remove("progress--bar-paused");
   menuElement?.classList.add("navigation-hidden");
@@ -151,8 +208,13 @@ function videoHandler(id: string): void {
 
   progressBarElement?.classList.remove("progress--bar-paused");
 
-  // Start the smooth progress update
-  startSmoothProgress();
+  currentProgressSource = {
+    type: "video",
+    element: video,
+  };
+
+  // Start the progress update
+  animationFrameId = requestAnimationFrame(updateProgress);
 
   video.addEventListener(
     "ended",
@@ -167,24 +229,19 @@ function videoHandler(id: string): void {
   );
 }
 
-function startSmoothProgress(): void {
-  function updateProgressSmooth() {
-    if (!video || !progressBarElement) return;
-
-    const percentage = (video.currentTime / video.duration) * 100;
-    progressBarElement.style.width = `${percentage}%`;
-
-    animationFrameId = requestAnimationFrame(updateProgressSmooth);
-  }
-
-  updateProgressSmooth();
-}
-
 // Clean up function when needed
 function videoCleanup(): void {
   if (animationFrameId !== null) {
     cancelAnimationFrame(animationFrameId);
   }
+
+  lastPollTime = performance.now();
+
+  currentProgressSource = {
+    type: "image",
+    startTime: lastPollTime,
+    duration: pollInterval,
+  };
 }
 
 export {
