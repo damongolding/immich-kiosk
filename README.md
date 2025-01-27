@@ -363,6 +363,7 @@ See the file `config.example.yaml` for an example config file
 | [layout](#layouts)                | KIOSK_LAYOUT            | [Layouts](#layouts)        | single      | Which layout to use. See [Layouts](#layouts) for more information.                         |
 | [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [disable_sleep](#sleep-mode)      | N/A                     | bool                       | false       | Bypass sleep mode by adding `disable_sleep=true` to the URL. See [Sleep mode](#sleep-mode) for more information. |
 | [custom_css](#custom-css)         | N/A                     | bool                       | true        | Allow custom CSS to be used. See [Custom CSS](#custom-css) for more information.           |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
@@ -753,6 +754,9 @@ When a landscape image is fetched, Kiosk automatically retrieves a second landsc
 ------
 
 ## Sleep mode
+
+> [!TIP]
+> You can add `disable_sleep=true` to your URL quires to bypass sleepmode.
 
 ### Enabling Sleep Mode:
 Setting both `sleep_start` and `sleep_end` using the 24 hour format will enable sleep mode.

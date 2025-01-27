@@ -10,6 +10,17 @@ let nextAssetMenuButton: HTMLElement;
 let prevAssetMenuButton: HTMLElement;
 
 let assetOverlayVisible: boolean = false;
+let linkOverlayVisible: boolean = false;
+
+const redirectsContainer = document.getElementById(
+  "redirects-container",
+) as HTMLElement | null;
+let redirects: NodeListOf<HTMLAnchorElement> | null;
+let currentRedirectIndex = -1;
+
+let allowMoreInfo: boolean;
+let infoKeyPress: () => void;
+let redirectsKeyPress: () => void;
 
 /**
  * Disables both next and previous asset navigation buttons
@@ -45,6 +56,7 @@ function enableAssetNavigationButtons(): void {
 function showAssetOverlay(): void {
   if (!document.body) return;
   if (!document.body.classList.contains("polling-paused")) return;
+  hideRedirectsOverlay();
   document.body.classList.add("more-info");
   assetOverlayVisible = true;
 }
@@ -67,6 +79,69 @@ function toggleAssetOverlay(): void {
   assetOverlayVisible ? hideAssetOverlay() : showAssetOverlay();
 }
 
+function redirectKeyHandler(e: KeyboardEvent) {
+  if (!redirects) return;
+
+  switch (e.code) {
+    case "ArrowDown":
+      e.preventDefault(); // Prevent page scrolling
+      currentRedirectIndex = (currentRedirectIndex + 1) % redirects.length;
+      redirects[currentRedirectIndex].focus();
+      break;
+    case "ArrowUp":
+      e.preventDefault(); // Prevent page scrolling
+      currentRedirectIndex =
+        (currentRedirectIndex - 1 + redirects.length) % redirects.length;
+      redirects[currentRedirectIndex].focus();
+      break;
+    case "KeyI":
+      if (!allowMoreInfo) return;
+      e.preventDefault();
+      infoKeyPress();
+      break;
+    case "KeyR":
+      if (e.ctrlKey || e.metaKey) return;
+      e.preventDefault();
+      redirectsKeyPress();
+      break;
+  }
+}
+
+/**
+ * Shows the links overlay
+ * Only works when polling is paused
+ * Hides image overlay if visible
+ */
+function showRedirectsOverlay(): void {
+  if (!document.body) return;
+  if (!document.body.classList.contains("polling-paused")) return;
+
+  document.addEventListener("keydown", redirectKeyHandler);
+
+  hideAssetOverlay();
+  document.body.classList.add("redirects-open");
+  linkOverlayVisible = true;
+}
+
+/**
+ * Hides the links overlay
+ */
+function hideRedirectsOverlay(): void {
+  if (!document.body) return;
+  document.body.classList.remove("redirects-open");
+
+  document.removeEventListener("keydown", redirectKeyHandler);
+
+  linkOverlayVisible = false;
+}
+
+/**
+ * Toggles the links overlay visibility
+ */
+function toggleRedirectsOverlay(): void {
+  linkOverlayVisible ? hideRedirectsOverlay() : showRedirectsOverlay();
+}
+
 /**
  * Initializes the menu controls and sets up event handlers
  * @param nextAssetButton - The next image navigation button element
@@ -77,12 +152,24 @@ function toggleAssetOverlay(): void {
 function initMenu(
   nextAssetButton: HTMLElement,
   prevAssetButton: HTMLElement,
+  showMoreInfo: boolean,
+  handleInfoKeyPress: () => void,
+  handleRedirectsKeyPress: () => void,
 ): void {
   if (!nextAssetButton || !prevAssetButton) {
     throw new Error("Both navigation buttons must be provided");
   }
+
   nextAssetMenuButton = nextAssetButton;
   prevAssetMenuButton = prevAssetButton;
+
+  if (redirectsContainer) {
+    redirects = redirectsContainer.querySelectorAll("a");
+  }
+
+  allowMoreInfo = showMoreInfo;
+  infoKeyPress = handleInfoKeyPress;
+  redirectsKeyPress = handleRedirectsKeyPress;
 }
 
 export {
@@ -92,4 +179,5 @@ export {
   showAssetOverlay,
   hideAssetOverlay,
   toggleAssetOverlay,
+  toggleRedirectsOverlay,
 };

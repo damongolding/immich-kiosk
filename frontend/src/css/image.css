@@ -1,5 +1,6 @@
 /* --- image metadata --- */
-.polling-paused.more-info {
+.polling-paused.more-info,
+.polling-paused.redirects-open {
     .asset--metadata {
         opacity: 0.2;
     }

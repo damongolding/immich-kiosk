@@ -41,7 +41,7 @@ func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		if isSleepMode(requestConfig) {
+		if !requestConfig.DisableSleep && isSleepMode(requestConfig) {
 			return c.NoContent(http.StatusNoContent)
 		}
 

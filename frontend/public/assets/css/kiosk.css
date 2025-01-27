@@ -4,6 +4,7 @@
   --cool-grey: #333460;
   --mint-green: #1ed2bb;
   --yellow: #e7e65f;
+  --z-below: -1;
   --z-base: 0;
   --z-clock: 100;
   --z-progress: 150;
@@ -371,7 +372,7 @@ form {
 }
 
 /* src/css/image.css */
-.polling-paused.more-info .asset--metadata {
+.polling-paused.more-info .asset--metadata, .polling-paused.redirects-open .asset--metadata {
     opacity: 0.2;
   }
 .asset--metadata {
@@ -537,7 +538,7 @@ form {
     }
 }
 
-/* src/css/more-info-overlay.css */
+/* src/css/more-info.css */
 #more-info {
   display: none;
 }
@@ -756,7 +757,7 @@ form {
 }
 
 /* src/css/clock-weather-container.css */
-.polling-paused.more-info #clock-weather-container {
+.polling-paused.more-info #clock-weather-container, .polling-paused.redirects-open #clock-weather-container {
     opacity: 0.2;
   }
 #clock-weather-container {
@@ -1237,6 +1238,18 @@ form {
     width: 1.5rem;
     height: 1.5rem;
   }
+.polling-paused.more-info .navigation--more-info {
+      background-color: var(--mint-green);
+    }
+.polling-paused.more-info .navigation--more-info svg {
+        fill: var(--cool-grey);
+      }
+.polling-paused.redirects-open .navigation--links {
+      background-color: var(--mint-green);
+    }
+.polling-paused.redirects-open .navigation--links svg {
+        fill: var(--cool-grey);
+      }
 .navigation--media-buttons {
   display: -moz-box;
   display: flex;
@@ -1325,6 +1338,98 @@ form {
 .frame--video video {
     max-width: 100%;
     max-height: 100%;
+  }
+
+/* src/css/redirects.css */
+#redirects-container {
+  display: none;
+}
+#redirects-container * {
+    -webkit-user-select: text;
+       -moz-user-select: text;
+        -ms-user-select: text;
+            user-select: text;
+  }
+.polling-paused.redirects-open .frame--image img {
+    -webkit-filter: grayscale(1) blur(4px) brightness(0.4);
+            filter: grayscale(1) blur(4px) brightness(0.4);
+  }
+.polling-paused.redirects-open #redirects-container {
+    position: absolute;
+    margin: 0.4rem;
+    width: -moz-calc(100% - 0.8rem);
+    width: calc(100% - 0.8rem);
+    height: -moz-calc(100% - 0.8rem);
+    height: calc(100% - 0.8rem);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0.4rem;
+    padding: 8.12rem 2rem 2rem 2rem;
+    display: -moz-box;
+    display: flex;
+    -moz-box-pack: center;
+         justify-content: center;
+    -moz-box-align: center;
+         align-items: center;
+    background-color: rgb(51 52 96 / 60%);
+    z-index: var(--z-overlay);
+  }
+.polling-paused.redirects-open #redirects-container .redirects {
+    width: 100%;
+    max-width: 40rem;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    display: -moz-box;
+    display: flex;
+    -moz-box-orient: vertical;
+    -moz-box-direction: normal;
+         flex-direction: column;
+  }
+.polling-paused.redirects-open #redirects-container .redirects .redirects--shadow {
+      position: relative;
+      z-index: var(--z-base);
+    }
+.polling-paused.redirects-open #redirects-container .redirects .redirects--shadow::before,
+      .polling-paused.redirects-open #redirects-container .redirects .redirects--shadow::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 20%;
+        pointer-events: none;
+        background-image: -moz-radial-gradient(50% 0%, 60% 50%, var(--fade-gradient));
+        background-image: radial-gradient(60% 50% at 50% 0%, var(--fade-gradient));
+        z-index: var(--z-below);
+        opacity: 0.6;
+      }
+.polling-paused.redirects-open #redirects-container .redirects .redirects--shadow::after {
+        bottom: 0;
+        top: unset;
+        background-image: -moz-radial-gradient(50% 100%, 60% 50%, var(--fade-gradient));
+        background-image: radial-gradient(60% 50% at 50% 100%, var(--fade-gradient));
+      }
+.polling-paused.redirects-open .redirects a {
+    display: block;
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    text-decoration: none;
+    color: #fff;
+  }
+.polling-paused.redirects-open .redirects a:hover,
+  .polling-paused.redirects-open .redirects a:focus {
+    background-color: var(--mint-green);
+    color: var(--cool-grey);
+    font-weight: bold;
+  }
+.frameless.redirects-open #redirects-container {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
   }
 
 /* src/css/kiosk.css */

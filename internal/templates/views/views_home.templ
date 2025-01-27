@@ -51,9 +51,9 @@ templ Home(viewData common.ViewData) {
 					</div>
 				</section>
 			}
-			@partials.Menu(viewData.ShowMoreInfo)
+			@partials.Menu(viewData.ShowMoreInfo, viewData.Kiosk.Redirects, viewData.Queries)
 			@partials.Params(viewData.Queries)
-			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd)
+			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd, viewData.DisableSleep)
 			@partials.History()
 			@partials.RefreshCheck(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
 			@partials.OfflineIcon()
@@ -70,6 +70,7 @@ templ Home(viewData common.ViewData) {
 				"timeFormat":         viewData.TimeFormat,
 				"transition":         viewData.Transition,
 				"showMoreInfo":       viewData.ShowMoreInfo,
+				"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 		}
