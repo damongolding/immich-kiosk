@@ -209,6 +209,8 @@ class PollingController {
 
     this.isPaused = false;
 
+    this.video.play();
+
     this.video.addEventListener("ended", this.videoEndedHandler, {
       once: true,
     });
