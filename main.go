@@ -140,9 +140,9 @@ func main() {
 
 	e.GET("/image", routes.NewRawImage(baseConfig))
 
-	e.POST("/image", routes.NewImage(baseConfig))
+	e.POST("/asset/new", routes.NewAsset(baseConfig))
 
-	e.POST("/image/previous", routes.PreviousImage(baseConfig))
+	e.POST("/asset/previous", routes.PreviousAsset(baseConfig))
 
 	e.GET("/clock", routes.Clock(baseConfig))
 

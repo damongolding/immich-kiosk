@@ -14,9 +14,9 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
 
-// NewImage returns an echo.HandlerFunc that handles requests for new images.
+// NewAsset returns an echo.HandlerFunc that handles requests for new images.
 // It manages image processing, caching, and prefetching based on the configuration.
-func NewImage(baseConfig *config.Config) echo.HandlerFunc {
+func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)

@@ -1,71 +1,95 @@
 /**
  * @module menu-controls
  * Module for handling kiosk menu interactions and image navigation
+ * @description Controls menu behavior and navigation between assets in a kiosk interface
  */
 
 import htmx from "htmx.org";
 
-let nextImageMenuButton: HTMLElement;
-let prevImageMenuButton: HTMLElement;
+let nextAssetMenuButton: HTMLElement;
+let prevAssetMenuButton: HTMLElement;
 
-let imageOverlayVisible: boolean = false;
+let assetOverlayVisible: boolean = false;
 
-function disableImageNavigationButtons(): void {
-  if (!nextImageMenuButton || !prevImageMenuButton) {
+/**
+ * Disables both next and previous asset navigation buttons
+ * @returns {void}
+ */
+function disableAssetNavigationButtons(): void {
+  if (!nextAssetMenuButton || !prevAssetMenuButton) {
     console.error("Navigation buttons not initialized");
     return;
   }
-  htmx.addClass(nextImageMenuButton, "disabled");
-  htmx.addClass(prevImageMenuButton, "disabled");
+  htmx.addClass(nextAssetMenuButton, "disabled");
+  htmx.addClass(prevAssetMenuButton, "disabled");
 }
 
-function enableImageNavigationButtons(): void {
-  if (!nextImageMenuButton || !prevImageMenuButton) {
+/**
+ * Enables both next and previous asset navigation buttons
+ * @returns {void}
+ */
+function enableAssetNavigationButtons(): void {
+  if (!nextAssetMenuButton || !prevAssetMenuButton) {
     console.error("Navigation buttons not initialized");
     return;
   }
-  htmx.removeClass(nextImageMenuButton as Element, "disabled");
-  htmx.removeClass(prevImageMenuButton as Element, "disabled");
+  htmx.removeClass(nextAssetMenuButton as Element, "disabled");
+  htmx.removeClass(prevAssetMenuButton as Element, "disabled");
 }
 
-function showImageOverlay(): void {
+/**
+ * Shows the asset information overlay
+ * Only works when polling is paused
+ * @returns {void}
+ */
+function showAssetOverlay(): void {
   if (!document.body) return;
   if (!document.body.classList.contains("polling-paused")) return;
   document.body.classList.add("more-info");
-  imageOverlayVisible = true;
+  assetOverlayVisible = true;
 }
 
-function hideImageOverlay(): void {
+/**
+ * Hides the asset information overlay
+ * @returns {void}
+ */
+function hideAssetOverlay(): void {
   if (!document.body) return;
   document.body.classList.remove("more-info");
-  imageOverlayVisible = false;
+  assetOverlayVisible = false;
 }
 
-function toggleImageOverlay(): void {
-  imageOverlayVisible ? hideImageOverlay() : showImageOverlay();
+/**
+ * Toggles the asset information overlay visibility
+ * @returns {void}
+ */
+function toggleAssetOverlay(): void {
+  assetOverlayVisible ? hideAssetOverlay() : showAssetOverlay();
 }
 
 /**
  * Initializes the menu controls and sets up event handlers
- * @param nextImageButton - The next image navigation button element
- * @param prevImageButton - The previous image navigation button element
+ * @param nextAssetButton - The next image navigation button element
+ * @param prevAssetButton - The previous image navigation button element
+ * @throws {Error} If either navigation button is not provided
+ * @returns {void}
  */
 function initMenu(
-  nextImageButton: HTMLElement,
-  prevImageButton: HTMLElement,
+  nextAssetButton: HTMLElement,
+  prevAssetButton: HTMLElement,
 ): void {
-  if (!nextImageButton || !prevImageButton) {
+  if (!nextAssetButton || !prevAssetButton) {
     throw new Error("Both navigation buttons must be provided");
   }
-  nextImageMenuButton = nextImageButton;
-  prevImageMenuButton = prevImageButton;
+  nextAssetMenuButton = nextAssetButton;
+  prevAssetMenuButton = prevAssetButton;
 }
 
 export {
   initMenu,
-  disableImageNavigationButtons,
-  enableImageNavigationButtons,
-  showImageOverlay,
-  hideImageOverlay,
-  toggleImageOverlay,
+  disableAssetNavigationButtons,
+  enableAssetNavigationButtons,
+  showAssetOverlay,
+  hideAssetOverlay,
+  toggleAssetOverlay,
 };

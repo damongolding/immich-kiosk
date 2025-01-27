@@ -19,14 +19,14 @@ templ Home(viewData common.ViewData) {
 		@partials.Body(viewData) {
 			<main
 				id="kiosk"
-				hx-post="/image"
+				hx-post="/asset/new"
 				hx-include=".kiosk-history--entry"
 				hx-trigger="
 					load,
-					click from:#navigation-interaction-area--next-image throttle:1s,
-					click from:.navigation--next-image throttle:1s,
+					click from:#navigation-interaction-area--next-asset throttle:1s,
+					click from:.navigation--next-asset throttle:1s,
 					keyup[key=='ArrowRight'] from:body throttle:1s,
-					kiosk-new-image throttle:1s
+					kiosk-new-asset throttle:1s
 				"
 				hx-on::before-send="kiosk.setRequestLock(event)"
 				hx-on::after-request="kiosk.startPolling()"

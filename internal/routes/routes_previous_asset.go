@@ -19,9 +19,13 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
 
-// PreviousImage returns an echo.HandlerFunc that handles requests for previous images.
-// It retrieves the previous images from the history and renders them.
-func PreviousImage(baseConfig *config.Config) echo.HandlerFunc {
+// PreviousAsset returns an echo.HandlerFunc that handles requests for the previously viewed assets.
+// It retrieves the previous assets from the navigation history and renders them, handling both images
+// and videos. The function processes assets in parallel, retrieving asset info and generating both
+// regular and blurred preview images. If sleep mode is active or there is insufficient history,
+// returns no content. For videos with ShowTime enabled, renders the video component, otherwise
+// renders the image component.
+func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)

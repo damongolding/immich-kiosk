@@ -8,16 +8,20 @@ import (
 	"github.com/google/uuid"
 )
 
+script videoHandler(id string) {
+	kiosk.stopPolling();
+	kiosk.videoHandler(id);
+}
+
 templ Video(viewData common.ViewData) {
 	{{ ID := uuid.New().String() }}
-	<div class="frame" hx-on::load="kiosk.stopPolling()">
+	<div class="frame" hx-on::load={ videoHandler(ID) }>
 		<div class="frame--background">
 			<img src={ viewData.Assets[0].ImageBlurData } alt="Blurred image background"/>
 		</div>
 		<div class="frame--video">
 			<video
 				id={ ID }
-				hx-on:play="kiosk.videoHandler(this.id)"
 				muted
 				autoplay
 				playsinline

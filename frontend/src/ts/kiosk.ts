@@ -15,9 +15,9 @@ import {
 import { preventSleep } from "./wakelock";
 import {
   initMenu,
-  disableImageNavigationButtons,
-  enableImageNavigationButtons,
-  toggleImageOverlay,
+  disableAssetNavigationButtons,
+  enableAssetNavigationButtons,
+  toggleAssetOverlay,
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
@@ -34,19 +34,19 @@ interface HTMXEvent extends Event {
 }
 
 /**
- * Type definition for kiosk configuration data
- * @property debug - Enable debug mode
- * @property debugVerbose - Enable verbose debug logging
- * @property version - Version string
- * @property params - Additional configuration parameters
- * @property refresh - Refresh interval in seconds
- * @property disableScreensaver - Whether to prevent screen sleeping
- * @property showDate - Whether to display the date
- * @property dateFormat - Format string for date display
- * @property showTime - Whether to display the time
- * @property timeFormat - Format for time display
- * @property transition - Type of transition animation
- * @property showMoreInfo - Show the more info image overlay
+ * @typedef KioskData Configuration data for the kiosk
+ * @property {boolean} debug Enable debug mode
+ * @property {boolean} debugVerbose Enable verbose debug logging
+ * @property {string} version Version string
+ * @property {Record<string, unknown>} params Additional configuration parameters
+ * @property {number} refresh Refresh interval in seconds
+ * @property {boolean} disableScreensaver Whether to prevent screen sleeping
+ * @property {boolean} showDate Whether to display the date
+ * @property {string} dateFormat Format string for date display
+ * @property {boolean} showTime Whether to display the time
+ * @property {TimeFormat} timeFormat Format for time display
+ * @property {string} transition Type of transition animation
+ * @property {boolean} showMoreInfo Show the more info image overlay
  */
 type KioskData = {
   debug: boolean;
@@ -91,10 +91,10 @@ const menuPausePlayButton = htmx.find(
   ".navigation--play-pause",
 ) as HTMLElement | null;
 const nextImageMenuButton = htmx.find(
-  ".navigation--next-image",
+  ".navigation--next-asset",
 ) as HTMLElement | null;
 const prevImageMenuButton = htmx.find(
-  ".navigation--prev-image",
+  ".navigation--prev-asset",
 ) as HTMLElement | null;
 const moreInfoButton = htmx.find(
   ".navigation--more-info",
@@ -107,14 +107,14 @@ let requestInFlight = false;
  * Initialize Kiosk functionality
  * @description Sets up kiosk by configuring:
  * - Debug logging if verbose mode enabled
- * - Clock display
- * - Screen sleep prevention
- * - Service worker registration
- * - Fullscreen capability
- * - Image polling
- * - Navigation menu
- * - Event listeners
- * @returns Promise<void>
+ * - Clock display with configured date/time settings
+ * - Screen sleep prevention if enabled
+ * - Service worker registration for offline functionality
+ * - Fullscreen capability checking and button setup
+ * - Image polling with configured interval
+ * - Navigation menu initialization
+ * - Event listener registration for interactivity
+ * @returns {Promise<void>} Promise that resolves when initialization is complete
  */
 async function init(): Promise<void> {
   if (kioskData.debugVerbose) {
@@ -151,7 +151,7 @@ async function init(): Promise<void> {
   }
 
   if (pollInterval) {
-    initPolling(pollInterval, kiosk, menu, menuPausePlayButton);
+    initPolling(pollInterval, kiosk, menu);
   } else {
     console.error("Could not start polling");
   }
@@ -169,7 +169,8 @@ async function init(): Promise<void> {
 
 /**
  * Handler for fullscreen button clicks
- * @description Toggles fullscreen mode for the document body using the fullscreen API
+ * @description Toggles fullscreen mode for the document body using the browser's fullscreen API
+ * The button state is automatically updated based on fullscreen status
  */
 function handleFullscreenClick(): void {
   toggleFullscreen(documentBody, fullscreenButton);
@@ -177,10 +178,10 @@ function handleFullscreenClick(): void {
 
 /**
  * Handle 'i' key press events
- * @description Controls polling and image overlay states:
- * - If polling is paused and overlay shown: resumes polling and hides overlay
- * - Otherwise: ensures polling is paused and toggles overlay visibility
- * This allows for synchronized control of polling and overlay display
+ * @description Controls synchronized polling and image overlay behaviors:
+ * - When polling is paused and overlay visible: Resumes polling and hides overlay
+ * - When polling active or overlay hidden: Pauses polling if needed and toggles overlay
+ * Ensures consistent state between polling and overlay display
  */
 function handleInfoKeyPress(): void {
   const isPollingPaused = document.body.classList.contains("polling-paused");
@@ -188,24 +189,24 @@ function handleInfoKeyPress(): void {
 
   if (isPollingPaused && hasMoreInfo) {
     togglePolling();
-    toggleImageOverlay();
+    toggleAssetOverlay();
   } else {
     if (!isPollingPaused) {
       togglePolling();
     }
-    toggleImageOverlay();
+    toggleAssetOverlay();
   }
 }
 
 /**
  * Add event listeners to Kiosk elements
- * @description Configures interactive behavior by setting up:
- * - Menu click handlers for polling control
- * - Keyboard shortcuts (space and 'i' keys)
- * - Fullscreen toggle functionality
- * - Image overlay controls
- * - HTMX error handling for offline states
- * - Server connectivity monitoring
+ * @description Sets up all interactive behaviors and event handling:
+ * - Menu interaction for polling control via clicks
+ * - Keyboard shortcuts (Space for polling, 'i' for info overlay)
+ * - Fullscreen mode toggling via button
+ * - Image overlay visibility control
+ * - HTMX error handling for offline detection
+ * - Server connectivity status monitoring and display
  */
 function addEventListeners(): void {
   // Pause/resume polling and show/hide menu
@@ -233,7 +234,7 @@ function addEventListeners(): void {
   addFullscreenEventListener(fullscreenButton);
 
   // More info overlay
-  moreInfoButton?.addEventListener("click", () => toggleImageOverlay());
+  moreInfoButton?.addEventListener("click", () => toggleAssetOverlay());
 
   // Unable to send ajax. probably offline.
   htmx.on("htmx:sendError", () => {
@@ -264,10 +265,12 @@ function addEventListeners(): void {
 
 /**
  * Remove first frame from the DOM when there are more than maxFrames
- * @description Manages frame count to prevent memory issues:
- * - Checks current number of frames in DOM
- * - Removes oldest frame if count exceeds maxFrames limit
- * This helps maintain smooth transitions while preventing memory bloat
+ * @description Memory management function that:
+ * - Monitors the number of frame elements in the DOM
+ * - Removes oldest frame when count exceeds MAX_FRAMES limit
+ * - Logs debug info and errors during cleanup process
+ * @returns {Promise<void>} Promise that resolves when cleanup completes
+ * @throws {Error} If frame removal fails
  */
 async function cleanupFrames(): Promise<void> {
   const frames = htmx.findAll(".frame");
@@ -287,12 +290,13 @@ async function cleanupFrames(): Promise<void> {
 
 /**
  * Sets a lock to prevent concurrent requests
- * @param e - Event object that triggered the request
- * @description Request management that:
- * - Prevents multiple simultaneous requests
- * - Pauses polling during request processing
- * - Disables navigation controls
- * - Sets request lock flag
+ * @param {HTMXEvent} e Event object that triggered the request
+ * @description Request management function that coordinates:
+ * - Concurrent request prevention via locking
+ * - Polling pause during active requests
+ * - Navigation control disabling
+ * - Request lock state management
+ * @throws {Error} If request lock is already set
  */
 function setRequestLock(e: HTMXEvent): void {
   if (requestInFlight) {
@@ -302,31 +306,31 @@ function setRequestLock(e: HTMXEvent): void {
 
   pausePolling(false);
 
-  disableImageNavigationButtons();
+  disableAssetNavigationButtons();
 
   requestInFlight = true;
 }
 
 /**
  * Releases the request lock after a request completes
- * @description Request cleanup that:
- * - Re-enables navigation controls
- * - Clears request lock flag
- * This restores normal kiosk operation after request processing
+ * @description Request cleanup function that:
+ * - Re-enables navigation button controls
+ * - Clears the request lock flag
+ * - Restores normal kiosk operation state
  */
 function releaseRequestLock(): void {
-  enableImageNavigationButtons();
+  enableAssetNavigationButtons();
 
   requestInFlight = false;
 }
 
 /**
  * Checks if there are enough history entries to navigate back
- * @param e - Event object for the history navigation request
- * @description Navigation safety check that:
- * - Verifies sufficient history depth exists
- * - Prevents navigation during active requests
- * - Sets request lock if navigation is allowed
+ * @param {HTMXEvent} e Event object for the history navigation request
+ * @description Navigation safety check that ensures:
+ * - Sufficient history depth exists before navigation
+ * - No active requests are in progress
+ * - Sets request lock when navigation is permitted
  */
 function checkHistoryExists(e: HTMXEvent): void {
   const historyItems = htmx.findAll(".kiosk-history--entry");
@@ -338,11 +342,20 @@ function checkHistoryExists(e: HTMXEvent): void {
   setRequestLock(e);
 }
 
+/**
+ * @typedef {Object} BrowserData
+ * @property {number} client_width Window inner width
+ * @property {number} client_height Window inner height
+ */
 type BrowserData = {
   client_width: number;
   client_height: number;
 };
 
+/**
+ * Get current browser viewport dimensions
+ * @returns {BrowserData} Object containing window width and height
+ */
 function clientData(): BrowserData {
   return {
     client_width: window.innerWidth,
@@ -352,13 +365,14 @@ function clientData(): BrowserData {
 
 /**
  * Sanitizes input string by escaping special characters
- * @param value - The input string to sanitize
- * @returns Sanitized string with HTML special characters escaped to prevent XSS:
- * - < and > converted to empty string
- * - & converted to &amp;
- * - " converted to &quot;
- * - ' converted to &#x27;
- * - ` converted to &#x60;
+ * @param {string} value The input string to sanitize
+ * @returns {string} Sanitized string with HTML special characters escaped:
+ * - < and > removed entirely
+ * - & encoded as &amp;
+ * - " encoded as &quot;
+ * - ' encoded as &#x27;
+ * - ` encoded as &#x60;
+ * @description Prevents XSS attacks by encoding potentially dangerous characters
  */
 function sanitiseInput(value: string): string {
   return value
