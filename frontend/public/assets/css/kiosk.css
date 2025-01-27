@@ -1350,7 +1350,9 @@ form {
         -ms-user-select: text;
             user-select: text;
   }
-.polling-paused.redirects-open .frame--image img {
+.polling-paused.redirects-open .frame--image img,
+  .polling-paused.redirects-open .frame--background img,
+  .polling-paused.redirects-open .frame--video video {
     -webkit-filter: grayscale(1) blur(4px) brightness(0.4);
             filter: grayscale(1) blur(4px) brightness(0.4);
   }
