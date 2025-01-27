@@ -202,7 +202,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 		allowedTypes := []ImmichAssetType{ImageType}
 
-		if requestConfig.ShowVideo {
+		if requestConfig.ExperimentalAlbumVideo {
 			allowedTypes = append(allowedTypes, VideoType)
 		}
 

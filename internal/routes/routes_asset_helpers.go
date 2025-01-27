@@ -198,7 +198,7 @@ func processAsset(immichImage *immich.ImmichAsset, allowedAssetTypes []immich.Im
 	}
 
 	//  At this point immichImage could be a video or an image
-	if requestConfig.ShowVideo && immichImage.Type == immich.VideoType {
+	if requestConfig.ExperimentalAlbumVideo && immichImage.Type == immich.VideoType {
 		return processVideo(immichImage, pickedAsset.Type, requestConfig, requestID, deviceID, requestUrl, isPrefetch)
 	}
 
@@ -345,7 +345,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	// TODO: add user preferences for video and enfore isPrefetch
 	allowedAssetTypes := []immich.ImmichAssetType{immich.ImageType}
 
-	if requestConfig.ShowVideo && isPrefetch {
+	if requestConfig.ExperimentalAlbumVideo && isPrefetch {
 		allowedAssetTypes = append(allowedAssetTypes, immich.VideoType)
 	}
 
@@ -451,7 +451,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 	utils.TrimHistory(&requestConfig.History, 10)
 	viewDataToRender.History = requestConfig.History
 
-	if requestConfig.ShowVideo && viewDataToRender.Assets[0].ImmichAsset.Type == immich.VideoType {
+	if requestConfig.ExperimentalAlbumVideo && viewDataToRender.Assets[0].ImmichAsset.Type == immich.VideoType {
 		return Render(c, http.StatusOK, videoComponent.Video(viewDataToRender))
 	}
 
