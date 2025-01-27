@@ -264,15 +264,23 @@ function addEventListeners(): void {
 }
 
 /**
- * Remove first frame from the DOM when there are more than maxFrames
- * @description Memory management function that:
- * - Monitors the number of frame elements in the DOM
- * - Removes oldest frame when count exceeds MAX_FRAMES limit
- * - Logs debug info and errors during cleanup process
- * @returns {Promise<void>} Promise that resolves when cleanup completes
- * @throws {Error} If frame removal fails
+ * Performs DOM cleanup to prevent memory leaks
+ * @description Performs two cleanup operations:
+ * 1. Removes any script tags in the kiosk element after 1 second delay
+ * 2. Removes oldest frame element when total frames exceed MAX_FRAMES
+ *
+ * This helps maintain optimal performance by preventing too many
+ * elements accumulating in the DOM over time.
+ *
+ * @returns {Promise<void>} Resolves when cleanup is complete
+ * @throws {Error} If frame removal operation fails
  */
 async function cleanupFrames(): Promise<void> {
+  const kioskScripts = htmx.findAll(kiosk as HTMLElement, "script");
+  if (kioskScripts?.length) {
+    kioskScripts.forEach((s) => htmx.remove(s, 1000));
+  }
+
   const frames = htmx.findAll(".frame");
   if (!frames?.length) {
     console.debug("No frames found to clean up");

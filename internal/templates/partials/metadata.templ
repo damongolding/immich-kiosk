@@ -14,8 +14,15 @@ import (
 	"github.com/goodsign/monday"
 )
 
-// ImageLocation generates a formatted string of the image location based on EXIF information.
+// AssetLocation generates a formatted string of the asset location based on EXIF information.
 // It combines the city, state, and country information if available.
+//
+// Parameters:
+//   - info: ExifInfo containing location data
+//   - hideCountries: List of country names to exclude from display
+//
+// Returns:
+//   - string: Formatted location string with city, state and country (if shown)
 func AssetLocation(info immich.ExifInfo, hideCountries []string) string {
 	var parts []string
 
@@ -38,8 +45,14 @@ func AssetLocation(info immich.ExifInfo, hideCountries []string) string {
 	return strings.Join(parts, ", ")
 }
 
-// ImageExif generates a formatted string of EXIF information for an image.
+// AssetExif generates a formatted string of EXIF information for an asset.
 // It includes f-number, exposure time, focal length, and ISO if available.
+//
+// Parameters:
+//   - info: ExifInfo containing camera settings data
+//
+// Returns:
+//   - string: HTML-formatted string of EXIF information
 func AssetExif(info immich.ExifInfo) string {
 	var stats strings.Builder
 
@@ -71,8 +84,15 @@ func AssetExif(info immich.ExifInfo) string {
 	return stats.String()
 }
 
-// ImageDateTime generates a formatted date and time string for an image based on the view data settings.
+// AssetDateTime generates a formatted date and time string for an asset based on the view data settings.
 // It can display date, time, or both, in various formats.
+//
+// Parameters:
+//   - viewData: ViewData containing display settings and configuration
+//   - assetIndex: Index of the current asset in viewData.Assets slice
+//
+// Returns:
+//   - string: Formatted date/time string based on view settings
 func AssetDateTime(viewData common.ViewData, assetIndex int) string {
 
 	if assetIndex < 0 || assetIndex >= len(viewData.Assets) {
@@ -111,12 +131,12 @@ func AssetDateTime(viewData common.ViewData, assetIndex int) string {
 	return assetDate
 }
 
-// shouldShowAlbumPersonName determines whether to display album or person name in the image metadata.
-// It checks the image source and view settings to decide if the name should be shown.
+// shouldShowSourceName determines whether to display album or person name in the asset metadata.
+// It checks the asset source and view settings to decide if the name should be shown.
 //
 // Parameters:
-//   - viewData: ViewData containing display settings and image information
-//   - assetIndex: Index of the current image in the viewData.Images slice
+//   - viewData: ViewData containing display settings and asset information
+//   - assetIndex: Index of the current asset in the viewData.Assets slice
 //
 // Returns:
 //   - bool: true if album/person name should be displayed, false otherwise
@@ -131,8 +151,15 @@ func shouldShowSourceName(viewData common.ViewData, assetIndex int) bool {
 	return shouldShowAlbum || shouldShowPerson
 }
 
-// imageMetadata renders the metadata for an image, including date, time, EXIF information, location, and ID.
+// AssetMetadata renders the metadata for an asset, including date, time, EXIF information, location, and ID.
 // The display of each piece of information is controlled by the ViewData settings.
+//
+// Parameters:
+//   - viewData: ViewData containing display settings and asset information
+//   - assetIndex: Index of the current asset in viewData.Assets slice
+//
+// Returns:
+//   - templ.Component: Rendered HTML component with asset metadata
 templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ showSourceName := shouldShowSourceName(viewData, assetIndex) }}
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
