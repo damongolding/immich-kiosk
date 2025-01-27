@@ -1,4 +1,4 @@
-package components
+package partials
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ import (
 
 // ImageLocation generates a formatted string of the image location based on EXIF information.
 // It combines the city, state, and country information if available.
-func ImageLocation(info immich.ExifInfo, hideCountries []string) string {
+func AssetLocation(info immich.ExifInfo, hideCountries []string) string {
 	var parts []string
 
 	if info.City != "" {
@@ -40,30 +40,30 @@ func ImageLocation(info immich.ExifInfo, hideCountries []string) string {
 
 // ImageExif generates a formatted string of EXIF information for an image.
 // It includes f-number, exposure time, focal length, and ISO if available.
-func ImageExif(info immich.ExifInfo) string {
+func AssetExif(info immich.ExifInfo) string {
 	var stats strings.Builder
 
 	if info.FNumber != 0 {
-		stats.WriteString(fmt.Sprintf("<span class=\"image--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
+		stats.WriteString(fmt.Sprintf("<span class=\"asset--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
 	}
 
 	if info.ExposureTime != "" {
 		if stats.Len() > 0 {
-			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
 		}
 		stats.WriteString(fmt.Sprintf("%s<small>s</small>", info.ExposureTime))
 	}
 
 	if info.FocalLength != 0 {
 		if stats.Len() > 0 {
-			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
 		}
 		stats.WriteString(fmt.Sprintf("%vmm", info.FocalLength))
 	}
 
 	if info.Iso != 0 {
 		if stats.Len() > 0 {
-			stats.WriteString("<span class=\"image--metadata--exif--seperator\">&#124;</span>")
+			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
 		}
 		stats.WriteString(fmt.Sprintf("ISO %v", info.Iso))
 	}
@@ -73,42 +73,42 @@ func ImageExif(info immich.ExifInfo) string {
 
 // ImageDateTime generates a formatted date and time string for an image based on the view data settings.
 // It can display date, time, or both, in various formats.
-func ImageDateTime(viewData common.ViewData, imageIndex int) string {
+func AssetDateTime(viewData common.ViewData, assetIndex int) string {
 
-	if imageIndex < 0 || imageIndex >= len(viewData.Assets) {
+	if assetIndex < 0 || assetIndex >= len(viewData.Assets) {
 		return ""
 	}
-	if viewData.Assets[imageIndex].ImmichAsset.LocalDateTime.IsZero() {
+	if viewData.Assets[assetIndex].ImmichAsset.LocalDateTime.IsZero() {
 		return ""
 	}
 
-	var imageDate string
+	var assetDate string
 
-	imageTimeFormat := "15:04"
+	assetTimeFormat := "15:04"
 	if viewData.ImageTimeFormat == "12" {
-		imageTimeFormat = time.Kitchen
+		assetTimeFormat = time.Kitchen
 	}
 
-	imageDateFormat := utils.DateToLayout(viewData.ImageDateFormat)
-	if imageDateFormat == "" {
-		imageDateFormat = config.DefaultDateLayout
+	assetDateFormat := utils.DateToLayout(viewData.ImageDateFormat)
+	if assetDateFormat == "" {
+		assetDateFormat = config.DefaultDateLayout
 	}
 
-	localDateTime := viewData.Assets[imageIndex].ImmichAsset.LocalDateTime
+	localDateTime := viewData.Assets[assetIndex].ImmichAsset.LocalDateTime
 	switch {
 	case viewData.ShowImageDate && viewData.ShowImageTime:
-		imageDate = fmt.Sprintf(
+		assetDate = fmt.Sprintf(
 			"%s %s",
-			monday.Format(localDateTime, imageDateFormat, viewData.SystemLang),
-			localDateTime.Format(imageTimeFormat),
+			monday.Format(localDateTime, assetDateFormat, viewData.SystemLang),
+			localDateTime.Format(assetTimeFormat),
 		)
 	case viewData.ShowImageDate:
-		imageDate = monday.Format(localDateTime, imageDateFormat, viewData.SystemLang)
+		assetDate = monday.Format(localDateTime, assetDateFormat, viewData.SystemLang)
 	case viewData.ShowImageTime:
-		imageDate = localDateTime.Format(imageTimeFormat)
+		assetDate = localDateTime.Format(assetTimeFormat)
 	}
 
-	return imageDate
+	return assetDate
 }
 
 // shouldShowAlbumPersonName determines whether to display album or person name in the image metadata.
@@ -116,13 +116,13 @@ func ImageDateTime(viewData common.ViewData, imageIndex int) string {
 //
 // Parameters:
 //   - viewData: ViewData containing display settings and image information
-//   - imageIndex: Index of the current image in the viewData.Images slice
+//   - assetIndex: Index of the current image in the viewData.Images slice
 //
 // Returns:
 //   - bool: true if album/person name should be displayed, false otherwise
-func shouldShowSourceName(viewData common.ViewData, imageIndex int) bool {
-	image := viewData.Assets[imageIndex].ImmichAsset
-	source := image.KioskSource
+func shouldShowSourceName(viewData common.ViewData, assetIndex int) bool {
+	asset := viewData.Assets[assetIndex].ImmichAsset
+	source := asset.KioskSource
 
 	isAlbumSource := source == kiosk.SourceAlbums || source == kiosk.SourceDateRangeAlbum || source == kiosk.SourceMemories
 	shouldShowAlbum := viewData.ShowAlbumName && isAlbumSource
@@ -133,41 +133,41 @@ func shouldShowSourceName(viewData common.ViewData, imageIndex int) bool {
 
 // imageMetadata renders the metadata for an image, including date, time, EXIF information, location, and ID.
 // The display of each piece of information is controlled by the ViewData settings.
-templ imageMetadata(viewData common.ViewData, imageIndex int) {
-	{{ showSourceName := shouldShowSourceName(viewData, imageIndex) }}
+templ AssetMetadata(viewData common.ViewData, assetIndex int) {
+	{{ showSourceName := shouldShowSourceName(viewData, assetIndex) }}
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
-	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[imageIndex].ImmichAsset.ExifInfo.Description != "" }}
-	<div class={ "image--metadata", fmt.Sprintf("image--metadata--theme-%s", viewData.Theme) }>
+	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
+	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme) }>
 		if showSourceName {
-			<div class="image--metadata--source">
-				{ viewData.Assets[imageIndex].ImmichAsset.KioskSourceName }
+			<div class="asset--metadata--source">
+				{ viewData.Assets[assetIndex].ImmichAsset.KioskSourceName }
 			</div>
 		}
 		if showDateTime {
-			<div class="image--metadata--date">
-				{ ImageDateTime(viewData, imageIndex) }
+			<div class="asset--metadata--date">
+				{ AssetDateTime(viewData, assetIndex) }
 			</div>
 		}
 		if showDescription {
-			<div class="image--metadata--desciption">
+			<div class="asset--metadata--desciption">
 				<small>
-					{ viewData.Assets[imageIndex].ImmichAsset.ExifInfo.Description }
+					{ viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description }
 				</small>
 			</div>
 		}
 		if viewData.ShowImageExif {
-			<div class="image--metadata--exif">
-				@templ.Raw(ImageExif(viewData.Assets[imageIndex].ImmichAsset.ExifInfo))
+			<div class="asset--metadata--exif">
+				@templ.Raw(AssetExif(viewData.Assets[assetIndex].ImmichAsset.ExifInfo))
 			</div>
 		}
 		if viewData.ShowImageLocation {
-			<div class="image--metadata--location">
-				@templ.Raw(ImageLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo, viewData.HideCountries))
+			<div class="asset--metadata--location">
+				@templ.Raw(AssetLocation(viewData.Assets[assetIndex].ImmichAsset.ExifInfo, viewData.HideCountries))
 			</div>
 		}
 		if viewData.ShowImageID {
-			<div class="image--metadata--id">
-				{ viewData.Assets[imageIndex].ImmichAsset.ID }
+			<div class="asset--metadata--id">
+				{ viewData.Assets[assetIndex].ImmichAsset.ID }
 			</div>
 		}
 	</div>

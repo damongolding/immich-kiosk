@@ -1,4 +1,4 @@
-package components
+package partials
 
 import (
 	"context"
@@ -20,14 +20,14 @@ import (
 // It shows camera data, original image data, detected people, and optional QR codes/links
 // Parameters:
 //   - viewData: The view data containing images and display options
-templ renderMoreInfo(viewData common.ViewData) {
+templ RenderMoreInfo(viewData common.ViewData) {
 	<div id="more-info" hx-swap-oob="true">
 		for i, img := range viewData.Assets {
 			<div class="more-info--image">
 				<div class="more-info--image--data">
 					@originalImageTimeLocation(viewData, i, viewData.HideCountries)
 					@cameraData(img.ImmichAsset.ExifInfo)
-					@originalImageData(img.ImmichAsset)
+					@originalAssetData(img.ImmichAsset)
 					@people(img.ImmichAsset.People)
 					<div class="more-info--button-group">
 						if viewData.ShowMoreInfoImageLink {
@@ -63,7 +63,7 @@ templ renderMoreInfo(viewData common.ViewData) {
 // Parameters:
 //   - exifInfo: EXIF information containing camera details
 templ cameraData(exifInfo immich.ExifInfo) {
-	{{ exif := ImageExif(exifInfo) }}
+	{{ exif := AssetExif(exifInfo) }}
 	<div>
 		<div>
 			<h3>
@@ -88,7 +88,7 @@ templ cameraData(exifInfo immich.ExifInfo) {
 // originalImageData displays original filename and image dimensions/size
 // Parameters:
 //   - img: The Immich asset containing image metadata
-templ originalImageData(img immich.ImmichAsset) {
+templ originalAssetData(img immich.ImmichAsset) {
 	<div>
 		<div>
 			<h3>
@@ -96,7 +96,7 @@ templ originalImageData(img immich.ImmichAsset) {
 			</h3>
 		</div>
 		<div>
-			{ fmt.Sprint(img.ExifInfo.ExifImageWidth) } x { fmt.Sprint(img.ExifInfo.ExifImageHeight) } <span class="image--metadata--exif--seperator">&#124;</span> { humanize.Bytes(uint64(img.ExifInfo.FileSizeInByte)) }
+			{ fmt.Sprint(img.ExifInfo.ExifImageWidth) } x { fmt.Sprint(img.ExifInfo.ExifImageHeight) } <span class="asset--metadata--exif--seperator">&#124;</span> { humanize.Bytes(uint64(img.ExifInfo.FileSizeInByte)) }
 		</div>
 	</div>
 }
@@ -107,13 +107,13 @@ templ originalImageData(img immich.ImmichAsset) {
 //   - imageIndex: The index of the current image in the view data
 //   - hideCountries: List of country names to hide from location display
 templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCountries []string) {
-	{{ 	imageDatetime := ImageDateTime(viewData, imageIndex) }}
-	{{ location := ImageLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo, hideCountries) }}
+	{{ 	imageDatetime := AssetDateTime(viewData, imageIndex) }}
+	{{ location := AssetLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo, hideCountries) }}
 	<div>
 		<div>
 			<h3>
 				if imageDatetime != "" {
-					{ ImageDateTime(viewData, imageIndex) }
+					{ AssetDateTime(viewData, imageIndex) }
 				} else {
 					Unknown date and time
 				}

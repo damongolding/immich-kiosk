@@ -20,6 +20,6 @@ templ Image(viewData common.ViewData) {
 	}
 	@partials.RenderHistory(viewData, immich.ImageType)
 	if viewData.ShowMoreInfo {
-		@renderMoreInfo(viewData)
+		@partials.RenderMoreInfo(viewData)
 	}
 }

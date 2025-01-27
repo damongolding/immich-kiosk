@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"strings"
 )
 
@@ -89,7 +90,7 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 	@renderImageBackground(viewData, imageData)
 	@renderImage(viewData, imageData)
 	if !viewData.DisableUi {
-		@imageMetadata(viewData, imageIndex)
+		@partials.AssetMetadata(viewData, imageIndex)
 	}
 }
 

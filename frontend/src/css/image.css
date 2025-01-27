@@ -1,11 +1,11 @@
 /* --- image metadata --- */
 .polling-paused.more-info {
-    .image--metadata {
+    .asset--metadata {
         opacity: 0.2;
     }
 }
 
-.image--metadata {
+.asset--metadata {
     position: absolute;
     display: flex;
     gap: 0.5rem;
@@ -22,7 +22,7 @@
 }
 
 /* fade theme */
-.image--metadata--theme-fade::before {
+.asset--metadata--theme-fade::before {
     content: "";
     position: absolute;
     bottom: 0;
@@ -36,7 +36,7 @@
     z-index: var(--z-base);
 }
 
-.frame--layout-splitview:nth-child(1) .image--metadata--theme-fade::before {
+.frame--layout-splitview:nth-child(1) .asset--metadata--theme-fade::before {
     content: "";
     position: absolute;
     bottom: 0;
@@ -52,58 +52,58 @@
 }
 
 /* solid theme */
-.image--metadata--theme-solid {
+.asset--metadata--theme-solid {
     padding-left: 1.5rem;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 2rem 0 0 0;
 }
 
-.frame--layout-splitview:nth-child(1) .image--metadata--theme-solid {
+.frame--layout-splitview:nth-child(1) .asset--metadata--theme-solid {
     padding-right: 1.5rem;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 0 2rem 0 0;
 }
 
-.image--metadata .responsive-break {
+.asset--metadata .responsive-break {
     display: none;
 }
 
-.image--metadata:empty,
-.image--metadata div:empty {
+.asset--metadata:empty,
+.asset--metadata div:empty {
     display: none;
     padding: 0;
 }
 
-.image--metadata div {
+.asset--metadata div {
     z-index: 1;
 }
 
-.image--metadata--date {
+.asset--metadata--date {
     font-size: 1.3rem;
 }
 
-.image--metadata--exif {
+.asset--metadata--exif {
 }
-.image--metadata--exif--fnumber {
+.asset--metadata--exif--fnumber {
     display: inline-block;
     font-size: 0.84rem;
     font-weight: bold;
     transform: translate(0.0625rem, -0.1875rem);
 }
 
-.image--metadata--exif--seperator {
+.asset--metadata--exif--seperator {
     opacity: 0.3;
     padding: 0 0.5rem;
 }
 
 .frame--layout-splitview,
 .frame--layout-splitview-landscape {
-    .image--metadata--desciption {
+    .asset--metadata--desciption {
         max-width: 50%;
     }
 }
 
-.frame--layout-splitview:nth-child(1) .image--metadata {
+.frame--layout-splitview:nth-child(1) .asset--metadata {
     position: absolute;
     display: flex;
     gap: 0.5rem;
@@ -157,22 +157,22 @@
 }
 
 @media screen and (max-width: 31.25rem) {
-    .image--metadata {
+    .asset--metadata {
         padding: 0.5rem !important;
         max-width: 50vw;
     }
 
-    .image--metadata--desciption {
+    .asset--metadata--desciption {
         max-width: 100%;
     }
 
-    .image--metadata--date,
-    .image--metadata--exif,
-    .image--metadata--location {
+    .asset--metadata--date,
+    .asset--metadata--exif,
+    .asset--metadata--location {
         padding-left: 0.5rem;
     }
 
-    .image--metadata--location {
+    .asset--metadata--location {
         span {
             display: none;
         }
