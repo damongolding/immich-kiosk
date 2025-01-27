@@ -35,4 +35,7 @@ templ Video(viewData common.ViewData) {
 		</div>
 	</div>
 	@partials.RenderHistory(viewData, immich.VideoType)
+	if viewData.ShowMoreInfo {
+		@renderMoreInfo(viewData)
+	}
 }

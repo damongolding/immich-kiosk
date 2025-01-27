@@ -547,7 +547,9 @@ form {
         -ms-user-select: text;
             user-select: text;
   }
-.polling-paused.more-info .frame--image img {
+.polling-paused.more-info .frame--image img,
+  .polling-paused.more-info .frame--background img,
+  .polling-paused.more-info .frame--video video {
     -webkit-filter: grayscale(1) blur(4px) brightness(0.4);
             filter: grayscale(1) blur(4px) brightness(0.4);
   }
