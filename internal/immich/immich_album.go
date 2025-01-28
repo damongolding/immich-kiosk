@@ -200,10 +200,10 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 			}
 		}
 
-		allowedTypes := []ImmichAssetType{ImageType}
+		allowedTypes := ImageOnlyAssetTypes
 
 		if requestConfig.ExperimentalAlbumVideo {
-			allowedTypes = append(allowedTypes, VideoType)
+			allowedTypes = VideoOnlyAssetTypes
 		}
 
 		for assetIndex, asset := range album.Assets {

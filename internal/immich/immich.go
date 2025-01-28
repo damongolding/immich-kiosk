@@ -71,6 +71,10 @@ var (
 		"image/gif",
 		"image/webp",
 	}
+
+	ImageOnlyAssetTypes = []ImmichAssetType{ImageType}
+	VideoOnlyAssetTypes = []ImmichAssetType{VideoType}
+	AllAssetTypes       = []ImmichAssetType{ImageType, VideoType}
 )
 
 type ImmichPersonStatistics struct {

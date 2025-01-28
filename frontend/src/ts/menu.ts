@@ -45,8 +45,8 @@ function enableAssetNavigationButtons(): void {
     console.error("Navigation buttons not initialized");
     return;
   }
-  htmx.removeClass(nextAssetMenuButton as Element, "disabled");
-  htmx.removeClass(prevAssetMenuButton as Element, "disabled");
+  htmx.removeClass(nextAssetMenuButton, "disabled");
+  htmx.removeClass(prevAssetMenuButton, "disabled");
 }
 
 /**

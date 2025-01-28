@@ -227,7 +227,7 @@ func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requ
 	}
 
 	// if the video is not available, run processAsset again to get a new asset
-	return processAsset(immichImage, []immich.ImmichAssetType{immich.ImageType, immich.VideoType}, requestConfig, requestID, deviceID, requestUrl, isPrefetch)
+	return processAsset(immichImage, immich.AllAssetTypes, requestConfig, requestID, deviceID, requestUrl, isPrefetch)
 }
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview
@@ -345,11 +345,10 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		immichImage.RatioWanted = imageOrientation
 	}
 
-	// TODO: add user preferences for video and enfore isPrefetch
-	allowedAssetTypes := []immich.ImmichAssetType{immich.ImageType}
+	allowedAssetTypes := immich.ImageOnlyAssetTypes
 
 	if requestConfig.ExperimentalAlbumVideo && isPrefetch {
-		allowedAssetTypes = append(allowedAssetTypes, immich.VideoType)
+		allowedAssetTypes = immich.AllAssetTypes
 	}
 
 	img, err := processAsset(&immichImage, allowedAssetTypes, requestConfig, requestID, deviceID, c.Request().URL.String(), isPrefetch)

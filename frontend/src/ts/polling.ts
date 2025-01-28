@@ -11,13 +11,6 @@ interface ProgressSource {
   element?: HTMLVideoElement;
 }
 
-interface VideoPlayability {
-  playable: boolean;
-  message: string;
-  error?: Error;
-  codecSupport?: Record<string, string>;
-}
-
 class PollingController {
   private static instance: PollingController;
 
