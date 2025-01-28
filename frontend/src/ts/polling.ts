@@ -218,14 +218,18 @@ class PollingController {
     document.body.classList.remove("polling-paused");
     hideAssetOverlay();
 
-    this.isPaused = false;
-
-    this.video.play();
+    if (!this.video?.paused) {
+      this.video
+        .play()
+        .catch((error) => console.error("Video playback error:", error));
+    }
 
     this.video.addEventListener("error", this.handleVideoError, { once: true });
     this.video.addEventListener("ended", this.videoEndedHandler, {
       once: true,
     });
+
+    this.isPaused = false;
   };
 
   /**
