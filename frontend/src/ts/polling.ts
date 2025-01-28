@@ -11,6 +11,13 @@ interface ProgressSource {
   element?: HTMLVideoElement;
 }
 
+interface VideoPlayability {
+  playable: boolean;
+  message: string;
+  error?: Error;
+  codecSupport?: Record<string, string>;
+}
+
 class PollingController {
   private static instance: PollingController;
 
@@ -103,9 +110,6 @@ class PollingController {
    * Handles video end event
    */
   private videoEndedHandler = () => {
-    this.video?.removeEventListener("ended", this.videoEndedHandler);
-    this.video?.removeEventListener("error", this.handleVideoError);
-
     this.videoCleanup();
     this.triggerNewAsset();
   };
@@ -196,13 +200,34 @@ class PollingController {
    * @param id - The ID of the video element to handle
    */
   videoHandler = (id: string) => {
-    if (!id) return;
+    if (!id) {
+      console.error("No video ID provided");
+      this.triggerNewAsset();
+      return;
+    }
 
     this.video = document.getElementById(id) as HTMLVideoElement;
     if (!this.video) {
       console.error("Video element not found");
       return;
     }
+
+    // Setup timeout to check if video starts playing
+    const playTimeout = setTimeout(() => {
+      if (this.video && (this.video.paused || this.video.currentTime === 0)) {
+        console.error("Video failed to start playing within timeout period");
+        this.handleVideoTimeout();
+      }
+    }, 5000); // 5 seconds timeout
+
+    // Function to clear timeout when video starts playing
+    const handlePlayStart = () => {
+      clearTimeout(playTimeout);
+      this.video?.removeEventListener("playing", handlePlayStart);
+    };
+
+    // Add listener for when video starts playing
+    this.video.addEventListener("playing", handlePlayStart, { once: true });
 
     this.progressBarElement?.classList.remove("progress--bar-paused");
     this.menuElement?.classList.add("navigation-hidden");
@@ -219,9 +244,11 @@ class PollingController {
     hideAssetOverlay();
 
     if (!this.video?.paused) {
-      this.video
-        .play()
-        .catch((error) => console.error("Video playback error:", error));
+      this.video.play().catch((error) => {
+        console.error("Video playback error:", error);
+        clearTimeout(playTimeout);
+        this.handleVideoError(error);
+      });
     }
 
     this.video.addEventListener("error", this.handleVideoError, { once: true });
@@ -232,18 +259,34 @@ class PollingController {
     this.isPaused = false;
   };
 
+  private handleVideoTimeout = () => {
+    console.error("Video playback timeout");
+
+    // Cleanup current video
+    this.videoCleanup();
+
+    // Move to next asset
+    this.triggerNewAsset();
+  };
+
   /**
    * Cleans up video resources
    */
   private videoCleanup = () => {
-    if (this.animationFrameId !== null) {
+    this.video?.removeEventListener("ended", this.videoEndedHandler);
+    this.video?.removeEventListener("error", this.handleVideoError);
+
+    this.progressBarElement?.classList.add("progress--bar-paused");
+
+    this.video?.pause();
+    this.video = null;
+
+    this.currentProgressSource = null;
+
+    if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
     }
-
-    this.progressBarElement?.classList.add("progress--bar-paused");
-    this.video = null;
-    this.currentProgressSource = null;
   };
 
   /**
