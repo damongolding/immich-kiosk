@@ -3,10 +3,7 @@ package video
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"slices"
 	"sync"
@@ -101,7 +98,7 @@ func (v *VideoManager) RemoveVideo(id string) {
 				err := os.Remove(filePath)
 				if err != nil {
 					log.Error("deleting video", "video", filePath, "err", err)
-					return
+					continue
 				}
 
 				v.Videos = append(v.Videos[:i], v.Videos[i+1:]...)
@@ -109,7 +106,8 @@ func (v *VideoManager) RemoveVideo(id string) {
 				log.Debug("deleted video", "video", filePath, "err", err)
 
 			} else {
-				return
+				log.Debug("video file not found", "video", filePath)
+				v.Videos = append(v.Videos[:i], v.Videos[i+1:]...)
 			}
 
 		}
@@ -217,38 +215,12 @@ func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConf
 	v.DownloadQueue = append(v.DownloadQueue, videoID)
 	defer v.removeFromQueue(videoID)
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	// Get the video data
+	videoBytes, _, err := immichAsset.Video()
 	if err != nil {
-		log.Error(err)
+		log.Error("getting video", "err", err)
 		return
 	}
-
-	apiUrl := url.URL{
-		Scheme: u.Scheme,
-		Host:   u.Host,
-		Path:   path.Join("api", "assets", videoID, "video", "playback"),
-	}
-
-	// Create HTTP client
-	client := &http.Client{}
-
-	// Create request to your API
-	req, err := http.NewRequest("GET", apiUrl.String(), nil)
-	if err != nil {
-		log.Error("Error fetching video: NewRequest", "err", err)
-		return
-	}
-
-	req.Header.Set("Accept", "application/octet-stream")
-	req.Header.Set("x-api-key", requestConfig.ImmichApiKey)
-
-	// Make the request
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Error("Error fetching video: Do", "err", err)
-		return
-	}
-	defer resp.Body.Close()
 
 	ext := filepath.Ext(immichAsset.OriginalFileName)
 
@@ -264,8 +236,8 @@ func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConf
 	}
 	defer out.Close()
 
-	// Copy the video data to the file
-	_, err = out.ReadFrom(resp.Body)
+	// Write the video data to the file
+	_, err = out.Write(videoBytes)
 	if err != nil {
 		log.Error("Error writing video file", "err", err)
 		return

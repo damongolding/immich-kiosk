@@ -28,8 +28,9 @@ let redirectsKeyPress: () => void;
  */
 function disableAssetNavigationButtons(): void {
   if (!nextAssetMenuButton || !prevAssetMenuButton) {
-    console.error("Navigation buttons not initialized");
-    return;
+    throw new Error(
+      "Navigation buttons not initialized. This could indicate a DOM loading issue or incorrect element IDs.",
+    );
   }
   htmx.addClass(nextAssetMenuButton, "disabled");
   htmx.addClass(prevAssetMenuButton, "disabled");

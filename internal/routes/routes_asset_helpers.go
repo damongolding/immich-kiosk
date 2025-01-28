@@ -98,6 +98,7 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 	return assets, nil
 }
 
+// isSleepMode checks if the kiosk should currently be in sleep mode based on configured sleep times
 func isSleepMode(requestConfig config.Config) bool {
 	if requestConfig.SleepStart == "" || requestConfig.SleepEnd == "" {
 		return false
@@ -205,6 +206,8 @@ func processAsset(immichImage *immich.ImmichAsset, allowedAssetTypes []immich.Im
 	return processImage(immichImage, pickedAsset.Type, requestID, deviceID, isPrefetch)
 }
 
+// processVideo handles retrieving and processing video assets.
+// It downloads videos if needed and returns a preview image.
 func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requestConfig config.Config, requestID string, deviceID string, requestUrl string, isPrefetch bool) (image.Image, error) {
 	// We need to see if the video has been downloaded
 	// if so, return nil
@@ -215,8 +218,6 @@ func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requ
 
 		immichImage.KioskSource = sourceType
 
-		log.Info("Video is downloaded", "id", immichImage.ID)
-
 		return fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
 	}
 
@@ -225,10 +226,11 @@ func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requ
 		go VideoManager.DownloadVideo(*immichImage, requestConfig, deviceID, requestUrl)
 	}
 
-	// if the video is not available, run processAsset again to get a new image
-	return processAsset(immichImage, []immich.ImmichAssetType{immich.VideoType}, requestConfig, requestID, deviceID, requestUrl, isPrefetch)
+	// if the video is not available, run processAsset again to get a new asset
+	return processAsset(immichImage, []immich.ImmichAssetType{immich.ImageType, immich.VideoType}, requestConfig, requestID, deviceID, requestUrl, isPrefetch)
 }
 
+// processImage prepares an image asset for display by setting its source type and retrieving a preview
 func processImage(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
 
 	immichImage.KioskSource = sourceType
@@ -287,6 +289,7 @@ func logImageProcessing(config config.Config, requestID, deviceID string, isPref
 	}
 }
 
+// DrawFaceOnImage draws bounding boxes around detected faces in an image
 func DrawFaceOnImage(img image.Image, i *immich.ImmichAsset) image.Image {
 
 	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
@@ -387,14 +390,17 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	}, nil
 }
 
+// ProcessViewImageData processes view data for an image without orientation constraints
 func ProcessViewImageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ViewImageData, error) {
 	return processViewImageData("", requestConfig, c, isPrefetch)
 }
 
+// ProcessViewImageDataWithRatio processes view data for an image with the specified orientation
 func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ViewImageData, error) {
 	return processViewImageData(imageOrientation, requestConfig, c, isPrefetch)
 }
 
+// assetToCache stores view data in the cache and triggers prefetch webhooks
 func assetToCache(viewDataToAdd common.ViewData, requestConfig *config.Config, deviceID string, requestData *common.RouteRequestData, c echo.Context) {
 
 	cache.AssetToCache(viewDataToAdd, requestConfig, deviceID, c.Request().URL.String())
@@ -402,7 +408,8 @@ func assetToCache(viewDataToAdd common.ViewData, requestConfig *config.Config, d
 	go webhooks.Trigger(requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
 }
 
-func imagePreFetch(requestData *common.RouteRequestData, c echo.Context) {
+// assetPreFetch handles prefetching assets for the current request
+func assetPreFetch(requestData *common.RouteRequestData, c echo.Context) {
 
 	requestConfig := requestData.RequestConfig
 	requestID := requestData.RequestID

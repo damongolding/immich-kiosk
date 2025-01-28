@@ -46,6 +46,9 @@ class PollingController {
    * @param menu - The menu element to control
    */
   init(interval: number, kiosk: HTMLElement | null, menu: HTMLElement | null) {
+    if (!interval || !kiosk || !menu) {
+      throw new Error("PollingController: Missing required parameters");
+    }
     this.pollInterval = interval;
     this.kioskElement = kiosk;
     this.menuElement = menu;
@@ -101,6 +104,8 @@ class PollingController {
    */
   private videoEndedHandler = () => {
     this.video?.removeEventListener("ended", this.videoEndedHandler);
+    this.video?.removeEventListener("error", this.handleVideoError);
+
     this.videoCleanup();
     this.triggerNewAsset();
   };
@@ -180,6 +185,12 @@ class PollingController {
     this.isPaused = false;
   };
 
+  handleVideoError = (e: Event) => {
+    console.error("Video playback error:", e);
+    this.videoCleanup();
+    this.triggerNewAsset();
+  };
+
   /**
    * Handles video playback
    * @param id - The ID of the video element to handle
@@ -211,6 +222,7 @@ class PollingController {
 
     this.video.play();
 
+    this.video.addEventListener("error", this.handleVideoError, { once: true });
     this.video.addEventListener("ended", this.videoEndedHandler, {
       once: true,
     });

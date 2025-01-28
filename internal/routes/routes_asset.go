@@ -49,7 +49,7 @@ func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
 		if requestConfig.Kiosk.PreFetch {
 			if cachedViewData := fromCache(c.Request().URL.String(), deviceID); cachedViewData != nil {
 				requestEchoCtx := c
-				go imagePreFetch(requestData, requestEchoCtx)
+				go assetPreFetch(requestData, requestEchoCtx)
 				go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
 
 				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID)
@@ -64,7 +64,7 @@ func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
 
 		if requestConfig.Kiosk.PreFetch {
 			requestEchoCtx := c
-			go imagePreFetch(requestData, requestEchoCtx)
+			go assetPreFetch(requestData, requestEchoCtx)
 		}
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)

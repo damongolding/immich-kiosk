@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	gocache "github.com/patrickmn/go-cache"
@@ -114,7 +115,12 @@ func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID
 	viewCacheKey := ViewCacheKey(url, deviceID)
 
 	if data, found := Get(viewCacheKey); found {
-		cachedViewData = data.([]T)
+		if typedData, ok := data.([]T); ok {
+			cachedViewData = typedData
+		} else {
+			log.Error("Invalid cache data type")
+			cachedViewData = []T{}
+		}
 	}
 
 	switch position {
