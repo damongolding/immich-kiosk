@@ -10,12 +10,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/labstack/echo/v4"
 )
 
 func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
-	const bufferSize = 64 * 1024 // 64KB buffer
+	const bufferSize = 1024 * 1024 // Increased to 1MB buffer
 
 	return func(c echo.Context) error {
 		videoID := c.Param("videoID")
@@ -66,50 +67,77 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 		c.Response().Header().Set("Content-Type", vid.ImmichAsset.OriginalMimeType)
 		c.Response().Header().Set("Accept-Ranges", "bytes")
 
-		rangeHeader := c.Request().Header.Get("Range")
-		if rangeHeader == "" {
-			c.Response().Header().Set("Content-Length", strconv.FormatInt(fileSize, 10))
-			bufferedReader := bufio.NewReaderSize(video, bufferSize)
-			return c.Stream(http.StatusOK, vid.ImmichAsset.OriginalMimeType, bufferedReader)
-		}
-
-		// Parse range
+		// Initialize start and end
 		start, end := int64(0), fileSize-1
+
+		// Improved range parsing
+		rangeHeader := c.Request().Header.Get("Range")
 		if rangeHeader != "" {
-			rangeStr := strings.TrimPrefix(rangeHeader, "bytes=")
-			parts := strings.Split(rangeStr, "-")
-			if len(parts) == 2 {
-				if parts[0] != "" {
-					start, _ = strconv.ParseInt(parts[0], 10, 64)
-				}
-				if parts[1] != "" {
-					end, _ = strconv.ParseInt(parts[1], 10, 64)
+			ranges := strings.Split(strings.Replace(rangeHeader, "bytes=", "", 1), "-")
+			if len(ranges) != 2 {
+				return echo.NewHTTPError(http.StatusBadRequest, "Invalid range format")
+			}
+
+			if ranges[0] != "" {
+				start, err = strconv.ParseInt(ranges[0], 10, 64)
+				if err != nil {
+					return echo.NewHTTPError(http.StatusBadRequest, "Invalid range start")
 				}
 			}
+
+			if ranges[1] != "" {
+				end, err = strconv.ParseInt(ranges[1], 10, 64)
+				if err != nil {
+					return echo.NewHTTPError(http.StatusBadRequest, "Invalid range end")
+				}
+			}
+
+			// Add some logging
+			log.Debug("Video Range request", "start", start, "end", end, "fileSize", fileSize)
 		}
 
-		// Validate ranges
-		if start >= fileSize || start > end {
+		// Validate ranges more strictly
+		if start < 0 || end < 0 || start >= fileSize {
 			return echo.NewHTTPError(http.StatusRequestedRangeNotSatisfiable,
-				"Requested range not satisfiable")
+				fmt.Sprintf("Invalid range: start=%d, end=%d, fileSize=%d", start, end, fileSize))
 		}
+
 		if end >= fileSize {
 			end = fileSize - 1
 		}
 
-		// Seek and prepare chunk
+		// Ensure chunk size isn't too large
+		chunkSize := end - start + 1
+		maxChunkSize := int64(10 * 1024 * 1024) // 10MB
+		if chunkSize > maxChunkSize {
+			end = start + maxChunkSize - 1
+			chunkSize = maxChunkSize
+		}
+
+		// Add debug headers
+		c.Response().Header().Set("X-Chunk-Size", strconv.FormatInt(chunkSize, 10))
+		c.Response().Header().Set("X-Chunk-Start", strconv.FormatInt(start, 10))
+		c.Response().Header().Set("X-Chunk-End", strconv.FormatInt(end, 10))
+
 		if _, err = video.Seek(start, io.SeekStart); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to seek video position")
 		}
 
-		chunkSize := end - start + 1
 		c.Response().Header().Set("Content-Length", strconv.FormatInt(chunkSize, 10))
 		c.Response().Header().Set("Content-Range",
 			fmt.Sprintf("bytes %d-%d/%d", start, end, fileSize))
 
-		chunk := io.LimitReader(video, chunkSize)
+		// Use io.Copy instead of buffered reader for large chunks
+		if chunkSize > bufferSize {
+			return c.Stream(http.StatusPartialContent, vid.ImmichAsset.OriginalMimeType,
+				io.NewSectionReader(video, start, chunkSize))
+		}
 
-		bufferedReader := bufio.NewReaderSize(chunk, bufferSize)
+		// Use buffered reader for smaller chunks
+		bufferedReader := bufio.NewReaderSize(
+			io.NewSectionReader(video, start, chunkSize),
+			bufferSize,
+		)
 
 		return c.Stream(http.StatusPartialContent, vid.ImmichAsset.OriginalMimeType,
 			bufferedReader)

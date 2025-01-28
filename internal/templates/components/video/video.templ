@@ -22,9 +22,11 @@ templ Video(viewData common.ViewData) {
 		<div class="frame--video">
 			<video
 				id={ ID }
-				muted
 				autoplay
+				muted
 				playsinline
+				webkit-playsinline
+				x-webkit-airplay="allow"
 				poster={ viewData.Assets[0].ImageData }
 			>
 				<source
