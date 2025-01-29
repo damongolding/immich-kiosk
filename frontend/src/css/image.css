@@ -84,10 +84,13 @@
     align-items: center;
     gap: 0.5rem;
 
-    svg {
-        idth: 1rem;
-        height: 1rem;
-        fill: white;
+    .asset--metadata--album--icon {
+        display: flex;
+        svg {
+            idth: 1rem;
+            height: 1rem;
+            fill: white;
+        }
     }
 }
 
