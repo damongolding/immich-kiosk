@@ -37,7 +37,7 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 
 		info, err := video.Stat()
 		if err != nil {
-			return err
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get video stats")
 		}
 
 		fileSize := info.Size()
