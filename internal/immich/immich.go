@@ -168,6 +168,7 @@ type ImmichAsset struct {
 	IsLandscape     bool             `json:"-"`
 	KioskSource     kiosk.Source     `json:"-"`
 	KioskSourceName string           `json:"-"`
+	AppearsIn       []string         `json:"-"`
 }
 
 type ImmichAlbum struct {

@@ -438,6 +438,18 @@ form {
 .asset--metadata div {
   z-index: 1;
 }
+.asset--metadata--album {
+  display: -moz-box;
+  display: flex;
+  -moz-box-align: center;
+       align-items: center;
+  gap: 0.5rem;
+}
+.asset--metadata--album svg {
+    idth: 1rem;
+    height: 1rem;
+    fill: white;
+  }
 .asset--metadata--date {
   font-size: 1.3rem;
 }

@@ -79,6 +79,18 @@
     z-index: 1;
 }
 
+.asset--metadata--album {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    svg {
+        idth: 1rem;
+        height: 1rem;
+        fill: white;
+    }
+}
+
 .asset--metadata--date {
     font-size: 1.3rem;
 }

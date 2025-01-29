@@ -198,6 +198,10 @@ func processAsset(immichImage *immich.ImmichAsset, allowedAssetTypes []immich.Im
 		return nil, err
 	}
 
+	if requestConfig.ShowAlbumName {
+		go immichImage.AlbumsThatContainAsset(requestID, deviceID)
+	}
+
 	//  At this point immichImage could be a video or an image
 	if requestConfig.ExperimentalAlbumVideo && immichImage.Type == immich.VideoType {
 		return processVideo(immichImage, pickedAsset.Type, requestConfig, requestID, deviceID, requestUrl, isPrefetch)
