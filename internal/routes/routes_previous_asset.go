@@ -87,6 +87,10 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 						log.Error(err)
 					}
 
+					if requestConfig.ShowAlbumName {
+						asset.AlbumsThatContainAsset(requestID, deviceID)
+					}
+
 				}(&asset, requestID, &wg)
 
 				imgBytes, err := asset.ImagePreview()

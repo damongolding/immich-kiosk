@@ -198,6 +198,10 @@ func processAsset(immichImage *immich.ImmichAsset, allowedAssetTypes []immich.Im
 		return nil, err
 	}
 
+	if requestConfig.ShowAlbumName {
+		go immichImage.AlbumsThatContainAsset(requestID, deviceID)
+	}
+
 	//  At this point immichImage could be a video or an image
 	if requestConfig.ExperimentalAlbumVideo && immichImage.Type == immich.VideoType {
 		return processVideo(immichImage, pickedAsset.Type, requestConfig, requestID, deviceID, requestUrl, isPrefetch)
@@ -215,9 +219,6 @@ func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requ
 
 	// Video is available
 	if VideoManager.IsDownloaded(immichImage.ID) {
-
-		immichImage.KioskSource = sourceType
-
 		return fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
 	}
 
@@ -232,9 +233,6 @@ func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requ
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview
 func processImage(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
-
-	immichImage.KioskSource = sourceType
-
 	return fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
 }
 

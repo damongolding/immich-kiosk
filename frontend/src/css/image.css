@@ -79,8 +79,25 @@
     z-index: 1;
 }
 
-.asset--metadata--date {
-    font-size: 1.3rem;
+.asset--metadata--has-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.asset--metadata--is-first .asset--metadata--icon {
+    order: 2;
+}
+
+.asset--metadata--icon {
+    display: flex;
+    justify-content: center;
+    width: 0.9rem;
+    svg {
+        height: 0.9rem;
+        width: 0.9rem;
+        fill: white;
+    }
 }
 
 .asset--metadata--exif--fnumber {
@@ -163,12 +180,6 @@
 
     .asset--metadata--desciption {
         max-width: 100%;
-    }
-
-    .asset--metadata--date,
-    .asset--metadata--exif,
-    .asset--metadata--location {
-        padding-left: 0.5rem;
     }
 
     .asset--metadata--location {

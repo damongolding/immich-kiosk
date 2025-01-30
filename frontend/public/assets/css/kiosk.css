@@ -438,9 +438,29 @@ form {
 .asset--metadata div {
   z-index: 1;
 }
-.asset--metadata--date {
-  font-size: 1.3rem;
+.asset--metadata--has-icon {
+  display: -moz-box;
+  display: flex;
+  -moz-box-align: center;
+       align-items: center;
+  gap: 0.5rem;
 }
+.asset--metadata--is-first .asset--metadata--icon {
+  -moz-box-ordinal-group: 3;
+       order: 2;
+}
+.asset--metadata--icon {
+  display: -moz-box;
+  display: flex;
+  -moz-box-pack: center;
+       justify-content: center;
+  width: 0.9rem;
+}
+.asset--metadata--icon svg {
+    height: 0.9rem;
+    width: 0.9rem;
+    fill: white;
+  }
 .asset--metadata--exif--fnumber {
   display: inline-block;
   font-size: 0.84rem;
@@ -522,11 +542,6 @@ form {
   }
   .asset--metadata--desciption {
     max-width: 100%;
-  }
-  .asset--metadata--date,
-  .asset--metadata--exif,
-  .asset--metadata--location {
-    padding-left: 0.5rem;
   }
     .asset--metadata--location span {
       display: none;
@@ -1433,5 +1448,15 @@ form {
     height: 100%;
     border-radius: 0;
   }
+
+/* src/css/utis.css */
+.order-1 {
+  -moz-box-ordinal-group: 2;
+       order: 1;
+}
+.order-2 {
+  -moz-box-ordinal-group: 3;
+       order: 2;
+}
 
 /* src/css/kiosk.css */
