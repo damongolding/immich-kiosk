@@ -28,8 +28,6 @@ func (i *ImmichAsset) AlbumsThatContainAsset(requestID, deviceID string) {
 		albumsContaingAsset = append(albumsContaingAsset, album.AlbumName)
 	}
 
-	log.Info("found", "albums", albumsContaingAsset)
-
 	i.AppearsIn = albumsContaingAsset
 
 }
