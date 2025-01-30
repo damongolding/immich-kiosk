@@ -263,8 +263,6 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 			*i = asset
 
-			i.KioskSourceName = album.AlbumName
-
 			return nil
 		}
 

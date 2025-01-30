@@ -219,9 +219,6 @@ func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requ
 
 	// Video is available
 	if VideoManager.IsDownloaded(immichImage.ID) {
-
-		immichImage.KioskSource = sourceType
-
 		return fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
 	}
 
@@ -236,9 +233,6 @@ func processVideo(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requ
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview
 func processImage(immichImage *immich.ImmichAsset, sourceType kiosk.Source, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
-
-	immichImage.KioskSource = sourceType
-
 	return fetchImagePreview(immichImage, requestID, deviceID, isPrefetch)
 }
 

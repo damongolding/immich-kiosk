@@ -9,7 +9,6 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
-	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/goodsign/monday"
 )
@@ -167,26 +166,6 @@ func AssetDateTime(viewData common.ViewData, assetIndex int) string {
 	return assetDate
 }
 
-// shouldShowSourceName determines if source name (album/person) should be displayed.
-// Checks asset source type and view settings to decide visibility.
-//
-// Parameters:
-//   - viewData: ViewData containing display settings and asset info
-//   - assetIndex: Index of current asset in assets slice
-//
-// Returns:
-//   - bool: true if source name should be shown
-func shouldShowSourceName(viewData common.ViewData, assetIndex int) bool {
-	asset := viewData.Assets[assetIndex].ImmichAsset
-	source := asset.KioskSource
-
-	isAlbumSource := source == kiosk.SourceAlbums || source == kiosk.SourceDateRangeAlbum || source == kiosk.SourceMemories
-	shouldShowAlbum := viewData.ShowAlbumName && isAlbumSource
-	shouldShowPerson := viewData.ShowPersonName && source == kiosk.SourcePerson
-
-	return shouldShowAlbum || shouldShowPerson
-}
-
 // peopleNames extracts and joins the names of people tagged in an asset.
 // Filters out empty names and joins the remaining with commas.
 //
@@ -224,6 +203,19 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ isFirstAsset := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 }}
 	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People) }}
 	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("asset--metadata--is-first", isFirstAsset) }>
+		if viewData.Assets[assetIndex].ImmichAsset.MemoryTitle != "" {
+			<div class="asset--metadata--has-icon">
+				<div class="asset--metadata--icon">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+						<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+						<path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9L0 168c0 13.3 10.7 24 24 24l110.1 0c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24l0 104c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65 0-94.1c0-13.3-10.7-24-24-24z"></path>
+					</svg>
+				</div>
+				<div>
+					<span>{ viewData.Assets[assetIndex].ImmichAsset.MemoryTitle }</span>
+				</div>
+			</div>
+		}
 		if viewData.ShowPersonName && names != "" {
 			<div class="asset--metadata--has-icon">
 				<div class="asset--metadata--icon">

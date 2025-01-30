@@ -158,8 +158,6 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 				}
 			}
 
-			img.KioskSourceName = fmt.Sprintf("%s to %s", dateStartHuman, dateEndHuman)
-
 			*i = img
 
 			return nil

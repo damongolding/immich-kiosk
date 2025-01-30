@@ -12,7 +12,6 @@ import (
 
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
-	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 type ImageOrientation string
@@ -163,12 +162,11 @@ type ImmichAsset struct {
 	DuplicateID      any             `json:"-"` // `json:"duplicateId"`
 
 	// Data added and used by Kiosk
-	RatioWanted     ImageOrientation `json:"-"`
-	IsPortrait      bool             `json:"-"`
-	IsLandscape     bool             `json:"-"`
-	KioskSource     kiosk.Source     `json:"-"`
-	KioskSourceName string           `json:"-"`
-	AppearsIn       []string         `json:"-"`
+	RatioWanted ImageOrientation `json:"-"`
+	IsPortrait  bool             `json:"-"`
+	IsLandscape bool             `json:"-"`
+	MemoryTitle string           `json:"-"`
+	AppearsIn   []string         `json:"-"`
 }
 
 type ImmichAlbum struct {
