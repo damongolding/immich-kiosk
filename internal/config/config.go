@@ -208,6 +208,7 @@ type Config struct {
 	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
 	// Memories show memories
 	Memories bool `json:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
+
 	// ExperimentalAlbumVideo whether to display videos
 	// Currently limited to albums
 	ExperimentalAlbumVideo bool `json:"experimentalAlbumVideo" mapstructure:"experimental_album_video" query:"experimental_album_video" form:"experimental_album_video" default:"false"`
