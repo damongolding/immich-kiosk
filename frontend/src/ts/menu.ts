@@ -155,17 +155,21 @@ function toggleRedirectsOverlay(): void {
  */
 function initMenu(
   disableNav: boolean,
-  nextAssetButton: HTMLElement,
-  prevAssetButton: HTMLElement,
+  nextAssetButton: HTMLElement | null,
+  prevAssetButton: HTMLElement | null,
   showMoreInfo: boolean,
   handleInfoKeyPress: () => void,
   handleRedirectsKeyPress: () => void,
 ): void {
-  if (!disableNav && (!nextAssetButton || !prevAssetButton)) {
+  if (disableNav) {
+    disableNavigation = disableNav;
+    return;
+  }
+
+  if (!nextAssetButton || !prevAssetButton) {
     throw new Error("Both navigation buttons must be provided");
   }
 
-  disableNavigation = disableNav;
   nextAssetMenuButton = nextAssetButton;
   prevAssetMenuButton = prevAssetButton;
 
