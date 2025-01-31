@@ -93,8 +93,8 @@ func DateToJavascriptLayout(input string) string {
 	replacer := strings.NewReplacer(
 		"YYYY", "yyyy",
 		"YY", "yy",
-		"DDDD", "EEEE",
-		"DDD", "EEE",
+		"DDDD", "eeee",
+		"DDD", "eee",
 		"DD", "dd",
 		"D", "d",
 	)

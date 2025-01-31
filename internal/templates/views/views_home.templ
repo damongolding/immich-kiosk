@@ -60,6 +60,7 @@ templ Home(viewData common.ViewData) {
 			@kioskData(map[string]any{
 				"debug":              viewData.Kiosk.Debug,
 				"debugVerbose":       viewData.Kiosk.DebugVerbose,
+				"langCode":           viewData.SystemLang,
 				"version":            viewData.KioskVersion,
 				"params":             queriesToJson(viewData.Queries),
 				"refresh":            viewData.Refresh,
