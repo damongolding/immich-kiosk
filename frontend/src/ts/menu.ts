@@ -6,6 +6,8 @@
 
 import htmx from "htmx.org";
 
+let disableNavigation: boolean = false;
+
 let nextAssetMenuButton: HTMLElement;
 let prevAssetMenuButton: HTMLElement;
 
@@ -27,10 +29,10 @@ let redirectsKeyPress: () => void;
  * @returns {void}
  */
 function disableAssetNavigationButtons(): void {
+  if (disableNavigation) return;
   if (!nextAssetMenuButton || !prevAssetMenuButton) {
-    throw new Error(
-      "Navigation buttons not initialized. This could indicate a DOM loading issue or incorrect element IDs.",
-    );
+    console.debug("Navigation buttons not initialized.");
+    return;
   }
   htmx.addClass(nextAssetMenuButton, "disabled");
   htmx.addClass(prevAssetMenuButton, "disabled");
@@ -41,6 +43,7 @@ function disableAssetNavigationButtons(): void {
  * @returns {void}
  */
 function enableAssetNavigationButtons(): void {
+  if (disableNavigation) return;
   if (!nextAssetMenuButton || !prevAssetMenuButton) {
     console.error("Navigation buttons not initialized");
     return;
@@ -151,16 +154,18 @@ function toggleRedirectsOverlay(): void {
  * @returns {void}
  */
 function initMenu(
+  disableNav: boolean,
   nextAssetButton: HTMLElement,
   prevAssetButton: HTMLElement,
   showMoreInfo: boolean,
   handleInfoKeyPress: () => void,
   handleRedirectsKeyPress: () => void,
 ): void {
-  if (!nextAssetButton || !prevAssetButton) {
+  if (!disableNav && (!nextAssetButton || !prevAssetButton)) {
     throw new Error("Both navigation buttons must be provided");
   }
 
+  disableNavigation = disableNav;
   nextAssetMenuButton = nextAssetButton;
   prevAssetMenuButton = prevAssetButton;
 

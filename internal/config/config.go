@@ -159,6 +159,8 @@ type Config struct {
 	// (e.g., when using reverse proxies or different network paths)
 	ImmichExternalUrl string `json:"-" mapstructure:"immich_external_url" default:""`
 
+	// DisableNavigation remove navigation
+	DisableNavigation bool `json:"disableNavigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
 	DisableUi bool `json:"disableUi" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames

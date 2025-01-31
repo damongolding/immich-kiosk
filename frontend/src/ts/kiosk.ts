@@ -52,6 +52,7 @@ type KioskData = {
   langCode: string;
   params: Record<string, unknown>;
   refresh: number;
+  disableNavigation: boolean;
   disableScreensaver: boolean;
   showDate: boolean;
   dateFormat: string;
@@ -157,17 +158,15 @@ async function init(): Promise<void> {
     console.error("Could not start polling");
   }
 
-  if (nextImageMenuButton && prevImageMenuButton) {
-    initMenu(
-      nextImageMenuButton as HTMLElement,
-      prevImageMenuButton as HTMLElement,
-      kioskData.showMoreInfo,
-      handleInfoKeyPress,
-      handleRedirectsKeyPress,
-    );
-  } else {
-    console.error("Menu buttons not found");
-  }
+  initMenu(
+    kioskData.disableNavigation,
+    nextImageMenuButton as HTMLElement,
+    prevImageMenuButton as HTMLElement,
+    kioskData.showMoreInfo,
+    handleInfoKeyPress,
+    handleRedirectsKeyPress,
+  );
+
   addEventListeners();
 }
 
@@ -233,9 +232,41 @@ function handleRedirectsKeyPress(): void {
  * - Server connectivity status monitoring and display
  */
 function addEventListeners(): void {
+  // Unable to send ajax. probably offline.
+  htmx.on("htmx:sendError", () => {
+    releaseRequestLock();
+
+    if (!offlineSVG) {
+      console.error("offline svg missing");
+      return;
+    }
+
+    htmx.addClass(offlineSVG, "offline");
+  });
+
+  // Server online check. Fires after every AJAX request.
+  htmx.on("htmx:afterRequest", function (e: HTMXEvent) {
+    if (!offlineSVG) {
+      console.error("offline svg missing");
+      return;
+    }
+
+    if (e.detail.successful) {
+      htmx.removeClass(offlineSVG, "offline");
+    } else {
+      htmx.addClass(offlineSVG, "offline");
+    }
+  });
+
+  if (kioskData.disableNavigation) {
+    console.log("Navigation disabled");
+    return;
+  }
+
   // Pause/resume polling and show/hide menu
   menuInteraction?.addEventListener("click", () => togglePolling());
   menuPausePlayButton?.addEventListener("click", () => togglePolling());
+
   document.addEventListener("keydown", (e) => {
     if (e.target !== document.body) return;
 
@@ -268,32 +299,6 @@ function addEventListeners(): void {
 
   // Links overlay
   linksButton?.addEventListener("click", () => toggleRedirectsOverlay());
-
-  // Unable to send ajax. probably offline.
-  htmx.on("htmx:sendError", () => {
-    releaseRequestLock();
-
-    if (!offlineSVG) {
-      console.error("offline svg missing");
-      return;
-    }
-
-    htmx.addClass(offlineSVG, "offline");
-  });
-
-  // Server online check. Fires after every AJAX request.
-  htmx.on("htmx:afterRequest", function (e: HTMXEvent) {
-    if (!offlineSVG) {
-      console.error("offline svg missing");
-      return;
-    }
-
-    if (e.detail.successful) {
-      htmx.removeClass(offlineSVG, "offline");
-    } else {
-      htmx.addClass(offlineSVG, "offline");
-    }
-  });
 }
 
 /**
@@ -384,9 +389,10 @@ function checkHistoryExists(e: HTMXEvent): void {
 }
 
 /**
- * @typedef {Object} BrowserData
- * @property {number} client_width Window inner width
- * @property {number} client_height Window inner height
+ * Browser viewport dimensions
+ * @description Contains current window dimensions:
+ * - client_width: Width of the browser viewport in pixels
+ * - client_height: Height of the browser viewport in pixels
  */
 type BrowserData = {
   client_width: number;

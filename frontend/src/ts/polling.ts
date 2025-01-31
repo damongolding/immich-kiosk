@@ -46,7 +46,7 @@ class PollingController {
    * @param menu - The menu element to control
    */
   init(interval: number, kiosk: HTMLElement | null, menu: HTMLElement | null) {
-    if (!interval || !kiosk || !menu) {
+    if (!interval || !kiosk) {
       throw new Error("PollingController: Missing required parameters");
     }
     this.pollInterval = interval;
