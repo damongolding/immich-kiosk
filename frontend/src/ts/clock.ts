@@ -52,8 +52,18 @@ class Clock {
       return locales[this.langCode];
     }
 
+    const splitCode = this.langCode.split("_");
+
+    if (splitCode.length > 1) {
+      const joinedCode = splitCode[0] + splitCode[1];
+      if (locales[joinedCode]) {
+        console.log(`Using base language ${joinedCode}`);
+        return locales[joinedCode];
+      }
+    }
+
     // Try base language code without region
-    const baseCode = this.langCode.split("_")[0];
+    const baseCode = splitCode[0];
     if (locales[baseCode]) {
       console.log(`Using base language ${baseCode}`);
       return locales[baseCode];
@@ -63,6 +73,7 @@ class Clock {
     console.error(
       `Language ${this.langCode} not found, defaulting to ${DEFAULT_LANG}`,
     );
+
     return locales[DEFAULT_LANG];
   }
 
