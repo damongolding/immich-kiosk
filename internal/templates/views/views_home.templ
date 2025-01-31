@@ -7,6 +7,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"html"
 	"net/url"
+	"strings"
 )
 
 // Home renders the Home layout template
@@ -21,13 +22,7 @@ templ Home(viewData common.ViewData) {
 				id="kiosk"
 				hx-post="/asset/new"
 				hx-include=".kiosk-history--entry"
-				hx-trigger="
-					load,
-					click from:#navigation-interaction-area--next-asset throttle:1s,
-					click from:.navigation--next-asset throttle:1s,
-					keyup[key=='ArrowRight'] from:body throttle:1s,
-					kiosk-new-asset throttle:1s
-				"
+				hx-trigger={ triggers(viewData.DisableNavigation) }
 				hx-on::before-send="kiosk.setRequestLock(event)"
 				hx-on::after-request="kiosk.startPolling()"
 				hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames()"
@@ -51,7 +46,9 @@ templ Home(viewData common.ViewData) {
 					</div>
 				</section>
 			}
-			@partials.Menu(viewData.ShowMoreInfo, viewData.Kiosk.Redirects, viewData.Queries)
+			if !viewData.DisableNavigation {
+				@partials.Menu(viewData.ShowMoreInfo, viewData.Kiosk.Redirects, viewData.Queries)
+			}
 			@partials.Params(viewData.Queries)
 			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd, viewData.DisableSleep)
 			@partials.History()
@@ -64,6 +61,7 @@ templ Home(viewData common.ViewData) {
 				"version":            viewData.KioskVersion,
 				"params":             queriesToJson(viewData.Queries),
 				"refresh":            viewData.Refresh,
+				"disableNavigation":  viewData.DisableNavigation,
 				"disableScreensaver": viewData.DisableScreensaver,
 				"showDate":           viewData.ShowDate,
 				"dateFormat":         utils.DateToJavascriptLayout(viewData.DateFormat),
@@ -76,6 +74,30 @@ templ Home(viewData common.ViewData) {
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 		}
 	</html>
+}
+
+// triggers returns a string of HTMX trigger events for the kiosk.
+// If disableNav is true, navigation triggers are omitted.
+// The returned string includes:
+// - "load" trigger when the page loads
+// - Click triggers for next asset navigation controls (if navigation enabled)
+// - Keyboard right arrow trigger (if navigation enabled)
+// - Custom "kiosk-new-asset" event trigger
+func triggers(disableNav bool) string {
+
+	var b strings.Builder
+
+	b.WriteString("load,")
+	if !disableNav {
+		b.WriteString(`
+		click from:#navigation-interaction-area--next-asset throttle:1s,
+		click from:.navigation--next-asset throttle:1s,
+		keyup[key=='ArrowRight'] from:body throttle:1s,
+		`)
+	}
+	b.WriteString("kiosk-new-asset throttle:1s")
+
+	return b.String()
 }
 
 // kioskData renders kiosk configuration data as JSON
