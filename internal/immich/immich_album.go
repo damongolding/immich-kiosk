@@ -29,7 +29,6 @@ func (i *ImmichAsset) AlbumsThatContainAsset(requestID, deviceID string) {
 	}
 
 	i.AppearsIn = albumsContaingAsset
-
 }
 
 // albums retrieves albums from Immich based on the shared parameter.
@@ -241,6 +240,10 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
 				continue
+			}
+
+			if requestConfig.ShowPersonName {
+				asset.CheckForFaces(requestID, deviceID)
 			}
 
 			if requestConfig.Kiosk.Cache {
