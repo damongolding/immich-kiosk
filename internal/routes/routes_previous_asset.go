@@ -71,20 +71,22 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 		g, _ := errgroup.WithContext(c.Request().Context())
 
 		for i, assetID := range prevImages {
-			i, assetID := i, strings.Replace(assetID, ":video", "", 1)
+			_, currentAssetID := i, strings.Replace(assetID, ":video", "", 1)
+
 			g.Go(func() error {
 				asset := immich.NewImage(requestConfig)
-				asset.ID = assetID
+				asset.ID = currentAssetID
 
 				var wg sync.WaitGroup
 				wg.Add(1)
 
 				go func(asset *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
 					defer wg.Done()
+					var processingErr error
 
-					err := asset.AssetInfo(requestID, deviceID)
-					if err != nil {
-						log.Error(err)
+					if err := asset.AssetInfo(requestID, deviceID); err != nil {
+						processingErr = fmt.Errorf("failed to get asset info: %w", err)
+						log.Error(processingErr)
 					}
 
 					if requestConfig.ShowAlbumName {
