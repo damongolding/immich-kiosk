@@ -35,25 +35,21 @@ interface HTMXEvent extends Event {
 }
 
 /**
- * @typedef KioskData Configuration data for the kiosk
- * @property {boolean} debug Enable debug mode
- * @property {boolean} debugVerbose Enable verbose debug logging
- * @property {string} version Version string
- * @property {Record<string, unknown>} params Additional configuration parameters
- * @property {number} refresh Refresh interval in seconds
- * @property {boolean} disableScreensaver Whether to prevent screen sleeping
- * @property {boolean} showDate Whether to display the date
- * @property {string} dateFormat Format string for date display
- * @property {boolean} showTime Whether to display the time
- * @property {TimeFormat} timeFormat Format for time display
- * @property {string} transition Type of transition animation
- * @property {boolean} showMoreInfo Show the more info image overlay
- * @property {boolean} showRedirects - Whether to display the redirects overlay
+ * Configuration data for managing the kiosk display and behavior
+ *
+ * Provides options for:
+ * - Debug settings and version info
+ * - Language and localization
+ * - Screen refresh and display settings
+ * - Date/time formatting preferences
+ * - UI elements visibility control
+ * - Transition animations
  */
 type KioskData = {
   debug: boolean;
   debugVerbose: boolean;
   version: string;
+  langCode: string;
   params: Record<string, unknown>;
   refresh: number;
   disableScreensaver: boolean;
@@ -131,6 +127,7 @@ async function init(): Promise<void> {
       kioskData.dateFormat,
       kioskData.showTime,
       kioskData.timeFormat,
+      kioskData.langCode,
     );
   }
 
