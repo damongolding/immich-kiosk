@@ -594,18 +594,15 @@ http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 
 ### Date range
 
-> [!WARNING]
-> I have found an issue in the Immich API which means that the date range is not working as expected.
-> It seems API is matching against "createdBefore" and "createdAfter" instead of the EXIF meta data.
-> I have raised this with the Immich team and will update this when it is fixed.
-
 > [!TIP]
 > You can use `today` as an alias for the current date.
 > e.g. `http://{URL}?date=2023-01-01_to_today`
 
-### How multiple date ranges work
-When you specify multiple date ranges, Immich Kiosk creates a pool of all the requested date ranges.
-For each image refresh, Kiosk randomly selects one date range from this pool and fetches an image within that date range.
+### How date ranges work as asset buckets
+Date ranges in Immich Kiosk create distinct pools (or "buckets") of assets based on their timestamps.
+Unlike filters that modify existing collections, each date range defines its own independent set of assets.
+When you specify multiple date ranges, Kiosk maintains separate buckets for each range and randomly selects
+one bucket during image refresh to fetch an asset from.
 
 There are **three** ways you can set date ranges:
 

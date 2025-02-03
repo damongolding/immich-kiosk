@@ -32,21 +32,9 @@ import (
 // Returns an error if no valid images are found after max retries
 func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
 
-	var dateStart time.Time
-	var dateEnd time.Time
-	var err error
-
-	switch {
-	case strings.Contains(dateRange, "_to_"):
-		dateStart, dateEnd, err = processDateRange(dateRange)
-		if err != nil {
-			return err
-		}
-	case strings.Contains(dateRange, "last_"):
-		dateStart, dateEnd, err = processLastDays(dateRange)
-		if err != nil {
-			return err
-		}
+	dateStart, dateEnd, err := determineDateRange(dateRange)
+	if err != nil {
+		return err
 	}
 
 	dateStartHuman := dateStart.Format("2006-01-02")
@@ -154,6 +142,27 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 	}
 
 	return fmt.Errorf("No images found for '%s'. Max retries reached.", dateRange)
+}
+
+func determineDateRange(dateRange string) (time.Time, time.Time, error) {
+	var dateStart time.Time
+	var dateEnd time.Time
+	var err error
+
+	switch {
+	case strings.Contains(dateRange, "_to_"):
+		dateStart, dateEnd, err = processDateRange(dateRange)
+		if err != nil {
+			return dateStart, dateEnd, err
+		}
+	case strings.Contains(dateRange, "last_"):
+		dateStart, dateEnd, err = processLastDays(dateRange)
+		if err != nil {
+			return dateStart, dateEnd, err
+		}
+	}
+
+	return dateStart, dateEnd, err
 }
 
 // processDateRange parses a date range string in the format "YYYY-MM-DD_to_YYYY-MM-DD"
