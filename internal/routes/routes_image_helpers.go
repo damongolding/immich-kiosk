@@ -3,7 +3,7 @@ package routes
 import (
 	"fmt"
 	"image"
-	"math/rand"
+	"math/rand/v2"
 	"net/http"
 	"strings"
 	"time"
@@ -314,8 +314,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	deviceID := c.Request().Header.Get("kiosk-device-id")
 
 	if len(requestConfig.User) > 0 {
-		randomIndex := rand.Intn(len(requestConfig.User))
-
+		randomIndex := rand.IntN(len(requestConfig.User))
 		requestConfig.SelectedUser = requestConfig.User[randomIndex]
 	} else {
 		requestConfig.SelectedUser = ""
