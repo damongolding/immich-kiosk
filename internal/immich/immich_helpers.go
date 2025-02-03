@@ -107,8 +107,9 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte) ([]byte,
 		req.Header.Set("Accept", "application/json")
 		apiKey := requestConfig.ImmichApiKey
 		if requestConfig.SelectedUser != "" {
-			apiKey = requestConfig.ImmichUsersApiKeys[requestConfig.SelectedUser]
-			if apiKey == "" {
+			if key, ok := requestConfig.ImmichUsersApiKeys[requestConfig.SelectedUser]; ok {
+				apiKey = key
+			} else {
 				return responseBody, fmt.Errorf("no API key found for user %s in the config", requestConfig.SelectedUser)
 			}
 		}
