@@ -216,7 +216,7 @@ func processAsset(immichAsset *immich.ImmichAsset, allowedAssetTypes []immich.Im
 	}
 
 	if requestConfig.ShowAlbumName {
-		go immichAsset.AlbumsThatContainAsset(requestID, deviceID)
+		immichAsset.AlbumsThatContainAsset(requestID, deviceID)
 	}
 
 	//  At this point immichAsset could be a video or an image

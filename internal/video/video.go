@@ -208,8 +208,6 @@ func (v *VideoManager) removeFromQueue(id string) {
 
 func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConfig config.Config, deviceID string, requestUrl string) {
 
-	log.Info("Downloading video", "id", immichAsset.ID)
-
 	videoID := immichAsset.ID
 
 	v.DownloadQueue = append(v.DownloadQueue, videoID)
@@ -275,10 +273,6 @@ func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConf
 	imageBlurData, err := utils.ImageToBase64(imgBlur)
 	if err != nil {
 		log.Error("converting image to base64", "err", err)
-	}
-
-	if requestConfig.ShowAlbumName {
-		go immichAsset.AlbumsThatContainAsset(requestUrl, deviceID)
 	}
 
 	log.Debug("downloaded video", "path", filePath)
