@@ -159,6 +159,24 @@ type Config struct {
 	// (e.g., when using reverse proxies or different network paths)
 	ImmichExternalUrl string `json:"-" mapstructure:"immich_external_url" default:""`
 
+	// ImmichUsersApiKeys a map of usernames to their respective api keys for accessing Immich
+	ImmichUsersApiKeys map[string]string `json:"-" mapstructure:"immich_users_api_keys" default:"{}"`
+	// User the user from ImmichUsersApiKeys to use when fetching images. If not set, it will use the default ImmichApiKey
+	User []string `json:"user" mapstructure:"user" query:"user" form:"user" default:"[]"`
+	// ShowUser whether to display user
+	ShowUser bool `json:"showUser" mapstructure:"show_user" query:"show_user" form:"show_user" default:"false"`
+	// SelectedUser selected user from User for the specific request
+	SelectedUser string `json:"selectedUser" default:""`
+
+	// ImmichUsersApiKeys a map of usernames to their respective api keys for accessing Immich
+	ImmichUsersApiKeys map[string]string `json:"-" mapstructure:"immich_users_api_keys" default:"{}"`
+	// User the user from ImmichUsersApiKeys to use when fetching images. If not set, it will use the default ImmichApiKey
+	User []string `json:"user" mapstructure:"user" query:"user" form:"user" default:"[]"`
+	// ShowUser whether to display user
+	ShowUser bool `json:"showUser" mapstructure:"show_user" query:"show_user" form:"show_user" default:"false"`
+	// SelectedUser selected user from User for the specific request
+	SelectedUser string `json:"selectedUser" default:""`
+
 	// DisableNavigation remove navigation
 	DisableNavigation bool `json:"disableNavigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate

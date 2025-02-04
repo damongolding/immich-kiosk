@@ -71,9 +71,17 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 		g, _ := errgroup.WithContext(c.Request().Context())
 
 		for i, assetID := range prevImages {
-			_, currentAssetID := i, strings.Replace(assetID, ":video", "", 1)
+
+			parts := strings.Split(assetID, ":")
+			if len(parts) != 2 {
+				return fmt.Errorf("invalid history entry format: %s", assetID)
+			}
+
+			currentAssetID, selectedUser := parts[0], parts[1]
 
 			g.Go(func() error {
+				requestConfig.SelectedUser = selectedUser
+
 				asset := immich.NewImage(requestConfig)
 				asset.ID = currentAssetID
 
@@ -121,6 +129,7 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 					ImmichAsset:   asset,
 					ImageData:     imgString,
 					ImageBlurData: imgBlurString,
+					User:          selectedUser,
 				}
 				return nil
 			})

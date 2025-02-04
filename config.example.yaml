@@ -91,6 +91,11 @@ show_more_info_qr_code: true
 #     unit: metric
 #     lang: en
 
+## Immich API keys for specific users
+# immich_users_api_keys:
+#   user1: ""
+# show_user: false # show user name
+
 ## Options that can NOT be changed via url params
 kiosk:
   port: 3000

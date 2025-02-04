@@ -294,6 +294,7 @@ services:
       KIOSK_PREFETCH: true
       KIOSK_ASSET_WEIGHTING: true
       KIOSK_PORT: 3000
+      KIOSK_SHOW_USER: false
     ports:
       - 3000:3000
     restart: always
@@ -370,11 +371,11 @@ See the file `config.example.yaml` for an example config file
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
 | [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | contain     | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
-| [image_effect](#image-effects)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom    | ""         | Add an effect to images.                                                               |
-| [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                   | 120        | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
+| [image_effect](#image-effects)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom   | ""          | Add an effect to images.                                                                   |
+| [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fallback to using the preview. |
-| show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display albums containing this asset.                                                      |
-| show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display names of people in this asset.                                                     |
+| show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display the album name if one or more album IDs are specified.                          |
+| show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display the person name if one or more person IDs are specified.                        |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
@@ -382,10 +383,12 @@ See the file `config.example.yaml` for an example config file
 | show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION | bool                  | false       | Display image description from METADATA (if available). |
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF   | bool                       | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION | bool                     | false       | Display the image location from METADATA (if available).                                   |
-| hide_countries                    | KIOSK_HIDE_COUNTRIES    | []string                   | []          | List of countries to hide from image_location                                                |
-| show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s) |
-| show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay |
+| hide_countries                    | KIOSK_HIDE_COUNTRIES    | []string                   | []          | List of countries to hide from image_location                                              |
+| show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s)                   |
+| show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay       |
 | show_more_info_qr_code            | KIOSK_SHOW_MORE_INFO_QR_CODE    | bool               | true        | Displays a QR code linking to the original image (in Immich) in the additional information overlay |
+| immich_users_api_keys             | N/A                     | map[string]string          | {}          | key:value mappings of Immich usernames to their corresponding API keys. See [multiple users](#multiple-users) for more information |
+| show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information |
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
 
 ### Additional options
@@ -429,6 +432,35 @@ Example:
 The above would set refresh to 120 seconds (2 minutes), turn off the background blurred image and remove all transitions for this device/browser.
 
 ------
+
+## Multiple Users
+
+> [!TIP]
+> You can remove specific asset sources that were previously set in your `config.yaml` or environment variables by using `none` in the URL query parameters.
+>
+> Example:
+> ```url
+> https://{URL}?user=USER&person=none&album=none
+> ```
+>
+> This will disable both the 'person' and 'album' asset sources.
+
+Immich Kiosk supports multiple user API keys. Here's how to set it up:
+
+1. Configure multiple users by adding their API keys to the `immich_users_api_keys` field in your `config.yaml`:
+```yaml
+immich_users_api_keys:
+  john: "api_key_here"
+  jane: "api_key_here"
+```
+
+2. Access a specific user's content by including the `user` parameter in the URL:
+```
+https://{URL}?user=john
+```
+
+> [!NOTE]
+> If no user is specified in the URL, Immich Kiosk will default to using the global API key defined in `immich_api_key`.
 
 ## Albums
 

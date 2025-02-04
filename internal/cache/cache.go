@@ -56,8 +56,8 @@ func ViewCacheKey(apiUrl, deviceID string) string {
 // ApiCacheKey generates a cache key from the API URL and device ID by combining them
 // with ':api' suffix for cache API operations. The key is hashed using SHA-256
 // for consistent length and character set.
-func ApiCacheKey(apiUrl, deviceID string) string {
-	key := fmt.Sprintf("%s:%s:api", apiUrl, deviceID)
+func ApiCacheKey(apiUrl, deviceID string, user string) string {
+	key := fmt.Sprintf("%s:%s:%s:api", apiUrl, deviceID, user)
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(key)))
 }
 
