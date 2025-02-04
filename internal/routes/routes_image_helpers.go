@@ -317,6 +317,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	deviceID := c.Request().Header.Get("kiosk-device-id")
 
+	// if multiple users are given via the url pick a random one
 	if len(requestConfig.User) > 0 {
 		randomIndex := rand.IntN(len(requestConfig.User))
 		requestConfig.SelectedUser = requestConfig.User[randomIndex]
