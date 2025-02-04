@@ -6,7 +6,6 @@
 package immich
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	"time"
@@ -235,8 +234,4 @@ type ImmichApiCall func(string, string, []byte) ([]byte, error)
 
 type ImmichApiResponse interface {
 	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face | immich_open_api.PersonResponseDto | MemoryLaneResponse
-}
-
-func ApiCacheKey(apiUrl string, requestConfig *config.Config) string {
-	return fmt.Sprintf("%s:%s", apiUrl, requestConfig.SelectedUser)
 }
