@@ -14,6 +14,11 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
+// AlbumsThatContainAsset finds all albums that contain this asset and updates
+// the AppearsIn field with the album names.
+// Parameters:
+//   - requestID: ID used for tracking API call chain
+//   - deviceID: ID of device making the request
 func (i *ImmichAsset) AlbumsThatContainAsset(requestID, deviceID string) {
 
 	albumsContaingAsset := []string{}

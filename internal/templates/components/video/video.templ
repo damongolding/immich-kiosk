@@ -34,6 +34,9 @@ templ Video(viewData common.ViewData) {
 				/>
 			</video>
 		</div>
+		if !viewData.DisableUi {
+			@partials.AssetMetadata(viewData, 0)
+		}
 	</div>
 	@partials.RenderHistory(viewData, immich.VideoType)
 	if viewData.ShowMoreInfo {
