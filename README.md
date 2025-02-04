@@ -436,7 +436,7 @@ The above would set refresh to 120 seconds (2 minutes), turn off the background 
 ## Multiple Users
 
 > [!TIP]
-> You can remove specific asset sources that were previously set in your `config.yaml` or environment variables. To do this, use `none` in the URL query parameters.
+> You can remove specific asset sources that were previously set in your `config.yaml` or environment variables by using `none` in the URL query parameters.
 >
 > Example:
 > ```url
