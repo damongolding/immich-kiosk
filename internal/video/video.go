@@ -277,6 +277,10 @@ func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConf
 		log.Error("converting image to base64", "err", err)
 	}
 
+	if requestConfig.ShowAlbumName {
+		go immichAsset.AlbumsThatContainAsset(requestUrl, deviceID)
+	}
+
 	log.Debug("downloaded video", "path", filePath)
 
 	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestUrl, immichAsset, imageData, imageBlurData)

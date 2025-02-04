@@ -239,7 +239,7 @@ type AssetFaceResponse struct {
 }
 
 // NewImage returns a new image instance
-func NewImage(base config.Config) ImmichAsset {
+func NewAsset(base config.Config) ImmichAsset {
 	requestConfig = base
 	return ImmichAsset{}
 }

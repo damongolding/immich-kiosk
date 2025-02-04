@@ -31,7 +31,7 @@ templ RenderMoreInfo(viewData common.ViewData) {
 					@people(img.ImmichAsset.People)
 					<div class="more-info--button-group">
 						if viewData.ShowMoreInfoImageLink {
-							<a class="more-info--image-link" href={ templ.SafeURL(immichImageUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichAsset.ID)) } target="_blank">
+							<a class="more-info--image-link" href={ templ.SafeURL(immichAssetUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichAsset.ID)) } target="_blank">
 								View image in Immich
 							</a>
 						}
@@ -51,7 +51,7 @@ templ RenderMoreInfo(viewData common.ViewData) {
 				</div>
 				if viewData.ShowMoreInfoQrCode {
 					<div class="more-info--image--qr-code">
-						<img src={ utils.CreateQrCode(immichImageUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichAsset.ID)) }/>
+						<img src={ utils.CreateQrCode(immichAssetUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichAsset.ID)) }/>
 					</div>
 				}
 			</div>
@@ -171,7 +171,7 @@ func people(people []immich.Person) templ.Component {
 	})
 }
 
-// immichImageUrl constructs the URL for viewing an image in Immich
+// immichAssetUrl constructs the URL for viewing an image in Immich
 // Parameters:
 //   - baseUrl: The base URL of the Immich instance
 //   - externalUrl: The external URL of the Immich instance, if different from base URL
@@ -179,7 +179,7 @@ func people(people []immich.Person) templ.Component {
 //
 // Returns:
 //   - The complete URL string for viewing the image, or '#' if URL parsing fails
-func immichImageUrl(baseUrl, externalUrl, imageID string) string {
+func immichAssetUrl(baseUrl, externalUrl, imageID string) string {
 
 	urlToParse := externalUrl
 	if urlToParse == "" {

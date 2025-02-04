@@ -103,9 +103,9 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		immichImage := immich.NewImage(requestConfig)
+		immichAsset := immich.NewAsset(requestConfig)
 
-		img, err := processAsset(&immichImage, immich.ImageOnlyAssetTypes, requestConfig, requestID, "", "", false)
+		img, err := processAsset(&immichAsset, immich.ImageOnlyAssetTypes, requestConfig, requestID, "", "", false)
 		if err != nil {
 			return err
 		}

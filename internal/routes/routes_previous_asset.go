@@ -82,7 +82,7 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 			g.Go(func() error {
 				requestConfig.SelectedUser = selectedUser
 
-				asset := immich.NewImage(requestConfig)
+				asset := immich.NewAsset(requestConfig)
 				asset.ID = currentAssetID
 
 				var wg sync.WaitGroup
