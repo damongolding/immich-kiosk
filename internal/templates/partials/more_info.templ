@@ -32,7 +32,7 @@ templ RenderMoreInfo(viewData common.ViewData) {
 					<div class="more-info--button-group">
 						if viewData.ShowMoreInfoImageLink {
 							<a class="more-info--image-link" href={ templ.SafeURL(immichAssetUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichAsset.ID)) } target="_blank">
-								View image in Immich
+								View in Immich
 							</a>
 						}
 						if len(viewData.Webhooks) != 0 {
