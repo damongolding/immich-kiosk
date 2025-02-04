@@ -1,6 +1,7 @@
 package partials
 
 import (
+	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"html/template"
@@ -23,11 +24,7 @@ templ RenderHistory(viewData common.ViewData, assetType immich.ImmichAssetType) 
 		for _, historyEntry := range viewData.History {
 			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
 		}
-		if assetType == immich.VideoType {
-			<input type="hidden" class="kiosk-history--entry" name="history" value={ viewData.Assets[0].ImmichAsset.ID + ":video" }/>
-		} else {
-			<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Assets) }/>
-		}
+		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Assets) }/>
 	</form>
 }
 
@@ -37,7 +34,8 @@ func newHistoryEntry(images []common.ViewImageData) string {
 	}
 	newImages := make([]string, len(images))
 	for i, entry := range images {
-		sanitisedID := template.HTMLEscapeString(entry.ImmichAsset.ID)
+		assetHistory := fmt.Sprintf("%s:%s", entry.ImmichAsset.ID, entry.User)
+		sanitisedID := template.HTMLEscapeString(assetHistory)
 		newImages[i] = sanitisedID
 	}
 	return strings.Join(newImages, ",")
