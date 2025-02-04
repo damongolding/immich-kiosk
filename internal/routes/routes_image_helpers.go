@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"image"
+	"math/rand/v2"
 	"net/http"
 	"strings"
 	"time"
@@ -39,8 +40,15 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 	assets := []utils.AssetWithWeighting{}
 
 	for _, person := range requestConfig.Person {
+		if person == "" || strings.EqualFold(person, "none") {
+			continue
+		}
+
 		personAssetCount, err := immichImage.PersonImageCount(person, requestID, deviceID)
 		if err != nil {
+			if requestConfig.SelectedUser != "" {
+				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", requestConfig.SelectedUser, person, err)
+			}
 			return nil, fmt.Errorf("getting person image count: %w", err)
 		}
 
@@ -56,9 +64,15 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 	}
 
 	for _, album := range requestConfig.Album {
+		if album == "" || strings.EqualFold(album, "none") {
+			continue
+		}
 
 		albumAssetCount, err := immichImage.AlbumImageCount(album, requestID, deviceID)
 		if err != nil {
+			if requestConfig.SelectedUser != "" {
+				return nil, fmt.Errorf("user '<b>%s</b>' has no Album '%s'. error='%w'", requestConfig.SelectedUser, album, err)
+			}
 			return nil, fmt.Errorf("getting album asset count: %w", err)
 		}
 
@@ -74,6 +88,9 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 	}
 
 	for _, date := range requestConfig.Date {
+		if date == "" || strings.EqualFold(date, "none") {
+			continue
+		}
 
 		// use FetchedAssetsSize as a weighting for date ranges
 		assets = append(assets, utils.AssetWithWeighting{
@@ -300,6 +317,14 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
 	deviceID := c.Request().Header.Get("kiosk-device-id")
 
+	// if multiple users are given via the url pick a random one
+	if len(requestConfig.User) > 0 {
+		randomIndex := rand.IntN(len(requestConfig.User))
+		requestConfig.SelectedUser = requestConfig.User[randomIndex]
+	} else {
+		requestConfig.SelectedUser = ""
+	}
+
 	immichImage := immich.NewImage(requestConfig)
 
 	switch imageOrientation {
@@ -344,6 +369,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		ImmichImage:   immichImage,
 		ImageData:     imgString,
 		ImageBlurData: imgBlurString,
+		User:          requestConfig.SelectedUser,
 	}, nil
 }
 
