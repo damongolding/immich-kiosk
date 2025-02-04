@@ -40,11 +40,14 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 	assets := []utils.AssetWithWeighting{}
 
 	for _, person := range requestConfig.Person {
+		if person == "" || strings.EqualFold(person, "none") {
+			continue
+		}
+
 		personAssetCount, err := immichImage.PersonImageCount(person, requestID, deviceID)
 		if err != nil {
 			if requestConfig.SelectedUser != "" {
-				log.Debug(requestID+" User has no Person", "user", requestConfig.SelectedUser, "person", person)
-				continue
+				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", requestConfig.SelectedUser, person, err)
 			}
 			return nil, fmt.Errorf("getting person image count: %w", err)
 		}
@@ -61,12 +64,14 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 	}
 
 	for _, album := range requestConfig.Album {
+		if album == "" || strings.EqualFold(album, "none") {
+			continue
+		}
 
 		albumAssetCount, err := immichImage.AlbumImageCount(album, requestID, deviceID)
 		if err != nil {
 			if requestConfig.SelectedUser != "" {
-				log.Debug(requestID+" User has no album", "user", requestConfig.SelectedUser, "album", album)
-				continue
+				return nil, fmt.Errorf("user '<b>%s</b>' has no Album '%s'. error='%w'", requestConfig.SelectedUser, album, err)
 			}
 			return nil, fmt.Errorf("getting album asset count: %w", err)
 		}
@@ -82,11 +87,10 @@ func gatherAssetBuckets(immichImage *immich.ImmichAsset, requestConfig config.Co
 		})
 	}
 
-	if len(assets) == 0 && (len(requestConfig.Person) > 0 || len(requestConfig.Album) > 0) {
-		return nil, fmt.Errorf("no assets found for user %s with the wanted person or album", requestConfig.SelectedUser)
-	}
-
 	for _, date := range requestConfig.Date {
+		if date == "" || strings.EqualFold(date, "none") {
+			continue
+		}
 
 		// use FetchedAssetsSize as a weighting for date ranges
 		assets = append(assets, utils.AssetWithWeighting{
