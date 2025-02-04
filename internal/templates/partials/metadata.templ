@@ -206,7 +206,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People) }}
 	{{ showUser := viewData.ShowUser }}
 	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("asset--metadata--is-first", isFirstAsset) }>
-		if showUser {
+		if showUser && viewData.Assets[assetIndex].User != "" {
 			<div class="asset--metadata--has-icon">
 				<div class="asset--metadata--icon">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
