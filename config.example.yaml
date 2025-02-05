@@ -36,6 +36,9 @@ date:
 
 memories: false # show memories
 
+## Filters
+# date_filter: last-30-days # only applies to people and random assets
+
 ## Experimental
 experimental_album_video: false
 
