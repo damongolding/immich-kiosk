@@ -679,7 +679,7 @@ http://{URL}?date=DATE_RANGE&date=DATE_RANGE&date=DATE_RANGE
 > [!NOTE]
 > Not all filters work on all asset source/buckets.
 
-Filter allow you to filter asset buckets (people/albums/date ect) by certain criteria.
+Filters allow you to filter asset buckets (people/albums/date etc.) by certain criteria.
 
 ### Date filter
 
