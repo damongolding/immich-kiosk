@@ -155,7 +155,7 @@ func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
-	case strings.Contains(dateRange, "last_"):
+	case strings.Contains(dateRange, "last-"):
 		dateStart, dateEnd, err = processLastDays(dateRange)
 		if err != nil {
 			return dateStart, dateEnd, err

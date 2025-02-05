@@ -55,6 +55,7 @@
   - [Albums](#albums)
   - [People](#people)
   - [Date range](#date-range)
+  - [Filters](#filters)
   - [Image fit](#image-fit)
   - [Image effects](#image-effects)
   - [Date format](#date-format)
@@ -604,6 +605,10 @@ Unlike filters that modify existing collections, each date range defines its own
 When you specify multiple date ranges, Kiosk maintains separate buckets for each range and randomly selects
 one bucket during image refresh to fetch an asset from.
 
+### Allowed formats
+- `YYYY-MM-DD_to_YYYY-MM-DD` e.g.2023-01-01_to_2023-02-01
+- `last-XX-days` e.g. last-30-days
+
 There are **three** ways you can set date ranges:
 
 > [!NOTE]
@@ -616,6 +621,7 @@ There are **three** ways you can set date ranges:
 date:
   - 2023-01-01_to_2023-02-01
   - 2024-11-12_to_2023-11-18
+  - last-30-days
 ```
 
 2. via ENV in your docker-compose file use a `,` to separate IDs
@@ -630,6 +636,27 @@ environment:
 ```url
 http://{URL}?date=DATE_RANGE&date=DATE_RANGE&date=DATE_RANGE
 ```
+
+------
+
+## Filters
+
+> [!NOTE]
+> Not all filters work on all asset source/buckets.
+
+Filter allow you to filter asset buckets (people/albums/date ect) by certain criteria.
+
+### Date filter
+
+> [!NOTE]
+> `date_filter` only currently applies to person and random assets.
+
+`date_filter` accepts the same values as [date range](#date-range).
+
+examples:
+`http://{URL}?person=PERSON_ID&date_filter=2023-01-01_to_2023-02-01` will only show assets of the supplied person between 2023-01-01 and 2023-02-01.
+
+`http://{URL}?date_filter=last-30-days` will only show (random) assets from the last 30 days.
 
 ------
 
