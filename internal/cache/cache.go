@@ -5,7 +5,17 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	gocache "github.com/patrickmn/go-cache"
+)
+
+type CachePosition string
+
+const (
+	PREPEND CachePosition = "prepend"
+	APPEND  CachePosition = "append"
 )
 
 // Package cache provides a simple in-memory cache implementation using github.com/patrickmn/go-cache
@@ -87,4 +97,38 @@ func Replace(key string, x any) error {
 // The item will expire after the given duration has elapsed. Returns an error if the key does not exist.
 func ReplaceWithExpiration(key string, x any, t time.Duration) error {
 	return kioskCache.Replace(key, x, t)
+}
+
+func AssetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string) {
+	assetToCache(viewDataToAdd, requestConfig, deviceID, url, APPEND)
+}
+
+func AssetToCacheWithPosition[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string, position CachePosition) {
+	assetToCache(viewDataToAdd, requestConfig, deviceID, url, position)
+}
+
+func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string, position CachePosition) {
+	utils.TrimHistory(&requestConfig.History, 10)
+
+	cachedViewData := []T{}
+
+	viewCacheKey := ViewCacheKey(url, deviceID)
+
+	if data, found := Get(viewCacheKey); found {
+		if typedData, ok := data.([]T); ok {
+			cachedViewData = typedData
+		} else {
+			log.Error("Invalid cache data type")
+			cachedViewData = []T{}
+		}
+	}
+
+	switch position {
+	case APPEND:
+		cachedViewData = append(cachedViewData, viewDataToAdd)
+	case PREPEND:
+		cachedViewData = append([]T{viewDataToAdd}, cachedViewData...)
+	}
+
+	Set(viewCacheKey, cachedViewData)
 }

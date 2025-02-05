@@ -6,7 +6,9 @@
 }
 
 .polling-paused.redirects-open {
-    .frame--image img {
+    .frame--image img,
+    .frame--background img,
+    .frame--video video {
         filter: grayscale(1) blur(4px) brightness(0.4);
     }
 

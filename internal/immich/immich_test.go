@@ -222,3 +222,50 @@ func TestRemoveExcludedAlbums(t *testing.T) {
 		})
 	}
 }
+
+func TestExtractDays(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   string
+		want    int
+		wantErr bool
+	}{
+		{
+			name:    "valid number",
+			input:   "last_7",
+			want:    7,
+			wantErr: false,
+		},
+		{
+			name:    "no number",
+			input:   "last_",
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "multiple numbers",
+			input:   "last_12_34",
+			want:    12,
+			wantErr: false,
+		},
+		{
+			name:    "empty string",
+			input:   "",
+			want:    0,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := extractDays(tt.input)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("extractDays() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("extractDays() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

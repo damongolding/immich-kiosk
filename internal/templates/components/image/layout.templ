@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"strings"
 )
 
@@ -31,11 +32,11 @@ templ layoutSplitView(viewData common.ViewData) {
 templ layoutView(viewData common.ViewData, isSingle bool) {
 	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
 		if isSingle {
-			if len(viewData.Images) > 0 {
-				@renderSingleImage(viewData, viewData.Images[0], 0)
+			if len(viewData.Assets) > 0 {
+				@renderSingleImage(viewData, viewData.Assets[0], 0)
 			}
 		} else {
-			for imageIndex, imageData := range viewData.Images {
+			for imageIndex, imageData := range viewData.Assets {
 				<div class={ fmt.Sprintf("frame--layout-%s", viewData.Layout) }>
 					@renderSingleImage(viewData, imageData, imageIndex)
 				</div>
@@ -62,14 +63,14 @@ templ renderImageBackground(viewData common.ViewData, imageData common.ViewImage
 //
 // Parameters:
 //   - viewData: ViewData containing image effect and refresh settings.
-//   - imageData: ImageData containing the image data and ImmichImage.
+//   - imageData: ImageData containing the image data and ImmichAsset.
 //
 // The function uses frameWithZoom for zoom effects and frame for default rendering.
 // It delegates to RenderImageWithCoverFit or renderImageFit based on the image effect.
 templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 	switch viewData.ImageEffect {
 		case "zoom", "smart-zoom":
-			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichImage) {
+			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
 				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
 			}
 		default:
@@ -89,7 +90,7 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 	@renderImageBackground(viewData, imageData)
 	@renderImage(viewData, imageData)
 	if !viewData.DisableUi {
-		@imageMetadata(viewData, imageIndex)
+		@partials.AssetMetadata(viewData, imageIndex)
 	}
 }
 

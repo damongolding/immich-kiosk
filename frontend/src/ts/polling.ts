@@ -1,134 +1,332 @@
 import htmx from "htmx.org";
-import { hideImageOverlay } from "./menu";
+import { hideAssetOverlay } from "./menu";
 
-let animationFrameId: number | null = null;
-let progressBarElement: HTMLElement | null;
-let lastPollTime: number | null = null;
-let pausedTime: number | null = null;
-let isPaused = false;
+/**
+ * Represents a source for progress tracking, either an image or video
+ */
+interface ProgressSource {
+  type: "image" | "video";
+  startTime?: number;
+  duration?: number;
+  element?: HTMLVideoElement;
+}
 
-let pollInterval: number;
-let kioskElement: HTMLElement | null;
-let menuElement: HTMLElement | null;
-let menuPausePlayButton: HTMLElement | null;
+class PollingController {
+  private static instance: PollingController;
 
-function initPolling(
+  private animationFrameId: number | null = null;
+  private progressBarElement: HTMLElement | null = null;
+  private lastPollTime: number | null = null;
+  private pausedTime: number | null = null;
+  private isPaused: boolean = false;
+  private pollInterval: number = 0;
+  private kioskElement: HTMLElement | null = null;
+  private menuElement: HTMLElement | null = null;
+  private currentProgressSource: ProgressSource | null = null;
+  private video: HTMLVideoElement | null = null;
+
+  private constructor() {
+    // Private constructor to enforce singleton pattern
+  }
+
+  /**
+   * Returns the singleton instance of PollingController
+   */
+  public static getInstance(): PollingController {
+    if (!PollingController.instance) {
+      PollingController.instance = new PollingController();
+    }
+    return PollingController.instance;
+  }
+
+  /**
+   * Initializes the polling controller with required parameters
+   * @param interval - The polling interval in milliseconds
+   * @param kiosk - The kiosk element to control
+   * @param menu - The menu element to control
+   */
+  init(interval: number, kiosk: HTMLElement | null, menu: HTMLElement | null) {
+    if (!interval || !kiosk) {
+      throw new Error("PollingController: Missing required parameters");
+    }
+    this.pollInterval = interval;
+    this.kioskElement = kiosk;
+    this.menuElement = menu;
+    this.progressBarElement = htmx.find(".progress--bar") as HTMLElement | null;
+  }
+
+  /**
+   * Updates the progress bar based on current time and source type
+   * @param timestamp - Current timestamp from requestAnimationFrame
+   */
+  private updateProgress = (timestamp: number) => {
+    if (!this.currentProgressSource) return;
+
+    if (this.pausedTime !== null) {
+      this.lastPollTime! += timestamp - this.pausedTime;
+      this.pausedTime = null;
+    }
+
+    let progress: number;
+
+    if (this.currentProgressSource.type === "video") {
+      if (!this.currentProgressSource.element) return;
+      const video = this.currentProgressSource.element;
+      progress = (video.currentTime / video.duration) * 100;
+    } else {
+      const elapsed = timestamp - this.lastPollTime!;
+      progress = Math.min(elapsed / this.pollInterval, 1) * 100;
+
+      if (elapsed >= this.pollInterval) {
+        this.triggerNewAsset();
+        return;
+      }
+    }
+
+    if (this.progressBarElement) {
+      this.progressBarElement.style.width = `${progress}%`;
+    }
+
+    this.animationFrameId = requestAnimationFrame(this.updateProgress);
+  };
+
+  /**
+   * Triggers a new image to be loaded
+   */
+  private triggerNewAsset = () => {
+    this.stopPolling();
+    this.lastPollTime = performance.now();
+    htmx.trigger(this.kioskElement as HTMLElement, "kiosk-new-asset");
+  };
+
+  /**
+   * Handles video end event
+   */
+  private videoEndedHandler = () => {
+    this.videoCleanup();
+    this.triggerNewAsset();
+  };
+
+  /**
+   * Starts the polling process
+   */
+  startPolling = () => {
+    this.progressBarElement?.classList.remove("progress--bar-paused");
+    this.menuElement?.classList.add("navigation-hidden");
+    this.lastPollTime = performance.now();
+    this.pausedTime = null;
+
+    this.currentProgressSource = {
+      type: "image",
+      startTime: this.lastPollTime,
+      duration: this.pollInterval,
+    };
+
+    this.animationFrameId = requestAnimationFrame(this.updateProgress);
+    document.body.classList.remove("polling-paused");
+    hideAssetOverlay();
+    this.isPaused = false;
+  };
+
+  /**
+   * Pauses the polling process
+   * @param showMenu - Whether to show the menu when pausing
+   */
+  pausePolling = (showMenu: boolean = true) => {
+    if (this.isPaused && this.animationFrameId === null) return;
+
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
+    this.pausedTime = performance.now();
+
+    if (this.currentProgressSource?.type === "video" && this.video) {
+      this.video.pause();
+    }
+
+    this.progressBarElement?.classList.add("progress--bar-paused");
+
+    if (showMenu) {
+      this.menuElement?.classList.remove("navigation-hidden");
+      document.body.classList.add("polling-paused");
+    }
+
+    this.isPaused = true;
+  };
+
+  /**
+   * Resumes the polling process
+   * @param hideOverlay - Whether to hide the overlay when resuming
+   */
+  resumePolling = (hideOverlay: boolean = false) => {
+    if (!this.isPaused) return;
+
+    if (this.currentProgressSource?.type === "video" && this.video) {
+      this.video.play();
+    } else {
+      this.currentProgressSource = {
+        type: "image",
+        startTime: performance.now(),
+        duration: this.pollInterval,
+      };
+    }
+
+    this.animationFrameId = requestAnimationFrame(this.updateProgress);
+    this.progressBarElement?.classList.remove("progress--bar-paused");
+    this.menuElement?.classList.add("navigation-hidden");
+    document.body.classList.remove("polling-paused");
+
+    if (hideOverlay) hideAssetOverlay();
+    this.isPaused = false;
+  };
+
+  handleVideoError = (e: Event) => {
+    console.error("Video playback error:", e);
+    this.videoCleanup();
+    this.triggerNewAsset();
+  };
+
+  /**
+   * Handles video playback
+   * @param id - The ID of the video element to handle
+   */
+  videoHandler = (id: string) => {
+    if (!id) {
+      console.error("No video ID provided");
+      this.triggerNewAsset();
+      return;
+    }
+
+    this.video = document.getElementById(id) as HTMLVideoElement;
+    if (!this.video) {
+      console.error("Video element not found");
+      return;
+    }
+
+    // Setup timeout to check if video starts playing
+    const playTimeout = setTimeout(() => {
+      if (this.video && (this.video.paused || this.video.currentTime === 0)) {
+        console.error("Video failed to start playing within timeout period");
+        this.handleVideoTimeout();
+      }
+    }, 5000); // 5 seconds timeout
+
+    // Function to clear timeout when video starts playing
+    const handlePlayStart = () => {
+      clearTimeout(playTimeout);
+      this.video?.removeEventListener("playing", handlePlayStart);
+    };
+
+    // Add listener for when video starts playing
+    this.video.addEventListener("playing", handlePlayStart, { once: true });
+
+    this.progressBarElement?.classList.remove("progress--bar-paused");
+    this.menuElement?.classList.add("navigation-hidden");
+    this.lastPollTime = performance.now();
+    this.pausedTime = null;
+
+    this.currentProgressSource = {
+      type: "video",
+      element: this.video,
+    };
+
+    this.animationFrameId = requestAnimationFrame(this.updateProgress);
+    document.body.classList.remove("polling-paused");
+    hideAssetOverlay();
+
+    if (!this.video?.paused) {
+      this.video.play().catch((error) => {
+        console.error("Video playback error:", error);
+        clearTimeout(playTimeout);
+        this.handleVideoError(error);
+      });
+    }
+
+    this.video.addEventListener("error", this.handleVideoError, { once: true });
+    this.video.addEventListener("ended", this.videoEndedHandler, {
+      once: true,
+    });
+
+    this.isPaused = false;
+  };
+
+  private handleVideoTimeout = () => {
+    console.error("Video playback timeout");
+
+    // Cleanup current video
+    this.videoCleanup();
+
+    // Move to next asset
+    this.triggerNewAsset();
+  };
+
+  /**
+   * Cleans up video resources
+   */
+  private videoCleanup = () => {
+    this.video?.removeEventListener("ended", this.videoEndedHandler);
+    this.video?.removeEventListener("error", this.handleVideoError);
+
+    this.progressBarElement?.classList.add("progress--bar-paused");
+
+    this.video?.pause();
+    this.video = null;
+
+    this.currentProgressSource = null;
+
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+  };
+
+  /**
+   * Stops the polling process
+   */
+  stopPolling = () => {
+    if (this.isPaused && this.animationFrameId === null) return;
+
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
+    this.progressBarElement?.classList.add("progress--bar-paused");
+  };
+
+  /**
+   * Toggles between polling states
+   * @param hideOverlay - Whether to hide overlay when resuming
+   */
+  togglePolling = (hideOverlay: boolean = false) => {
+    this.isPaused ? this.resumePolling(hideOverlay) : this.pausePolling();
+  };
+
+  /**
+   * Advances to the next asset
+   */
+  nextAsset = () => {
+    this.triggerNewAsset();
+  };
+}
+
+const pollingController = PollingController.getInstance();
+
+export const initPolling = (
   interval: number,
   kiosk: HTMLElement | null,
   menu: HTMLElement | null,
-  pausePlayButton: HTMLElement | null,
-) {
-  pollInterval = interval;
-  kioskElement = kiosk;
-  menuElement = menu;
-  menuPausePlayButton = pausePlayButton;
-}
+) => pollingController.init(interval, kiosk, menu);
 
-/**
- * Updates the kiosk display and progress bar
- * @param {number} timestamp - The current timestamp from requestAnimationFrame
- */
-function updateKiosk(timestamp: number) {
-  if (pausedTime !== null) {
-    lastPollTime! += timestamp - pausedTime;
-    pausedTime = null;
-  }
-
-  const elapsed = timestamp - lastPollTime!;
-  const progress = Math.min(elapsed / pollInterval, 1);
-
-  if (progressBarElement) {
-    progressBarElement.style.width = `${progress * 100}%`;
-  }
-
-  if (elapsed >= pollInterval) {
-    htmx.trigger(kioskElement as HTMLElement, "kiosk-new-image");
-    lastPollTime = timestamp;
-    stopPolling();
-    return;
-  }
-
-  animationFrameId = requestAnimationFrame(updateKiosk);
-}
-
-/**
- * Start the polling process to fetch new images
- */
-function startPolling() {
-  progressBarElement = htmx.find(".progress--bar") as HTMLElement | null;
-  progressBarElement?.classList.remove("progress--bar-paused");
-
-  menuElement?.classList.add("navigation-hidden");
-
-  lastPollTime = performance.now();
-  pausedTime = null;
-
-  animationFrameId = requestAnimationFrame(updateKiosk);
-
-  document.body.classList.remove("polling-paused");
-  hideImageOverlay();
-
-  isPaused = false;
-}
-
-/**
- * Stop the polling process
- */
-function stopPolling() {
-  if (isPaused && animationFrameId === null) return;
-
-  cancelAnimationFrame(animationFrameId as number);
-
-  progressBarElement?.classList.add("progress--bar-paused");
-}
-
-/**
- * Pause the polling process
- */
-function pausePolling(showMenu: boolean = true) {
-  if (isPaused && animationFrameId === null) return;
-
-  cancelAnimationFrame(animationFrameId as number);
-  pausedTime = performance.now();
-
-  progressBarElement?.classList.add("progress--bar-paused");
-
-  if (showMenu) {
-    menuElement?.classList.remove("navigation-hidden");
-    document.body.classList.add("polling-paused");
-  }
-
-  isPaused = true;
-}
-
-/**
- * Resume the polling process
- */
-function resumePolling(hideOverlay: boolean = false) {
-  if (!isPaused) return;
-
-  animationFrameId = requestAnimationFrame(updateKiosk);
-
-  progressBarElement?.classList.remove("progress--bar-paused");
-  menuElement?.classList.add("navigation-hidden");
-
-  document.body.classList.remove("polling-paused");
-  if (hideOverlay) hideImageOverlay();
-
-  isPaused = false;
-}
-
-/**
- * Toggle the polling state (pause/restart)
- */
-function togglePolling(hideOverlay: boolean = false) {
-  isPaused ? resumePolling(hideOverlay) : pausePolling();
-}
-
-export {
-  initPolling,
-  startPolling,
-  pausePolling,
-  resumePolling,
-  togglePolling,
-};
+export const startPolling = () => pollingController.startPolling();
+export const pausePolling = (showMenu?: boolean) =>
+  pollingController.pausePolling(showMenu);
+export const stopPolling = () => pollingController.stopPolling();
+export const nextAsset = () => pollingController.nextAsset();
+export const resumePolling = (hideOverlay?: boolean) =>
+  pollingController.resumePolling(hideOverlay);
+export const togglePolling = (hideOverlay?: boolean) =>
+  pollingController.togglePolling(hideOverlay);
+export const videoHandler = (id: string) => pollingController.videoHandler(id);

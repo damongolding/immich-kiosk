@@ -93,8 +93,8 @@ func DateToJavascriptLayout(input string) string {
 	replacer := strings.NewReplacer(
 		"YYYY", "yyyy",
 		"YY", "yy",
-		"DDDD", "EEEE",
-		"DDD", "EEE",
+		"DDDD", "eeee",
+		"DDD", "eee",
 		"DD", "dd",
 		"D", "d",
 	)
@@ -726,4 +726,11 @@ func SystemLanguage() string {
 	}
 
 	return "en_GB"
+}
+
+// TrimHistory ensures that the history slice doesn't exceed the specified maximum length.
+func TrimHistory(history *[]string, maxLength int) {
+	if len(*history) > maxLength {
+		*history = (*history)[len(*history)-maxLength:]
+	}
 }

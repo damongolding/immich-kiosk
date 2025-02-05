@@ -15,6 +15,8 @@
     left: 0;
     border-radius: 0 1rem 1rem 0;
     background-color: #1e83f7;
-    transition: width 0.03s linear;
+    transition: width 0.1s linear;
+    transform: translateZ(0);
     will-change: width;
+    backface-visibility: hidden;
 }

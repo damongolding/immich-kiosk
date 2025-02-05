@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"slices"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -108,7 +109,7 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 // Returns:
 //   - error: Any error encountered during the operation, including API failures,
 //     marshaling errors, cache operations, or when max retries are reached with no viable images found
-func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allowedAssetType []ImmichAssetType, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite image", true)
@@ -176,7 +177,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 		for immichAssetIndex, img := range immichAssets {
 
 			// We only want images and that are not trashed or archived (unless wanted by user)
-			isInvalidType := img.Type != ImageType
+			isInvalidType := !slices.Contains(allowedAssetType, img.Type)
 			isTrashed := img.IsTrashed
 			isArchived := img.IsArchived && !requestConfig.ShowArchived
 			isInvalidRatio := !i.ratioCheck(&img)

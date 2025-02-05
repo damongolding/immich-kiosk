@@ -16,6 +16,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/damongolding/immich-kiosk/internal/video"
 )
 
 const (
@@ -28,6 +29,8 @@ var (
 	KioskVersion string
 
 	drawFacesOnImages string
+
+	VideoManager *video.VideoManager
 )
 
 type PersonOrAlbum struct {

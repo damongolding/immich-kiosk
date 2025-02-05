@@ -12,7 +12,6 @@ import (
 
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
-	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 type ImageOrientation string
@@ -71,6 +70,10 @@ var (
 		"image/gif",
 		"image/webp",
 	}
+
+	ImageOnlyAssetTypes = []ImmichAssetType{ImageType}
+	VideoOnlyAssetTypes = []ImmichAssetType{VideoType}
+	AllAssetTypes       = []ImmichAssetType{ImageType, VideoType}
 )
 
 type ImmichPersonStatistics struct {
@@ -159,11 +162,11 @@ type ImmichAsset struct {
 	DuplicateID      any             `json:"-"` // `json:"duplicateId"`
 
 	// Data added and used by Kiosk
-	RatioWanted     ImageOrientation `json:"-"`
-	IsPortrait      bool             `json:"-"`
-	IsLandscape     bool             `json:"-"`
-	KioskSource     kiosk.Source     `json:"-"`
-	KioskSourceName string           `json:"-"`
+	RatioWanted ImageOrientation `json:"-"`
+	IsPortrait  bool             `json:"-"`
+	IsLandscape bool             `json:"-"`
+	MemoryTitle string           `json:"-"`
+	AppearsIn   []string         `json:"-"`
 }
 
 type ImmichAlbum struct {
@@ -224,14 +227,36 @@ type MemoryLaneResponse []struct {
 	Assets   []ImmichAsset `json:"assets"`
 }
 
+type AssetFaceResponse struct {
+	BoundingBoxX1 int    `json:"boundingBoxX1"`
+	BoundingBoxX2 int    `json:"boundingBoxX2"`
+	BoundingBoxY1 int    `json:"boundingBoxY1"`
+	BoundingBoxY2 int    `json:"boundingBoxY2"`
+	ID            string `json:"id"`
+	ImageHeight   int    `json:"imageHeight"`
+	ImageWidth    int    `json:"imageWidth"`
+	Person        Person `json:"person"`
+}
+
 // NewImage returns a new image instance
-func NewImage(base config.Config) ImmichAsset {
+func NewAsset(base config.Config) ImmichAsset {
 	requestConfig = base
 	return ImmichAsset{}
 }
 
-type ImmichApiCall func(string, string, []byte) ([]byte, error)
+type ImmichApiCall func(string, string, []byte, ...map[string]string) ([]byte, error)
 
 type ImmichApiResponse interface {
-	ImmichAsset | []ImmichAsset | ImmichAlbum | ImmichAlbums | ImmichPersonStatistics | int | ImmichSearchMetadataResponse | []Face | immich_open_api.PersonResponseDto | MemoryLaneResponse
+	ImmichAsset |
+		[]ImmichAsset |
+		ImmichAlbum |
+		ImmichAlbums |
+		ImmichPersonStatistics |
+		int |
+		ImmichSearchMetadataResponse |
+		[]Face |
+		[]Person |
+		[]AssetFaceResponse |
+		immich_open_api.PersonResponseDto |
+		MemoryLaneResponse
 }

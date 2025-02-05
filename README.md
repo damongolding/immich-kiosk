@@ -55,6 +55,7 @@
   - [Albums](#albums)
   - [People](#people)
   - [Date range](#date-range)
+  - [Filters](#filters)
   - [Image fit](#image-fit)
   - [Image effects](#image-effects)
   - [Date format](#date-format)
@@ -249,6 +250,8 @@ services:
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
       KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
       KIOSK_MEMORIES: false
+      # FILTER
+      KIOSK_DATE_FILTER: ""
       # UI
       KIOSK_DISABLE_UI: false
       KIOSK_FRAMELESS: false
@@ -355,6 +358,7 @@ See the file `config.example.yaml` for an example config file
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges in `YYYY-MM-DD_to_YYYY-MM-DD` format. See [Date range](#date-range) for more information. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memory lane assets. |
+| [date_filter](#filters)           | KIOSK_DATE_FILTER       | string                     | ""          | Filter person and random assets by date. See [date filter](#filters) for more information. |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
@@ -374,8 +378,8 @@ See the file `config.example.yaml` for an example config file
 | [image_effect](#image-effects)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom   | ""          | Add an effect to images.                                                                   |
 | [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fallback to using the preview. |
-| show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display the album name if one or more album IDs are specified.                             |
-| show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display the person name if one or more person IDs are specified.                           |
+| show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display the album name if one or more album IDs are specified.                          |
+| show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display the person name if one or more person IDs are specified.                        |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
@@ -626,18 +630,19 @@ http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 
 ### Date range
 
-> [!WARNING]
-> I have found an issue in the Immich API which means that the date range is not working as expected.
-> It seems API is matching against "createdBefore" and "createdAfter" instead of the EXIF meta data.
-> I have raised this with the Immich team and will update this when it is fixed.
-
 > [!TIP]
 > You can use `today` as an alias for the current date.
 > e.g. `http://{URL}?date=2023-01-01_to_today`
 
-### How multiple date ranges work
-When you specify multiple date ranges, Immich Kiosk creates a pool of all the requested date ranges.
-For each image refresh, Kiosk randomly selects one date range from this pool and fetches an image within that date range.
+### How date ranges work as asset buckets
+Date ranges in Immich Kiosk create distinct pools (or "buckets") of assets based on their timestamps.
+Unlike filters that modify existing collections, each date range defines its own independent set of assets.
+When you specify multiple date ranges, Kiosk maintains separate buckets for each range and randomly selects
+one bucket during image refresh to fetch an asset from.
+
+### Allowed formats
+- `YYYY-MM-DD_to_YYYY-MM-DD` e.g.2023-01-01_to_2023-02-01
+- `last-XX-days` e.g. last-30-days
 
 There are **three** ways you can set date ranges:
 
@@ -651,6 +656,7 @@ There are **three** ways you can set date ranges:
 date:
   - 2023-01-01_to_2023-02-01
   - 2024-11-12_to_2023-11-18
+  - last-30-days
 ```
 
 2. via ENV in your docker-compose file use a `,` to separate IDs
@@ -665,6 +671,27 @@ environment:
 ```url
 http://{URL}?date=DATE_RANGE&date=DATE_RANGE&date=DATE_RANGE
 ```
+
+------
+
+## Filters
+
+> [!NOTE]
+> Not all filters work on all asset source/buckets.
+
+Filters allow you to filter asset buckets (people/albums/date etc.) by certain criteria.
+
+### Date filter
+
+> [!NOTE]
+> `date_filter` only currently applies to person and random assets.
+
+`date_filter` accepts the same values as [date range](#date-range).
+
+examples:
+`http://{URL}?person=PERSON_ID&date_filter=2023-01-01_to_2023-02-01` will only show assets of the supplied person between 2023-01-01 and 2023-02-01.
+
+`http://{URL}?date_filter=last-30-days` will only show (random) assets from the last 30 days.
 
 ------
 

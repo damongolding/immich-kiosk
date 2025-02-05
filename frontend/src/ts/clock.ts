@@ -1,4 +1,6 @@
 import { format } from "date-fns/format";
+import type { Locale } from "date-fns/locale";
+import { locales } from "./locales";
 
 const CLOCK_UPDATE_INTERVAL = 5000;
 const TIME_FORMATS = {
@@ -13,6 +15,7 @@ interface ClockConfig {
   dateFormat: string;
   showTime: boolean;
   timeFormat: TimeFormat;
+  langCode: string;
 }
 
 interface ClockElements {
@@ -25,10 +28,53 @@ class Clock {
   private config: ClockConfig;
   private elements: ClockElements;
   private intervalId?: number;
+  private langCode: string;
+  private lang: Locale;
 
   constructor(config: ClockConfig) {
     this.config = config;
     this.elements = this.initialiseElements();
+    this.langCode = this.config.langCode;
+    this.lang = this.initialiseLang();
+  }
+
+  private initialiseLang(): Locale {
+    const DEFAULT_LANG = "enGB";
+
+    if (!this.langCode) {
+      console.error(`No language code provided, defaulting to ${DEFAULT_LANG}`);
+      return locales[DEFAULT_LANG];
+    }
+
+    // Check for exact match
+    if (locales[this.langCode]) {
+      console.log(`Using language ${this.langCode}`);
+      return locales[this.langCode];
+    }
+
+    const splitCode = this.langCode.split("_");
+
+    if (splitCode.length > 1) {
+      const joinedCode = splitCode[0] + splitCode[1];
+      if (locales[joinedCode]) {
+        console.log(`Using base language ${joinedCode}`);
+        return locales[joinedCode];
+      }
+    }
+
+    // Try base language code without region
+    const baseCode = splitCode[0];
+    if (locales[baseCode]) {
+      console.log(`Using base language ${baseCode}`);
+      return locales[baseCode];
+    }
+
+    // Fallback to default
+    console.error(
+      `Language ${this.langCode} not found, defaulting to ${DEFAULT_LANG}`,
+    );
+
+    return locales[DEFAULT_LANG];
   }
 
   private initialiseElements(): ClockElements {
@@ -53,7 +99,9 @@ class Clock {
   private updateDate(now: Date): void {
     if (!this.config.showDate || !this.elements.date) return;
     try {
-      this.elements.date.innerHTML = format(now, this.config.dateFormat);
+      this.elements.date.innerHTML = format(now, this.config.dateFormat, {
+        locale: this.lang,
+      });
     } catch (error) {
       console.error("Error formatting date:", error);
       this.elements.date.innerHTML = now.toLocaleDateString();
@@ -69,7 +117,9 @@ class Clock {
         : TIME_FORMATS.TWENTY_FOUR_HOUR;
 
     try {
-      const formattedTime = format(now, timeFormat);
+      const formattedTime = format(now, timeFormat, {
+        locale: this.lang,
+      });
       this.elements.time.innerHTML =
         this.config.timeFormat === "12"
           ? formattedTime.toLowerCase()
@@ -110,12 +160,14 @@ function initClock(
   kioskDateFormat: string,
   kioskShowTime: boolean,
   kioskTimeFormat: TimeFormat,
+  kioskLangCode: string,
 ): Clock {
   const config: ClockConfig = {
     showDate: kioskShowDate,
     dateFormat: kioskDateFormat,
     showTime: kioskShowTime,
     timeFormat: kioskTimeFormat,
+    langCode: kioskLangCode,
   };
 
   const clock = new Clock(config);
