@@ -86,8 +86,8 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 			requestBody.WithArchived = true
 		}
 
-		if requestConfig.Filter != "" {
-			dateStart, dateEnd, err := determineDateRange(requestConfig.Filter)
+		if requestConfig.DateFilter != "" {
+			dateStart, dateEnd, err := determineDateRange(requestConfig.DateFilter)
 			if err != nil {
 				log.Error("malformed filter", "err", err)
 			} else {
