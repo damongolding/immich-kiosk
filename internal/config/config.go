@@ -220,6 +220,9 @@ type Config struct {
 	// Memories show memories
 	Memories bool `json:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
 
+	// DateFilter filter certain asset bucket assets by date
+	DateFilter string `json:"dateFilter" mapstructure:"date_filter" query:"date_filter" form:"date_filter" default:""`
+
 	// ExperimentalAlbumVideo whether to display videos
 	// Currently limited to albums
 	ExperimentalAlbumVideo bool `json:"experimentalAlbumVideo" mapstructure:"experimental_album_video" query:"experimental_album_video" form:"experimental_album_video" default:"false"`

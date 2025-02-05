@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -83,6 +84,16 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 		if requestConfig.ShowArchived {
 			requestBody.WithArchived = true
+		}
+
+		if requestConfig.DateFilter != "" {
+			dateStart, dateEnd, err := determineDateRange(requestConfig.DateFilter)
+			if err != nil {
+				log.Error("malformed filter", "err", err)
+			} else {
+				requestBody.TakenAfter = dateStart.Format(time.RFC3339)
+				requestBody.TakenBefore = dateEnd.Format(time.RFC3339)
+			}
 		}
 
 		// convert body to queries so url is unique and can be cached
