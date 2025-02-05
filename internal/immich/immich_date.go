@@ -160,6 +160,8 @@ func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
+	default:
+		return dateStart, dateEnd, fmt.Errorf("invalid date filter format: %s. Expected format: YYYY-MM-DD_to_YYYY-MM-DD or last-X", dateRange)
 	}
 
 	return dateStart, dateEnd, err
