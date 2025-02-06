@@ -1030,6 +1030,12 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
 
 ### Using Immich Kiosk as an image source for Wallpanel in Home Assistant:
 
+> [!TIP]
+> The new version of wallpanel sdoesn't seem to grab new images if the url is not dynamic.
+> Adding the a wallpanel varqaible to the Kiosk url fixes this.
+> An example is adding `t=${timestamp}` the url.
+> Kiosk does not need or use this data but fixes the issue in newer Wallpanel versions.
+
 ```yaml
   wallpanel:
     enabled: true
@@ -1040,7 +1046,7 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
     fullscreen: true
     display_time: 86400
     image_url: >-
-      http://{immich-kiosk-url}/image?person=PERSON_1_ID&person=PERSON_2_ID
+      http://{immich-kiosk-url}/image?person=PERSON_1_ID&person=PERSON_2_ID&t=${timestamp}
     cards:
       - type: vertical-stack
         cards:
