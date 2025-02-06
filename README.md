@@ -342,19 +342,20 @@ See the file `config.example.yaml` for an example config file
 |-----------------------------------|-------------------------|----------------------------|-------------|--------------------------------------------------------------------------------------------|
 | immich_api_key                    | KIOSK_IMMICH_API_KEY    | string                     | ""          | The API for your Immich server.                                                            |
 | immich_url                        | KIOSK_IMMICH_URL        | string                     | ""          | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`. |
-| immich_external_url               | KIOSK_IMMICH_EXTERNAL_URL | string                   | ""          | The public URL of your Immich server used for generating links and QR codes in the additional information overlay. Useful when accessing Immich through a reverse proxy or different external URL. Example: "https://photos.example.com". If not set, falls back to immich_url. |
+| immich_external_url             | KIOSK_IMMICH_EXTERNAL_URL | string                     | ""          | The public URL of your Immich server used for generating links and QR codes in the additional information overlay. Useful when accessing Immich through a reverse proxy or different external URL. Example: "https://photos.example.com". If not set, falls back to immich_url. |
 | show_time                         | KIOSK_SHOW_TIME         | bool                       | false       | Display clock.                                                                             |
 | time_format                       | KIOSK_TIME_FORMAT       | 12 \| 24                   | 24          | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
-| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
+| disable_screensaver             | KIOSK_DISABLE_SCREENSAVER | bool                       | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
 | optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low-powered device, this may help. |
 | use_gpu                           | KIOSK_USE_GPU           | bool                       | true        | Enable GPU acceleration for improved performance (e.g., CSS transforms) |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
 | [album_order](#album-order)       | KIOSK_ALBUM_ORDER       | string                     | random      | The order an album's assets will be displayed. See [Album order](#album-order) for more information. |
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
+| [experimental_album_video](#experimental-album-video-support) | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable exerimental video playback for albums. See [experimental album video](#experimental-album-video-support) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges in `YYYY-MM-DD_to_YYYY-MM-DD` format. See [Date range](#date-range) for more information. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memory lane assets. |
@@ -375,7 +376,7 @@ See the file `config.example.yaml` for an example config file
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
 | [image_fit](#image-fit)           | KIOSK_IMAGE_FIT         | cover \| contain \| none   | contain     | How your image will fit on the screen. Default is contain. See [Image fit](#image-fit) for more info. |
-| [image_effect](#image-effects)        | KIOSK_IMAGE_EFFECT        | zoom \| smart-zoom   | ""          | Add an effect to images.                                                                   |
+| [image_effect](#image-effects)    | KIOSK_IMAGE_EFFECT      | zoom \| smart-zoom         | ""          | Add an effect to images.                                                                   |
 | [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fallback to using the preview. |
 | show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display the album name if one or more album IDs are specified.                          |
@@ -384,10 +385,10 @@ See the file `config.example.yaml` for an example config file
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
 | [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information. |
-| show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION | bool                  | false       | Display image description from METADATA (if available). |
-| show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF   | bool                       | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
-| show_image_location               | KIOSK_SHOW_IMAGE_LOCATION | bool                     | false       | Display the image location from METADATA (if available).                                   |
-| hide_countries                    | KIOSK_HIDE_COUNTRIES    | []string                   | []          | List of countries to hide from image_location                                              |
+| show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available). |
+| show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF           | bool               | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
+| show_image_location               | KIOSK_SHOW_IMAGE_LOCATION       | bool               | false       | Display the image location from METADATA (if available).                                   |
+| hide_countries                    | KIOSK_HIDE_COUNTRIES            | []string           | []          | List of countries to hide from image_location                                              |
 | show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s)                   |
 | show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay       |
 | show_more_info_qr_code            | KIOSK_SHOW_MORE_INFO_QR_CODE    | bool               | true        | Displays a QR code linking to the original image (in Immich) in the additional information overlay |
@@ -540,6 +541,52 @@ The newest assets are displayed first.
 
 ### `oldest`, `ascending` or `asc`
 The oldest assets are displayed first.
+
+------
+
+## Experimental Album Video Support
+
+> [!WARNING]
+> This feature is experimental and currently only supports album videos with certain limitations:
+> - Videos will autoplay with audio muted
+> - `prefetch` setting must be enabled
+> - Browser codec support may vary
+
+### Video Optimization Recommendations
+
+For optimal playback performance, it's strongly recommended to transcode your videos. This can be configured in Immich:
+```
+Admin Panel -> System Settings -> Video Transcoding
+```
+
+**Recommended Settings:**
+- Codec: H264 (for maximum browser compatibility)
+- Target Resolution: Select the lowest acceptable resolution for your needs
+
+### How Video Playback Works
+
+1. **Video Selection Process:**
+   - When Kiosk selects a video from an album, it first checks if the video is cached.
+   - Videos are temporarily stored in the operating system's temp directory.
+   - If not cached, the video downloads in the background while another asset is displayed.
+
+2. **Cache Management:**
+   - Downloaded videos are queued for display once ready.
+   - Cached videos are automatically removed after 10 minutes of inactivity to conserve disk space.
+   - Videos are automatically removed when Kiosk shuts down.
+
+3. **Playback Handling:**
+   Kiosk will skip to the next asset if any of these conditions occur:
+   - Video codec is unsupported by the browser
+   - Playback doesn't start within 5 seconds
+   - Video playback completes
+   - Any playback errors are detected
+
+### Troubleshooting Tips
+- Ensure your videos are transcoded to H264 format.
+- Check browser compatibility with your video codecs.
+- Verify that `prefetch` is enabled in your configuration.
+- Monitor system storage for cached video files.
 
 ------
 
