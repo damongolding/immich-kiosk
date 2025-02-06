@@ -30,6 +30,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/routes"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/damongolding/immich-kiosk/internal/video"
 	"github.com/damongolding/immich-kiosk/internal/weather"
 )
 
@@ -65,6 +66,15 @@ func main() {
 	if err != nil {
 		log.Error("Failed to load config", "err", err)
 	}
+
+	videoManager, err := video.New(common.Context, *baseConfig)
+	if err != nil {
+		log.Error("Failed to initialize video manager", "err", err)
+	}
+
+	videoManager.MaxAge = time.Duration(10) * time.Minute
+
+	routes.VideoManager = videoManager
 
 	if baseConfig.Kiosk.WatchConfig {
 		log.Infof("Watching %s for changes", baseConfig.V.ConfigFileUsed())
@@ -130,9 +140,9 @@ func main() {
 
 	e.GET("/image", routes.NewRawImage(baseConfig))
 
-	e.POST("/image", routes.NewImage(baseConfig))
+	e.POST("/asset/new", routes.NewAsset(baseConfig))
 
-	e.POST("/image/previous", routes.PreviousImage(baseConfig))
+	e.POST("/asset/previous", routes.PreviousAsset(baseConfig))
 
 	e.GET("/clock", routes.Clock(baseConfig))
 
@@ -145,6 +155,8 @@ func main() {
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
 	e.POST("/webhooks", routes.Webhooks(baseConfig), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
+
+	e.GET("/video/:videoID", routes.NewVideo(baseConfig))
 
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
@@ -162,6 +174,8 @@ func main() {
 	}()
 
 	<-common.Context.Done()
+
+	video.Delete()
 
 	fmt.Println("")
 	log.Info("Kiosk shutting down")

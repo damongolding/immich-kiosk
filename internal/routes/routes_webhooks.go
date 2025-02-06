@@ -84,7 +84,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			viewData := common.ViewData{
 				KioskVersion: KioskVersion,
 				DeviceID:     deviceID,
-				Images:       make([]common.ViewImageData, len(prevImages)),
+				Assets:       make([]common.ViewImageData, len(prevImages)),
 				Config:       requestConfig,
 			}
 
@@ -93,7 +93,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			for i, imageID := range prevImages {
 				i, imageID := i, imageID
 				g.Go(func() error {
-					image := immich.NewImage(requestConfig)
+					image := immich.NewAsset(requestConfig)
 					image.ID = imageID
 
 					err := image.AssetInfo(requestID, deviceID)
@@ -101,8 +101,8 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 						log.Error(err)
 					}
 
-					viewData.Images[i] = common.ViewImageData{
-						ImmichImage: image,
+					viewData.Assets[i] = common.ViewImageData{
+						ImmichAsset: image,
 					}
 					return nil
 				})

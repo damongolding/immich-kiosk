@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -78,7 +79,7 @@ func TestTrimHistory(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			history := tc.history
-			trimHistory(&history, tc.maxLength)
+			utils.TrimHistory(&history, tc.maxLength)
 			assert.Equal(t, tc.expected, history, "Trimmed history does not match expected result")
 		})
 	}

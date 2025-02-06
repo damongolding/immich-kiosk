@@ -1,14 +1,17 @@
 /**
  * @module menu-controls
  * Module for handling kiosk menu interactions and image navigation
+ * @description Controls menu behavior and navigation between assets in a kiosk interface
  */
 
 import htmx from "htmx.org";
 
-let nextImageMenuButton: HTMLElement;
-let prevImageMenuButton: HTMLElement;
+let disableNavigation: boolean = false;
 
-let imageOverlayVisible: boolean = false;
+let nextAssetMenuButton: HTMLElement;
+let prevAssetMenuButton: HTMLElement;
+
+let assetOverlayVisible: boolean = false;
 let linkOverlayVisible: boolean = false;
 
 const redirectsContainer = document.getElementById(
@@ -22,58 +25,62 @@ let infoKeyPress: () => void;
 let redirectsKeyPress: () => void;
 
 /**
- * Disables the image navigation buttons by adding a 'disabled' class
- * Logs an error if buttons are not properly initialized
+ * Disables both next and previous asset navigation buttons
+ * @returns {void}
  */
-function disableImageNavigationButtons(): void {
-  if (!nextImageMenuButton || !prevImageMenuButton) {
-    console.error("Navigation buttons not initialized");
+function disableAssetNavigationButtons(): void {
+  if (disableNavigation) return;
+  if (!nextAssetMenuButton || !prevAssetMenuButton) {
+    console.debug("Navigation buttons not initialized.");
     return;
   }
-  htmx.addClass(nextImageMenuButton, "disabled");
-  htmx.addClass(prevImageMenuButton, "disabled");
+  htmx.addClass(nextAssetMenuButton, "disabled");
+  htmx.addClass(prevAssetMenuButton, "disabled");
 }
 
 /**
- * Enables the image navigation buttons by removing the 'disabled' class
- * Logs an error if buttons are not properly initialized
+ * Enables both next and previous asset navigation buttons
+ * @returns {void}
  */
-function enableImageNavigationButtons(): void {
-  if (!nextImageMenuButton || !prevImageMenuButton) {
+function enableAssetNavigationButtons(): void {
+  if (disableNavigation) return;
+  if (!nextAssetMenuButton || !prevAssetMenuButton) {
     console.error("Navigation buttons not initialized");
     return;
   }
-  htmx.removeClass(nextImageMenuButton as Element, "disabled");
-  htmx.removeClass(prevImageMenuButton as Element, "disabled");
+  htmx.removeClass(nextAssetMenuButton, "disabled");
+  htmx.removeClass(prevAssetMenuButton, "disabled");
 }
 
 /**
- * Shows the image information overlay
+ * Shows the asset information overlay
  * Only works when polling is paused
- * Hides links overlay if visible
+ * @returns {void}
  */
-function showImageOverlay(): void {
+function showAssetOverlay(): void {
   if (!document.body) return;
   if (!document.body.classList.contains("polling-paused")) return;
   hideRedirectsOverlay();
   document.body.classList.add("more-info");
-  imageOverlayVisible = true;
+  assetOverlayVisible = true;
 }
 
 /**
- * Hides the image information overlay
+ * Hides the asset information overlay
+ * @returns {void}
  */
-function hideImageOverlay(): void {
+function hideAssetOverlay(): void {
   if (!document.body) return;
   document.body.classList.remove("more-info");
-  imageOverlayVisible = false;
+  assetOverlayVisible = false;
 }
 
 /**
- * Toggles the image information overlay visibility
+ * Toggles the asset information overlay visibility
+ * @returns {void}
  */
-function toggleImageOverlay(): void {
-  imageOverlayVisible ? hideImageOverlay() : showImageOverlay();
+function toggleAssetOverlay(): void {
+  assetOverlayVisible ? hideAssetOverlay() : showAssetOverlay();
 }
 
 function redirectKeyHandler(e: KeyboardEvent) {
@@ -115,7 +122,7 @@ function showRedirectsOverlay(): void {
 
   document.addEventListener("keydown", redirectKeyHandler);
 
-  hideImageOverlay();
+  hideAssetOverlay();
   document.body.classList.add("redirects-open");
   linkOverlayVisible = true;
 }
@@ -141,21 +148,30 @@ function toggleRedirectsOverlay(): void {
 
 /**
  * Initializes the menu controls and sets up event handlers
- * @param nextImageButton - The next image navigation button element
- * @param prevImageButton - The previous image navigation button element
+ * @param nextAssetButton - The next image navigation button element
+ * @param prevAssetButton - The previous image navigation button element
+ * @throws {Error} If either navigation button is not provided
+ * @returns {void}
  */
 function initMenu(
-  nextImageButton: HTMLElement,
-  prevImageButton: HTMLElement,
+  disableNav: boolean,
+  nextAssetButton: HTMLElement | null,
+  prevAssetButton: HTMLElement | null,
   showMoreInfo: boolean,
   handleInfoKeyPress: () => void,
   handleRedirectsKeyPress: () => void,
 ): void {
-  if (!nextImageButton || !prevImageButton) {
+  if (disableNav) {
+    disableNavigation = disableNav;
+    return;
+  }
+
+  if (!nextAssetButton || !prevAssetButton) {
     throw new Error("Both navigation buttons must be provided");
   }
-  nextImageMenuButton = nextImageButton;
-  prevImageMenuButton = prevImageButton;
+
+  nextAssetMenuButton = nextAssetButton;
+  prevAssetMenuButton = prevAssetButton;
 
   if (redirectsContainer) {
     redirects = redirectsContainer.querySelectorAll("a");
@@ -168,10 +184,10 @@ function initMenu(
 
 export {
   initMenu,
-  disableImageNavigationButtons,
-  enableImageNavigationButtons,
-  showImageOverlay,
-  hideImageOverlay,
-  toggleImageOverlay,
+  disableAssetNavigationButtons,
+  enableAssetNavigationButtons,
+  showAssetOverlay,
+  hideAssetOverlay,
+  toggleAssetOverlay,
   toggleRedirectsOverlay,
 };

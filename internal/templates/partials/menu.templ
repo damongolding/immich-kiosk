@@ -8,22 +8,22 @@ import (
 templ Menu(showModeInfo bool, redirects []config.Redirect, queries url.Values) {
 	<nav id="navigation-interaction-area">
 		<div
-			id="navigation-interaction-area--previous-image"
-			hx-post="/image/previous"
+			id="navigation-interaction-area--previous-asset"
+			hx-post="/asset/previous"
 			hx-target="#kiosk"
 			hx-include=".kiosk-history--entry"
 			hx-trigger="
 			  click throttle:1s,
-			  click from:.navigation--prev-image throttle:1s,
+			  click from:.navigation--prev-asset throttle:1s,
 			  keyup[key=='ArrowLeft'] from:body throttle:1s,
-			  kiosk-prev-image throttle:1s
+			  kiosk-prev-asset throttle:1s
 			"
 			hx-on::before-request="kiosk.checkHistoryExists(event)"
 			hx-on::after-request="kiosk.startPolling()"
 			hx-on::after-swap="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
 		></div>
 		<div id="navigation-interaction-area--menu"></div>
-		<div id="navigation-interaction-area--next-image"></div>
+		<div id="navigation-interaction-area--next-asset"></div>
 	</nav>
 	<div id="more-info" hx-swap-oob="true"></div>
 	if len(redirects) > 0 {
@@ -31,7 +31,7 @@ templ Menu(showModeInfo bool, redirects []config.Redirect, queries url.Values) {
 	}
 	<nav class="navigation navigation-hidden">
 		<div class="navigation--media-buttons rounded">
-			<div class="navigation--item navigation--prev-image">
+			<div class="navigation--item navigation--prev-asset">
 				<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
 					<!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
 					<path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"></path>
@@ -47,7 +47,7 @@ templ Menu(showModeInfo bool, redirects []config.Redirect, queries url.Values) {
 					<path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80L0 432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"></path>
 				</svg>
 			</div>
-			<div class="navigation--item navigation--next-image">
+			<div class="navigation--item navigation--next-asset">
 				<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
 					<!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
 					<path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"></path>

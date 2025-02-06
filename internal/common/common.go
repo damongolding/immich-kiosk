@@ -93,7 +93,7 @@ func InitializeSecret() error {
 
 // ViewImageData contains the image data and metadata for displaying an image in the view
 type ViewImageData struct {
-	ImmichImage   immich.ImmichAsset // ImmichImage contains immich asset data
+	ImmichAsset   immich.ImmichAsset // ImmichAsset contains immich asset data
 	ImageData     string             // ImageData contains the image as base64 data
 	ImageBlurData string             // ImageBlurData contains the blurred image as base64 data
 	ImageDate     string             // ImageDate contains the date of the image
@@ -104,7 +104,7 @@ type ViewImageData struct {
 type ViewData struct {
 	KioskVersion  string          // KioskVersion contains the current build version of Kiosk
 	DeviceID      string          // DeviceID contains the unique identifier for the device
-	Images        []ViewImageData // Images contains the collection of images to display in view
+	Assets        []ViewImageData // Assets contains the collection of assets to display in view
 	Queries       url.Values      // Queries contains the URL query parameters
 	CustomCss     []byte          // CustomCss contains custom CSS styling as bytes
 	config.Config                 // Config contains the instance configuration

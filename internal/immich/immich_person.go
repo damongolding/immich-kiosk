@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -86,6 +86,16 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 			requestBody.WithArchived = true
 		}
 
+		if requestConfig.DateFilter != "" {
+			dateStart, dateEnd, err := determineDateRange(requestConfig.DateFilter)
+			if err != nil {
+				log.Error("malformed filter", "err", err)
+			} else {
+				requestBody.TakenAfter = dateStart.Format(time.RFC3339)
+				requestBody.TakenBefore = dateEnd.Format(time.RFC3339)
+			}
+		}
+
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 
@@ -153,8 +163,6 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 			*i = img
 
-			i.PersonName(personID)
-
 			return nil
 		}
 
@@ -162,12 +170,4 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 		cache.Delete(apiCacheKey)
 	}
 	return fmt.Errorf("No images found for person '%s'. Max retries reached.", personID)
-}
-
-func (i *ImmichAsset) PersonName(personID string) {
-	for _, person := range i.People {
-		if strings.EqualFold(person.ID, personID) {
-			i.KioskSourceName = person.Name
-		}
-	}
 }
