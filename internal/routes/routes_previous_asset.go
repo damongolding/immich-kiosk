@@ -134,7 +134,7 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 
 					wg.Wait()
 
-					ViewData.Assets[i] = common.ViewImageData{
+					ViewData.Assets[prevAssetsID] = common.ViewImageData{
 						ImmichAsset:   asset,
 						ImageData:     imgString,
 						ImageBlurData: imgBlurString,
