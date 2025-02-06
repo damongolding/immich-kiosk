@@ -161,7 +161,7 @@ class PollingController {
    * @param hideOverlay - Whether to hide the overlay when resuming
    */
   resumePolling = (hideOverlay: boolean = false) => {
-    if (!this.isPaused) return;
+    if (!this.isPaused || this.animationFrameId !== null) return;
 
     if (this.currentProgressSource?.type === "video" && this.video) {
       this.video.play();
