@@ -477,7 +477,7 @@ form {
   opacity: 0.3;
   padding: 0 0.5rem;
 }
-.frame--layout-splitview .asset--metadata--desciption, .frame--layout-splitview-landscape .asset--metadata--desciption {
+.frame--layout-splitview .asset--metadata--description, .frame--layout-splitview-landscape .asset--metadata--description {
     max-width: 50%;
   }
 .frame--layout-splitview:nth-child(1) .asset--metadata {
@@ -544,7 +544,7 @@ form {
     padding: 0.5rem !important;
     max-width: 50vw;
   }
-  .asset--metadata--desciption {
+  .asset--metadata--description {
     max-width: 100%;
   }
     .asset--metadata--location span {

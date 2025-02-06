@@ -114,7 +114,7 @@
 
 .frame--layout-splitview,
 .frame--layout-splitview-landscape {
-    .asset--metadata--desciption {
+    .asset--metadata--description {
         max-width: 50%;
     }
 }
@@ -178,7 +178,7 @@
         max-width: 50vw;
     }
 
-    .asset--metadata--desciption {
+    .asset--metadata--description {
         max-width: 100%;
     }
 

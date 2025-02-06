@@ -347,9 +347,9 @@ func DrawFaceOnImage(img image.Image, i *immich.ImmichAsset) image.Image {
 
 // processViewImageData handles the entire process of preparing page data including image processing.
 // It returns the ImageData and an error if any step fails.
-func processViewImageData(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ViewImageData, error) {
-	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
-	deviceID := c.Request().Header.Get("kiosk-device-id")
+func processViewImageData(imageOrientation immich.ImageOrientation, requestConfig config.Config, c common.ContextCopy, isPrefetch bool) (common.ViewImageData, error) {
+	requestID := utils.ColorizeRequestId(c.ResponseHeader.Get(echo.HeaderXRequestID))
+	deviceID := c.RequestHeader.Get("kiosk-device-id")
 
 	// if multiple users are given via the url pick a random one
 	if len(requestConfig.User) > 0 {
@@ -374,7 +374,7 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		allowedAssetTypes = immich.AllAssetTypes
 	}
 
-	img, err := processAsset(&immichAsset, allowedAssetTypes, requestConfig, requestID, deviceID, c.Request().URL.String(), isPrefetch)
+	img, err := processAsset(&immichAsset, allowedAssetTypes, requestConfig, requestID, deviceID, c.URL.String(), isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, fmt.Errorf("selecting image: %w", err)
 	}
@@ -414,25 +414,25 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 }
 
 // ProcessViewImageData processes view data for an image without orientation constraints
-func ProcessViewImageData(requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ViewImageData, error) {
+func ProcessViewImageData(requestConfig config.Config, c common.ContextCopy, isPrefetch bool) (common.ViewImageData, error) {
 	return processViewImageData("", requestConfig, c, isPrefetch)
 }
 
 // ProcessViewImageDataWithRatio processes view data for an image with the specified orientation
-func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, requestConfig config.Config, c echo.Context, isPrefetch bool) (common.ViewImageData, error) {
+func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, requestConfig config.Config, c common.ContextCopy, isPrefetch bool) (common.ViewImageData, error) {
 	return processViewImageData(imageOrientation, requestConfig, c, isPrefetch)
 }
 
 // assetToCache stores view data in the cache and triggers prefetch webhooks
-func assetToCache(viewDataToAdd common.ViewData, requestConfig *config.Config, deviceID string, requestData *common.RouteRequestData, c echo.Context) {
+func assetToCache(viewDataToAdd common.ViewData, requestConfig *config.Config, deviceID string, requestData *common.RouteRequestData, c common.ContextCopy) {
 
-	cache.AssetToCache(viewDataToAdd, requestConfig, deviceID, c.Request().URL.String())
+	cache.AssetToCache(viewDataToAdd, requestConfig, deviceID, c.URL.String())
 
 	go webhooks.Trigger(requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
 }
 
 // assetPreFetch handles prefetching assets for the current request
-func assetPreFetch(requestData *common.RouteRequestData, c echo.Context) {
+func assetPreFetch(requestData *common.RouteRequestData, c common.ContextCopy) {
 
 	requestConfig := requestData.RequestConfig
 	requestID := requestData.RequestID
@@ -489,7 +489,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 }
 
 // generateViewData generates page data for the current request.
-func generateViewData(requestConfig config.Config, c echo.Context, deviceID string, isPrefetch bool) (common.ViewData, error) {
+func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceID string, isPrefetch bool) (common.ViewData, error) {
 
 	const maxImageRetrievalAttepmts = 3
 

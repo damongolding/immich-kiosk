@@ -188,6 +188,14 @@ class PollingController {
     this.triggerNewAsset();
   };
 
+  // Function to clear timeout when video starts playing
+  handlePlayStart = (playTimeout: number) => {
+    clearTimeout(playTimeout);
+    this.video?.removeEventListener("playing", () =>
+      this.handlePlayStart(playTimeout),
+    );
+  };
+
   /**
    * Handles video playback
    * @param id - The ID of the video element to handle
@@ -213,14 +221,14 @@ class PollingController {
       }
     }, 5000); // 5 seconds timeout
 
-    // Function to clear timeout when video starts playing
-    const handlePlayStart = () => {
-      clearTimeout(playTimeout);
-      this.video?.removeEventListener("playing", handlePlayStart);
-    };
-
     // Add listener for when video starts playing
-    this.video.addEventListener("playing", handlePlayStart, { once: true });
+    this.video.addEventListener(
+      "playing",
+      () => this.handlePlayStart(playTimeout),
+      {
+        once: true,
+      },
+    );
 
     this.progressBarElement?.classList.remove("progress--bar-paused");
     this.menuElement?.classList.add("navigation-hidden");
@@ -268,6 +276,7 @@ class PollingController {
   private videoCleanup = () => {
     this.video?.removeEventListener("ended", this.videoEndedHandler);
     this.video?.removeEventListener("error", this.handleVideoError);
+    this.video?.removeEventListener("playing", () => this.handlePlayStart);
 
     this.progressBarElement?.classList.add("progress--bar-paused");
 

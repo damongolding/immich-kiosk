@@ -70,9 +70,10 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 		// Initialize start and end
 		start, end := int64(0), fileSize-1
 
-		// Improved range parsing
+		statusCode := http.StatusOK
 		rangeHeader := c.Request().Header.Get("Range")
 		if rangeHeader != "" {
+			statusCode = http.StatusPartialContent
 			ranges := strings.Split(strings.Replace(rangeHeader, "bytes=", "", 1), "-")
 			if len(ranges) != 2 {
 				return echo.NewHTTPError(http.StatusBadRequest, "Invalid range format")
@@ -102,6 +103,11 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 				fmt.Sprintf("Invalid range: start=%d, end=%d, fileSize=%d", start, end, fileSize))
 		}
 
+		if start > end {
+			return echo.NewHTTPError(http.StatusRequestedRangeNotSatisfiable,
+				fmt.Sprintf("Invalid range: start (%d) is greater than end (%d)", start, end))
+		}
+
 		if end >= fileSize {
 			end = fileSize - 1
 		}
@@ -129,7 +135,7 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 
 		// Use io.Copy instead of buffered reader for large chunks
 		if chunkSize > bufferSize {
-			return c.Stream(http.StatusPartialContent, vid.ImmichAsset.OriginalMimeType,
+			return c.Stream(statusCode, vid.ImmichAsset.OriginalMimeType,
 				io.NewSectionReader(video, start, chunkSize))
 		}
 
@@ -139,7 +145,6 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 			bufferSize,
 		)
 
-		return c.Stream(http.StatusPartialContent, vid.ImmichAsset.OriginalMimeType,
-			bufferedReader)
+		return c.Stream(statusCode, vid.ImmichAsset.OriginalMimeType, bufferedReader)
 	}
 }

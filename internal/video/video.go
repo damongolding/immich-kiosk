@@ -89,7 +89,6 @@ func Delete() {
 	err := os.RemoveAll(customTempVideoDir)
 	if err != nil {
 		log.Error("Error removing custom temp directory", "err", err)
-		fmt.Print(err)
 	}
 }
 

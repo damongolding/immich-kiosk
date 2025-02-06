@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 
+	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
@@ -14,7 +15,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
 
-// NewAsset returns an echo.HandlerFunc that handles requests for new images.
+// NewAsset returns an echo.HandlerFunc that handles requests for new assets.
 // It manages image processing, caching, and prefetching based on the configuration.
 func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -45,11 +46,12 @@ func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
 			return c.NoContent(http.StatusNoContent)
 		}
 
+		requestCtx := common.CopyContext(c)
+
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
-			if cachedViewData := fromCache(c.Request().URL.String(), deviceID); cachedViewData != nil {
-				requestEchoCtx := c
-				go assetPreFetch(requestData, requestEchoCtx)
+			if cachedViewData := fromCache(requestCtx.URL.String(), deviceID); cachedViewData != nil {
+				go assetPreFetch(requestData, requestCtx)
 				go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
 
 				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID)
@@ -57,19 +59,18 @@ func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
 			log.Debug(requestID, "deviceID", deviceID, "cache miss for new image")
 		}
 
-		viewData, err := generateViewData(requestConfig, c, deviceID, false)
+		viewData, err := generateViewData(requestConfig, requestCtx, deviceID, false)
 		if err != nil {
 			return RenderError(c, err, "retrieving image")
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			requestEchoCtx := c
-			go assetPreFetch(requestData, requestEchoCtx)
+			go assetPreFetch(requestData, requestCtx)
 		}
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)
 
-		if requestConfig.ExperimentalAlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+		if len(viewData.Assets) > 0 && requestConfig.ExperimentalAlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
 			return Render(c, http.StatusOK, videoComponent.Video(viewData))
 		}
 

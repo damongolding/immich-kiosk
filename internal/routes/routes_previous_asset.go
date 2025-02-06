@@ -19,12 +19,20 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
 
-// PreviousAsset returns an echo.HandlerFunc that handles requests for the previously viewed assets.
-// It retrieves the previous assets from the navigation history and renders them, handling both images
-// and videos. The function processes assets in parallel, retrieving asset info and generating both
-// regular and blurred preview images. If sleep mode is active or there is insufficient history,
-// returns no content. For videos with ShowTime enabled, renders the video component, otherwise
-// renders the image component.
+// PreviousAsset handles requests to show previously viewed assets in the navigation history.
+// It processes both images and videos in parallel, retrieving asset info and generating
+// regular and blurred preview images.
+//
+// For each previous asset:
+// - Fetches asset info and album details if configured
+// - Generates regular and blurred preview images
+// - Returns video component for videos when ShowTime is enabled, image component otherwise
+//
+// Returns 204 No Content if:
+// - Sleep mode is active and not disabled
+// - Navigation history has fewer than 2 entries
+//
+// Triggers webhook on successful render.
 func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -57,82 +65,84 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		lastHistoryEntry := requestConfig.History[historyLen-2]
-		prevImages := strings.Split(lastHistoryEntry, ",")
+		prevAssets := strings.Split(lastHistoryEntry, ",")
 		requestConfig.History = requestConfig.History[:historyLen-2]
 
 		ViewData := common.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     deviceID,
-			Assets:       make([]common.ViewImageData, len(prevImages)),
+			Assets:       make([]common.ViewImageData, len(prevAssets)),
 			Queries:      c.QueryParams(),
 			Config:       requestConfig,
 		}
 
 		g, _ := errgroup.WithContext(c.Request().Context())
 
-		for i, assetID := range prevImages {
+		for i, assetID := range prevAssets {
 
 			parts := strings.Split(assetID, ":")
 			if len(parts) != 2 {
 				return fmt.Errorf("invalid history entry format: %s", assetID)
 			}
 
-			currentAssetID, selectedUser := parts[0], parts[1]
+			prevAssetsID, currentAssetID, selectedUser := i, parts[0], parts[1]
 
-			g.Go(func() error {
-				requestConfig.SelectedUser = selectedUser
+			g.Go(func(id int, currentAssetID string) func() error {
+				return func() error {
+					requestConfig.SelectedUser = selectedUser
 
-				asset := immich.NewAsset(requestConfig)
-				asset.ID = currentAssetID
+					asset := immich.NewAsset(requestConfig)
+					asset.ID = currentAssetID
 
-				var wg sync.WaitGroup
-				wg.Add(1)
+					var wg sync.WaitGroup
+					wg.Add(1)
 
-				go func(asset *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
-					defer wg.Done()
-					var processingErr error
+					go func(asset *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
+						defer wg.Done()
+						var processingErr error
 
-					if err := asset.AssetInfo(requestID, deviceID); err != nil {
-						processingErr = fmt.Errorf("failed to get asset info: %w", err)
-						log.Error(processingErr)
+						if err := asset.AssetInfo(requestID, deviceID); err != nil {
+							processingErr = fmt.Errorf("failed to get asset info: %w", err)
+							log.Error(processingErr)
+						}
+
+						if requestConfig.ShowAlbumName {
+							asset.AlbumsThatContainAsset(requestID, deviceID)
+						}
+
+					}(&asset, requestID, &wg)
+
+					imgBytes, err := asset.ImagePreview()
+					if err != nil {
+						return fmt.Errorf("retrieving image: %w", err)
 					}
 
-					if requestConfig.ShowAlbumName {
-						asset.AlbumsThatContainAsset(requestID, deviceID)
+					img, err := utils.BytesToImage(imgBytes)
+					if err != nil {
+						return err
 					}
 
-				}(&asset, requestID, &wg)
+					imgString, err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
+					if err != nil {
+						return fmt.Errorf("converting image to base64: %w", err)
+					}
 
-				imgBytes, err := asset.ImagePreview()
-				if err != nil {
-					return fmt.Errorf("retrieving image: %w", err)
+					imgBlurString, err := processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
+					if err != nil {
+						return fmt.Errorf("converting blurred image to base64: %w", err)
+					}
+
+					wg.Wait()
+
+					ViewData.Assets[i] = common.ViewImageData{
+						ImmichAsset:   asset,
+						ImageData:     imgString,
+						ImageBlurData: imgBlurString,
+						User:          selectedUser,
+					}
+					return nil
 				}
-
-				img, err := utils.BytesToImage(imgBytes)
-				if err != nil {
-					return err
-				}
-
-				imgString, err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
-				if err != nil {
-					return fmt.Errorf("converting image to base64: %w", err)
-				}
-
-				imgBlurString, err := processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
-				if err != nil {
-					return fmt.Errorf("converting blurred image to base64: %w", err)
-				}
-
-				wg.Wait()
-
-				ViewData.Assets[i] = common.ViewImageData{
-					ImmichAsset:   asset,
-					ImageData:     imgString,
-					ImageBlurData: imgBlurString,
-					User:          selectedUser,
-				}
-				return nil
-			})
+			}(prevAssetsID, currentAssetID))
 		}
 
 		// Wait for all goroutines to complete and check for errors
@@ -142,7 +152,7 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.PreviousAsset, ViewData)
 
-		if requestConfig.ShowTime && ViewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+		if len(ViewData.Assets) > 0 && requestConfig.ShowTime && ViewData.Assets[0].ImmichAsset.Type == immich.VideoType {
 			return Render(c, http.StatusOK, videoComponent.Video(ViewData))
 		}
 
