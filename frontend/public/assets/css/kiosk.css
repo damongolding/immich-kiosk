@@ -140,6 +140,10 @@
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
+  text-rendering: optimizeLegibility;
+  font-smoothing: always;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 *:focus {
     outline: none;
