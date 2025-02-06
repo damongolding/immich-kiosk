@@ -62,7 +62,7 @@
   - [Themes](#themes)
   - [Layouts](#layouts)
   - [Sleep mode](#sleep-mode)
-  - [Cusom CSS](#custom-css)
+  - [Custom CSS](#custom-css)
   - [Weather](#weather)
 - [Navigation Controls](#navigation-controls)
 - [Redirects](#redirects)
@@ -355,7 +355,7 @@ See the file `config.example.yaml` for an example config file
 | [album](#albums)                  | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. See [Albums](#albums) for more information. |
 | [album_order](#album-order)       | KIOSK_ALBUM_ORDER       | string                     | random      | The order an album's assets will be displayed. See [Album order](#album-order) for more information. |
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
-| [experimental_album_video](#experimental-album-video-support) | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable exerimental video playback for albums. See [experimental album video](#experimental-album-video-support) for more information. |
+| [experimental_album_video](#experimental-album-video-support) | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. See [experimental album video](#experimental-album-video-support) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges in `YYYY-MM-DD_to_YYYY-MM-DD` format. See [Date range](#date-range) for more information. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memory lane assets. |
