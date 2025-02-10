@@ -24,6 +24,7 @@ class PollingController {
   private menuElement: HTMLElement | null = null;
   private currentProgressSource: ProgressSource | null = null;
   private video: HTMLVideoElement | null = null;
+  private playTimeout: number | null;
 
   private constructor() {
     // Private constructor to enforce singleton pattern
@@ -189,9 +190,11 @@ class PollingController {
   };
 
   // Function to clear timeout when video starts playing
-  handlePlayStart = (playTimeout: number) => {
+  handlePlayStart = () => {
     const listener = () => {
-      clearTimeout(playTimeout);
+      if (this.playTimeout) {
+        clearTimeout(this.playTimeout);
+      }
       this.video?.removeEventListener("playing", listener);
     };
     return listener;
@@ -215,7 +218,7 @@ class PollingController {
     }
 
     // Setup timeout to check if video starts playing
-    const playTimeout = setTimeout(() => {
+    this.playTimeout = setTimeout(() => {
       if (this.video && (this.video.paused || this.video.currentTime === 0)) {
         console.error("Video failed to start playing within timeout period");
         this.handleVideoTimeout();
@@ -223,7 +226,7 @@ class PollingController {
     }, 5000); // 5 seconds timeout
 
     // Add listener for when video starts playing
-    this.video.addEventListener("playing", this.handlePlayStart(playTimeout), {
+    this.video.addEventListener("playing", this.handlePlayStart(), {
       once: true,
     });
 
@@ -244,7 +247,9 @@ class PollingController {
     if (!this.video?.paused) {
       this.video.play().catch((error) => {
         console.error("Video playback error:", error);
-        clearTimeout(playTimeout);
+        if (this.playTimeout) {
+          clearTimeout(this.playTimeout);
+        }
         this.handleVideoError(error);
       });
     }
@@ -273,7 +278,7 @@ class PollingController {
   private videoCleanup = () => {
     this.video?.removeEventListener("ended", this.videoEndedHandler);
     this.video?.removeEventListener("error", this.handleVideoError);
-    this.video?.removeEventListener("playing", this.handlePlayStart(0));
+    this.video?.removeEventListener("playing", this.handlePlayStart());
 
     this.progressBarElement?.classList.add("progress--bar-paused");
 
