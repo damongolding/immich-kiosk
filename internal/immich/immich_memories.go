@@ -150,7 +150,6 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 				continue
 			}
 
-
 			if requestConfig.Kiosk.Cache {
 				if err := updateMemoryCache(memories, pickedMemoryIndex, assetIndex, apiCacheKey); err != nil {
 					return err
@@ -164,7 +163,7 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 			return nil
 		}
 
-		// no viable assets left in memoroy lane
+		// no viable assets left in memory lane
 		memories[pickedMemoryIndex].Assets = make([]ImmichAsset, 1)
 		if err := updateMemoryCache(memories, pickedMemoryIndex, 0, apiCacheKey); err != nil {
 			return err

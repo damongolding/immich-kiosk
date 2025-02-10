@@ -10,6 +10,7 @@ import (
 	"path"
 	"reflect"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -456,9 +457,18 @@ func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
 	return centerX, centerY
 }
 
+// containsTag checks if an asset has a specific tag (case-insensitive).
+// It iterates through the asset's tags and compares the given tagName
+// with each tag's name, ignoring case.
+//
+// Parameters:
+//   - tagName: The name of the tag to search for (case-insensitive)
+//
+// Returns:
+//   - bool: true if the tag is found, false otherwise
 func (i *ImmichAsset) containsTag(tagName string) bool {
 	for _, tag := range i.Tags {
-		if tag.Name == tagName {
+		if strings.EqualFold(tag.Name, tagName) {
 			return true
 		}
 	}
