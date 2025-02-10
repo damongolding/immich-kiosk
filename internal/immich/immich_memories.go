@@ -10,6 +10,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 // memories fetches memory lane assets from the Immich API
@@ -136,13 +137,16 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
-			// We only want images that are not trashed or archived (unless desired by user)
-			isInvalidType := asset.Type != ImageType
-			isTrashed := asset.IsTrashed
-			isArchived := asset.IsArchived && !requestConfig.ShowArchived
-			isInvalidRatio := !i.ratioCheck(&asset)
+			if !asset.isValidAsset(ImageOnlyAssetTypes) {
+				continue
+			}
 
-			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
+			err := asset.AssetInfo(requestID, deviceID)
+			if err != nil {
+				log.Error("Failed to get additional asset data", "error", err)
+			}
+
+			if asset.containsTag(kiosk.TagSkip) {
 				continue
 			}
 
@@ -159,7 +163,7 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 			return nil
 		}
 
-		// no viable assets left in memoroy lane
+		// no viable assets left in memory lane
 		memories[pickedMemoryIndex].Assets = make([]ImmichAsset, 1)
 		if err := updateMemoryCache(memories, pickedMemoryIndex, 0, apiCacheKey); err != nil {
 			return err

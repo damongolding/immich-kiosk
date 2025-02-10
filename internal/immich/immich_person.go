@@ -10,6 +10,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/google/go-querystring/query"
 )
 
@@ -133,17 +134,21 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 			continue
 		}
 
-		for immichAssetIndex, img := range immichAssets {
+		for immichAssetIndex, asset := range immichAssets {
 
-			// We only want images and that are not trashed or archived (unless wanted by user)
-			isInvalidType := img.Type != ImageType
-			isTrashed := img.IsTrashed
-			isArchived := img.IsArchived && !requestConfig.ShowArchived
-			isInvalidRatio := !i.ratioCheck(&img)
-
-			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
+			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
+
+			err := asset.AssetInfo(requestID, deviceID)
+			if err != nil {
+				log.Error("Failed to get additional asset data", "error", err)
+			}
+
+			if asset.containsTag(kiosk.TagSkip) {
+				continue
+			}
+
 
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
@@ -161,7 +166,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 				}
 			}
 
-			*i = img
+			*i = asset
 
 			return nil
 		}

@@ -121,6 +121,14 @@ type Person struct {
 	Faces         []Face    `json:"faces"`
 }
 
+type Tag struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Value     string    `json:"value"`
+	CreatedAt time.Time `json:"-"` //`json:"createdAt"`
+	UpdatedAt time.Time `json:"-"` //`json:"updatedAt"`
+}
+
 type Face struct {
 	ID            string `json:"id"`
 	ImageHeight   int    `json:"imageHeight"`
@@ -154,6 +162,7 @@ type ImmichAsset struct {
 	ExifInfo         ExifInfo        `json:"exifInfo"`
 	LivePhotoVideoID any             `json:"-"` // `json:"livePhotoVideoId"`
 	People           []Person        `json:"people"`
+	Tags             []Tag           `json:"tags"`
 	UnassignedFaces  []Face          `json:"unassignedFaces"`
 	Checksum         string          `json:"checksum"`
 	StackCount       any             `json:"-"` // `json:"stackCount"`

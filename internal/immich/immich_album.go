@@ -238,17 +238,17 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 		for assetIndex, asset := range album.Assets {
 
-			isInvalidType := !slices.Contains(allowedTypes, asset.Type)
-			isTrashed := asset.IsTrashed
-			isArchived := asset.IsArchived && !requestConfig.ShowArchived
-			isInvalidRatio := !i.ratioCheck(&asset)
-
-			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
+			if !asset.isValidAsset(allowedTypes) {
 				continue
 			}
 
-			if requestConfig.ShowPersonName {
-				asset.CheckForFaces(requestID, deviceID)
+			err := asset.AssetInfo(requestID, deviceID)
+			if err != nil {
+				log.Error("Failed to get additional asset data", "error", err)
+			}
+
+			if asset.containsTag(kiosk.TagSkip) {
+				continue
 			}
 
 			if requestConfig.Kiosk.Cache {

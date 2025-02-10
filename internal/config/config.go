@@ -293,6 +293,9 @@ type Config struct {
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
 	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`
 
+	// Blacklist define a list of assets to skip
+	Blacklist []string `json:"blacklist" mapstructure:"blacklist" default:"[]"`
+
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `json:"kiosk" mapstructure:"kiosk"`
 

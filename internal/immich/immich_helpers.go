@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"reflect"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -224,6 +226,35 @@ func (i *ImmichAsset) addRatio() {
 	}
 }
 
+// mergeAssetInfo merges additional asset information into the current ImmichAsset.
+// It uses reflection to examine each field of the current asset and if a field
+// has its zero value, it copies the corresponding value from additionalInfo.
+// This allows for selective updating of asset information while preserving
+// existing non-zero values.
+//
+// Parameters:
+//   - additionalInfo: The ImmichAsset containing the additional information to merge
+//
+// Returns an error if any field in additionalInfo is invalid during the merge process.
+func (i *ImmichAsset) mergeAssetInfo(additionalInfo ImmichAsset) error {
+	v := reflect.ValueOf(i).Elem()
+	d := reflect.ValueOf(additionalInfo)
+
+	for index := 0; index < v.NumField(); index++ {
+		field := v.Field(index)
+		if !field.CanSet() {
+			continue
+		}
+		if reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
+			if !d.Field(index).IsValid() {
+				return fmt.Errorf("invalid field at index %d", index)
+			}
+			field.Set(d.Field(index))
+		}
+	}
+	return nil
+}
+
 // AssetInfo fetches the image information from Immich
 func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 
@@ -253,9 +284,7 @@ func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 		return fmt.Errorf("fetching asset info: err %v", err)
 	}
 
-	*i = immichAsset
-
-	return nil
+	return i.mergeAssetInfo(immichAsset)
 }
 
 // ImagePreview fetches the raw image data from Immich
@@ -426,4 +455,44 @@ func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
 	centerY := float64(minY+maxY) / 2
 
 	return centerX, centerY
+}
+
+// containsTag checks if an asset has a specific tag (case-insensitive).
+// It iterates through the asset's tags and compares the given tagName
+// with each tag's name, ignoring case.
+//
+// Parameters:
+//   - tagName: The name of the tag to search for (case-insensitive)
+//
+// Returns:
+//   - bool: true if the tag is found, false otherwise
+func (i *ImmichAsset) containsTag(tagName string) bool {
+	for _, tag := range i.Tags {
+		if strings.EqualFold(tag.Name, tagName) {
+			return true
+		}
+	}
+	return false
+}
+
+// isValidAsset checks if an asset meets the criteria for being considered valid.
+// It validates the asset against several conditions:
+// - The asset type must be in the list of allowed types
+// - The asset must not be in the trash
+// - The asset must not be archived (unless showing archived is enabled)
+// - The asset must match any configured ratio requirements
+// - The asset must not be in the configured blacklist
+// Returns true if the asset meets all criteria, false otherwise.
+func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType) bool {
+	isNotValidType := !slices.Contains(allowedTypes, i.Type)
+	isTrashed := i.IsTrashed
+	isArchived := i.IsArchived && !requestConfig.ShowArchived
+	isInvalidRatio := !i.ratioCheck(i)
+	isBlacklisted := slices.Contains(requestConfig.Blacklist, i.ID)
+
+	if isNotValidType || isTrashed || isArchived || isInvalidRatio || isBlacklisted {
+		return false
+	}
+
+	return true
 }
