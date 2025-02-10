@@ -254,6 +254,7 @@ services:
       # FILTER
       KIOSK_DATE_FILTER: ""
       # UI
+      KIOSK_DISABLE_NAVIGATION: false
       KIOSK_DISABLE_UI: false
       KIOSK_FRAMELESS: false
       KIOSK_HIDE_CURSOR: false
@@ -362,6 +363,7 @@ See the file `config.example.yaml` for an example config file
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memory lane assets. |
 | blacklist                         | KIOSK_BLACKLIST         | []string                   | []          | The ID(s) of any specific assets you want Kiosk to skip/exclude from displaying. You can also tag assets in Immich with "kiosk-skip" to achieve the same. |
 | [date_filter](#filters)           | KIOSK_DATE_FILTER       | string                     | ""          | Filter person and random assets by date. See [date filter](#filters) for more information. |
+| disable_navigation               | KIOSK_DISABLE_NAVIGATION | bool                       | false       | Disable all Kiosk's navigation (touch/click, keyboard and menu).    |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
 | frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
@@ -381,8 +383,8 @@ See the file `config.example.yaml` for an example config file
 | [image_effect](#image-effects)    | KIOSK_IMAGE_EFFECT      | zoom \| smart-zoom         | ""          | Add an effect to images.                                                                   |
 | [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fallback to using the preview. |
-| show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display the album name if one or more album IDs are specified.                          |
-| show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display the person name if one or more person IDs are specified.                        |
+| show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display album name(s) that the asset appears in.                                           |
+| show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display person name(s).                                                                    |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
@@ -417,7 +419,7 @@ kiosk:
 
 | **yaml**            | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
 |---------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
-| port                | KIOSK_PORT              | int          | 3000        | Which port Kiosk should use. NOTE: that is port will need to be reflected in your compose file, e.g. `KIOSK_PORT:HOST_PORT` |
+| port                | KIOSK_PORT              | int          | 3000        | Which port Kiosk should use. NOTE: This is only typically needed when running Kiosk outside of a container. If you are running inside a container the port will need to be reflected in your compose file, e.g. `HOST_PORT:KIOSK_PORT` |
 | watch_config        | KIOSK_WATCH_CONFIG      | bool         | false       | Should Kiosk watch config.yaml file for changes. Reloads all connect clients if a change is detected. |
 | fetched_assets_size | KIOSK_FETCHED_ASSETS_SIZE | int        | 1000        | The number of assets (data) requested from Immich per api call. min=1 max=1000. |
 | http_timeout        | KIOSK_HTTP_TIMEOUT      | int          | 20          | The number of seconds before an http request will time out. |
@@ -1148,10 +1150,10 @@ While I did not create Kiosk with [Home Assistant](https://www.home-assistant.io
 ### Using Immich Kiosk as an image source for Wallpanel in Home Assistant:
 
 > [!TIP]
-> The new version of wallpanel doesn't seem to grab new images if the url is not dynamic.  
-> Adding a wallpanel varqaible to the Kiosk url fixes this.  
-> An example is adding `t=${timestamp}` the url.  
-> Kiosk does not need or use this data but fixes the issue in newer Wallpanel versions.  
+> The new version of wallpanel doesn't seem to grab new images if the url is not dynamic.
+> Adding a wallpanel varqaible to the Kiosk url fixes this.
+> An example is adding `t=${timestamp}` the url.
+> Kiosk does not need or use this data but fixes the issue in newer Wallpanel versions.
 
 ```yaml
   wallpanel:
