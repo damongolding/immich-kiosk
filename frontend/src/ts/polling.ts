@@ -278,7 +278,6 @@ class PollingController {
   private videoCleanup = () => {
     this.video?.removeEventListener("ended", this.videoEndedHandler);
     this.video?.removeEventListener("error", this.handleVideoError);
-    this.video?.removeEventListener("playing", this.handlePlayStart());
 
     this.progressBarElement?.classList.add("progress--bar-paused");
 
