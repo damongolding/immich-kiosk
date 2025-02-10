@@ -58,6 +58,18 @@ func TestRandomEmptyItem(t *testing.T) {
 	assert.Nil(t, out3, "RandomItem should return nil for an empty interface slice")
 }
 
+// TestRandomMutate tests that RandomItem does not modify the original slice.
+// Ensures the function operates non-destructively on input slices.
+func TestRandomMutate(t *testing.T) {
+	original := []int{1, 2, 3, 4}
+	originalCopy := []int{1, 2, 3, 4}
+
+	RandomItem(original)
+
+	assert.Equal(t, originalCopy, original, "RandomItem should not mutate the original slice")
+
+}
+
 // TestRandomStruct get out what we expect
 func TestRandomStruct(t *testing.T) {
 

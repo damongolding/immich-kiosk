@@ -27,7 +27,7 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 
 		requestID := requestData.RequestID
 
-		locationName := c.QueryParam("weather")
+		locationName := c.FormValue("weather")
 
 		log.Debug(
 			requestID,

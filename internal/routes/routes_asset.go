@@ -6,16 +6,18 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 
+	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
+	videoComponent "github.com/damongolding/immich-kiosk/internal/templates/components/video"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
 
-// NewImage returns an echo.HandlerFunc that handles requests for new images.
+// NewAsset returns an echo.HandlerFunc that handles requests for new assets.
 // It manages image processing, caching, and prefetching based on the configuration.
-func NewImage(baseConfig *config.Config) echo.HandlerFunc {
+func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -40,33 +42,40 @@ func NewImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		if isSleepMode(requestConfig) {
+		if !requestConfig.DisableSleep && isSleepMode(requestConfig) {
 			return c.NoContent(http.StatusNoContent)
 		}
 
+		requestCtx := common.CopyContext(c)
+
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
-			if cachedViewData := fromCache(c.Request().URL.String(), deviceID); cachedViewData != nil {
-				requestEchoCtx := c
-				go imagePreFetch(requestData, requestEchoCtx)
+			if cachedViewData := fromCache(requestCtx.URL.String(), deviceID); cachedViewData != nil {
+				go assetPreFetch(requestData, requestCtx)
 				go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
+
 				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID)
 			}
 			log.Debug(requestID, "deviceID", deviceID, "cache miss for new image")
 		}
 
-		viewData, err := generateViewData(requestConfig, c, deviceID, false)
+		viewData, err := generateViewData(requestConfig, requestCtx, deviceID, false)
 		if err != nil {
 			return RenderError(c, err, "retrieving image")
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			requestEchoCtx := c
-			go imagePreFetch(requestData, requestEchoCtx)
+			go assetPreFetch(requestData, requestCtx)
 		}
 
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)
+
+		if len(viewData.Assets) > 0 && requestConfig.ExperimentalAlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+			return Render(c, http.StatusOK, videoComponent.Video(viewData))
+		}
+
 		return Render(c, http.StatusOK, imageComponent.Image(viewData))
+
 	}
 }
 
@@ -95,9 +104,9 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		immichImage := immich.NewImage(requestConfig)
+		immichAsset := immich.NewAsset(requestConfig)
 
-		img, err := processImage(&immichImage, requestConfig, requestID, "", false)
+		img, err := processAsset(&immichAsset, immich.ImageOnlyAssetTypes, requestConfig, requestID, "", "", false)
 		if err != nil {
 			return err
 		}

@@ -1,8 +1,42 @@
 package partials
 
+import (
+	"fmt"
+	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/immich"
+	"html/template"
+	"strings"
+)
+
 // historyForm renders a form for kiosk history
 templ History() {
 	<form id="kiosk-history" hx-swap-oob="true">
 		<input class="kiosk-history--entry" type="hidden" value=""/>
 	</form>
+}
+
+// renderHistory renders a form containing the viewing history of images.
+//
+// Parameters:
+//   - viewData: ViewData containing the history and current images.
+templ RenderHistory(viewData common.ViewData, assetType immich.ImmichAssetType) {
+	<form id="kiosk-history" hx-swap-oob="true">
+		for _, historyEntry := range viewData.History {
+			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
+		}
+		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Assets) }/>
+	</form>
+}
+
+func newHistoryEntry(images []common.ViewImageData) string {
+	if len(images) == 0 {
+		return ""
+	}
+	newImages := make([]string, len(images))
+	for i, entry := range images {
+		assetHistory := fmt.Sprintf("%s:%s", entry.ImmichAsset.ID, entry.User)
+		sanitisedID := template.HTMLEscapeString(assetHistory)
+		newImages[i] = sanitisedID
+	}
+	return strings.Join(newImages, ",")
 }

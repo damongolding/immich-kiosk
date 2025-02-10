@@ -159,6 +159,17 @@ type Config struct {
 	// (e.g., when using reverse proxies or different network paths)
 	ImmichExternalUrl string `json:"-" mapstructure:"immich_external_url" default:""`
 
+	// ImmichUsersApiKeys a map of usernames to their respective api keys for accessing Immich
+	ImmichUsersApiKeys map[string]string `json:"-" mapstructure:"immich_users_api_keys" default:"{}"`
+	// User the user from ImmichUsersApiKeys to use when fetching images. If not set, it will use the default ImmichApiKey
+	User []string `json:"user" mapstructure:"user" query:"user" form:"user" default:"[]"`
+	// ShowUser whether to display user
+	ShowUser bool `json:"showUser" mapstructure:"show_user" query:"show_user" form:"show_user" default:"false"`
+	// SelectedUser selected user from User for the specific request
+	SelectedUser string `json:"selectedUser" default:""`
+
+	// DisableNavigation remove navigation
+	DisableNavigation bool `json:"disableNavigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
 	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
 	DisableUi bool `json:"disableUi" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames
@@ -192,6 +203,8 @@ type Config struct {
 	SleepEnd string `json:"sleepEnd" mapstructure:"sleep_end" query:"sleep_end" form:"sleep_end" default:""`
 	// SleepIcon display sleep icon
 	SleepIcon bool `json:"sleepIcon" mapstructure:"sleep_icon" query:"sleep_icon" form:"sleep_icon" default:"true"`
+	// SleepDisable disable sleep via url queries
+	DisableSleep bool `json:"disableSleep" query:"disable_sleep" form:"disable_sleep" default:"false"`
 
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `json:"showArchived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
@@ -206,6 +219,13 @@ type Config struct {
 	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
 	// Memories show memories
 	Memories bool `json:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
+
+	// DateFilter filter certain asset bucket assets by date
+	DateFilter string `json:"dateFilter" mapstructure:"date_filter" query:"date_filter" form:"date_filter" default:""`
+
+	// ExperimentalAlbumVideo whether to display videos
+	// Currently limited to albums
+	ExperimentalAlbumVideo bool `json:"experimentalAlbumVideo" mapstructure:"experimental_album_video" query:"experimental_album_video" form:"experimental_album_video" default:"false"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
@@ -272,6 +292,9 @@ type Config struct {
 
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
 	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`
+
+	// Blacklist define a list of assets to skip
+	Blacklist []string `json:"blacklist" mapstructure:"blacklist" default:"[]"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `json:"kiosk" mapstructure:"kiosk"`

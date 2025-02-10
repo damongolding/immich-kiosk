@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/google/go-querystring/query"
 )
 
@@ -86,6 +87,16 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 			requestBody.WithArchived = true
 		}
 
+		if requestConfig.DateFilter != "" {
+			dateStart, dateEnd, err := determineDateRange(requestConfig.DateFilter)
+			if err != nil {
+				log.Error("malformed filter", "err", err)
+			} else {
+				requestBody.TakenAfter = dateStart.Format(time.RFC3339)
+				requestBody.TakenBefore = dateEnd.Format(time.RFC3339)
+			}
+		}
+
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 
@@ -115,7 +126,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID)
+		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -123,17 +134,21 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 			continue
 		}
 
-		for immichAssetIndex, img := range immichAssets {
+		for immichAssetIndex, asset := range immichAssets {
 
-			// We only want images and that are not trashed or archived (unless wanted by user)
-			isInvalidType := img.Type != ImageType
-			isTrashed := img.IsTrashed
-			isArchived := img.IsArchived && !requestConfig.ShowArchived
-			isInvalidRatio := !i.ratioCheck(&img)
-
-			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
+			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
+
+			err := asset.AssetInfo(requestID, deviceID)
+			if err != nil {
+				log.Error("Failed to get additional asset data", "error", err)
+			}
+
+			if asset.containsTag(kiosk.TagSkip) {
+				continue
+			}
+
 
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
@@ -151,9 +166,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 				}
 			}
 
-			*i = img
-
-			i.PersonName(personID)
+			*i = asset
 
 			return nil
 		}
@@ -162,12 +175,4 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 		cache.Delete(apiCacheKey)
 	}
 	return fmt.Errorf("No images found for person '%s'. Max retries reached.", personID)
-}
-
-func (i *ImmichAsset) PersonName(personID string) {
-	for _, person := range i.People {
-		if strings.EqualFold(person.ID, personID) {
-			i.KioskSourceName = person.Name
-		}
-	}
 }

@@ -14,9 +14,31 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
+// AlbumsThatContainAsset finds all albums that contain this asset and updates
+// the AppearsIn field with the album names.
+// Parameters:
+//   - requestID: ID used for tracking API call chain
+//   - deviceID: ID of device making the request
+func (i *ImmichAsset) AlbumsThatContainAsset(requestID, deviceID string) {
+
+	albumsContaingAsset := []string{}
+
+	albums, _, err := i.albums(requestID, deviceID, false, i.ID)
+	if err != nil {
+		log.Error("Failed to get albums containing asset", "err", err)
+		return
+	}
+
+	for _, album := range albums {
+		albumsContaingAsset = append(albumsContaingAsset, album.AlbumName)
+	}
+
+	i.AppearsIn = albumsContaingAsset
+}
+
 // albums retrieves albums from Immich based on the shared parameter.
 // It constructs the API URL, makes the API call, and returns the albums.
-func (i *ImmichAsset) albums(requestID, deviceID string, shared bool) (ImmichAlbums, string, error) {
+func (i *ImmichAsset) albums(requestID, deviceID string, shared bool, contains string) (ImmichAlbums, string, error) {
 	var albums ImmichAlbums
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
@@ -30,9 +52,17 @@ func (i *ImmichAsset) albums(requestID, deviceID string, shared bool) (ImmichAlb
 		Path:   path.Join("api", "albums"),
 	}
 
+	queryParams := url.Values{}
+
 	if shared {
-		apiUrl.RawQuery = "shared=true"
+		queryParams.Set("shared", "true")
 	}
+
+	if contains != "" {
+		queryParams.Set("assetId", contains)
+	}
+
+	apiUrl.RawQuery = queryParams.Encode()
 
 	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, albums)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
@@ -50,12 +80,12 @@ func (i *ImmichAsset) albums(requestID, deviceID string, shared bool) (ImmichAlb
 
 // allSharedAlbums retrieves all shared albums from Immich.
 func (i *ImmichAsset) allSharedAlbums(requestID, deviceID string) (ImmichAlbums, string, error) {
-	return i.albums(requestID, deviceID, true)
+	return i.albums(requestID, deviceID, true, "")
 }
 
 // allAlbums retrieves all non-shared albums from Immich.
 func (i *ImmichAsset) allAlbums(requestID, deviceID string) (ImmichAlbums, string, error) {
-	return i.albums(requestID, deviceID, false)
+	return i.albums(requestID, deviceID, false, "")
 }
 
 // albumAssets retrieves details and assets for a specific album from Immich.
@@ -174,7 +204,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID)
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
 
 		if len(album.Assets) == 0 {
 			log.Debug(requestID+" No images left in cache. Refreshing and trying again for album", albumID)
@@ -200,15 +230,24 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 			}
 		}
 
+		allowedTypes := ImageOnlyAssetTypes
+
+		if requestConfig.ExperimentalAlbumVideo {
+			allowedTypes = AllAssetTypes
+		}
+
 		for assetIndex, asset := range album.Assets {
 
-			// We only want images and that are not trashed or archived (unless wanted by user)
-			isInvalidType := asset.Type != ImageType
-			isTrashed := asset.IsTrashed
-			isArchived := asset.IsArchived && !requestConfig.ShowArchived
-			isInvalidRatio := !i.ratioCheck(&asset)
+			if !asset.isValidAsset(allowedTypes) {
+				continue
+			}
 
-			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
+			err := asset.AssetInfo(requestID, deviceID)
+			if err != nil {
+				log.Error("Failed to get additional asset data", "error", err)
+			}
+
+			if asset.containsTag(kiosk.TagSkip) {
 				continue
 			}
 
@@ -231,8 +270,6 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 			}
 
 			*i = asset
-
-			i.KioskSourceName = album.AlbumName
 
 			return nil
 		}

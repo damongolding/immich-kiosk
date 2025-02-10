@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/google/go-querystring/query"
 )
 
@@ -108,7 +109,7 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 // Returns:
 //   - error: Any error encountered during the operation, including API failures,
 //     marshaling errors, cache operations, or when max retries are reached with no viable images found
-func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allowedAssetType []ImmichAssetType, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite image", true)
@@ -165,7 +166,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID)
+		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -173,17 +174,21 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 			continue
 		}
 
-		for immichAssetIndex, img := range immichAssets {
+		for immichAssetIndex, asset := range immichAssets {
 
-			// We only want images and that are not trashed or archived (unless wanted by user)
-			isInvalidType := img.Type != ImageType
-			isTrashed := img.IsTrashed
-			isArchived := img.IsArchived && !requestConfig.ShowArchived
-			isInvalidRatio := !i.ratioCheck(&img)
-
-			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
+			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
+
+			err := asset.AssetInfo(requestID, deviceID)
+			if err != nil {
+				log.Error("Failed to get additional asset data", "error", err)
+			}
+
+			if asset.containsTag(kiosk.TagSkip) {
+				continue
+			}
+
 
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
@@ -201,7 +206,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, isPr
 				}
 			}
 
-			*i = img
+			*i = asset
 			return nil
 		}
 

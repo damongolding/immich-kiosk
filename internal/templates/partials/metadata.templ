@@ -1,0 +1,309 @@
+package partials
+
+import (
+	"fmt"
+	"slices"
+	"strings"
+	"time"
+
+	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/goodsign/monday"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+)
+
+// AssetLocation generates a formatted string containing location metadata for an asset.
+// The location is built from city, state and country information stored in EXIF data.
+// Countries can be optionally hidden via the hideCountries list.
+//
+// Parameters:
+//   - info: ExifInfo struct containing the location metadata
+//   - hideCountries: List of country names that should not be displayed
+//
+// Returns:
+//   - string: HTML-formatted location string, or empty string if no location data
+func AssetLocation(info immich.ExifInfo, hideCountries []string) string {
+	var parts []string
+
+	if info.City != "" {
+		parts = append(parts, info.City)
+	}
+
+	if info.State != "" {
+		parts = append(parts, info.State)
+	}
+
+	if info.Country != "" && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
+		if len(parts) > 0 {
+			parts = append(parts, "<br class=\"responsive-break\"/>"+info.Country)
+		} else {
+			parts = append(parts, info.Country)
+		}
+	}
+
+	if len(parts) == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf(`
+		<div class="asset--metadata--has-icon asset--metadata--location">
+			<div class="asset--metadata--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+					<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+					<path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
+				</svg>
+			</div>
+			<div>
+				%s
+			</div>
+		</div>
+		`, strings.Join(parts, ", "),
+	)
+}
+
+// AssetExif generates a formatted string containing camera EXIF metadata.
+// Includes f-number (aperture), exposure time, focal length and ISO settings
+// when available in the EXIF data.
+//
+// Parameters:
+//   - info: ExifInfo struct containing the EXIF metadata
+//
+// Returns:
+//   - string: HTML-formatted EXIF information string, or empty if no EXIF data
+func AssetExif(info immich.ExifInfo) string {
+	var stats strings.Builder
+
+	if info.FNumber == 0 && info.ExposureTime == "" && info.FocalLength == 0 && info.Iso == 0 {
+		return ""
+	}
+
+	stats.WriteString(`
+	<div class="asset--metadata--has-icon">
+		<div class="asset--metadata--icon">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+				<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+				<path d="M149.1 64.8L138.7 96 64 96C28.7 96 0 124.7 0 160L0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-256c0-35.3-28.7-64-64-64l-74.7 0L362.9 64.8C356.4 45.2 338.1 32 317.4 32L194.6 32c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z"></path>
+			</svg>
+		</div>
+	<div>`)
+
+	if info.FNumber != 0 {
+		stats.WriteString(fmt.Sprintf("<span class=\"asset--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
+	}
+
+	if info.ExposureTime != "" {
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("%s<small>s</small>", info.ExposureTime))
+	}
+
+	if info.FocalLength != 0 {
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("%vmm", info.FocalLength))
+	}
+
+	if info.Iso != 0 {
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
+		}
+		stats.WriteString(fmt.Sprintf("ISO %v", info.Iso))
+	}
+
+	stats.WriteString(`</div></div>`)
+
+	return stats.String()
+}
+
+// AssetDateTime generates a formatted date/time string for an asset.
+// The format is controlled by the ViewData settings, allowing for different
+// date formats, 12/24hr time, and showing/hiding date or time components.
+//
+// Parameters:
+//   - viewData: ViewData struct containing display settings and assets
+//   - assetIndex: Index of the asset in the ViewData assets slice
+//
+// Returns:
+//   - string: Formatted date/time string based on settings
+func AssetDateTime(viewData common.ViewData, assetIndex int) string {
+
+	if assetIndex < 0 || assetIndex >= len(viewData.Assets) {
+		return ""
+	}
+	if viewData.Assets[assetIndex].ImmichAsset.LocalDateTime.IsZero() {
+		return ""
+	}
+
+	var assetDate string
+
+	assetTimeFormat := "15:04"
+	if viewData.ImageTimeFormat == "12" {
+		assetTimeFormat = time.Kitchen
+	}
+
+	assetDateFormat := utils.DateToLayout(viewData.ImageDateFormat)
+	if assetDateFormat == "" {
+		assetDateFormat = config.DefaultDateLayout
+	}
+
+	localDateTime := viewData.Assets[assetIndex].ImmichAsset.LocalDateTime
+	switch {
+	case viewData.ShowImageDate && viewData.ShowImageTime:
+		assetDate = fmt.Sprintf(
+			"%s %s",
+			monday.Format(localDateTime, assetDateFormat, viewData.SystemLang),
+			localDateTime.Format(assetTimeFormat),
+		)
+	case viewData.ShowImageDate:
+		assetDate = monday.Format(localDateTime, assetDateFormat, viewData.SystemLang)
+	case viewData.ShowImageTime:
+		assetDate = localDateTime.Format(assetTimeFormat)
+	}
+
+	return assetDate
+}
+
+// peopleNames extracts and joins the names of people tagged in an asset.
+// Filters out empty names and joins the remaining with commas.
+//
+// Parameters:
+//   - people: Slice of Person structs containing name data
+//
+// Returns:
+//   - string: Comma-separated list of person names
+func peopleNames(people []immich.Person) string {
+
+	var p []string
+
+	for _, person := range people {
+		if person.Name != "" {
+			p = append(p, person.Name)
+		}
+	}
+	return strings.Join(p, ", ")
+}
+
+// AssetMetadata renders metadata for an asset as an HTML component.
+// Displays configurable metadata including people, albums, date/time,
+// description, EXIF data, location and asset ID.
+//
+// Parameters:
+//   - viewData: ViewData struct with display settings and asset data
+//   - assetIndex: Index of asset to display metadata for
+//
+// Returns:
+//   - templ.Component: HTML component with formatted metadata
+templ AssetMetadata(viewData common.ViewData, assetIndex int) {
+	// {{ showSourceName := shouldShowSourceName(viewData, assetIndex) }}
+	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
+	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
+	{{ isFirstAsset := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People) }}
+	{{ showUser := viewData.ShowUser }}
+	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("asset--metadata--is-first", isFirstAsset) }>
+		if showUser && viewData.Assets[assetIndex].User != "" {
+			<div class="asset--metadata--has-icon">
+				<div class="asset--metadata--icon">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+						<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+						<path d="M336 352c97.2 0 176-78.8 176-176S433.2 0 336 0S160 78.8 160 176c0 18.7 2.9 36.8 8.3 53.7L7 391c-4.5 4.5-7 10.6-7 17l0 80c0 13.3 10.7 24 24 24l80 0c13.3 0 24-10.7 24-24l0-40 40 0c13.3 0 24-10.7 24-24l0-40 40 0c6.4 0 12.5-2.5 17-7l33.3-33.3c16.9 5.4 35 8.3 53.7 8.3zM376 96a40 40 0 1 1 0 80 40 40 0 1 1 0-80z"></path>
+					</svg>
+				</div>
+				<div>
+					<span>{ cases.Title(language.English).String(viewData.Assets[assetIndex].User) }</span>
+				</div>
+			</div>
+		}
+		if viewData.Assets[assetIndex].ImmichAsset.MemoryTitle != "" {
+			<div class="asset--metadata--has-icon">
+				<div class="asset--metadata--icon">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+						<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+						<path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9L0 168c0 13.3 10.7 24 24 24l110.1 0c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24l0 104c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65 0-94.1c0-13.3-10.7-24-24-24z"></path>
+					</svg>
+				</div>
+				<div>
+					<span>{ viewData.Assets[assetIndex].ImmichAsset.MemoryTitle }</span>
+				</div>
+			</div>
+		}
+		if viewData.ShowPersonName && names != "" {
+			<div class="asset--metadata--has-icon">
+				<div class="asset--metadata--icon">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+						<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+						<path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"></path>
+					</svg>
+				</div>
+				<div>
+					{ names }
+				</div>
+			</div>
+		}
+		if viewData.ShowAlbumName && len(viewData.Assets[assetIndex].ImmichAsset.AppearsIn) != 0 {
+			<div class="asset--metadata--has-icon">
+				<div class="asset--metadata--icon">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+						<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+						<path d="M160 32c-35.3 0-64 28.7-64 64l0 224c0 35.3 28.7 64 64 64l352 0c35.3 0 64-28.7 64-64l0-224c0-35.3-28.7-64-64-64L160 32zM396 138.7l96 144c4.9 7.4 5.4 16.8 1.2 24.6S480.9 320 472 320l-144 0-48 0-80 0c-9.2 0-17.6-5.3-21.6-13.6s-2.9-18.2 2.9-25.4l64-80c4.6-5.7 11.4-9 18.7-9s14.2 3.3 18.7 9l17.3 21.6 56-84C360.5 132 368 128 376 128s15.5 4 20 10.7zM192 128a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM48 120c0-13.3-10.7-24-24-24S0 106.7 0 120L0 344c0 75.1 60.9 136 136 136l320 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-320 0c-48.6 0-88-39.4-88-88l0-224z"></path>
+					</svg>
+				</div>
+				<div>
+					<span>{ strings.Join(viewData.Assets[assetIndex].ImmichAsset.AppearsIn, ", ") }</span>
+				</div>
+			</div>
+		}
+		if showDateTime {
+			<div class="asset--metadata--has-icon">
+				<div class="asset--metadata--icon">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+						<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+						<path d="M96 32l0 32L48 64C21.5 64 0 85.5 0 112l0 48 448 0 0-48c0-26.5-21.5-48-48-48l-48 0 0-32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 32L160 64l0-32c0-17.7-14.3-32-32-32S96 14.3 96 32zM448 192L0 192 0 464c0 26.5 21.5 48 48 48l352 0c26.5 0 48-21.5 48-48l0-272z"></path>
+					</svg>
+				</div>
+				<div>
+					{ AssetDateTime(viewData, assetIndex) }
+				</div>
+			</div>
+		}
+		if showDescription && len(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description) > 0 {
+			<div class="asset--metadata--has-icon asset--metadata--description">
+				<div class="asset--metadata--icon">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+						<!--! Font Awesome Pro 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2024 Fonticons, Inc. -->
+						<path d="M64 96l0 32c0 17.7-14.3 32-32 32s-32-14.3-32-32L0 80C0 53.5 21.5 32 48 32l176 0 176 0c26.5 0 48 21.5 48 48l0 48c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-32L256 96l0 320 48 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-160 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l48 0 0-320L64 96z"></path>
+					</svg>
+				</div>
+				<div>
+					<small>
+						{ viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description }
+					</small>
+				</div>
+			</div>
+		}
+		if viewData.ShowImageExif {
+			@templ.Raw(AssetExif(viewData.Assets[assetIndex].ImmichAsset.ExifInfo))
+		}
+		if viewData.ShowImageLocation {
+			@templ.Raw(AssetLocation(viewData.Assets[assetIndex].ImmichAsset.ExifInfo, viewData.HideCountries))
+		}
+		if viewData.ShowImageID {
+			<div class="asset--metadata--has-icon asset--metadata--id">
+				<div class="asset--metadata--icon">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+						<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+						<path d="M181.3 32.4c17.4 2.9 29.2 19.4 26.3 36.8L197.8 128l95.1 0 11.5-69.3c2.9-17.4 19.4-29.2 36.8-26.3s29.2 19.4 26.3 36.8L357.8 128l58.2 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-68.9 0L325.8 320l58.2 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-68.9 0-11.5 69.3c-2.9 17.4-19.4 29.2-36.8 26.3s-29.2-19.4-26.3-36.8l9.8-58.7-95.1 0-11.5 69.3c-2.9 17.4-19.4 29.2-36.8 26.3s-29.2-19.4-26.3-36.8L90.2 384 32 384c-17.7 0-32-14.3-32-32s14.3-32 32-32l68.9 0 21.3-128L64 192c-17.7 0-32-14.3-32-32s14.3-32 32-32l68.9 0 11.5-69.3c2.9-17.4 19.4-29.2 36.8-26.3zM187.1 192L165.8 320l95.1 0 21.3-128-95.1 0z"></path>
+					</svg>
+				</div>
+				<div>
+					{ viewData.Assets[assetIndex].ImmichAsset.ID }
+				</div>
+			</div>
+		}
+	</div>
+}

@@ -1,9 +1,9 @@
 module github.com/damongolding/immich-kiosk
 
-go 1.23.4
+go 1.23.5
 
 require (
-	github.com/a-h/templ v0.3.819
+	github.com/a-h/templ v0.3.833
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/charmbracelet/log v0.4.0
 	github.com/disintegration/imaging v1.6.2
@@ -19,10 +19,10 @@ require (
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/viper v1.20.0-alpha.6
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/image v0.23.0
-	golang.org/x/sync v0.10.0
-	golang.org/x/text v0.21.0
-	golang.org/x/time v0.9.0
+	golang.org/x/image v0.24.0
+	golang.org/x/sync v0.11.0
+	golang.org/x/text v0.22.0
+	golang.org/x/time v0.10.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

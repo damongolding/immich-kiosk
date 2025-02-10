@@ -4,6 +4,7 @@ package common
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
@@ -14,6 +15,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/labstack/echo/v4"
 )
 
 var (
@@ -93,18 +95,40 @@ func InitializeSecret() error {
 
 // ViewImageData contains the image data and metadata for displaying an image in the view
 type ViewImageData struct {
-	ImmichImage   immich.ImmichAsset // ImmichImage contains immich asset data
+	ImmichAsset   immich.ImmichAsset // ImmichAsset contains immich asset data
 	ImageData     string             // ImageData contains the image as base64 data
 	ImageBlurData string             // ImageBlurData contains the blurred image as base64 data
 	ImageDate     string             // ImageDate contains the date of the image
+	User          string
 }
 
 // ViewData contains all the data needed to render a view in the application
 type ViewData struct {
 	KioskVersion  string          // KioskVersion contains the current build version of Kiosk
 	DeviceID      string          // DeviceID contains the unique identifier for the device
-	Images        []ViewImageData // Images contains the collection of images to display in view
+	Assets        []ViewImageData // Assets contains the collection of assets to display in view
 	Queries       url.Values      // Queries contains the URL query parameters
 	CustomCss     []byte          // CustomCss contains custom CSS styling as bytes
 	config.Config                 // Config contains the instance configuration
+}
+
+// ContextCopy stores a copy of key HTTP context information including URL and headers
+type ContextCopy struct {
+	URL            url.URL     // The request URL
+	RequestHeader  http.Header // Headers from the incoming request
+	ResponseHeader http.Header // Headers for the outgoing response
+}
+
+// CopyContext creates a copy of essential context data from an echo.Context
+// This allows preserving context information without maintaining a reference to the original context
+// Returns a ContextCopy containing the URL and header information
+func CopyContext(c echo.Context) ContextCopy {
+
+	ctxCopy := ContextCopy{
+		URL:            *c.Request().URL,
+		RequestHeader:  c.Request().Header.Clone(),
+		ResponseHeader: c.Response().Header().Clone(),
+	}
+
+	return ctxCopy
 }

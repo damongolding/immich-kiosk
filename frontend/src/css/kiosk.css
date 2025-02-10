@@ -5,7 +5,7 @@
 @import url("./spinner.css");
 @import url("./frame.css");
 @import url("./image.css");
-@import url("./more-info-overlay.css");
+@import url("./more-info.css");
 @import url("./error.css");
 @import url("./progress.css");
 @import url("./offline.css");
@@ -14,3 +14,6 @@
 @import url("./weather.css");
 @import url("./menu.css");
 @import url("./sleep.css");
+@import url("./video.css");
+@import url("./redirects.css");
+@import url("./utis.css");

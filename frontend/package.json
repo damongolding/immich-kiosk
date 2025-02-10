@@ -1,6 +1,6 @@
 {
   "name": "immich-kiosk",
-  "version": "0.8.1",
+  "version": "0.15.1",
   "description": "",
   "main": "src/kiosk.ts",
   "scripts": {
@@ -22,11 +22,11 @@
     "browserslist": "^4.24.3",
     "date-fns": "^4.1.0",
     "esbuild": "^0.24.2",
-    "eslint": "^9.17.0",
+    "eslint": "^9.19.0",
     "eslint-plugin-compat": "^6.0.2",
     "globals": "^15.14.0",
     "htmx.org": "^2.0.4",
-    "postcss": "^8.4.49",
+    "postcss": "^8.5.1",
     "postcss-cli": "^11.0.0",
     "postcss-nested": "^7.0.2",
     "typescript": "^5.7.3"

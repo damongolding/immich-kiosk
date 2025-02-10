@@ -5,11 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/google/go-querystring/query"
 )
 
@@ -30,41 +33,13 @@ import (
 // Returns an error if no valid images are found after max retries
 func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
 
-	if !strings.Contains(dateRange, "_to_") {
-		return fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
-	}
-
-	dates := strings.SplitN(dateRange, "_to_", 2)
-	if len(dates) != 2 {
-		return fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
-	}
-
-	dateStart := time.Now()
-	dateEnd := time.Now()
-	var err error
-
-	if !strings.EqualFold(dates[0], "today") {
-		dateStart, err = time.Parse("2006-01-02", dates[0])
-		if err != nil {
-			return err
-		}
-	}
-
-	if !strings.EqualFold(dates[1], "today") {
-		dateEnd, err = time.Parse("2006-01-02", dates[1])
-		if err != nil {
-			return err
-		}
-	}
-
-	if dateEnd.Before(dateStart) {
-		dateStart, dateEnd = dateEnd, dateStart
+	dateStart, dateEnd, err := determineDateRange(dateRange)
+	if err != nil {
+		return err
 	}
 
 	dateStartHuman := dateStart.Format("2006-01-02")
 	dateEndHuman := dateEnd.Format("2006-01-02")
-
-	dateEnd = dateEnd.AddDate(0, 0, 1).Add(-time.Nanosecond)
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
@@ -122,7 +97,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID)
+		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -130,17 +105,21 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 			continue
 		}
 
-		for immichAssetIndex, img := range immichAssets {
+		for immichAssetIndex, asset := range immichAssets {
 
-			// We only want images and that are not trashed or archived (unless wanted by user)
-			isInvalidType := img.Type != ImageType
-			isTrashed := img.IsTrashed
-			isArchived := img.IsArchived && !requestConfig.ShowArchived
-			isInvalidRatio := !i.ratioCheck(&img)
-
-			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
+			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
+
+			err := asset.AssetInfo(requestID, deviceID)
+			if err != nil {
+				log.Error("Failed to get additional asset data", "error", err)
+			}
+
+			if asset.containsTag(kiosk.TagSkip) {
+				continue
+			}
+
 
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
@@ -158,9 +137,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 				}
 			}
 
-			img.KioskSourceName = fmt.Sprintf("%s to %s", dateStartHuman, dateEndHuman)
-
-			*i = img
+			*i = asset
 
 			return nil
 		}
@@ -170,4 +147,95 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 	}
 
 	return fmt.Errorf("No images found for '%s'. Max retries reached.", dateRange)
+}
+
+func determineDateRange(dateRange string) (time.Time, time.Time, error) {
+	var dateStart time.Time
+	var dateEnd time.Time
+	var err error
+
+	switch {
+	case strings.Contains(dateRange, "_to_"):
+		dateStart, dateEnd, err = processDateRange(dateRange)
+		if err != nil {
+			return dateStart, dateEnd, err
+		}
+	case strings.Contains(dateRange, "last-"):
+		dateStart, dateEnd, err = processLastDays(dateRange)
+		if err != nil {
+			return dateStart, dateEnd, err
+		}
+	default:
+		return dateStart, dateEnd, fmt.Errorf("invalid date filter format: %s. Expected format: YYYY-MM-DD_to_YYYY-MM-DD or last-X", dateRange)
+	}
+
+	return dateStart, dateEnd, err
+}
+
+// processDateRange parses a date range string in the format "YYYY-MM-DD_to_YYYY-MM-DD"
+// and returns the start and end times. The special value "today" can be used for
+// either date. If the end date is before the start date, they will be swapped.
+// The end date is adjusted to be the last nanosecond of that day.
+// Returns an error if the date range format is invalid or dates cannot be parsed.
+func processDateRange(dateRange string) (time.Time, time.Time, error) {
+
+	dateStart := time.Now()
+	dateEnd := time.Now()
+
+	dates := strings.SplitN(dateRange, "_to_", 2)
+	if len(dates) != 2 {
+		return dateStart, dateEnd, fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
+	}
+
+	var err error
+
+	if !strings.EqualFold(dates[0], "today") {
+		dateStart, err = time.Parse("2006-01-02", dates[0])
+		if err != nil {
+			return dateStart, dateEnd, err
+		}
+	}
+
+	if !strings.EqualFold(dates[1], "today") {
+		dateEnd, err = time.Parse("2006-01-02", dates[1])
+		if err != nil {
+			return dateStart, dateEnd, err
+		}
+	}
+
+	if dateEnd.Before(dateStart) {
+		dateStart, dateEnd = dateEnd, dateStart
+	}
+
+	dateEnd = dateEnd.AddDate(0, 0, 1).Add(-time.Nanosecond)
+
+	return dateStart, dateEnd, nil
+}
+
+// extractDays extracts a number from a string using regex.
+// Returns the first number found in the string or an error if no number is found.
+func extractDays(s string) (int, error) {
+	re := regexp.MustCompile(`\d+`)
+	match := re.FindString(s)
+	if match == "" {
+		return 0, fmt.Errorf("no number found")
+	}
+	return strconv.Atoi(match)
+}
+
+// processLastDays takes a date range string in the format "last_X" where X is a number of days
+// and returns a time range from X days ago to now.
+// Returns an error if the number of days cannot be extracted from the string.
+func processLastDays(dateRange string) (time.Time, time.Time, error) {
+	dateStart := time.Now()
+	dateEnd := time.Now()
+
+	days, err := extractDays(dateRange)
+	if err != nil {
+		return dateStart, dateEnd, err
+	}
+
+	dateStart = dateStart.AddDate(0, 0, -days)
+
+	return dateStart, dateEnd, nil
 }

@@ -1,0 +1,25 @@
+package partials
+
+import (
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"net/url"
+)
+
+templ Redirects(redirects []config.Redirect, queries url.Values) {
+	<div id="redirects-container">
+		<div class="redirects">
+			<div class="redirects--shadow">
+				if queries.Has("password") {
+					<a href={ templ.SafeURL("/?password=" + queries.Get("password")) }>Home</a>
+				}
+				for _ , redirect := range redirects {
+					if queries.Has("password") {
+						<a href={ templ.SafeURL(redirect.Name + "?password=" + queries.Get("password")) }>{ redirect.Name }</a>
+					} else {
+						<a href={ templ.SafeURL(redirect.Name) }>{ redirect.Name }</a>
+					}
+				}
+			</div>
+		</div>
+	</div>
+}

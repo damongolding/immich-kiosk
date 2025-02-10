@@ -1,4 +1,5 @@
-.polling-paused.more-info {
+.polling-paused.more-info,
+.polling-paused.redirects-open {
     #clock-weather-container {
         opacity: 0.2;
     }
