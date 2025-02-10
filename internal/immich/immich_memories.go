@@ -10,6 +10,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 // memories fetches memory lane assets from the Immich API
@@ -139,6 +140,16 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
+
+			err := asset.AssetInfo(requestID, deviceID)
+			if err != nil {
+				log.Error("Failed to get additional asset data", "error", err)
+			}
+
+			if asset.containsTag(kiosk.TagSkip) {
+				continue
+			}
+
 
 			if requestConfig.Kiosk.Cache {
 				if err := updateMemoryCache(memories, pickedMemoryIndex, assetIndex, apiCacheKey); err != nil {

@@ -242,8 +242,13 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 				continue
 			}
 
-			if requestConfig.ShowPersonName {
-				asset.CheckForFaces(requestID, deviceID)
+			err := asset.AssetInfo(requestID, deviceID)
+			if err != nil {
+				log.Error("Failed to get additional asset data", "error", err)
+			}
+
+			if asset.containsTag(kiosk.TagSkip) {
+				continue
 			}
 
 			if requestConfig.Kiosk.Cache {

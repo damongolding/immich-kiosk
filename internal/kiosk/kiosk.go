@@ -13,4 +13,6 @@ const (
 	SourcePerson         Source = "PERSON"
 	SourceRandom         Source = "RANDOM"
 	SourceMemories       Source = "MEMORIES"
+
+	TagSkip string = "kiosk-skip"
 )
