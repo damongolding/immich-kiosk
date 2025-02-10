@@ -162,13 +162,13 @@ type ImmichAsset struct {
 	ExifInfo         ExifInfo        `json:"exifInfo"`
 	LivePhotoVideoID any             `json:"-"` // `json:"livePhotoVideoId"`
 	People           []Person        `json:"people"`
-	Tags             []Tag
-	UnassignedFaces  []Face `json:"unassignedFaces"`
-	Checksum         string `json:"checksum"`
-	StackCount       any    `json:"-"` // `json:"stackCount"`
-	IsOffline        bool   `json:"-"` // `json:"isOffline"`
-	HasMetadata      bool   `json:"-"` // `json:"hasMetadata"`
-	DuplicateID      any    `json:"-"` // `json:"duplicateId"`
+	Tags             []Tag           `json:"tags"`
+	UnassignedFaces  []Face          `json:"unassignedFaces"`
+	Checksum         string          `json:"checksum"`
+	StackCount       any             `json:"-"` // `json:"stackCount"`
+	IsOffline        bool            `json:"-"` // `json:"isOffline"`
+	HasMetadata      bool            `json:"-"` // `json:"hasMetadata"`
+	DuplicateID      any             `json:"-"` // `json:"duplicateId"`
 
 	// Data added and used by Kiosk
 	RatioWanted ImageOrientation `json:"-"`
