@@ -93,15 +93,9 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 			continue
 		}
 
-		for immichAssetIndex, img := range immichAssets {
+		for immichAssetIndex, asset := range immichAssets {
 
-			// We only want images and that are not trashed or archived (unless wanted by user)
-			isInvalidType := img.Type != ImageType
-			isTrashed := img.IsTrashed
-			isArchived := img.IsArchived && !requestConfig.ShowArchived
-			isInvalidRatio := !i.ratioCheck(&img)
-
-			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
+			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
 
@@ -121,7 +115,7 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 				}
 			}
 
-			*i = img
+			*i = asset
 			return nil
 		}
 

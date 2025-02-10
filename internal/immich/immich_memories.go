@@ -136,13 +136,7 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
-			// We only want images that are not trashed or archived (unless desired by user)
-			isInvalidType := asset.Type != ImageType
-			isTrashed := asset.IsTrashed
-			isArchived := asset.IsArchived && !requestConfig.ShowArchived
-			isInvalidRatio := !i.ratioCheck(&asset)
-
-			if isInvalidType || isTrashed || isArchived || isInvalidRatio {
+			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
 

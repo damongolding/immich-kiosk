@@ -427,3 +427,23 @@ func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
 
 	return centerX, centerY
 }
+
+// isValidAsset checks if an asset meets the criteria for being considered valid.
+// It validates the asset against several conditions:
+// - The asset type must be in the list of allowed types
+// - The asset must not be in the trash
+// - The asset must not be archived (unless showing archived is enabled)
+// - The asset must match any configured ratio requirements
+// Returns true if the asset meets all criteria, false otherwise.
+func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType) bool {
+	isNotValidType := !slices.Contains(allowedTypes, i.Type)
+	isTrashed := i.IsTrashed
+	isArchived := i.IsArchived && !requestConfig.ShowArchived
+	isInvalidRatio := !i.ratioCheck(i)
+
+	if isNotValidType || isTrashed || isArchived || isInvalidRatio {
+		return false
+	}
+
+	return true
+}
