@@ -73,7 +73,7 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 			return err
 		}
 
-		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAssets)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
@@ -109,7 +109,6 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 				continue
 			}
 
-
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
@@ -126,7 +125,10 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 				}
 			}
 
+			asset.Bucket = kiosk.SourceRandom
+
 			*i = asset
+
 			return nil
 		}
 

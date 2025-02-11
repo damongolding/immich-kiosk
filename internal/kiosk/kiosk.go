@@ -14,5 +14,10 @@ const (
 	SourceRandom         Source = "RANDOM"
 	SourceMemories       Source = "MEMORIES"
 
+	LayoutLandscape          string = "landscape"
+	LayoutPortrait           string = "portrait"
+	LayoutSplitview          string = "splitview"
+	LayoutSplitviewLandscape string = "splitview-landscape"
+
 	TagSkip string = "kiosk-skip"
 )

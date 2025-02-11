@@ -31,7 +31,7 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (in
 		Path:   path.Join("api", "people", personID, "statistics"),
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, personStatistics)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, personStatistics)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, _, err = immichApiFail(personStatistics, err, body, apiUrl.String())
@@ -113,7 +113,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 			return err
 		}
 
-		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAssets)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
@@ -149,7 +149,6 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 				continue
 			}
 
-
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
@@ -165,6 +164,9 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 					log.Debug("cache not found!")
 				}
 			}
+
+			asset.Bucket = kiosk.SourcePerson
+			asset.BucketID = personID
 
 			*i = asset
 

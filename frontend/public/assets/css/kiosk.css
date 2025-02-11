@@ -449,7 +449,7 @@ form {
        align-items: center;
   gap: 0.5rem;
 }
-.asset--metadata--is-first .asset--metadata--icon {
+.right-align-icons .asset--metadata--icon {
   -moz-box-ordinal-group: 3;
        order: 2;
 }

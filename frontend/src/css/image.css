@@ -85,7 +85,7 @@
     gap: 0.5rem;
 }
 
-.asset--metadata--is-first .asset--metadata--icon {
+.right-align-icons .asset--metadata--icon {
     order: 2;
 }
 

@@ -30,8 +30,8 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 	return value, apiUrl, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 }
 
-// immichApiCallDecorator Decorator to impliment cache for the immichApiCall func
-func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID, deviceID string, jsonShape T) ImmichApiCall {
+// withImmichApiCache Decorator to implement cache for the immichApiCall func
+func withImmichApiCache[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID, deviceID string, jsonShape T) ImmichApiCall {
 	return func(method, apiUrl string, body []byte, headers ...map[string]string) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
@@ -41,9 +41,6 @@ func immichApiCallDecorator[T ImmichApiResponse](immichApiCall ImmichApiCall, re
 		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
 
 		if apiData, found := cache.Get(apiCacheKey); found {
-			if requestConfig.Kiosk.DebugVerbose {
-				log.Debug(requestID+" Cache hit", "url", apiUrl)
-			}
 			log.Debug(requestID+" Cache hit", "url", apiUrl)
 			return apiData.([]byte), nil
 		}
@@ -271,7 +268,7 @@ func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 		Path:   path.Join("api", "assets", i.ID),
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAsset)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAsset)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, _, err = immichApiFail(immichAsset, err, body, apiUrl.String())
