@@ -84,7 +84,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 			return fmt.Errorf("marshaling request body: %w", err)
 		}
 
-		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAssets)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())

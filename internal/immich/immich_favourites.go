@@ -58,7 +58,7 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 			return allFavouritesCount, err
 		}
 
-		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, favourites)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, favourites)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichApiFail(favourites, err, apiBody, apiUrl.String())
@@ -153,7 +153,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 			return fmt.Errorf("marshaling request body: %w", err)
 		}
 
-		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAssets)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())

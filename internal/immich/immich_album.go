@@ -64,7 +64,7 @@ func (i *ImmichAsset) albums(requestID, deviceID string, shared bool, contains s
 
 	apiUrl.RawQuery = queryParams.Encode()
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, albums)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, albums)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(albums, err, body, apiUrl.String())
@@ -112,7 +112,7 @@ func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAl
 		Path:   path.Join("api", "albums", albumID),
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, album)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, album)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(album, err, body, apiUrl.String())

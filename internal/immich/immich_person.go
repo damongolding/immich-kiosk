@@ -31,7 +31,7 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (in
 		Path:   path.Join("api", "people", personID, "statistics"),
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, personStatistics)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, personStatistics)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, _, err = immichApiFail(personStatistics, err, body, apiUrl.String())
@@ -113,7 +113,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 			return err
 		}
 
-		immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, immichAssets)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAssets)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
