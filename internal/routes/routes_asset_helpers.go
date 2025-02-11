@@ -345,49 +345,47 @@ func DrawFaceOnImage(img image.Image, i *immich.ImmichAsset) image.Image {
 
 }
 
-// processViewImageData handles the entire process of preparing page data including image processing.
-// It returns the ImageData and an error if any step fails.
-func processViewImageData(imageOrientation immich.ImageOrientation, requestConfig config.Config, c common.ContextCopy, isPrefetch bool) (common.ViewImageData, error) {
-	requestID := utils.ColorizeRequestId(c.ResponseHeader.Get(echo.HeaderXRequestID))
-	deviceID := c.RequestHeader.Get("kiosk-device-id")
-
-	// if multiple users are given via the url pick a random one
-	if len(requestConfig.User) > 0 {
-		randomIndex := rand.IntN(len(requestConfig.User))
-		requestConfig.SelectedUser = requestConfig.User[randomIndex]
-	} else {
-		requestConfig.SelectedUser = ""
+// processViewImageData processes an image request and returns view data for display.
+// It handles the complete workflow from selecting an image to preparing it for display,
+// including face detection, optimization, and format conversion.
+//
+// Parameters:
+//   - requestConfig: Configuration settings for the request
+//   - c: Copy of the request context
+//   - isPrefetch: Whether this is a prefetch request
+//   - options: Additional options for image processing
+//
+// Returns:
+//   - ViewImageData containing the processed image and metadata
+//   - Error if any step fails
+func processViewImageData(requestConfig config.Config, c common.ContextCopy, isPrefetch bool, options common.ViewImageDataOptions) (common.ViewImageData, error) {
+	// Initialize request metadata
+	metadata := requestMetadata{
+		requestID: utils.ColorizeRequestId(c.ResponseHeader.Get(echo.HeaderXRequestID)),
+		deviceID:  c.RequestHeader.Get("kiosk-device-id"),
+		urlString: c.URL.String(),
 	}
 
-	immichAsset := immich.NewAsset(requestConfig)
+	// Set up configuration
+	setupRequestConfig(&requestConfig)
+	immichAsset := setupImmichAsset(requestConfig, options.ImageOrientation)
+	allowedAssetTypes := determineAllowedAssetTypes(requestConfig, isPrefetch)
 
-	switch imageOrientation {
-	case immich.PortraitOrientation:
-		immichAsset.RatioWanted = imageOrientation
-	case immich.LandscapeOrientation:
-		immichAsset.RatioWanted = imageOrientation
+	// Handle relative asset configuration if needed
+	if options.RelativeAssetWanted {
+		handleRelativeAssetConfig(&requestConfig, options)
 	}
 
-	allowedAssetTypes := immich.ImageOnlyAssetTypes
-
-	if requestConfig.ExperimentalAlbumVideo && isPrefetch {
-		allowedAssetTypes = immich.AllAssetTypes
-	}
-
-	img, err := processAsset(&immichAsset, allowedAssetTypes, requestConfig, requestID, deviceID, c.URL.String(), isPrefetch)
+	// Process image
+	img, err := processAsset(&immichAsset, allowedAssetTypes, requestConfig, metadata.requestID, metadata.deviceID, metadata.urlString, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, fmt.Errorf("selecting image: %w", err)
 	}
 
-	if strings.EqualFold(requestConfig.ImageEffect, "smart-zoom") && len(immichAsset.People)+len(immichAsset.UnassignedFaces) == 0 {
-		immichAsset.CheckForFaces(requestID, deviceID)
-	}
+	// Handle face detection and smart zoom
+	img = handleFaceProcessing(img, &immichAsset, requestConfig, metadata)
 
-	if ShouldDrawFacesOnImages() {
-		log.Debug("Drawing faces")
-		img = DrawFaceOnImage(img, &immichAsset)
-	}
-
+	// Optimize image if needed
 	if requestConfig.OptimizeImages {
 		img, err = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
 		if err != nil {
@@ -395,12 +393,8 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 		}
 	}
 
-	imgString, err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", isPrefetch)
-	if err != nil {
-		return common.ViewImageData{}, err
-	}
-
-	imgBlurString, err := processBlurredImage(img, immichAsset.Type, requestConfig, requestID, deviceID, isPrefetch)
+	// Convert images to required formats
+	imgString, imgBlurString, err := convertImages(img, immichAsset.Type, requestConfig, metadata, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, err
 	}
@@ -413,14 +407,93 @@ func processViewImageData(imageOrientation immich.ImageOrientation, requestConfi
 	}, nil
 }
 
-// ProcessViewImageData processes view data for an image without orientation constraints
-func ProcessViewImageData(requestConfig config.Config, c common.ContextCopy, isPrefetch bool) (common.ViewImageData, error) {
-	return processViewImageData("", requestConfig, c, isPrefetch)
+// setupRequestConfig configures the selected user for the request by picking a random
+// user from the config if multiple users are provided, otherwise sets to empty string
+func setupRequestConfig(config *config.Config) {
+	if len(config.User) > 0 {
+		randomIndex := rand.IntN(len(config.User))
+		config.SelectedUser = config.User[randomIndex]
+	} else {
+		config.SelectedUser = ""
+	}
 }
 
-// ProcessViewImageDataWithRatio processes view data for an image with the specified orientation
-func ProcessViewImageDataWithRatio(imageOrientation immich.ImageOrientation, requestConfig config.Config, c common.ContextCopy, isPrefetch bool) (common.ViewImageData, error) {
-	return processViewImageData(imageOrientation, requestConfig, c, isPrefetch)
+// setupImmichAsset creates and configures a new ImmichAsset based on the provided config
+// and orientation settings
+func setupImmichAsset(config config.Config, orientation immich.ImageOrientation) immich.ImmichAsset {
+	asset := immich.NewAsset(config)
+	if orientation == immich.PortraitOrientation || orientation == immich.LandscapeOrientation {
+		asset.RatioWanted = orientation
+	}
+	return asset
+}
+
+// determineAllowedAssetTypes returns the allowed asset types based on config settings
+// Returns AllAssetTypes if experimental video is enabled and isPrefetch is true,
+// otherwise returns ImageOnlyAssetTypes
+func determineAllowedAssetTypes(config config.Config, isPrefetch bool) []immich.ImmichAssetType {
+	if config.ExperimentalAlbumVideo && isPrefetch {
+		return immich.AllAssetTypes
+	}
+	return immich.ImageOnlyAssetTypes
+}
+
+// handleRelativeAssetConfig updates the config buckets based on the relative asset options.
+// Resets existing buckets and configures the appropriate bucket based on the asset source type.
+func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDataOptions) {
+	config.ResetBuckets()
+	config.Memories = false
+
+	switch options.RelativeAssetBucket {
+	case kiosk.SourceAlbums:
+		config.Album = append(config.Album, options.RelativeAssetBucketID)
+	case kiosk.SourcePerson:
+		config.Person = append(config.Person, options.RelativeAssetBucketID)
+	case kiosk.SourceDateRangeAlbum:
+		config.Date = append(config.Date, options.RelativeAssetBucketID)
+	case kiosk.SourceMemories:
+		config.Memories = true
+	}
+}
+
+// handleFaceProcessing processes face detection and drawing for an image.
+// Checks for faces if smart-zoom is enabled and draws faces if configured.
+// Returns the processed image.
+func handleFaceProcessing(img image.Image, asset *immich.ImmichAsset, config config.Config, metadata requestMetadata) image.Image {
+	if strings.EqualFold(config.ImageEffect, "smart-zoom") && len(asset.People)+len(asset.UnassignedFaces) == 0 {
+		asset.CheckForFaces(metadata.requestID, metadata.deviceID)
+	}
+
+	if ShouldDrawFacesOnImages() {
+		log.Debug("Drawing faces")
+		return DrawFaceOnImage(img, asset)
+	}
+	return img
+}
+
+// convertImages converts the provided image to base64 strings for both normal and blurred versions.
+// Returns the base64 encoded normal image, blurred image, and any error that occurred.
+func convertImages(img image.Image, assetType immich.ImmichAssetType, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, error) {
+	imgString, err := imageToBase64(img, config, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
+	if err != nil {
+		return "", "", err
+	}
+
+	imgBlurString, err := processBlurredImage(img, assetType, config, metadata.requestID, metadata.deviceID, isPrefetch)
+	if err != nil {
+		return "", "", err
+	}
+
+	return imgString, imgBlurString, nil
+}
+
+// ProcessViewImageData processes view data for an image without orientation constraints
+func ProcessViewImageData(requestConfig config.Config, c common.ContextCopy, isPrefetch bool) (common.ViewImageData, error) {
+	return processViewImageData(requestConfig, c, isPrefetch, common.ViewImageDataOptions{})
+}
+
+func ProcessViewImageDataWithOptions(requestConfig config.Config, c common.ContextCopy, isPrefetch bool, options common.ViewImageDataOptions) (common.ViewImageData, error) {
+	return processViewImageData(requestConfig, c, isPrefetch, options)
 }
 
 // assetToCache stores view data in the cache and triggers prefetch webhooks
@@ -500,11 +573,13 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 
 	switch requestConfig.Layout {
 	case "landscape", "portrait":
-		orientation := immich.LandscapeOrientation
-		if requestConfig.Layout == "portrait" {
-			orientation = immich.PortraitOrientation
+		options := common.ViewImageDataOptions{
+			ImageOrientation: immich.LandscapeOrientation,
 		}
-		viewDataSingle, err := ProcessViewImageDataWithRatio(orientation, requestConfig, c, isPrefetch)
+		if requestConfig.Layout == "portrait" {
+			options.ImageOrientation = immich.PortraitOrientation
+		}
+		viewDataSingle, err := ProcessViewImageDataWithOptions(requestConfig, c, isPrefetch, options)
 		if err != nil {
 			return viewData, err
 		}
@@ -521,9 +596,16 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 			return viewData, nil
 		}
 
+		options := common.ViewImageDataOptions{
+			RelativeAssetWanted:   true,
+			RelativeAssetBucket:   viewDataSplitView.ImmichAsset.Bucket,
+			RelativeAssetBucketID: viewDataSplitView.ImmichAsset.BucketID,
+			ImageOrientation:      immich.PortraitOrientation,
+		}
+
 		// Second image
 		for i := 0; i < maxImageRetrievalAttepmts; i++ {
-			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.PortraitOrientation, requestConfig, c, isPrefetch)
+			viewDataSplitViewSecond, err := ProcessViewImageDataWithOptions(requestConfig, c, isPrefetch, options)
 			if err != nil {
 				return viewData, err
 			}
@@ -545,9 +627,16 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 			return viewData, nil
 		}
 
+		options := common.ViewImageDataOptions{
+			RelativeAssetWanted:   true,
+			RelativeAssetBucket:   viewDataSplitView.ImmichAsset.Bucket,
+			RelativeAssetBucketID: viewDataSplitView.ImmichAsset.BucketID,
+			ImageOrientation:      immich.LandscapeOrientation,
+		}
+
 		// Second image
 		for i := 0; i < maxImageRetrievalAttepmts; i++ {
-			viewDataSplitViewSecond, err := ProcessViewImageDataWithRatio(immich.LandscapeOrientation, requestConfig, c, isPrefetch)
+			viewDataSplitViewSecond, err := ProcessViewImageDataWithOptions(requestConfig, c, isPrefetch, options)
 			if err != nil {
 				return viewData, err
 			}

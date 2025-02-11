@@ -109,7 +109,6 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 				continue
 			}
 
-
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
@@ -126,7 +125,10 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 				}
 			}
 
+			asset.Bucket = kiosk.SourceRandom
+
 			*i = asset
+
 			return nil
 		}
 

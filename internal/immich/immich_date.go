@@ -120,7 +120,6 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 				continue
 			}
 
-
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
@@ -136,6 +135,9 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 					log.Debug("Failed to update cache", "error", err, "url", apiUrl.String())
 				}
 			}
+
+			asset.Bucket = kiosk.SourceDateRangeAlbum
+			asset.BucketID = dateRange
 
 			*i = asset
 

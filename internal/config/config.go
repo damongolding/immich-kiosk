@@ -430,14 +430,22 @@ func (c *Config) Load() error {
 	return nil
 }
 
+// ResetBuckets clears all the asset bucket slice fields (Person, Album, Date)
+// in the Config structure. This is typically used when applying new query parameters
+// to ensure old values don't persist. When querying specific buckets, the previous
+// values need to be cleared to avoid mixing unintended assets.
+func (c *Config) ResetBuckets() {
+	c.Person = []string{}
+	c.Album = []string{}
+	c.Date = []string{}
+}
+
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	// check for person or album in quries and empty baseconfig slice if found
 	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("memories") {
-		c.Person = []string{}
-		c.Album = []string{}
-		c.Date = []string{}
+		c.ResetBuckets()
 	}
 
 	err := e.Bind(c)

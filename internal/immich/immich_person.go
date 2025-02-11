@@ -149,7 +149,6 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 				continue
 			}
 
-
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
@@ -165,6 +164,9 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 					log.Debug("cache not found!")
 				}
 			}
+
+			asset.Bucket = kiosk.SourcePerson
+			asset.BucketID = personID
 
 			*i = asset
 

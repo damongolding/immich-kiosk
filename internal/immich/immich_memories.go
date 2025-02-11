@@ -156,9 +156,10 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 				}
 			}
 
-			*i = asset
+			asset.Bucket = kiosk.SourceMemories
+			asset.MemoryTitle = memories[pickedMemoryIndex].Title
 
-			i.MemoryTitle = memories[pickedMemoryIndex].Title
+			*i = asset
 
 			return nil
 		}

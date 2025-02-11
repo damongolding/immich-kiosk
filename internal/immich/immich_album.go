@@ -269,6 +269,9 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 			}
 
+			asset.Bucket = kiosk.SourceAlbums
+			asset.BucketID = album.ID
+
 			*i = asset
 
 			return nil

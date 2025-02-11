@@ -189,7 +189,6 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 				continue
 			}
 
-
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
@@ -206,7 +205,11 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 				}
 			}
 
+			asset.Bucket = kiosk.SourceAlbums
+			asset.BucketID = kiosk.AlbumKeywordFavourites
+
 			*i = asset
+
 			return nil
 		}
 

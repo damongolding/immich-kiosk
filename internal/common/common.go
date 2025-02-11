@@ -14,6 +14,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v4"
 )
@@ -99,7 +100,7 @@ type ViewImageData struct {
 	ImageData     string             // ImageData contains the image as base64 data
 	ImageBlurData string             // ImageBlurData contains the blurred image as base64 data
 	ImageDate     string             // ImageDate contains the date of the image
-	User          string
+	User          string             // User the user api key used
 }
 
 // ViewData contains all the data needed to render a view in the application
@@ -110,6 +111,13 @@ type ViewData struct {
 	Queries       url.Values      // Queries contains the URL query parameters
 	CustomCss     []byte          // CustomCss contains custom CSS styling as bytes
 	config.Config                 // Config contains the instance configuration
+}
+
+type ViewImageDataOptions struct {
+	RelativeAssetWanted   bool
+	RelativeAssetBucket   kiosk.Source
+	RelativeAssetBucketID string
+	ImageOrientation      immich.ImageOrientation
 }
 
 // ContextCopy stores a copy of key HTTP context information including URL and headers
