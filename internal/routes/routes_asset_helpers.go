@@ -572,11 +572,11 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 	}
 
 	switch requestConfig.Layout {
-	case "landscape", "portrait":
+	case kiosk.LayoutLandscape, kiosk.LayoutPortrait:
 		options := common.ViewImageDataOptions{
 			ImageOrientation: immich.LandscapeOrientation,
 		}
-		if requestConfig.Layout == "portrait" {
+		if requestConfig.Layout == kiosk.LayoutPortrait {
 			options.ImageOrientation = immich.PortraitOrientation
 		}
 		viewDataSingle, err := ProcessViewImageDataWithOptions(requestConfig, c, isPrefetch, options)
@@ -585,7 +585,7 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 		}
 		viewData.Assets = append(viewData.Assets, viewDataSingle)
 
-	case "splitview":
+	case kiosk.LayoutSplitview:
 		viewDataSplitView, err := ProcessViewImageData(requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
@@ -616,7 +616,7 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 			}
 		}
 
-	case "splitview-landscape":
+	case kiosk.LayoutSplitviewLandscape:
 		viewDataSplitView, err := ProcessViewImageData(requestConfig, c, isPrefetch)
 		if err != nil {
 			return viewData, err
