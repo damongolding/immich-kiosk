@@ -202,7 +202,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	// {{ showSourceName := shouldShowSourceName(viewData, assetIndex) }}
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
-	{{ isFirstAsset := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 }}
+	{{ isFirstAsset := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 || viewData.Layout == "splitview-landscape" }}
 	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People) }}
 	{{ showUser := viewData.ShowUser }}
 	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("asset--metadata--is-first", isFirstAsset) }>
