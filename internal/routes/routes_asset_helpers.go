@@ -561,10 +561,38 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 	return Render(c, http.StatusOK, imageComponent.Image(viewDataToRender))
 }
 
+// fetchSecondSplitViewAsset retrieves a second asset for split view layouts. It will attempt
+// to find a unique asset that is different from the first one to avoid duplicates.
+//
+// Parameters:
+//   - viewData: The view data object to append the second asset to
+//   - viewDataSplitView: The first asset's view data to compare against
+//   - requestConfig: Configuration for the request
+//   - c: Copy of the request context
+//   - isPrefetch: Whether this is a prefetch request
+//   - options: Options for processing the second image
+//
+// Returns:
+//   - Error if asset retrieval fails after maximum attempts
+func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView common.ViewImageData, requestConfig config.Config, c common.ContextCopy, isPrefetch bool, options common.ViewImageDataOptions) error {
+	const maxImageRetrievalAttepmts = 3
+
+	for i := 0; i < maxImageRetrievalAttepmts; i++ {
+		viewDataSplitViewSecond, err := ProcessViewImageDataWithOptions(requestConfig, c, isPrefetch, options)
+		if err != nil {
+			return err
+		}
+
+		if viewDataSplitView.ImmichAsset.ID != viewDataSplitViewSecond.ImmichAsset.ID {
+			viewData.Assets = append(viewData.Assets, viewDataSplitViewSecond)
+			return nil
+		}
+	}
+	return nil
+}
+
 // generateViewData generates page data for the current request.
 func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceID string, isPrefetch bool) (common.ViewData, error) {
-
-	const maxImageRetrievalAttepmts = 3
 
 	viewData := common.ViewData{
 		DeviceID: deviceID,
@@ -604,16 +632,8 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 		}
 
 		// Second image
-		for i := 0; i < maxImageRetrievalAttepmts; i++ {
-			viewDataSplitViewSecond, err := ProcessViewImageDataWithOptions(requestConfig, c, isPrefetch, options)
-			if err != nil {
-				return viewData, err
-			}
-
-			if viewDataSplitView.ImmichAsset.ID != viewDataSplitViewSecond.ImmichAsset.ID {
-				viewData.Assets = append(viewData.Assets, viewDataSplitViewSecond)
-				break
-			}
+		if err := fetchSecondSplitViewAsset(&viewData, viewDataSplitView, requestConfig, c, isPrefetch, options); err != nil {
+			return viewData, err
 		}
 
 	case kiosk.LayoutSplitviewLandscape:
@@ -635,16 +655,8 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 		}
 
 		// Second image
-		for i := 0; i < maxImageRetrievalAttepmts; i++ {
-			viewDataSplitViewSecond, err := ProcessViewImageDataWithOptions(requestConfig, c, isPrefetch, options)
-			if err != nil {
-				return viewData, err
-			}
-
-			if viewDataSplitView.ImmichAsset.ID != viewDataSplitViewSecond.ImmichAsset.ID {
-				viewData.Assets = append(viewData.Assets, viewDataSplitViewSecond)
-				break
-			}
+		if err := fetchSecondSplitViewAsset(&viewData, viewDataSplitView, requestConfig, c, isPrefetch, options); err != nil {
+			return viewData, err
 		}
 
 	default:
