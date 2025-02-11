@@ -203,10 +203,10 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	// {{ showSourceName := shouldShowSourceName(viewData, assetIndex) }}
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
-	{{ isFirstAsset := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 || viewData.Layout == kiosk.LayoutSplitviewLandscape }}
+	{{ rightAlignIcons := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 || viewData.Layout == kiosk.LayoutSplitviewLandscape }}
 	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People) }}
 	{{ showUser := viewData.ShowUser }}
-	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("asset--metadata--is-first", isFirstAsset) }>
+	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
 		if showUser && viewData.Assets[assetIndex].User != "" {
 			<div class="asset--metadata--has-icon">
 				<div class="asset--metadata--icon">
