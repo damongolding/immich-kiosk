@@ -50,6 +50,7 @@
   - [Community example: Raspberry Pi](#example-2)
 - [Installation](#installation)
 - [Docker Compose](#docker-compose)
+- [Android](#android)
 - [Configuration](#configuration)
   - [Changing settings via URL](#changing-settings-via-url)
   - [Albums](#albums)
@@ -334,6 +335,18 @@ It is recommended to avoid checking-in any secrets.
      ```
 
   5. Add `docker-compose.env` to `.gitignore`.
+
+------
+
+## Android
+
+Although Kiosk doesn't have its own dedicated mobile app, the ImmichFrame team has developed a native Android application that's compatible with Kiosk. The app offers two key advantages:
+
+1. Better performance through a lightweight WebView implementation (compared to running in a full browser)
+2. The ability to use Kiosk as your Android device's screensaver
+
+To get started, visit the [ImmichFrame documentation](https://github.com/immichFrame/ImmichFrame/blob/main/Install_Client.md#android).
+After installing the app, simply launch it and enter your Kiosk URL to begin using the service.
 
 ------
 
@@ -1248,7 +1261,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - [x] PWA (✔ basic implimetion)
 - [x] prev/next navigation
 - [x] Splitview
-- [ ] Splitview related images
+- [x] Splitview related images
 - [ ] Docker/immich healthcheck?
 - [x] Multi location weather
 - [x] Default weather location
