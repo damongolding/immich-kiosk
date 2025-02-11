@@ -41,7 +41,7 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 		apiUrl.RawQuery += "&count=true"
 	}
 
-	immichApiCall := immichApiCallDecorator(i.immichApiCall, requestID, deviceID, memoryLane)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, memoryLane)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(memoryLane, err, body, apiUrl.String())
@@ -156,9 +156,10 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 				}
 			}
 
-			*i = asset
+			asset.Bucket = kiosk.SourceMemories
+			asset.MemoryTitle = memories[pickedMemoryIndex].Title
 
-			i.MemoryTitle = memories[pickedMemoryIndex].Title
+			*i = asset
 
 			return nil
 		}

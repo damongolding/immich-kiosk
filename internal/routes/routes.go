@@ -38,6 +38,13 @@ type PersonOrAlbum struct {
 	ID   string
 }
 
+// requestMetadata holds information about the current request context
+type requestMetadata struct {
+	requestID string
+	deviceID  string
+	urlString string
+}
+
 func ShouldDrawFacesOnImages() bool {
 	return drawFacesOnImages == "true"
 }

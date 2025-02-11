@@ -12,6 +12,7 @@ import (
 
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 type ImageOrientation string
@@ -176,6 +177,8 @@ type ImmichAsset struct {
 	IsLandscape bool             `json:"-"`
 	MemoryTitle string           `json:"-"`
 	AppearsIn   []string         `json:"-"`
+	Bucket      kiosk.Source     `json:"-"`
+	BucketID    string           `json:"-"`
 }
 
 type ImmichAlbum struct {
