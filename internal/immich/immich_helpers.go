@@ -41,9 +41,6 @@ func withImmichApiCache[T ImmichApiResponse](immichApiCall ImmichApiCall, reques
 		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
 
 		if apiData, found := cache.Get(apiCacheKey); found {
-			if requestConfig.Kiosk.DebugVerbose {
-				log.Debug(requestID+" Cache hit", "url", apiUrl)
-			}
 			log.Debug(requestID+" Cache hit", "url", apiUrl)
 			return apiData.([]byte), nil
 		}
