@@ -30,7 +30,7 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 	return value, apiUrl, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 }
 
-// withImmichApiCache Decorator to impliment cache for the immichApiCall func
+// withImmichApiCache Decorator to implement cache for the immichApiCall func
 func withImmichApiCache[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID, deviceID string, jsonShape T) ImmichApiCall {
 	return func(method, apiUrl string, body []byte, headers ...map[string]string) ([]byte, error) {
 
