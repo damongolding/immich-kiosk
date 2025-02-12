@@ -268,6 +268,7 @@ type ImmichApiResponse interface {
 		ImmichSearchMetadataResponse |
 		[]Face |
 		[]Person |
+		[]Tag |
 		[]AssetFaceResponse |
 		immich_open_api.PersonResponseDto |
 		MemoryLaneResponse

@@ -215,6 +215,8 @@ type Config struct {
 	// AlbumOrder specifies the order in which album assets are displayed.
 	AlbumOrder     string   `json:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
 	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
+	// Tag Name of tag to display
+	Tag []string `json:"tag" mapstructure:"tag" query:"tag" form:"tag" default:"[]" lowercase:"true"`
 	// Date date filter
 	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
 	// Memories show memories
