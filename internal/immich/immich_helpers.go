@@ -175,21 +175,24 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 	return responseBody, fmt.Errorf("Request failed: max retries exceeded. last err=%v", lastErr)
 }
 
-// ratioCheck checks if the given image matches the desired ratio.
-// It first adds the ratio information to the image, then checks if the ratio
-// matches the desired ratio (Portrait or Landscape) if specified.
-// If no specific ratio is wanted, it returns true.
-func (i *ImmichAsset) ratioCheck(img *ImmichAsset) bool {
+// ratioCheck checks if an image's orientation matches a desired ratio.
+// First, it computes the image's ratio (portrait/landscape) by calling addRatio().
+// Then it checks if the image matches any desired ratio requirements:
+// - If no specific ratio is required (RatioWanted is empty), returns true
+// - If RatioWanted is "portrait", returns true only if image is portrait
+// - If RatioWanted is "landscape", returns true only if image is landscape
+// - Otherwise returns false if orientations don't match
+func (i *ImmichAsset) ratioCheck() bool {
 
-	img.addRatio()
+	i.addRatio()
 
 	// specific ratio is not wanted
 	if i.RatioWanted == "" {
 		return true
 	}
 
-	if (i.RatioWanted == PortraitOrientation && img.IsPortrait) ||
-		(i.RatioWanted == LandscapeOrientation && img.IsLandscape) {
+	if (i.RatioWanted == PortraitOrientation && i.IsPortrait) ||
+		(i.RatioWanted == LandscapeOrientation && i.IsLandscape) {
 		return true
 	}
 
@@ -484,7 +487,7 @@ func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType) bool {
 	isNotValidType := !slices.Contains(allowedTypes, i.Type)
 	isTrashed := i.IsTrashed
 	isArchived := i.IsArchived && !requestConfig.ShowArchived
-	isNotValidRatio := !i.ratioCheck(i)
+	isNotValidRatio := !i.ratioCheck()
 	isBlacklisted := slices.Contains(requestConfig.Blacklist, i.ID)
 
 	if isNotValidType || isTrashed || isArchived || isNotValidRatio || isBlacklisted {

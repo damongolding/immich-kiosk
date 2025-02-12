@@ -107,6 +107,8 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 
 		for immichAssetIndex, asset := range immichAssets {
 
+			asset.RatioWanted = i.RatioWanted
+
 			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}

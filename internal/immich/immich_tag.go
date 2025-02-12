@@ -215,11 +215,11 @@ func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID strin
 
 		for immichAssetIndex, asset := range immichAssets {
 
+			asset.RatioWanted = i.RatioWanted
+
 			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
-
-			log.Info("After check", "watnted", asset.RatioWanted, "l", asset.IsLandscape, "p", asset.IsPortrait)
 
 			err := asset.AssetInfo(requestID, deviceID)
 			if err != nil {

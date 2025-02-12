@@ -180,6 +180,8 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 
 		for immichAssetIndex, asset := range immichAssets {
 
+			asset.RatioWanted = i.RatioWanted
+
 			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}

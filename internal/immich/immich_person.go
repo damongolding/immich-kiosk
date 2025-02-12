@@ -132,6 +132,8 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 		for immichAssetIndex, asset := range immichAssets {
 
+			asset.RatioWanted = i.RatioWanted
+
 			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
