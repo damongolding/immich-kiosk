@@ -136,7 +136,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 				}
 			}
 
-			asset.Bucket = kiosk.SourceDateRangeAlbum
+			asset.Bucket = kiosk.SourceDateRange
 			asset.BucketID = dateRange
 
 			*i = asset

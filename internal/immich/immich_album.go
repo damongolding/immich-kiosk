@@ -269,7 +269,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 			}
 
-			asset.Bucket = kiosk.SourceAlbums
+			asset.Bucket = kiosk.SourceAlbum
 			asset.BucketID = album.ID
 
 			*i = asset
@@ -299,7 +299,7 @@ func (i *ImmichAsset) selectRandomAlbum(albums ImmichAlbums, excludedAlbums []st
 	albumsWithWeighting := []utils.AssetWithWeighting{}
 	for _, album := range albums {
 		albumsWithWeighting = append(albumsWithWeighting, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbums, ID: album.ID},
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbum, ID: album.ID},
 			Weight: album.AssetCount,
 		})
 	}

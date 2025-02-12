@@ -83,7 +83,7 @@ func gatherAssetBuckets(immichAsset *immich.ImmichAsset, requestConfig config.Co
 		}
 
 		assets = append(assets, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbums, ID: album},
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbum, ID: album},
 			Weight: albumAssetCount,
 		})
 	}
@@ -95,7 +95,7 @@ func gatherAssetBuckets(immichAsset *immich.ImmichAsset, requestConfig config.Co
 
 		// use FetchedAssetsSize as a weighting for date ranges
 		assets = append(assets, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRangeAlbum, ID: date},
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRange, ID: date},
 			Weight: requestConfig.Kiosk.FetchedAssetsSize,
 		})
 	}
@@ -133,7 +133,7 @@ func isSleepMode(requestConfig config.Config) bool {
 func retrieveImage(immichAsset *immich.ImmichAsset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, allowedAssetType []immich.ImmichAssetType, requestID, deviceID string, isPrefetch bool) error {
 
 	switch pickedAsset.Type {
-	case kiosk.SourceAlbums:
+	case kiosk.SourceAlbum:
 		switch pickedAsset.ID {
 		case kiosk.AlbumKeywordAll:
 			pickedAlbumID, err := immichAsset.RandomAlbumFromAllAlbums(requestID, deviceID, excludedAlbums)
@@ -160,7 +160,7 @@ func retrieveImage(immichAsset *immich.ImmichAsset, pickedAsset utils.WeightedAs
 			return immichAsset.ImageFromAlbum(pickedAsset.ID, immich.Rand, requestID, deviceID, isPrefetch)
 		}
 
-	case kiosk.SourceDateRangeAlbum:
+	case kiosk.SourceDateRange:
 		return immichAsset.RandomImageInDateRange(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourcePerson:
@@ -445,11 +445,11 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 	config.Memories = false
 
 	switch options.RelativeAssetBucket {
-	case kiosk.SourceAlbums:
+	case kiosk.SourceAlbum:
 		config.Album = append(config.Album, options.RelativeAssetBucketID)
 	case kiosk.SourcePerson:
 		config.Person = append(config.Person, options.RelativeAssetBucketID)
-	case kiosk.SourceDateRangeAlbum:
+	case kiosk.SourceDateRange:
 		config.Date = append(config.Date, options.RelativeAssetBucketID)
 	case kiosk.SourceMemories:
 		config.Memories = true

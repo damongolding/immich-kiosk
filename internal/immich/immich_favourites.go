@@ -205,7 +205,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 				}
 			}
 
-			asset.Bucket = kiosk.SourceAlbums
+			asset.Bucket = kiosk.SourceAlbum
 			asset.BucketID = kiosk.AlbumKeywordFavourites
 
 			*i = asset

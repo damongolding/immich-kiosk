@@ -440,13 +440,14 @@ func (c *Config) ResetBuckets() {
 	c.Person = []string{}
 	c.Album = []string{}
 	c.Date = []string{}
+	c.Tag = []string{}
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	// check for person or album in quries and empty baseconfig slice if found
-	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("memories") {
+	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") {
 		c.ResetBuckets()
 	}
 
