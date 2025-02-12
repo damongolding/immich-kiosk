@@ -57,6 +57,8 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 			requestBody.WithArchived = true
 		}
 
+		DateFilter(&requestBody, requestConfig.DateFilter)
+
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 
@@ -99,6 +101,8 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
+
+			log.Info("After check", "watnted", asset.RatioWanted, "l", asset.IsLandscape, "p", asset.IsPortrait)
 
 			err := asset.AssetInfo(requestID, deviceID)
 			if err != nil {

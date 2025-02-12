@@ -24,7 +24,7 @@ func (t Tags) Get(tagValue string) (Tag, error) {
 	}
 
 	for _, tag := range t {
-		if strings.EqualFold(tag.Value, tagValue) {
+		if strings.EqualFold(tag.Value, tagValue) || strings.EqualFold(tag.ID, tagValue) {
 			return tag, nil
 		}
 	}
@@ -60,49 +60,36 @@ func (i *ImmichAsset) AllTags(requestID, deviceID string) (Tags, string, error) 
 	return tags, apiUrl.String(), nil
 }
 
-func (i *ImmichAsset) tagAssets(tag Tag) {}
+func (i *ImmichAsset) AssetsWithTagCount(tagID string, requestID, deviceID string) (int, error) {
 
-func (i *ImmichAsset) AssetFromTag(tagValue string, requestID, deviceID string, isPrefetch bool) error {
+	var allAssetsCount int
+	pageCount := 1
 
-	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image from tag", tagValue)
-	} else {
-		log.Debug(requestID+" Getting Random image from tag", tagValue)
+	u, err := url.Parse(requestConfig.ImmichUrl)
+	if err != nil {
+		_, _, err = immichApiFail(allAssetsCount, err, nil, "")
+		return allAssetsCount, err
 	}
 
-	for retries := 0; retries < MaxRetries; retries++ {
+	requestBody := ImmichSearchRandomBody{
+		Type:       string(ImageType),
+		TagIDs:     []string{tagID},
+		WithPeople: false,
+		WithExif:   false,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
+	}
 
-		tags, _, err := i.AllTags(requestID, deviceID)
-		if err != nil {
-			return err
-		}
+	if requestConfig.ShowArchived {
+		requestBody.WithArchived = true
+	}
 
-		tag, err := tags.Get(tagValue)
-		if err != nil {
-			log.Error("getting tag from tags", "err", err)
-			continue
-		}
+	DateFilter(&requestBody, requestConfig.DateFilter)
 
-		var immichAssets []ImmichAsset
+	for {
 
-		u, err := url.Parse(requestConfig.ImmichUrl)
-		if err != nil {
-			return fmt.Errorf("parsing url: %w", err)
-		}
+		var taggedAssets ImmichSearchMetadataResponse
 
-		requestBody := ImmichSearchRandomBody{
-			Type: string(ImageType),
-			// TakenAfter:  dateStart.Format(time.RFC3339),
-			// TakenBefore: dateEnd.Format(time.RFC3339),
-			TagIDs:     []string{tag.ID},
-			WithExif:   true,
-			WithPeople: true,
-			Size:       requestConfig.Kiosk.FetchedAssetsSize,
-		}
-
-		if requestConfig.ShowArchived {
-			requestBody.WithArchived = true
-		}
+		requestBody.Page = pageCount
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
@@ -110,33 +97,119 @@ func (i *ImmichAsset) AssetFromTag(tagValue string, requestID, deviceID string, 
 		apiUrl := url.URL{
 			Scheme:   u.Scheme,
 			Host:     u.Host,
-			Path:     "api/search/random",
-			RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
+			Path:     "api/search/metadata",
+			RawQuery: queries.Encode(),
 		}
 
 		jsonBody, err := json.Marshal(requestBody)
 		if err != nil {
-			return fmt.Errorf("marshaling request body: %w", err)
+			_, _, err = immichApiFail(allAssetsCount, err, nil, apiUrl.String())
+			return allAssetsCount, err
 		}
 
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAssets)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, taggedAssets)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
-			return err
+			_, _, err = immichApiFail(taggedAssets, err, apiBody, apiUrl.String())
+			return allAssetsCount, err
 		}
 
-		err = json.Unmarshal(apiBody, &immichAssets)
+		err = json.Unmarshal(apiBody, &taggedAssets)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichApiFail(taggedAssets, err, apiBody, apiUrl.String())
+			return allAssetsCount, err
+		}
+
+		allAssetsCount += taggedAssets.Assets.Total
+
+		if taggedAssets.Assets.NextPage == "" {
+			break
+		}
+
+		pageCount++
+	}
+
+	return allAssetsCount, nil
+}
+
+func (i *ImmichAsset) AssetsWithTag(tagID string, requestID, deviceID string) ([]ImmichAsset, string, error) {
+
+	var immichAssets []ImmichAsset
+
+	u, err := url.Parse(requestConfig.ImmichUrl)
+	if err != nil {
+		return immichApiFail(immichAssets, err, nil, "")
+	}
+
+	requestBody := ImmichSearchRandomBody{
+		Type:       string(ImageType),
+		TagIDs:     []string{tagID},
+		WithExif:   true,
+		WithPeople: true,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
+	}
+
+	if requestConfig.ShowArchived {
+		requestBody.WithArchived = true
+	}
+
+	DateFilter(&requestBody, requestConfig.DateFilter)
+
+	// convert body to queries so url is unique and can be cached
+	queries, _ := query.Values(requestBody)
+
+	apiUrl := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     "api/search/random",
+		RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
+	}
+
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		return immichApiFail(immichAssets, err, nil, apiUrl.String())
+	}
+
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAssets)
+	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
+	if err != nil {
+		return immichApiFail(immichAssets, err, nil, apiUrl.String())
+	}
+
+	err = json.Unmarshal(apiBody, &immichAssets)
+	if err != nil {
+		return immichApiFail(immichAssets, err, nil, apiUrl.String())
+	}
+
+	return immichAssets, apiUrl.String(), nil
+}
+
+func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID string, isPrefetch bool) error {
+
+	if isPrefetch {
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image with tag", tagID)
+	} else {
+		log.Debug(requestID+" Getting Random image with tag", tagID)
+	}
+
+	for retries := 0; retries < MaxRetries; retries++ {
+
+		immichAssets, apiUrl, err := i.AssetsWithTag(tagID, requestID, deviceID)
+		if err != nil {
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, requestConfig.SelectedUser)
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 			cache.Delete(apiCacheKey)
+
+			immichAssets, _, retryErr := i.AssetsWithTag(tagID, requestID, deviceID)
+			if retryErr != nil || len(immichAssets) == 0 {
+				return fmt.Errorf("no assets found with tag %s after refresh", tagID)
+			}
+
 			continue
 		}
 
@@ -145,6 +218,8 @@ func (i *ImmichAsset) AssetFromTag(tagValue string, requestID, deviceID string, 
 			if !asset.isValidAsset(ImageOnlyAssetTypes) {
 				continue
 			}
+
+			log.Info("After check", "watnted", asset.RatioWanted, "l", asset.IsLandscape, "p", asset.IsPortrait)
 
 			err := asset.AssetInfo(requestID, deviceID)
 			if err != nil {
@@ -167,12 +242,12 @@ func (i *ImmichAsset) AssetFromTag(tagValue string, requestID, deviceID string, 
 				// replace cache with used image(s) removed
 				err = cache.Replace(apiCacheKey, jsonBytes)
 				if err != nil {
-					log.Debug("Failed to update cache", "error", err, "url", apiUrl.String())
+					log.Debug("Failed to update device cache for tag", "tagID", tagID, "deviceID", deviceID)
 				}
 			}
 
 			asset.Bucket = kiosk.SourceTag
-			asset.BucketID = tag.ID
+			asset.BucketID = tagID
 
 			*i = asset
 
@@ -183,6 +258,5 @@ func (i *ImmichAsset) AssetFromTag(tagValue string, requestID, deviceID string, 
 		cache.Delete(apiCacheKey)
 	}
 
-	return fmt.Errorf("No images found for '%s'. Max retries reached.", tagValue)
-
+	return fmt.Errorf("No images found for '%s'. Max retries reached.", tagID)
 }

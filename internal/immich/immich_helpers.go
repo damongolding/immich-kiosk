@@ -484,10 +484,10 @@ func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType) bool {
 	isNotValidType := !slices.Contains(allowedTypes, i.Type)
 	isTrashed := i.IsTrashed
 	isArchived := i.IsArchived && !requestConfig.ShowArchived
-	isInvalidRatio := !i.ratioCheck(i)
+	isNotValidRatio := !i.ratioCheck(i)
 	isBlacklisted := slices.Contains(requestConfig.Blacklist, i.ID)
 
-	if isNotValidType || isTrashed || isArchived || isInvalidRatio || isBlacklisted {
+	if isNotValidType || isTrashed || isArchived || isNotValidRatio || isBlacklisted {
 		return false
 	}
 

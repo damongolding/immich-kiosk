@@ -36,6 +36,8 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 		requestBody.WithArchived = true
 	}
 
+	DateFilter(&requestBody, requestConfig.DateFilter)
+
 	for {
 
 		var favourites ImmichSearchMetadataResponse
@@ -137,6 +139,8 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 		if requestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
+
+		DateFilter(&requestBody, requestConfig.DateFilter)
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)

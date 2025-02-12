@@ -88,6 +88,46 @@ func gatherAssetBuckets(immichAsset *immich.ImmichAsset, requestConfig config.Co
 		})
 	}
 
+	for _, tag := range requestConfig.Tag {
+		if tag == "" || strings.EqualFold(tag, "none") {
+			continue
+		}
+
+		tags, _, err := immichAsset.AllTags(requestID, deviceID)
+		if err != nil {
+			log.Error("getting tags", "err", err)
+			continue
+		}
+
+		tagData, err := tags.Get(tag)
+		if err != nil {
+			log.Error("getting tag from tags", "tag", tag, "err", err)
+			continue
+		}
+
+		taggedAssetsCount, err := immichAsset.AssetsWithTagCount(tagData.ID, requestID, deviceID)
+		if err != nil {
+			if requestConfig.SelectedUser != "" {
+				return nil, fmt.Errorf("user '<b>%s</b>' has no assets with tag '%s'. error='%w'", requestConfig.SelectedUser, tagData.Value, err)
+			}
+			return nil, fmt.Errorf("getting tagged asset count: %w", err)
+		}
+
+		if taggedAssetsCount == 0 {
+			log.Error("No assets found with", "tag", tagData.Value)
+			continue
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("getting tagged asset count: %w", err)
+		}
+
+		assets = append(assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceTag, ID: tagData.ID},
+			Weight: taggedAssetsCount,
+		})
+	}
+
 	for _, date := range requestConfig.Date {
 		if date == "" || strings.EqualFold(date, "none") {
 			continue
@@ -168,6 +208,9 @@ func retrieveImage(immichAsset *immich.ImmichAsset, pickedAsset utils.WeightedAs
 
 	case kiosk.SourceMemories:
 		return immichAsset.RandomMemoryLaneImage(requestID, deviceID, isPrefetch)
+
+	case kiosk.SourceTag:
+		return immichAsset.RandomAssetWithTag(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	default:
 		return immichAsset.RandomImage(requestID, deviceID, isPrefetch)
@@ -451,6 +494,8 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 		config.Person = append(config.Person, options.RelativeAssetBucketID)
 	case kiosk.SourceDateRange:
 		config.Date = append(config.Date, options.RelativeAssetBucketID)
+	case kiosk.SourceTag:
+		config.Tag = append(config.Tag, options.RelativeAssetBucketID)
 	case kiosk.SourceMemories:
 		config.Memories = true
 	}
