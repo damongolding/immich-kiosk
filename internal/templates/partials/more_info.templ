@@ -116,13 +116,13 @@ templ originalAssetData(img immich.ImmichAsset) {
 //   - imageIndex: The index of the current image in the view data
 //   - hideCountries: List of country names to hide from location display
 templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCountries []string) {
-	{{ 	imageDatetime := AssetDateTime(viewData, imageIndex) }}
+	{{ imageDatetime := AssetDateTime(viewData, imageIndex, true) }}
 	{{ location := AssetLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo, hideCountries) }}
 	<div>
 		<div>
 			<h3>
 				if imageDatetime != "" {
-					{ AssetDateTime(viewData, imageIndex) }
+					{ imageDatetime }
 				} else {
 					Unknown date and time
 				}

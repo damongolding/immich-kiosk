@@ -131,7 +131,7 @@ func AssetExif(info immich.ExifInfo) string {
 //
 // Returns:
 //   - string: Formatted date/time string based on settings
-func AssetDateTime(viewData common.ViewData, assetIndex int) string {
+func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) string {
 
 	if assetIndex < 0 || assetIndex >= len(viewData.Assets) {
 		return ""
@@ -154,7 +154,7 @@ func AssetDateTime(viewData common.ViewData, assetIndex int) string {
 
 	localDateTime := viewData.Assets[assetIndex].ImmichAsset.LocalDateTime
 	switch {
-	case viewData.ShowImageDate && viewData.ShowImageTime:
+	case moreInfo || (viewData.ShowImageDate && viewData.ShowImageTime):
 		assetDate = fmt.Sprintf(
 			"%s %s",
 			monday.Format(localDateTime, assetDateFormat, viewData.SystemLang),
@@ -288,7 +288,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 					</svg>
 				</div>
 				<div>
-					{ AssetDateTime(viewData, assetIndex) }
+					{ AssetDateTime(viewData, assetIndex, false) }
 				</div>
 			</div>
 		}

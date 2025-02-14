@@ -566,7 +566,8 @@ The oldest assets are displayed first.
 > [!WARNING]
 > This feature is experimental and currently only supports album videos with certain limitations:
 > - Videos will autoplay with audio muted
-> - `prefetch` setting must be enabled
+> - the `experimental_album_video` [configuration](#configuration) setting must be enabled
+> - the `prefetch` [configuration](#configuration) setting must be enabled
 > - Browser codec support may vary
 
 ### Video Optimization Recommendations
