@@ -5,8 +5,21 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/weather"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"strconv"
 	"strings"
 )
+
+// formatTemp formats a temperature value based on the measurement system
+// It returns a string representation of the temperature with appropriate precision
+func formatTemp(temp float64, measurement string) string {
+	if strings.EqualFold(measurement, "metric") {
+		// Format metric temperatures with one decimal place, removing trailing zeros
+		s := fmt.Sprintf("%.1f", temp)
+		return strings.TrimRight(strings.TrimRight(s, "0"), ".")
+	}
+	// For imperial, return rounded integer temperature
+	return strconv.Itoa(int(temp))
+}
 
 templ WeatherLocation(weatherData weather.WeatherLocation) {
 	<div class="weather">
@@ -15,7 +28,7 @@ templ WeatherLocation(weatherData weather.WeatherLocation) {
 		</div>
 		<div class="weather--temp">
 			<div class="weather--temp--value">
-				{ fmt.Sprintf("%s", strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.1f", weatherData.Main.Temp), "0"), ".")) }
+				{ formatTemp(weatherData.Main.Temp, weatherData.Unit) }
 				<div class="weather--temp--unit">°</div>
 			</div>
 		</div>

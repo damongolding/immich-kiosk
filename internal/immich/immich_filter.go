@@ -11,7 +11,7 @@ import (
 // within the determined date range. If no date filter is configured, it returns without
 // modifying the request body.
 func DateFilter(requestBody *ImmichSearchRandomBody, dateFilter string) {
-	if requestConfig.DateFilter == "" {
+	if dateFilter == "" {
 		return
 	}
 

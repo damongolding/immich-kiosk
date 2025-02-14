@@ -182,17 +182,17 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 // - If RatioWanted is "portrait", returns true only if image is portrait
 // - If RatioWanted is "landscape", returns true only if image is landscape
 // - Otherwise returns false if orientations don't match
-func (i *ImmichAsset) ratioCheck() bool {
+func (i *ImmichAsset) ratioCheck(wantedRatio ImageOrientation) bool {
 
 	i.addRatio()
 
 	// specific ratio is not wanted
-	if i.RatioWanted == "" {
+	if wantedRatio == "" {
 		return true
 	}
 
-	if (i.RatioWanted == PortraitOrientation && i.IsPortrait) ||
-		(i.RatioWanted == LandscapeOrientation && i.IsLandscape) {
+	if (wantedRatio == PortraitOrientation && i.IsPortrait) ||
+		(wantedRatio == LandscapeOrientation && i.IsLandscape) {
 		return true
 	}
 
@@ -483,11 +483,11 @@ func (i *ImmichAsset) containsTag(tagName string) bool {
 // - The asset must match any configured ratio requirements
 // - The asset must not be in the configured blacklist
 // Returns true if the asset meets all criteria, false otherwise.
-func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType) bool {
+func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType, watedRatio ImageOrientation) bool {
 	isNotValidType := !slices.Contains(allowedTypes, i.Type)
 	isTrashed := i.IsTrashed
 	isArchived := i.IsArchived && !requestConfig.ShowArchived
-	isNotValidRatio := !i.ratioCheck()
+	isNotValidRatio := !i.ratioCheck(watedRatio)
 	isBlacklisted := slices.Contains(requestConfig.Blacklist, i.ID)
 
 	if isNotValidType || isTrashed || isArchived || isNotValidRatio || isBlacklisted {

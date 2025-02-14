@@ -137,9 +137,7 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
-			asset.RatioWanted = i.RatioWanted
-
-			if !asset.isValidAsset(ImageOnlyAssetTypes) {
+			if !asset.isValidAsset(ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
 			}
 

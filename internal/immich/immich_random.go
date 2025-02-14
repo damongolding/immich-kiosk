@@ -98,9 +98,7 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 
 		for immichAssetIndex, asset := range immichAssets {
 
-			asset.RatioWanted = i.RatioWanted
-
-			if !asset.isValidAsset(ImageOnlyAssetTypes) {
+			if !asset.isValidAsset(ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
 			}
 

@@ -238,9 +238,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 		for assetIndex, asset := range album.Assets {
 
-			asset.RatioWanted = i.RatioWanted
-
-			if !asset.isValidAsset(allowedTypes) {
+			if !asset.isValidAsset(allowedTypes, i.RatioWanted) {
 				continue
 			}
 
