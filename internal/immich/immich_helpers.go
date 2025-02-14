@@ -483,11 +483,11 @@ func (i *ImmichAsset) containsTag(tagName string) bool {
 // - The asset must match any configured ratio requirements
 // - The asset must not be in the configured blacklist
 // Returns true if the asset meets all criteria, false otherwise.
-func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType, watedRatio ImageOrientation) bool {
+func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType, wantedRatio ImageOrientation) bool {
 	isNotValidType := !slices.Contains(allowedTypes, i.Type)
 	isTrashed := i.IsTrashed
 	isArchived := i.IsArchived && !requestConfig.ShowArchived
-	isNotValidRatio := !i.ratioCheck(watedRatio)
+	isNotValidRatio := !i.ratioCheck(wantedRatio)
 	isBlacklisted := slices.Contains(requestConfig.Blacklist, i.ID)
 
 	if isNotValidType || isTrashed || isArchived || isNotValidRatio || isBlacklisted {

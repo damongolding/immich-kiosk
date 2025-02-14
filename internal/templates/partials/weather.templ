@@ -12,13 +12,20 @@ import (
 // formatTemp formats a temperature value based on the measurement system
 // It returns a string representation of the temperature with appropriate precision
 func formatTemp(temp float64, measurement string) string {
-	if strings.EqualFold(measurement, "metric") {
+
+	switch strings.ToLower(measurement) {
+	case weather.MetricSystem:
 		// Format metric temperatures with one decimal place, removing trailing zeros
 		s := fmt.Sprintf("%.1f", temp)
 		return strings.TrimRight(strings.TrimRight(s, "0"), ".")
+	case weather.ImperialSystem:
+		// For imperial, return rounded integer temperature
+		return strconv.Itoa(int(temp))
+	default:
+		// Default to metric if measurement system is invalid
+		s := fmt.Sprintf("%.1f", temp)
+		return strings.TrimRight(strings.TrimRight(s, "0"), ".")
 	}
-	// For imperial, return rounded integer temperature
-	return strconv.Itoa(int(temp))
 }
 
 templ WeatherLocation(weatherData weather.WeatherLocation) {
