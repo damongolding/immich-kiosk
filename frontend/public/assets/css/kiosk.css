@@ -624,6 +624,9 @@ form {
         color: #fff;
         text-decoration: none;
       }
+.polling-paused.more-info #more-info .more-info--image .more-info--image--maps-link .responsive-break {
+          display: none;
+        }
 .polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code {
         display: -moz-box;
         display: flex;
@@ -653,6 +656,18 @@ form {
   flex-wrap: wrap;
   padding-top: 1rem;
 }
+.more-info--tag-wrapper {
+  display: -moz-box;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.more-info--tag span {
+    padding: 0.5rem 1rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 100rem;
+    font-size: 0.8rem;
+  }
 .more-info--webhook,
 .more-info--image-link {
   font-family:
