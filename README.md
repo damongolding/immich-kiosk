@@ -490,7 +490,7 @@ https://{URL}?user=john
 ## Albums
 
 ### Getting an albums ID from Immich
-1. Open Immich's web interface and click on "Albums" in the left hand navigation.
+1. Open Immich's web interface and click on "Albums" in the left-hand navigation.
 2. Click on the album you want the ID of.
 3. The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
 4. The album ID is everything after `albums/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
@@ -651,7 +651,7 @@ This feature allows you to prevent specific albums from being displayed in the s
 > Excluded albums take precedence over album selection methods. If an album is in both the selected albums and excluded albums lists, it will be excluded.
 
 ### Getting an albums ID from Immich
-1. Open Immich's web interface and click on "Albums" in the left hand navigation.
+1. Open Immich's web interface and click on "Albums" in the left-hand navigation.
 2. Click on the album you want the ID of.
 3. The url will now look something like this `http://192.168.86.123:2283/albums/a04175f4-97bb-4d97-8d49-3700263043e5`.
 4. The album ID is everything after `albums/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
@@ -690,7 +690,7 @@ http://{URL}?exclude_album=ALBUM_ID&exclude_album=ALBUM_ID&exclude_album=ALBUM_I
 ### People
 
 ### Getting a person's ID from Immich
-1. Open Immich's web interface and click on "Explore" in the left hand navigation.
+1. Open Immich's web interface and click on "Explore" in the left-hand navigation.
 2. Click on the person you want the ID of (you may have to click "view all" if you don't see them).
 3. The url will now look something like this `http://192.168.86.123:2283/people/a04175f4-97bb-4d97-8d49-3700263043e5`.
 4. The persons ID is everything after `people/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
@@ -774,10 +774,10 @@ http://{URL}?date=DATE_RANGE&date=DATE_RANGE&date=DATE_RANGE
 
 -----
 
-# Tags
+## Tags
 
 ### Getting an tag value from Immich
-1. Open Immich's web interface and click on "Tags" in the left hand navigation.
+1. Open Immich's web interface and click on "Tags" in the left-hand navigation.
 2. Click on the tag you want the value of.
 3. The url will now look something like this `http://192.168.86.123:2283/tags?path=cake`.
 4. The tag value is everything after `path=`, so in this example it would be `cake`.
