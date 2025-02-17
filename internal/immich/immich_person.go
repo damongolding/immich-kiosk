@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -56,7 +55,6 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (in
 //   - personID: The ID of the person whose images to search for
 //   - requestID: The ID of the API request for tracking purposes
 //   - deviceID: The ID of the device making the request
-//   - isPrefetch: Whether this is a prefetch request that runs ahead of actual usage
 //
 // Returns:
 //   - error: nil if successful, error otherwise. Returns specific error if no suitable
@@ -64,6 +62,12 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (in
 //
 // The function mutates the receiver (i *ImmichAsset) to store the selected image if successful.
 func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
+
+	if isPrefetch {
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image of", personID)
+	} else {
+		log.Debug(requestID+" Getting Random image of", personID)
+	}
 
 	for retries := 0; retries < MaxRetries; retries++ {
 
@@ -87,15 +91,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 			requestBody.WithArchived = true
 		}
 
-		if requestConfig.DateFilter != "" {
-			dateStart, dateEnd, err := determineDateRange(requestConfig.DateFilter)
-			if err != nil {
-				log.Error("malformed filter", "err", err)
-			} else {
-				requestBody.TakenAfter = dateStart.Format(time.RFC3339)
-				requestBody.TakenBefore = dateEnd.Format(time.RFC3339)
-			}
-		}
+		DateFilter(&requestBody, requestConfig.DateFilter)
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
@@ -136,7 +132,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 		for immichAssetIndex, asset := range immichAssets {
 
-			if !asset.isValidAsset(ImageOnlyAssetTypes) {
+			if !asset.isValidAsset(ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
 			}
 

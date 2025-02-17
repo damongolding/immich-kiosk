@@ -215,6 +215,8 @@ type Config struct {
 	// AlbumOrder specifies the order in which album assets are displayed.
 	AlbumOrder     string   `json:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
 	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
+	// Tag Name of tag to display
+	Tag []string `json:"tag" mapstructure:"tag" query:"tag" form:"tag" default:"[]" lowercase:"true"`
 	// Date date filter
 	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
 	// Memories show memories
@@ -438,13 +440,14 @@ func (c *Config) ResetBuckets() {
 	c.Person = []string{}
 	c.Album = []string{}
 	c.Date = []string{}
+	c.Tag = []string{}
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	// check for person or album in quries and empty baseconfig slice if found
-	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("memories") {
+	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") {
 		c.ResetBuckets()
 	}
 

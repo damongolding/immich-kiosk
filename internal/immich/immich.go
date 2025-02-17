@@ -211,6 +211,7 @@ type ImmichSearchRandomBody struct {
 	PersonIds     []string `url:"personIds,omitempty" json:"personIds,omitempty"`
 	Size          int      `url:"size,omitempty" json:"size,omitempty"`
 	State         string   `url:"state,omitempty" json:"state,omitempty"`
+	TagIDs        []string `url:"tagIds,omitempty" json:"tagIds,omitempty"`
 	TakenAfter    string   `url:"takenAfter,omitempty" json:"takenAfter,omitempty"`
 	TakenBefore   string   `url:"takenBefore,omitempty" json:"takenBefore,omitempty"`
 	TrashedAfter  string   `url:"trashedAfter,omitempty" json:"trashedAfter,omitempty"`
@@ -268,6 +269,7 @@ type ImmichApiResponse interface {
 		ImmichSearchMetadataResponse |
 		[]Face |
 		[]Person |
+		[]Tag |
 		[]AssetFaceResponse |
 		immich_open_api.PersonResponseDto |
 		MemoryLaneResponse

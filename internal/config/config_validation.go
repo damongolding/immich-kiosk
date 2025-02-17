@@ -105,6 +105,8 @@ func (c *Config) checkAssetBuckets() {
 
 	c.Person = c.cleanupSlice(c.Person, "PERSON_ID")
 
+	c.Tag = c.cleanupSlice(c.Tag, "TAG_VALUE")
+
 	c.Date = c.cleanupSlice(c.cleanupSlice(c.Date, "DATE_RANGE"), "YYYY-MM-DD_to_YYYY-MM-DD")
 }
 
