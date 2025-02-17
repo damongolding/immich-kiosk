@@ -559,6 +559,22 @@ The newest assets are displayed first.
 ### `oldest`, `ascending` or `asc`
 The oldest assets are displayed first.
 
+1. via config.yaml file
+```yaml
+album_order: random
+```
+
+2. via ENV in your docker-compose file
+```yaml
+environment:
+  KIOSK_ALBUM_ORDER: random
+```
+
+3. via url quires:
+```url
+http://{URL}?album_order=random
+```
+
 ------
 
 ## Experimental Album Video Support
@@ -599,6 +615,22 @@ Admin Panel -> System Settings -> Video Transcoding
    - Playback doesn't start within 5 seconds
    - Video playback completes
    - Any playback errors are detected
+
+1. via config.yaml file
+```yaml
+experimental_album_video: true
+```
+
+2. via ENV in your docker-compose file
+```yaml
+environment:
+  KIOSK_EXPERIMENTAL_ALBUM_VIDEO: true
+```
+
+3. via url quires:
+```url
+http://{URL}?experimental_album_video=true
+```
 
 ### Troubleshooting Tips
 - Ensure your videos are transcoded to H264 format.
