@@ -16,6 +16,25 @@ import (
 	"golang.org/x/text/language"
 )
 
+// localeStr stores the current locale language tag used for date formatting
+var localeStr language.Tag
+
+// init sets the default locale to English on package initialization
+func init() {
+	localeStr = language.English
+}
+
+// updateLocale updates the active locale to the provided language code.
+// If an empty string is provided, the locale remains unchanged.
+//
+// Parameters:
+//   - lang: Language code string (e.g. "en", "fr", "de")
+func updateLocale(lang string) {
+	if lang != "" {
+		localeStr = language.Make(lang)
+	}
+}
+
 // AssetLocation generates a formatted string containing location metadata for an asset.
 // The location is built from city, state and country information stored in EXIF data.
 // Countries can be optionally hidden via the hideCountries list.
@@ -152,6 +171,10 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 		assetDateFormat = config.DefaultDateLayout
 	}
 
+	if string(viewData.SystemLang) != "" {
+		updateLocale(string(viewData.SystemLang))
+	}
+
 	localDateTime := viewData.Assets[assetIndex].ImmichAsset.LocalDateTime
 	switch {
 	case moreInfo || (viewData.ShowImageDate && viewData.ShowImageTime):
@@ -166,7 +189,7 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 		assetDate = localDateTime.Format(assetTimeFormat)
 	}
 
-	return assetDate
+	return cases.Title(localeStr).String(assetDate)
 }
 
 // peopleNames extracts and joins the names of people tagged in an asset.

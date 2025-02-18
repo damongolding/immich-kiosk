@@ -844,6 +844,7 @@ form {
   position: relative;
   font-size: 1.5rem;
   z-index: 1;
+  text-transform: capitalize;
 }
 .clock--time {
   position: relative;
