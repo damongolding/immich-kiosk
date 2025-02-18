@@ -152,6 +152,12 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 		assetDateFormat = config.DefaultDateLayout
 	}
 
+	localeStr := language.English
+
+	if string(viewData.SystemLang) != "" {
+		localeStr = language.Make(string(viewData.SystemLang))
+	}
+
 	localDateTime := viewData.Assets[assetIndex].ImmichAsset.LocalDateTime
 	switch {
 	case moreInfo || (viewData.ShowImageDate && viewData.ShowImageTime):
@@ -166,7 +172,7 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 		assetDate = localDateTime.Format(assetTimeFormat)
 	}
 
-	return assetDate
+	return cases.Title(localeStr).String(assetDate)
 }
 
 // peopleNames extracts and joins the names of people tagged in an asset.
