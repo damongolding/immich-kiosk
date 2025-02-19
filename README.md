@@ -102,7 +102,7 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 **Image shot by [Toa Heftiba](https://unsplash.com/@heftiba)** using `layout=portrait` (portrait images only layout)
 
 ![Kiosk splitview layout](/assets/layout-splitview.jpg)
-**Images shot by [Toa Heftiba](https://unsplash.com/@heftiba)(left) and [Kerstin Wrba](https://unsplash.com/@kerstinwrba)(right)** using `layout=splitview`
+**Images shot by [Toa Heftiba](https://unsplash.com/@heftiba) (left) and [Kerstin Wrba](https://unsplash.com/@kerstinwrba) (right)** using `layout=splitview`
 
 ## Example 1
 You have a two Raspberry Pi's. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
