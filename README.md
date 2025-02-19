@@ -811,7 +811,7 @@ tag:
 2. via ENV in your docker-compose file use a `,` to separate IDs
 ```yaml
 environment:
-  KIOSK_ALBUM: "TAG_VALUE,TAG_VALUE,TAG_VALUE"
+  KIOSK_TAG: "TAG_VALUE,TAG_VALUE,TAG_VALUE"
 ```
 
 3. via url queries:
