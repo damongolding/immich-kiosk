@@ -101,7 +101,7 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 ![Kiosk portrait layout](/assets/portrait.jpeg)
 **Image shot by [Toa Heftiba](https://unsplash.com/@heftiba)** using `layout=portrait` (portrait images only layout)
 
-![Kiosk splitview layout](/assets/layout-splitview.jpeg)
+![Kiosk splitview layout](/assets/layout-splitview.jpg)
 **Images shot by [Toa Heftiba](https://unsplash.com/@heftiba)(left) and [Kerstin Wrba](https://unsplash.com/@kerstinwrba)(right)** using `layout=splitview`
 
 ## Example 1
