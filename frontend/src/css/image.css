@@ -100,6 +100,10 @@
     }
 }
 
+.asset--metadata--datetime {
+    text-transform: capitalize;
+}
+
 .asset--metadata--exif--fnumber {
     display: inline-block;
     font-size: 0.84rem;
@@ -180,6 +184,9 @@
 
     .asset--metadata--description {
         max-width: 100%;
+        span {
+            display: block;
+        }
     }
 
     .asset--metadata--location {

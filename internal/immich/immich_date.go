@@ -107,7 +107,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 
 		for immichAssetIndex, asset := range immichAssets {
 
-			if !asset.isValidAsset(ImageOnlyAssetTypes) {
+			if !asset.isValidAsset(ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
 			}
 
@@ -136,7 +136,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 				}
 			}
 
-			asset.Bucket = kiosk.SourceDateRangeAlbum
+			asset.Bucket = kiosk.SourceDateRange
 			asset.BucketID = dateRange
 
 			*i = asset

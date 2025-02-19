@@ -58,6 +58,10 @@
             .more-info--image--maps-link {
                 color: #fff;
                 text-decoration: none;
+
+                .responsive-break {
+                    display: none;
+                }
             }
 
             .more-info--image--qr-code {
@@ -88,6 +92,21 @@
     gap: 1rem;
     flex-wrap: wrap;
     padding-top: 1rem;
+}
+
+.more-info--tag-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.more-info--tag {
+    span {
+        padding: 0.5rem 1rem;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 100rem;
+        font-size: 0.8rem;
+    }
 }
 
 .more-info--webhook,

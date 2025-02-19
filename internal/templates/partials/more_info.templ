@@ -29,6 +29,7 @@ templ RenderMoreInfo(viewData common.ViewData) {
 					@cameraData(img.ImmichAsset.ExifInfo)
 					@originalAssetData(img.ImmichAsset)
 					@people(img.ImmichAsset.People)
+					@tags(img.ImmichAsset.Tags)
 					<div class="more-info--button-group">
 						if viewData.ShowMoreInfoImageLink {
 							<a class="more-info--image-link" href={ templ.SafeURL(immichAssetUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichAsset.ID)) } target="_blank">
@@ -95,8 +96,16 @@ templ originalAssetData(img immich.ImmichAsset) {
 				{ img.OriginalFileName }
 			</h3>
 		</div>
-		<div>
-			{ fmt.Sprint(img.ExifInfo.ExifImageWidth) } x { fmt.Sprint(img.ExifInfo.ExifImageHeight) } <span class="asset--metadata--exif--seperator">&#124;</span> { humanize.Bytes(uint64(img.ExifInfo.FileSizeInByte)) }
+		<div class="asset--metadata--has-icon">
+			<div class="asset--metadata--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+					<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+					<path d="M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6l96 0 32 0 208 0c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"></path>
+				</svg>
+			</div>
+			<div>
+				{ fmt.Sprint(img.ExifInfo.ExifImageWidth) } x { fmt.Sprint(img.ExifInfo.ExifImageHeight) } <span class="asset--metadata--exif--seperator">&#124;</span> { humanize.Bytes(uint64(img.ExifInfo.FileSizeInByte)) }
+			</div>
 		</div>
 	</div>
 }
@@ -139,10 +148,11 @@ templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCo
 
 // people generates a component displaying names of people detected in an image
 // Parameters:
-//   - people: Slice of Person objects containing detected individuals
+//   - people: Slice of Person objects containing detected individuals from image analysis
 //
 // Returns:
-//   - A templ.Component for rendering the people list
+//   - A templ.Component that renders an HTML section listing detected people's names,
+//     or a NopComponent if no valid names are found
 func people(people []immich.Person) templ.Component {
 	if len(people) == 0 {
 		return templ.NopComponent
@@ -161,11 +171,45 @@ func people(people []immich.Person) templ.Component {
 
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
 		return templ.Raw(`
+		<div>
+			<div>
+				<h3>People</h3>
+			</div>
+			<div>`+AssetPeople(strings.Join(names, ", "))+`</div>
+		</div>`).Render(ctx, w)
+	})
+}
+
+// tags generates a component for displaying image tags
+// Parameters:
+//   - tags: Slice of Tag objects containing metadata tags for the image
+//
+// Returns:
+//   - A templ.Component that renders an HTML section listing tags,
+//     or a NopComponent if no valid tags are found
+func tags(tags immich.Tags) templ.Component {
+	if len(tags) == 0 {
+		return templ.NopComponent
+	}
+
+	tagNames := []string{}
+	for _, tag := range tags {
+		if tag.Value != "" {
+			tagNames = append(tagNames, fmt.Sprintf("<span>%s</span>", templ.EscapeString(tag.Value)))
+		}
+	}
+
+	if len(tagNames) == 0 {
+		return templ.NopComponent
+	}
+
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+		return templ.Raw(`
 			<div>
 				<div>
-					<h3>People</h3>
+					<h3>Tags</h3>
 				</div>
-				<div>`+strings.Join(names, ", ")+`</div>
+				<div class="more-info--tag">`+AssetTags(strings.Join(tagNames, ""))+`</div>
 			</div>
 		`).Render(ctx, w)
 	})
