@@ -14,6 +14,11 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 )
 
+const (
+	MetricSystem   = "metric"
+	ImperialSystem = "imperial"
+)
+
 var (
 	weatherDataStore  sync.Map
 	defaultLocationMu sync.RWMutex

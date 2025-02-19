@@ -1,48 +1,40 @@
 /* --- weather --- */
-#weather {
+.weather {
     position: relative;
     color: #fff;
     text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
-    padding: 1rem 1.5rem 1rem 1rem;
+    padding: 1rem 1rem 1rem 1.5rem;
+    text-align: right;
+
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+
+    font-size: 1rem;
 
     z-index: var(--z-clock);
 }
 
-.layout-splitview #weather {
-    padding: 1rem 1rem 1rem 1.5rem;
-}
-
 @media screen and (max-width: 31.25rem) {
-    #weather {
+    .weather {
         padding: 0.5rem 1rem 0.5rem 0.5rem;
-    }
-
-    .layout-splitview #weather {
-        padding: 0.5rem 0.5rem 0.5rem 1rem;
     }
 }
 
 .weather--theme-fade::before {
     content: "";
     position: absolute;
-    bottom: 0;
-    left: 0;
+    top: 0;
+    left: unset;
+    right: 0;
+    bottom: unset;
     width: 150%;
     height: 200%;
     background-image: radial-gradient(
-        100% 100% at 0% 100%,
+        100% 100% at 100% 0%,
         var(--fade-gradient)
     );
     z-index: var(--z-base);
-}
-
-.weather {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    font-size: 1rem;
-
-    z-index: 1;
 }
 
 .weather--temp {
@@ -83,37 +75,10 @@
     z-index: 1;
 }
 
-/* Splitview */
-.layout-splitview {
-    #weather,
-    .weather {
-        text-align: right;
-        align-items: flex-end;
-    }
-    .weather--theme-fade::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: unset;
-        right: 0;
-        bottom: unset;
-        width: 150%;
-        height: 200%;
-        background-image: radial-gradient(
-            100% 100% at 100% 0%,
-            var(--fade-gradient)
-        );
-        z-index: var(--z-base);
-    }
-    .weather--theme-solid {
-        border-radius: 0 0 0 2rem;
-    }
-}
-
 /* solid theme */
 .weather--theme-solid {
     background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 0 2rem 0 0;
+    border-radius: 0 0 0 2rem;
     align-self: start;
 }
 
