@@ -131,7 +131,7 @@ func AssetExif(info immich.ExifInfo) string {
 //
 // Returns:
 //   - string: Formatted date/time string based on settings
-func AssetDateTime(viewData common.ViewData, assetIndex int) string {
+func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) string {
 
 	if assetIndex < 0 || assetIndex >= len(viewData.Assets) {
 		return ""
@@ -154,7 +154,7 @@ func AssetDateTime(viewData common.ViewData, assetIndex int) string {
 
 	localDateTime := viewData.Assets[assetIndex].ImmichAsset.LocalDateTime
 	switch {
-	case viewData.ShowImageDate && viewData.ShowImageTime:
+	case moreInfo || (viewData.ShowImageDate && viewData.ShowImageTime):
 		assetDate = fmt.Sprintf(
 			"%s %s",
 			monday.Format(localDateTime, assetDateFormat, viewData.SystemLang),
@@ -166,7 +166,7 @@ func AssetDateTime(viewData common.ViewData, assetIndex int) string {
 		assetDate = localDateTime.Format(assetTimeFormat)
 	}
 
-	return assetDate
+	return strings.ToLower(assetDate)
 }
 
 // peopleNames extracts and joins the names of people tagged in an asset.
@@ -187,6 +187,36 @@ func peopleNames(people []immich.Person) string {
 		}
 	}
 	return strings.Join(p, ", ")
+}
+
+func AssetPeople(peopleNames string) string {
+	return fmt.Sprintf(`
+		<div class="asset--metadata--has-icon">
+			<div class="asset--metadata--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+					<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+					<path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"></path>
+				</svg>
+			</div>
+			<div>
+				%s
+			</div>
+		</div>`, peopleNames)
+}
+
+func AssetTags(tags string) string {
+	return fmt.Sprintf(`
+		<div class="asset--metadata--has-icon">
+			<div class="asset--metadata--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+					<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+					<path d="M0 80L0 229.5c0 17 6.7 33.3 18.7 45.3l176 176c25 25 65.5 25 90.5 0L418.7 317.3c25-25 25-65.5 0-90.5l-176-176c-12-12-28.3-18.7-45.3-18.7L48 32C21.5 32 0 53.5 0 80zm112 32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/>
+				</svg>
+			</div>
+			<div class="more-info--tag-wrapper">
+				%s
+			</div>
+		</div>`, tags)
 }
 
 // AssetMetadata renders metadata for an asset as an HTML component.
@@ -234,17 +264,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 			</div>
 		}
 		if viewData.ShowPersonName && names != "" {
-			<div class="asset--metadata--has-icon">
-				<div class="asset--metadata--icon">
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-						<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
-						<path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"></path>
-					</svg>
-				</div>
-				<div>
-					{ names }
-				</div>
-			</div>
+			@templ.Raw(AssetPeople(names))
 		}
 		if viewData.ShowAlbumName && len(viewData.Assets[assetIndex].ImmichAsset.AppearsIn) != 0 {
 			<div class="asset--metadata--has-icon">
@@ -267,8 +287,8 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 						<path d="M96 32l0 32L48 64C21.5 64 0 85.5 0 112l0 48 448 0 0-48c0-26.5-21.5-48-48-48l-48 0 0-32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 32L160 64l0-32c0-17.7-14.3-32-32-32S96 14.3 96 32zM448 192L0 192 0 464c0 26.5 21.5 48 48 48l352 0c26.5 0 48-21.5 48-48l0-272z"></path>
 					</svg>
 				</div>
-				<div>
-					{ AssetDateTime(viewData, assetIndex) }
+				<div class="asset--metadata--datetime">
+					{ AssetDateTime(viewData, assetIndex, false) }
 				</div>
 			</div>
 		}

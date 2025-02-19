@@ -83,8 +83,48 @@ func gatherAssetBuckets(immichAsset *immich.ImmichAsset, requestConfig config.Co
 		}
 
 		assets = append(assets, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbums, ID: album},
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbum, ID: album},
 			Weight: albumAssetCount,
+		})
+	}
+
+	for _, tag := range requestConfig.Tag {
+		if tag == "" || strings.EqualFold(tag, "none") {
+			continue
+		}
+
+		tags, _, err := immichAsset.AllTags(requestID, deviceID)
+		if err != nil {
+			log.Error("getting tags", "err", err)
+			continue
+		}
+
+		tagData, err := tags.Get(tag)
+		if err != nil {
+			log.Error("getting tag from tags", "tag", tag, "err", err)
+			continue
+		}
+
+		taggedAssetsCount, err := immichAsset.AssetsWithTagCount(tagData.ID, requestID, deviceID)
+		if err != nil {
+			if requestConfig.SelectedUser != "" {
+				return nil, fmt.Errorf("user '<b>%s</b>' has no assets with tag '%s'. error='%w'", requestConfig.SelectedUser, tagData.Value, err)
+			}
+			return nil, fmt.Errorf("getting tagged asset count: %w", err)
+		}
+
+		if taggedAssetsCount == 0 {
+			log.Error("No assets found with", "tag", tagData.Value)
+			continue
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("getting tagged asset count: %w", err)
+		}
+
+		assets = append(assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceTag, ID: tagData.ID},
+			Weight: taggedAssetsCount,
 		})
 	}
 
@@ -95,7 +135,7 @@ func gatherAssetBuckets(immichAsset *immich.ImmichAsset, requestConfig config.Co
 
 		// use FetchedAssetsSize as a weighting for date ranges
 		assets = append(assets, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRangeAlbum, ID: date},
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRange, ID: date},
 			Weight: requestConfig.Kiosk.FetchedAssetsSize,
 		})
 	}
@@ -133,7 +173,7 @@ func isSleepMode(requestConfig config.Config) bool {
 func retrieveImage(immichAsset *immich.ImmichAsset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, allowedAssetType []immich.ImmichAssetType, requestID, deviceID string, isPrefetch bool) error {
 
 	switch pickedAsset.Type {
-	case kiosk.SourceAlbums:
+	case kiosk.SourceAlbum:
 		switch pickedAsset.ID {
 		case kiosk.AlbumKeywordAll:
 			pickedAlbumID, err := immichAsset.RandomAlbumFromAllAlbums(requestID, deviceID, excludedAlbums)
@@ -160,7 +200,7 @@ func retrieveImage(immichAsset *immich.ImmichAsset, pickedAsset utils.WeightedAs
 			return immichAsset.ImageFromAlbum(pickedAsset.ID, immich.Rand, requestID, deviceID, isPrefetch)
 		}
 
-	case kiosk.SourceDateRangeAlbum:
+	case kiosk.SourceDateRange:
 		return immichAsset.RandomImageInDateRange(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourcePerson:
@@ -168,6 +208,9 @@ func retrieveImage(immichAsset *immich.ImmichAsset, pickedAsset utils.WeightedAs
 
 	case kiosk.SourceMemories:
 		return immichAsset.RandomMemoryLaneImage(requestID, deviceID, isPrefetch)
+
+	case kiosk.SourceTag:
+		return immichAsset.RandomAssetWithTag(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	default:
 		return immichAsset.RandomImage(requestID, deviceID, isPrefetch)
@@ -445,12 +488,14 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 	config.Memories = false
 
 	switch options.RelativeAssetBucket {
-	case kiosk.SourceAlbums:
+	case kiosk.SourceAlbum:
 		config.Album = append(config.Album, options.RelativeAssetBucketID)
 	case kiosk.SourcePerson:
 		config.Person = append(config.Person, options.RelativeAssetBucketID)
-	case kiosk.SourceDateRangeAlbum:
+	case kiosk.SourceDateRange:
 		config.Date = append(config.Date, options.RelativeAssetBucketID)
+	case kiosk.SourceTag:
+		config.Tag = append(config.Tag, options.RelativeAssetBucketID)
 	case kiosk.SourceMemories:
 		config.Memories = true
 	}

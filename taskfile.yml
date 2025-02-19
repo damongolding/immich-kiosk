@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.16.1
+  VERSION: 0.17.0-beta.1
 
 includes:
   frontend:
@@ -59,7 +59,7 @@ tasks:
     desc: Install development dependencies
     deps: [update-templ, frontend-install]
     cmds:
-      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62.0
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5
       - go install github.com/psampaz/go-mod-outdated@latest
       - go mod tidy
 

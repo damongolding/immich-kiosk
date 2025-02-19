@@ -465,6 +465,9 @@ form {
     width: 0.9rem;
     fill: white;
   }
+.asset--metadata--datetime {
+  text-transform: capitalize;
+}
 .asset--metadata--exif--fnumber {
   display: inline-block;
   font-size: 0.84rem;
@@ -547,6 +550,9 @@ form {
   .asset--metadata--description {
     max-width: 100%;
   }
+    .asset--metadata--description span {
+      display: block;
+    }
     .asset--metadata--location span {
       display: none;
     }
@@ -624,6 +630,9 @@ form {
         color: #fff;
         text-decoration: none;
       }
+.polling-paused.more-info #more-info .more-info--image .more-info--image--maps-link .responsive-break {
+          display: none;
+        }
 .polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code {
         display: -moz-box;
         display: flex;
@@ -653,6 +662,18 @@ form {
   flex-wrap: wrap;
   padding-top: 1rem;
 }
+.more-info--tag-wrapper {
+  display: -moz-box;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.more-info--tag span {
+    padding: 0.5rem 1rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 100rem;
+    font-size: 0.8rem;
+  }
 .more-info--webhook,
 .more-info--image-link {
   font-family:
@@ -781,18 +802,19 @@ form {
   position: absolute;
   display: -moz-box;
   display: flex;
-  -moz-box-orient: vertical;
+  -moz-box-orient: horizontal;
   -moz-box-direction: normal;
-       flex-direction: column;
+       flex-direction: row;
   -moz-box-pack: justify;
        justify-content: space-between;
-  height: 100%;
-  height: 100vh;
-  min-height: 100%;
-  min-height: 100vh;
+  width: 100%;
+  width: 100vw;
+  min-width: 100%;
+  min-width: 100vw;
+  height: auto;
+  min-height: auto;
   top: 0;
   left: 0;
-  bottom: 0;
   z-index: var(--z-clock);
 }
 .layout-splitview #clock-weather-container {
@@ -844,6 +866,7 @@ form {
   position: relative;
   font-size: 1.5rem;
   z-index: 1;
+  text-transform: capitalize;
 }
 .clock--time {
   position: relative;
@@ -1048,44 +1071,39 @@ form {
 }
 
 /* src/css/weather.css */
-#weather {
+.weather {
   position: relative;
   color: #fff;
   text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
-  padding: 1rem 1.5rem 1rem 1rem;
+  padding: 1rem 1rem 1rem 1.5rem;
+  text-align: right;
+  display: -moz-box;
+  display: flex;
+  -moz-box-align: end;
+       align-items: flex-end;
+  -moz-box-orient: vertical;
+  -moz-box-direction: normal;
+       flex-direction: column;
+  font-size: 1rem;
   z-index: var(--z-clock);
 }
-.layout-splitview #weather {
-  padding: 1rem 1rem 1rem 1.5rem;
-}
 @media screen and (max-width: 31.25rem) {
-  #weather {
+  .weather {
     padding: 0.5rem 1rem 0.5rem 0.5rem;
-  }
-  .layout-splitview #weather {
-    padding: 0.5rem 0.5rem 0.5rem 1rem;
   }
 }
 .weather--theme-fade::before {
   content: "";
   position: absolute;
-  bottom: 0;
-  left: 0;
+  top: 0;
+  left: unset;
+  right: 0;
+  bottom: unset;
   width: 150%;
   height: 200%;
-  background-image: -moz-radial-gradient(0% 100%, 100% 100%, var(--fade-gradient));
-  background-image: radial-gradient(100% 100% at 0% 100%, var(--fade-gradient));
+  background-image: -moz-radial-gradient(100% 0%, 100% 100%, var(--fade-gradient));
+  background-image: radial-gradient(100% 100% at 100% 0%, var(--fade-gradient));
   z-index: var(--z-base);
-}
-.weather {
-  position: relative;
-  display: -moz-box;
-  display: flex;
-  -moz-box-orient: vertical;
-  -moz-box-direction: normal;
-       flex-direction: column;
-  font-size: 1rem;
-  z-index: 1;
 }
 .weather--temp {
   display: -moz-box;
@@ -1123,31 +1141,9 @@ form {
 .weather--description--value {
   z-index: 1;
 }
-.layout-splitview #weather,
-  .layout-splitview .weather {
-    text-align: right;
-    -moz-box-align: end;
-         align-items: flex-end;
-  }
-.layout-splitview .weather--theme-fade::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: unset;
-    right: 0;
-    bottom: unset;
-    width: 150%;
-    height: 200%;
-    background-image: -moz-radial-gradient(100% 0%, 100% 100%, var(--fade-gradient));
-    background-image: radial-gradient(100% 100% at 100% 0%, var(--fade-gradient));
-    z-index: var(--z-base);
-  }
-.layout-splitview .weather--theme-solid {
-    border-radius: 0 0 0 2rem;
-  }
 .weather--theme-solid {
   background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 0 2rem 0 0;
+  border-radius: 0 0 0 2rem;
   align-self: start;
 }
 .sleep #weather {

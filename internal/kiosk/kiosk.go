@@ -8,11 +8,12 @@ const (
 	AlbumKeywordFavourites string = "favourites"
 	AlbumKeywordFavorites  string = "favorites"
 
-	SourceAlbums         Source = "ALBUM"
-	SourceDateRangeAlbum Source = "DATE_RANGE_ALBUM"
-	SourcePerson         Source = "PERSON"
-	SourceRandom         Source = "RANDOM"
-	SourceMemories       Source = "MEMORIES"
+	SourceAlbum     Source = "ALBUM"
+	SourceDateRange Source = "DATE_RANGE_ALBUM"
+	SourcePerson    Source = "PERSON"
+	SourceRandom    Source = "RANDOM"
+	SourceTag       Source = "TAG"
+	SourceMemories  Source = "MEMORIES"
 
 	LayoutLandscape          string = "landscape"
 	LayoutPortrait           string = "portrait"
