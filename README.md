@@ -95,6 +95,9 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 ![Kiosk theme fade](/assets/preview.jpeg)
 **Image shot by Damon Golding**
 
+![Kiosk theme fade](/assets/more-info.jpeg)
+**Image shot by Damon Golding**
+
 ## Example 1
 You have a two Raspberry Pi's. One hooked up to a LCD screen and the other you connect to your TV. You install a fullscreen browser OS or service on them (I use [DietPi][dietpi-url]).
 
@@ -1070,6 +1073,7 @@ Kiosk's display is divided into interactive zones:
 | → Right Arrow | Next Image(s)                                            |
 | ← Left Arrow  | Previous Image(s)                                        |
 | i Key         | Play/Pause and Toggle Menu and display more info overlay |
+| r Key         | Play/Pause and Toggle Menu and redirects info overlay    |
 
 ------
 
