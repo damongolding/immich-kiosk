@@ -781,11 +781,11 @@ environment:
 http://{URL}?date=DATE_RANGE&date=DATE_RANGE&date=DATE_RANGE
 ```
 
------
+------
 
 ## Tags
 
-### Getting an tag value from Immich
+### Getting a tag value from Immich
 1. Open Immich's web interface and click on "Tags" in the left-hand navigation.
 2. Click on the tag you want the value of.
 3. The url will now look something like this `http://192.168.86.123:2283/tags?path=cake`.
@@ -793,7 +793,7 @@ http://{URL}?date=DATE_RANGE&date=DATE_RANGE&date=DATE_RANGE
 
 ### How multiple tags work
 When you specify multiple tags, Immich Kiosk creates a pool of all the requested tag values.
-For each asset refresh, Kiosk randomly selects one tag from this pool and fetches an asset associated with that tag.
+For each asset refresh, Kiosk randomly selects one of the tag values from this pool and fetches an asset associated with it.
 
 There are **three** ways you can set multiple tags:
 
