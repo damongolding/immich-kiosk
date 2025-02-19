@@ -56,6 +56,7 @@
   - [Albums](#albums)
   - [People](#people)
   - [Date range](#date-range)
+  - [Tags](#tags)
   - [Filters](#filters)
   - [Image fit](#image-fit)
   - [Image effects](#image-effects)
