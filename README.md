@@ -53,6 +53,7 @@
 - [Android](#android)
 - [Configuration](#configuration)
   - [Changing settings via URL](#changing-settings-via-url)
+  - [Multiple Users](#multiple-users)
   - [Albums](#albums)
   - [People](#people)
   - [Date range](#date-range)
