@@ -49,3 +49,16 @@ jobs:
         uses: Ilshidur/action-discord@master
         with:
           args: "Immich Kiosk ${{ env.VERSION }} has been released! Check it out: ${{ env.RELEASE_URL }}"
+
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: 'damongolding',
+              repo: 'immich-kiosk-unraid',
+              event_type: 'generate-xml',
+            });
