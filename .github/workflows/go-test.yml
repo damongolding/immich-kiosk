@@ -35,16 +35,3 @@ jobs:
         with:
           name: go-test-results
           path: test-results/test.log
-
-  trigger:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.PAT_TOKEN }}
-          script: |
-            await github.rest.repos.createDispatchEvent({
-              owner: 'damongolding',
-              repo: 'immich-kiosk-unraid',
-              event_type: 'generate-xml',
-            });
