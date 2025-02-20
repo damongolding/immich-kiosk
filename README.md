@@ -471,6 +471,9 @@ The above would set refresh to 120 seconds (2 minutes), turn off the background 
 
 ## Multiple Users
 
+> [!IMPORTANT]
+> This feature can only be configured using a `config.yaml` file.
+
 > [!TIP]
 > You can remove specific asset sources that were previously set in your `config.yaml` or environment variables by using `none` in the URL query parameters.
 >
@@ -1012,6 +1015,9 @@ To disable custom CSS for a specific device, add `custom_css=false` to the URL p
 
 ## Weather
 
+> [!IMPORTANT]
+> This feature can only be configured using a `config.yaml` file.
+
 > [!NOTE]
 > To use the weather feature, you’ll need an API key from [OpenWeatherMap](https://openweathermap.org).
 
@@ -1087,6 +1093,9 @@ Kiosk's display is divided into interactive zones:
 
 ## Redirects
 
+> [!IMPORTANT]
+> This feature can only be configured using a `config.yaml` file.
+
 Redirects provide a simple way to map short, memorable paths to longer URLs.
 It's particularly useful for creating friendly URLs that redirect to more
 complex endpoints with query parameters.
@@ -1143,6 +1152,9 @@ kiosk:
 ------
 
 ## Webhooks
+
+> [!IMPORTANT]
+> This feature can only be configured using a `config.yaml` file.
 
 > [!TIP]
 > To include the `clientName` in your webhook payload, append `client=YOUR_CLIENT_NAME` to your URL parameters.
