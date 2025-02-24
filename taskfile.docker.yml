@@ -25,3 +25,15 @@ tasks:
     deps: [build]
     cmds:
       - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t damongolding/immich-kiosk-development:{{.VERSION}} -t damongolding/immich-kiosk-development:latest .
+
+  dev-push:
+    desc: Build and push development multi-arch docker image
+    deps: [build]
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t ghcr.io/damongolding/immich-kiosk-development:{{.VERSION}} -t ghcr.io/damongolding/immich-kiosk-development:latest .
+
+  push:
+    desc: Build and push development multi-arch docker image
+    deps: [build]
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t ghcr.io/damongolding/immich-kiosk:{{.VERSION}} -t ghcr.io/damongolding/immich-kiosk:latest .
