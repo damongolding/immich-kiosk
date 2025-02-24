@@ -212,7 +212,7 @@ There are two main ways to install Kiosk: **Docker** or **Binary**.
 ```yaml
 services:
   immich-kiosk:
-    image: damongolding/immich-kiosk:latest
+    image: ghcr.io/damongolding/immich-kiosk:latest
     container_name: immich-kiosk
     environment:
       LANG: "en_GB"
@@ -234,7 +234,7 @@ services:
 ```yaml
 services:
   immich-kiosk:
-    image: damongolding/immich-kiosk:latest
+    image: ghcr.io/damongolding/immich-kiosk:latest
     container_name: immich-kiosk
     environment:
       LANG: "en_GB"
@@ -475,11 +475,11 @@ The above would set refresh to 120 seconds (2 minutes), turn off the background 
 > This feature can only be configured using a `config.yaml` file.
 
 > [!IMPORTANT]
-> It is not possible to mix assets from different accounts.  
-> The example below will not work. 
+> It is not possible to mix assets from different accounts.
+> The example below will not work.
 > ```url
 > http://{URL}?user=john&person=PERSON_ID&user=jane&person=PERSON_ID
-> ``` 
+> ```
 
 > [!TIP]
 > You can remove specific asset sources that were previously set in your `config.yaml` or environment variables by using `none` in the URL query parameters.
