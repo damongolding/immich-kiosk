@@ -158,6 +158,11 @@ func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 	var err error
 
 	switch {
+	case strings.EqualFold(dateRange, "today"):
+		dateStart, dateEnd = processTodayDateRange()
+		if err != nil {
+			return dateStart, dateEnd, nil
+		}
 	case strings.Contains(dateRange, "_to_"):
 		dateStart, dateEnd, err = processDateRange(dateRange)
 		if err != nil {
@@ -173,6 +178,24 @@ func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 	}
 
 	return dateStart, dateEnd, err
+}
+
+// processTodayDateRange returns the start and end times for today's date range.
+//
+// The function:
+// - Uses local timezone for time calculations
+// - Sets start time to beginning of current day (00:00:00)
+// - Sets end time to last nanosecond of current day (23:59:59.999999999)
+//
+// Returns:
+// - Start time: Beginning of current day
+// - End time: End of current day
+func processTodayDateRange() (time.Time, time.Time) {
+	now := time.Now().Local()
+	dateStart := now.Truncate(24 * time.Hour)
+
+	dateEnd := dateStart.AddDate(0, 0, 1).Add(-time.Nanosecond)
+	return dateStart, dateEnd
 }
 
 // processDateRange parses a date range string in the format "YYYY-MM-DD_to_YYYY-MM-DD"
@@ -222,8 +245,6 @@ func processDateRange(dateRange string) (time.Time, time.Time, error) {
 	}
 
 	dateEnd = dateEnd.AddDate(0, 0, 1).Add(-time.Nanosecond)
-
-	log.Info("d", "start", dateStart, "end", dateEnd)
 
 	return dateStart, dateEnd, nil
 }

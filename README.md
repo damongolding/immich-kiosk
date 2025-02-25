@@ -753,7 +753,9 @@ http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 
 > [!TIP]
 > You can use `today` as an alias for the current date.
-> e.g. `http://{URL}?date=2023-01-01_to_today`
+> Examples:
+> `http://{URL}?date=today`
+> `http://{URL}?date=2023-01-01_to_today`
 
 ### How date ranges work as asset buckets
 Date ranges in Immich Kiosk create distinct pools (or "buckets") of assets based on their timestamps.
@@ -778,6 +780,7 @@ date:
   - 2023-01-01_to_2023-02-01
   - 2024-11-12_to_2023-11-18
   - last-30-days
+  - today
 ```
 
 2. via ENV in your docker-compose file use a `,` to separate IDs
