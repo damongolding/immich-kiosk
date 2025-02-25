@@ -118,10 +118,6 @@ func gatherAssetBuckets(immichAsset *immich.ImmichAsset, requestConfig config.Co
 			continue
 		}
 
-		if err != nil {
-			return nil, fmt.Errorf("getting tagged asset count: %w", err)
-		}
-
 		assets = append(assets, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceTag, ID: tagData.ID},
 			Weight: taggedAssetsCount,
