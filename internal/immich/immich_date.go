@@ -160,9 +160,7 @@ func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 	switch {
 	case strings.EqualFold(dateRange, "today"):
 		dateStart, dateEnd = processTodayDateRange()
-		if err != nil {
-			return dateStart, dateEnd, nil
-		}
+
 	case strings.Contains(dateRange, "_to_"):
 		dateStart, dateEnd, err = processDateRange(dateRange)
 		if err != nil {
