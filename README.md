@@ -274,6 +274,7 @@ services:
       KIOSK_HIDE_CURSOR: false
       KIOSK_FONT_SIZE: 100
       KIOSK_BACKGROUND_BLUR: true
+      KIOSK_BACKGROUND_BLUR_AMOUNT: 10
       KIOSK_THEME: fade
       KIOSK_LAYOUT: single
       # Sleep mode
@@ -385,7 +386,7 @@ See the file `config.example.yaml` for an example config file
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [experimental_album_video](#experimental-album-video-support) | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. See [experimental album video](#experimental-album-video-support) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
-| [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges in `YYYY-MM-DD_to_YYYY-MM-DD` format. See [Date range](#date-range) for more information. |
+| [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges. See [Date range](#date-range) for more information. |
 | [tag](#tags)                      | KIOSK_TAG               | []string                   | []          | Tag or tags you want to display. See [Tags](#tags) for more information. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memory lane assets. |
 | blacklist                         | KIOSK_BLACKLIST         | []string                   | []          | The ID(s) of any specific assets you want Kiosk to skip/exclude from displaying. You can also tag assets in Immich with "kiosk-skip" to achieve the same. |
@@ -396,6 +397,7 @@ See the file `config.example.yaml` for an example config file
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
 | background_blur                   | KIOSK_BACKGROUND_BLUR   | bool                       | true        | Display a blurred version of the image as a background.                                    |
+| background_blur_amount            | KIOSK_BACKGROUND_BLUR_AMOUNT | int                   | 10          | The amount of blur to apply to the background image (sigma).                               |
 | [theme](#themes)                  | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. See [Themes](#themes) for more information.                            |
 | [layout](#layouts)                | KIOSK_LAYOUT            | single \| portrait \| landscape \| splitview \| splitview-landscape | Which layout to use. See [Layouts](#layouts) for more information.                         |
 | [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
@@ -753,7 +755,9 @@ http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 
 > [!TIP]
 > You can use `today` as an alias for the current date.
-> e.g. `http://{URL}?date=2023-01-01_to_today`
+> Examples:
+> `http://{URL}?date=today`
+> `http://{URL}?date=2023-01-01_to_today`
 
 ### How date ranges work as asset buckets
 Date ranges in Immich Kiosk create distinct pools (or "buckets") of assets based on their timestamps.
@@ -778,6 +782,7 @@ date:
   - 2023-01-01_to_2023-02-01
   - 2024-11-12_to_2023-11-18
   - last-30-days
+  - today
 ```
 
 2. via ENV in your docker-compose file use a `,` to separate IDs
@@ -876,7 +881,7 @@ The image is centered and displayed "as is". If the image is larger than your sc
 
 ### zoom
 > [!NOTE]
-> [Image fit](#image-fit) is set to `cover` automatically when this effect is used.
+> [Image fit](#image-fit) is set to `cover` automatically when this effect is used, unless layout is set to `single`.
 
 This effect zooms in or out to add movement to your images, with the center of the image as the focal point.
 

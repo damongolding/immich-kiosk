@@ -69,7 +69,11 @@ templ renderImageBackground(viewData common.ViewData, imageData common.ViewImage
 // It delegates to RenderImageWithCoverFit or renderImageFit based on the image effect.
 templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 	switch viewData.ImageEffect {
-		case "zoom", "smart-zoom":
+		case "zoom":
+			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
+				@renderImageFit(imageData.ImageData, viewData.ImageFit)
+			}
+		case "smart-zoom":
 			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
 				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
 			}

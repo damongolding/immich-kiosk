@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -46,7 +47,7 @@ func (c *Config) checkLowercaseTaggedFields() {
 	val := reflect.ValueOf(c).Elem()
 	typ := val.Type()
 
-	for i := 0; i < val.NumField(); i++ {
+	for i := range val.NumField() {
 		field := val.Field(i)
 		fieldType := typ.Field(i)
 
@@ -314,12 +315,11 @@ func (c *Config) checkAlbumOrder() {
 		AlbumOrderNewest,
 	}
 	isValid := false
-	for _, order := range validOrders {
-		if order == c.AlbumOrder {
-			isValid = true
-			break
-		}
+
+	if slices.Contains(validOrders, c.AlbumOrder) {
+		isValid = true
 	}
+
 	if !isValid {
 		log.Warnf("Invalid album_order value: %s. Using default: random", c.AlbumOrder)
 		c.AlbumOrder = AlbumOrderRandom

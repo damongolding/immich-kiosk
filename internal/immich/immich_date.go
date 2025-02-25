@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -47,7 +48,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 		log.Debug(requestID+" Getting Random image", "from", dateStartHuman, "to", dateEndHuman)
 	}
 
-	for retries := 0; retries < MaxRetries; retries++ {
+	for range MaxRetries {
 
 		var immichAssets []ImmichAsset
 
@@ -122,7 +123,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
-				immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
+				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, err := json.Marshal(immichAssetsToCache)
 				if err != nil {
 					log.Error("Failed to marshal immichAssetsToCache", "error", err)
@@ -157,6 +158,9 @@ func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 	var err error
 
 	switch {
+	case strings.EqualFold(dateRange, "today"):
+		dateStart, dateEnd = processTodayDateRange()
+
 	case strings.Contains(dateRange, "_to_"):
 		dateStart, dateEnd, err = processDateRange(dateRange)
 		if err != nil {
@@ -174,32 +178,61 @@ func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 	return dateStart, dateEnd, err
 }
 
+// processTodayDateRange returns the start and end times for today's date range.
+//
+// The function:
+// - Uses local timezone for time calculations
+// - Sets start time to beginning of current day (00:00:00)
+// - Sets end time to last nanosecond of current day (23:59:59.999999999)
+//
+// Returns:
+// - Start time: Beginning of current day
+// - End time: End of current day
+func processTodayDateRange() (time.Time, time.Time) {
+	now := time.Now().Local()
+	dateStart := now.Truncate(24 * time.Hour)
+
+	dateEnd := dateStart.AddDate(0, 0, 1).Add(-time.Nanosecond)
+	return dateStart, dateEnd
+}
+
 // processDateRange parses a date range string in the format "YYYY-MM-DD_to_YYYY-MM-DD"
-// and returns the start and end times. The special value "today" can be used for
-// either date. If the end date is before the start date, they will be swapped.
-// The end date is adjusted to be the last nanosecond of that day.
-// Returns an error if the date range format is invalid or dates cannot be parsed.
+// and returns the start and end times for filtering images.
+//
+// The function:
+// - Accepts a string in format "YYYY-MM-DD_to_YYYY-MM-DD"
+// - Supports special value "today" for either date
+// - Swaps dates if end date is before start date
+// - Adjusts end date to last nanosecond of that day
+// - Uses local timezone for parsing dates
+// - Returns start time, end time and any error
+//
+// Example:
+//
+//	"2023-01-01_to_today" -> Jan 1 2023 00:00:00 to current date 23:59:59.999999999
+//	"today_to_2023-12-31" -> current date 00:00:00 to Dec 31 2023 23:59:59.999999999
 func processDateRange(dateRange string) (time.Time, time.Time, error) {
 
-	dateStart := time.Now()
-	dateEnd := time.Now()
+	var err error
+
+	now := time.Now().Local()
+	dateStart := now.Truncate(24 * time.Hour)
+	dateEnd := dateStart
 
 	dates := strings.SplitN(dateRange, "_to_", 2)
 	if len(dates) != 2 {
 		return dateStart, dateEnd, fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
 	}
 
-	var err error
-
 	if !strings.EqualFold(dates[0], "today") {
-		dateStart, err = time.Parse("2006-01-02", dates[0])
+		dateStart, err = time.ParseInLocation("2006-01-02", dates[0], time.Local)
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
 	}
 
 	if !strings.EqualFold(dates[1], "today") {
-		dateEnd, err = time.Parse("2006-01-02", dates[1])
+		dateEnd, err = time.ParseInLocation("2006-01-02", dates[1], time.Local)
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
@@ -229,8 +262,10 @@ func extractDays(s string) (int, error) {
 // and returns a time range from X days ago to now.
 // Returns an error if the number of days cannot be extracted from the string.
 func processLastDays(dateRange string) (time.Time, time.Time, error) {
-	dateStart := time.Now()
-	dateEnd := time.Now()
+
+	now := time.Now().Local()
+	dateStart := now
+	dateEnd := now
 
 	days, err := extractDays(dateRange)
 	if err != nil {
