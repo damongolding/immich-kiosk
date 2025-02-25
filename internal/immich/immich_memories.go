@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 	"net/url"
 	"path"
+	"slices"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -86,10 +87,10 @@ func updateMemoryCache(memories MemoryLaneResponse, pickedMemoryIndex, assetInde
 	}
 
 	// Remove the current image from the slice
-	assetsToCache[pickedMemoryIndex].Assets = append(assetsToCache[pickedMemoryIndex].Assets[:assetIndex], assetsToCache[pickedMemoryIndex].Assets[assetIndex+1:]...)
+	assetsToCache[pickedMemoryIndex].Assets = slices.Delete(assetsToCache[pickedMemoryIndex].Assets, assetIndex, assetIndex+1)
 
 	if len(assetsToCache[pickedMemoryIndex].Assets) == 0 {
-		assetsToCache = append(assetsToCache[:pickedMemoryIndex], assetsToCache[pickedMemoryIndex+1:]...)
+		assetsToCache = slices.Delete(assetsToCache, pickedMemoryIndex, pickedMemoryIndex+1)
 	}
 
 	jsonBytes, err := json.Marshal(assetsToCache)
@@ -114,7 +115,7 @@ func updateMemoryCache(memories MemoryLaneResponse, pickedMemoryIndex, assetInde
 // Returns error if unable to find a valid image after max retries
 func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefetch bool) error {
 
-	for retries := 0; retries < MaxRetries; retries++ {
+	for range MaxRetries {
 
 		memories, apiUrl, err := i.memories(requestID, deviceID, false)
 		if err != nil {

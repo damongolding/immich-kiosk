@@ -190,7 +190,7 @@ func (w *WeatherLocation) updateWeather() (WeatherLocation, error) {
 	req.Header.Add("Accept", "application/json")
 
 	var res *http.Response
-	for attempts := 0; attempts < 3; attempts++ {
+	for attempts := range 3 {
 		res, err = client.Do(req)
 		if err == nil {
 			break

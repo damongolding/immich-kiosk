@@ -118,10 +118,6 @@ func gatherAssetBuckets(immichAsset *immich.ImmichAsset, requestConfig config.Co
 			continue
 		}
 
-		if err != nil {
-			return nil, fmt.Errorf("getting tagged asset count: %w", err)
-		}
-
 		assets = append(assets, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceTag, ID: tagData.ID},
 			Weight: taggedAssetsCount,
@@ -622,7 +618,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView common.ViewImageData, requestConfig config.Config, c common.ContextCopy, isPrefetch bool, options common.ViewImageDataOptions) error {
 	const maxImageRetrievalAttempts = 3
 
-	for i := 0; i < maxImageRetrievalAttempts; i++ {
+	for range maxImageRetrievalAttempts {
 		viewDataSplitViewSecond, err := ProcessViewImageDataWithOptions(requestConfig, c, isPrefetch, options)
 		if err != nil {
 			return err

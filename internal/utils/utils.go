@@ -23,6 +23,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -334,7 +335,7 @@ func RandomItem[T any](s []T) T {
 		return out
 	}
 
-	copySlice := append([]T(nil), s...)
+	copySlice := slices.Clone(s)
 
 	rand.Shuffle(len(copySlice), func(i, j int) {
 		copySlice[i], copySlice[j] = copySlice[j], copySlice[i]

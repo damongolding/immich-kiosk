@@ -105,13 +105,13 @@ func (v *VideoManager) RemoveVideo(id string) {
 					continue
 				}
 
-				v.Videos = append(v.Videos[:i], v.Videos[i+1:]...)
+				v.Videos = slices.Delete(v.Videos, i, i+1)
 
 				log.Debug("deleted video", "video", filePath, "err", err)
 
 			} else {
 				log.Debug("video file not found", "video", filePath)
-				v.Videos = append(v.Videos[:i], v.Videos[i+1:]...)
+				v.Videos = slices.Delete(v.Videos, i, i+1)
 			}
 
 		}
@@ -200,7 +200,7 @@ func (v *VideoManager) removeFromQueue(id string) {
 
 	for i, videoID := range v.DownloadQueue {
 		if videoID == id {
-			v.DownloadQueue = append(v.DownloadQueue[:i], v.DownloadQueue[i+1:]...)
+			v.DownloadQueue = slices.Delete(v.DownloadQueue, i, i+1)
 			break
 		}
 	}

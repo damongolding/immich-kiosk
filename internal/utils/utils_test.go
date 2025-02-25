@@ -228,7 +228,7 @@ func TestWeightedRandomItem(t *testing.T) {
 	counts := make(map[string]int)
 	iterations := 100000 // Increased iterations for more accurate results
 
-	for i := 0; i < iterations; i++ {
+	for range iterations {
 		result := WeightedRandomItem(assets)
 		counts[result.ID]++
 	}

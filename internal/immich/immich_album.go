@@ -197,7 +197,7 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string
 //     after maximum retry attempts
 func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAssetOrder, requestID, deviceID string, isPrefetch bool) error {
 
-	for retries := 0; retries < MaxRetries; retries++ {
+	for range MaxRetries {
 
 		album, apiUrl, err := i.albumAssets(albumID, requestID, deviceID)
 		if err != nil {
@@ -254,7 +254,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				assetsToCache := album
-				assetsToCache.Assets = append(album.Assets[:assetIndex], album.Assets[assetIndex+1:]...)
+				assetsToCache.Assets = slices.Delete(album.Assets, assetIndex, assetIndex+1)
 				jsonBytes, err := json.Marshal(assetsToCache)
 				if err != nil {
 					log.Error("Failed to marshal assetsToCache", "error", err)

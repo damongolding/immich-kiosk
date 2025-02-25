@@ -385,7 +385,7 @@ See the file `config.example.yaml` for an example config file
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [experimental_album_video](#experimental-album-video-support) | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. See [experimental album video](#experimental-album-video-support) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
-| [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges in `YYYY-MM-DD_to_YYYY-MM-DD` format. See [Date range](#date-range) for more information. |
+| [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges. See [Date range](#date-range) for more information. |
 | [tag](#tags)                      | KIOSK_TAG               | []string                   | []          | Tag or tags you want to display. See [Tags](#tags) for more information. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memory lane assets. |
 | blacklist                         | KIOSK_BLACKLIST         | []string                   | []          | The ID(s) of any specific assets you want Kiosk to skip/exclude from displaying. You can also tag assets in Immich with "kiosk-skip" to achieve the same. |
@@ -753,7 +753,9 @@ http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 
 > [!TIP]
 > You can use `today` as an alias for the current date.
-> e.g. `http://{URL}?date=2023-01-01_to_today`
+> Examples:
+> `http://{URL}?date=today`
+> `http://{URL}?date=2023-01-01_to_today`
 
 ### How date ranges work as asset buckets
 Date ranges in Immich Kiosk create distinct pools (or "buckets") of assets based on their timestamps.
@@ -778,6 +780,7 @@ date:
   - 2023-01-01_to_2023-02-01
   - 2024-11-12_to_2023-11-18
   - last-30-days
+  - today
 ```
 
 2. via ENV in your docker-compose file use a `,` to separate IDs

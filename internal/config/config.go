@@ -373,7 +373,7 @@ func isValidYAML(filename string) bool {
 		return false
 	}
 
-	var data interface{}
+	var data any
 	err = yaml.Unmarshal(content, &data)
 	if err != nil {
 		log.Fatal(err)
