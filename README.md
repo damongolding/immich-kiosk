@@ -878,7 +878,7 @@ The image is centered and displayed "as is". If the image is larger than your sc
 
 ### zoom
 > [!NOTE]
-> [Image fit](#image-fit) is set to `cover` automatically when this effect is used.
+> [Image fit](#image-fit) is set to `cover` automatically when this effect is used, unless layout is set to `single`.
 
 This effect zooms in or out to add movement to your images, with the center of the image as the focal point.
 
