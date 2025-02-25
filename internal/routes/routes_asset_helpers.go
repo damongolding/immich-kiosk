@@ -312,14 +312,14 @@ func processBlurredImage(img image.Image, assetType immich.ImmichAssetType, conf
 	isImage := assetType == immich.ImageType
 	shouldSkipBlur := !config.BackgroundBlur ||
 		strings.EqualFold(config.ImageFit, "cover") ||
-		(config.ImageEffect != "" && config.ImageEffect != "none")
+		(config.ImageEffect != "" && config.ImageEffect != "none" && config.Layout != "single")
 
 	if isImage && shouldSkipBlur {
 		return "", nil
 	}
 
 	startTime := time.Now()
-	imgBlur, err := utils.BlurImage(img, config.OptimizeImages, config.ClientData.Width, config.ClientData.Height)
+	imgBlur, err := utils.BlurImage(img, config.BackgroundBlurAmount, config.OptimizeImages, config.ClientData.Width, config.ClientData.Height)
 	if err != nil {
 		return "", fmt.Errorf("blurring image: %w", err)
 	}
