@@ -118,10 +118,6 @@ func gatherAssetBuckets(immichAsset *immich.ImmichAsset, requestConfig config.Co
 			continue
 		}
 
-		if err != nil {
-			return nil, fmt.Errorf("getting tagged asset count: %w", err)
-		}
-
 		assets = append(assets, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceTag, ID: tagData.ID},
 			Weight: taggedAssetsCount,
@@ -316,14 +312,14 @@ func processBlurredImage(img image.Image, assetType immich.ImmichAssetType, conf
 	isImage := assetType == immich.ImageType
 	shouldSkipBlur := !config.BackgroundBlur ||
 		strings.EqualFold(config.ImageFit, "cover") ||
-		(config.ImageEffect != "" && config.ImageEffect != "none")
+		(config.ImageEffect != "" && config.ImageEffect != "none" && config.Layout != "single")
 
 	if isImage && shouldSkipBlur {
 		return "", nil
 	}
 
 	startTime := time.Now()
-	imgBlur, err := utils.BlurImage(img, config.OptimizeImages, config.ClientData.Width, config.ClientData.Height)
+	imgBlur, err := utils.BlurImage(img, config.BackgroundBlurAmount, config.OptimizeImages, config.ClientData.Width, config.ClientData.Height)
 	if err != nil {
 		return "", fmt.Errorf("blurring image: %w", err)
 	}
@@ -622,7 +618,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView common.ViewImageData, requestConfig config.Config, c common.ContextCopy, isPrefetch bool, options common.ViewImageDataOptions) error {
 	const maxImageRetrievalAttempts = 3
 
-	for i := 0; i < maxImageRetrievalAttempts; i++ {
+	for range maxImageRetrievalAttempts {
 		viewDataSplitViewSecond, err := ProcessViewImageDataWithOptions(requestConfig, c, isPrefetch, options)
 		if err != nil {
 			return err

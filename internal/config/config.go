@@ -239,6 +239,8 @@ type Config struct {
 	UseOriginalImage bool `json:"useOriginalImage" mapstructure:"use_original_image" query:"use_original_image" form:"use_original_image" default:"false"`
 	// BackgroundBlur whether to display blurred image as background
 	BackgroundBlur bool `json:"backgroundBlur" mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
+	// BackgroundBlurAmount the amount of blur to apply
+	BackgroundBlurAmount int `json:"backgroundBlurAmount" mapstructure:"background_blur_amount" query:"background_blur_amount" form:"background_blur_amount" default:"10"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
 	Transition string `json:"transition" mapstructure:"transition" query:"transition" form:"transition" default:"" lowercase:"true"`
 	// FadeTransitionDuration sets the length of the fade transition

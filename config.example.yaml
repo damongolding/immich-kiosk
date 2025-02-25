@@ -52,6 +52,7 @@ frameless: false # remove border around image and rounded corners.
 hide_cursor: false # Hide cursor/mouse via CSS.
 font_size: 100 # the base font size as a percentage. OMIT the % character
 background_blur: true # display a blurred version of image as background
+background_blur_amount: 10 # amount of blur to apply to background image (sigma)
 theme: fade # which theme to use. fade or solid
 layout: single # which layout to use. single | splitview | splitview-landscape | portrait | landscape
 

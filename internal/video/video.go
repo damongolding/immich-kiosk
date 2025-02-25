@@ -269,7 +269,7 @@ func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConf
 		}
 	}
 
-	imgBlur, err := utils.BlurImage(img, false, 0, 0)
+	imgBlur, err := utils.BlurImage(img, requestConfig.BackgroundBlurAmount, false, 0, 0)
 	if err != nil {
 		log.Error("getting image preview", "err", err)
 	}
