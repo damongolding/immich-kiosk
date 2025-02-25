@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"slices"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -192,7 +193,7 @@ func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID strin
 		log.Debug(requestID+" Getting Random image with tag", tagID)
 	}
 
-	for retries := 0; retries < MaxRetries; retries++ {
+	for range MaxRetries {
 
 		immichAssets, apiUrl, err := i.AssetsWithTag(tagID, requestID, deviceID)
 		if err != nil {
@@ -230,7 +231,7 @@ func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID strin
 
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
-				immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
+				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, err := json.Marshal(immichAssetsToCache)
 				if err != nil {
 					log.Error("Failed to marshal immichAssetsToCache", "error", err)

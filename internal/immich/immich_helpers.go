@@ -90,7 +90,7 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 		return responseBody, err
 	}
 
-	for attempts := 0; attempts < 3; attempts++ {
+	for attempts := range 3 {
 
 		var bodyReader io.Reader
 		if body != nil {
@@ -240,7 +240,7 @@ func (i *ImmichAsset) mergeAssetInfo(additionalInfo ImmichAsset) error {
 	v := reflect.ValueOf(i).Elem()
 	d := reflect.ValueOf(additionalInfo)
 
-	for index := 0; index < v.NumField(); index++ {
+	for index := range v.NumField() {
 		field := v.Field(index)
 		if !field.CanSet() {
 			continue

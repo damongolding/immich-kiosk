@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"slices"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -119,7 +120,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 		log.Debug(requestID + " Getting Random favourite image")
 	}
 
-	for retries := 0; retries < MaxRetries; retries++ {
+	for range MaxRetries {
 
 		var immichAssets []ImmichAsset
 
@@ -195,7 +196,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 
 			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
-				immichAssetsToCache := append(immichAssets[:immichAssetIndex], immichAssets[immichAssetIndex+1:]...)
+				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, err := json.Marshal(immichAssetsToCache)
 				if err != nil {
 					log.Error("Failed to marshal immichAssetsToCache", "error", err)
