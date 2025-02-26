@@ -49,7 +49,8 @@ func ItemCount() int {
 // with ':view' suffix for cache view operations. The key is hashed using SHA-256
 // for consistent length and character set.
 func ViewCacheKey(apiUrl, deviceID string) string {
-	key := fmt.Sprintf("%s:%s:view", apiUrl, deviceID)
+	dateStamp := time.Now().Local().Format(time.DateOnly)
+	key := fmt.Sprintf("%s:%s:view:%s", apiUrl, deviceID, dateStamp)
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(key)))
 }
 
@@ -57,7 +58,8 @@ func ViewCacheKey(apiUrl, deviceID string) string {
 // with ':api' suffix for cache API operations. The key is hashed using SHA-256
 // for consistent length and character set.
 func ApiCacheKey(apiUrl, deviceID string, user string) string {
-	key := fmt.Sprintf("%s:%s:%s:api", apiUrl, deviceID, user)
+	dateStamp := time.Now().Local().Format(time.DateOnly)
+	key := fmt.Sprintf("%s:%s:%s:api:%s", apiUrl, deviceID, user, dateStamp)
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(key)))
 }
 

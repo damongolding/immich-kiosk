@@ -39,8 +39,8 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 		return err
 	}
 
-	dateStartHuman := dateStart.Format("2006-01-02")
-	dateEndHuman := dateEnd.Format("2006-01-02")
+	dateStartHuman := dateStart.Format(time.DateOnly)
+	dateEndHuman := dateEnd.Format(time.DateOnly)
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
@@ -225,14 +225,14 @@ func processDateRange(dateRange string) (time.Time, time.Time, error) {
 	}
 
 	if !strings.EqualFold(dates[0], "today") {
-		dateStart, err = time.ParseInLocation("2006-01-02", dates[0], time.Local)
+		dateStart, err = time.ParseInLocation(time.DateOnly, dates[0], time.Local)
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
 	}
 
 	if !strings.EqualFold(dates[1], "today") {
-		dateEnd, err = time.ParseInLocation("2006-01-02", dates[1], time.Local)
+		dateEnd, err = time.ParseInLocation(time.DateOnly, dates[1], time.Local)
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
