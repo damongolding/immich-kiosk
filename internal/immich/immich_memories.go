@@ -14,26 +14,32 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
-// memories fetches memory lane assets from the Immich API
-// requestID is used for request tracking
-// deviceID identifies the requesting device
-// assetCount determines if we want just the count of assets
-// Returns the memory lane response, API URL used, and any error
-func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (MemoryLaneResponse, string, error) {
-	var memoryLane MemoryLaneResponse
+// memories fetches memory lane assets from the Immich API.
+//
+// Parameters:
+//   - requestID: Used for request tracking
+//   - deviceID: Identifies the requesting device
+//   - assetCount: Determines if we want just the count of assets
+//
+// Returns:
+//   - MemoriesResponse: The memory lane response data
+//   - string: The API URL used for the request
+//   - error: Any error that occurred
+func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (MemoriesResponse, string, error) {
+	var memories MemoriesResponse
 
 	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
-		return immichApiFail(memoryLane, err, nil, "")
+		return immichApiFail(memories, err, nil, "")
 	}
 
-	now := time.Now()
+	now, _ := processTodayDateRange()
 
 	apiUrl := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
-		Path:     path.Join("api", "assets", "memory-lane"),
-		RawQuery: fmt.Sprintf("month=%d&day=%d", now.Month(), now.Day()),
+		Path:     path.Join("api", "memories"),
+		RawQuery: fmt.Sprintf("for=%s", now),
 	}
 
 	// If we want the memories assets count we will use a seperate cache entry
@@ -42,32 +48,41 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 		apiUrl.RawQuery += "&count=true"
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, memoryLane)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, memories)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
-		return immichApiFail(memoryLane, err, body, apiUrl.String())
+		return immichApiFail(memories, err, body, apiUrl.String())
 	}
 
-	err = json.Unmarshal(body, &memoryLane)
+	err = json.Unmarshal(body, &memories)
 	if err != nil {
-		return immichApiFail(memoryLane, err, body, apiUrl.String())
+		return immichApiFail(memories, err, body, apiUrl.String())
 	}
 
-	return memoryLane, apiUrl.String(), nil
+	return memories, apiUrl.String(), nil
 }
 
-// memoriesCount is the internal implementation of MemoryLaneAssetsCount
-// that counts the total assets in memory lane using a separate cache entry
-func memoriesCount(memories MemoryLaneResponse) int {
+// memoriesCount counts the total number of assets in memory lane.
+// It iterates through all memories and sums up their assets.
+func memoriesCount(memories MemoriesResponse) int {
 	total := 0
+
 	for _, memory := range memories {
 		total += len(memory.Assets)
 	}
+
 	return total
 }
 
-// MemoryLaneAssetsCount returns the total count of memory lane assets
-func (i *ImmichAsset) MemoryLaneAssetsCount(requestID, deviceID string) int {
+// MemoriesAssetsCount returns the total count of memory lane assets.
+//
+// Parameters:
+//   - requestID: Request tracking identifier
+//   - deviceID: Device identifier
+//
+// Returns:
+//   - int: Total number of assets, or 0 if error occurs
+func (i *ImmichAsset) MemoriesAssetsCount(requestID, deviceID string) int {
 	m, _, err := i.memories(requestID, deviceID, true)
 	if err != nil {
 		return 0
@@ -76,18 +91,33 @@ func (i *ImmichAsset) MemoryLaneAssetsCount(requestID, deviceID string) int {
 	return memoriesCount(m)
 }
 
-func updateMemoryCache(memories MemoryLaneResponse, pickedMemoryIndex, assetIndex int, apiCacheKey string) error {
+// updateMemoryCache updates the cache by removing used assets from memory lane.
+//
+// Parameters:
+//   - memories: Current memories response
+//   - pickedMemoryIndex: Index of selected memory
+//   - assetIndex: Index of asset within memory
+//   - apiCacheKey: Cache key for API response
+//
+// Returns:
+//   - error: Any error during cache update
+func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex int, apiCacheKey string) error {
+
+	asstesLeft := 0
+
 	// Deep copy the memories slice
-	assetsToCache := make(MemoryLaneResponse, len(memories))
+	assetsToCache := make(MemoriesResponse, len(memories))
 	for i, memory := range memories {
-		assetsToCache[i].YearsAgo = memory.YearsAgo
-		assetsToCache[i].Title = memory.Title
+		assetsToCache[i] = memory
 		assetsToCache[i].Assets = make([]ImmichAsset, len(memory.Assets))
 		copy(assetsToCache[i].Assets, memory.Assets)
+		asstesLeft += len(memory.Assets)
 	}
 
 	// Remove the current image from the slice
 	assetsToCache[pickedMemoryIndex].Assets = slices.Delete(assetsToCache[pickedMemoryIndex].Assets, assetIndex, assetIndex+1)
+
+	asstesLeft--
 
 	if len(assetsToCache[pickedMemoryIndex].Assets) == 0 {
 		assetsToCache = slices.Delete(assetsToCache, pickedMemoryIndex, pickedMemoryIndex+1)
@@ -99,6 +129,8 @@ func updateMemoryCache(memories MemoryLaneResponse, pickedMemoryIndex, assetInde
 		return err
 	}
 
+	log.Info("memories left", "key", apiCacheKey, "memories", len(memories), "assets", asstesLeft)
+
 	// replace with cache minus used asset
 	err = cache.Replace(apiCacheKey, jsonBytes)
 	if err != nil {
@@ -108,12 +140,16 @@ func updateMemoryCache(memories MemoryLaneResponse, pickedMemoryIndex, assetInde
 	return nil
 }
 
-// RandomMemoryLaneImage retrieves a random image from the memory lane assets
-// requestID: Unique identifier for tracking the request
-// deviceID: ID of the requesting device
-// isPrefetch: Indicates if this is a prefetch request to warm the cache
-// Returns error if unable to find a valid image after max retries
-func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefetch bool) error {
+// RandomMemoryAsset retrieves a random image from memory lane assets.
+//
+// Parameters:
+//   - requestID: Unique identifier for tracking the request
+//   - deviceID: ID of the requesting device
+//   - isPrefetch: Indicates if this is a prefetch request to warm the cache
+//
+// Returns:
+//   - error: If unable to find valid image after max retries
+func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch bool) error {
 
 	for range MaxRetries {
 
@@ -157,8 +193,14 @@ func (i *ImmichAsset) RandomMemoryLaneImage(requestID, deviceID string, isPrefet
 				}
 			}
 
+			now := time.Now()
 			asset.Bucket = kiosk.SourceMemories
-			asset.MemoryTitle = memories[pickedMemoryIndex].Title
+			yearDiff := now.Year() - memories[pickedMemoryIndex].Data.Year
+			if yearDiff == 1 {
+				asset.MemoryTitle = "1 year ago"
+			} else {
+				asset.MemoryTitle = fmt.Sprintf("%d years ago", yearDiff)
+			}
 
 			*i = asset
 

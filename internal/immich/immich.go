@@ -234,10 +234,20 @@ type ImmichSearchMetadataResponse struct {
 	} `json:"assets"`
 }
 
-type MemoryLaneResponse []struct {
-	YearsAgo int           `json:"yearsAgo"`
-	Title    string        `json:"title"`
-	Assets   []ImmichAsset `json:"assets"`
+type MemoriesResponse []struct {
+	ID        string    `json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	MemoryAt  time.Time `json:"memoryAt"`
+	ShowAt    time.Time `json:"showAt"`
+	HideAt    time.Time `json:"hideAt"`
+	OwnerID   string    `json:"ownerId"`
+	Type      string    `json:"type"`
+	Data      struct {
+		Year int `json:"year"`
+	} `json:"data"`
+	IsSaved bool          `json:"isSaved"`
+	Assets  []ImmichAsset `json:"assets"`
 }
 
 type AssetFaceResponse struct {
@@ -272,5 +282,5 @@ type ImmichApiResponse interface {
 		[]Tag |
 		[]AssetFaceResponse |
 		immich_open_api.PersonResponseDto |
-		MemoryLaneResponse
+		MemoriesResponse
 }
