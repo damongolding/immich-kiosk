@@ -234,7 +234,7 @@ type ImmichSearchMetadataResponse struct {
 	} `json:"assets"`
 }
 
-type MemoriesResponse []struct {
+type Memory struct {
 	ID        string                     `json:"id"`
 	CreatedAt time.Time                  `json:"createdAt"`
 	UpdatedAt time.Time                  `json:"updatedAt"`
@@ -249,6 +249,8 @@ type MemoriesResponse []struct {
 	IsSaved bool          `json:"isSaved"`
 	Assets  []ImmichAsset `json:"assets"`
 }
+
+type MemoriesResponse []Memory
 
 type AssetFaceResponse struct {
 	BoundingBoxX1 int    `json:"boundingBoxX1"`

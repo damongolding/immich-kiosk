@@ -15,7 +15,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
-// memories fetches memory lane assets from the Immich API.
+// memories fetches memory assets from the Immich API.
 //
 // Parameters:
 //   - requestID: Used for request tracking
@@ -23,7 +23,7 @@ import (
 //   - assetCount: Determines if we want just the count of assets
 //
 // Returns:
-//   - MemoriesResponse: The memory lane response data
+//   - MemoriesResponse: The memory response data
 //   - string: The API URL used for the request
 //   - error: Any error that occurred
 func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (MemoriesResponse, string, error) {
@@ -63,7 +63,7 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 	return memories, apiUrl.String(), nil
 }
 
-// memoriesCount counts the total number of assets in memory lane.
+// memoriesCount counts the total number of assets in memories.
 // It iterates through all memories and sums up their assets.
 func memoriesCount(memories MemoriesResponse) int {
 	total := 0
@@ -75,7 +75,7 @@ func memoriesCount(memories MemoriesResponse) int {
 	return total
 }
 
-// MemoriesAssetsCount returns the total count of memory lane assets.
+// MemoriesAssetsCount returns the total count of memory assets.
 //
 // Parameters:
 //   - requestID: Request tracking identifier
@@ -92,7 +92,7 @@ func (i *ImmichAsset) MemoriesAssetsCount(requestID, deviceID string) int {
 	return memoriesCount(m)
 }
 
-// updateMemoryCache updates the cache by removing used assets from memory lane.
+// updateMemoryCache updates the cache by removing used assets from memories.
 //
 // Parameters:
 //   - memories: Current memories response
@@ -141,7 +141,7 @@ func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex 
 	return nil
 }
 
-// RandomMemoryAsset retrieves a random image from memory lane assets.
+// RandomMemoryAsset retrieves a random image from memory assets.
 //
 // Parameters:
 //   - requestID: Unique identifier for tracking the request
@@ -211,7 +211,7 @@ func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch b
 			return nil
 		}
 
-		// no viable assets left in memory lane
+		// no viable assets left in memories
 		memories[pickedMemoryIndex].Assets = make([]ImmichAsset, 1)
 		if err := updateMemoryCache(memories, pickedMemoryIndex, 0, apiCacheKey); err != nil {
 			return err
