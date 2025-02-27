@@ -139,7 +139,7 @@ func gatherAssetBuckets(immichAsset *immich.ImmichAsset, requestConfig config.Co
 	if requestConfig.Memories {
 		memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
 		if memories == 0 {
-			log.Error("No assets found for memories")
+			log.Warn("No assets found for memories")
 		} else {
 			assets = append(assets, utils.AssetWithWeighting{
 				Asset:  utils.WeightedAsset{Type: kiosk.SourceMemories, ID: "memories"},

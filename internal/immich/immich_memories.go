@@ -11,6 +11,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
@@ -33,13 +34,13 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 		return immichApiFail(memories, err, nil, "")
 	}
 
-	now, _ := processTodayDateRange()
+	startOfToday, _ := processTodayDateRange()
 
 	apiUrl := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     path.Join("api", "memories"),
-		RawQuery: fmt.Sprintf("for=%s", now),
+		RawQuery: fmt.Sprintf("for=%s", url.PathEscape(startOfToday.Format("2006-01-02T15:04:05.000Z"))),
 	}
 
 	// If we want the memories assets count we will use a seperate cache entry
@@ -193,14 +194,17 @@ func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch b
 				}
 			}
 
-			now := time.Now()
-			asset.Bucket = kiosk.SourceMemories
-			yearDiff := now.Year() - memories[pickedMemoryIndex].Data.Year
-			if yearDiff == 1 {
-				asset.MemoryTitle = "1 year ago"
-			} else {
-				asset.MemoryTitle = fmt.Sprintf("%d years ago", yearDiff)
+			if memories[pickedMemoryIndex].Type == immich_open_api.OnThisDay {
+				now := time.Now()
+				yearDiff := now.Year() - memories[pickedMemoryIndex].Data.Year
+				if yearDiff == 1 {
+					asset.MemoryTitle = "1 year ago"
+				} else {
+					asset.MemoryTitle = fmt.Sprintf("%d years ago", yearDiff)
+				}
 			}
+
+			asset.Bucket = kiosk.SourceMemories
 
 			*i = asset
 

@@ -235,14 +235,14 @@ type ImmichSearchMetadataResponse struct {
 }
 
 type MemoriesResponse []struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	MemoryAt  time.Time `json:"memoryAt"`
-	ShowAt    time.Time `json:"showAt"`
-	HideAt    time.Time `json:"hideAt"`
-	OwnerID   string    `json:"ownerId"`
-	Type      string    `json:"type"`
+	ID        string                     `json:"id"`
+	CreatedAt time.Time                  `json:"createdAt"`
+	UpdatedAt time.Time                  `json:"updatedAt"`
+	MemoryAt  time.Time                  `json:"memoryAt"`
+	ShowAt    time.Time                  `json:"showAt"`
+	HideAt    time.Time                  `json:"hideAt"`
+	OwnerID   string                     `json:"ownerId"`
+	Type      immich_open_api.MemoryType `json:"type"`
 	Data      struct {
 		Year int `json:"year"`
 	} `json:"data"`
