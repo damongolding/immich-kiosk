@@ -49,7 +49,8 @@ func ItemCount() int {
 // with ':view' suffix for cache view operations. The key is hashed using SHA-256
 // for consistent length and character set.
 func ViewCacheKey(apiUrl, deviceID string) string {
-	key := fmt.Sprintf("%s:%s:view", apiUrl, deviceID)
+	dateStamp := time.Now().Local().Format(time.DateOnly)
+	key := fmt.Sprintf("%s:%s:view:%s", apiUrl, deviceID, dateStamp)
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(key)))
 }
 
@@ -57,7 +58,8 @@ func ViewCacheKey(apiUrl, deviceID string) string {
 // with ':api' suffix for cache API operations. The key is hashed using SHA-256
 // for consistent length and character set.
 func ApiCacheKey(apiUrl, deviceID string, user string) string {
-	key := fmt.Sprintf("%s:%s:%s:api", apiUrl, deviceID, user)
+	dateStamp := time.Now().Local().Format(time.DateOnly)
+	key := fmt.Sprintf("%s:%s:%s:api:%s", apiUrl, deviceID, user, dateStamp)
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(key)))
 }
 
@@ -99,14 +101,23 @@ func ReplaceWithExpiration(key string, x any, t time.Duration) error {
 	return kioskCache.Replace(key, x, t)
 }
 
+// AssetToCache adds a new item of type T to the cache array by appending it to the end.
+// It uses the device ID and URL to generate a unique cache key for storing view-related data.
 func AssetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string) {
 	assetToCache(viewDataToAdd, requestConfig, deviceID, url, APPEND)
 }
 
+// AssetToCacheWithPosition adds a new item of type T to the cache array at the specified position
+// (either PREPEND or APPEND). It uses the device ID and URL to generate a unique cache key
+// for storing view-related data.
 func AssetToCacheWithPosition[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string, position CachePosition) {
 	assetToCache(viewDataToAdd, requestConfig, deviceID, url, position)
 }
 
+// assetToCache is an internal helper function that handles adding items to the cache array.
+// It maintains a limited history size, retrieves existing cached data if available,
+// and adds the new item either at the beginning (PREPEND) or end (APPEND) of the array.
+// If the cached data is invalid or not found, it initializes a new empty array.
 func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string, position CachePosition) {
 	utils.TrimHistory(&requestConfig.History, 10)
 

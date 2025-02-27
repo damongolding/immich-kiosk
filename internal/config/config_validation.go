@@ -165,7 +165,7 @@ func (c *Config) checkWeatherLocations() {
 		}
 		if w.Default {
 			if c.HasWeatherDefault {
-				log.Warn("Multiple default weather locations found. Using the first one.", "name", w.Name)
+				log.Warn("Multiple default weather locations found.")
 				w.Default = false
 			} else {
 				c.HasWeatherDefault = true
