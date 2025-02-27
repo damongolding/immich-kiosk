@@ -104,21 +104,16 @@ func (i *ImmichAsset) MemoriesAssetsCount(requestID, deviceID string) int {
 //   - error: Any error during cache update
 func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex int, apiCacheKey string) error {
 
-	asstesLeft := 0
-
 	// Deep copy the memories slice
 	assetsToCache := make(MemoriesResponse, len(memories))
 	for i, memory := range memories {
 		assetsToCache[i] = memory
 		assetsToCache[i].Assets = make([]ImmichAsset, len(memory.Assets))
 		copy(assetsToCache[i].Assets, memory.Assets)
-		asstesLeft += len(memory.Assets)
 	}
 
 	// Remove the current image from the slice
 	assetsToCache[pickedMemoryIndex].Assets = slices.Delete(assetsToCache[pickedMemoryIndex].Assets, assetIndex, assetIndex+1)
-
-	asstesLeft--
 
 	if len(assetsToCache[pickedMemoryIndex].Assets) == 0 {
 		assetsToCache = slices.Delete(assetsToCache, pickedMemoryIndex, pickedMemoryIndex+1)
@@ -129,8 +124,6 @@ func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex 
 		log.Error("Failed to marshal assetsToCache", "error", err)
 		return err
 	}
-
-	log.Info("memories left", "key", apiCacheKey, "memories", len(memories), "assets", asstesLeft)
 
 	// replace with cache minus used asset
 	err = cache.Replace(apiCacheKey, jsonBytes)
