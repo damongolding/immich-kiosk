@@ -7,12 +7,12 @@ import (
 	"net/url"
 	"path"
 	"slices"
-	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/dustin/go-humanize"
 )
 
 // memories fetches memory assets from the Immich API.
@@ -188,13 +188,7 @@ func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch b
 			}
 
 			if memories[pickedMemoryIndex].Type == immich_open_api.OnThisDay {
-				now := time.Now()
-				yearDiff := now.Year() - memories[pickedMemoryIndex].Data.Year
-				if yearDiff == 1 {
-					asset.MemoryTitle = "1 year ago"
-				} else {
-					asset.MemoryTitle = fmt.Sprintf("%d years ago", yearDiff)
-				}
+				asset.MemoryTitle = humanize.Time(memories[pickedMemoryIndex].Assets[assetIndex].LocalDateTime)
 			}
 
 			asset.Bucket = kiosk.SourceMemories
