@@ -39,8 +39,8 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 		return err
 	}
 
-	dateStartHuman := dateStart.Format("2006-01-02")
-	dateEndHuman := dateEnd.Format("2006-01-02")
+	dateStartHuman := dateStart.Format("2006-01-02 15:04:05 MST")
+	dateEndHuman := dateEnd.Format("2006-01-02 15:04:05 MST")
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
@@ -180,19 +180,19 @@ func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 
 // processTodayDateRange returns the start and end times for today's date range.
 //
-// The function:
-// - Uses local timezone for time calculations
-// - Sets start time to beginning of current day (00:00:00)
-// - Sets end time to last nanosecond of current day (23:59:59.999999999)
+// This function takes no parameters and returns the start and end times for the
+// current day in the local timezone. The start time is set to midnight (00:00:00.000000000)
+// and the end time is set to just before midnight (23:59:59.999999999).
+//
+// The time calculations use the system's local timezone settings.
 //
 // Returns:
-// - Start time: Beginning of current day
-// - End time: End of current day
+//   - time.Time: Start time (beginning of current day at 00:00:00.000000000)
+//   - time.Time: End time (end of current day at 23:59:59.999999999)
 func processTodayDateRange() (time.Time, time.Time) {
 	now := time.Now().Local()
-	dateStart := now.Truncate(24 * time.Hour)
-
-	dateEnd := dateStart.AddDate(0, 0, 1).Add(-time.Nanosecond)
+	dateStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	dateEnd := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 999999999, time.Local)
 	return dateStart, dateEnd
 }
 
@@ -215,9 +215,7 @@ func processDateRange(dateRange string) (time.Time, time.Time, error) {
 
 	var err error
 
-	now := time.Now().Local()
-	dateStart := now.Truncate(24 * time.Hour)
-	dateEnd := dateStart
+	dateStart, dateEnd := processTodayDateRange()
 
 	dates := strings.SplitN(dateRange, "_to_", 2)
 	if len(dates) != 2 {
@@ -225,14 +223,14 @@ func processDateRange(dateRange string) (time.Time, time.Time, error) {
 	}
 
 	if !strings.EqualFold(dates[0], "today") {
-		dateStart, err = time.ParseInLocation("2006-01-02", dates[0], time.Local)
+		dateStart, err = time.ParseInLocation(time.DateOnly, dates[0], time.Local)
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
 	}
 
 	if !strings.EqualFold(dates[1], "today") {
-		dateEnd, err = time.ParseInLocation("2006-01-02", dates[1], time.Local)
+		dateEnd, err = time.ParseInLocation(time.DateOnly, dates[1], time.Local)
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
@@ -242,7 +240,7 @@ func processDateRange(dateRange string) (time.Time, time.Time, error) {
 		dateStart, dateEnd = dateEnd, dateStart
 	}
 
-	dateEnd = dateEnd.AddDate(0, 0, 1).Add(-time.Nanosecond)
+	dateEnd = time.Date(dateEnd.Year(), dateEnd.Month(), dateEnd.Day(), 23, 59, 59, 999999999, dateEnd.Location())
 
 	return dateStart, dateEnd, nil
 }

@@ -82,7 +82,7 @@
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
 
 ## Requirements
-- A reachable Immich server that is running version v1.117.0 or above.
+- A reachable Immich server that is running version v1.127.0 or above.
 - A browser from [this supported list](https://browserslist.dev/?q=PiAwLjIl) or higher.
 
 ## Key features
@@ -197,7 +197,6 @@ There are two main ways to install Kiosk: **Docker** or **Binary**.
    ```sh
    ./kiosk
    ```
-
 
 ------
 
@@ -388,7 +387,7 @@ See the file `config.example.yaml` for an example config file
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
 | [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges. See [Date range](#date-range) for more information. |
 | [tag](#tags)                      | KIOSK_TAG               | []string                   | []          | Tag or tags you want to display. See [Tags](#tags) for more information. |
-| memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memory lane assets. |
+| memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memories. |
 | blacklist                         | KIOSK_BLACKLIST         | []string                   | []          | The ID(s) of any specific assets you want Kiosk to skip/exclude from displaying. You can also tag assets in Immich with "kiosk-skip" to achieve the same. |
 | [date_filter](#filters)           | KIOSK_DATE_FILTER       | string                     | ""          | Filter person and random assets by date. See [date filter](#filters) for more information. |
 | disable_navigation               | KIOSK_DISABLE_NAVIGATION | bool                       | false       | Disable all Kiosk's navigation (touch/click, keyboard and menu).    |
