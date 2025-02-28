@@ -1373,7 +1373,8 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - [x] prev/next navigation
 - [x] Splitview
 - [x] Splitview related images
-- [ ] Docker/immich healthcheck?
+- [ ] Exclude albums
+- [ ] Enable albums with `date_filter`
 - [x] Multi location weather
 - [x] Default weather location
 - [x] Redirect/friendly urls
