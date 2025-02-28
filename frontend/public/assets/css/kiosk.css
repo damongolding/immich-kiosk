@@ -459,6 +459,7 @@ form {
   -moz-box-pack: center;
        justify-content: center;
   width: 0.9rem;
+  padding-top: 0.1875rem;
 }
 .asset--metadata--icon svg {
     height: 0.9rem;
