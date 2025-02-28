@@ -198,7 +198,6 @@ There are two main ways to install Kiosk: **Docker** or **Binary**.
    ./kiosk
    ```
 
-
 ------
 
 ## Docker Compose
