@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"bytes"
 	"net/http"
 
 	"github.com/charmbracelet/log"
@@ -117,5 +118,45 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		return c.Blob(http.StatusOK, "image/jpeg", imgBytes)
+	}
+}
+
+func Image(baseConfig *config.Config) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
+
+		log.Debug(
+			requestID,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
+
+		imageID := c.Param("imageID")
+
+		immichAsset := immich.NewAsset(requestConfig)
+		immichAsset.ID = imageID
+
+		if requestConfig.UseOriginalImage {
+			if err := immichAsset.AssetInfo(requestID, ""); err != nil {
+				return err
+			}
+		}
+
+		imgBytes, err := immichAsset.ImagePreview()
+		if err != nil {
+			return err
+		}
+
+		imageMime := utils.ImageMimeType(bytes.NewReader(imgBytes))
+
+		return c.Blob(http.StatusOK, imageMime, imgBytes)
 	}
 }
