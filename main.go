@@ -156,6 +156,8 @@ func main() {
 
 	e.GET("/video/:videoID", routes.NewVideo(baseConfig))
 
+	e.GET("/wall", routes.Wall(baseConfig))
+
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
 	for _, w := range baseConfig.WeatherLocations {
