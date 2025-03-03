@@ -540,6 +540,7 @@ func (i *ImmichAsset) isValidAsset(requestID, deviceID string, allowedTypes []Im
 	isInExcludedAlbum := slices.ContainsFunc(i.AppearsIn, func(album ImmichAlbum) bool {
 		return slices.Contains(i.requestConfig.ExcludedAlbums, album.ID)
 	})
+
 	if isInExcludedAlbum {
 		return false
 	}
