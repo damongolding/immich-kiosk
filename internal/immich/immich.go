@@ -176,7 +176,7 @@ type ImmichAsset struct {
 	IsPortrait  bool             `json:"-"`
 	IsLandscape bool             `json:"-"`
 	MemoryTitle string           `json:"-"`
-	AppearsIn   []string         `json:"-"`
+	AppearsIn   ImmichAlbums     `json:"-"`
 	Bucket      kiosk.Source     `json:"-"`
 	BucketID    string           `json:"-"`
 }

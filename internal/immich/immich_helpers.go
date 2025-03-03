@@ -15,6 +15,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 // immichApiFail handles failures in Immich API calls by unmarshaling the error response,
@@ -475,24 +476,68 @@ func (i *ImmichAsset) containsTag(tagName string) bool {
 	return false
 }
 
-// isValidAsset checks if an asset meets the criteria for being considered valid.
-// It validates the asset against several conditions:
-// - The asset type must be in the list of allowed types
-// - The asset must not be in the trash
-// - The asset must not be archived (unless showing archived is enabled)
-// - The asset must match any configured ratio requirements
-// - The asset must not be in the configured blacklist
-// Returns true if the asset meets all criteria, false otherwise.
-func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType, wantedRatio ImageOrientation) bool {
-	isNotValidType := !slices.Contains(allowedTypes, i.Type)
-	isTrashed := i.IsTrashed
-	isArchived := i.IsArchived && !requestConfig.ShowArchived
-	isNotValidRatio := !i.ratioCheck(wantedRatio)
-	isBlacklisted := slices.Contains(requestConfig.Blacklist, i.ID)
+// isValidAsset checks if an asset meets all the required criteria for processing.
+// It validates:
+// - Asset type against allowed types
+// - Trash and archive status
+// - Image ratio requirements
+// - Blacklist status
+// - Album exclusions
+// - Skip tags
+//
+// Parameters:
+//
+//	requestID: unique identifier for the current request
+//	deviceID: identifier for the device making the request
+//	allowedTypes: slice of allowed asset types
+//	wantedRatio: required image orientation
+//
+// Returns:
+//
+//	bool: true if the asset is valid, false otherwise
+func (i *ImmichAsset) isValidAsset(requestID, deviceID string, allowedTypes []ImmichAssetType, wantedRatio ImageOrientation) bool {
+	if !slices.Contains(allowedTypes, i.Type) {
+		return false
+	}
 
-	if isNotValidType || isTrashed || isArchived || isNotValidRatio || isBlacklisted {
+	if i.IsTrashed {
+		return false
+	}
+
+	if i.IsArchived && !requestConfig.ShowArchived {
+		return false
+	}
+
+	if !i.ratioCheck(wantedRatio) {
+		return false
+	}
+
+	if slices.Contains(requestConfig.Blacklist, i.ID) {
+		return false
+	}
+
+	// Album validation
+	if len(i.AppearsIn) == 0 {
+		i.AlbumsThatContainAsset(requestID, deviceID)
+	}
+
+	isInExcludedAlbum := slices.ContainsFunc(i.AppearsIn, func(album ImmichAlbum) bool {
+		return slices.Contains(requestConfig.ExcludedAlbums, album.ID)
+	})
+	if isInExcludedAlbum {
+		return false
+	}
+
+	// Get more info for tag validation
+	if err := i.AssetInfo(requestID, deviceID); err != nil {
+		log.Error("Failed to get additional asset data", "error", err)
+	}
+
+	// Tag validation
+	if i.containsTag(kiosk.TagSkip) {
 		return false
 	}
 
 	return true
+
 }

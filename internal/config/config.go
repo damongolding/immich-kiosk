@@ -453,6 +453,10 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 		c.ResetBuckets()
 	}
 
+	if queries.Get("excluded_album") == "none" || queries.Get("excluded_albums") == "none" {
+		c.ExcludedAlbums = []string{}
+	}
+
 	err := e.Bind(c)
 	if err != nil {
 		return err

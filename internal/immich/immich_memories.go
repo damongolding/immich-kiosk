@@ -168,16 +168,7 @@ func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch b
 
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
-			if !asset.isValidAsset(ImageOnlyAssetTypes, i.RatioWanted) {
-				continue
-			}
-
-			err := asset.AssetInfo(requestID, deviceID)
-			if err != nil {
-				log.Error("Failed to get additional asset data", "error", err)
-			}
-
-			if asset.containsTag(kiosk.TagSkip) {
+			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
 			}
 
