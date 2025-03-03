@@ -15,13 +15,17 @@ import (
 )
 
 // AlbumsThatContainAsset finds all albums that contain this asset and updates
-// the AppearsIn field with the album names.
+// the AppearsIn field with the list of albums. The asset must have its ID set.
 // Parameters:
 //   - requestID: ID used for tracking API call chain
 //   - deviceID: ID of device making the request
+//
+// Results:
+//   - AppearsIn field of the ImmichAsset is updated with list of albums
+//   - Any error during API call is logged but function does not return an error
 func (i *ImmichAsset) AlbumsThatContainAsset(requestID, deviceID string) {
 
-	albumsContaingAsset := []string{}
+	var albumsContaingAsset ImmichAlbums
 
 	albums, _, err := i.albums(requestID, deviceID, false, i.ID)
 	if err != nil {
@@ -29,9 +33,7 @@ func (i *ImmichAsset) AlbumsThatContainAsset(requestID, deviceID string) {
 		return
 	}
 
-	for _, album := range albums {
-		albumsContaingAsset = append(albumsContaingAsset, album.AlbumName)
-	}
+	albumsContaingAsset = append(albumsContaingAsset, albums...)
 
 	i.AppearsIn = albumsContaingAsset
 }
@@ -41,7 +43,7 @@ func (i *ImmichAsset) AlbumsThatContainAsset(requestID, deviceID string) {
 func (i *ImmichAsset) albums(requestID, deviceID string, shared bool, contains string) (ImmichAlbums, string, error) {
 	var albums ImmichAlbums
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		return immichApiFail(albums, err, nil, "")
 	}
@@ -64,7 +66,7 @@ func (i *ImmichAsset) albums(requestID, deviceID string, shared bool, contains s
 
 	apiUrl.RawQuery = queryParams.Encode()
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, albums)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, albums)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(albums, err, body, apiUrl.String())
@@ -101,7 +103,7 @@ func (i *ImmichAsset) allAlbums(requestID, deviceID string) (ImmichAlbums, strin
 func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAlbum, string, error) {
 	var album ImmichAlbum
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		return immichApiFail(album, err, nil, "")
 	}
@@ -112,7 +114,7 @@ func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAl
 		Path:   path.Join("api", "albums", albumID),
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, album)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, album)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(album, err, body, apiUrl.String())
@@ -181,21 +183,21 @@ func (i *ImmichAsset) AlbumImageCount(albumID string, requestID, deviceID string
 	}
 }
 
-// ImageFromAlbum retrieves and returns an image from an album in the Immich server.
-// It handles retrying failed requests, caching of album assets, and filtering of images based on type and status.
-// The returned image is set into the ImmichAsset receiver.
+// AssetFromAlbum retrieves and returns an asset from an album in the Immich server.
+// It handles retrying failed requests, caching of album assets, and filtering of assets based on type and status.
+// The returned asset is set into the ImmichAsset receiver.
 //
 // Parameters:
-//   - albumID: The ID of the album to get an image from
+//   - albumID: The ID of the album to get an asset from
 //   - albumAssetsOrder: The order to return assets (Rand for random, Asc for ascending)
 //   - requestID: ID used to track the API request chain
 //   - deviceID: ID of the device making the request
 //   - isPrefetch: Whether this is a prefetch request for caching
 //
 // Returns:
-//   - error: Any error encountered during the image retrieval process, including when no viable images are found
+//   - error: Any error encountered during the asset retrieval process, including when no viable images are found
 //     after maximum retry attempts
-func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAssetOrder, requestID, deviceID string, isPrefetch bool) error {
+func (i *ImmichAsset) AssetFromAlbum(albumID string, albumAssetsOrder ImmichAssetOrder, requestID, deviceID string, isPrefetch bool) error {
 
 	for range MaxRetries {
 
@@ -204,7 +206,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, i.requestConfig.SelectedUser)
 
 		if len(album.Assets) == 0 {
 			log.Debug(requestID+" No images left in cache. Refreshing and trying again for album", albumID)
@@ -232,26 +234,19 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 		allowedTypes := ImageOnlyAssetTypes
 
-		if requestConfig.ExperimentalAlbumVideo {
+		if i.requestConfig.ExperimentalAlbumVideo {
 			allowedTypes = AllAssetTypes
 		}
 
 		for assetIndex, asset := range album.Assets {
 
-			if !asset.isValidAsset(allowedTypes, i.RatioWanted) {
+			asset.Bucket = kiosk.SourceAlbum
+
+			if !asset.isValidAsset(requestID, deviceID, allowedTypes, i.RatioWanted) {
 				continue
 			}
 
-			err := asset.AssetInfo(requestID, deviceID)
-			if err != nil {
-				log.Error("Failed to get additional asset data", "error", err)
-			}
-
-			if asset.containsTag(kiosk.TagSkip) {
-				continue
-			}
-
-			if requestConfig.Kiosk.Cache {
+			if i.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				assetsToCache := album
 				assetsToCache.Assets = slices.Delete(album.Assets, assetIndex, assetIndex+1)
@@ -269,7 +264,6 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 			}
 
-			asset.Bucket = kiosk.SourceAlbum
 			asset.BucketID = album.ID
 
 			*i = asset
@@ -304,7 +298,7 @@ func (i *ImmichAsset) selectRandomAlbum(albums ImmichAlbums, excludedAlbums []st
 		})
 	}
 
-	pickedAlbum := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
+	pickedAlbum := utils.PickRandomImageType(i.requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
 	return pickedAlbum.ID, nil
 }
 

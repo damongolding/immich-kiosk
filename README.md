@@ -849,7 +849,7 @@ Filters allow you to filter asset buckets (people/albums/date etc.) by certain c
 ### Date filter
 
 > [!NOTE]
-> `date_filter` only currently applies to person and random assets.
+> `date_filter` applies to person, album, tag and random assets.
 
 `date_filter` accepts the same values as [date range](#date-range).
 
@@ -1373,7 +1373,8 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - [x] prev/next navigation
 - [x] Splitview
 - [x] Splitview related images
-- [ ] Docker/immich healthcheck?
+- [ ] Exclude albums
+- [ ] Enable albums with `date_filter`
 - [x] Multi location weather
 - [x] Default weather location
 - [x] Redirect/friendly urls

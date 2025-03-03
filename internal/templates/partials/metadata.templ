@@ -189,6 +189,16 @@ func peopleNames(people []immich.Person) string {
 	return strings.Join(p, ", ")
 }
 
+func joinAlbumNames(albums immich.ImmichAlbums) string {
+	albumNames := make([]string, len(albums))
+
+	for i, album := range albums {
+		albumNames[i] = album.AlbumName
+	}
+
+	return strings.Join(albumNames, ", ")
+}
+
 func AssetPeople(peopleNames string) string {
 	return fmt.Sprintf(`
 		<div class="asset--metadata--has-icon">
@@ -275,7 +285,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 					</svg>
 				</div>
 				<div>
-					<span>{ strings.Join(viewData.Assets[assetIndex].ImmichAsset.AppearsIn, ", ") }</span>
+					<span>{ joinAlbumNames(viewData.Assets[assetIndex].ImmichAsset.AppearsIn) }</span>
 				</div>
 			</div>
 		}
