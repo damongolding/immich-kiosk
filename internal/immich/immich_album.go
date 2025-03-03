@@ -41,7 +41,7 @@ func (i *ImmichAsset) AlbumsThatContainAsset(requestID, deviceID string) {
 func (i *ImmichAsset) albums(requestID, deviceID string, shared bool, contains string) (ImmichAlbums, string, error) {
 	var albums ImmichAlbums
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		return immichApiFail(albums, err, nil, "")
 	}
@@ -64,7 +64,7 @@ func (i *ImmichAsset) albums(requestID, deviceID string, shared bool, contains s
 
 	apiUrl.RawQuery = queryParams.Encode()
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, albums)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, albums)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(albums, err, body, apiUrl.String())
@@ -101,7 +101,7 @@ func (i *ImmichAsset) allAlbums(requestID, deviceID string) (ImmichAlbums, strin
 func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAlbum, string, error) {
 	var album ImmichAlbum
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		return immichApiFail(album, err, nil, "")
 	}
@@ -112,7 +112,7 @@ func (i *ImmichAsset) albumAssets(albumID, requestID, deviceID string) (ImmichAl
 		Path:   path.Join("api", "albums", albumID),
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, album)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, album)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(album, err, body, apiUrl.String())
@@ -204,7 +204,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, i.requestConfig.SelectedUser)
 
 		if len(album.Assets) == 0 {
 			log.Debug(requestID+" No images left in cache. Refreshing and trying again for album", albumID)
@@ -232,7 +232,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 		allowedTypes := ImageOnlyAssetTypes
 
-		if requestConfig.ExperimentalAlbumVideo {
+		if i.requestConfig.ExperimentalAlbumVideo {
 			allowedTypes = AllAssetTypes
 		}
 
@@ -251,7 +251,7 @@ func (i *ImmichAsset) ImageFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 				continue
 			}
 
-			if requestConfig.Kiosk.Cache {
+			if i.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				assetsToCache := album
 				assetsToCache.Assets = slices.Delete(album.Assets, assetIndex, assetIndex+1)
@@ -304,7 +304,7 @@ func (i *ImmichAsset) selectRandomAlbum(albums ImmichAlbums, excludedAlbums []st
 		})
 	}
 
-	pickedAlbum := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
+	pickedAlbum := utils.PickRandomImageType(i.requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
 	return pickedAlbum.ID, nil
 }
 

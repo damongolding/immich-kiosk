@@ -19,7 +19,7 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 	var allFavouritesCount int
 	pageCount := 1
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		_, _, err = immichApiFail(allFavouritesCount, err, nil, "")
 		return allFavouritesCount, err
@@ -30,14 +30,14 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 		IsFavorite: true,
 		WithPeople: false,
 		WithExif:   false,
-		Size:       requestConfig.Kiosk.FetchedAssetsSize,
+		Size:       i.requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
-	if requestConfig.ShowArchived {
+	if i.requestConfig.ShowArchived {
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, requestConfig.DateFilter)
+	DateFilter(&requestBody, i.requestConfig.DateFilter)
 
 	for {
 
@@ -61,7 +61,7 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 			return allFavouritesCount, err
 		}
 
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, favourites)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, favourites)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichApiFail(favourites, err, apiBody, apiUrl.String())
@@ -124,7 +124,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 
 		var immichAssets []ImmichAsset
 
-		u, err := url.Parse(requestConfig.ImmichUrl)
+		u, err := url.Parse(i.requestConfig.ImmichUrl)
 		if err != nil {
 			return fmt.Errorf("parsing url: %w", err)
 		}
@@ -134,14 +134,14 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 			IsFavorite: true,
 			WithExif:   true,
 			WithPeople: true,
-			Size:       requestConfig.Kiosk.FetchedAssetsSize,
+			Size:       i.requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
-		if requestConfig.ShowArchived {
+		if i.requestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
 
-		DateFilter(&requestBody, requestConfig.DateFilter)
+		DateFilter(&requestBody, i.requestConfig.DateFilter)
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
@@ -158,7 +158,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 			return fmt.Errorf("marshaling request body: %w", err)
 		}
 
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAssets)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAssets)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
@@ -171,7 +171,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, requestConfig.SelectedUser)
+		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, i.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -194,7 +194,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 				continue
 			}
 
-			if requestConfig.Kiosk.Cache {
+			if i.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, err := json.Marshal(immichAssetsToCache)

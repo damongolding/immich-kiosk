@@ -15,6 +15,12 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+<<<<<<< Updated upstream
+=======
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/utils"
+>>>>>>> Stashed changes
 )
 
 // immichApiFail handles failures in Immich API calls by unmarshaling the error response,
@@ -31,7 +37,7 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 }
 
 // withImmichApiCache Decorator to implement cache for the immichApiCall func
-func withImmichApiCache[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID, deviceID string, jsonShape T) ImmichApiCall {
+func withImmichApiCache[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) ImmichApiCall {
 	return func(method, apiUrl string, body []byte, headers ...map[string]string) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
@@ -104,12 +110,12 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 		}
 
 		req.Header.Set("Accept", "application/json")
-		apiKey := requestConfig.ImmichApiKey
-		if requestConfig.SelectedUser != "" {
-			if key, ok := requestConfig.ImmichUsersApiKeys[requestConfig.SelectedUser]; ok {
+		apiKey := i.requestConfig.ImmichApiKey
+		if i.requestConfig.SelectedUser != "" {
+			if key, ok := i.requestConfig.ImmichUsersApiKeys[i.requestConfig.SelectedUser]; ok {
 				apiKey = key
 			} else {
-				return responseBody, fmt.Errorf("no API key found for user %s in the config", requestConfig.SelectedUser)
+				return responseBody, fmt.Errorf("no API key found for user %s in the config", i.requestConfig.SelectedUser)
 			}
 		}
 
@@ -126,6 +132,7 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 			}
 		}
 
+		httpClient.Timeout = time.Second * time.Duration(i.requestConfig.Kiosk.HTTPTimeout)
 		res, err := httpClient.Do(req)
 		if err != nil {
 			lastErr = err
@@ -260,7 +267,7 @@ func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 
 	var immichAsset ImmichAsset
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		return err
 	}
@@ -271,7 +278,7 @@ func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 		Path:   path.Join("api", "assets", i.ID),
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAsset)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAsset)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, _, err = immichApiFail(immichAsset, err, body, apiUrl.String())
@@ -292,14 +299,14 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 
 	var bytes []byte
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		log.Error(err)
 		return bytes, err
 	}
 
 	assetSize := AssetSizeThumbnail
-	if requestConfig.UseOriginalImage && slices.Contains(supportedImageMimeTypes, i.OriginalMimeType) {
+	if i.requestConfig.UseOriginalImage && slices.Contains(supportedImageMimeTypes, i.OriginalMimeType) {
 		assetSize = AssetSizeOriginal
 	}
 
@@ -490,7 +497,58 @@ func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType, wantedRatio I
 	isNotValidRatio := !i.ratioCheck(wantedRatio)
 	isBlacklisted := slices.Contains(requestConfig.Blacklist, i.ID)
 
+<<<<<<< Updated upstream
 	if isNotValidType || isTrashed || isArchived || isNotValidRatio || isBlacklisted {
+=======
+	if i.IsTrashed {
+		return false
+	}
+
+	if i.IsArchived && !i.requestConfig.ShowArchived {
+		return false
+	}
+
+	if !i.ratioCheck(wantedRatio) {
+		return false
+	}
+
+	if slices.Contains(i.requestConfig.Blacklist, i.ID) {
+		return false
+	}
+
+	// Date filter validation
+	if i.requestConfig.DateFilter != "" && (i.Bucket != kiosk.SourceMemories && i.Bucket != kiosk.SourceDateRange) {
+		dateStart, dateEnd, err := determineDateRange(i.requestConfig.DateFilter)
+		if err != nil {
+			log.Error("malformed filter", "err", err)
+		} else {
+			if !utils.IsTimeBetween(i.LocalDateTime.Local(), dateStart, dateEnd) {
+				return false
+			}
+		}
+
+	}
+
+	// Album validation
+	if len(i.AppearsIn) == 0 {
+		i.AlbumsThatContainAsset(requestID, deviceID)
+	}
+
+	isInExcludedAlbum := slices.ContainsFunc(i.AppearsIn, func(album ImmichAlbum) bool {
+		return slices.Contains(i.requestConfig.ExcludedAlbums, album.ID)
+	})
+	if isInExcludedAlbum {
+		return false
+	}
+
+	// Get more info for tag validation
+	if err := i.AssetInfo(requestID, deviceID); err != nil {
+		log.Error("Failed to get additional asset data", "error", err)
+	}
+
+	// Tag validation
+	if i.containsTag(kiosk.TagSkip) {
+>>>>>>> Stashed changes
 		return false
 	}
 
