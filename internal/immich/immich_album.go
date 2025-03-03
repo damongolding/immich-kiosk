@@ -240,6 +240,8 @@ func (i *ImmichAsset) AssetFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 		for assetIndex, asset := range album.Assets {
 
+			asset.Bucket = kiosk.SourceAlbum
+
 			if !asset.isValidAsset(requestID, deviceID, allowedTypes, i.RatioWanted) {
 				continue
 			}
@@ -262,7 +264,6 @@ func (i *ImmichAsset) AssetFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 
 			}
 
-			asset.Bucket = kiosk.SourceAlbum
 			asset.BucketID = album.ID
 
 			*i = asset

@@ -168,6 +168,8 @@ func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch b
 
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
+			asset.Bucket = kiosk.SourceMemories
+
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
 			}
@@ -181,8 +183,6 @@ func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch b
 			if memories[pickedMemoryIndex].Type == immich_open_api.OnThisDay {
 				asset.MemoryTitle = humanize.Time(memories[pickedMemoryIndex].Assets[assetIndex].LocalDateTime)
 			}
-
-			asset.Bucket = kiosk.SourceMemories
 
 			*i = asset
 

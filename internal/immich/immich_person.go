@@ -133,6 +133,8 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 		for immichAssetIndex, asset := range immichAssets {
 
+			asset.Bucket = kiosk.SourcePerson
+
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
 			}
@@ -153,7 +155,6 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 				}
 			}
 
-			asset.Bucket = kiosk.SourcePerson
 			asset.BucketID = personID
 
 			*i = asset

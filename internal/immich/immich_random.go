@@ -99,6 +99,8 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 
 		for immichAssetIndex, asset := range immichAssets {
 
+			asset.Bucket = kiosk.SourceRandom
+
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
 			}
@@ -118,8 +120,6 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 					log.Debug("cache not found!")
 				}
 			}
-
-			asset.Bucket = kiosk.SourceRandom
 
 			*i = asset
 

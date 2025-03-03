@@ -16,6 +16,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
 // immichApiFail handles failures in Immich API calls by unmarshaling the error response,
@@ -514,6 +515,19 @@ func (i *ImmichAsset) isValidAsset(requestID, deviceID string, allowedTypes []Im
 
 	if slices.Contains(requestConfig.Blacklist, i.ID) {
 		return false
+	}
+
+	// Date filter validation
+	if requestConfig.DateFilter != "" && (i.Bucket != kiosk.SourceMemories && i.Bucket != kiosk.SourceDateRange) {
+		dateStart, dateEnd, err := determineDateRange(requestConfig.DateFilter)
+		if err != nil {
+			log.Error("malformed filter", "err", err)
+		} else {
+			if !utils.IsTimeBetween(i.LocalDateTime.Local(), dateStart, dateEnd) {
+				return false
+			}
+		}
+
 	}
 
 	// Album validation
