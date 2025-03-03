@@ -733,3 +733,13 @@ func TrimHistory(history *[]string, maxLength int) {
 		*history = (*history)[len(*history)-maxLength:]
 	}
 }
+
+// IsTimeBetween checks if a given time falls between a start and end time, inclusive.
+// checkTime: The time to check
+// startTime: The beginning of the time range
+// endTime: The end of the time range
+// Returns true if checkTime is equal to or after startTime AND equal to or before endTime
+func IsTimeBetween(checkTime, startTime, endTime time.Time) bool {
+	return (checkTime.Equal(startTime) || checkTime.After(startTime)) &&
+		(checkTime.Equal(endTime) || checkTime.Before(endTime))
+}

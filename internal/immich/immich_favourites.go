@@ -181,16 +181,9 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 
 		for immichAssetIndex, asset := range immichAssets {
 
-			if !asset.isValidAsset(ImageOnlyAssetTypes, i.RatioWanted) {
-				continue
-			}
+			asset.Bucket = kiosk.SourceAlbum
 
-			err := asset.AssetInfo(requestID, deviceID)
-			if err != nil {
-				log.Error("Failed to get additional asset data", "error", err)
-			}
-
-			if asset.containsTag(kiosk.TagSkip) {
+			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
 			}
 
@@ -210,7 +203,6 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 				}
 			}
 
-			asset.Bucket = kiosk.SourceAlbum
 			asset.BucketID = kiosk.AlbumKeywordFavourites
 
 			*i = asset

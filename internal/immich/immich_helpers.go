@@ -15,12 +15,9 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
-<<<<<<< Updated upstream
-=======
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
->>>>>>> Stashed changes
 )
 
 // immichApiFail handles failures in Immich API calls by unmarshaling the error response,
@@ -482,24 +479,30 @@ func (i *ImmichAsset) containsTag(tagName string) bool {
 	return false
 }
 
-// isValidAsset checks if an asset meets the criteria for being considered valid.
-// It validates the asset against several conditions:
-// - The asset type must be in the list of allowed types
-// - The asset must not be in the trash
-// - The asset must not be archived (unless showing archived is enabled)
-// - The asset must match any configured ratio requirements
-// - The asset must not be in the configured blacklist
-// Returns true if the asset meets all criteria, false otherwise.
-func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType, wantedRatio ImageOrientation) bool {
-	isNotValidType := !slices.Contains(allowedTypes, i.Type)
-	isTrashed := i.IsTrashed
-	isArchived := i.IsArchived && !requestConfig.ShowArchived
-	isNotValidRatio := !i.ratioCheck(wantedRatio)
-	isBlacklisted := slices.Contains(requestConfig.Blacklist, i.ID)
+// isValidAsset checks if an asset meets all the required criteria for processing.
+// It validates:
+// - Asset type against allowed types
+// - Trash and archive status
+// - Image ratio requirements
+// - Blacklist status
+// - Album exclusions
+// - Skip tags
+//
+// Parameters:
+//
+//	requestID: unique identifier for the current request
+//	deviceID: identifier for the device making the request
+//	allowedTypes: slice of allowed asset types
+//	wantedRatio: required image orientation
+//
+// Returns:
+//
+//	bool: true if the asset is valid, false otherwise
+func (i *ImmichAsset) isValidAsset(requestID, deviceID string, allowedTypes []ImmichAssetType, wantedRatio ImageOrientation) bool {
+	if !slices.Contains(allowedTypes, i.Type) {
+		return false
+	}
 
-<<<<<<< Updated upstream
-	if isNotValidType || isTrashed || isArchived || isNotValidRatio || isBlacklisted {
-=======
 	if i.IsTrashed {
 		return false
 	}
@@ -548,9 +551,9 @@ func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType, wantedRatio I
 
 	// Tag validation
 	if i.containsTag(kiosk.TagSkip) {
->>>>>>> Stashed changes
 		return false
 	}
 
 	return true
+
 }

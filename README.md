@@ -849,7 +849,7 @@ Filters allow you to filter asset buckets (people/albums/date etc.) by certain c
 ### Date filter
 
 > [!NOTE]
-> `date_filter` only currently applies to person and random assets.
+> `date_filter` applies to person, album, tag and random assets.
 
 `date_filter` accepts the same values as [date range](#date-range).
 

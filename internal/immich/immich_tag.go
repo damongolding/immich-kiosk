@@ -11,6 +11,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/google/go-querystring/query"
 )
 
@@ -215,20 +216,9 @@ func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID strin
 
 		for immichAssetIndex, asset := range immichAssets {
 
-<<<<<<< Updated upstream
-			if !asset.isValidAsset(ImageOnlyAssetTypes, i.RatioWanted) {
-				continue
-			}
+			asset.Bucket = kiosk.SourceTag
 
-			err := asset.AssetInfo(requestID, deviceID)
-			if err != nil {
-				log.Error("Failed to get additional asset data", "error", err)
-			}
-
-			if asset.containsTag(kiosk.TagSkip) {
-=======
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
->>>>>>> Stashed changes
 				continue
 			}
 
@@ -248,7 +238,6 @@ func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID strin
 				}
 			}
 
-			asset.Bucket = kiosk.SourceTag
 			asset.BucketID = tagID
 
 			*i = asset
