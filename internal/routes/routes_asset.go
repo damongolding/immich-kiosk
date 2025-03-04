@@ -121,6 +121,8 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 	}
 }
 
+// ImageWithID returns an echo.HandlerFunc that handles requests for images by ID.
+// It retrieves the image preview based on the provided imageID and returns it as a blob with the appropriate MIME type.
 func ImageWithID(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -149,13 +151,14 @@ func ImageWithID(baseConfig *config.Config) echo.HandlerFunc {
 
 		if requestConfig.UseOriginalImage {
 			if err := immichAsset.AssetInfo(requestID, ""); err != nil {
+				log.Error(requestID, "error getting asset info", "imageID", imageID, "error", err)
 				return err
 			}
 		}
 
 		imgBytes, err := immichAsset.ImagePreview()
 		if err != nil {
-			return err
+			return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
 		}
 
 		imageMime := utils.ImageMimeType(bytes.NewReader(imgBytes))
