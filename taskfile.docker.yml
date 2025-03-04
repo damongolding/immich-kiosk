@@ -30,7 +30,9 @@ tasks:
     desc: Build and push development multi-arch docker image
     deps: [build]
     cmds:
+      - orb start
       - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t ghcr.io/damongolding/immich-kiosk-development:{{.VERSION}} -t ghcr.io/damongolding/immich-kiosk-development:latest .
+      - orb stop
 
   push:
     desc: Build and push development multi-arch docker image
