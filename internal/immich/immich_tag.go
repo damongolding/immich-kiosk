@@ -36,7 +36,7 @@ func (t Tags) Get(tagValue string) (Tag, error) {
 func (i *ImmichAsset) AllTags(requestID, deviceID string) (Tags, string, error) {
 	var tags []Tag
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		return immichApiFail(tags, err, nil, "")
 	}
@@ -47,7 +47,7 @@ func (i *ImmichAsset) AllTags(requestID, deviceID string) (Tags, string, error) 
 		Path:   path.Join("api", "tags"),
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, tags)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, requestConfig, tags)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(tags, err, body, apiUrl.String())
@@ -66,7 +66,7 @@ func (i *ImmichAsset) AssetsWithTagCount(tagID string, requestID, deviceID strin
 	var allAssetsCount int
 	pageCount := 1
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		_, _, err = immichApiFail(allAssetsCount, err, nil, "")
 		return allAssetsCount, err
@@ -77,14 +77,14 @@ func (i *ImmichAsset) AssetsWithTagCount(tagID string, requestID, deviceID strin
 		TagIDs:     []string{tagID},
 		WithPeople: false,
 		WithExif:   false,
-		Size:       i.requestConfig.Kiosk.FetchedAssetsSize,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
-	if i.requestConfig.ShowArchived {
+	if requestConfig.ShowArchived {
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, i.requestConfig.DateFilter)
+	DateFilter(&requestBody, requestConfig.DateFilter)
 
 	for {
 
@@ -108,7 +108,7 @@ func (i *ImmichAsset) AssetsWithTagCount(tagID string, requestID, deviceID strin
 			return allAssetsCount, err
 		}
 
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, taggedAssets)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, requestConfig, taggedAssets)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichApiFail(taggedAssets, err, apiBody, apiUrl.String())
@@ -137,7 +137,7 @@ func (i *ImmichAsset) AssetsWithTag(tagID string, requestID, deviceID string) ([
 
 	var immichAssets []ImmichAsset
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		return immichApiFail(immichAssets, err, nil, "")
 	}
@@ -147,14 +147,14 @@ func (i *ImmichAsset) AssetsWithTag(tagID string, requestID, deviceID string) ([
 		TagIDs:     []string{tagID},
 		WithExif:   true,
 		WithPeople: true,
-		Size:       i.requestConfig.Kiosk.FetchedAssetsSize,
+		Size:       requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
-	if i.requestConfig.ShowArchived {
+	if requestConfig.ShowArchived {
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, i.requestConfig.DateFilter)
+	DateFilter(&requestBody, requestConfig.DateFilter)
 
 	// convert body to queries so url is unique and can be cached
 	queries, _ := query.Values(requestBody)
@@ -171,7 +171,7 @@ func (i *ImmichAsset) AssetsWithTag(tagID string, requestID, deviceID string) ([
 		return immichApiFail(immichAssets, err, nil, apiUrl.String())
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAssets)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, requestConfig, immichAssets)
 	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 	if err != nil {
 		return immichApiFail(immichAssets, err, nil, apiUrl.String())
@@ -200,7 +200,7 @@ func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID strin
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -222,7 +222,7 @@ func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID strin
 				continue
 			}
 
-			if i.requestConfig.Kiosk.Cache {
+			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, err := json.Marshal(immichAssetsToCache)

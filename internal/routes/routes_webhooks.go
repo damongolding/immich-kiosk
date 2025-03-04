@@ -93,7 +93,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			for i, imageID := range prevImages {
 				i, imageID := i, imageID
 				g.Go(func() error {
-					image := immich.NewAsset(requestConfig)
+					image := immich.New(requestConfig)
 					image.ID = imageID
 
 					err := image.AssetInfo(requestID, deviceID)

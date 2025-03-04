@@ -52,7 +52,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 
 		var immichAssets []ImmichAsset
 
-		u, err := url.Parse(i.requestConfig.ImmichUrl)
+		u, err := url.Parse(requestConfig.ImmichUrl)
 		if err != nil {
 			return fmt.Errorf("parsing url: %w", err)
 		}
@@ -63,10 +63,10 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 			TakenBefore: dateEnd.Format(time.RFC3339),
 			WithExif:    true,
 			WithPeople:  true,
-			Size:        i.requestConfig.Kiosk.FetchedAssetsSize,
+			Size:        requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
-		if i.requestConfig.ShowArchived {
+		if requestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
 
@@ -85,7 +85,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 			return fmt.Errorf("marshaling request body: %w", err)
 		}
 
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAssets)
+		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, requestConfig, immichAssets)
 		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
@@ -98,7 +98,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -114,7 +114,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 				continue
 			}
 
-			if i.requestConfig.Kiosk.Cache {
+			if requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, err := json.Marshal(immichAssetsToCache)

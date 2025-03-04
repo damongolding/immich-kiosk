@@ -29,7 +29,7 @@ import (
 func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (MemoriesResponse, string, error) {
 	var memories MemoriesResponse
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(requestConfig.ImmichUrl)
 	if err != nil {
 		return immichApiFail(memories, err, nil, "")
 	}
@@ -49,7 +49,7 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 		apiUrl.RawQuery += "&count=true"
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, memories)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, requestConfig, memories)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		return immichApiFail(memories, err, body, apiUrl.String())
@@ -152,7 +152,7 @@ func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch b
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
 
 		if len(memories) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again for memories")
@@ -174,7 +174,7 @@ func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch b
 				continue
 			}
 
-			if i.requestConfig.Kiosk.Cache {
+			if requestConfig.Kiosk.Cache {
 				if err := updateMemoryCache(memories, pickedMemoryIndex, assetIndex, apiCacheKey); err != nil {
 					return err
 				}
