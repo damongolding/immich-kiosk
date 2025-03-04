@@ -9,6 +9,7 @@ import (
 	"slices"
 
 	"github.com/charmbracelet/log"
+
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -241,6 +242,7 @@ func (i *ImmichAsset) AssetFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 		for assetIndex, asset := range album.Assets {
 
 			asset.Bucket = kiosk.SourceAlbum
+			asset.requestConfig = i.requestConfig
 
 			if !asset.isValidAsset(requestID, deviceID, allowedTypes, i.RatioWanted) {
 				continue

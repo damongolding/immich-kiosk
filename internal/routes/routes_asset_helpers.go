@@ -456,7 +456,7 @@ func setupRequestConfig(config *config.Config) {
 // setupImmichAsset creates and configures a new ImmichAsset based on the provided config
 // and orientation settings
 func setupImmichAsset(config config.Config, orientation immich.ImageOrientation) immich.ImmichAsset {
-	asset := immich.NewAsset(config)
+	asset := immich.New(config)
 	if orientation == immich.PortraitOrientation || orientation == immich.LandscapeOrientation {
 		asset.RatioWanted = orientation
 	}

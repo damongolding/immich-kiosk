@@ -169,6 +169,7 @@ func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch b
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
 			asset.Bucket = kiosk.SourceMemories
+			asset.requestConfig = i.requestConfig
 
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue

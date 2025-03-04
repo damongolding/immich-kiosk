@@ -105,7 +105,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		immichAsset := immich.NewAsset(requestConfig)
+		immichAsset := immich.New(requestConfig)
 
 		img, err := processAsset(&immichAsset, immich.ImageOnlyAssetTypes, requestConfig, requestID, "", "", false)
 		if err != nil {
@@ -146,7 +146,7 @@ func ImageWithID(baseConfig *config.Config) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Image ID is required")
 		}
 
-		immichAsset := immich.NewAsset(requestConfig)
+		immichAsset := immich.New(requestConfig)
 		immichAsset.ID = imageID
 
 		if requestConfig.UseOriginalImage {

@@ -217,6 +217,7 @@ func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID strin
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourceTag
+			asset.requestConfig = i.requestConfig
 
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue

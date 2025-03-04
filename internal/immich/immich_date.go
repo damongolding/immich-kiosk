@@ -109,6 +109,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourceDateRange
+			asset.requestConfig = i.requestConfig
 
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue

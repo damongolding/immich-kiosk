@@ -260,6 +260,7 @@ services:
       KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_EXPERIMENTAL_ALBUM_VIDEO: false
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
+      KIOSK_EXCLUDED_PEOPLE: "PERSON_ID,PERSON_ID,PERSON_ID"
       KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
       KIOSK_TAG: "TAG_VALUE,TAG_VALUE,TAG_VALUE"
       KIOSK_MEMORIES: false
@@ -385,6 +386,7 @@ See the file `config.example.yaml` for an example config file
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [experimental_album_video](#experimental-album-video-support) | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. See [experimental album video](#experimental-album-video-support) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
+| [excluded_people](#exclude-people) | KIOSK_EXCLUDED_PEOPLE   | []string                  | []         | The ID(s) of a specific person or people you want to exclude. See [Exclude people](#exclude-people) for more information. |
 | [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges. See [Date range](#date-range) for more information. |
 | [tag](#tags)                      | KIOSK_TAG               | []string                   | []          | Tag or tags you want to display. See [Tags](#tags) for more information. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memories. |
@@ -754,6 +756,58 @@ environment:
 
 ```url
 http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
+```
+
+------
+
+## Exclude people
+
+> [!NOTE]
+> The person or people you want to exclude from the slideshow must be tagged for the exclusion to work.
+
+This feature allows you to prevent specific people from being displayed in the slideshow.
+
+> [!TIP]
+> You can remove excluded people that were previously set in your `config.yaml` or environment variables by using `none` in the URL query parameters.
+>
+> Example:
+> ```url
+> https://{URL}?album=ALBUM_ID&exclude_person=none
+> ```
+
+### Getting a person's ID from Immich
+1. Open Immich's web interface and click on "Explore" in the left-hand navigation.
+2. Click on the person you want the ID of (you may have to click "view all" if you don't see them).
+3. The url will now look something like this `http://192.168.86.123:2283/people/a04175f4-97bb-4d97-8d49-3700263043e5`.
+4. The persons ID is everything after `people/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+
+
+There are **three** ways you can exclude people:
+
+> [!NOTE]
+> These methods are applied in order of precedence. URL queries take the highest priority, followed by environment variables, and finally the config.yaml file.
+> Each subsequent method overwrites the settings from the previous ones.
+
+1. via config.yaml file
+```yaml
+excluded_people:
+  - PERSON_ID
+  - PERSON_ID
+```
+
+2. via ENV in your docker-compose file use a `,` to separate IDs
+```yaml
+environment:
+  KIOSK_EXCLUDED_PEOPLE: "PERSON_ID,PERSON_ID,PERSON_ID"
+```
+
+3. via url queries:
+
+> [!NOTE]
+> it is `exclude_person=` and not `excluded_people=`
+
+```url
+http://{URL}?exclude_person=PERSON_ID&exclude_person=PERSON_ID&exclude_person=PERSON_ID
 ```
 
 ------

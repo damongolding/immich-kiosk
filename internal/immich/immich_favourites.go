@@ -182,6 +182,7 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourceAlbum
+			asset.requestConfig = i.requestConfig
 
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue

@@ -175,8 +175,9 @@ type ImmichAsset struct {
 	AppearsIn   ImmichAlbums     `json:"-"`
 	Bucket      kiosk.Source     `json:"-"`
 	BucketID    string           `json:"-"`
+
 	// requestConfig the config for this request
-	requestConfig config.Config `json:"-"`
+	requestConfig config.Config
 }
 
 type ImmichAlbum struct {
@@ -261,8 +262,8 @@ type AssetFaceResponse struct {
 	Person        Person `json:"person"`
 }
 
-// NewImage returns a new image instance
-func NewAsset(base config.Config) ImmichAsset {
+// New returns a new asset instance
+func New(base config.Config) ImmichAsset {
 	return ImmichAsset{requestConfig: base}
 }
 
