@@ -40,9 +40,6 @@ const (
 )
 
 var (
-	// requestConfig the config for this request
-	requestConfig config.Config
-
 	// httpTransport defines the transport layer configuration for HTTP requests to the Immich API.
 	// It manages connection pooling, keepalive settings, and connection timeouts.
 	httpTransport = &http.Transport{
@@ -60,7 +57,6 @@ var (
 	}
 	// httpClient default http client for Immich api calls
 	httpClient = &http.Client{
-		Timeout:   time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout),
 		Transport: httpTransport,
 	}
 
@@ -179,6 +175,9 @@ type ImmichAsset struct {
 	AppearsIn   ImmichAlbums     `json:"-"`
 	Bucket      kiosk.Source     `json:"-"`
 	BucketID    string           `json:"-"`
+
+	// requestConfig the config for this request
+	requestConfig config.Config
 }
 
 type ImmichAlbum struct {
@@ -265,8 +264,7 @@ type AssetFaceResponse struct {
 
 // New returns a new asset instance
 func New(base config.Config) ImmichAsset {
-	requestConfig = base
-	return ImmichAsset{}
+	return ImmichAsset{requestConfig: base}
 }
 
 type ImmichApiCall func(string, string, []byte, ...map[string]string) ([]byte, error)

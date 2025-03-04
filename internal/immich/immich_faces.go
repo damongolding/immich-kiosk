@@ -63,7 +63,7 @@ func (i *ImmichAsset) CheckForFaces(requestID, deviceID string) {
 
 	var faceResponse []AssetFaceResponse
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		_, _, err = immichApiFail(faceResponse, err, nil, "")
 		log.Error("parsing faces url", "err", err)
@@ -77,7 +77,7 @@ func (i *ImmichAsset) CheckForFaces(requestID, deviceID string) {
 		RawQuery: "id=" + i.ID,
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, requestConfig, faceResponse)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, faceResponse)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, _, err = immichApiFail(faceResponse, err, body, apiUrl.String())

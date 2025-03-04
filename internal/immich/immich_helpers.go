@@ -107,12 +107,12 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 		}
 
 		req.Header.Set("Accept", "application/json")
-		apiKey := requestConfig.ImmichApiKey
-		if requestConfig.SelectedUser != "" {
-			if key, ok := requestConfig.ImmichUsersApiKeys[requestConfig.SelectedUser]; ok {
+		apiKey := i.requestConfig.ImmichApiKey
+		if i.requestConfig.SelectedUser != "" {
+			if key, ok := i.requestConfig.ImmichUsersApiKeys[i.requestConfig.SelectedUser]; ok {
 				apiKey = key
 			} else {
-				return responseBody, fmt.Errorf("no API key found for user %s in the config", requestConfig.SelectedUser)
+				return responseBody, fmt.Errorf("no API key found for user %s in the config", i.requestConfig.SelectedUser)
 			}
 		}
 
@@ -129,6 +129,7 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 			}
 		}
 
+		httpClient.Timeout = time.Second * time.Duration(i.requestConfig.Kiosk.HTTPTimeout)
 		res, err := httpClient.Do(req)
 		if err != nil {
 			lastErr = err
@@ -263,7 +264,7 @@ func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 
 	var immichAsset ImmichAsset
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		return err
 	}
@@ -274,7 +275,7 @@ func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 		Path:   path.Join("api", "assets", i.ID),
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, requestConfig, immichAsset)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAsset)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, _, err = immichApiFail(immichAsset, err, body, apiUrl.String())
@@ -295,14 +296,14 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 
 	var bytes []byte
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		log.Error(err)
 		return bytes, err
 	}
 
 	assetSize := AssetSizeThumbnail
-	if requestConfig.UseOriginalImage && slices.Contains(supportedImageMimeTypes, i.OriginalMimeType) {
+	if i.requestConfig.UseOriginalImage && slices.Contains(supportedImageMimeTypes, i.OriginalMimeType) {
 		assetSize = AssetSizeOriginal
 	}
 
@@ -514,13 +515,13 @@ func (i *ImmichAsset) hasValidBasicProperties(allowedTypes []ImmichAssetType, wa
 	if i.IsTrashed {
 		return false
 	}
-	if i.IsArchived && !requestConfig.ShowArchived {
+	if i.IsArchived && !i.requestConfig.ShowArchived {
 		return false
 	}
 	if !i.ratioCheck(wantedRatio) {
 		return false
 	}
-	if slices.Contains(requestConfig.Blacklist, i.ID) {
+	if slices.Contains(i.requestConfig.Blacklist, i.ID) {
 		return false
 	}
 	return true
@@ -532,11 +533,11 @@ func (i *ImmichAsset) hasValidBasicProperties(allowedTypes []ImmichAssetType, wa
 // Returns:
 //   - bool: true if date is valid or no filter set, false if outside filter range
 func (i *ImmichAsset) hasValidDateFilter() bool {
-	if requestConfig.DateFilter == "" || (i.Bucket == kiosk.SourceMemories || i.Bucket == kiosk.SourceDateRange) {
+	if i.requestConfig.DateFilter == "" || (i.Bucket == kiosk.SourceMemories || i.Bucket == kiosk.SourceDateRange) {
 		return true
 	}
 
-	dateStart, dateEnd, err := determineDateRange(requestConfig.DateFilter)
+	dateStart, dateEnd, err := determineDateRange(i.requestConfig.DateFilter)
 	if err != nil {
 		log.Error("malformed filter", "err", err)
 		return true // Continue processing if date filter is malformed
@@ -560,7 +561,7 @@ func (i *ImmichAsset) hasValidAlbums(requestID, deviceID string) bool {
 	}
 
 	return !slices.ContainsFunc(i.AppearsIn, func(album ImmichAlbum) bool {
-		return slices.Contains(requestConfig.ExcludedAlbums, album.ID)
+		return slices.Contains(i.requestConfig.ExcludedAlbums, album.ID)
 	})
 }
 
@@ -574,12 +575,12 @@ func (i *ImmichAsset) hasValidAlbums(requestID, deviceID string) bool {
 // Returns:
 //   - bool: true if asset contains no excluded people, false otherwise
 func (i *ImmichAsset) hasValidPeople(requestID, deviceID string) bool {
-	if len(requestConfig.ExcludedPeople) > 0 && len(i.People) == 0 {
+	if len(i.requestConfig.ExcludedPeople) > 0 && len(i.People) == 0 {
 		i.CheckForFaces(requestID, deviceID)
 	}
 
 	return !slices.ContainsFunc(i.People, func(person Person) bool {
-		return slices.Contains(requestConfig.ExcludedPeople, person.ID)
+		return slices.Contains(i.requestConfig.ExcludedPeople, person.ID)
 	})
 }
 
