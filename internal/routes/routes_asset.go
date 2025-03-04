@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"bytes"
 	"net/http"
 
 	"github.com/charmbracelet/log"
@@ -117,5 +118,51 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		return c.Blob(http.StatusOK, "image/jpeg", imgBytes)
+	}
+}
+
+// ImageWithID returns an echo.HandlerFunc that handles requests for images by ID.
+// It retrieves the image preview based on the provided imageID and returns it as a blob with the appropriate MIME type.
+func ImageWithID(baseConfig *config.Config) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
+
+		log.Debug(
+			requestID,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
+
+		imageID := c.Param("imageID")
+		if imageID == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "Image ID is required")
+		}
+
+		immichAsset := immich.NewAsset(requestConfig)
+		immichAsset.ID = imageID
+
+		if requestConfig.UseOriginalImage {
+			if err := immichAsset.AssetInfo(requestID, ""); err != nil {
+				log.Error(requestID, "error getting asset info", "imageID", imageID, "error", err)
+				return err
+			}
+		}
+
+		imgBytes, err := immichAsset.ImagePreview()
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
+		}
+
+		imageMime := utils.ImageMimeType(bytes.NewReader(imgBytes))
+
+		return c.Blob(http.StatusOK, imageMime, imgBytes)
 	}
 }

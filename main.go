@@ -136,6 +136,8 @@ func main() {
 
 	e.GET("/image", routes.NewRawImage(baseConfig))
 
+	e.GET("/image/:imageID", routes.ImageWithID(baseConfig))
+
 	e.POST("/asset/new", routes.NewAsset(baseConfig))
 
 	e.POST("/asset/previous", routes.PreviousAsset(baseConfig))
