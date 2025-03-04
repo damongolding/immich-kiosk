@@ -189,11 +189,11 @@ func retrieveImage(immichAsset *immich.ImmichAsset, pickedAsset utils.WeightedAs
 
 		switch strings.ToLower(albumOrder) {
 		case config.AlbumOrderDescending, config.AlbumOrderDesc, config.AlbumOrderNewest:
-			return immichAsset.ImageFromAlbum(pickedAsset.ID, immich.Desc, requestID, deviceID, isPrefetch)
+			return immichAsset.AssetFromAlbum(pickedAsset.ID, immich.Desc, requestID, deviceID, isPrefetch)
 		case config.AlbumOrderAscending, config.AlbumOrderAsc, config.AlbumOrderOldest:
-			return immichAsset.ImageFromAlbum(pickedAsset.ID, immich.Asc, requestID, deviceID, isPrefetch)
+			return immichAsset.AssetFromAlbum(pickedAsset.ID, immich.Asc, requestID, deviceID, isPrefetch)
 		default:
-			return immichAsset.ImageFromAlbum(pickedAsset.ID, immich.Rand, requestID, deviceID, isPrefetch)
+			return immichAsset.AssetFromAlbum(pickedAsset.ID, immich.Rand, requestID, deviceID, isPrefetch)
 		}
 
 	case kiosk.SourceDateRange:
@@ -252,10 +252,6 @@ func processAsset(immichAsset *immich.ImmichAsset, allowedAssetTypes []immich.Im
 
 	if err := retrieveImage(immichAsset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, allowedAssetTypes, requestID, deviceID, isPrefetch); err != nil {
 		return nil, err
-	}
-
-	if requestConfig.ShowAlbumName {
-		immichAsset.AlbumsThatContainAsset(requestID, deviceID)
 	}
 
 	//  At this point immichAsset could be a video or an image
@@ -460,7 +456,7 @@ func setupRequestConfig(config *config.Config) {
 // setupImmichAsset creates and configures a new ImmichAsset based on the provided config
 // and orientation settings
 func setupImmichAsset(config config.Config, orientation immich.ImageOrientation) immich.ImmichAsset {
-	asset := immich.NewAsset(config)
+	asset := immich.New(config)
 	if orientation == immich.PortraitOrientation || orientation == immich.LandscapeOrientation {
 		asset.RatioWanted = orientation
 	}

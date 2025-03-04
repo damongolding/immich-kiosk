@@ -12,7 +12,7 @@ func (i *ImmichAsset) Video() ([]byte, string, error) {
 
 	var responseBody []byte
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		return responseBody, "", err
 	}

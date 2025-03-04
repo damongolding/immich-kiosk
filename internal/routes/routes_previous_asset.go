@@ -91,7 +91,7 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 				return func() error {
 					requestConfig.SelectedUser = selectedUser
 
-					asset := immich.NewAsset(requestConfig)
+					asset := immich.New(requestConfig)
 					asset.ID = currentAssetID
 
 					var wg sync.WaitGroup

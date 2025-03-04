@@ -209,7 +209,9 @@ type Config struct {
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `json:"showArchived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display
-	Person []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
+	Person         []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
+	ExcludedPeople []string `json:"excluded_people" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
+
 	// Album ID of album(s) to display
 	Album []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
 	// AlbumOrder specifies the order in which album assets are displayed.
@@ -451,6 +453,10 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 	// check for person or album in quries and empty baseconfig slice if found
 	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") {
 		c.ResetBuckets()
+	}
+
+	if queries.Get("excluded_album") == "none" || queries.Get("excluded_albums") == "none" {
+		c.ExcludedAlbums = []string{}
 	}
 
 	err := e.Bind(c)

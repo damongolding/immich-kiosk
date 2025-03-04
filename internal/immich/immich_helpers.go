@@ -15,6 +15,9 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
 // immichApiFail handles failures in Immich API calls by unmarshaling the error response,
@@ -31,7 +34,7 @@ func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl 
 }
 
 // withImmichApiCache Decorator to implement cache for the immichApiCall func
-func withImmichApiCache[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID, deviceID string, jsonShape T) ImmichApiCall {
+func withImmichApiCache[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) ImmichApiCall {
 	return func(method, apiUrl string, body []byte, headers ...map[string]string) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
@@ -104,12 +107,12 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 		}
 
 		req.Header.Set("Accept", "application/json")
-		apiKey := requestConfig.ImmichApiKey
-		if requestConfig.SelectedUser != "" {
-			if key, ok := requestConfig.ImmichUsersApiKeys[requestConfig.SelectedUser]; ok {
+		apiKey := i.requestConfig.ImmichApiKey
+		if i.requestConfig.SelectedUser != "" {
+			if key, ok := i.requestConfig.ImmichUsersApiKeys[i.requestConfig.SelectedUser]; ok {
 				apiKey = key
 			} else {
-				return responseBody, fmt.Errorf("no API key found for user %s in the config", requestConfig.SelectedUser)
+				return responseBody, fmt.Errorf("no API key found for user %s in the config", i.requestConfig.SelectedUser)
 			}
 		}
 
@@ -126,6 +129,7 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 			}
 		}
 
+		httpClient.Timeout = time.Second * time.Duration(i.requestConfig.Kiosk.HTTPTimeout)
 		res, err := httpClient.Do(req)
 		if err != nil {
 			lastErr = err
@@ -260,7 +264,7 @@ func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 
 	var immichAsset ImmichAsset
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		return err
 	}
@@ -271,7 +275,7 @@ func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
 		Path:   path.Join("api", "assets", i.ID),
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAsset)
+	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAsset)
 	body, err := immichApiCall("GET", apiUrl.String(), nil)
 	if err != nil {
 		_, _, err = immichApiFail(immichAsset, err, body, apiUrl.String())
@@ -292,14 +296,14 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 
 	var bytes []byte
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichUrl)
 	if err != nil {
 		log.Error(err)
 		return bytes, err
 	}
 
 	assetSize := AssetSizeThumbnail
-	if requestConfig.UseOriginalImage && slices.Contains(supportedImageMimeTypes, i.OriginalMimeType) {
+	if i.requestConfig.UseOriginalImage && slices.Contains(supportedImageMimeTypes, i.OriginalMimeType) {
 		assetSize = AssetSizeOriginal
 	}
 
@@ -475,24 +479,124 @@ func (i *ImmichAsset) containsTag(tagName string) bool {
 	return false
 }
 
-// isValidAsset checks if an asset meets the criteria for being considered valid.
-// It validates the asset against several conditions:
-// - The asset type must be in the list of allowed types
-// - The asset must not be in the trash
-// - The asset must not be archived (unless showing archived is enabled)
-// - The asset must match any configured ratio requirements
-// - The asset must not be in the configured blacklist
-// Returns true if the asset meets all criteria, false otherwise.
-func (i *ImmichAsset) isValidAsset(allowedTypes []ImmichAssetType, wantedRatio ImageOrientation) bool {
-	isNotValidType := !slices.Contains(allowedTypes, i.Type)
-	isTrashed := i.IsTrashed
-	isArchived := i.IsArchived && !requestConfig.ShowArchived
-	isNotValidRatio := !i.ratioCheck(wantedRatio)
-	isBlacklisted := slices.Contains(requestConfig.Blacklist, i.ID)
+// isValidAsset checks if an asset meets all the required criteria for processing.
+// It performs a series of validation checks including basic properties, date filters,
+// album membership, people detection, and tag validation.
+//
+// Parameters:
+//   - requestID: Unique identifier for the request
+//   - deviceID: ID of the device making the request
+//   - allowedTypes: Slice of allowed asset types
+//   - wantedRatio: Desired image orientation ratio
+//
+// Returns:
+//   - bool: true if asset meets all criteria, false otherwise
+func (i *ImmichAsset) isValidAsset(requestID, deviceID string, allowedTypes []ImmichAssetType, wantedRatio ImageOrientation) bool {
+	return i.hasValidBasicProperties(allowedTypes, wantedRatio) &&
+		i.hasValidDateFilter() &&
+		i.hasValidAlbums(requestID, deviceID) &&
+		i.hasValidPeople(requestID, deviceID) &&
+		i.hasValidTags(requestID, deviceID)
+}
 
-	if isNotValidType || isTrashed || isArchived || isNotValidRatio || isBlacklisted {
+// hasValidBasicProperties checks basic asset properties including type,
+// trash status, archive status, aspect ratio and blacklist status.
+//
+// Parameters:
+//   - allowedTypes: Slice of allowed asset types to check against
+//   - wantedRatio: Desired image orientation ratio
+//
+// Returns:
+//   - bool: true if basic properties are valid, false otherwise
+func (i *ImmichAsset) hasValidBasicProperties(allowedTypes []ImmichAssetType, wantedRatio ImageOrientation) bool {
+	if !slices.Contains(allowedTypes, i.Type) {
 		return false
 	}
-
+	if i.IsTrashed {
+		return false
+	}
+	if i.IsArchived && !i.requestConfig.ShowArchived {
+		return false
+	}
+	if !i.ratioCheck(wantedRatio) {
+		return false
+	}
+	if slices.Contains(i.requestConfig.Blacklist, i.ID) {
+		return false
+	}
 	return true
+}
+
+// hasValidDateFilter validates if the asset's date matches the configured date filter criteria.
+// Assets from Memories or DateRange buckets bypass the date filter check.
+//
+// Returns:
+//   - bool: true if date is valid or no filter set, false if outside filter range
+func (i *ImmichAsset) hasValidDateFilter() bool {
+	if i.requestConfig.DateFilter == "" || (i.Bucket == kiosk.SourceMemories || i.Bucket == kiosk.SourceDateRange) {
+		return true
+	}
+
+	dateStart, dateEnd, err := determineDateRange(i.requestConfig.DateFilter)
+	if err != nil {
+		log.Error("malformed filter", "err", err)
+		return true // Continue processing if date filter is malformed
+	}
+
+	return utils.IsTimeBetween(i.LocalDateTime.Local(), dateStart, dateEnd)
+}
+
+// hasValidAlbums checks if the asset belongs to any excluded albums.
+// If album data is missing, it fetches it first.
+//
+// Parameters:
+//   - requestID: Unique identifier for the request
+//   - deviceID: ID of the device making the request
+//
+// Returns:
+//   - bool: true if asset is not in any excluded albums, false otherwise
+func (i *ImmichAsset) hasValidAlbums(requestID, deviceID string) bool {
+	if len(i.AppearsIn) == 0 {
+		i.AlbumsThatContainAsset(requestID, deviceID)
+	}
+
+	return !slices.ContainsFunc(i.AppearsIn, func(album ImmichAlbum) bool {
+		return slices.Contains(i.requestConfig.ExcludedAlbums, album.ID)
+	})
+}
+
+// hasValidPeople checks if the asset contains any excluded people.
+// If people data is missing and exclusions are configured, it fetches face data first.
+//
+// Parameters:
+//   - requestID: Unique identifier for the request
+//   - deviceID: ID of the device making the request
+//
+// Returns:
+//   - bool: true if asset contains no excluded people, false otherwise
+func (i *ImmichAsset) hasValidPeople(requestID, deviceID string) bool {
+	if len(i.requestConfig.ExcludedPeople) > 0 && len(i.People) == 0 {
+		i.CheckForFaces(requestID, deviceID)
+	}
+
+	return !slices.ContainsFunc(i.People, func(person Person) bool {
+		return slices.Contains(i.requestConfig.ExcludedPeople, person.ID)
+	})
+}
+
+// hasValidTags checks if the asset has any tags that would exclude it from processing.
+// Fetches asset info if needed and checks for the skip tag.
+//
+// Parameters:
+//   - requestID: Unique identifier for the request
+//   - deviceID: ID of the device making the request
+//
+// Returns:
+//   - bool: true if asset has no excluding tags, false otherwise
+func (i *ImmichAsset) hasValidTags(requestID, deviceID string) bool {
+	if err := i.AssetInfo(requestID, deviceID); err != nil {
+		log.Error("Failed to get additional asset data", "error", err)
+	}
+
+	return !i.containsTag(kiosk.TagSkip)
 }
