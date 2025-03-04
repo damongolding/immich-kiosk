@@ -207,7 +207,7 @@ func (i *ImmichAsset) AssetFromAlbum(albumID string, albumAssetsOrder ImmichAsse
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
 
 		if len(album.Assets) == 0 {
 			log.Debug(requestID+" No images left in cache. Refreshing and trying again for album", albumID)
