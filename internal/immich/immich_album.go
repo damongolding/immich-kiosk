@@ -25,7 +25,7 @@ import (
 //   - Any error during API call is logged but function does not return an error
 func (i *ImmichAsset) AlbumsThatContainAsset(requestID, deviceID string) {
 
-	var albumsContaingAsset ImmichAlbums
+	var albumsContainingAsset ImmichAlbums
 
 	albums, _, err := i.albums(requestID, deviceID, false, i.ID)
 	if err != nil {
@@ -33,9 +33,9 @@ func (i *ImmichAsset) AlbumsThatContainAsset(requestID, deviceID string) {
 		return
 	}
 
-	albumsContaingAsset = append(albumsContaingAsset, albums...)
+	albumsContainingAsset = append(albumsContainingAsset, albums...)
 
-	i.AppearsIn = albumsContaingAsset
+	i.AppearsIn = albumsContainingAsset
 }
 
 // albums retrieves albums from Immich based on the shared parameter.
