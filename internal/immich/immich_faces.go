@@ -79,7 +79,7 @@ func (i *Asset) CheckForFaces(requestID, deviceID string) {
 	}
 
 	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, faceResponse)
-	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
+	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(faceResponse, err, body, apiURL.String())
 		log.Error("adding faces", "err", err)

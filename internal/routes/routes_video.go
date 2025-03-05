@@ -56,7 +56,7 @@ func NewVideo() echo.HandlerFunc {
 
 		// Check if-modified-since header
 		if ifModifiedSince := c.Request().Header.Get("If-Modified-Since"); ifModifiedSince != "" {
-			if t, err := time.Parse(http.TimeFormat, ifModifiedSince); err == nil {
+			if t, tErr := time.Parse(http.TimeFormat, ifModifiedSince); tErr == nil {
 				if info.ModTime().Unix() <= t.Unix() {
 					return c.NoContent(http.StatusNotModified)
 				}

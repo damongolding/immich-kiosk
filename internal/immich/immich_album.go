@@ -70,7 +70,7 @@ func (i *Asset) albums(requestID, deviceID string, shared bool, contains string)
 	apiURL.RawQuery = queryParams.Encode()
 
 	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, albums)
-	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
+	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(albums, err, body, apiURL.String())
 	}
@@ -118,7 +118,7 @@ func (i *Asset) albumAssets(albumID, requestID, deviceID string) (Album, string,
 	}
 
 	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, album)
-	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
+	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(album, err, body, apiURL.String())
 	}
@@ -215,8 +215,8 @@ func (i *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 			log.Debug(requestID+" No images left in cache. Refreshing and trying again for album", albumID)
 			cache.Delete(apiCacheKey)
 
-			album, _, retryErr := i.albumAssets(albumID, requestID, deviceID)
-			if retryErr != nil || len(album.Assets) == 0 {
+			a, _, retryErr := i.albumAssets(albumID, requestID, deviceID)
+			if retryErr != nil || len(a.Assets) == 0 {
 				return fmt.Errorf("no assets found for album %s after refresh", albumID)
 			}
 
@@ -246,6 +246,7 @@ func (i *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 
 			asset.Bucket = kiosk.SourceAlbum
 			asset.requestConfig = i.requestConfig
+			asset.ctx = i.ctx
 
 			if !asset.isValidAsset(requestID, deviceID, allowedTypes, i.RatioWanted) {
 				continue
@@ -255,15 +256,15 @@ func (i *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 				// Remove the current image from the slice
 				assetsToCache := album
 				assetsToCache.Assets = slices.Delete(album.Assets, assetIndex, assetIndex+1)
-				jsonBytes, err := json.Marshal(assetsToCache)
-				if err != nil {
-					log.Error("Failed to marshal assetsToCache", "error", err)
-					return err
+				jsonBytes, marshalErr := json.Marshal(assetsToCache)
+				if marshalErr != nil {
+					log.Error("Failed to marshal assetsToCache", "error", marshalErr)
+					return marshalErr
 				}
 
 				// replace with cache minus used asset
-				err = cache.Replace(apiCacheKey, jsonBytes)
-				if err != nil {
+				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				if cacheErr != nil {
 					log.Debug("Failed to update device cache for album", "albumID", albumID, "deviceID", deviceID)
 				}
 

@@ -118,7 +118,7 @@ func (i *Asset) RandomImageFromFavourites(requestID, deviceID string, _ []AssetT
 		}
 
 		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
-		apiBody, err := immichAPICall(http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, err := immichAPICall(i.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
@@ -142,6 +142,7 @@ func (i *Asset) RandomImageFromFavourites(requestID, deviceID string, _ []AssetT
 
 			asset.Bucket = kiosk.SourceAlbum
 			asset.requestConfig = i.requestConfig
+			asset.ctx = i.ctx
 
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
@@ -150,15 +151,15 @@ func (i *Asset) RandomImageFromFavourites(requestID, deviceID string, _ []AssetT
 			if i.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
-				jsonBytes, err := json.Marshal(immichAssetsToCache)
-				if err != nil {
-					log.Error("Failed to marshal immichAssetsToCache", "error", err)
-					return err
+				jsonBytes, marshalErr := json.Marshal(immichAssetsToCache)
+				if marshalErr != nil {
+					log.Error("Failed to marshal immichAssetsToCache", "error", marshalErr)
+					return marshalErr
 				}
 
 				// replace cache minus used image
-				err = cache.Replace(apiCacheKey, jsonBytes)
-				if err != nil {
+				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				if cacheErr != nil {
 					log.Debug("cache not found!")
 				}
 			}

@@ -131,11 +131,11 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 
 	// Run once immediately
 	log.Debug("Getting initial weather for", "name", w.Name)
-	newWeather, err := w.updateWeather(ctx)
-	if err != nil {
-		log.Error("Failed to update initial weather", "name", w.Name, "error", err)
+	newWeatherInit, newWeatherInitErr := w.updateWeather(ctx)
+	if newWeatherInitErr != nil {
+		log.Error("Failed to update initial weather", "name", w.Name, "error", newWeatherInitErr)
 	} else {
-		weatherDataStore.Store(w.Name, newWeather)
+		weatherDataStore.Store(w.Name, newWeatherInit)
 		log.Debug("Retrieved initial weather for", "name", w.Name)
 	}
 
@@ -146,9 +146,9 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 			return
 		case <-ticker.C:
 			log.Debug("Getting weather for", "name", w.Name)
-			newWeather, err := w.updateWeather(ctx)
-			if err != nil {
-				log.Error("Failed to update weather", "name", w.Name, "error", err)
+			newWeather, newWeatherErr := w.updateWeather(ctx)
+			if newWeatherErr != nil {
+				log.Error("Failed to update weather", "name", w.Name, "error", newWeatherErr)
 				continue
 			}
 			weatherDataStore.Store(w.Name, newWeather)
@@ -224,8 +224,9 @@ func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 
 	var newWeather Weather
 
-	if err := json.Unmarshal(responseBody, &newWeather); err != nil {
-		log.Error(err)
+	unmarshalErr := json.Unmarshal(responseBody, &newWeather)
+	if unmarshalErr != nil {
+		log.Error("updateWeather", "err", unmarshalErr)
 	}
 
 	w.Weather = newWeather

@@ -26,7 +26,7 @@ func (i *Asset) Video() ([]byte, string, error) {
 
 	octetStreamHeader := map[string]string{"Accept": "application/octet-stream"}
 
-	responseBody, err = i.immichAPICall(http.MethodGet, apiURL.String(), nil, octetStreamHeader)
+	responseBody, err = i.immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil, octetStreamHeader)
 	if err != nil {
 		return responseBody, apiURL.String(), err
 	}

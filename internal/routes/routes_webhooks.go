@@ -15,7 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func Webhooks(baseConfig *config.Config, secret string) echo.HandlerFunc {
+func Webhooks(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -61,7 +61,7 @@ func Webhooks(baseConfig *config.Config, secret string) echo.HandlerFunc {
 			return c.NoContent(http.StatusBadRequest)
 		}
 
-		calculatedSignature := utils.CalculateSignature(secret, receivedTimestamp)
+		calculatedSignature := utils.CalculateSignature(com.Secret(), receivedTimestamp)
 
 		// Compare the received signature with the calculated signature
 		if !utils.IsValidSignature(receivedSignature, calculatedSignature) {
@@ -92,12 +92,12 @@ func Webhooks(baseConfig *config.Config, secret string) echo.HandlerFunc {
 			for i, imageID := range prevImages {
 
 				g.Go(func() error {
-					image := immich.New(requestConfig)
+					image := immich.New(com.Context(), requestConfig)
 					image.ID = imageID
 
-					err := image.AssetInfo(requestID, deviceID)
-					if err != nil {
-						log.Error(err)
+					assetInfoErr := image.AssetInfo(requestID, deviceID)
+					if assetInfoErr != nil {
+						log.Error(assetInfoErr)
 					}
 
 					viewData.Assets[i] = common.ViewImageData{
@@ -108,11 +108,12 @@ func Webhooks(baseConfig *config.Config, secret string) echo.HandlerFunc {
 			}
 
 			// Wait for all goroutines to complete and check for errors
-			if err := g.Wait(); err != nil {
-				return RenderError(c, err, "retrieving image data")
+			errGroupWait := g.Wait()
+			if errGroupWait != nil {
+				return RenderError(c, errGroupWait, "retrieving image data")
 			}
 
-			go webhooks.Trigger(requestData, KioskVersion, webhooks.UserWebhookTriggerInfoOverlay, viewData)
+			go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.UserWebhookTriggerInfoOverlay, viewData)
 
 			return c.String(http.StatusOK, "Triggered")
 

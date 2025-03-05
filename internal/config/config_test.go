@@ -78,20 +78,20 @@ func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 func TestMalformedURLs(t *testing.T) {
 
 	var tests = []struct {
-		KIOSK_IMMICH_URL string
-		Want             string
+		URL  string
+		Want string
 	}{
-		{KIOSK_IMMICH_URL: "nope", Want: defaultScheme + "nope"},
-		{KIOSK_IMMICH_URL: "192.168.1.1", Want: defaultScheme + "192.168.1.1"},
-		{KIOSK_IMMICH_URL: "192.168.1.1:1234", Want: defaultScheme + "192.168.1.1:1234"},
-		{KIOSK_IMMICH_URL: "https://192.168.1.1:1234", Want: "https://192.168.1.1:1234"},
-		{KIOSK_IMMICH_URL: "nope:32", Want: defaultScheme + "nope:32"},
+		{URL: "nope", Want: defaultScheme + "nope"},
+		{URL: "192.168.1.1", Want: defaultScheme + "192.168.1.1"},
+		{URL: "192.168.1.1:1234", Want: defaultScheme + "192.168.1.1:1234"},
+		{URL: "https://192.168.1.1:1234", Want: "https://192.168.1.1:1234"},
+		{URL: "nope:32", Want: defaultScheme + "nope:32"},
 	}
 
 	for _, test := range tests {
 
-		t.Run(test.KIOSK_IMMICH_URL, func(t *testing.T) {
-			t.Setenv("KIOSK_IMMICH_URL", test.KIOSK_IMMICH_URL)
+		t.Run(test.URL, func(t *testing.T) {
+			t.Setenv("KIOSK_IMMICH_URL", test.URL)
 			t.Setenv("KIOSK_IMMICH_API_KEY", "12345")
 
 			c := New()

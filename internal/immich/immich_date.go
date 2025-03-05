@@ -36,9 +36,9 @@ import (
 // Returns an error if no valid images are found after max retries
 func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
 
-	dateStart, dateEnd, err := determineDateRange(dateRange)
-	if err != nil {
-		return err
+	dateStart, dateEnd, dateErr := determineDateRange(dateRange)
+	if dateErr != nil {
+		return dateErr
 	}
 
 	dateStartHuman := dateStart.Format("2006-01-02 15:04:05 MST")
@@ -82,13 +82,13 @@ func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 			RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
 		}
 
-		jsonBody, err := json.Marshal(requestBody)
-		if err != nil {
-			return fmt.Errorf("marshaling request body: %w", err)
+		jsonBody, marshalErr := json.Marshal(requestBody)
+		if marshalErr != nil {
+			return fmt.Errorf("marshaling request body: %w", marshalErr)
 		}
 
 		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
-		apiBody, err := immichAPICall(http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, err := immichAPICall(i.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
@@ -112,6 +112,7 @@ func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 
 			asset.Bucket = kiosk.SourceDateRange
 			asset.requestConfig = i.requestConfig
+			asset.ctx = i.ctx
 
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
@@ -120,16 +121,16 @@ func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 			if i.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
-				jsonBytes, err := json.Marshal(immichAssetsToCache)
-				if err != nil {
-					log.Error("Failed to marshal immichAssetsToCache", "error", err)
-					return err
+				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
+				if cacheMarshalErr != nil {
+					log.Error("Failed to marshal immichAssetsToCache", "error", cacheMarshalErr)
+					return cacheMarshalErr
 				}
 
 				// replace cache with used image(s) removed
-				err = cache.Replace(apiCacheKey, jsonBytes)
-				if err != nil {
-					log.Debug("Failed to update cache", "error", err, "url", apiURL.String())
+				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				if cacheErr != nil {
+					log.Debug("Failed to update cache", "error", cacheErr, "url", apiURL.String())
 				}
 			}
 

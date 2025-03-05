@@ -23,8 +23,8 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 
-		redirectCount, err := c.Cookie(redirectCountHeader)
-		if err != nil {
+		redirectCount, countErr := c.Cookie(redirectCountHeader)
+		if countErr != nil {
 			redirectCount = &http.Cookie{Value: "0"}
 		}
 

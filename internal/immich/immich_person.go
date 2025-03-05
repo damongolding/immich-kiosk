@@ -33,7 +33,7 @@ func (i *Asset) PersonImageCount(personID, requestID, deviceID string) (int, err
 	}
 
 	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, personStatistics)
-	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
+	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(personStatistics, err, body, apiURL.String())
 		return 0, err
@@ -105,14 +105,14 @@ func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
 		}
 
-		jsonBody, err := json.Marshal(requestBody)
-		if err != nil {
-			_, _, err = immichAPIFail(immichAssets, err, nil, apiURL.String())
-			return err
+		jsonBody, bodyMarshalErr := json.Marshal(requestBody)
+		if bodyMarshalErr != nil {
+			_, _, bodyMarshalErr = immichAPIFail(immichAssets, bodyMarshalErr, nil, apiURL.String())
+			return bodyMarshalErr
 		}
 
 		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
-		apiBody, err := immichAPICall(http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, err := immichAPICall(i.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
@@ -136,6 +136,7 @@ func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 
 			asset.Bucket = kiosk.SourcePerson
 			asset.requestConfig = i.requestConfig
+			asset.ctx = i.ctx
 
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
@@ -144,15 +145,15 @@ func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			if i.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
-				jsonBytes, err := json.Marshal(immichAssetsToCache)
-				if err != nil {
-					log.Error("Failed to marshal immichAssetsToCache", "error", err)
-					return err
+				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
+				if cacheMarshalErr != nil {
+					log.Error("Failed to marshal immichAssetsToCache", "error", cacheMarshalErr)
+					return cacheMarshalErr
 				}
 
 				// Replace cache with remaining images after removing used image(s)
-				err = cache.Replace(apiCacheKey, jsonBytes)
-				if err != nil {
+				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				if cacheErr != nil {
 					log.Debug("cache not found!")
 				}
 			}

@@ -390,8 +390,8 @@ func isValidYAML(filename string) bool {
 // load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
 func (c *Config) Load() error {
 
-	if err := bindEnvironmentVariables(c.V); err != nil {
-		log.Error("binding environment variables", "err", err)
+	if bindErr := bindEnvironmentVariables(c.V); bindErr != nil {
+		log.Error("binding environment variables", "err", bindErr)
 	}
 
 	c.V.SetConfigName("config")

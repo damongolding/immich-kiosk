@@ -2,6 +2,7 @@ package webhooks
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/url"
@@ -58,7 +59,7 @@ func newHTTPClient(timeout time.Duration) *http.Client {
 // kioskVersion is the current version string of the kiosk application.
 // event specifies which webhook event (NewAsset, PreviousAsset, etc) triggered this webhook.
 // viewData contains the images and other view context for the current request.
-func Trigger(requestData *common.RouteRequestData, kioskVersion string, event WebhookEvent, viewData common.ViewData) {
+func Trigger(ctx context.Context, requestData *common.RouteRequestData, kioskVersion string, event WebhookEvent, viewData common.ViewData) {
 
 	if requestData == nil {
 		log.Error("invalid request data")
@@ -110,9 +111,9 @@ func Trigger(requestData *common.RouteRequestData, kioskVersion string, event We
 		go func(webhook config.Webhook, payload []byte) {
 			defer wg.Done()
 
-			req, err := http.NewRequest(http.MethodPost, webhook.URL, bytes.NewBuffer(payload))
-			if err != nil {
-				log.Error("webhook request creation", "err", err)
+			req, reqErr := http.NewRequestWithContext(ctx, http.MethodPost, webhook.URL, bytes.NewBuffer(payload))
+			if reqErr != nil {
+				log.Error("webhook request creation", "err", reqErr)
 				return
 			}
 
@@ -123,9 +124,9 @@ func Trigger(requestData *common.RouteRequestData, kioskVersion string, event We
 				req.Header.Set("X-Kiosk-Signature-256", "sha256="+signature)
 			}
 
-			resp, err := httpClient.Do(req)
-			if err != nil {
-				log.Error("webhook post", "err", err)
+			resp, respErr := httpClient.Do(req)
+			if respErr != nil {
+				log.Error("webhook post", "err", respErr)
 				return
 			}
 			defer resp.Body.Close()

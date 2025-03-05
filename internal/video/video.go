@@ -99,9 +99,9 @@ func (v *Manager) RemoveVideo(id string) {
 		if video.ID == id {
 			filePath := filepath.Join(customTempVideoDir, video.FileName)
 			if _, err := os.Stat(filePath); err == nil {
-				err := os.Remove(filePath)
-				if err != nil {
-					log.Error("deleting video", "video", filePath, "err", err)
+				fileRemoveErr := os.Remove(filePath)
+				if fileRemoveErr != nil {
+					log.Error("deleting video", "video", filePath, "err", fileRemoveErr)
 					continue
 				}
 

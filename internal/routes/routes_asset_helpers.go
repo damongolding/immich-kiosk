@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"fmt"
 	"image"
 	"math/rand/v2"
@@ -45,12 +46,12 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		personAssetCount, err := immichAsset.PersonImageCount(person, requestID, deviceID)
-		if err != nil {
+		personAssetCount, personCountErr := immichAsset.PersonImageCount(person, requestID, deviceID)
+		if personCountErr != nil {
 			if requestConfig.SelectedUser != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", requestConfig.SelectedUser, person, err)
+				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", requestConfig.SelectedUser, person, personCountErr)
 			}
-			return nil, fmt.Errorf("getting person image count: %w", err)
+			return nil, fmt.Errorf("getting person image count: %w", personCountErr)
 		}
 
 		if personAssetCount == 0 {
@@ -69,12 +70,12 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		albumAssetCount, err := immichAsset.AlbumImageCount(album, requestID, deviceID)
-		if err != nil {
+		albumAssetCount, albumCountErr := immichAsset.AlbumImageCount(album, requestID, deviceID)
+		if albumCountErr != nil {
 			if requestConfig.SelectedUser != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no Album '%s'. error='%w'", requestConfig.SelectedUser, album, err)
+				return nil, fmt.Errorf("user '<b>%s</b>' has no Album '%s'. error='%w'", requestConfig.SelectedUser, album, albumCountErr)
 			}
-			return nil, fmt.Errorf("getting album asset count: %w", err)
+			return nil, fmt.Errorf("getting album asset count: %w", albumCountErr)
 		}
 
 		if albumAssetCount == 0 {
@@ -93,24 +94,24 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		tags, _, err := immichAsset.AllTags(requestID, deviceID)
-		if err != nil {
-			log.Error("getting tags", "err", err)
+		tags, _, tagsErr := immichAsset.AllTags(requestID, deviceID)
+		if tagsErr != nil {
+			log.Error("getting tags", "err", tagsErr)
 			continue
 		}
 
-		tagData, err := tags.Get(tag)
-		if err != nil {
-			log.Error("getting tag from tags", "tag", tag, "err", err)
+		tagData, tagErr := tags.Get(tag)
+		if tagErr != nil {
+			log.Error("getting tag from tags", "tag", tag, "err", tagErr)
 			continue
 		}
 
-		taggedAssetsCount, err := immichAsset.AssetsWithTagCount(tagData.ID, requestID, deviceID)
-		if err != nil {
+		taggedAssetsCount, tagCounterr := immichAsset.AssetsWithTagCount(tagData.ID, requestID, deviceID)
+		if tagCounterr != nil {
 			if requestConfig.SelectedUser != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no assets with tag '%s'. error='%w'", requestConfig.SelectedUser, tagData.Value, err)
+				return nil, fmt.Errorf("user '<b>%s</b>' has no assets with tag '%s'. error='%w'", requestConfig.SelectedUser, tagData.Value, tagCounterr)
 			}
-			return nil, fmt.Errorf("getting tagged asset count: %w", err)
+			return nil, fmt.Errorf("getting tagged asset count: %w", tagCounterr)
 		}
 
 		if taggedAssetsCount == 0 {
@@ -247,9 +248,9 @@ func fetchImagePreview(immichAsset *immich.Asset, requestID, deviceID string, is
 // It returns the image bytes and an error if any step fails.
 func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetType, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
 
-	assets, err := gatherAssetBuckets(immichAsset, requestConfig, requestID, deviceID)
-	if err != nil {
-		return nil, err
+	assets, assetsErr := gatherAssetBuckets(immichAsset, requestConfig, requestID, deviceID)
+	if assetsErr != nil {
+		return nil, assetsErr
 	}
 
 	pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
@@ -460,7 +461,7 @@ func setupRequestConfig(config *config.Config) {
 // setupImmichAsset creates and configures a new ImmichAsset based on the provided config
 // and orientation settings
 func setupImmichAsset(config config.Config, orientation immich.ImageOrientation) immich.Asset {
-	asset := immich.New(config)
+	asset := immich.New(context.Background(), config)
 	if orientation == immich.PortraitOrientation || orientation == immich.LandscapeOrientation {
 		asset.RatioWanted = orientation
 	}
@@ -539,15 +540,15 @@ func ProcessViewImageDataWithOptions(requestConfig config.Config, c common.Conte
 }
 
 // assetToCache stores view data in the cache and triggers prefetch webhooks
-func assetToCache(viewDataToAdd common.ViewData, requestConfig *config.Config, deviceID string, requestData *common.RouteRequestData, c common.ContextCopy) {
+func assetToCache(ctx context.Context, viewDataToAdd common.ViewData, requestConfig *config.Config, deviceID string, requestData *common.RouteRequestData, c common.ContextCopy) {
 
 	cache.AssetToCache(viewDataToAdd, requestConfig, deviceID, c.URL.String())
 
-	go webhooks.Trigger(requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
+	go webhooks.Trigger(ctx, requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
 }
 
 // assetPreFetch handles prefetching assets for the current request
-func assetPreFetch(requestData *common.RouteRequestData, c common.ContextCopy) {
+func assetPreFetch(common common.Common, requestData *common.RouteRequestData, c common.ContextCopy) {
 
 	requestConfig := requestData.RequestConfig
 	requestID := requestData.RequestID
@@ -559,7 +560,7 @@ func assetPreFetch(requestData *common.RouteRequestData, c common.ContextCopy) {
 		return
 	}
 
-	assetToCache(viewDataToAdd, &requestConfig, deviceID, requestData, c)
+	assetToCache(common.Context(), viewDataToAdd, &requestConfig, deviceID, requestData, c)
 }
 
 // fromCache retrieves cached page data for a given request and device ID.
@@ -674,8 +675,8 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 		}
 
 		// Second image
-		if err := fetchSecondSplitViewAsset(&viewData, viewDataSplitView, requestConfig, c, isPrefetch, options); err != nil {
-			return viewData, err
+		if secondAssetErr := fetchSecondSplitViewAsset(&viewData, viewDataSplitView, requestConfig, c, isPrefetch, options); secondAssetErr != nil {
+			return viewData, secondAssetErr
 		}
 
 	case kiosk.LayoutSplitviewLandscape:
@@ -697,8 +698,8 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 		}
 
 		// Second image
-		if err := fetchSecondSplitViewAsset(&viewData, viewDataSplitView, requestConfig, c, isPrefetch, options); err != nil {
-			return viewData, err
+		if secondAssetErr := fetchSecondSplitViewAsset(&viewData, viewDataSplitView, requestConfig, c, isPrefetch, options); secondAssetErr != nil {
+			return viewData, secondAssetErr
 		}
 
 	default:

@@ -49,7 +49,7 @@ func (i *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
 	}
 
 	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, tags)
-	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
+	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(tags, err, body, apiURL.String())
 	}
@@ -130,7 +130,7 @@ func (i *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 	}
 
 	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
-	apiBody, err := immichAPICall(http.MethodPost, apiURL.String(), jsonBody)
+	apiBody, err := immichAPICall(i.ctx, http.MethodPost, apiURL.String(), jsonBody)
 	if err != nil {
 		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}
@@ -164,8 +164,8 @@ func (i *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 			cache.Delete(apiCacheKey)
 
-			immichAssets, _, retryErr := i.AssetsWithTag(tagID, requestID, deviceID)
-			if retryErr != nil || len(immichAssets) == 0 {
+			immichAssetsRetry, _, retryErr := i.AssetsWithTag(tagID, requestID, deviceID)
+			if retryErr != nil || len(immichAssetsRetry) == 0 {
 				return fmt.Errorf("no assets found with tag %s after refresh", tagID)
 			}
 
@@ -176,6 +176,7 @@ func (i *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 
 			asset.Bucket = kiosk.SourceTag
 			asset.requestConfig = i.requestConfig
+			asset.ctx = i.ctx
 
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
@@ -184,15 +185,15 @@ func (i *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 			if i.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
-				jsonBytes, err := json.Marshal(immichAssetsToCache)
-				if err != nil {
-					log.Error("Failed to marshal immichAssetsToCache", "error", err)
-					return err
+				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
+				if cacheMarshalErr != nil {
+					log.Error("Failed to marshal immichAssetsToCache", "error", cacheMarshalErr)
+					return cacheMarshalErr
 				}
 
 				// replace cache with used image(s) removed
-				err = cache.Replace(apiCacheKey, jsonBytes)
-				if err != nil {
+				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				if cacheErr != nil {
 					log.Debug("Failed to update device cache for tag", "tagID", tagID, "deviceID", deviceID)
 				}
 			}

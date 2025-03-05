@@ -51,7 +51,7 @@ func (i *Asset) memories(requestID, deviceID string, assetCount bool) (MemoriesR
 	}
 
 	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, memories)
-	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
+	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(memories, err, body, apiURL.String())
 	}
@@ -171,14 +171,15 @@ func (i *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 
 			asset.Bucket = kiosk.SourceMemories
 			asset.requestConfig = i.requestConfig
+			asset.ctx = i.ctx
 
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
 			}
 
 			if i.requestConfig.Kiosk.Cache {
-				if err := updateMemoryCache(memories, pickedMemoryIndex, assetIndex, apiCacheKey); err != nil {
-					return err
+				if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, assetIndex, apiCacheKey); cacheErr != nil {
+					return cacheErr
 				}
 			}
 
@@ -193,8 +194,8 @@ func (i *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 
 		// no viable assets left in memories
 		memories[pickedMemoryIndex].Assets = make([]Asset, 1)
-		if err := updateMemoryCache(memories, pickedMemoryIndex, 0, apiCacheKey); err != nil {
-			return err
+		if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, 0, apiCacheKey); cacheErr != nil {
+			return cacheErr
 		}
 
 	}

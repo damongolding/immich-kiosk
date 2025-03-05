@@ -2,6 +2,7 @@ package immich
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -37,10 +38,10 @@ func immichAPIFail[T APIResponse](value T, err error, body []byte, apiURL string
 
 // withImmichAPICache Decorator to implement cache for the immichAPICall func
 func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) apiCall {
-	return func(method, apiURL string, body []byte, headers ...map[string]string) ([]byte, error) {
+	return func(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
-			return immichAPICall(method, apiURL, body, headers...)
+			return immichAPICall(ctx, method, apiURL, body, headers...)
 		}
 
 		apiCacheKey := cache.APICacheKey(apiURL, deviceID, requestConfig.SelectedUser)
@@ -58,7 +59,7 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 			log.Debug(requestID+" Cache miss", "url", apiURL)
 		}
 
-		apiBody, err := immichAPICall(method, apiURL, body)
+		apiBody, err := immichAPICall(ctx, method, apiURL, body)
 		if err != nil {
 			log.Error(err)
 			return nil, err
@@ -88,7 +89,7 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 }
 
 // immichAPICall bootstrap for immich api call
-func (i *Asset) immichAPICall(method, apiURL string, body []byte, headers ...map[string]string) ([]byte, error) {
+func (i *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, error) {
 
 	var responseBody []byte
 	var lastErr error
@@ -106,10 +107,10 @@ func (i *Asset) immichAPICall(method, apiURL string, body []byte, headers ...map
 			bodyReader = bytes.NewReader(body)
 		}
 
-		req, err := http.NewRequest(method, apiURL, bodyReader)
-		if err != nil {
-			log.Error(err)
-			return responseBody, err
+		req, reqErr := http.NewRequestWithContext(ctx, method, apiURL, bodyReader)
+		if reqErr != nil {
+			log.Error(reqErr)
+			return responseBody, reqErr
 		}
 
 		req.Header.Set("Accept", "application/json")
@@ -136,9 +137,9 @@ func (i *Asset) immichAPICall(method, apiURL string, body []byte, headers ...map
 		}
 
 		httpClient.Timeout = time.Second * time.Duration(i.requestConfig.Kiosk.HTTPTimeout)
-		res, err := httpClient.Do(req)
-		if err != nil {
-			lastErr = err
+		res, resErr := httpClient.Do(req)
+		if resErr != nil {
+			lastErr = resErr
 
 			// Type assert to get more details about the error
 			var urlErr *url.Error
@@ -153,8 +154,8 @@ func (i *Asset) immichAPICall(method, apiURL string, body []byte, headers ...map
 				log.Error("Request failed",
 					"attempt", attempts,
 					"URL", apiURL,
-					"error_type", fmt.Sprintf("%T", err),
-					"error", err)
+					"error_type", fmt.Sprintf("%T", resErr),
+					"error", resErr)
 			}
 			time.Sleep(time.Duration(1<<attempts) * time.Second)
 			continue
@@ -283,7 +284,7 @@ func (i *Asset) AssetInfo(requestID, deviceID string) error {
 	}
 
 	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAsset)
-	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
+	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
 		return fmt.Errorf("fetching asset info: err %w", err)
@@ -321,7 +322,7 @@ func (i *Asset) ImagePreview() ([]byte, error) {
 		RawQuery: "size=preview",
 	}
 
-	return i.immichAPICall(http.MethodGet, apiURL.String(), nil)
+	return i.immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
 }
 
 // FacesCenterPoint calculates the center point of all detected faces in an image as percentages.
@@ -636,7 +637,7 @@ func (i *Asset) fetchPaginatedMetadata(u *url.URL, requestBody interface{}, requ
 		}
 
 		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, response)
-		apiBody, err := immichAPICall(http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, err := immichAPICall(i.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
 			return totalCount, err

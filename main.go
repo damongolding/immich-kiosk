@@ -57,14 +57,14 @@ func main() {
 	baseConfig.SystemLang = systemLang
 	log.Infof("System language set as %s", systemLang)
 
-	err := baseConfig.Load()
-	if err != nil {
-		log.Error("Failed to load config", "err", err)
+	configErr := baseConfig.Load()
+	if configErr != nil {
+		log.Error("Failed to load config", "err", configErr)
 	}
 
-	videoManager, err := video.New(c.Context())
-	if err != nil {
-		log.Error("Failed to initialize video manager", "err", err)
+	videoManager, videoManagerErr := video.New(c.Context())
+	if videoManagerErr != nil {
+		log.Error("Failed to initialize video manager", "err", videoManagerErr)
 	}
 
 	videoManager.MaxAge = time.Duration(10) * time.Minute
@@ -133,13 +133,13 @@ func main() {
 
 	e.GET("/assets/manifest.json", routes.Manifest)
 
-	e.GET("/image", routes.NewRawImage(baseConfig))
+	e.GET("/image", routes.NewRawImage(baseConfig, *c))
 
-	e.GET("/image/:imageID", routes.ImageWithID(baseConfig))
+	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, *c))
 
-	e.POST("/asset/new", routes.NewAsset(baseConfig, c.Secret()))
+	e.POST("/asset/new", routes.NewAsset(baseConfig, *c))
 
-	e.POST("/asset/previous", routes.PreviousAsset(baseConfig, c.Secret()))
+	e.POST("/asset/previous", routes.PreviousAsset(baseConfig, *c))
 
 	e.GET("/clock", routes.Clock(baseConfig))
 
@@ -147,11 +147,11 @@ func main() {
 
 	e.GET("/sleep", routes.Sleep(baseConfig))
 
-	e.GET("/cache/flush", routes.FlushCache(baseConfig))
+	e.GET("/cache/flush", routes.FlushCache(baseConfig, *c))
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
-	e.POST("/webhooks", routes.Webhooks(baseConfig, c.Secret()), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
+	e.POST("/webhooks", routes.Webhooks(baseConfig, *c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
 	e.GET("/video/:videoID", routes.NewVideo())
 
@@ -164,9 +164,9 @@ func main() {
 	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))
 
 	go func() {
-		err = e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatal(err)
+		startErr := e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
+		if startErr != nil && !errors.Is(startErr, http.ErrServerClosed) {
+			log.Fatal(startErr)
 		}
 	}()
 
@@ -181,8 +181,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := e.Shutdown(ctx); err != nil {
-		log.Error(err)
+	if shutdownErr := e.Shutdown(ctx); shutdownErr != nil {
+		log.Error(shutdownErr)
 	}
 
 }

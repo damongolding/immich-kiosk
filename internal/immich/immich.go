@@ -6,6 +6,7 @@
 package immich
 
 import (
+	"context"
 	"net"
 	"net/http"
 	"time"
@@ -175,6 +176,7 @@ type Asset struct {
 	AppearsIn   Albums           `json:"-"`
 	Bucket      kiosk.Source     `json:"-"`
 	BucketID    string           `json:"-"`
+	ctx         context.Context  `json:"-"`
 
 	// requestConfig the config for this request
 	requestConfig config.Config
@@ -263,11 +265,11 @@ type AssetFaceResponse struct {
 }
 
 // New returns a new asset instance
-func New(base config.Config) Asset {
-	return Asset{requestConfig: base}
+func New(ctx context.Context, base config.Config) Asset {
+	return Asset{requestConfig: base, ctx: ctx}
 }
 
-type apiCall func(string, string, []byte, ...map[string]string) ([]byte, error)
+type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, error)
 
 type APIResponse interface {
 	Asset |

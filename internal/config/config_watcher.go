@@ -17,13 +17,13 @@ import (
 func (c *Config) WatchConfig(ctx context.Context) {
 	configPath := c.V.ConfigFileUsed()
 
-	if err := validateConfigFile(configPath); err != nil {
-		log.Error(err)
+	if fileErr := validateConfigFile(configPath); fileErr != nil {
+		log.Error(fileErr)
 		return
 	}
 
-	if err := c.initializeConfigState(); err != nil {
-		log.Error("Failed to initialize config state:", err)
+	if initErr := c.initializeConfigState(); initErr != nil {
+		log.Error("Failed to initialize config state", "err", initErr)
 		return
 	}
 
@@ -71,9 +71,9 @@ func (c *Config) initializeConfigState() error {
 	}
 	c.configLastModTime = info.ModTime()
 
-	configHash, err := c.configFileHash(c.V.ConfigFileUsed())
-	if err != nil {
-		return fmt.Errorf("getting initial file hash: %w", err)
+	configHash, hashErr := c.configFileHash(c.V.ConfigFileUsed())
+	if hashErr != nil {
+		return fmt.Errorf("getting initial file hash: %w", hashErr)
 	}
 	c.configHash = configHash
 
@@ -117,8 +117,8 @@ func (c *Config) configFileHash(filePath string) (string, error) {
 	defer file.Close()
 
 	hasher := sha256.New()
-	if _, err := io.Copy(hasher, file); err != nil {
-		return "", err
+	if _, copyErr := io.Copy(hasher, file); copyErr != nil {
+		return "", copyErr
 	}
 
 	return hex.EncodeToString(hasher.Sum(nil)), nil

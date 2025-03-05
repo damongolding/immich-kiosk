@@ -18,7 +18,7 @@ import (
 
 // NewAsset returns an echo.HandlerFunc that handles requests for new assets.
 // It manages image processing, caching, and prefetching based on the configuration.
-func NewAsset(baseConfig *config.Config, secret string) echo.HandlerFunc {
+func NewAsset(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -52,10 +52,10 @@ func NewAsset(baseConfig *config.Config, secret string) echo.HandlerFunc {
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
 			if cachedViewData := fromCache(requestCtx.URL.String(), deviceID); cachedViewData != nil {
-				go assetPreFetch(requestData, requestCtx)
-				go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
+				go assetPreFetch(com, requestData, requestCtx)
+				go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
 
-				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID, secret)
+				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID, com.Secret())
 			}
 			log.Debug(requestID, "deviceID", deviceID, "cache miss for new image")
 		}
@@ -66,23 +66,23 @@ func NewAsset(baseConfig *config.Config, secret string) echo.HandlerFunc {
 		}
 
 		if requestConfig.Kiosk.PreFetch {
-			go assetPreFetch(requestData, requestCtx)
+			go assetPreFetch(com, requestData, requestCtx)
 		}
 
-		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)
+		go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NewAsset, viewData)
 
 		if len(viewData.Assets) > 0 && requestConfig.ExperimentalAlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
-			return Render(c, http.StatusOK, videoComponent.Video(viewData, secret))
+			return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, imageComponent.Image(viewData, secret))
+		return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
 
 	}
 }
 
 // NewRawImage returns an echo.HandlerFunc that handles requests for raw images.
 // It processes the image without any additional transformations and returns it as a blob.
-func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
+func NewRawImage(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -105,7 +105,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		immichAsset := immich.New(requestConfig)
+		immichAsset := immich.New(com.Context(), requestConfig)
 
 		img, err := processAsset(&immichAsset, immich.ImageOnlyAssetTypes, requestConfig, requestID, "", "", false)
 		if err != nil {
@@ -123,7 +123,7 @@ func NewRawImage(baseConfig *config.Config) echo.HandlerFunc {
 
 // ImageWithID returns an echo.HandlerFunc that handles requests for images by ID.
 // It retrieves the image preview based on the provided imageID and returns it as a blob with the appropriate MIME type.
-func ImageWithID(baseConfig *config.Config) echo.HandlerFunc {
+func ImageWithID(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -146,18 +146,18 @@ func ImageWithID(baseConfig *config.Config) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Image ID is required")
 		}
 
-		immichAsset := immich.New(requestConfig)
+		immichAsset := immich.New(com.Context(), requestConfig)
 		immichAsset.ID = imageID
 
 		if requestConfig.UseOriginalImage {
-			if err := immichAsset.AssetInfo(requestID, ""); err != nil {
-				log.Error(requestID, "error getting asset info", "imageID", imageID, "error", err)
-				return err
+			if assetInfoErr := immichAsset.AssetInfo(requestID, ""); assetInfoErr != nil {
+				log.Error(requestID, "error getting asset info", "imageID", imageID, "error", assetInfoErr)
+				return assetInfoErr
 			}
 		}
 
-		imgBytes, err := immichAsset.ImagePreview()
-		if err != nil {
+		imgBytes, previewErr := immichAsset.ImagePreview()
+		if previewErr != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
 		}
 
