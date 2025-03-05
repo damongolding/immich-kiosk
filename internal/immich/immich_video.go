@@ -1,6 +1,7 @@
 package immich
 
 import (
+	"net/http"
 	"net/url"
 	"path"
 )
@@ -8,16 +9,16 @@ import (
 // Video retrieves the video asset from Immich server.
 // Returns the video data as a byte slice, the API URL used for the request, and any error encountered.
 // The video is returned in octet-stream format.
-func (i *ImmichAsset) Video() ([]byte, string, error) {
+func (i *Asset) Video() ([]byte, string, error) {
 
 	var responseBody []byte
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichURL)
 	if err != nil {
 		return responseBody, "", err
 	}
 
-	apiUrl := url.URL{
+	apiURL := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
 		Path:   path.Join("api", "assets", i.ID, "video", "playback"),
@@ -25,11 +26,11 @@ func (i *ImmichAsset) Video() ([]byte, string, error) {
 
 	octetStreamHeader := map[string]string{"Accept": "application/octet-stream"}
 
-	responseBody, err = i.immichApiCall("GET", apiUrl.String(), nil, octetStreamHeader)
+	responseBody, err = i.immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil, octetStreamHeader)
 	if err != nil {
-		return responseBody, apiUrl.String(), err
+		return responseBody, apiURL.String(), err
 	}
 
-	return responseBody, apiUrl.String(), nil
+	return responseBody, apiURL.String(), nil
 
 }

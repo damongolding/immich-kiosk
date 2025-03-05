@@ -43,9 +43,9 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
-		var customCss []byte
+		var customCSS []byte
 
-		customCss, err = loadCustomCSS()
+		customCSS, err = loadCustomCSS()
 		if err != nil {
 			log.Error("loading custom css", "err", err)
 		}
@@ -59,7 +59,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			KioskVersion: KioskVersion,
 			DeviceID:     utils.GenerateUUID(),
 			Queries:      queryParams,
-			CustomCss:    customCss,
+			CustomCSS:    customCSS,
 			Config:       requestConfig,
 		}
 

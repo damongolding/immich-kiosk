@@ -4,14 +4,15 @@
 // application logic for displaying and managing images in a kiosk mode.
 // The package includes functionality for loading configurations, setting up
 // middleware, and serving both dynamic content and static assets.
-
 package main
 
 import (
 	"context"
 	"embed"
+	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -48,9 +49,7 @@ func main() {
 
 	log.SetTimeFormat("15:04:05")
 
-	if err := common.Initialize(); err != nil {
-		log.Fatal("failed to initialize common package", "error", err)
-	}
+	c := common.New()
 
 	baseConfig := config.New()
 
@@ -58,14 +57,14 @@ func main() {
 	baseConfig.SystemLang = systemLang
 	log.Infof("System language set as %s", systemLang)
 
-	err := baseConfig.Load()
-	if err != nil {
-		log.Error("Failed to load config", "err", err)
+	configErr := baseConfig.Load()
+	if configErr != nil {
+		log.Error("Failed to load config", "err", configErr)
 	}
 
-	videoManager, err := video.New(common.Context, *baseConfig)
-	if err != nil {
-		log.Error("Failed to initialize video manager", "err", err)
+	videoManager, videoManagerErr := video.New(c.Context())
+	if videoManagerErr != nil {
+		log.Error("Failed to initialize video manager", "err", videoManagerErr)
 	}
 
 	videoManager.MaxAge = time.Duration(10) * time.Minute
@@ -74,7 +73,7 @@ func main() {
 
 	if baseConfig.Kiosk.WatchConfig {
 		log.Infof("Watching %s for changes", baseConfig.V.ConfigFileUsed())
-		baseConfig.WatchConfig(common.Context)
+		baseConfig.WatchConfig(c.Context())
 	}
 
 	if baseConfig.Kiosk.Debug {
@@ -112,10 +111,10 @@ func main() {
 				return strings.HasPrefix(c.Request().URL.String(), "/assets")
 			},
 			KeyLookup: "query:password,form:password",
-			Validator: func(queryPassword string, c echo.Context) (bool, error) {
+			Validator: func(queryPassword string, _ echo.Context) (bool, error) {
 				return queryPassword == baseConfig.Kiosk.Password, nil
 			},
-			ErrorHandler: func(err error, c echo.Context) error {
+			ErrorHandler: func(_ error, c echo.Context) error {
 				return c.String(http.StatusUnauthorized, "Unauthorized")
 			},
 		}))
@@ -134,13 +133,13 @@ func main() {
 
 	e.GET("/assets/manifest.json", routes.Manifest)
 
-	e.GET("/image", routes.NewRawImage(baseConfig))
+	e.GET("/image", routes.NewRawImage(baseConfig, c))
 
-	e.GET("/image/:imageID", routes.ImageWithID(baseConfig))
+	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c))
 
-	e.POST("/asset/new", routes.NewAsset(baseConfig))
+	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 
-	e.POST("/asset/previous", routes.PreviousAsset(baseConfig))
+	e.POST("/asset/previous", routes.PreviousAsset(baseConfig, c))
 
 	e.GET("/clock", routes.Clock(baseConfig))
 
@@ -148,30 +147,30 @@ func main() {
 
 	e.GET("/sleep", routes.Sleep(baseConfig))
 
-	e.GET("/cache/flush", routes.FlushCache(baseConfig))
+	e.GET("/cache/flush", routes.FlushCache(baseConfig, c))
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
-	e.POST("/webhooks", routes.Webhooks(baseConfig), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
+	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
-	e.GET("/video/:videoID", routes.NewVideo(baseConfig))
+	e.GET("/video/:videoID", routes.NewVideo())
 
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
 	for _, w := range baseConfig.WeatherLocations {
-		go weather.AddWeatherLocation(common.Context, w)
+		go weather.AddWeatherLocation(c.Context(), w)
 	}
 
-	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(fmt.Sprintf("%v", baseConfig.Kiosk.Port)))
+	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))
 
 	go func() {
-		err = e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
-		if err != nil && err != http.ErrServerClosed {
-			log.Fatal(err)
+		startErr := e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
+		if startErr != nil && !errors.Is(startErr, http.ErrServerClosed) {
+			log.Fatal(startErr)
 		}
 	}()
 
-	<-common.Context.Done()
+	<-c.Context().Done()
 
 	video.Delete()
 
@@ -182,8 +181,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := e.Shutdown(ctx); err != nil {
-		log.Fatal(err)
+	if shutdownErr := e.Shutdown(ctx); shutdownErr != nil {
+		log.Error(shutdownErr)
 	}
 
 }

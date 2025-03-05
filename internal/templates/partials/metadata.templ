@@ -189,7 +189,7 @@ func peopleNames(people []immich.Person) string {
 	return strings.Join(p, ", ")
 }
 
-func joinAlbumNames(albums immich.ImmichAlbums) string {
+func joinAlbumNames(albums immich.Albums) string {
 	albumNames := make([]string, len(albums))
 
 	for i, album := range albums {

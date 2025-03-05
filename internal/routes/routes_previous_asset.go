@@ -33,7 +33,7 @@ import (
 // - Navigation history has fewer than 2 entries
 //
 // Triggers webhook on successful render.
-func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
+func PreviousAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -68,7 +68,7 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 		prevAssets := strings.Split(lastHistoryEntry, ",")
 		requestConfig.History = requestConfig.History[:historyLen-2]
 
-		ViewData := common.ViewData{
+		viewData := common.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     deviceID,
 			Assets:       make([]common.ViewImageData, len(prevAssets)),
@@ -87,22 +87,22 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 
 			prevAssetsID, currentAssetID, selectedUser := i, parts[0], parts[1]
 
-			g.Go(func(id int, currentAssetID string) func() error {
+			g.Go(func(prevAssetsID int, currentAssetID string) func() error {
 				return func() error {
 					requestConfig.SelectedUser = selectedUser
 
-					asset := immich.New(requestConfig)
+					asset := immich.New(com.Context(), requestConfig)
 					asset.ID = currentAssetID
 
 					var wg sync.WaitGroup
 					wg.Add(1)
 
-					go func(asset *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
+					go func(asset *immich.Asset, requestID string, wg *sync.WaitGroup) {
 						defer wg.Done()
 						var processingErr error
 
-						if err := asset.AssetInfo(requestID, deviceID); err != nil {
-							processingErr = fmt.Errorf("failed to get asset info: %w", err)
+						if assetInfoErr := asset.AssetInfo(requestID, deviceID); assetInfoErr != nil {
+							processingErr = fmt.Errorf("failed to get asset info: %w", assetInfoErr)
 							log.Error(processingErr)
 						}
 
@@ -112,29 +112,29 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 
 					}(&asset, requestID, &wg)
 
-					imgBytes, err := asset.ImagePreview()
-					if err != nil {
-						return fmt.Errorf("retrieving image: %w", err)
+					imgBytes, previewErr := asset.ImagePreview()
+					if previewErr != nil {
+						return fmt.Errorf("retrieving image: %w", previewErr)
 					}
 
-					img, err := utils.BytesToImage(imgBytes)
-					if err != nil {
-						return err
+					img, byteErr := utils.BytesToImage(imgBytes)
+					if byteErr != nil {
+						return byteErr
 					}
 
-					imgString, err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
-					if err != nil {
-						return fmt.Errorf("converting image to base64: %w", err)
+					imgString, base64Err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
+					if base64Err != nil {
+						return fmt.Errorf("converting image to base64: %w", base64Err)
 					}
 
-					imgBlurString, err := processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
-					if err != nil {
-						return fmt.Errorf("converting blurred image to base64: %w", err)
+					imgBlurString, blurErr := processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
+					if blurErr != nil {
+						return fmt.Errorf("converting blurred image to base64: %w", blurErr)
 					}
 
 					wg.Wait()
 
-					ViewData.Assets[prevAssetsID] = common.ViewImageData{
+					viewData.Assets[prevAssetsID] = common.ViewImageData{
 						ImmichAsset:   asset,
 						ImageData:     imgString,
 						ImageBlurData: imgBlurString,
@@ -146,16 +146,17 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		// Wait for all goroutines to complete and check for errors
-		if err := g.Wait(); err != nil {
-			return RenderError(c, err, "processing images")
+		errGroupWait := g.Wait()
+		if errGroupWait != nil {
+			return RenderError(c, errGroupWait, "processing images")
 		}
 
-		go webhooks.Trigger(requestData, KioskVersion, webhooks.PreviousAsset, ViewData)
+		go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.PreviousAsset, viewData)
 
-		if len(ViewData.Assets) > 0 && requestConfig.ShowTime && ViewData.Assets[0].ImmichAsset.Type == immich.VideoType {
-			return Render(c, http.StatusOK, videoComponent.Video(ViewData))
+		if len(viewData.Assets) > 0 && requestConfig.ShowTime && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+			return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, imageComponent.Image(ViewData))
+		return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
 	}
 }

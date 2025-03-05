@@ -3,7 +3,9 @@ package immich
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"slices"
 
@@ -29,7 +31,7 @@ import (
 //
 // Returns an error if no suitable image is found after retries or if there
 // are any issues with API calls, caching, or image processing.
-func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
+func (i *Asset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image", true)
@@ -39,15 +41,15 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 
 	for range MaxRetries {
 
-		var immichAssets []ImmichAsset
+		var immichAssets []Asset
 
-		u, err := url.Parse(i.requestConfig.ImmichUrl)
+		u, err := url.Parse(i.requestConfig.ImmichURL)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, nil, "")
+			_, _, err = immichAPIFail(immichAssets, err, nil, "")
 			return err
 		}
 
-		requestBody := ImmichSearchRandomBody{
+		requestBody := SearchRandomBody{
 			Type:       string(ImageType),
 			WithExif:   true,
 			WithPeople: true,
@@ -63,7 +65,7 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 
-		apiUrl := url.URL{
+		apiURL := url.URL{
 			Scheme:   u.Scheme,
 			Host:     u.Host,
 			Path:     "api/search/random",
@@ -72,24 +74,24 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 
 		jsonBody, err := json.Marshal(requestBody)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, nil, "")
+			_, _, err = immichAPIFail(immichAssets, err, nil, "")
 			return err
 		}
 
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAssets)
-		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
+		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
+		apiBody, err := immichAPICall(i.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 
 		err = json.Unmarshal(apiBody, &immichAssets)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, i.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -101,6 +103,7 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 
 			asset.Bucket = kiosk.SourceRandom
 			asset.requestConfig = i.requestConfig
+			asset.ctx = i.ctx
 
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
 				continue
@@ -109,15 +112,15 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 			if i.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
-				jsonBytes, err := json.Marshal(immichAssetsToCache)
-				if err != nil {
-					log.Error("Failed to marshal immichAssetsToCache", "error", err)
-					return err
+				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
+				if cacheMarshalErr != nil {
+					log.Error("Failed to marshal immichAssetsToCache", "error", cacheMarshalErr)
+					return cacheMarshalErr
 				}
 
 				// replace with cache minus used image
-				err = cache.Replace(apiCacheKey, jsonBytes)
-				if err != nil {
+				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				if cacheErr != nil {
 					log.Debug("cache not found!")
 				}
 			}
@@ -130,5 +133,5 @@ func (i *ImmichAsset) RandomImage(requestID, deviceID string, isPrefetch bool) e
 		log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
 	}
-	return fmt.Errorf("No images found for random. Max retries reached.")
+	return errors.New("no images found for random. Max retries reached")
 }
