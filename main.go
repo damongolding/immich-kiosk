@@ -133,13 +133,13 @@ func main() {
 
 	e.GET("/assets/manifest.json", routes.Manifest)
 
-	e.GET("/image", routes.NewRawImage(baseConfig, *c))
+	e.GET("/image", routes.NewRawImage(baseConfig, c))
 
-	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, *c))
+	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c))
 
-	e.POST("/asset/new", routes.NewAsset(baseConfig, *c))
+	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 
-	e.POST("/asset/previous", routes.PreviousAsset(baseConfig, *c))
+	e.POST("/asset/previous", routes.PreviousAsset(baseConfig, c))
 
 	e.GET("/clock", routes.Clock(baseConfig))
 
@@ -147,11 +147,11 @@ func main() {
 
 	e.GET("/sleep", routes.Sleep(baseConfig))
 
-	e.GET("/cache/flush", routes.FlushCache(baseConfig, *c))
+	e.GET("/cache/flush", routes.FlushCache(baseConfig, c))
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
-	e.POST("/webhooks", routes.Webhooks(baseConfig, *c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
+	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
 	e.GET("/video/:videoID", routes.NewVideo())
 

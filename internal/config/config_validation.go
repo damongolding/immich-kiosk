@@ -66,9 +66,9 @@ func (c *Config) checkLowercaseTaggedFields() {
 func (c *Config) checkRequiredFields() {
 	switch {
 	case c.ImmichURL == "":
-		log.Fatal("Immich Url is missing")
+		log.Fatal("Immich URL is missing")
 	case c.ImmichAPIKey == "":
-		log.Fatal("Immich API is missing")
+		log.Fatal("Immich API key is missing")
 	}
 }
 

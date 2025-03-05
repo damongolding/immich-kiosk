@@ -33,7 +33,7 @@ import (
 // - Navigation history has fewer than 2 entries
 //
 // Triggers webhook on successful render.
-func PreviousAsset(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
+func PreviousAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)

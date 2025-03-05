@@ -18,7 +18,7 @@ import (
 
 // NewAsset returns an echo.HandlerFunc that handles requests for new assets.
 // It manages image processing, caching, and prefetching based on the configuration.
-func NewAsset(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
+func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -82,7 +82,7 @@ func NewAsset(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
 
 // NewRawImage returns an echo.HandlerFunc that handles requests for raw images.
 // It processes the image without any additional transformations and returns it as a blob.
-func NewRawImage(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
+func NewRawImage(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -123,7 +123,7 @@ func NewRawImage(baseConfig *config.Config, com common.Common) echo.HandlerFunc 
 
 // ImageWithID returns an echo.HandlerFunc that handles requests for images by ID.
 // It retrieves the image preview based on the provided imageID and returns it as a blob with the appropriate MIME type.
-func ImageWithID(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
+func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)

@@ -548,7 +548,7 @@ func assetToCache(ctx context.Context, viewDataToAdd common.ViewData, requestCon
 }
 
 // assetPreFetch handles prefetching assets for the current request
-func assetPreFetch(common common.Common, requestData *common.RouteRequestData, c common.ContextCopy) {
+func assetPreFetch(common *common.Common, requestData *common.RouteRequestData, c common.ContextCopy) {
 
 	requestConfig := requestData.RequestConfig
 	requestID := requestData.RequestID

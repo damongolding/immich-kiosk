@@ -15,8 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestConfigWithOverrides testing whether ImmichUrl and ImmichApiKey are immutable
-func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
+// TestConfigWithOverrides testing whether ImmichURL and ImmichApiKey are immutable
+func TestImmichURLImmichApiKeyImmutability(t *testing.T) {
 
 	originalURL := "https://my-server.com"
 	originalAPI := "123456"
@@ -44,13 +44,13 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 	err := c.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
-	assert.Equal(t, originalURL, c.ImmichURL, "ImmichUrl field was allowed to be changed")
-	assert.Equal(t, originalAPI, c.ImmichAPIKey, "ImmichApiKey field was allowed to be changed")
-	assert.Equal(t, originalUsersAPIKeys, c.ImmichUsersAPIKeys, "ImmichUsersApiKeys field was allowed to be changed")
+	assert.Equal(t, originalURL, c.ImmichURL, "ImmichURL field was allowed to be changed")
+	assert.Equal(t, originalAPI, c.ImmichAPIKey, "ImmichAPIKey field was allowed to be changed")
+	assert.Equal(t, originalUsersAPIKeys, c.ImmichUsersAPIKeys, "ImmichUsersAPIKeys field was allowed to be changed")
 }
 
-// TestImmichUrlImmichMulitplePerson tests the addition of multiple persons to the config
-func TestImmichUrlImmichMulitplePerson(t *testing.T) {
+// TestImmichURLImmichMulitplePerson tests the addition of multiple persons to the config
+func TestImmichURLImmichMulitplePerson(t *testing.T) {
 	c := New()
 
 	e := echo.New()
@@ -99,13 +99,13 @@ func TestMalformedURLs(t *testing.T) {
 			err := c.Load()
 			assert.NoError(t, err, "Config load should not return an error")
 
-			assert.Equal(t, test.Want, c.ImmichURL, "ImmichUrl should be formatted correctly")
+			assert.Equal(t, test.Want, c.ImmichURL, "ImmichURL should be formatted correctly")
 		})
 	}
 }
 
-// TestImmichUrlImmichMulitpleAlbum tests the addition and overriding of multiple albums in the config
-func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
+// TestImmichURLImmichMulitpleAlbum tests the addition and overriding of multiple albums in the config
+func TestImmichURLImmichMulitpleAlbum(t *testing.T) {
 
 	// configWithBase
 	configWithBase := New()

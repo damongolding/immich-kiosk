@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func FlushCache(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
+func FlushCache(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)

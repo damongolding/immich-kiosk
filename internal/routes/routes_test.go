@@ -36,7 +36,7 @@ func TestNewRawImage(t *testing.T) {
 		t.Error("Failed to load config", "err", err)
 	}
 
-	h := NewRawImage(baseConfig, *common.New())
+	h := NewRawImage(baseConfig, common.New())
 
 	// Assertions
 	if assert.NoError(t, h(c)) {

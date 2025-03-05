@@ -15,7 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func Webhooks(baseConfig *config.Config, com common.Common) echo.HandlerFunc {
+func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
