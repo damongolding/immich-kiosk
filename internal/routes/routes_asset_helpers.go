@@ -106,12 +106,12 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		taggedAssetsCount, tagCounterr := immichAsset.AssetsWithTagCount(tagData.ID, requestID, deviceID)
-		if tagCounterr != nil {
+		taggedAssetsCount, tagCountErr := immichAsset.AssetsWithTagCount(tagData.ID, requestID, deviceID)
+		if tagCountErr != nil {
 			if requestConfig.SelectedUser != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no assets with tag '%s'. error='%w'", requestConfig.SelectedUser, tagData.Value, tagCounterr)
+				return nil, fmt.Errorf("user '<b>%s</b>' has no assets with tag '%s'. error='%w'", requestConfig.SelectedUser, tagData.Value, tagCountErr)
 			}
-			return nil, fmt.Errorf("getting tagged asset count: %w", tagCounterr)
+			return nil, fmt.Errorf("getting tagged asset count: %w", tagCountErr)
 		}
 
 		if taggedAssetsCount == 0 {
