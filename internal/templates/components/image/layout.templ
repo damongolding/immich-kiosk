@@ -93,7 +93,7 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData, imageIndex int) {
 	@renderImageBackground(viewData, imageData)
 	@renderImage(viewData, imageData)
-	if !viewData.DisableUi {
+	if !viewData.DisableUI {
 		@partials.AssetMetadata(viewData, imageIndex)
 	}
 }

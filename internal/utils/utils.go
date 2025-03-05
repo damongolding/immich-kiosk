@@ -13,6 +13,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"image"
 	"io"
@@ -28,12 +29,7 @@ import (
 	"strings"
 	"time"
 
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
-
 	"golang.org/x/image/webp"
-	_ "golang.org/x/image/webp"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
@@ -279,7 +275,7 @@ func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error
 	referer, err := url.Parse(refererURL)
 	if err != nil {
 		log.Error("parsing URL", "url", refererURL, "err", err)
-		return queries, fmt.Errorf("Could not read URL. Is it formatted correctly?")
+		return queries, errors.New("could not read URL. Is it formatted correctly?")
 	}
 
 	// Combine referer into values
@@ -420,10 +416,10 @@ func StringToColor(inputString string) Color {
 	return Color{R: r, G: g, B: b, RGB: rgb, Hex: hex}
 }
 
-// ColorizeRequestId takes a request ID string and returns a colorized string representation.
+// ColorizeRequestID takes a request ID string and returns a colorized string representation.
 // It generates a color based on the input string, determines the best contrasting text color,
 // and applies styling using lipgloss to create a visually distinct, colored representation of the request ID.
-func ColorizeRequestId(requestID string) string {
+func ColorizeRequestID(requestID string) string {
 
 	c := StringToColor(requestID)
 
@@ -492,7 +488,7 @@ func parseTimeString(timeStr string) (time.Time, error) {
 	// Trim whitespace and validate
 	timeStr = strings.TrimSpace(timeStr)
 	if timeStr == "" {
-		return time.Time{}, fmt.Errorf("invalid time format: empty or whitespace-only input")
+		return time.Time{}, errors.New("invalid time format: empty or whitespace-only input")
 	}
 
 	// Extract only the digits
@@ -732,4 +728,14 @@ func TrimHistory(history *[]string, maxLength int) {
 	if len(*history) > maxLength {
 		*history = (*history)[len(*history)-maxLength:]
 	}
+}
+
+// IsTimeBetween checks if a given time falls between a start and end time, inclusive.
+// checkTime: The time to check
+// startTime: The beginning of the time range
+// endTime: The end of the time range
+// Returns true if checkTime is equal to or after startTime AND equal to or before endTime
+func IsTimeBetween(checkTime, startTime, endTime time.Time) bool {
+	return (checkTime.Equal(startTime) || checkTime.After(startTime)) &&
+		(checkTime.Equal(endTime) || checkTime.Before(endTime))
 }

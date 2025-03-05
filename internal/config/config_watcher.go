@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -16,13 +17,13 @@ import (
 func (c *Config) WatchConfig(ctx context.Context) {
 	configPath := c.V.ConfigFileUsed()
 
-	if err := validateConfigFile(configPath); err != nil {
-		log.Error(err)
+	if fileErr := validateConfigFile(configPath); fileErr != nil {
+		log.Error(fileErr)
 		return
 	}
 
-	if err := c.initializeConfigState(); err != nil {
-		log.Error("Failed to initialize config state:", err)
+	if initErr := c.initializeConfigState(); initErr != nil {
+		log.Error("Failed to initialize config state", "err", initErr)
 		return
 	}
 
@@ -66,13 +67,13 @@ func (c *Config) watchConfigChanges(ctx context.Context) {
 func (c *Config) initializeConfigState() error {
 	info, err := os.Stat(c.V.ConfigFileUsed())
 	if err != nil {
-		return fmt.Errorf("getting initial file mTime: %v", err)
+		return fmt.Errorf("getting initial file mTime: %w", err)
 	}
 	c.configLastModTime = info.ModTime()
 
-	configHash, err := c.configFileHash(c.V.ConfigFileUsed())
-	if err != nil {
-		return fmt.Errorf("getting initial file hash: %v", err)
+	configHash, hashErr := c.configFileHash(c.V.ConfigFileUsed())
+	if hashErr != nil {
+		return fmt.Errorf("getting initial file hash: %w", hashErr)
 	}
 	c.configHash = configHash
 
@@ -116,11 +117,11 @@ func (c *Config) configFileHash(filePath string) (string, error) {
 	defer file.Close()
 
 	hasher := sha256.New()
-	if _, err := io.Copy(hasher, file); err != nil {
-		return "", err
+	if _, copyErr := io.Copy(hasher, file); copyErr != nil {
+		return "", copyErr
 	}
 
-	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
+	return hex.EncodeToString(hasher.Sum(nil)), nil
 }
 
 // hasConfigHashChanged calculates and compares the current hash of the config file
@@ -145,7 +146,7 @@ func (c *Config) hasConfigMtimeChanged() bool {
 
 	info, err := os.Stat(c.V.ConfigFileUsed())
 	if err != nil {
-		log.Errorf("Checking config file: %v", err)
+		log.Error("Checking config file", "err", err)
 		return false
 	}
 

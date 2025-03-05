@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func FlushCache(baseConfig *config.Config) echo.HandlerFunc {
+func FlushCache(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -31,7 +31,7 @@ func FlushCache(baseConfig *config.Config) echo.HandlerFunc {
 		log.Info("Cache after flush ", "cache_items", cache.ItemCount())
 
 		c.Response().Header().Set("HX-Refresh", "true")
-		go webhooks.Trigger(requestData, KioskVersion, webhooks.CacheFlush, common.ViewData{})
+		go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.CacheFlush, common.ViewData{})
 		return c.NoContent(http.StatusNoContent)
 	}
 }

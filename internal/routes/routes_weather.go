@@ -50,9 +50,9 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 			log.Debug("Using default weather location", "location", locationName)
 		}
 
-		var weatherLocation weather.WeatherLocation
+		var weatherLocation weather.Location
 
-		for attempts := 0; attempts < maxWeatherRetries; attempts++ {
+		for attempts := range maxWeatherRetries {
 			weatherLocation = weather.CurrentWeather(locationName)
 			if !strings.EqualFold(weatherLocation.Name, locationName) || len(weatherLocation.Data) == 0 {
 				log.Warn("weather data fetch attempt failed",

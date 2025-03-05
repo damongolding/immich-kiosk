@@ -24,18 +24,18 @@ func validateConfigFile(path string) error {
 	return nil
 }
 
-// checkUrlScheme checks given url has correct scheme and adds http:// if none is found.
+// checkURLScheme checks given url has correct scheme and adds http:// if none is found.
 // The function checks for http:// and https:// prefixes in a case-insensitive way.
 // If neither prefix is found, it prepends the default scheme (http://).
-func (c *Config) checkUrlScheme() {
+func (c *Config) checkURLScheme() {
 	// check for correct scheme
 	switch {
-	case strings.HasPrefix(strings.ToLower(c.ImmichUrl), "http://"):
+	case strings.HasPrefix(strings.ToLower(c.ImmichURL), "http://"):
 		break
-	case strings.HasPrefix(strings.ToLower(c.ImmichUrl), "https://"):
+	case strings.HasPrefix(strings.ToLower(c.ImmichURL), "https://"):
 		break
 	default:
-		c.ImmichUrl = defaultScheme + c.ImmichUrl
+		c.ImmichURL = defaultScheme + c.ImmichURL
 	}
 }
 
@@ -65,10 +65,10 @@ func (c *Config) checkLowercaseTaggedFields() {
 // If any required field is missing, the function logs a fatal error and exits.
 func (c *Config) checkRequiredFields() {
 	switch {
-	case c.ImmichUrl == "":
-		log.Fatal("Immich Url is missing")
-	case c.ImmichApiKey == "":
-		log.Fatal("Immich API is missing")
+	case c.ImmichURL == "":
+		log.Fatal("Immich URL is missing")
+	case c.ImmichAPIKey == "":
+		log.Fatal("Immich API key is missing")
 	}
 }
 

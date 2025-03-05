@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"net/url"
 
@@ -41,7 +41,7 @@ func Manifest(c echo.Context) error {
 	referer, err := url.Parse(refererURL)
 	if err != nil {
 		log.Error("parsing URL", "url", refererURL, "err", err)
-		return fmt.Errorf("Could not read URL. Is it formatted correctly?")
+		return errors.New("could not read URL. Is it formatted correctly?")
 	}
 
 	manifest := &ManifestJSON{

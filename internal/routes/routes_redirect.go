@@ -23,8 +23,8 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 
-		redirectCount, err := c.Cookie(redirectCountHeader)
-		if err != nil {
+		redirectCount, countErr := c.Cookie(redirectCountHeader)
+		if countErr != nil {
 			redirectCount = &http.Cookie{Value: "0"}
 		}
 
@@ -57,7 +57,7 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
 			if strings.EqualFold(redirectItem.Type, "internal") {
 
-				parsedUrl, err := url.Parse(redirectItem.URL)
+				parsedURL, err := url.Parse(redirectItem.URL)
 				if err != nil {
 					log.Error("parse internal redirect URL",
 						"url", redirectItem.URL,
@@ -67,7 +67,7 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 					return echo.NewHTTPError(http.StatusInternalServerError, "Invalid redirect URL")
 				}
 
-				for key, values := range parsedUrl.Query() {
+				for key, values := range parsedURL.Query() {
 					for _, value := range values {
 						c.QueryParams().Add(key, value)
 					}

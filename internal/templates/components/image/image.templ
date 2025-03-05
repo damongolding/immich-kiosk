@@ -12,7 +12,8 @@ import (
 //
 // Parameters:
 //   - viewData: ViewData containing all necessary information for rendering the images.
-templ Image(viewData common.ViewData) {
+//   - secret: The secret key used for generating the signature.
+templ Image(viewData common.ViewData, secret string) {
 	if len(viewData.Assets) < 2 {
 		@layoutSingleView(viewData)
 	} else {
@@ -20,6 +21,6 @@ templ Image(viewData common.ViewData) {
 	}
 	@partials.RenderHistory(viewData, immich.ImageType)
 	if viewData.ShowMoreInfo {
-		@partials.RenderMoreInfo(viewData)
+		@partials.RenderMoreInfo(viewData, secret)
 	}
 }
