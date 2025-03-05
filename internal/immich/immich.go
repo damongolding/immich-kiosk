@@ -176,10 +176,9 @@ type Asset struct {
 	AppearsIn   Albums           `json:"-"`
 	Bucket      kiosk.Source     `json:"-"`
 	BucketID    string           `json:"-"`
-	ctx         context.Context  `json:"-"`
 
-	// requestConfig the config for this request
-	requestConfig config.Config
+	ctx           context.Context `json:"-"`
+	requestConfig config.Config   `json:"-"`
 }
 
 type Album struct {
@@ -226,6 +225,10 @@ type SearchRandomBody struct {
 	WithPeople    bool     `url:"withPeople,omitempty" json:"withPeople,omitempty"`
 	WithStacked   bool     `url:"withStacked,omitempty" json:"withStacked,omitempty"`
 	Page          int      `url:"page,omitempty" json:"page,omitempty"`
+}
+
+type TagAssetsBody struct {
+	IDs []string `url:"ids,omitempty" json:"ids,omitempty"`
 }
 
 type SearchMetadataResponse struct {
