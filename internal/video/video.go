@@ -2,7 +2,7 @@ package video
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
 	"slices"
@@ -27,11 +27,11 @@ type Video struct {
 	LastAccessed time.Time
 	FileName     string
 	FilePath     string
-	ImmichAsset  immich.ImmichAsset
+	ImmichAsset  immich.Asset
 }
 
-// VideoManager handles downloading and managing video files
-type VideoManager struct {
+// Manager handles downloading and managing video files
+type Manager struct {
 	mu sync.RWMutex
 
 	DownloadQueue []string
@@ -41,19 +41,19 @@ type VideoManager struct {
 }
 
 // New creates a new VideoManager instance
-func New(ctx context.Context, base config.Config) (*VideoManager, error) {
-	if err := VideoInit(); err != nil {
+func New(ctx context.Context) (*Manager, error) {
+	if err := initialise(); err != nil {
 		return nil, err
 	}
 
-	v := &VideoManager{}
+	v := &Manager{}
 	go v.VideoCleanup(ctx)
 
 	return v, nil
 }
 
-// VideoInit initializes the video temp directory
-func VideoInit() error {
+// initialise initializes the video temp directory
+func initialise() error {
 
 	// Create custom temp directory if it doesn't exist
 	err := os.MkdirAll(customTempVideoDir, 0755)
@@ -68,7 +68,7 @@ func VideoInit() error {
 }
 
 // VideoCleanup runs periodic cleanup of old video files
-func (v *VideoManager) VideoCleanup(ctx context.Context) {
+func (v *Manager) VideoCleanup(ctx context.Context) {
 	// Run cleanup every minute
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -93,7 +93,7 @@ func Delete() {
 }
 
 // RemoveVideo deletes a video file and removes it from the manager
-func (v *VideoManager) RemoveVideo(id string) {
+func (v *Manager) RemoveVideo(id string) {
 
 	for i, video := range v.Videos {
 		if video.ID == id {
@@ -119,7 +119,7 @@ func (v *VideoManager) RemoveVideo(id string) {
 }
 
 // cleanup removes videos that have exceeded their maximum age
-func (v *VideoManager) cleanup() {
+func (v *Manager) cleanup() {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
@@ -133,7 +133,7 @@ func (v *VideoManager) cleanup() {
 }
 
 // IsDownloaded checks if a video has already been downloaded
-func (v *VideoManager) IsDownloaded(id string) bool {
+func (v *Manager) IsDownloaded(id string) bool {
 
 	if _, err := v.GetVideo(id); err == nil {
 		return true
@@ -143,7 +143,7 @@ func (v *VideoManager) IsDownloaded(id string) bool {
 }
 
 // IsDownloading checks if a video is currently being downloaded
-func (v *VideoManager) IsDownloading(id string) bool {
+func (v *Manager) IsDownloading(id string) bool {
 	v.mu.RLock()
 	defer v.mu.RUnlock()
 
@@ -151,7 +151,7 @@ func (v *VideoManager) IsDownloading(id string) bool {
 }
 
 // GetVideo retrieves a video by ID
-func (v *VideoManager) GetVideo(id string) (Video, error) {
+func (v *Manager) GetVideo(id string) (Video, error) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
@@ -162,11 +162,11 @@ func (v *VideoManager) GetVideo(id string) (Video, error) {
 		}
 	}
 
-	return Video{}, fmt.Errorf("video not found")
+	return Video{}, errors.New("video not found")
 }
 
 // AddVideoToViewCache adds a downloaded video to the cache
-func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, requestConfig *config.Config, deviceID, requestUrl string, immichAsset immich.ImmichAsset, imageData, imageBlurData string) {
+func (v *Manager) AddVideoToViewCache(id, fileName, filePath string, requestConfig *config.Config, deviceID, requestURL string, immichAsset immich.Asset, imageData, imageBlurData string) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
@@ -190,11 +190,11 @@ func (v *VideoManager) AddVideoToViewCache(id, fileName, filePath string, reques
 		},
 	}
 
-	cache.AssetToCacheWithPosition(viewDataToAdd, requestConfig, deviceID, requestUrl, cache.PREPEND)
+	cache.AssetToCacheWithPosition(viewDataToAdd, requestConfig, deviceID, requestURL, cache.PREPEND)
 }
 
 // removeFromQueue removes a video ID from the download queue
-func (v *VideoManager) removeFromQueue(id string) {
+func (v *Manager) removeFromQueue(id string) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
@@ -207,7 +207,7 @@ func (v *VideoManager) removeFromQueue(id string) {
 }
 
 // addToQueue adds a video ID to the download queue
-func (v *VideoManager) addToQueue(id string) {
+func (v *Manager) addToQueue(id string) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
@@ -215,7 +215,7 @@ func (v *VideoManager) addToQueue(id string) {
 }
 
 // DownloadVideo downloads a video file and adds it to the cache
-func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConfig config.Config, deviceID string, requestUrl string) {
+func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.Config, deviceID string, requestURL string) {
 
 	videoID := immichAsset.ID
 
@@ -286,5 +286,5 @@ func (v *VideoManager) DownloadVideo(immichAsset immich.ImmichAsset, requestConf
 
 	log.Debug("downloaded video", "path", filePath)
 
-	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestUrl, immichAsset, imageData, imageBlurData)
+	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestURL, immichAsset, imageData, imageBlurData)
 }

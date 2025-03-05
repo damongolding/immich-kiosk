@@ -20,7 +20,8 @@ import (
 // It shows camera data, original image data, detected people, and optional QR codes/links
 // Parameters:
 //   - viewData: The view data containing images and display options
-templ RenderMoreInfo(viewData common.ViewData) {
+//   - secret: The secret key for generating webhook signatures
+templ RenderMoreInfo(viewData common.ViewData, secret string) {
 	<div id="more-info" hx-swap-oob="true">
 		for i, img := range viewData.Assets {
 			<div class="more-info--image">
@@ -32,7 +33,7 @@ templ RenderMoreInfo(viewData common.ViewData) {
 					@tags(img.ImmichAsset.Tags)
 					<div class="more-info--button-group">
 						if viewData.ShowMoreInfoImageLink {
-							<a class="more-info--image-link" href={ templ.SafeURL(immichAssetUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichAsset.ID)) } target="_blank">
+							<a class="more-info--image-link" href={ templ.SafeURL(immichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID)) } target="_blank">
 								View in Immich
 							</a>
 						}
@@ -42,7 +43,7 @@ templ RenderMoreInfo(viewData common.ViewData) {
 								hx-post="/webhooks"
 								hx-trigger="click throttle:2s"
 								hx-include=".kiosk-history--entry"
-								hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.webhook.trigger.info_overlay"}`, time.Now().Unix(), webhookSignature()) }
+								hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.webhook.trigger.info_overlay"}`, time.Now().Unix(), webhookSignature(secret)) }
 								hx-swap="textContent"
 							>
 								Trigger webhook
@@ -52,7 +53,7 @@ templ RenderMoreInfo(viewData common.ViewData) {
 				</div>
 				if viewData.ShowMoreInfoQrCode {
 					<div class="more-info--image--qr-code">
-						<img src={ utils.CreateQrCode(immichAssetUrl(viewData.ImmichUrl, viewData.ImmichExternalUrl, img.ImmichAsset.ID)) }/>
+						<img src={ utils.CreateQrCode(immichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID)) }/>
 					</div>
 				}
 			</div>
@@ -89,7 +90,7 @@ templ cameraData(exifInfo immich.ExifInfo) {
 // originalImageData displays original filename and image dimensions/size
 // Parameters:
 //   - img: The Immich asset containing image metadata
-templ originalAssetData(img immich.ImmichAsset) {
+templ originalAssetData(img immich.Asset) {
 	<div>
 		<div>
 			<h3>
@@ -248,6 +249,6 @@ func immichAssetUrl(baseUrl, externalUrl, imageID string) string {
 // to create a time-based signature for securing webhook requests.
 // Returns:
 //   - A string containing the calculated signature
-func webhookSignature() string {
-	return utils.CalculateSignature(common.SharedSecret, strconv.FormatInt(time.Now().Unix(), 10))
+func webhookSignature(secret string) string {
+	return utils.CalculateSignature(secret, strconv.FormatInt(time.Now().Unix(), 10))
 }

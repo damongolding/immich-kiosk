@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"path"
 	"slices"
@@ -33,46 +34,45 @@ func (t Tags) Get(tagValue string) (Tag, error) {
 	return Tag{}, fmt.Errorf("tag not found. tag=%s", tagValue)
 }
 
-func (i *ImmichAsset) AllTags(requestID, deviceID string) (Tags, string, error) {
+func (i *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
 	var tags []Tag
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichURL)
 	if err != nil {
-		return immichApiFail(tags, err, nil, "")
+		return immichAPIFail(tags, err, nil, "")
 	}
 
-	apiUrl := url.URL{
+	apiURL := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
 		Path:   path.Join("api", "tags"),
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, tags)
-	body, err := immichApiCall("GET", apiUrl.String(), nil)
+	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, tags)
+	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
 	if err != nil {
-		return immichApiFail(tags, err, body, apiUrl.String())
+		return immichAPIFail(tags, err, body, apiURL.String())
 	}
 
 	err = json.Unmarshal(body, &tags)
 	if err != nil {
-		return immichApiFail(tags, err, body, apiUrl.String())
+		return immichAPIFail(tags, err, body, apiURL.String())
 	}
 
-	return tags, apiUrl.String(), nil
+	return tags, apiURL.String(), nil
 }
 
-func (i *ImmichAsset) AssetsWithTagCount(tagID string, requestID, deviceID string) (int, error) {
+func (i *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (int, error) {
 
 	var allAssetsCount int
-	pageCount := 1
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichURL)
 	if err != nil {
-		_, _, err = immichApiFail(allAssetsCount, err, nil, "")
+		_, _, err = immichAPIFail(allAssetsCount, err, nil, "")
 		return allAssetsCount, err
 	}
 
-	requestBody := ImmichSearchRandomBody{
+	requestBody := SearchRandomBody{
 		Type:       string(ImageType),
 		TagIDs:     []string{tagID},
 		WithPeople: false,
@@ -86,63 +86,21 @@ func (i *ImmichAsset) AssetsWithTagCount(tagID string, requestID, deviceID strin
 
 	DateFilter(&requestBody, i.requestConfig.DateFilter)
 
-	for {
+	allAssetsCount, err = i.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 
-		var taggedAssets ImmichSearchMetadataResponse
-
-		requestBody.Page = pageCount
-
-		// convert body to queries so url is unique and can be cached
-		queries, _ := query.Values(requestBody)
-
-		apiUrl := url.URL{
-			Scheme:   u.Scheme,
-			Host:     u.Host,
-			Path:     "api/search/metadata",
-			RawQuery: queries.Encode(),
-		}
-
-		jsonBody, err := json.Marshal(requestBody)
-		if err != nil {
-			_, _, err = immichApiFail(allAssetsCount, err, nil, apiUrl.String())
-			return allAssetsCount, err
-		}
-
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, taggedAssets)
-		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
-		if err != nil {
-			_, _, err = immichApiFail(taggedAssets, err, apiBody, apiUrl.String())
-			return allAssetsCount, err
-		}
-
-		err = json.Unmarshal(apiBody, &taggedAssets)
-		if err != nil {
-			_, _, err = immichApiFail(taggedAssets, err, apiBody, apiUrl.String())
-			return allAssetsCount, err
-		}
-
-		allAssetsCount += taggedAssets.Assets.Total
-
-		if taggedAssets.Assets.NextPage == "" {
-			break
-		}
-
-		pageCount++
-	}
-
-	return allAssetsCount, nil
+	return allAssetsCount, err
 }
 
-func (i *ImmichAsset) AssetsWithTag(tagID string, requestID, deviceID string) ([]ImmichAsset, string, error) {
+func (i *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset, string, error) {
 
-	var immichAssets []ImmichAsset
+	var immichAssets []Asset
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichURL)
 	if err != nil {
-		return immichApiFail(immichAssets, err, nil, "")
+		return immichAPIFail(immichAssets, err, nil, "")
 	}
 
-	requestBody := ImmichSearchRandomBody{
+	requestBody := SearchRandomBody{
 		Type:       string(ImageType),
 		TagIDs:     []string{tagID},
 		WithExif:   true,
@@ -159,7 +117,7 @@ func (i *ImmichAsset) AssetsWithTag(tagID string, requestID, deviceID string) ([
 	// convert body to queries so url is unique and can be cached
 	queries, _ := query.Values(requestBody)
 
-	apiUrl := url.URL{
+	apiURL := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     "api/search/random",
@@ -168,24 +126,24 @@ func (i *ImmichAsset) AssetsWithTag(tagID string, requestID, deviceID string) ([
 
 	jsonBody, err := json.Marshal(requestBody)
 	if err != nil {
-		return immichApiFail(immichAssets, err, nil, apiUrl.String())
+		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAssets)
-	apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
+	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
+	apiBody, err := immichAPICall(http.MethodPost, apiURL.String(), jsonBody)
 	if err != nil {
-		return immichApiFail(immichAssets, err, nil, apiUrl.String())
+		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}
 
 	err = json.Unmarshal(apiBody, &immichAssets)
 	if err != nil {
-		return immichApiFail(immichAssets, err, nil, apiUrl.String())
+		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}
 
-	return immichAssets, apiUrl.String(), nil
+	return immichAssets, apiURL.String(), nil
 }
 
-func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID string, isPrefetch bool) error {
+func (i *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image with tag", tagID)
@@ -195,12 +153,12 @@ func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID strin
 
 	for range MaxRetries {
 
-		immichAssets, apiUrl, err := i.AssetsWithTag(tagID, requestID, deviceID)
+		immichAssets, apiURL, err := i.AssetsWithTag(tagID, requestID, deviceID)
 		if err != nil {
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL, deviceID, i.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -250,5 +208,5 @@ func (i *ImmichAsset) RandomAssetWithTag(tagID string, requestID, deviceID strin
 		cache.Delete(apiCacheKey)
 	}
 
-	return fmt.Errorf("No images found for '%s'. Max retries reached.", tagID)
+	return fmt.Errorf("no images found for '%s'. Max retries reached", tagID)
 }

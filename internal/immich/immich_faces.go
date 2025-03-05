@@ -2,6 +2,7 @@ package immich
 
 import (
 	"encoding/json"
+	"net/http"
 	"net/url"
 
 	"github.com/charmbracelet/log"
@@ -59,35 +60,35 @@ func convertFaceResponse(faceResponse []AssetFaceResponse) []Person {
 // call tracking. The function handles URL parsing, making the API request, and
 // unmarshaling the response into Face structs. Any errors are logged and will
 // abort the operation.
-func (i *ImmichAsset) CheckForFaces(requestID, deviceID string) {
+func (i *Asset) CheckForFaces(requestID, deviceID string) {
 
 	var faceResponse []AssetFaceResponse
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichURL)
 	if err != nil {
-		_, _, err = immichApiFail(faceResponse, err, nil, "")
+		_, _, err = immichAPIFail(faceResponse, err, nil, "")
 		log.Error("parsing faces url", "err", err)
 		return
 	}
 
-	apiUrl := url.URL{
+	apiURL := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     "api/faces",
 		RawQuery: "id=" + i.ID,
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, faceResponse)
-	body, err := immichApiCall("GET", apiUrl.String(), nil)
+	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, faceResponse)
+	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
 	if err != nil {
-		_, _, err = immichApiFail(faceResponse, err, body, apiUrl.String())
+		_, _, err = immichAPIFail(faceResponse, err, body, apiURL.String())
 		log.Error("adding faces", "err", err)
 		return
 	}
 
 	err = json.Unmarshal(body, &faceResponse)
 	if err != nil {
-		_, _, err = immichApiFail(faceResponse, err, body, apiUrl.String())
+		_, _, err = immichAPIFail(faceResponse, err, body, apiURL.String())
 		log.Error("adding faces", "err", err)
 		return
 	}

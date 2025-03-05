@@ -10,7 +10,7 @@ import (
 // It sets the TakenAfter and TakenBefore fields of the request body to filter photos
 // within the determined date range. If no date filter is configured, it returns without
 // modifying the request body.
-func DateFilter(requestBody *ImmichSearchRandomBody, dateFilter string) {
+func DateFilter(requestBody *SearchRandomBody, dateFilter string) {
 	if dateFilter == "" {
 		return
 	}

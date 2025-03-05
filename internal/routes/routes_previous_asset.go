@@ -33,7 +33,7 @@ import (
 // - Navigation history has fewer than 2 entries
 //
 // Triggers webhook on successful render.
-func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
+func PreviousAsset(baseConfig *config.Config, secret string) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -68,7 +68,7 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 		prevAssets := strings.Split(lastHistoryEntry, ",")
 		requestConfig.History = requestConfig.History[:historyLen-2]
 
-		ViewData := common.ViewData{
+		viewData := common.ViewData{
 			KioskVersion: KioskVersion,
 			DeviceID:     deviceID,
 			Assets:       make([]common.ViewImageData, len(prevAssets)),
@@ -87,7 +87,7 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 
 			prevAssetsID, currentAssetID, selectedUser := i, parts[0], parts[1]
 
-			g.Go(func(id int, currentAssetID string) func() error {
+			g.Go(func(prevAssetsID int, currentAssetID string) func() error {
 				return func() error {
 					requestConfig.SelectedUser = selectedUser
 
@@ -97,7 +97,7 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 					var wg sync.WaitGroup
 					wg.Add(1)
 
-					go func(asset *immich.ImmichAsset, requestID string, wg *sync.WaitGroup) {
+					go func(asset *immich.Asset, requestID string, wg *sync.WaitGroup) {
 						defer wg.Done()
 						var processingErr error
 
@@ -134,7 +134,7 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 
 					wg.Wait()
 
-					ViewData.Assets[prevAssetsID] = common.ViewImageData{
+					viewData.Assets[prevAssetsID] = common.ViewImageData{
 						ImmichAsset:   asset,
 						ImageData:     imgString,
 						ImageBlurData: imgBlurString,
@@ -150,12 +150,12 @@ func PreviousAsset(baseConfig *config.Config) echo.HandlerFunc {
 			return RenderError(c, err, "processing images")
 		}
 
-		go webhooks.Trigger(requestData, KioskVersion, webhooks.PreviousAsset, ViewData)
+		go webhooks.Trigger(requestData, KioskVersion, webhooks.PreviousAsset, viewData)
 
-		if len(ViewData.Assets) > 0 && requestConfig.ShowTime && ViewData.Assets[0].ImmichAsset.Type == immich.VideoType {
-			return Render(c, http.StatusOK, videoComponent.Video(ViewData))
+		if len(viewData.Assets) > 0 && requestConfig.ShowTime && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+			return Render(c, http.StatusOK, videoComponent.Video(viewData, secret))
 		}
 
-		return Render(c, http.StatusOK, imageComponent.Image(ViewData))
+		return Render(c, http.StatusOK, imageComponent.Image(viewData, secret))
 	}
 }

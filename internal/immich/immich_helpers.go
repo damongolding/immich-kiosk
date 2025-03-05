@@ -3,6 +3,7 @@ package immich
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,41 +19,46 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/google/go-querystring/query"
 )
 
-// immichApiFail handles failures in Immich API calls by unmarshaling the error response,
+// immichAPIFail handles failures in Immich API calls by unmarshaling the error response,
 // logging the error, and returning a formatted error along with the original value.
-func immichApiFail[T ImmichApiResponse](value T, err error, body []byte, apiUrl string) (T, string, error) {
-	var immichError ImmichError
+func immichAPIFail[T APIResponse](value T, err error, body []byte, apiURL string) (T, string, error) {
+	var immichError Error
 	errorUnmarshalErr := json.Unmarshal(body, &immichError)
 	if errorUnmarshalErr != nil {
-		log.Error("Couldn't read error", "body", string(body), "url", apiUrl)
-		return value, apiUrl, err
+		log.Error("Couldn't read error", "body", string(body), "url", apiURL)
+		return value, apiURL, err
 	}
 	log.Errorf("%s : %v", immichError.Error, immichError.Message)
-	return value, apiUrl, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
+	return value, apiURL, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 }
 
-// withImmichApiCache Decorator to implement cache for the immichApiCall func
-func withImmichApiCache[T ImmichApiResponse](immichApiCall ImmichApiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) ImmichApiCall {
-	return func(method, apiUrl string, body []byte, headers ...map[string]string) ([]byte, error) {
+// withImmichAPICache Decorator to implement cache for the immichAPICall func
+func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) apiCall {
+	return func(method, apiURL string, body []byte, headers ...map[string]string) ([]byte, error) {
 
 		if !requestConfig.Kiosk.Cache {
-			return immichApiCall(method, apiUrl, body, headers...)
+			return immichAPICall(method, apiURL, body, headers...)
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL, deviceID, requestConfig.SelectedUser)
 
 		if apiData, found := cache.Get(apiCacheKey); found {
-			log.Debug(requestID+" Cache hit", "url", apiUrl)
-			return apiData.([]byte), nil
+			log.Debug(requestID+" Cache hit", "url", apiURL)
+			data, ok := apiData.([]byte)
+			if !ok {
+				return nil, errors.New("cache data type assertion failed")
+			}
+			return data, nil
 		}
 
 		if requestConfig.Kiosk.DebugVerbose {
-			log.Debug(requestID+" Cache miss", "url", apiUrl)
+			log.Debug(requestID+" Cache miss", "url", apiURL)
 		}
 
-		apiBody, err := immichApiCall(method, apiUrl, body)
+		apiBody, err := immichAPICall(method, apiURL, body)
 		if err != nil {
 			log.Error(err)
 			return nil, err
@@ -74,22 +80,22 @@ func withImmichApiCache[T ImmichApiResponse](immichApiCall ImmichApiCall, reques
 
 		cache.Set(apiCacheKey, jsonBytes)
 		if requestConfig.Kiosk.DebugVerbose {
-			log.Debug(requestID+" Cache saved", "url", apiUrl)
+			log.Debug(requestID+" Cache saved", "url", apiURL)
 		}
 
 		return jsonBytes, nil
 	}
 }
 
-// immichApiCall bootstrap for immich api call
-func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers ...map[string]string) ([]byte, error) {
+// immichAPICall bootstrap for immich api call
+func (i *Asset) immichAPICall(method, apiURL string, body []byte, headers ...map[string]string) ([]byte, error) {
 
 	var responseBody []byte
 	var lastErr error
 
-	_, err := url.Parse(apiUrl)
+	_, err := url.Parse(apiURL)
 	if err != nil {
-		log.Error("Invalid URL", "url", apiUrl, "err", err)
+		log.Error("Invalid URL", "url", apiURL, "err", err)
 		return responseBody, err
 	}
 
@@ -100,16 +106,16 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 			bodyReader = bytes.NewReader(body)
 		}
 
-		req, err := http.NewRequest(method, apiUrl, bodyReader)
+		req, err := http.NewRequest(method, apiURL, bodyReader)
 		if err != nil {
 			log.Error(err)
 			return responseBody, err
 		}
 
 		req.Header.Set("Accept", "application/json")
-		apiKey := i.requestConfig.ImmichApiKey
+		apiKey := i.requestConfig.ImmichAPIKey
 		if i.requestConfig.SelectedUser != "" {
-			if key, ok := i.requestConfig.ImmichUsersApiKeys[i.requestConfig.SelectedUser]; ok {
+			if key, ok := i.requestConfig.ImmichUsersAPIKeys[i.requestConfig.SelectedUser]; ok {
 				apiKey = key
 			} else {
 				return responseBody, fmt.Errorf("no API key found for user %s in the config", i.requestConfig.SelectedUser)
@@ -118,7 +124,7 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 
 		req.Header.Set("x-api-key", apiKey)
 
-		if method == "POST" || method == "PUT" || method == "PATCH" {
+		if method == http.MethodPost || method == "PUT" || method == "PATCH" {
 			req.Header.Set("Content-Type", "application/json")
 		}
 
@@ -135,17 +141,18 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 			lastErr = err
 
 			// Type assert to get more details about the error
-			if urlErr, ok := err.(*url.Error); ok {
+			var urlErr *url.Error
+			if errors.As(err, &urlErr) {
 				log.Error("Request failed",
 					"attempt", attempts,
-					"URL", apiUrl,
+					"URL", apiURL,
 					"operation", urlErr.Op,
 					"error_type", fmt.Sprintf("%T", urlErr.Err),
 					"error", urlErr.Err)
 			} else {
 				log.Error("Request failed",
 					"attempt", attempts,
-					"URL", apiUrl,
+					"URL", apiURL,
 					"error_type", fmt.Sprintf("%T", err),
 					"error", err)
 			}
@@ -160,8 +167,8 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 			log.Error(err)
 			_, _ = io.Copy(io.Discard, res.Body)
 
-			if res.StatusCode == 401 {
-				err = fmt.Errorf("received 401 (unauthorised) code from Immich. Please check your Immich API is correct")
+			if res.StatusCode == http.StatusUnauthorized {
+				err = errors.New("received 401 (unauthorised) code from Immich. Please check your Immich API is correct")
 			}
 
 			return responseBody, err
@@ -169,14 +176,14 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 
 		responseBody, err = io.ReadAll(res.Body)
 		if err != nil {
-			log.Error("reading response body", "url", apiUrl, "err", err)
+			log.Error("reading response body", "url", apiURL, "err", err)
 			return responseBody, err
 		}
 
 		return responseBody, nil
 	}
 
-	return responseBody, fmt.Errorf("Request failed: max retries exceeded. last err=%v", lastErr)
+	return responseBody, fmt.Errorf("request failed: max retries exceeded. last err=%w", lastErr)
 }
 
 // ratioCheck checks if an image's orientation matches a desired ratio.
@@ -186,7 +193,7 @@ func (i *ImmichAsset) immichApiCall(method, apiUrl string, body []byte, headers 
 // - If RatioWanted is "portrait", returns true only if image is portrait
 // - If RatioWanted is "landscape", returns true only if image is landscape
 // - Otherwise returns false if orientations don't match
-func (i *ImmichAsset) ratioCheck(wantedRatio ImageOrientation) bool {
+func (i *Asset) ratioCheck(wantedRatio ImageOrientation) bool {
 
 	i.addRatio()
 
@@ -206,7 +213,7 @@ func (i *ImmichAsset) ratioCheck(wantedRatio ImageOrientation) bool {
 // addRatio determines the ratio (portrait or landscape) of the image based on its EXIF information.
 // It sets the Ratio field in ExifInfo and updates IsPortrait or IsLandscape accordingly.
 // For orientations 5, 6, 7, and 8, it considers the image rotated by 90 degrees.
-func (i *ImmichAsset) addRatio() {
+func (i *Asset) addRatio() {
 
 	switch i.ExifInfo.Orientation {
 	case "5", "6", "7", "8":
@@ -240,7 +247,7 @@ func (i *ImmichAsset) addRatio() {
 //   - additionalInfo: The ImmichAsset containing the additional information to merge
 //
 // Returns an error if any field in additionalInfo is invalid during the merge process.
-func (i *ImmichAsset) mergeAssetInfo(additionalInfo ImmichAsset) error {
+func (i *Asset) mergeAssetInfo(additionalInfo Asset) error {
 	v := reflect.ValueOf(i).Elem()
 	d := reflect.ValueOf(additionalInfo)
 
@@ -260,43 +267,43 @@ func (i *ImmichAsset) mergeAssetInfo(additionalInfo ImmichAsset) error {
 }
 
 // AssetInfo fetches the image information from Immich
-func (i *ImmichAsset) AssetInfo(requestID, deviceID string) error {
+func (i *Asset) AssetInfo(requestID, deviceID string) error {
 
-	var immichAsset ImmichAsset
+	var immichAsset Asset
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichURL)
 	if err != nil {
 		return err
 	}
 
-	apiUrl := url.URL{
+	apiURL := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
 		Path:   path.Join("api", "assets", i.ID),
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAsset)
-	body, err := immichApiCall("GET", apiUrl.String(), nil)
+	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAsset)
+	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
 	if err != nil {
-		_, _, err = immichApiFail(immichAsset, err, body, apiUrl.String())
-		return fmt.Errorf("fetching asset info: err %v", err)
+		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
+		return fmt.Errorf("fetching asset info: err %w", err)
 	}
 
 	err = json.Unmarshal(body, &immichAsset)
 	if err != nil {
-		_, _, err = immichApiFail(immichAsset, err, body, apiUrl.String())
-		return fmt.Errorf("fetching asset info: err %v", err)
+		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
+		return fmt.Errorf("fetching asset info: err %w", err)
 	}
 
 	return i.mergeAssetInfo(immichAsset)
 }
 
 // ImagePreview fetches the raw image data from Immich
-func (i *ImmichAsset) ImagePreview() ([]byte, error) {
+func (i *Asset) ImagePreview() ([]byte, error) {
 
 	var bytes []byte
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichURL)
 	if err != nil {
 		log.Error(err)
 		return bytes, err
@@ -307,21 +314,21 @@ func (i *ImmichAsset) ImagePreview() ([]byte, error) {
 		assetSize = AssetSizeOriginal
 	}
 
-	apiUrl := url.URL{
+	apiURL := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     path.Join("api", "assets", i.ID, assetSize),
 		RawQuery: "size=preview",
 	}
 
-	return i.immichApiCall("GET", apiUrl.String(), nil)
+	return i.immichAPICall(http.MethodGet, apiURL.String(), nil)
 }
 
 // FacesCenterPoint calculates the center point of all detected faces in an image as percentages.
 // It analyzes both assigned (People) and unassigned faces, finding the bounding box that encompasses
 // all faces and returning its center as x,y percentages relative to the image dimensions.
 // Returns (0,0) if no faces are detected or if image dimensions are invalid.
-func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
+func (i *Asset) FacesCenterPoint() (float64, float64) {
 	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
 		return 0, 0
 	}
@@ -341,12 +348,12 @@ func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
 				maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
 				initialized = true
 				continue
-			} else {
-				minX = min(minX, face.BoundingBoxX1)
-				minY = min(minY, face.BoundingBoxY1)
-				maxX = max(maxX, face.BoundingBoxX2)
-				maxY = max(maxY, face.BoundingBoxY2)
 			}
+
+			minX = min(minX, face.BoundingBoxX1)
+			minY = min(minY, face.BoundingBoxY1)
+			maxX = max(maxX, face.BoundingBoxX2)
+			maxY = max(maxY, face.BoundingBoxY2)
 		}
 	}
 
@@ -361,12 +368,12 @@ func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
 			maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
 			initialized = true
 			continue
-		} else {
-			minX = min(minX, face.BoundingBoxX1)
-			minY = min(minY, face.BoundingBoxY1)
-			maxX = max(maxX, face.BoundingBoxX2)
-			maxY = max(maxY, face.BoundingBoxY2)
 		}
+
+		minX = min(minX, face.BoundingBoxX1)
+		minY = min(minY, face.BoundingBoxY1)
+		maxX = max(maxX, face.BoundingBoxX2)
+		maxY = max(maxY, face.BoundingBoxY2)
 	}
 
 	if !initialized {
@@ -379,13 +386,14 @@ func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
 	var percentX, percentY float64
 	var imageWidth, imageHeight int
 
-	if len(i.People) != 0 && len(i.People[0].Faces) != 0 {
+	switch {
+	case len(i.People) != 0 && len(i.People[0].Faces) != 0:
 		imageWidth = i.People[0].Faces[0].ImageWidth
 		imageHeight = i.People[0].Faces[0].ImageHeight
-	} else if len(i.UnassignedFaces) != 0 {
+	case len(i.UnassignedFaces) != 0:
 		imageWidth = i.UnassignedFaces[0].ImageWidth
 		imageHeight = i.UnassignedFaces[0].ImageHeight
-	} else {
+	default:
 		return 0, 0
 	}
 
@@ -403,7 +411,7 @@ func (i *ImmichAsset) FacesCenterPoint() (float64, float64) {
 // It analyzes both assigned (People) and unassigned faces, finding the bounding box that encompasses
 // all faces and returning its center as x,y pixel coordinates.
 // Returns (0,0) if no faces are detected or if all bounding boxes are empty.
-func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
+func (i *Asset) FacesCenterPointPX() (float64, float64) {
 	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
 		return 0, 0
 	}
@@ -423,12 +431,12 @@ func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
 				maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
 				initialized = true
 				continue
-			} else {
-				minX = min(minX, face.BoundingBoxX1)
-				minY = min(minY, face.BoundingBoxY1)
-				maxX = max(maxX, face.BoundingBoxX2)
-				maxY = max(maxY, face.BoundingBoxY2)
 			}
+
+			minX = min(minX, face.BoundingBoxX1)
+			minY = min(minY, face.BoundingBoxY1)
+			maxX = max(maxX, face.BoundingBoxX2)
+			maxY = max(maxY, face.BoundingBoxY2)
 		}
 	}
 
@@ -443,12 +451,12 @@ func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
 			maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
 			initialized = true
 			continue
-		} else {
-			minX = min(minX, face.BoundingBoxX1)
-			minY = min(minY, face.BoundingBoxY1)
-			maxX = max(maxX, face.BoundingBoxX2)
-			maxY = max(maxY, face.BoundingBoxY2)
 		}
+
+		minX = min(minX, face.BoundingBoxX1)
+		minY = min(minY, face.BoundingBoxY1)
+		maxX = max(maxX, face.BoundingBoxX2)
+		maxY = max(maxY, face.BoundingBoxY2)
 	}
 
 	if !initialized {
@@ -470,7 +478,7 @@ func (i *ImmichAsset) FacesCenterPointPX() (float64, float64) {
 //
 // Returns:
 //   - bool: true if the tag is found, false otherwise
-func (i *ImmichAsset) containsTag(tagName string) bool {
+func (i *Asset) containsTag(tagName string) bool {
 	for _, tag := range i.Tags {
 		if strings.EqualFold(tag.Name, tagName) {
 			return true
@@ -491,7 +499,7 @@ func (i *ImmichAsset) containsTag(tagName string) bool {
 //
 // Returns:
 //   - bool: true if asset meets all criteria, false otherwise
-func (i *ImmichAsset) isValidAsset(requestID, deviceID string, allowedTypes []ImmichAssetType, wantedRatio ImageOrientation) bool {
+func (i *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
 	return i.hasValidBasicProperties(allowedTypes, wantedRatio) &&
 		i.hasValidDateFilter() &&
 		i.hasValidAlbums(requestID, deviceID) &&
@@ -508,7 +516,7 @@ func (i *ImmichAsset) isValidAsset(requestID, deviceID string, allowedTypes []Im
 //
 // Returns:
 //   - bool: true if basic properties are valid, false otherwise
-func (i *ImmichAsset) hasValidBasicProperties(allowedTypes []ImmichAssetType, wantedRatio ImageOrientation) bool {
+func (i *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
 	if !slices.Contains(allowedTypes, i.Type) {
 		return false
 	}
@@ -532,7 +540,7 @@ func (i *ImmichAsset) hasValidBasicProperties(allowedTypes []ImmichAssetType, wa
 //
 // Returns:
 //   - bool: true if date is valid or no filter set, false if outside filter range
-func (i *ImmichAsset) hasValidDateFilter() bool {
+func (i *Asset) hasValidDateFilter() bool {
 	if i.requestConfig.DateFilter == "" || (i.Bucket == kiosk.SourceMemories || i.Bucket == kiosk.SourceDateRange) {
 		return true
 	}
@@ -555,12 +563,12 @@ func (i *ImmichAsset) hasValidDateFilter() bool {
 //
 // Returns:
 //   - bool: true if asset is not in any excluded albums, false otherwise
-func (i *ImmichAsset) hasValidAlbums(requestID, deviceID string) bool {
+func (i *Asset) hasValidAlbums(requestID, deviceID string) bool {
 	if len(i.AppearsIn) == 0 {
 		i.AlbumsThatContainAsset(requestID, deviceID)
 	}
 
-	return !slices.ContainsFunc(i.AppearsIn, func(album ImmichAlbum) bool {
+	return !slices.ContainsFunc(i.AppearsIn, func(album Album) bool {
 		return slices.Contains(i.requestConfig.ExcludedAlbums, album.ID)
 	})
 }
@@ -574,7 +582,7 @@ func (i *ImmichAsset) hasValidAlbums(requestID, deviceID string) bool {
 //
 // Returns:
 //   - bool: true if asset contains no excluded people, false otherwise
-func (i *ImmichAsset) hasValidPeople(requestID, deviceID string) bool {
+func (i *Asset) hasValidPeople(requestID, deviceID string) bool {
 	if len(i.requestConfig.ExcludedPeople) > 0 && len(i.People) == 0 {
 		i.CheckForFaces(requestID, deviceID)
 	}
@@ -593,10 +601,61 @@ func (i *ImmichAsset) hasValidPeople(requestID, deviceID string) bool {
 //
 // Returns:
 //   - bool: true if asset has no excluding tags, false otherwise
-func (i *ImmichAsset) hasValidTags(requestID, deviceID string) bool {
+func (i *Asset) hasValidTags(requestID, deviceID string) bool {
 	if err := i.AssetInfo(requestID, deviceID); err != nil {
 		log.Error("Failed to get additional asset data", "error", err)
 	}
 
 	return !i.containsTag(kiosk.TagSkip)
+}
+
+func (i *Asset) fetchPaginatedMetadata(u *url.URL, requestBody interface{}, requestID string, deviceID string) (int, error) {
+	var totalCount int
+	pageCount := 1
+
+	for {
+		var response SearchMetadataResponse
+
+		// Update page number in request body
+		reflect.ValueOf(requestBody).Elem().FieldByName("Page").Set(reflect.ValueOf(pageCount))
+
+		// convert body to queries so url is unique and can be cached
+		queries, _ := query.Values(requestBody)
+
+		apiURL := url.URL{
+			Scheme:   u.Scheme,
+			Host:     u.Host,
+			Path:     "api/search/metadata",
+			RawQuery: queries.Encode(),
+		}
+
+		jsonBody, err := json.Marshal(requestBody)
+		if err != nil {
+			_, _, err = immichAPIFail(totalCount, err, nil, apiURL.String())
+			return totalCount, err
+		}
+
+		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, response)
+		apiBody, err := immichAPICall(http.MethodPost, apiURL.String(), jsonBody)
+		if err != nil {
+			_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
+			return totalCount, err
+		}
+
+		err = json.Unmarshal(apiBody, &response)
+		if err != nil {
+			_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
+			return totalCount, err
+		}
+
+		totalCount += response.Assets.Total
+
+		if response.Assets.NextPage == "" {
+			break
+		}
+
+		pageCount++
+	}
+
+	return totalCount, nil
 }

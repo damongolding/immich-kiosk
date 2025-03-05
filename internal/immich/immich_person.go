@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"path"
 	"slices"
@@ -15,32 +16,32 @@ import (
 )
 
 // PersonImageCount returns the number of images associated with a specific person in Immich.
-func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
+func (i *Asset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
 
-	var personStatistics ImmichPersonStatistics
+	var personStatistics PersonStatistics
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichURL)
 	if err != nil {
-		_, _, err = immichApiFail(personStatistics, err, nil, "")
+		_, _, err = immichAPIFail(personStatistics, err, nil, "")
 		return 0, err
 	}
 
-	apiUrl := url.URL{
+	apiURL := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
 		Path:   path.Join("api", "people", personID, "statistics"),
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, personStatistics)
-	body, err := immichApiCall("GET", apiUrl.String(), nil)
+	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, personStatistics)
+	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
 	if err != nil {
-		_, _, err = immichApiFail(personStatistics, err, body, apiUrl.String())
+		_, _, err = immichAPIFail(personStatistics, err, body, apiURL.String())
 		return 0, err
 	}
 
 	err = json.Unmarshal(body, &personStatistics)
 	if err != nil {
-		_, _, err = immichApiFail(personStatistics, err, body, apiUrl.String())
+		_, _, err = immichAPIFail(personStatistics, err, body, apiURL.String())
 		return 0, err
 	}
 
@@ -62,7 +63,7 @@ func (i *ImmichAsset) PersonImageCount(personID, requestID, deviceID string) (in
 //     image is found after MaxRetries attempts or if there are API/parsing failures
 //
 // The function mutates the receiver (i *ImmichAsset) to store the selected image if successful.
-func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
+func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image of", personID)
@@ -72,16 +73,16 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 	for range MaxRetries {
 
-		var immichAssets []ImmichAsset
+		var immichAssets []Asset
 
-		u, err := url.Parse(i.requestConfig.ImmichUrl)
+		u, err := url.Parse(i.requestConfig.ImmichURL)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, nil, "")
+			_, _, err = immichAPIFail(immichAssets, err, nil, "")
 			return err
 		}
 
-		requestBody := ImmichSearchRandomBody{
-			PersonIds:  []string{personID},
+		requestBody := SearchRandomBody{
+			PersonIDs:  []string{personID},
 			Type:       string(ImageType),
 			WithExif:   true,
 			WithPeople: true,
@@ -97,7 +98,7 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 
-		apiUrl := url.URL{
+		apiURL := url.URL{
 			Scheme:   u.Scheme,
 			Host:     u.Host,
 			Path:     "api/search/random",
@@ -106,24 +107,24 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 
 		jsonBody, err := json.Marshal(requestBody)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, nil, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, nil, apiURL.String())
 			return err
 		}
 
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAssets)
-		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
+		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
+		apiBody, err := immichAPICall(http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 
 		err = json.Unmarshal(apiBody, &immichAssets)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, i.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -166,5 +167,5 @@ func (i *ImmichAsset) RandomImageOfPerson(personID, requestID, deviceID string, 
 		log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
 	}
-	return fmt.Errorf("No images found for person '%s'. Max retries reached.", personID)
+	return fmt.Errorf("no images found for person '%s'. Max retries reached", personID)
 }

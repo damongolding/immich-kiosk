@@ -18,14 +18,14 @@ import (
 // TestConfigWithOverrides testing whether ImmichUrl and ImmichApiKey are immutable
 func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 
-	originalUrl := "https://my-server.com"
-	originalApi := "123456"
-	originalUsersApiKeys := map[string]string{"default": "123456"}
+	originalURL := "https://my-server.com"
+	originalAPI := "123456"
+	originalUsersAPIKeys := map[string]string{"default": "123456"}
 
 	c := New()
-	c.ImmichUrl = originalUrl
-	c.ImmichApiKey = originalApi
-	c.ImmichUsersApiKeys = originalUsersApiKeys
+	c.ImmichURL = originalURL
+	c.ImmichAPIKey = originalAPI
+	c.ImmichUsersAPIKeys = originalUsersAPIKeys
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -44,9 +44,9 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 	err := c.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
-	assert.Equal(t, originalUrl, c.ImmichUrl, "ImmichUrl field was allowed to be changed")
-	assert.Equal(t, originalApi, c.ImmichApiKey, "ImmichApiKey field was allowed to be changed")
-	assert.Equal(t, originalUsersApiKeys, c.ImmichUsersApiKeys, "ImmichUsersApiKeys field was allowed to be changed")
+	assert.Equal(t, originalURL, c.ImmichURL, "ImmichUrl field was allowed to be changed")
+	assert.Equal(t, originalAPI, c.ImmichAPIKey, "ImmichApiKey field was allowed to be changed")
+	assert.Equal(t, originalUsersAPIKeys, c.ImmichUsersAPIKeys, "ImmichUsersApiKeys field was allowed to be changed")
 }
 
 // TestImmichUrlImmichMulitplePerson tests the addition of multiple persons to the config
@@ -99,7 +99,7 @@ func TestMalformedURLs(t *testing.T) {
 			err := c.Load()
 			assert.NoError(t, err, "Config load should not return an error")
 
-			assert.Equal(t, test.Want, c.ImmichUrl, "ImmichUrl should be formatted correctly")
+			assert.Equal(t, test.Want, c.ImmichURL, "ImmichUrl should be formatted correctly")
 		})
 	}
 }

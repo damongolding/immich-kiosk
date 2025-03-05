@@ -34,11 +34,11 @@ templ frame() {
 // If faces are detected, it uses the center point of all faces as the transform origin.
 //
 // Parameters:
-//   - image: An immich.ImmichAsset containing information about detected faces.
+//   - image: An immich.Asset containing information about detected faces.
 //
 // Returns:
 //   - templ.CSSClass: A CSS class for the transform-origin property.
-func smartZoom(image immich.ImmichAsset) templ.CSSClass {
+func smartZoom(image immich.Asset) templ.CSSClass {
 	if len(image.People) == 0 && len(image.UnassignedFaces) == 0 {
 		return transformOrigin(fmt.Sprintf("%s%% %s%%", utils.RandomItem([]string{"30", "70"}), utils.RandomItem([]string{"30", "70"})))
 	}
@@ -55,7 +55,7 @@ func smartZoom(image immich.ImmichAsset) templ.CSSClass {
 // frameWithZoom is a template function that renders a frame with zoom effect for an image.
 // It takes the refresh interval, image effect type, and the image asset as parameters.
 // Depending on the image effect, it applies different CSS classes for zooming.
-templ frameWithZoom(refresh int, imageEffect string, img immich.ImmichAsset) {
+templ frameWithZoom(refresh int, imageEffect string, img immich.Asset) {
 	switch imageEffect {
 		case "smart-zoom":
 			<div class={ "frame--image", "frame--image-zoom" , animationDuration(float32(refresh)), zoomInOrOut(imageEffect), smartZoom(img) }>

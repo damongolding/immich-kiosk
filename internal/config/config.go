@@ -65,7 +65,7 @@ type Redirect struct {
 type KioskSettings struct {
 	// Redirects defines a list of URL redirections with friendly names
 	Redirects []Redirect `mapstructure:"redirects" default:"[]"`
-	//RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
+	// RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
 	RedirectsMap map[string]Redirect `json:"-"`
 
 	// Port which port to use
@@ -108,7 +108,7 @@ type WeatherLocation struct {
 }
 
 type Webhook struct {
-	Url    string `json:"url" mapstructure:"url"`
+	URL    string `json:"url" mapstructure:"url"`
 	Event  string `json:"event" mapstructure:"event"`
 	Secret string `json:"secret" mapstructure:"secret"`
 }
@@ -149,18 +149,18 @@ type Config struct {
 	// SystemLang the system language
 	SystemLang monday.Locale `json:"-" default:"en_GB"`
 
-	// ImmichApiKey Immich key to access assets
-	ImmichApiKey string `json:"-" mapstructure:"immich_api_key" default:""`
-	// ImmichUrl Immuch base url
-	ImmichUrl string `json:"-" mapstructure:"immich_url" default:""`
+	// ImmichAPIKey Immich key to access assets
+	ImmichAPIKey string `json:"-" mapstructure:"immich_api_key" default:""`
+	// ImmichURL Immuch base url
+	ImmichURL string `json:"-" mapstructure:"immich_url" default:""`
 
-	// ImmichExternalUrl specifies an external URL for Immich access. This can be used when
+	// ImmichExternalURL specifies an external URL for Immich access. This can be used when
 	// the Immich instance is accessed through a different URL externally vs internally
 	// (e.g., when using reverse proxies or different network paths)
-	ImmichExternalUrl string `json:"-" mapstructure:"immich_external_url" default:""`
+	ImmichExternalURL string `json:"-" mapstructure:"immich_external_url" default:""`
 
-	// ImmichUsersApiKeys a map of usernames to their respective api keys for accessing Immich
-	ImmichUsersApiKeys map[string]string `json:"-" mapstructure:"immich_users_api_keys" default:"{}"`
+	// ImmichUsersAPIKeys a map of usernames to their respective api keys for accessing Immich
+	ImmichUsersAPIKeys map[string]string `json:"-" mapstructure:"immich_users_api_keys" default:"{}"`
 	// User the user from ImmichUsersApiKeys to use when fetching images. If not set, it will use the default ImmichApiKey
 	User []string `json:"user" mapstructure:"user" query:"user" form:"user" default:"[]"`
 	// ShowUser whether to display user
@@ -170,8 +170,8 @@ type Config struct {
 
 	// DisableNavigation remove navigation
 	DisableNavigation bool `json:"disableNavigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
-	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
-	DisableUi bool `json:"disableUi" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
+	// DisableUI a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
+	DisableUI bool `json:"disableUi" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames
 	Frameless bool `json:"frameless" mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
 
@@ -373,7 +373,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 func isValidYAML(filename string) bool {
 	content, err := os.ReadFile(filename)
 	if err != nil {
-		log.Errorf("Error reading file: %v", err)
+		log.Error("Error reading file", "err", err)
 		return false
 	}
 
@@ -391,7 +391,7 @@ func isValidYAML(filename string) bool {
 func (c *Config) Load() error {
 
 	if err := bindEnvironmentVariables(c.V); err != nil {
-		log.Errorf("binding environment variables: %v", err)
+		log.Error("binding environment variables", "err", err)
 	}
 
 	c.V.SetConfigName("config")
@@ -408,7 +408,8 @@ func (c *Config) Load() error {
 
 	err := c.V.ReadInConfig()
 	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		var configFileNotFoundErr viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundErr) {
 			log.Info("Not using config.yaml")
 		} else if !isValidYAML(c.V.ConfigFileUsed()) {
 			log.Fatal(err)
@@ -426,7 +427,7 @@ func (c *Config) Load() error {
 	c.checkAssetBuckets()
 	c.checkAlbumOrder()
 	c.checkExcludedAlbums()
-	c.checkUrlScheme()
+	c.checkURLScheme()
 	c.checkHideCountries()
 	c.checkWeatherLocations()
 	c.checkDebuging()

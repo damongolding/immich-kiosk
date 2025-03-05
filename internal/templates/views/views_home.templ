@@ -32,7 +32,7 @@ templ Home(viewData common.ViewData) {
 			if viewData.ShowProgress {
 				@partials.ProgressBar()
 			}
-			if !viewData.DisableUi {
+			if !viewData.DisableUI {
 				<section id="clock-weather-container">
 					<div>
 						if (viewData.ShowTime || viewData.ShowDate) {

@@ -4,14 +4,15 @@
 // application logic for displaying and managing images in a kiosk mode.
 // The package includes functionality for loading configurations, setting up
 // middleware, and serving both dynamic content and static assets.
-
 package main
 
 import (
 	"context"
 	"embed"
+	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -48,9 +49,7 @@ func main() {
 
 	log.SetTimeFormat("15:04:05")
 
-	if err := common.Initialize(); err != nil {
-		log.Fatal("failed to initialize common package", "error", err)
-	}
+	c := common.New()
 
 	baseConfig := config.New()
 
@@ -63,7 +62,7 @@ func main() {
 		log.Error("Failed to load config", "err", err)
 	}
 
-	videoManager, err := video.New(common.Context, *baseConfig)
+	videoManager, err := video.New(c.Context())
 	if err != nil {
 		log.Error("Failed to initialize video manager", "err", err)
 	}
@@ -74,7 +73,7 @@ func main() {
 
 	if baseConfig.Kiosk.WatchConfig {
 		log.Infof("Watching %s for changes", baseConfig.V.ConfigFileUsed())
-		baseConfig.WatchConfig(common.Context)
+		baseConfig.WatchConfig(c.Context())
 	}
 
 	if baseConfig.Kiosk.Debug {
@@ -112,10 +111,10 @@ func main() {
 				return strings.HasPrefix(c.Request().URL.String(), "/assets")
 			},
 			KeyLookup: "query:password,form:password",
-			Validator: func(queryPassword string, c echo.Context) (bool, error) {
+			Validator: func(queryPassword string, _ echo.Context) (bool, error) {
 				return queryPassword == baseConfig.Kiosk.Password, nil
 			},
-			ErrorHandler: func(err error, c echo.Context) error {
+			ErrorHandler: func(_ error, c echo.Context) error {
 				return c.String(http.StatusUnauthorized, "Unauthorized")
 			},
 		}))
@@ -138,9 +137,9 @@ func main() {
 
 	e.GET("/image/:imageID", routes.ImageWithID(baseConfig))
 
-	e.POST("/asset/new", routes.NewAsset(baseConfig))
+	e.POST("/asset/new", routes.NewAsset(baseConfig, c.Secret()))
 
-	e.POST("/asset/previous", routes.PreviousAsset(baseConfig))
+	e.POST("/asset/previous", routes.PreviousAsset(baseConfig, c.Secret()))
 
 	e.GET("/clock", routes.Clock(baseConfig))
 
@@ -152,26 +151,26 @@ func main() {
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
-	e.POST("/webhooks", routes.Webhooks(baseConfig), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
+	e.POST("/webhooks", routes.Webhooks(baseConfig, c.Secret()), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
-	e.GET("/video/:videoID", routes.NewVideo(baseConfig))
+	e.GET("/video/:videoID", routes.NewVideo())
 
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
 	for _, w := range baseConfig.WeatherLocations {
-		go weather.AddWeatherLocation(common.Context, w)
+		go weather.AddWeatherLocation(c.Context(), w)
 	}
 
-	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(fmt.Sprintf("%v", baseConfig.Kiosk.Port)))
+	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))
 
 	go func() {
 		err = e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
-		if err != nil && err != http.ErrServerClosed {
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal(err)
 		}
 	}()
 
-	<-common.Context.Done()
+	<-c.Context().Done()
 
 	video.Delete()
 
@@ -183,7 +182,7 @@ func main() {
 	defer cancel()
 
 	if err := e.Shutdown(ctx); err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 }

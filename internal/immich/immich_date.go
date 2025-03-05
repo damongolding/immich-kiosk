@@ -3,7 +3,9 @@ package immich
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"regexp"
 	"slices"
@@ -32,7 +34,7 @@ import (
 // - Ratio checking of images
 //
 // Returns an error if no valid images are found after max retries
-func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
+func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
 
 	dateStart, dateEnd, err := determineDateRange(dateRange)
 	if err != nil {
@@ -50,14 +52,14 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 
 	for range MaxRetries {
 
-		var immichAssets []ImmichAsset
+		var immichAssets []Asset
 
-		u, err := url.Parse(i.requestConfig.ImmichUrl)
+		u, err := url.Parse(i.requestConfig.ImmichURL)
 		if err != nil {
 			return fmt.Errorf("parsing url: %w", err)
 		}
 
-		requestBody := ImmichSearchRandomBody{
+		requestBody := SearchRandomBody{
 			Type:        string(ImageType),
 			TakenAfter:  dateStart.Format(time.RFC3339),
 			TakenBefore: dateEnd.Format(time.RFC3339),
@@ -73,7 +75,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 
-		apiUrl := url.URL{
+		apiURL := url.URL{
 			Scheme:   u.Scheme,
 			Host:     u.Host,
 			Path:     "api/search/random",
@@ -85,20 +87,20 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 			return fmt.Errorf("marshaling request body: %w", err)
 		}
 
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, immichAssets)
-		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
+		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
+		apiBody, err := immichAPICall(http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 
 		err = json.Unmarshal(apiBody, &immichAssets)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, i.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -127,7 +129,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 				// replace cache with used image(s) removed
 				err = cache.Replace(apiCacheKey, jsonBytes)
 				if err != nil {
-					log.Debug("Failed to update cache", "error", err, "url", apiUrl.String())
+					log.Debug("Failed to update cache", "error", err, "url", apiURL.String())
 				}
 			}
 
@@ -142,7 +144,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 		cache.Delete(apiCacheKey)
 	}
 
-	return fmt.Errorf("No images found for '%s'. Max retries reached.", dateRange)
+	return fmt.Errorf("no images found for '%s'. Max retries reached", dateRange)
 }
 
 func determineDateRange(dateRange string) (time.Time, time.Time, error) {
@@ -212,7 +214,7 @@ func processDateRange(dateRange string) (time.Time, time.Time, error) {
 
 	dates := strings.SplitN(dateRange, "_to_", 2)
 	if len(dates) != 2 {
-		return dateStart, dateEnd, fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
+		return dateStart, dateEnd, fmt.Errorf("invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
 	}
 
 	if !strings.EqualFold(dates[0], "today") {
@@ -244,7 +246,7 @@ func extractDays(s string) (int, error) {
 	re := regexp.MustCompile(`\d+`)
 	match := re.FindString(s)
 	if match == "" {
-		return 0, fmt.Errorf("no number found")
+		return 0, errors.New("no number found")
 	}
 	return strconv.Atoi(match)
 }

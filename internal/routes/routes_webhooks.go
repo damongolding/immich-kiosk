@@ -15,7 +15,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
+func Webhooks(baseConfig *config.Config, secret string) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -61,15 +61,14 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			return c.NoContent(http.StatusBadRequest)
 		}
 
-		calculatedSignature := utils.CalculateSignature(common.SharedSecret, receivedTimestamp)
+		calculatedSignature := utils.CalculateSignature(secret, receivedTimestamp)
 
 		// Compare the received signature with the calculated signature
 		if !utils.IsValidSignature(receivedSignature, calculatedSignature) {
 			return echo.NewHTTPError(http.StatusForbidden, "Invalid signature")
 		}
 
-		switch kioskWebhookEvent {
-		case string(webhooks.UserWebhookTriggerInfoOverlay):
+		if kioskWebhookEvent == string(webhooks.UserWebhookTriggerInfoOverlay) {
 
 			historyLen := len(requestConfig.History)
 
@@ -91,7 +90,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			g, _ := errgroup.WithContext(c.Request().Context())
 
 			for i, imageID := range prevImages {
-				i, imageID := i, imageID
+
 				g.Go(func() error {
 					image := immich.New(requestConfig)
 					image.ID = imageID

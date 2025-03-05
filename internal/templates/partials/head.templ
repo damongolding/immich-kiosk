@@ -395,7 +395,7 @@ templ Head(viewData common.ViewData) {
 			@templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount, viewData.UseGpu))
 	}
 	@templ.Raw(baseFontSize(viewData.FontSize))
-	if len(viewData.CustomCss) > 0 && viewData.CustomCSS {
-		@templ.Raw(customCss(viewData.CustomCss))
+	if len(viewData.CustomCSS) > 0 && viewData.Config.CustomCSS {
+		@templ.Raw(customCss(viewData.CustomCSS))
 	}
 }

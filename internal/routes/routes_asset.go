@@ -18,7 +18,7 @@ import (
 
 // NewAsset returns an echo.HandlerFunc that handles requests for new assets.
 // It manages image processing, caching, and prefetching based on the configuration.
-func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
+func NewAsset(baseConfig *config.Config, secret string) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -55,7 +55,7 @@ func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
 				go assetPreFetch(requestData, requestCtx)
 				go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
 
-				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID)
+				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID, secret)
 			}
 			log.Debug(requestID, "deviceID", deviceID, "cache miss for new image")
 		}
@@ -72,10 +72,10 @@ func NewAsset(baseConfig *config.Config) echo.HandlerFunc {
 		go webhooks.Trigger(requestData, KioskVersion, webhooks.NewAsset, viewData)
 
 		if len(viewData.Assets) > 0 && requestConfig.ExperimentalAlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
-			return Render(c, http.StatusOK, videoComponent.Video(viewData))
+			return Render(c, http.StatusOK, videoComponent.Video(viewData, secret))
 		}
 
-		return Render(c, http.StatusOK, imageComponent.Image(viewData))
+		return Render(c, http.StatusOK, imageComponent.Image(viewData, secret))
 
 	}
 }

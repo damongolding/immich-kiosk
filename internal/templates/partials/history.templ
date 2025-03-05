@@ -19,7 +19,7 @@ templ History() {
 //
 // Parameters:
 //   - viewData: ViewData containing the history and current images.
-templ RenderHistory(viewData common.ViewData, assetType immich.ImmichAssetType) {
+templ RenderHistory(viewData common.ViewData, assetType immich.AssetType) {
 	<form id="kiosk-history" hx-swap-oob="true">
 		for _, historyEntry := range viewData.History {
 			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>

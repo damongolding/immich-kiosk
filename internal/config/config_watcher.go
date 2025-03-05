@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -66,13 +67,13 @@ func (c *Config) watchConfigChanges(ctx context.Context) {
 func (c *Config) initializeConfigState() error {
 	info, err := os.Stat(c.V.ConfigFileUsed())
 	if err != nil {
-		return fmt.Errorf("getting initial file mTime: %v", err)
+		return fmt.Errorf("getting initial file mTime: %w", err)
 	}
 	c.configLastModTime = info.ModTime()
 
 	configHash, err := c.configFileHash(c.V.ConfigFileUsed())
 	if err != nil {
-		return fmt.Errorf("getting initial file hash: %v", err)
+		return fmt.Errorf("getting initial file hash: %w", err)
 	}
 	c.configHash = configHash
 
@@ -120,7 +121,7 @@ func (c *Config) configFileHash(filePath string) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
+	return hex.EncodeToString(hasher.Sum(nil)), nil
 }
 
 // hasConfigHashChanged calculates and compares the current hash of the config file
@@ -145,7 +146,7 @@ func (c *Config) hasConfigMtimeChanged() bool {
 
 	info, err := os.Stat(c.V.ConfigFileUsed())
 	if err != nil {
-		log.Errorf("Checking config file: %v", err)
+		log.Error("Checking config file", "err", err)
 		return false
 	}
 

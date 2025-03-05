@@ -16,7 +16,7 @@ func RefreshCheck(baseConfig *config.Config) echo.HandlerFunc {
 
 		kioskVersionHeader := c.Request().Header.Get("kiosk-version")
 		kioskRefreshTimestampHeader := c.Request().Header.Get("kiosk-reload-timestamp")
-		requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+		requestID := utils.ColorizeRequestID(c.Response().Header().Get(echo.HeaderXRequestID))
 
 		// create a copy of the global config to use with this request
 		requestConfig := *baseConfig

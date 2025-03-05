@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand/v2"
+	"net/http"
 	"net/url"
 	"path"
 	"slices"
@@ -26,17 +27,17 @@ import (
 //   - MemoriesResponse: The memory response data
 //   - string: The API URL used for the request
 //   - error: Any error that occurred
-func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (MemoriesResponse, string, error) {
+func (i *Asset) memories(requestID, deviceID string, assetCount bool) (MemoriesResponse, string, error) {
 	var memories MemoriesResponse
 
-	u, err := url.Parse(i.requestConfig.ImmichUrl)
+	u, err := url.Parse(i.requestConfig.ImmichURL)
 	if err != nil {
-		return immichApiFail(memories, err, nil, "")
+		return immichAPIFail(memories, err, nil, "")
 	}
 
 	startOfToday, _ := processTodayDateRange()
 
-	apiUrl := url.URL{
+	apiURL := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     path.Join("api", "memories"),
@@ -46,21 +47,21 @@ func (i *ImmichAsset) memories(requestID, deviceID string, assetCount bool) (Mem
 	// If we want the memories assets count we will use a seperate cache entry
 	// because Kiosk removes used assets from the normal cache entry
 	if assetCount {
-		apiUrl.RawQuery += "&count=true"
+		apiURL.RawQuery += "&count=true"
 	}
 
-	immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, i.requestConfig, memories)
-	body, err := immichApiCall("GET", apiUrl.String(), nil)
+	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, memories)
+	body, err := immichAPICall(http.MethodGet, apiURL.String(), nil)
 	if err != nil {
-		return immichApiFail(memories, err, body, apiUrl.String())
+		return immichAPIFail(memories, err, body, apiURL.String())
 	}
 
 	err = json.Unmarshal(body, &memories)
 	if err != nil {
-		return immichApiFail(memories, err, body, apiUrl.String())
+		return immichAPIFail(memories, err, body, apiURL.String())
 	}
 
-	return memories, apiUrl.String(), nil
+	return memories, apiURL.String(), nil
 }
 
 // memoriesCount counts the total number of assets in memories.
@@ -83,7 +84,7 @@ func memoriesCount(memories MemoriesResponse) int {
 //
 // Returns:
 //   - int: Total number of assets, or 0 if error occurs
-func (i *ImmichAsset) MemoriesAssetsCount(requestID, deviceID string) int {
+func (i *Asset) MemoriesAssetsCount(requestID, deviceID string) int {
 	m, _, err := i.memories(requestID, deviceID, true)
 	if err != nil {
 		return 0
@@ -98,7 +99,7 @@ func (i *ImmichAsset) MemoriesAssetsCount(requestID, deviceID string) int {
 //   - memories: Current memories response
 //   - pickedMemoryIndex: Index of selected memory
 //   - assetIndex: Index of asset within memory
-//   - apiCacheKey: Cache key for API response
+//   - cache.ApiCacheKey: Cache key for API response
 //
 // Returns:
 //   - error: Any error during cache update
@@ -108,7 +109,7 @@ func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex 
 	assetsToCache := make(MemoriesResponse, len(memories))
 	for i, memory := range memories {
 		assetsToCache[i] = memory
-		assetsToCache[i].Assets = make([]ImmichAsset, len(memory.Assets))
+		assetsToCache[i].Assets = make([]Asset, len(memory.Assets))
 		copy(assetsToCache[i].Assets, memory.Assets)
 	}
 
@@ -143,16 +144,16 @@ func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex 
 //
 // Returns:
 //   - error: If unable to find valid image after max retries
-func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch bool) error {
+func (i *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 
 	for range MaxRetries {
 
-		memories, apiUrl, err := i.memories(requestID, deviceID, false)
+		memories, apiURL, err := i.memories(requestID, deviceID, false)
 		if err != nil {
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl, deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL, deviceID, i.requestConfig.SelectedUser)
 
 		if len(memories) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again for memories")
@@ -191,7 +192,7 @@ func (i *ImmichAsset) RandomMemoryAsset(requestID, deviceID string, isPrefetch b
 		}
 
 		// no viable assets left in memories
-		memories[pickedMemoryIndex].Assets = make([]ImmichAsset, 1)
+		memories[pickedMemoryIndex].Assets = make([]Asset, 1)
 		if err := updateMemoryCache(memories, pickedMemoryIndex, 0, apiCacheKey); err != nil {
 			return err
 		}

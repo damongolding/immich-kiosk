@@ -25,7 +25,7 @@ var (
 	defaultLocation   string
 )
 
-type WeatherLocation struct {
+type Location struct {
 	Name string
 	Lat  string
 	Lon  string
@@ -36,19 +36,19 @@ type WeatherLocation struct {
 }
 
 type Weather struct {
-	Coord      Coord         `json:"coord"`
-	Data       []WeatherData `json:"weather"`
-	Base       string        `json:"base"`
-	Main       Main          `json:"main"`
-	Visibility int           `json:"visibility"`
-	Wind       Wind          `json:"wind"`
-	Clouds     Clouds        `json:"clouds"`
-	Dt         int           `json:"dt"`
-	Sys        Sys           `json:"sys"`
-	Timezone   int           `json:"timezone"`
-	ID         int           `json:"id"`
-	Name       string        `json:"name"`
-	Cod        int           `json:"cod"`
+	Coord      Coord  `json:"coord"`
+	Data       []Data `json:"weather"`
+	Base       string `json:"base"`
+	Main       Main   `json:"main"`
+	Visibility int    `json:"visibility"`
+	Wind       Wind   `json:"wind"`
+	Clouds     Clouds `json:"clouds"`
+	Dt         int    `json:"dt"`
+	Sys        Sys    `json:"sys"`
+	Timezone   int    `json:"timezone"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Cod        int    `json:"cod"`
 }
 
 type Coord struct {
@@ -56,7 +56,7 @@ type Coord struct {
 	Lat float64 `json:"lat"`
 }
 
-type WeatherData struct {
+type Data struct {
 	ID          int    `json:"id"`
 	Main        string `json:"main"`
 	Description string `json:"description"`
@@ -118,7 +118,7 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 	ticker := time.NewTicker(time.Minute * 10)
 	defer ticker.Stop()
 
-	w := &WeatherLocation{
+	w := &Location{
 		Name: location.Name,
 		Lat:  location.Lat,
 		Lon:  location.Lon,
@@ -131,7 +131,7 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 
 	// Run once immediately
 	log.Debug("Getting initial weather for", "name", w.Name)
-	newWeather, err := w.updateWeather()
+	newWeather, err := w.updateWeather(ctx)
 	if err != nil {
 		log.Error("Failed to update initial weather", "name", w.Name, "error", err)
 	} else {
@@ -146,7 +146,7 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 			return
 		case <-ticker.C:
 			log.Debug("Getting weather for", "name", w.Name)
-			newWeather, err := w.updateWeather()
+			newWeather, err := w.updateWeather(ctx)
 			if err != nil {
 				log.Error("Failed to update weather", "name", w.Name, "error", err)
 				continue
@@ -159,19 +159,23 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 
 // CurrentWeather retrieves the current weather data for a given location name.
 // Returns a WeatherLocation struct containing the weather data, or an empty struct if not found.
-func CurrentWeather(name string) WeatherLocation {
+func CurrentWeather(name string) Location {
 	value, ok := weatherDataStore.Load(name)
 	if !ok {
-		return WeatherLocation{}
+		return Location{}
 	}
-	return value.(WeatherLocation)
+	loc, ok := value.(Location)
+	if !ok {
+		return Location{}
+	}
+	return loc
 }
 
 // updateWeather fetches new weather data from the OpenWeatherMap API for this location.
 // Returns the updated WeatherLocation and any error that occurred.
-func (w *WeatherLocation) updateWeather() (WeatherLocation, error) {
+func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 
-	apiUrl := url.URL{
+	apiURL := url.URL{
 		Scheme:   "https",
 		Host:     "api.openweathermap.org",
 		Path:     "data/2.5/weather",
@@ -181,7 +185,7 @@ func (w *WeatherLocation) updateWeather() (WeatherLocation, error) {
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
-	req, err := http.NewRequest("GET", apiUrl.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		log.Error(err)
 		return *w, err
@@ -195,7 +199,7 @@ func (w *WeatherLocation) updateWeather() (WeatherLocation, error) {
 		if err == nil {
 			break
 		}
-		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiUrl, "err", err)
+		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiURL, "err", err)
 		time.Sleep(time.Duration(1<<attempts) * time.Second)
 
 	}
@@ -214,7 +218,7 @@ func (w *WeatherLocation) updateWeather() (WeatherLocation, error) {
 
 	responseBody, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Error("reading response body", "url", apiUrl, "err", err)
+		log.Error("reading response body", "url", apiURL, "err", err)
 		return *w, err
 	}
 
