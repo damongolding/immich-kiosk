@@ -60,11 +60,11 @@ func convertFaceResponse(faceResponse []AssetFaceResponse) []Person {
 // call tracking. The function handles URL parsing, making the API request, and
 // unmarshaling the response into Face structs. Any errors are logged and will
 // abort the operation.
-func (i *Asset) CheckForFaces(requestID, deviceID string) {
+func (a *Asset) CheckForFaces(requestID, deviceID string) {
 
 	var faceResponse []AssetFaceResponse
 
-	u, err := url.Parse(i.requestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(faceResponse, err, nil, "")
 		log.Error("parsing faces url", "err", err)
@@ -75,11 +75,11 @@ func (i *Asset) CheckForFaces(requestID, deviceID string) {
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     "api/faces",
-		RawQuery: "id=" + i.ID,
+		RawQuery: "id=" + a.ID,
 	}
 
-	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, faceResponse)
-	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, faceResponse)
+	body, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(faceResponse, err, body, apiURL.String())
 		log.Error("adding faces", "err", err)
@@ -95,5 +95,5 @@ func (i *Asset) CheckForFaces(requestID, deviceID string) {
 
 	people := convertFaceResponse(faceResponse)
 
-	i.People = people
+	a.People = people
 }

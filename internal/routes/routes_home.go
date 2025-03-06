@@ -57,6 +57,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 
 		viewData := common.ViewData{
 			KioskVersion: KioskVersion,
+			RequestID:    requestID,
 			DeviceID:     utils.GenerateUUID(),
 			Queries:      queryParams,
 			CustomCSS:    customCSS,

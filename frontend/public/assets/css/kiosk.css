@@ -675,6 +675,8 @@ form {
     border-radius: 100rem;
     font-size: 0.8rem;
   }
+.more-info--like-asset,
+.more-info--hide-asset,
 .more-info--webhook,
 .more-info--image-link {
   font-family:
@@ -697,9 +699,24 @@ form {
   transition: filter 0.2s ease;
   transition: filter 0.2s ease, -webkit-filter 0.2s ease;
 }
-.more-info--webhook:hover, .more-info--image-link:hover {
+.more-info--like-asset:hover, .more-info--hide-asset:hover, .more-info--webhook:hover, .more-info--image-link:hover {
     -webkit-filter: brightness(85%);
             filter: brightness(85%);
+  }
+.more-info--like-asset,
+.more-info--hide-asset {
+  -moz-box-flex: 1;
+       flex: 1;
+}
+.more-info--like-asset svg, .more-info--hide-asset svg {
+    height: 1rem;
+    fill: white;
+  }
+.more-info--like-asset:disabled, .more-info--hide-asset:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    -webkit-filter: grayscale(1);
+            filter: grayscale(1);
   }
 .frameless.more-info #more-info {
     padding: 0;

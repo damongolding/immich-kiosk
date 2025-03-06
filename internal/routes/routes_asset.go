@@ -60,7 +60,7 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			log.Debug(requestID, "deviceID", deviceID, "cache miss for new image")
 		}
 
-		viewData, err := generateViewData(requestConfig, requestCtx, deviceID, false)
+		viewData, err := generateViewData(requestConfig, requestCtx, requestID, deviceID, false)
 		if err != nil {
 			return RenderError(c, err, "retrieving image")
 		}
@@ -211,6 +211,44 @@ func TagAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError, "unable to add tag")
 		}
 
-		return c.NoContent(http.StatusOK)
+		return c.String(http.StatusOK, "SUCCESS")
+	}
+}
+
+func FavouriteAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
+
+		log.Debug(
+			requestID,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
+
+		assetID := c.FormValue("assetID")
+
+		if assetID == "" {
+			log.Error("Asset ID is required")
+			return echo.NewHTTPError(http.StatusBadRequest, "Asset ID is required")
+		}
+
+		immichAsset := immich.New(com.Context(), requestConfig)
+		immichAsset.ID = assetID
+
+		favouriteErr := immichAsset.Favourite()
+		if favouriteErr != nil {
+			log.Error(requestID+" error favouriting asset", "assetID", assetID, "error", favouriteErr)
+			return echo.NewHTTPError(http.StatusInternalServerError, "unable to favourite asset")
+		}
+
+		return c.String(http.StatusOK, "SUCCESS")
 	}
 }

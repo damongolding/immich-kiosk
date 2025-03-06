@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/dustin/go-humanize"
 	"io"
@@ -15,6 +16,17 @@ import (
 	"strings"
 	"time"
 )
+
+func userOwnsAsset(requestID, deviceID string, asset immich.Asset) bool {
+
+	me, meErr := asset.Me(requestID, deviceID)
+	if meErr != nil {
+		log.Error("Error getting user", "error", meErr)
+		return false
+	}
+
+	return strings.EqualFold(me.ID, asset.OwnerID)
+}
 
 // renderMoreInfo generates the HTML for displaying detailed information about images
 // It shows camera data, original image data, detected people, and optional QR codes/links
@@ -26,6 +38,37 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 		for i, img := range viewData.Assets {
 			<div class="more-info--image">
 				<div class="more-info--image--data">
+					<div class="more-info--button-group">
+						<button
+							class={ "more-info--like-asset", templ.KV("favourited", img.ImmichAsset.IsFavorite) }
+							hx-post="/asset/favourite"
+							hx-trigger="click throttle:2s"
+							hx-vals={ fmt.Sprintf("{\"assetID\": \"%s\"}", img.ImmichAsset.ID) }
+							hx-swap="textContent"
+							disabled?={ !userOwnsAsset( viewData.RequestID, viewData.DeviceID, img.ImmichAsset) }
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+								<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+								<path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"></path>
+							</svg>
+							<span>
+								if img.ImmichAsset.IsFavorite {
+									Favourited
+								} else {
+									Favourite
+								}
+							</span>
+						</button>
+						<button
+							class="more-info--hide-asset"
+							hx-post="/asset/tag"
+							hx-trigger="click throttle:2s"
+							hx-vals={ fmt.Sprintf("{\"assetID\": \"%s\", \"tagName\": \"%s\"}", img.ImmichAsset.ID, kiosk.TagSkip) }
+							hx-swap="textContent"
+						>
+							👁 Hide from Kiosk
+						</button>
+					</div>
 					@originalImageTimeLocation(viewData, i, viewData.HideCountries)
 					@cameraData(img.ImmichAsset.ExifInfo)
 					@originalAssetData(img.ImmichAsset)

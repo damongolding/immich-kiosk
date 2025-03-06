@@ -109,6 +109,8 @@
     }
 }
 
+.more-info--like-asset,
+.more-info--hide-asset,
 .more-info--webhook,
 .more-info--image-link {
     font-family: "Barlow", Arial, Helvetica, sans-serif;
@@ -125,6 +127,22 @@
     transition: filter 0.2s ease;
     &:hover {
         filter: brightness(85%);
+    }
+}
+
+.more-info--like-asset,
+.more-info--hide-asset {
+    flex: 1;
+
+    svg {
+        height: 1rem;
+        fill: white;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        filter: grayscale(1);
     }
 }
 

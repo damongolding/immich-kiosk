@@ -143,6 +143,8 @@ func main() {
 
 	e.POST("/asset/tag", routes.TagAsset(baseConfig, c))
 
+	e.POST("/asset/favourite", routes.FavouriteAsset(baseConfig, c))
+
 	e.GET("/clock", routes.Clock(baseConfig))
 
 	e.POST("/weather", routes.Weather(baseConfig))
