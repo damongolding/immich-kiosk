@@ -125,6 +125,7 @@ type Tag struct {
 	Value     string    `json:"value"`
 	CreatedAt time.Time `json:"-"` // `json:"createdAt"`
 	UpdatedAt time.Time `json:"-"` // `json:"updatedAt"`
+	Color     string    `json:"color"`
 }
 
 type Face struct {
@@ -231,6 +232,20 @@ type TagAssetsBody struct {
 	IDs []string `url:"ids,omitempty" json:"ids,omitempty"`
 }
 
+type UpsertTagBody struct {
+	Tags []string `url:"tags,omitempty" json:"tags,omitempty"`
+}
+
+type UpsertTagResponse []struct {
+	Color     string    `json:"color"`
+	CreatedAt time.Time `json:"createdAt"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	ParentID  string    `json:"parentId"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	Value     string    `json:"value"`
+}
+
 type SearchMetadataResponse struct {
 	Assets struct {
 		Total    int    `json:"total"`
@@ -267,6 +282,12 @@ type AssetFaceResponse struct {
 	Person        Person `json:"person"`
 }
 
+type TagAssetsResponse []struct {
+	Error   immich_open_api.BulkIdResponseDtoError `json:"error"`
+	ID      string                                 `json:"id"`
+	Success bool                                   `json:"success"`
+}
+
 // New returns a new asset instance
 func New(ctx context.Context, base config.Config) Asset {
 	return Asset{requestConfig: base, ctx: ctx}
@@ -287,5 +308,7 @@ type APIResponse interface {
 		[]Tag |
 		[]AssetFaceResponse |
 		immich_open_api.PersonResponseDto |
-		MemoriesResponse
+		MemoriesResponse |
+		TagAssetsResponse |
+		UpsertTagResponse
 }

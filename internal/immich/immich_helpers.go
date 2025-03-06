@@ -125,7 +125,7 @@ func (i *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 		req.Header.Set("x-api-key", apiKey)
 
-		if method == http.MethodPost || method == "PUT" || method == "PATCH" {
+		if method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch || method == http.MethodDelete {
 			req.Header.Set("Content-Type", "application/json")
 		}
 

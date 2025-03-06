@@ -141,6 +141,8 @@ func main() {
 
 	e.POST("/asset/previous", routes.PreviousAsset(baseConfig, c))
 
+	e.POST("/asset/tag", routes.TagAsset(baseConfig, c))
+
 	e.GET("/clock", routes.Clock(baseConfig))
 
 	e.POST("/weather", routes.Weather(baseConfig))

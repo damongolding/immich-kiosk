@@ -3,6 +3,7 @@ package immich
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -230,22 +231,88 @@ func (i *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 	return fmt.Errorf("no images found for '%s'. Max retries reached", tagID)
 }
 
-func (i *Asset) AddTag(tagID string) {
+// AddTag adds a tag to the asset. If the tag doesn't exist, it will be created first.
+// It first checks if the tag exists by calling AllTags. If not found, it creates the tag
+// via upsertTag. Finally it associates the tag with the asset.
+func (i *Asset) AddTag(tag Tag) error {
 	tags, _, tagsError := i.AllTags("", "")
 	if tagsError != nil {
-
+		return tagsError
 	}
 
-	skipTag, tagFound := tags.Get(tagID)
+	foundTag, tagFound := tags.Get(tag.Name)
 	if tagFound != nil {
-		// tag not found, create it
-		// return skipTagError
+		createdTag, createdTagErr := i.upsertTag(tag)
+		if createdTagErr != nil {
+			return createdTagErr
+		}
+
+		foundTag = createdTag
 	}
 
-	i.addTagToAsset(skipTag, i.ID)
+	return i.addTagToAsset(foundTag, i.ID)
 }
 
-func (i *Asset) addTagToAsset(skipTag Tag, assetID string) error {
+// upsertTag creates a new tag in the Immich system if it doesn't already exist.
+// It makes a PUT request to the tags API endpoint with the tag name.
+// Returns the created/existing tag and any error encountered.
+func (i *Asset) upsertTag(tag Tag) (Tag, error) {
+
+	var response UpsertTagResponse
+	var createdTag Tag
+
+	u, err := url.Parse(i.requestConfig.ImmichURL)
+	if err != nil {
+		return createdTag, fmt.Errorf("parsing url: %w", err)
+	}
+
+	requestBody := UpsertTagBody{
+		Tags: []string{tag.Name},
+	}
+
+	apiURL := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   "api/tags",
+	}
+
+	jsonBody, marshalErr := json.Marshal(requestBody)
+	if marshalErr != nil {
+		return createdTag, fmt.Errorf("marshaling request body: %w", marshalErr)
+	}
+
+	apiBody, resErr := i.immichAPICall(i.ctx, http.MethodPut, apiURL.String(), jsonBody)
+	if resErr != nil {
+		log.Error("Failed to add tag to asset", "error", resErr)
+		return createdTag, resErr
+	}
+
+	err = json.Unmarshal(apiBody, &response)
+	if err != nil {
+		_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
+		return createdTag, err
+	}
+
+	if len(response) == 0 && response[0].ID == "" {
+		log.Error("failed to create tag", "response", response, "error", err)
+		return createdTag, errors.New("failed to create tag")
+	}
+
+	createdTag = Tag{
+		ID:    response[0].ID,
+		Name:  response[0].Name,
+		Value: response[0].Value,
+	}
+
+	return createdTag, nil
+}
+
+// addTagToAsset associates a tag with an asset in the Immich system.
+// It makes a PUT request to associate the tag ID with the asset ID.
+// Returns an error if the association fails.
+func (i *Asset) addTagToAsset(tag Tag, assetID string) error {
+
+	var response TagAssetsResponse
 
 	u, err := url.Parse(i.requestConfig.ImmichURL)
 	if err != nil {
@@ -253,13 +320,13 @@ func (i *Asset) addTagToAsset(skipTag Tag, assetID string) error {
 	}
 
 	requestBody := TagAssetsBody{
-		IDs: []string{skipTag.ID},
+		IDs: []string{assetID},
 	}
 
 	apiURL := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   path.Join("tags", skipTag.ID, "assets"),
+		Path:   path.Join("api", "tags", tag.ID, "assets"),
 	}
 
 	jsonBody, marshalErr := json.Marshal(requestBody)
@@ -272,9 +339,19 @@ func (i *Asset) addTagToAsset(skipTag Tag, assetID string) error {
 		log.Error("Failed to add tag to asset", "error", resErr)
 	}
 
-	err = json.Unmarshal(apiBody, &immichAssets)
+	err = json.Unmarshal(apiBody, &response)
 	if err != nil {
-		_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+		_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
 		return err
 	}
+
+	if len(response) == 0 {
+		return fmt.Errorf("failed to add tag to asset: %s", tag.ID)
+	}
+
+	if !response[0].Success {
+		return fmt.Errorf("failed to add tag to asset: %s", response[0].Error)
+	}
+
+	return nil
 }

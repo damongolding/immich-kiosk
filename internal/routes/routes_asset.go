@@ -166,3 +166,51 @@ func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		return c.Blob(http.StatusOK, imageMime, imgBytes)
 	}
 }
+
+func TagAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
+
+		log.Debug(
+			requestID,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
+
+		assetID := c.FormValue("assetID")
+		tagName := c.FormValue("tagName")
+
+		if assetID == "" {
+			log.Error("Asset ID is required")
+			return echo.NewHTTPError(http.StatusBadRequest, "Asset ID is required")
+		}
+
+		if tagName == "" {
+			log.Error("Tag name is required")
+			return echo.NewHTTPError(http.StatusBadRequest, "Tag name is required")
+		}
+
+		immichAsset := immich.New(com.Context(), requestConfig)
+		immichAsset.ID = assetID
+
+		tag := immich.Tag{
+			Name: tagName,
+		}
+
+		addTagErr := immichAsset.AddTag(tag)
+		if addTagErr != nil {
+			log.Error(requestID+" error adding tag", "assetID", assetID, "tagName", tagName, "error", addTagErr)
+			return echo.NewHTTPError(http.StatusInternalServerError, "unable to add tag")
+		}
+
+		return c.NoContent(http.StatusOK)
+	}
+}
