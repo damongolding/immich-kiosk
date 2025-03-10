@@ -20,6 +20,9 @@ const (
 	LayoutSplitview          string = "splitview"
 	LayoutSplitviewLandscape string = "splitview-landscape"
 
+	RedirectExternal string = "EXTERNAL"
+	RedirectInternal string = "INTERNAL"
+
 	LikedAlbumName = "Kiosk liked"
 
 	TagSkip string = "kiosk-skip"
