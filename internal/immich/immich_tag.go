@@ -253,6 +253,25 @@ func (a *Asset) AddTag(tag Tag) error {
 	return a.addTagToAsset(foundTag, a.ID)
 }
 
+func (a *Asset) RemoveTag(tag Tag) error {
+	tags, _, tagsError := a.AllTags("", "")
+	if tagsError != nil {
+		return tagsError
+	}
+
+	foundTag, tagFound := tags.Get(tag.Name)
+	if tagFound != nil {
+		createdTag, createdTagErr := a.upsertTag(tag)
+		if createdTagErr != nil {
+			return createdTagErr
+		}
+
+		foundTag = createdTag
+	}
+
+	return a.removeTagFromAsset(foundTag, a.ID)
+}
+
 // upsertTag creates a new tag in the Immich system if it doesn't already exist.
 // It makes a PUT request to the tags API endpoint with the tag name.
 // Returns the created/existing tag and any error encountered.
@@ -351,6 +370,52 @@ func (a *Asset) addTagToAsset(tag Tag, assetID string) error {
 
 	if !response[0].Success {
 		return fmt.Errorf("failed to add tag to asset: %s", response[0].Error)
+	}
+
+	return nil
+}
+
+func (a *Asset) removeTagFromAsset(tag Tag, assetID string) error {
+
+	var response TagAssetsResponse
+
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		return fmt.Errorf("parsing url: %w", err)
+	}
+
+	requestBody := TagAssetsBody{
+		IDs: []string{assetID},
+	}
+
+	apiURL := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   path.Join("api", "tags", tag.ID, "assets"),
+	}
+
+	jsonBody, marshalErr := json.Marshal(requestBody)
+	if marshalErr != nil {
+		return fmt.Errorf("marshaling request body: %w", marshalErr)
+	}
+
+	apiBody, resErr := a.immichAPICall(a.ctx, http.MethodDelete, apiURL.String(), jsonBody)
+	if resErr != nil {
+		log.Error("Failed to add tag to asset", "error", resErr)
+	}
+
+	err = json.Unmarshal(apiBody, &response)
+	if err != nil {
+		_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
+		return err
+	}
+
+	if len(response) == 0 {
+		return fmt.Errorf("failed to remove tag from asset: %s", tag.ID)
+	}
+
+	if !response[0].Success {
+		return fmt.Errorf("failed to remove tag from asset: %s", response[0].Error)
 	}
 
 	return nil

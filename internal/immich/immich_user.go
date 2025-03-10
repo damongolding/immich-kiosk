@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
+
+	"github.com/charmbracelet/log"
 )
 
 func (a *Asset) Me(requestID, deviceID string) (UserResponse, error) {
@@ -32,4 +35,15 @@ func (a *Asset) Me(requestID, deviceID string) (UserResponse, error) {
 	}
 
 	return user, nil
+}
+
+func (a *Asset) UserOwnsAsset(requestID, deviceID string) bool {
+
+	me, meErr := a.Me(requestID, deviceID)
+	if meErr != nil {
+		log.Error("Error getting user", "error", meErr)
+		return false
+	}
+
+	return strings.EqualFold(me.ID, a.OwnerID)
 }

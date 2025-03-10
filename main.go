@@ -143,7 +143,11 @@ func main() {
 
 	e.POST("/asset/tag", routes.TagAsset(baseConfig, c))
 
-	e.POST("/asset/favourite", routes.FavouriteAsset(baseConfig, c))
+	e.POST("/asset/favourite", routes.FavouriteAsset(baseConfig, c, true))
+	e.POST("/asset/unfavourite", routes.FavouriteAsset(baseConfig, c, false))
+
+	e.POST("/asset/hide", routes.HideAsset(baseConfig, c, true))
+	e.POST("/asset/unhide", routes.HideAsset(baseConfig, c, false))
 
 	e.GET("/clock", routes.Clock(baseConfig))
 

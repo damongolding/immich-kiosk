@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"path"
 	"slices"
+	"strconv"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -179,7 +180,7 @@ func (a *Asset) RandomImageFromFavourites(requestID, deviceID string, _ []AssetT
 	return errors.New("no images found for favourites. Max retries reached")
 }
 
-func (a *Asset) Favourite() error {
+func (a *Asset) FavouriteStatus(favourite bool) error {
 
 	var response Asset
 
@@ -196,7 +197,7 @@ func (a *Asset) Favourite() error {
 		Path:   path.Join("api", "assets", a.ID),
 	}
 
-	jsonBody := []byte(`{"isFavorite": true}`)
+	jsonBody := []byte(`{"isFavorite": ` + strconv.FormatBool(favourite) + `}`)
 
 	apiBody, apiBodyErr := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
 	if apiBodyErr != nil {
@@ -209,7 +210,7 @@ func (a *Asset) Favourite() error {
 		return err
 	}
 
-	if !response.IsFavorite {
+	if response.IsFavorite != favourite {
 		return errors.New("unable to favourite asset")
 	}
 
