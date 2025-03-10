@@ -231,6 +231,19 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 	return fmt.Errorf("no images found for '%s'. Max retries reached", tagID)
 }
 
+func (a *Asset) HasTag(tagID string) bool {
+
+	t, tagGetErr := a.Tags.Get(tagID)
+	if tagGetErr == nil {
+		log.Info("found", "tag", t)
+		return true
+	}
+
+	log.Info("not found", "tag", t)
+
+	return false
+}
+
 // AddTag adds a tag to the asset. If the tag doesn't exist, it will be created first.
 // It first checks if the tag exists by calling AllTags. If not found, it creates the tag
 // via upsertTag. Finally it associates the tag with the asset.
@@ -240,8 +253,8 @@ func (a *Asset) AddTag(tag Tag) error {
 		return tagsError
 	}
 
-	foundTag, tagFound := tags.Get(tag.Name)
-	if tagFound != nil {
+	foundTag, tagGetErr := tags.Get(tag.Name)
+	if tagGetErr != nil {
 		createdTag, createdTagErr := a.upsertTag(tag)
 		if createdTagErr != nil {
 			return createdTagErr
@@ -259,8 +272,8 @@ func (a *Asset) RemoveTag(tag Tag) error {
 		return tagsError
 	}
 
-	foundTag, tagFound := tags.Get(tag.Name)
-	if tagFound != nil {
+	foundTag, tagGetErr := tags.Get(tag.Name)
+	if tagGetErr != nil {
 		createdTag, createdTagErr := a.upsertTag(tag)
 		if createdTagErr != nil {
 			return createdTagErr
@@ -312,7 +325,7 @@ func (a *Asset) upsertTag(tag Tag) (Tag, error) {
 		return createdTag, err
 	}
 
-	if len(response) == 0 && response[0].ID == "" {
+	if len(response) == 0 || (len(response) > 0 && response[0].ID == "") {
 		log.Error("failed to create tag", "response", response, "error", err)
 		return createdTag, errors.New("failed to create tag")
 	}
@@ -401,7 +414,7 @@ func (a *Asset) removeTagFromAsset(tag Tag, assetID string) error {
 
 	apiBody, resErr := a.immichAPICall(a.ctx, http.MethodDelete, apiURL.String(), jsonBody)
 	if resErr != nil {
-		log.Error("Failed to add tag to asset", "error", resErr)
+		log.Error("Failed to remove tag from asset", "error", resErr)
 	}
 
 	err = json.Unmarshal(apiBody, &response)

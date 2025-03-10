@@ -80,7 +80,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 							img.ImmichAsset.IsFavorite,
 							img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
 						)
-						@HideButton(img.ImmichAsset.ID, false)
+						@HideButton(img.ImmichAsset.ID, img.ImmichAsset.HasTag(kiosk.TagSkip))
 					</div>
 					@originalImageTimeLocation(viewData, i, viewData.HideCountries)
 					@cameraData(img.ImmichAsset.ExifInfo)

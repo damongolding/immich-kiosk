@@ -161,7 +161,7 @@ type Asset struct {
 	ExifInfo         ExifInfo  `json:"exifInfo"`
 	LivePhotoVideoID any       `json:"-"` // `json:"livePhotoVideoId"`
 	People           []Person  `json:"people"`
-	Tags             []Tag     `json:"tags"`
+	Tags             Tags      `json:"tags"`
 	UnassignedFaces  []Face    `json:"unassignedFaces"`
 	Checksum         string    `json:"checksum"`
 	StackCount       any       `json:"-"` // `json:"stackCount"`
