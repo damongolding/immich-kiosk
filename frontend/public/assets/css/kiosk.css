@@ -4,6 +4,8 @@
   --cool-grey: #333460;
   --mint-green: #1ed2bb;
   --yellow: #e7e65f;
+  --pink: #de475a;
+  --dawn: #f9b827;
   --z-below: -1;
   --z-base: 0;
   --z-clock: 100;
@@ -703,14 +705,33 @@ form {
     -webkit-filter: brightness(85%);
             filter: brightness(85%);
   }
+.more-info--hide-asset {
+  background-color: var(--pink);
+}
+.more-info--hide-asset svg {
+    fill: #9b1828;
+  }
+.more-info--like-asset {
+  background-color: var(--dawn);
+}
+.more-info--like-asset svg {
+    fill: #b57d00;
+  }
 .more-info--like-asset,
 .more-info--hide-asset {
   -moz-box-flex: 1;
        flex: 1;
+  display: -moz-box;
+  display: flex;
+  gap: 0.5rem;
+  align-content: center;
+  -moz-box-pack: center;
+       justify-content: center;
+  -moz-box-align: center;
+       align-items: center;
 }
 .more-info--like-asset svg, .more-info--hide-asset svg {
-    height: 1rem;
-    fill: white;
+    height: 0.9rem;
   }
 .more-info--like-asset:disabled, .more-info--hide-asset:disabled {
     opacity: 0.5;

@@ -130,13 +130,31 @@
     }
 }
 
+.more-info--hide-asset {
+    background-color: var(--pink);
+    svg {
+        fill: #9b1828;
+    }
+}
+
+.more-info--like-asset {
+    background-color: var(--dawn);
+    svg {
+        fill: #b57d00;
+    }
+}
+
 .more-info--like-asset,
 .more-info--hide-asset {
     flex: 1;
+    display: flex;
+    gap: 0.5rem;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
 
     svg {
-        height: 1rem;
-        fill: white;
+        height: 0.9rem;
     }
 
     &:disabled {

@@ -167,6 +167,9 @@ func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 	}
 }
 
+// TagAsset returns an echo.HandlerFunc that handles requests to add tags to assets.
+// It validates the asset ID and tag name parameters, then adds the specified tag to the asset.
+// Returns HTTP 200 on success or appropriate error codes if validation fails or tag addition fails.
 func TagAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -215,6 +218,9 @@ func TagAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	}
 }
 
+// FavouriteAsset returns an echo.HandlerFunc that handles requests to favorite/unfavorite assets.
+// It validates the asset ID parameter and toggles the favorite state of the specified asset.
+// Returns HTTP 200 on success or appropriate error codes if validation fails or the operation fails.
 func FavouriteAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
