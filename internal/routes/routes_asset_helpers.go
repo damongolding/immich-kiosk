@@ -6,6 +6,8 @@ import (
 	"image"
 	"math/rand/v2"
 	"net/http"
+	"net/url"
+	"path"
 	"strings"
 	"time"
 
@@ -554,7 +556,7 @@ func assetPreFetch(common *common.Common, requestData *common.RouteRequestData, 
 	requestID := requestData.RequestID
 	deviceID := requestData.DeviceID
 
-	viewDataToAdd, err := generateViewData(requestConfig, c, requestID, true)
+	viewDataToAdd, err := generateViewData(requestConfig, c, requestID, deviceID, true)
 	if err != nil {
 		log.Error("generateViewData", "prefetch", true, "err", err)
 		return
@@ -635,11 +637,12 @@ func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView comm
 }
 
 // generateViewData generates page data for the current request.
-func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceID string, isPrefetch bool) (common.ViewData, error) {
+func generateViewData(requestConfig config.Config, c common.ContextCopy, requestID, deviceID string, isPrefetch bool) (common.ViewData, error) {
 
 	viewData := common.ViewData{
-		DeviceID: deviceID,
-		Config:   requestConfig,
+		RequestID: requestID,
+		DeviceID:  deviceID,
+		Config:    requestConfig,
 	}
 
 	switch requestConfig.Layout {
@@ -711,4 +714,22 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, deviceI
 	}
 
 	return viewData, nil
+}
+
+func removeAssetCache(immichURL, deviceID, assetID, selectedUser string) error {
+	u, err := url.Parse(immichURL)
+	if err != nil {
+		return err
+	}
+
+	apiURL := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   path.Join("api", "assets", assetID),
+	}
+
+	cacheKey := cache.APICacheKey(apiURL.String(), deviceID, selectedUser)
+	cache.Delete(cacheKey)
+
+	return nil
 }

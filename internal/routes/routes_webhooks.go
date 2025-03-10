@@ -82,6 +82,7 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 			viewData := common.ViewData{
 				KioskVersion: KioskVersion,
+				RequestID:    requestID,
 				DeviceID:     deviceID,
 				Assets:       make([]common.ViewImageData, len(prevImages)),
 				Config:       requestConfig,

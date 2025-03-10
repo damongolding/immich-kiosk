@@ -34,7 +34,7 @@ import (
 // - Ratio checking of images
 //
 // Returns an error if no valid images are found after max retries
-func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
+func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
 
 	dateStart, dateEnd, dateErr := determineDateRange(dateRange)
 	if dateErr != nil {
@@ -54,7 +54,7 @@ func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 
 		var immichAssets []Asset
 
-		u, err := url.Parse(i.requestConfig.ImmichURL)
+		u, err := url.Parse(a.requestConfig.ImmichURL)
 		if err != nil {
 			return fmt.Errorf("parsing url: %w", err)
 		}
@@ -65,10 +65,10 @@ func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 			TakenBefore: dateEnd.Format(time.RFC3339),
 			WithExif:    true,
 			WithPeople:  true,
-			Size:        i.requestConfig.Kiosk.FetchedAssetsSize,
+			Size:        a.requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
-		if i.requestConfig.ShowArchived {
+		if a.requestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
 
@@ -87,8 +87,8 @@ func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 			return fmt.Errorf("marshaling request body: %w", marshalErr)
 		}
 
-		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
-		apiBody, err := immichAPICall(i.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
+		apiBody, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
@@ -100,7 +100,7 @@ func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 			return err
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -111,14 +111,14 @@ func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourceDateRange
-			asset.requestConfig = i.requestConfig
-			asset.ctx = i.ctx
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
 				continue
 			}
 
-			if i.requestConfig.Kiosk.Cache {
+			if a.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
@@ -136,7 +136,7 @@ func (i *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 
 			asset.BucketID = dateRange
 
-			*i = asset
+			*a = asset
 
 			return nil
 		}

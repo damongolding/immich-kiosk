@@ -70,6 +70,7 @@ func PreviousAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFu
 
 		viewData := common.ViewData{
 			KioskVersion: KioskVersion,
+			RequestID:    requestID,
 			DeviceID:     deviceID,
 			Assets:       make([]common.ViewImageData, len(prevAssets)),
 			Queries:      c.QueryParams(),

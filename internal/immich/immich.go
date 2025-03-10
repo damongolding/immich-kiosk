@@ -125,6 +125,7 @@ type Tag struct {
 	Value     string    `json:"value"`
 	CreatedAt time.Time `json:"-"` // `json:"createdAt"`
 	UpdatedAt time.Time `json:"-"` // `json:"updatedAt"`
+	Color     string    `json:"color"`
 }
 
 type Face struct {
@@ -140,7 +141,7 @@ type Face struct {
 type Asset struct {
 	ID               string    `json:"id"`
 	DeviceAssetID    string    `json:"-"` // `json:"deviceAssetId"`
-	OwnerID          string    `json:"-"` // `json:"ownerId"`
+	OwnerID          string    `json:"ownerId"`
 	DeviceID         string    `json:"-"` // `json:"deviceId"`
 	LibraryID        string    `json:"-"` // `json:"libraryId"`
 	Type             AssetType `json:"type"`
@@ -160,7 +161,7 @@ type Asset struct {
 	ExifInfo         ExifInfo  `json:"exifInfo"`
 	LivePhotoVideoID any       `json:"-"` // `json:"livePhotoVideoId"`
 	People           []Person  `json:"people"`
-	Tags             []Tag     `json:"tags"`
+	Tags             Tags      `json:"tags"`
 	UnassignedFaces  []Face    `json:"unassignedFaces"`
 	Checksum         string    `json:"checksum"`
 	StackCount       any       `json:"-"` // `json:"stackCount"`
@@ -176,10 +177,9 @@ type Asset struct {
 	AppearsIn   Albums           `json:"-"`
 	Bucket      kiosk.Source     `json:"-"`
 	BucketID    string           `json:"-"`
-	ctx         context.Context  `json:"-"`
 
-	// requestConfig the config for this request
-	requestConfig config.Config
+	ctx           context.Context `json:"-"`
+	requestConfig config.Config   `json:"-"`
 }
 
 type Album struct {
@@ -228,6 +228,24 @@ type SearchRandomBody struct {
 	Page          int      `url:"page,omitempty" json:"page,omitempty"`
 }
 
+type TagAssetsBody struct {
+	IDs []string `url:"ids,omitempty" json:"ids,omitempty"`
+}
+
+type UpsertTagBody struct {
+	Tags []string `url:"tags,omitempty" json:"tags,omitempty"`
+}
+
+type UpsertTagResponse []struct {
+	Color     string    `json:"color"`
+	CreatedAt time.Time `json:"createdAt"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	ParentID  string    `json:"parentId"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	Value     string    `json:"value"`
+}
+
 type SearchMetadataResponse struct {
 	Assets struct {
 		Total    int    `json:"total"`
@@ -264,6 +282,45 @@ type AssetFaceResponse struct {
 	Person        Person `json:"person"`
 }
 
+type TagAssetsResponse []struct {
+	Error   immich_open_api.BulkIdResponseDtoError `json:"error"`
+	ID      string                                 `json:"id"`
+	Success bool                                   `json:"success"`
+}
+
+// UserAvatarColor defines model for UserAvatarColor.
+type UserAvatarColor string
+
+// UserLicense defines model for UserLicense.
+type UserLicense struct {
+	ActivatedAt   time.Time `json:"activatedAt"`
+	ActivationKey string    `json:"activationKey"`
+	LicenseKey    string    `json:"licenseKey"`
+}
+
+// UserStatus defines model for UserStatus.
+type UserStatus string
+
+type UserResponse struct {
+	AvatarColor          UserAvatarColor `json:"avatarColor"`
+	CreatedAt            time.Time       `json:"createdAt"`
+	DeletedAt            *time.Time      `json:"deletedAt"`
+	Email                string          `json:"email"`
+	ID                   string          `json:"id"`
+	IsAdmin              bool            `json:"isAdmin"`
+	License              *UserLicense    `json:"license"`
+	Name                 string          `json:"name"`
+	OauthID              string          `json:"oauthId"`
+	ProfileChangedAt     time.Time       `json:"profileChangedAt"`
+	ProfileImagePath     string          `json:"profileImagePath"`
+	QuotaSizeInBytes     *int64          `json:"quotaSizeInBytes"`
+	QuotaUsageInBytes    *int64          `json:"quotaUsageInBytes"`
+	ShouldChangePassword bool            `json:"shouldChangePassword"`
+	Status               UserStatus      `json:"status"`
+	StorageLabel         *string         `json:"storageLabel"`
+	UpdatedAt            time.Time       `json:"updatedAt"`
+}
+
 // New returns a new asset instance
 func New(ctx context.Context, base config.Config) Asset {
 	return Asset{requestConfig: base, ctx: ctx}
@@ -284,5 +341,8 @@ type APIResponse interface {
 		[]Tag |
 		[]AssetFaceResponse |
 		immich_open_api.PersonResponseDto |
-		MemoriesResponse
+		MemoriesResponse |
+		TagAssetsResponse |
+		UpsertTagResponse |
+		UserResponse
 }
