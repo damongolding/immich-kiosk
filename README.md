@@ -1182,7 +1182,7 @@ Each redirect consists of:
 - `name`: The short path that users will use
 - `url`: The destination URL where users will be redirected to
 - `type`: Optional field that controls URL behavior:
-  - `internal`: Keeps the URL unchanged during redirection (useful for maintaining browser history)
+  - `internal`: The default behavior that keeps the URL unchanged during redirection (useful for maintaining browser history)
   - `external`: Allows URL changes during redirection (default if omitted)
 
 ### Examples
@@ -1192,13 +1192,14 @@ kiosk:
   redirects:
     - name: london
       url: /?weather=london
+      type: external
 
     - name: sheffield
       url: /?weather=sheffield
-      type: internal
 
     - name: our-wedding
       url: /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
+      type: external
 
 ```
 
