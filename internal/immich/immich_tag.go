@@ -234,11 +234,7 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 func (a *Asset) HasTag(tagID string) bool {
 
 	_, tagGetErr := a.Tags.Get(tagID)
-	if tagGetErr == nil {
-		return true
-	}
-
-	return false
+	return tagGetErr == nil
 }
 
 // AddTag adds a tag to the asset. If the tag doesn't exist, it will be created first.
@@ -336,11 +332,16 @@ func (a *Asset) upsertTag(tag Tag) (Tag, error) {
 	return createdTag, nil
 }
 
-// addTagToAsset associates a tag with an asset in the Immich system.
-// It makes a PUT request to associate the tag ID with the asset ID.
-// Returns an error if the association fails.
-func (a *Asset) addTagToAsset(tag Tag, assetID string) error {
-
+// modifyTagAsset performs a tag modification operation on an asset in the Immich system.
+// It makes an HTTP request to modify the association between a tag and an asset.
+// Parameters:
+//   - tag: The Tag object containing the tag information
+//   - assetID: The ID of the asset to modify
+//   - method: The HTTP method to use (PUT for add, DELETE for remove)
+//   - action: Description of the action being performed for error messages
+//
+// Returns an error if the modification fails.
+func (a *Asset) modifyTagAsset(tag Tag, assetID string, method string, action string) error {
 	var response TagAssetsResponse
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
@@ -363,9 +364,9 @@ func (a *Asset) addTagToAsset(tag Tag, assetID string) error {
 		return fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	apiBody, resErr := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
+	apiBody, resErr := a.immichAPICall(a.ctx, method, apiURL.String(), jsonBody)
 	if resErr != nil {
-		log.Error("Failed to add tag to asset", "error", resErr)
+		log.Error("Failed to "+action+" tag to asset", "error", resErr)
 	}
 
 	err = json.Unmarshal(apiBody, &response)
@@ -375,58 +376,34 @@ func (a *Asset) addTagToAsset(tag Tag, assetID string) error {
 	}
 
 	if len(response) == 0 {
-		return fmt.Errorf("failed to add tag to asset: %s", tag.ID)
+		return fmt.Errorf("failed to "+action+" tag from asset: %s", tag.ID)
 	}
 
 	if !response[0].Success {
-		return fmt.Errorf("failed to add tag to asset: %s", response[0].Error)
+		return fmt.Errorf("failed to "+action+" tag from asset: %s", response[0].Error)
 	}
 
 	return nil
 }
 
+// addTagToAsset associates a tag with an asset in the Immich system.
+// It makes a PUT request to associate the tag ID with the asset ID.
+// Parameters:
+//   - tag: The Tag object to associate with the asset
+//   - assetID: The ID of the asset to tag
+//
+// Returns an error if the association fails.
+func (a *Asset) addTagToAsset(tag Tag, assetID string) error {
+	return a.modifyTagAsset(tag, assetID, http.MethodPut, "add")
+}
+
+// removeTagFromAsset removes a tag association from an asset in the Immich system.
+// It makes a DELETE request to remove the association between the tag ID and asset ID.
+// Parameters:
+//   - tag: The Tag object to remove from the asset
+//   - assetID: The ID of the asset to remove the tag from
+//
+// Returns an error if the removal fails.
 func (a *Asset) removeTagFromAsset(tag Tag, assetID string) error {
-
-	var response TagAssetsResponse
-
-	u, err := url.Parse(a.requestConfig.ImmichURL)
-	if err != nil {
-		return fmt.Errorf("parsing url: %w", err)
-	}
-
-	requestBody := TagAssetsBody{
-		IDs: []string{assetID},
-	}
-
-	apiURL := url.URL{
-		Scheme: u.Scheme,
-		Host:   u.Host,
-		Path:   path.Join("api", "tags", tag.ID, "assets"),
-	}
-
-	jsonBody, marshalErr := json.Marshal(requestBody)
-	if marshalErr != nil {
-		return fmt.Errorf("marshaling request body: %w", marshalErr)
-	}
-
-	apiBody, resErr := a.immichAPICall(a.ctx, http.MethodDelete, apiURL.String(), jsonBody)
-	if resErr != nil {
-		log.Error("Failed to remove tag from asset", "error", resErr)
-	}
-
-	err = json.Unmarshal(apiBody, &response)
-	if err != nil {
-		_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
-		return err
-	}
-
-	if len(response) == 0 {
-		return fmt.Errorf("failed to remove tag from asset: %s", tag.ID)
-	}
-
-	if !response[0].Success {
-		return fmt.Errorf("failed to remove tag from asset: %s", response[0].Error)
-	}
-
-	return nil
+	return a.modifyTagAsset(tag, assetID, http.MethodDelete, "remove")
 }

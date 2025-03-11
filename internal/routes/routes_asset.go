@@ -326,16 +326,16 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		if hideAsset {
-			err := immichAsset.AddTag(tag)
-			if err != nil {
-				log.Error(requestID+" error adding tag to asset", "assetID", assetID, "error", err)
+			addTagErr := immichAsset.AddTag(tag)
+			if addTagErr != nil {
+				log.Error(requestID+" error adding tag to asset", "assetID", assetID, "error", addTagErr)
 				return Render(c, http.StatusOK, partials.HideButton(assetID, false))
 			}
 
 		} else {
-			err := immichAsset.RemoveTag(tag)
-			if err != nil {
-				log.Error(requestID+" error removing tag from asset", "assetID", assetID, "error", err)
+			rmTagErr := immichAsset.RemoveTag(tag)
+			if rmTagErr != nil {
+				log.Error(requestID+" error removing tag from asset", "assetID", assetID, "error", rmTagErr)
 				return Render(c, http.StatusOK, partials.HideButton(assetID, false))
 			}
 		}
