@@ -271,6 +271,18 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 			log.Error(requestID+" error removing asset from cache", "assetID", assetID, "error", cacheErr)
 		}
 
+		if favouriteAsset {
+			addErr := immichAsset.AddToKioskLikedAlbum(requestID, requestData.DeviceID)
+			if addErr != nil {
+				log.Error(requestID+" error adding asset to kiosk liked album", "assetID", assetID, "error", addErr)
+			}
+		} else {
+			rmErr := immichAsset.RemoveFromKioskLikedAlbum(requestID, requestData.DeviceID)
+			if rmErr != nil {
+				log.Error(requestID+" error removing asset from kiosk liked album", "assetID", assetID, "error", rmErr)
+			}
+		}
+
 		return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, true))
 	}
 }

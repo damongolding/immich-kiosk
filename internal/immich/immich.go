@@ -232,6 +232,8 @@ type TagAssetsBody struct {
 	IDs []string `url:"ids,omitempty" json:"ids,omitempty"`
 }
 
+type AddAssetsToAlbumBody TagAssetsBody
+
 type UpsertTagBody struct {
 	Tags []string `url:"tags,omitempty" json:"tags,omitempty"`
 }
@@ -286,6 +288,13 @@ type TagAssetsResponse []struct {
 	Error   immich_open_api.BulkIdResponseDtoError `json:"error"`
 	ID      string                                 `json:"id"`
 	Success bool                                   `json:"success"`
+}
+
+type AlbumCreateResponse TagAssetsResponse
+
+type AlbumCreateBody struct {
+	AlbumName   string `json:"albumName"`
+	Description string `json:"description,omitempty"`
 }
 
 // UserAvatarColor defines model for UserAvatarColor.
@@ -343,6 +352,7 @@ type APIResponse interface {
 		immich_open_api.PersonResponseDto |
 		MemoriesResponse |
 		TagAssetsResponse |
+		AlbumCreateResponse |
 		UpsertTagResponse |
 		UserResponse
 }
