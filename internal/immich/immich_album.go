@@ -404,11 +404,6 @@ func (a *Asset) kioskLikedAlbum(requestID, deviceID string) (Album, error) {
 //   - error: Error if creation fails
 func (a *Asset) createKioskLikedAlbum() (string, error) {
 
-	// me, err := a.Me(requestID, deviceID)
-	// if err != nil {
-	// 	return "", fmt.Errorf("failed to fetch user: %w", err)
-	// }
-
 	var res Album
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
@@ -424,12 +419,12 @@ func (a *Asset) createKioskLikedAlbum() (string, error) {
 
 	requestBody := AlbumCreateBody{
 		AlbumName:   kiosk.LikedAlbumName,
-		Description: "Album for liked asstes in Kiosk",
+		Description: "Album for liked assets from Kiosk",
 	}
 
 	jsonBody, marshalErr := json.Marshal(requestBody)
 	if marshalErr != nil {
-		return "", marshalErr
+		return "", fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
 	body, err := a.immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
@@ -462,7 +457,7 @@ func (a *Asset) AddToKioskLikedAlbum(requestID, deviceID string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create kiosk liked album: %w", err)
 		}
-		log.Debug("Created", "albumName", kiosk.LikedAlbumName, "albumID", album.ID)
+		log.Debug(requestID+" Created", "albumName", kiosk.LikedAlbumName, "albumID", album.ID)
 	}
 
 	return a.addAssetToAlbum(album.ID)
@@ -482,14 +477,15 @@ func (a *Asset) RemoveFromKioskLikedAlbum(requestID, deviceID string) error {
 	return a.removeAssetFromAlbum(album.ID)
 }
 
-// addAssetToAlbum adds the current asset to the specified album.
+// modifyAssetInAlbum performs an API call to modify the current asset's presence in the specified album.
+// The method parameter determines whether the asset is added (PUT) or removed (DELETE).
 // Parameters:
-//   - albumID: ID of album to add asset to
+//   - albumID: ID of album to modify
+//   - method: HTTP method to use (PUT to add, DELETE to remove)
 //
 // Returns:
-//   - error: Error if API call fails
-func (a *Asset) addAssetToAlbum(albumID string) error {
-
+//   - error: Error if API call or unmarshaling response fails
+func (a *Asset) modifyAssetInAlbum(albumID string, method string) error {
 	var res AlbumCreateResponse
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
@@ -509,55 +505,40 @@ func (a *Asset) addAssetToAlbum(albumID string) error {
 
 	jsonBody, marshalErr := json.Marshal(requestBody)
 	if marshalErr != nil {
-		return marshalErr
+		return fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	body, err := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
+	body, err := a.immichAPICall(a.ctx, method, apiURL.String(), jsonBody)
 	if err != nil {
+		_, _, err = immichAPIFail(res, err, body, apiURL.String())
 		return err
 	}
 
 	err = json.Unmarshal(body, &res)
 	if err != nil {
+		_, _, err = immichAPIFail(res, err, body, apiURL.String())
 		return err
 	}
 
 	return nil
 }
 
+// addAssetToAlbum adds the current asset to the specified album via the Immich API.
+// Parameters:
+//   - albumID: ID of album to add the asset to
+//
+// Returns:
+//   - error: Error if adding the asset fails
+func (a *Asset) addAssetToAlbum(albumID string) error {
+	return a.modifyAssetInAlbum(albumID, http.MethodPut)
+}
+
+// removeAssetFromAlbum removes the current asset from the specified album via the Immich API.
+// Parameters:
+//   - albumID: ID of album to remove the asset from
+//
+// Returns:
+//   - error: Error if removing the asset fails
 func (a *Asset) removeAssetFromAlbum(albumID string) error {
-
-	var res AlbumCreateResponse
-
-	u, err := url.Parse(a.requestConfig.ImmichURL)
-	if err != nil {
-		return err
-	}
-
-	apiURL := url.URL{
-		Scheme: u.Scheme,
-		Host:   u.Host,
-		Path:   path.Join("api", "albums", albumID, "assets"),
-	}
-
-	requestBody := AddAssetsToAlbumBody{
-		IDs: []string{a.ID},
-	}
-
-	jsonBody, marshalErr := json.Marshal(requestBody)
-	if marshalErr != nil {
-		return marshalErr
-	}
-
-	body, err := a.immichAPICall(a.ctx, http.MethodDelete, apiURL.String(), jsonBody)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(body, &res)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return a.modifyAssetInAlbum(albumID, http.MethodDelete)
 }
