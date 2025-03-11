@@ -262,7 +262,7 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 		favouriteErr := immichAsset.FavouriteStatus(favouriteAsset)
 		if favouriteErr != nil {
 			log.Error(requestID+" error favouriting asset", "assetID", assetID, "error", favouriteErr)
-			return echo.NewHTTPError(http.StatusInternalServerError, "unable to favourite asset")
+			return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, false))
 		}
 
 		// remove asset data from cache as we've changed its favourite status
@@ -329,14 +329,14 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 			err := immichAsset.AddTag(tag)
 			if err != nil {
 				log.Error(requestID+" error adding tag to asset", "assetID", assetID, "error", err)
-				return echo.NewHTTPError(http.StatusInternalServerError, "unable to add tag to asset")
+				return Render(c, http.StatusOK, partials.HideButton(assetID, false))
 			}
 
 		} else {
 			err := immichAsset.RemoveTag(tag)
 			if err != nil {
 				log.Error(requestID+" error removing tag from asset", "assetID", assetID, "error", err)
-				return echo.NewHTTPError(http.StatusInternalServerError, "unable to remove tag from asset")
+				return Render(c, http.StatusOK, partials.HideButton(assetID, false))
 			}
 		}
 

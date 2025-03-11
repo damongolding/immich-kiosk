@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-templ LikeButton(ID string, isFavorite bool, disable bool) {
+templ LikeButton(ID string, isFavorite bool, isButtonEnabled bool) {
 	<button
 		class={ "more-info--like-asset", templ.KV("liked", isFavorite) }
 		if isFavorite {
@@ -28,7 +28,7 @@ templ LikeButton(ID string, isFavorite bool, disable bool) {
 		hx-trigger="click throttle:2s"
 		hx-vals={ fmt.Sprintf("{\"assetID\": \"%s\"}", ID) }
 		hx-swap="outerHTML"
-		disabled?={ !disable }
+		disabled?={ !isButtonEnabled }
 	>
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 			<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
