@@ -138,11 +138,23 @@
     }
 }
 
-.more-info--like-asset.liked,
 .more-info--like-asset:hover {
     background-color: var(--pink);
     svg {
         fill: #63030f;
+    }
+}
+
+.more-info--like-asset.liked {
+    background-color: #ff6578;
+    animation: like-animation-grow 750ms ease-in-out forwards;
+    svg {
+        fill: #63030f;
+        width: 13.94%;
+        height: 13.94%;
+        transform-origin: center;
+        animation: like-animation 1500ms linear forwards;
+        overflow: visible;
     }
 }
 
@@ -181,5 +193,325 @@
         .more-info--image {
             border-radius: 0;
         }
+    }
+}
+
+@keyframes like-animation-grow {
+    0% {
+        transform: scale(1);
+    }
+
+    25% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes like-animation {
+    0% {
+        transform: scale(1);
+    }
+    1% {
+        transform: scale(1.2108740964475049);
+    }
+    2% {
+        transform: scale(1.4390689854115075);
+    }
+    3% {
+        transform: scale(1.678167691045959);
+    }
+    4% {
+        transform: scale(1.9221360318547167);
+    }
+    5% {
+        transform: scale(2.1654122918198286);
+    }
+    6% {
+        transform: scale(2.402978484884046);
+    }
+    7% {
+        transform: scale(2.6304134751676433);
+    }
+    8% {
+        transform: scale(2.8439285694992313);
+    }
+    9% {
+        transform: scale(3.040386506448336);
+    }
+    10% {
+        transform: scale(3.2173050250697126);
+    }
+    11% {
+        transform: scale(3.3728464062162864);
+    }
+    12% {
+        transform: scale(3.505794539866897);
+    }
+    13% {
+        transform: scale(3.6155211847591624);
+    }
+    14% {
+        transform: scale(3.7019431539022585);
+    }
+    15% {
+        transform: scale(3.765472184198641);
+    }
+    16% {
+        transform: scale(3.8069592339693714);
+    }
+    17% {
+        transform: scale(3.8276349026761656);
+    }
+    18% {
+        transform: scale(3.8290475869360363);
+    }
+    19% {
+        transform: scale(3.813000880628535);
+    }
+    20% {
+        transform: scale(3.7814915992059572);
+    }
+    21% {
+        transform: scale(3.7366496639377917);
+    }
+    22% {
+        transform: scale(3.6806809253574744);
+    }
+    23% {
+        transform: scale(3.615813841051833);
+    }
+    24% {
+        transform: scale(3.544250755300671);
+    }
+    25% {
+        transform: scale(3.468124360772389);
+    }
+    26% {
+        transform: scale(3.389459758976075);
+    }
+    27% {
+        transform: scale(3.3101423795165985);
+    }
+    28% {
+        transform: scale(3.2318918710187186);
+    }
+    29% {
+        transform: scale(3.1562419410530844);
+    }
+    30% {
+        transform: scale(3.084526000235292);
+    }
+    31% {
+        transform: scale(3.0178683581592014);
+    }
+    32% {
+        transform: scale(2.9571806268199072);
+    }
+    33% {
+        transform: scale(2.903162911127388);
+    }
+    34% {
+        transform: scale(2.8563093060802625);
+    }
+    35% {
+        transform: scale(2.816917175890003);
+    }
+    36% {
+        transform: scale(2.7850996612456766);
+    }
+    37% {
+        transform: scale(2.760800846151463);
+    }
+    38% {
+        transform: scale(2.743813014297351);
+    }
+    39% {
+        transform: scale(2.733795435504021);
+    }
+    40% {
+        transform: scale(2.7302941440478534);
+    }
+    41% {
+        transform: scale(2.7327622011602313);
+    }
+    42% {
+        transform: scale(2.7405799721918878);
+    }
+    43% {
+        transform: scale(2.753074993306317);
+    }
+    44% {
+        transform: scale(2.769541051601073);
+    }
+    45% {
+        transform: scale(2.7892561547838755);
+    }
+    46% {
+        transform: scale(2.8114991205564888);
+    }
+    47% {
+        transform: scale(2.835564570383203);
+    }
+    48% {
+        transform: scale(2.860776166155733);
+    }
+    49% {
+        transform: scale(2.8864979803528863);
+    }
+    50% {
+        transform: scale(2.9121439397094564);
+    }
+    51% {
+        transform: scale(2.93718532837586);
+    }
+    52% {
+        transform: scale(2.9611563784357093);
+    }
+    53% {
+        transform: scale(2.983658012965878);
+    }
+    54% {
+        transform: scale(3.004359839227585);
+    }
+    55% {
+        transform: scale(3.023000516858011);
+    }
+    56% {
+        transform: scale(3.0393866480073117);
+    }
+    57% {
+        transform: scale(3.053390353269819);
+    }
+    58% {
+        transform: scale(3.064945709129413);
+    }
+    59% {
+        transform: scale(3.0740442297085337);
+    }
+    60% {
+        transform: scale(3.0807295781871398);
+    }
+    61% {
+        transform: scale(3.0850916917159275);
+    }
+    62% {
+        transform: scale(3.0872604984113563);
+    }
+    63% {
+        transform: scale(3.08739939654963);
+    }
+    64% {
+        transform: scale(3.0856986548574223);
+    }
+    65% {
+        transform: scale(3.0823688793248762);
+    }
+    66% {
+        transform: scale(3.0776346767372034);
+    }
+    67% {
+        transform: scale(3.0717286286204843);
+    }
+    68% {
+        transform: scale(3.0648856719908237);
+    }
+    69% {
+        transform: scale(3.0573379656222675);
+    }
+    70% {
+        transform: scale(3.049310302912009);
+    }
+    71% {
+        transform: scale(3.0410161151865607);
+    }
+    72% {
+        transform: scale(3.032654092781601);
+    }
+    73% {
+        transform: scale(3.024405435717262);
+    }
+    74% {
+        transform: scale(3.016431731508736);
+    }
+    75% {
+        transform: scale(3.0088734447806624);
+    }
+    76% {
+        transform: scale(3.0018489920276297);
+    }
+    77% {
+        transform: scale(2.9954543651718986);
+    }
+    78% {
+        transform: scale(2.9897632595600587);
+    }
+    79% {
+        transform: scale(2.9848276557201054);
+    }
+    80% {
+        transform: scale(2.9806787995407014);
+    }
+    81% {
+        transform: scale(2.977328522474523);
+    }
+    82% {
+        transform: scale(2.9747708418192795);
+    }
+    83% {
+        transform: scale(2.9729837809817354);
+    }
+    84% {
+        transform: scale(2.9719313507517775);
+    }
+    85% {
+        transform: scale(2.971565634860866);
+    }
+    86% {
+        transform: scale(2.9718289263181146);
+    }
+    87% {
+        transform: scale(2.9726558650479498);
+    }
+    88% {
+        transform: scale(2.9739755320343826);
+    }
+    89% {
+        transform: scale(2.975713460348617);
+    }
+    90% {
+        transform: scale(2.9777935289443036);
+    }
+    91% {
+        transform: scale(2.9801397108011347);
+    }
+    92% {
+        transform: scale(2.9826776527456884);
+    }
+    93% {
+        transform: scale(2.9853360699533464);
+    }
+    94% {
+        transform: scale(2.988047943625247);
+    }
+    95% {
+        transform: scale(2.990751515542267);
+    }
+    96% {
+        transform: scale(2.9933910780421313);
+    }
+    97% {
+        transform: scale(2.9959175623792387);
+    }
+    98% {
+        transform: scale(2.998288932358408);
+    }
+    99% {
+        transform: scale(3.0004703935472623);
+    }
+    100% {
+        transform: scale(3.0024344312452595);
     }
 }

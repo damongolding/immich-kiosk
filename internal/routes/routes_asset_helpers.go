@@ -6,8 +6,6 @@ import (
 	"image"
 	"math/rand/v2"
 	"net/http"
-	"net/url"
-	"path"
 	"strings"
 	"time"
 
@@ -714,22 +712,4 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, request
 	}
 
 	return viewData, nil
-}
-
-func removeAssetCache(immichURL, deviceID, assetID, selectedUser string) error {
-	u, err := url.Parse(immichURL)
-	if err != nil {
-		return err
-	}
-
-	apiURL := url.URL{
-		Scheme: u.Scheme,
-		Host:   u.Host,
-		Path:   path.Join("api", "assets", assetID),
-	}
-
-	cacheKey := cache.APICacheKey(apiURL.String(), deviceID, selectedUser)
-	cache.Delete(cacheKey)
-
-	return nil
 }

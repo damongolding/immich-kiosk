@@ -233,13 +233,10 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 
 func (a *Asset) HasTag(tagID string) bool {
 
-	t, tagGetErr := a.Tags.Get(tagID)
+	_, tagGetErr := a.Tags.Get(tagID)
 	if tagGetErr == nil {
-		log.Info("found", "tag", t)
 		return true
 	}
-
-	log.Info("not found", "tag", t)
 
 	return false
 }

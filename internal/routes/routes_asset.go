@@ -265,7 +265,8 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 			return echo.NewHTTPError(http.StatusInternalServerError, "unable to favourite asset")
 		}
 
-		cacheErr := removeAssetCache(requestConfig.ImmichURL, requestData.DeviceID, assetID, requestConfig.SelectedUser)
+		// remove asset data from cache as we've changed its favourite status
+		cacheErr := immichAsset.RemoveAssetCache(requestData.DeviceID)
 		if cacheErr != nil {
 			log.Error(requestID+" error removing asset from cache", "assetID", assetID, "error", cacheErr)
 		}
@@ -339,7 +340,8 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 			}
 		}
 
-		cacheErr := removeAssetCache(requestConfig.ImmichURL, requestData.DeviceID, assetID, requestConfig.SelectedUser)
+		// remove asset data from cache as we've changed its tags
+		cacheErr := immichAsset.RemoveAssetCache(requestData.DeviceID)
 		if cacheErr != nil {
 			log.Error(requestID+" error removing asset from cache", "assetID", assetID, "error", cacheErr)
 		}
