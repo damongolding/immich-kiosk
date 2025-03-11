@@ -146,7 +146,7 @@
 }
 
 .more-info--like-asset.liked {
-    background-color: #ff6578;
+    background-color: var(--vibrant-pink);
     animation: like-animation-grow 750ms ease-in-out forwards;
     svg {
         fill: #63030f;
