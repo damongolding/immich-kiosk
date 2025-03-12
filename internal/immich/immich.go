@@ -9,6 +9,7 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -170,6 +171,7 @@ type Asset struct {
 	DuplicateID      any       `json:"-"` // `json:"duplicateId"`
 
 	// Data added and used by Kiosk
+	mu          *sync.Mutex
 	RatioWanted ImageOrientation `json:"-"`
 	IsPortrait  bool             `json:"-"`
 	IsLandscape bool             `json:"-"`
@@ -332,7 +334,11 @@ type UserResponse struct {
 
 // New returns a new asset instance
 func New(ctx context.Context, base config.Config) Asset {
-	return Asset{requestConfig: base, ctx: ctx}
+	return Asset{
+		requestConfig: base,
+		mu:            &sync.Mutex{},
+		ctx:           ctx,
+	}
 }
 
 type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, error)

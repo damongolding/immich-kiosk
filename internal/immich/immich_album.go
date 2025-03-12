@@ -450,6 +450,8 @@ func (a *Asset) createKioskLikedAlbum() (string, error) {
 // Returns:
 //   - error: Error if adding asset fails
 func (a *Asset) AddToKioskLikedAlbum(requestID, deviceID string) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 
 	album, err := a.kioskLikedAlbum(requestID, deviceID)
 	if err != nil {
