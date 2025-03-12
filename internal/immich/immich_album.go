@@ -386,7 +386,7 @@ func (a *Asset) kioskLikedAlbum(requestID, deviceID string) (Album, error) {
 	}
 
 	for _, album := range albums {
-		if album.AlbumName == kiosk.LikedAlbumName {
+		if album.AlbumName == kiosk.FavoriteAlbumName {
 			return album, nil
 		}
 	}
@@ -418,7 +418,7 @@ func (a *Asset) createKioskLikedAlbum() (string, error) {
 	}
 
 	requestBody := AlbumCreateBody{
-		AlbumName:   kiosk.LikedAlbumName,
+		AlbumName:   kiosk.FavoriteAlbumName,
 		Description: "Album for liked assets from Kiosk",
 	}
 
@@ -457,7 +457,7 @@ func (a *Asset) AddToKioskLikedAlbum(requestID, deviceID string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create kiosk liked album: %w", err)
 		}
-		log.Debug(requestID+" Created", "albumName", kiosk.LikedAlbumName, "albumID", album.ID)
+		log.Debug(requestID+" Created", "albumName", kiosk.FavoriteAlbumName, "albumID", album.ID)
 	}
 
 	return a.addAssetToAlbum(album.ID)

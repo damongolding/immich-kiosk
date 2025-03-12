@@ -305,6 +305,8 @@ services:
       KIOSK_SHOW_MORE_INFO: true
       KIOSK_SHOW_MORE_INFO_IMAGE_LINK: true
       KIOSK_SHOW_MORE_INFO_QR_CODE: true
+      # More info actions
+      KIOSK_FAVORITE_BUTTON_ACTION: favorite
       # Kiosk settings
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
@@ -426,6 +428,7 @@ See the file `config.example.yaml` for an example config file
 | show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s)                   |
 | show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay       |
 | show_more_info_qr_code            | KIOSK_SHOW_MORE_INFO_QR_CODE    | bool               | true        | Displays a QR code linking to the original image (in Immich) in the additional information overlay |
+| favorite_button_action            | KIOSK_FAVORITE_BUTTON_ACTION    | []string           | [favorite]  | Action(s) to perform when the favorite button is clicked. Supported actions are [favorite, album]. See [favorite button](#favorite-button) for more information |
 | immich_users_api_keys             | N/A                     | map[string]string          | {}          | key:value mappings of Immich usernames to their corresponding API keys. See [multiple users](#multiple-users) for more information |
 | show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information |
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
@@ -1056,7 +1059,7 @@ Kiosk will display a black screen and can optionally shows a faint clock if `sho
 
 ------
 
-# Custom CSS
+## Custom CSS
 > [!NOTE]
 > Custom CSS is applied after all other styles, allowing you to override any default styles.
 
@@ -1136,6 +1139,7 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
     unit: imperial
     lang: en
 ```
+
 ------
 
 ## Navigation Controls
@@ -1161,6 +1165,35 @@ Kiosk's display is divided into interactive zones:
 | ← Left Arrow  | Previous Image(s)                                        |
 | i Key         | Play/Pause and Toggle Menu and display more info overlay |
 | r Key         | Play/Pause and Toggle Menu and redirects info overlay    |
+
+------
+
+## Favorite button
+Configure how the favorite button should behave.
+
+### Favorite (the default)
+Set asset as a favorite inside of Immich.
+
+Example:
+```yaml
+favorite_button_action: favorite
+```
+
+### Album
+Add asset to a "Kiosk Favorites" albums, which will be created if it doesn't exist.
+
+Example:
+```yaml
+favorite_button_action: album
+```
+
+### Both
+Add asset to both favorite and album
+
+Example:
+```yaml
+favorite_button_action: [favorite, album]
+```
 
 ------
 

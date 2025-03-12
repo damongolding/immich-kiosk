@@ -23,7 +23,10 @@ const (
 	RedirectExternal string = "EXTERNAL"
 	RedirectInternal string = "INTERNAL"
 
-	LikedAlbumName = "Kiosk liked"
+	FavoriteAlbumName = "Kiosk Favorites"
 
 	TagSkip string = "kiosk-skip"
+
+	FavoriteButtonActionFavorite string = "favorite"
+	FavoriteButtonActionAlbum    string = "album"
 )

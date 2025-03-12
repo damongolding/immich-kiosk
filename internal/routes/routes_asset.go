@@ -3,6 +3,7 @@ package routes
 import (
 	"bytes"
 	"net/http"
+	"slices"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -10,6 +11,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	videoComponent "github.com/damongolding/immich-kiosk/internal/templates/components/video"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
@@ -220,17 +222,20 @@ func TagAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 }
 
 // FavouriteAsset returns an echo.HandlerFunc that handles requests to favorite/unfavorite assets.
-// It validates the asset ID parameter and updates the favorite status of the specified asset.
+// It validates the asset ID parameter and updates the favorite status of the specified asset
+// based on the configured favorite button action (either mark as favorite or add to album).
+//
 // Parameters:
-//   - baseConfig: Pointer to the global configuration
-//   - com: Common utility functions and dependencies
-//   - favouriteAsset: Boolean indicating whether to favorite (true) or unfavorite (false) the asset
+//   - baseConfig: Pointer to the global configuration object containing core settings
+//   - com: Common module containing context and utility functions
+//   - favouriteAsset: If true, marks the asset as favorite/adds to album. If false, unfavorites/removes from album
 //
 // Returns:
-//   - An echo.HandlerFunc that processes the favorite/unfavorite request
+//   - An echo.HandlerFunc that processes the favorite/unfavorite request and handles errors
 //   - HTTP 200 with updated like button HTML on success
-//   - HTTP 400 if asset ID is missing
-//   - HTTP 500 if favorite operation fails
+//   - HTTP 400 if required asset ID parameter is missing
+//   - HTTP 500 if favorite/album operations fail
+//   - Fresh like button HTML is returned regardless of success/failure
 func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsset bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -259,27 +264,33 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 		immichAsset := immich.New(com.Context(), requestConfig)
 		immichAsset.ID = assetID
 
-		favouriteErr := immichAsset.FavouriteStatus(favouriteAsset)
-		if favouriteErr != nil {
-			log.Error(requestID+" error favouriting asset", "assetID", assetID, "error", favouriteErr)
-			return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, false))
-		}
-
-		// remove asset data from cache as we've changed its favourite status
-		cacheErr := immichAsset.RemoveAssetCache(requestData.DeviceID)
-		if cacheErr != nil {
-			log.Error(requestID+" error removing asset from cache", "assetID", assetID, "error", cacheErr)
-		}
-
-		if favouriteAsset {
-			addErr := immichAsset.AddToKioskLikedAlbum(requestID, requestData.DeviceID)
-			if addErr != nil {
-				log.Error(requestID+" error adding asset to kiosk liked album", "assetID", assetID, "error", addErr)
+		// Favourite Asset
+		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.FavoriteButtonActionFavorite) {
+			favouriteErr := immichAsset.FavouriteStatus(favouriteAsset)
+			if favouriteErr != nil {
+				log.Error(requestID+" error favouriting asset", "assetID", assetID, "error", favouriteErr)
+				return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, false))
 			}
-		} else {
-			rmErr := immichAsset.RemoveFromKioskLikedAlbum(requestID, requestData.DeviceID)
-			if rmErr != nil {
-				log.Error(requestID+" error removing asset from kiosk liked album", "assetID", assetID, "error", rmErr)
+
+			// remove asset data from cache as we've changed its favourite status
+			cacheErr := immichAsset.RemoveAssetCache(requestData.DeviceID)
+			if cacheErr != nil {
+				log.Error(requestID+" error removing asset from cache", "assetID", assetID, "error", cacheErr)
+			}
+		}
+
+		// add asset to kiosk liked album
+		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.FavoriteButtonActionAlbum) {
+			if favouriteAsset {
+				addErr := immichAsset.AddToKioskLikedAlbum(requestID, requestData.DeviceID)
+				if addErr != nil {
+					log.Error(requestID+" error adding asset to kiosk liked album", "assetID", assetID, "error", addErr)
+				}
+			} else {
+				rmErr := immichAsset.RemoveFromKioskLikedAlbum(requestID, requestData.DeviceID)
+				if rmErr != nil {
+					log.Error(requestID+" error removing asset from kiosk liked album", "assetID", assetID, "error", rmErr)
+				}
 			}
 		}
 
