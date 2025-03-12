@@ -267,15 +267,14 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 		// Favourite Asset
 		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.FavoriteButtonActionFavorite) {
 			favouriteErr := immichAsset.FavouriteStatus(favouriteAsset)
-			if favouriteErr != nil {
+			if favouriteErr == nil {
+				// remove asset data from cache as we've changed its favourite status
+				cacheErr := immichAsset.RemoveAssetCache(requestData.DeviceID)
+				if cacheErr != nil {
+					log.Error(requestID+" error removing asset from cache", "assetID", assetID, "error", cacheErr)
+				}
+			} else {
 				log.Error(requestID+" error favouriting asset", "assetID", assetID, "error", favouriteErr)
-				return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, false))
-			}
-
-			// remove asset data from cache as we've changed its favourite status
-			cacheErr := immichAsset.RemoveAssetCache(requestData.DeviceID)
-			if cacheErr != nil {
-				log.Error(requestID+" error removing asset from cache", "assetID", assetID, "error", cacheErr)
 			}
 		}
 
