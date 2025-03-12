@@ -466,6 +466,8 @@ func (a *Asset) AddToKioskLikedAlbum(requestID, deviceID string) error {
 }
 
 func (a *Asset) RemoveFromKioskLikedAlbum(requestID, deviceID string) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 
 	album, err := a.kioskLikedAlbum(requestID, deviceID)
 	if err != nil {

@@ -342,6 +342,9 @@ func (a *Asset) upsertTag(tag Tag) (Tag, error) {
 //
 // Returns an error if the modification fails.
 func (a *Asset) modifyTagAsset(tag Tag, assetID string, method string, action string) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
 	var response TagAssetsResponse
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
