@@ -281,12 +281,13 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 
 		// add asset to kiosk liked album
 		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.FavoriteButtonActionAlbum) {
-			if favouriteAsset {
+			switch favouriteAsset {
+			case true:
 				addErr := immichAsset.AddToKioskLikedAlbum(requestID, requestData.DeviceID)
 				if addErr != nil {
 					log.Error(requestID+" error adding asset to kiosk liked album", "assetID", assetID, "error", addErr)
 				}
-			} else {
+			case false:
 				rmErr := immichAsset.RemoveFromKioskLikedAlbum(requestID, requestData.DeviceID)
 				if rmErr != nil {
 					log.Error(requestID+" error removing asset from kiosk liked album", "assetID", assetID, "error", rmErr)
