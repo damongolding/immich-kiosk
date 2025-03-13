@@ -299,6 +299,17 @@ type AlbumCreateBody struct {
 	Description string `json:"description,omitempty"`
 }
 
+type UpdateAssetBody struct {
+	DateTimeOriginal string  `json:"dateTimeOriginal,omitempty"`
+	Description      string  `json:"description,omitempty"`
+	IsArchived       bool    `json:"isArchived"`
+	IsFavorite       bool    `json:"isFavorite"`
+	Latitude         float64 `json:"latitude,omitempty"`
+	LivePhotoVideoID string  `json:"livePhotoVideoId,omitempty"`
+	Longitude        float64 `json:"longitude,omitempty"`
+	Rating           int     `json:"rating,omitempty"`
+}
+
 // UserAvatarColor defines model for UserAvatarColor.
 type UserAvatarColor string
 
@@ -332,15 +343,6 @@ type UserResponse struct {
 	UpdatedAt            time.Time       `json:"updatedAt"`
 }
 
-// New returns a new asset instance
-func New(ctx context.Context, base config.Config) Asset {
-	return Asset{
-		requestConfig: base,
-		mu:            &sync.Mutex{},
-		ctx:           ctx,
-	}
-}
-
 type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, error)
 
 type APIResponse interface {
@@ -361,4 +363,13 @@ type APIResponse interface {
 		AlbumCreateResponse |
 		UpsertTagResponse |
 		UserResponse
+}
+
+// New returns a new asset instance
+func New(ctx context.Context, base config.Config) Asset {
+	return Asset{
+		requestConfig: base,
+		mu:            &sync.Mutex{},
+		ctx:           ctx,
+	}
 }

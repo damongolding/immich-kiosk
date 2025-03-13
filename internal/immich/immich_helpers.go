@@ -238,30 +238,42 @@ func (a *Asset) addRatio() {
 	}
 }
 
-// mergeAssetInfo merges additional asset information into the current ImmichAsset.
-// It uses reflection to examine each field of the current asset and if a field
-// has its zero value, it copies the corresponding value from additionalInfo.
-// This allows for selective updating of asset information while preserving
-// existing non-zero values.
+// mergeAssetInfo merges additional asset information into the current Asset.
+// It uses reflection to examine each field of the current asset and updates
+// field values based on the following rules:
+// - For boolean fields: Always copies the value from additionalInfo
+// - For all other fields: Only copies from additionalInfo if the current value is zero
+//
+// This allows for selective updating of asset information while preserving existing
+// non-zero values for most fields, except booleans which are always updated.
 //
 // Parameters:
-//   - additionalInfo: The ImmichAsset containing the additional information to merge
+//   - additionalInfo: The Asset containing the additional information to merge
 //
-// Returns an error if any field in additionalInfo is invalid during the merge process.
+// Returns:
+//   - error: If any field in additionalInfo is invalid during the merge process
 func (a *Asset) mergeAssetInfo(additionalInfo Asset) error {
 	v := reflect.ValueOf(a).Elem()
 	d := reflect.ValueOf(additionalInfo)
 
-	for index := range v.NumField() {
-		field := v.Field(index)
+	for i := range v.NumField() {
+		field := v.Field(i)
 		if !field.CanSet() {
 			continue
 		}
+
+		additionalField := d.Field(i)
+		if !additionalField.IsValid() {
+			return fmt.Errorf("invalid field at index %d", i)
+		}
+
+		if field.Kind() == reflect.Bool {
+			field.Set(additionalField)
+			continue
+		}
+
 		if reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
-			if !d.Field(index).IsValid() {
-				return fmt.Errorf("invalid field at index %d", index)
-			}
-			field.Set(d.Field(index))
+			field.Set(additionalField)
 		}
 	}
 	return nil
@@ -655,4 +667,62 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 	}
 
 	return totalCount, nil
+}
+
+func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	var res Asset
+
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		_, _, err = immichAPIFail(res, err, nil, "")
+		return err
+	}
+
+	apiURL := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   path.Join("api", "assets", a.ID),
+	}
+
+	jsonBody, marshalErr := json.Marshal(requestBody)
+	if marshalErr != nil {
+		return fmt.Errorf("marshaling request body: %w", marshalErr)
+	}
+
+	apiBody, err := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
+	if err != nil {
+		_, _, err = immichAPIFail(res, err, apiBody, apiURL.String())
+		return err
+	}
+
+	err = json.Unmarshal(apiBody, &res)
+	if err != nil {
+		_, _, err = immichAPIFail(res, err, apiBody, apiURL.String())
+		return err
+	}
+
+	// remove asset data from cache as we've changed its data
+	cacheErr := a.RemoveAssetCache(deviceID)
+	if cacheErr != nil {
+		log.Error("error removing asset from cache", "assetID", a.ID, "error", cacheErr)
+	}
+
+	isArchivedBefore, isFavoriteBefore := a.IsArchived, a.IsFavorite
+
+	mergErr := a.mergeAssetInfo(res)
+	if mergErr != nil {
+		log.Error("error merging asset info", "assetID", a.ID, "error", mergErr)
+	}
+
+	log.Info("updateAsset",
+		"\nas befor", fmt.Sprintf("isFavorite:%v, isArchived:%v", isFavoriteBefore, isArchivedBefore),
+		"\nreq body", fmt.Sprintf("isFavorite:%v, isArchived:%v", requestBody.IsFavorite, requestBody.IsArchived),
+		"\nres body", fmt.Sprintf("isFavorite:%v, isArchived:%v", res.IsFavorite, res.IsArchived),
+		"\nas after", fmt.Sprintf("isFavorite:%v, isArchived:%v", a.IsFavorite, a.IsArchived),
+	)
+
+	return nil
 }

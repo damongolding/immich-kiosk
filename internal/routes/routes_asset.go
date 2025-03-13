@@ -2,6 +2,7 @@ package routes
 
 import (
 	"bytes"
+	"errors"
 	"net/http"
 	"slices"
 
@@ -269,18 +270,20 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 
 		immichAsset := immich.New(com.Context(), requestConfig)
 		immichAsset.ID = assetID
+		infoErr := immichAsset.AssetInfo(requestID, requestData.DeviceID)
+		if infoErr != nil {
+			log.Error(requestID+" error getting asset info", "assetID", assetID, "error", infoErr)
+			return infoErr
+		}
+
+		var eg error
 
 		// Favourite Asset
 		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.FavoriteButtonActionFavorite) {
-			favouriteErr := immichAsset.FavouriteStatus(favouriteAsset)
-			if favouriteErr == nil {
-				// remove asset data from cache as we've changed its favourite status
-				cacheErr := immichAsset.RemoveAssetCache(requestData.DeviceID)
-				if cacheErr != nil {
-					log.Error(requestID+" error removing asset from cache", "assetID", assetID, "error", cacheErr)
-				}
-			} else {
+			favouriteErr := immichAsset.FavouriteStatus(requestData.DeviceID, favouriteAsset)
+			if favouriteErr != nil {
 				log.Error(requestID+" error favouriting asset", "assetID", assetID, "error", favouriteErr)
+				eg = errors.Join(eg, favouriteErr)
 			}
 		}
 
@@ -291,13 +294,20 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 				addErr := immichAsset.AddToKioskLikedAlbum(requestID, requestData.DeviceID)
 				if addErr != nil {
 					log.Error(requestID+" error adding asset to kiosk liked album", "assetID", assetID, "error", addErr)
+					eg = errors.Join(eg, addErr)
 				}
 			case false:
 				rmErr := immichAsset.RemoveFromKioskLikedAlbum(requestID, requestData.DeviceID)
 				if rmErr != nil {
 					log.Error(requestID+" error removing asset from kiosk liked album", "assetID", assetID, "error", rmErr)
+					eg = errors.Join(eg, rmErr)
 				}
 			}
+		}
+
+		// handle error
+		if eg != nil {
+			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, !favouriteAsset, true))
 		}
 
 		return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, true))
@@ -349,30 +359,45 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 
 		immichAsset := immich.New(com.Context(), requestConfig)
 		immichAsset.ID = assetID
-
-		tag := immich.Tag{
-			Name: tagName,
+		infoErr := immichAsset.AssetInfo(requestID, requestData.DeviceID)
+		if infoErr != nil {
+			log.Error(requestID+" error getting asset info", "assetID", assetID, "error", infoErr)
+			return infoErr
 		}
 
-		if hideAsset {
-			addTagErr := immichAsset.AddTag(tag)
-			if addTagErr != nil {
-				log.Error(requestID+" error adding tag to asset", "assetID", assetID, "error", addTagErr)
-				return Render(c, http.StatusOK, partials.HideButton(assetID, false))
+		var eg error
+
+		if slices.Contains(requestConfig.HideButtonAction, kiosk.HideButtonActionTag) {
+			tag := immich.Tag{
+				Name: tagName,
 			}
 
-		} else {
-			rmTagErr := immichAsset.RemoveTag(tag)
-			if rmTagErr != nil {
-				log.Error(requestID+" error removing tag from asset", "assetID", assetID, "error", rmTagErr)
-				return Render(c, http.StatusOK, partials.HideButton(assetID, false))
+			switch hideAsset {
+			case true:
+				addTagErr := immichAsset.AddTag(tag)
+				if addTagErr != nil {
+					log.Error(requestID+" error adding tag to asset", "assetID", assetID, "error", addTagErr)
+					eg = errors.Join(eg, addTagErr)
+				}
+			case false:
+				rmTagErr := immichAsset.RemoveTag(tag)
+				if rmTagErr != nil {
+					log.Error(requestID+" error removing tag from asset", "assetID", assetID, "error", rmTagErr)
+					eg = errors.Join(eg, rmTagErr)
+				}
 			}
 		}
 
-		// remove asset data from cache as we've changed its tags
-		cacheErr := immichAsset.RemoveAssetCache(requestData.DeviceID)
-		if cacheErr != nil {
-			log.Error(requestID+" error removing asset from cache", "assetID", assetID, "error", cacheErr)
+		if slices.Contains(requestConfig.HideButtonAction, kiosk.HideButtonActionArchive) {
+			archivedErr := immichAsset.ArchiveStatus(requestData.DeviceID, hideAsset)
+			if archivedErr != nil {
+				log.Error(requestID+" error archiving asset", "assetID", assetID, "error", archivedErr)
+				eg = errors.Join(eg, archivedErr)
+			}
+		}
+
+		if eg != nil {
+			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset))
 		}
 
 		return Render(c, http.StatusOK, partials.HideButton(assetID, hideAsset))

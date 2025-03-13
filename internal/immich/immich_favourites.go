@@ -7,9 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"path"
 	"slices"
-	"strconv"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -180,39 +178,12 @@ func (a *Asset) RandomImageFromFavourites(requestID, deviceID string, _ []AssetT
 	return errors.New("no images found for favourites. Max retries reached")
 }
 
-func (a *Asset) FavouriteStatus(favourite bool) error {
+func (a *Asset) FavouriteStatus(deviceID string, favourite bool) error {
 
-	var response Asset
-
-	u, err := url.Parse(a.requestConfig.ImmichURL)
-	if err != nil {
-		_, _, err = immichAPIFail(response, err, nil, "")
-		log.Error("parsing faces url", "err", err)
-		return err
+	body := UpdateAssetBody{
+		IsFavorite: favourite,
+		IsArchived: a.IsArchived,
 	}
 
-	apiURL := url.URL{
-		Scheme: u.Scheme,
-		Host:   u.Host,
-		Path:   path.Join("api", "assets", a.ID),
-	}
-
-	jsonBody := []byte(`{"isFavorite": ` + strconv.FormatBool(favourite) + `}`)
-
-	apiBody, apiBodyErr := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
-	if apiBodyErr != nil {
-		log.Error("favouriting asset", "err", apiBodyErr)
-		return apiBodyErr
-	}
-
-	err = json.Unmarshal(apiBody, &response)
-	if err != nil {
-		return err
-	}
-
-	if response.IsFavorite != favourite {
-		return errors.New("unable to favourite asset")
-	}
-
-	return nil
+	return a.updateAsset(deviceID, body)
 }

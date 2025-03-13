@@ -232,7 +232,6 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 }
 
 func (a *Asset) HasTag(tagID string) bool {
-
 	_, tagGetErr := a.Tags.Get(tagID)
 	return tagGetErr == nil
 }
@@ -384,6 +383,12 @@ func (a *Asset) modifyTagAsset(tag Tag, assetID string, method string, action st
 
 	if !response[0].Success {
 		return fmt.Errorf("failed to "+action+" tag from asset: %s", response[0].Error)
+	}
+
+	// remove asset data from cache as we've changed its tags
+	cacheErr := a.RemoveAssetCache(a.DeviceID)
+	if cacheErr != nil {
+		log.Error("error removing asset from cache", "assetID", assetID, "error", cacheErr)
 	}
 
 	return nil

@@ -29,4 +29,6 @@ const (
 
 	FavoriteButtonActionFavorite string = "favorite"
 	FavoriteButtonActionAlbum    string = "album"
+	HideButtonActionTag          string = "tag"
+	HideButtonActionArchive      string = "archive"
 )

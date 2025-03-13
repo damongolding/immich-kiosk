@@ -428,9 +428,10 @@ See the file `config.example.yaml` for an example config file
 | show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s)                   |
 | show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay       |
 | show_more_info_qr_code            | KIOSK_SHOW_MORE_INFO_QR_CODE    | bool               | true        | Displays a QR code linking to the original image (in Immich) in the additional information overlay |
-| favorite_button_action            | KIOSK_FAVORITE_BUTTON_ACTION    | []string           | [favorite]  | Action(s) to perform when the favorite button is clicked. Supported actions are [favorite, album]. See [favorite button](#favorite-button) for more information |
-| immich_users_api_keys             | N/A                     | map[string]string          | {}          | key:value mappings of Immich usernames to their corresponding API keys. See [multiple users](#multiple-users) for more information |
-| show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information |
+| favorite_button_action            | KIOSK_FAVORITE_BUTTON_ACTION    | []string           | [favorite]  | Action(s) to perform when the favorite button is clicked. Supported actions are [favorite, album]. See [favorite button](#favorite-button) for more information. |
+| hide_button_action                | KIOSK_HIDE_BUTTON_ACTION        | []string           | [tag]       | Action(s) to perform when the hide button is clicked. Supported actions are [tag, archive]. See [hide button](#hide-button) for more information. |
+| immich_users_api_keys             | N/A                     | map[string]string          | {}          | key:value mappings of Immich usernames to their corresponding API keys. See [multiple users](#multiple-users) for more information. |
+| show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information. |
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
 
 ### Additional options
@@ -1193,6 +1194,35 @@ Add asset to both favorite and album
 Example:
 ```yaml
 favorite_button_action: [favorite, album]
+```
+
+------
+
+## Hide button
+Configure how the hide button should behave.
+
+### Tag (the default)
+Tag asset with the "kiosk-skip" tag.
+
+Example:
+```yaml
+hide_button_action: tag
+```
+
+### Archive
+Set asset as archived inside of Immich.
+
+Example:
+```yaml
+hide_button_action: archive
+```
+
+### Both
+Add tag and archive asset.
+
+Example:
+```yaml
+hide_button_action: [tag, archive]
 ```
 
 ------
