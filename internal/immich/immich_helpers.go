@@ -710,19 +710,10 @@ func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error 
 		log.Error("error removing asset from cache", "assetID", a.ID, "error", cacheErr)
 	}
 
-	isArchivedBefore, isFavoriteBefore := a.IsArchived, a.IsFavorite
-
 	mergErr := a.mergeAssetInfo(res)
 	if mergErr != nil {
 		log.Error("error merging asset info", "assetID", a.ID, "error", mergErr)
 	}
-
-	log.Info("updateAsset",
-		"\nas befor", fmt.Sprintf("isFavorite:%v, isArchived:%v", isFavoriteBefore, isArchivedBefore),
-		"\nreq body", fmt.Sprintf("isFavorite:%v, isArchived:%v", requestBody.IsFavorite, requestBody.IsArchived),
-		"\nres body", fmt.Sprintf("isFavorite:%v, isArchived:%v", res.IsFavorite, res.IsArchived),
-		"\nas after", fmt.Sprintf("isFavorite:%v, isArchived:%v", a.IsFavorite, a.IsArchived),
-	)
 
 	return nil
 }

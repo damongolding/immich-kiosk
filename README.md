@@ -1173,7 +1173,7 @@ Kiosk's display is divided into interactive zones:
 Configure how the favorite button should behave.
 
 ### Favorite (the default)
-Set asset as a favorite inside of Immich.
+Set asset as a favorite inside Immich.
 
 Example:
 ```yaml
@@ -1210,7 +1210,7 @@ hide_button_action: tag
 ```
 
 ### Archive
-Set asset as archived inside of Immich.
+Set asset as archived inside Immich.
 
 Example:
 ```yaml
