@@ -217,6 +217,12 @@ func TagAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError, "unable to add tag")
 		}
 
+		// remove asset data from cache as we've changed its tags
+		cacheErr := immichAsset.RemoveAssetCache(requestData.DeviceID)
+		if cacheErr != nil {
+			log.Error(requestID+" error removing asset from cache", "assetID", assetID, "error", cacheErr)
+		}
+
 		return c.String(http.StatusOK, "SUCCESS")
 	}
 }
