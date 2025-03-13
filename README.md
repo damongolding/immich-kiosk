@@ -307,6 +307,7 @@ services:
       KIOSK_SHOW_MORE_INFO_QR_CODE: true
       # More info actions
       KIOSK_FAVORITE_BUTTON_ACTION: favorite
+      KIOSK_HIDE_BUTTON_ACTION: tag
       # Kiosk settings
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
@@ -1181,7 +1182,7 @@ favorite_button_action: favorite
 ```
 
 ### Album
-Add asset to a "Kiosk Favorites" albums, which will be created if it doesn't exist.
+Add asset to the "Kiosk Favorites" albums, which will be created if it doesn't exist.
 
 Example:
 ```yaml
@@ -1189,7 +1190,7 @@ favorite_button_action: album
 ```
 
 ### Both
-Add asset to both favorite and album
+Set asset as a favorite and add it to the "Kiosk Favorites" album.
 
 Example:
 ```yaml
