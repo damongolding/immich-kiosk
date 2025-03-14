@@ -43,6 +43,7 @@ templ LikeButton(ID string, isFavorite bool, isButtonEnabled bool, secret string
 			hx-trigger="click from:closest .more-info--like-asset"
 			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), webhookSignature(secret), webhook) }
 			hx-include=".kiosk-history--entry"
+			hx-swap="none"
 			style="display: none"
 		></div>
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -82,6 +83,7 @@ templ HideButton(ID string, isHidden bool, secret string) {
 			hx-trigger="click from:closest .more-info--hide-asset"
 			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), webhookSignature(secret), webhook) }
 			hx-include=".kiosk-history--entry"
+			hx-swap="none"
 			style="display: none"
 		></div>
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
