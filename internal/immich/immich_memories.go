@@ -173,6 +173,13 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 			asset.requestConfig = a.requestConfig
 			asset.ctx = a.ctx
 
+			// temp fix for memories not being supplied with EXIF
+			infoErr := asset.AssetInfo(requestID, deviceID)
+			if infoErr != nil {
+				log.Error("failed to get asset info", "error", infoErr)
+				continue
+			}
+
 			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
 				continue
 			}
