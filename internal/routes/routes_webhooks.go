@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -68,7 +69,12 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusForbidden, "Invalid signature")
 		}
 
-		if kioskWebhookEvent == string(webhooks.UserWebhookTriggerInfoOverlay) {
+		switch webhooks.WebhookEvent(kioskWebhookEvent) {
+		case webhooks.UserWebhookTriggerInfoOverlay,
+			webhooks.UserFavoriteInfoOverlay,
+			webhooks.UserUnfavoriteInfoOverlay,
+			webhooks.UserHideInfoOverlay,
+			webhooks.UserUnhideInfoOverlay:
 
 			historyLen := len(requestConfig.History)
 
@@ -92,20 +98,30 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 			for i, imageID := range prevImages {
 
-				g.Go(func() error {
-					image := immich.New(com.Context(), requestConfig)
-					image.ID = imageID
+				parts := strings.Split(imageID, ":")
+				if len(parts) != 2 {
+					return fmt.Errorf("invalid history entry format: %s", imageID)
+				}
 
-					assetInfoErr := image.AssetInfo(requestID, deviceID)
-					if assetInfoErr != nil {
-						log.Error(assetInfoErr)
-					}
+				currentAssetID := parts[0]
 
-					viewData.Assets[i] = common.ViewImageData{
-						ImmichAsset: image,
+				g.Go(func(currentAssetID string) func() error {
+					return func() error {
+						image := immich.New(com.Context(), requestConfig)
+						image.ID = currentAssetID
+
+						assetInfoErr := image.AssetInfo(requestID, deviceID)
+						if assetInfoErr != nil {
+							log.Error(assetInfoErr)
+							return assetInfoErr
+						}
+
+						viewData.Assets[i] = common.ViewImageData{
+							ImmichAsset: image,
+						}
+						return nil
 					}
-					return nil
-				})
+				}(currentAssetID))
 			}
 
 			// Wait for all goroutines to complete and check for errors
@@ -114,10 +130,9 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 				return RenderError(c, errGroupWait, "retrieving image data")
 			}
 
-			go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.UserWebhookTriggerInfoOverlay, viewData)
+			go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.WebhookEvent(kioskWebhookEvent), viewData)
 
 			return c.String(http.StatusOK, "Triggered")
-
 		}
 
 		return c.NoContent(http.StatusNoContent)

@@ -1330,6 +1330,10 @@ To validate webhooks on your server, you should:
 |`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich  |
 |`cache.flushed`                     | Triggered when the cache is manually cleared            |
 |`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
+|`user.favorite.info_overlay`        | Triggered when the "favorite" button is clicked in the image details overlay |
+|`user.unfavorite.info_overlay`      | Triggered when the "unfavorite" button is clicked in the image details overlay |
+|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the image details overlay |
+|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the image details overlay |
 
 ### Webhook Payload
 
