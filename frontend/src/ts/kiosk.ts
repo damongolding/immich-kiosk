@@ -59,6 +59,7 @@ type KioskData = {
   dateFormat: string;
   showTime: boolean;
   timeFormat: TimeFormat;
+  clockSource: "client" | "server";
   transition: string;
   showMoreInfo: boolean;
   showRedirects: boolean;
@@ -123,7 +124,10 @@ async function init(): Promise<void> {
     htmx.logAll();
   }
 
-  if (kioskData.showDate || kioskData.showTime) {
+  if (
+    kioskData.clockSource == "client" &&
+    (kioskData.showDate || kioskData.showTime)
+  ) {
     initClock(
       kioskData.showDate,
       kioskData.dateFormat,
