@@ -133,6 +133,8 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.WebhookEvent(kioskWebhookEvent), viewData)
 
 			return c.String(http.StatusOK, "Triggered")
+		case webhooks.NewAsset, webhooks.PreviousAsset, webhooks.PrefetchAsset, webhooks.CacheFlush:
+			// to stop lint moaning
 		}
 
 		return c.NoContent(http.StatusNoContent)
