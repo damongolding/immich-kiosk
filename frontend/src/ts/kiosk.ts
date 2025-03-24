@@ -7,6 +7,7 @@ import {
 import {
   initPolling,
   startPolling,
+  resumePolling,
   stopPolling,
   togglePolling,
   pausePolling,
@@ -271,16 +272,30 @@ function addEventListeners(): void {
     if (e.target !== document.body) return;
 
     switch (e.code) {
+      case "KeyP":
+        if (!e.shiftKey) {
+          // Regular P
+          e.preventDefault();
+          pausePolling(true);
+        } else {
+          // Shift + P
+          e.preventDefault();
+          resumePolling(true);
+        }
+        break;
+
       case "Space":
         e.preventDefault();
         togglePolling(true);
         break;
+
       case "KeyI":
         if (!kioskData.showMoreInfo) return;
         if (e.ctrlKey || e.metaKey) return;
         e.preventDefault();
         handleInfoKeyPress();
         break;
+
       case "KeyR":
         if (!kioskData.showRedirects) return;
         if (e.ctrlKey || e.metaKey) return;

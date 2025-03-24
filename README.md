@@ -1167,6 +1167,9 @@ Kiosk's display is divided into interactive zones:
 | ← Left Arrow  | Previous Image(s)                                        |
 | i Key         | Play/Pause and Toggle Menu and display more info overlay |
 | r Key         | Play/Pause and Toggle Menu and redirects info overlay    |
+| p Key         | Pause and Toggle Menu and redirects info overlay         |
+| shift+p Key   | Play and Toggle Menu and redirects info overlay          |
+
 
 ------
 
