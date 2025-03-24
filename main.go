@@ -149,7 +149,7 @@ func main() {
 	e.POST("/asset/hide", routes.HideAsset(baseConfig, c, true))
 	e.POST("/asset/unhide", routes.HideAsset(baseConfig, c, false))
 
-	e.GET("/clock", routes.Clock(baseConfig))
+	e.POST("/clock", routes.Clock(baseConfig))
 
 	e.POST("/weather", routes.Weather(baseConfig))
 
