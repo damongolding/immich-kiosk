@@ -96,6 +96,7 @@ type ViewImageData struct {
 // ViewData contains all the data needed to render a view in the application
 type ViewData struct {
 	KioskVersion  string          // KioskVersion contains the current build version of Kiosk
+	RequestID     string          // RequestID contains the unique identifier for the request
 	DeviceID      string          // DeviceID contains the unique identifier for the device
 	Assets        []ViewImageData // Assets contains the collection of assets to display in view
 	Queries       url.Values      // Queries contains the URL query parameters

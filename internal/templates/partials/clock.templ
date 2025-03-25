@@ -47,10 +47,15 @@ templ Clock(requestConfig config.Config) {
 }
 
 // ClockContainer renders a clock html
-templ ClockContainer(theme string) {
+templ ClockContainer(source string, theme string) {
 	<div
 		id="clock"
 		class={ fmt.Sprintf("clock--theme-%s", theme) }
+		if source == "server" {
+			hx-post="/clock"
+			hx-trigger="load, every 15s"
+			hx-swap="innerHTML"
+		}
 	>
 		<div class="clock--date"></div>
 		<div class="clock--time"></div>

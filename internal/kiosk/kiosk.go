@@ -20,5 +20,15 @@ const (
 	LayoutSplitview          string = "splitview"
 	LayoutSplitviewLandscape string = "splitview-landscape"
 
+	RedirectExternal string = "EXTERNAL"
+	RedirectInternal string = "INTERNAL"
+
+	FavoriteAlbumName = "Kiosk Favorites"
+
 	TagSkip string = "kiosk-skip"
+
+	FavoriteButtonActionFavorite string = "favorite"
+	FavoriteButtonActionAlbum    string = "album"
+	HideButtonActionTag          string = "tag"
+	HideButtonActionArchive      string = "archive"
 )

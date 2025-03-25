@@ -3,6 +3,7 @@ package immich
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -18,6 +19,9 @@ import (
 
 type Tags []Tag
 
+// Get retrieves a Tag from the Tags slice by searching for a matching value or ID (case-insensitive).
+// Returns the matching Tag and nil error if found, or empty Tag and error if not found.
+// The tagValue parameter can be either the tag's text value or ID.
 func (t Tags) Get(tagValue string) (Tag, error) {
 
 	tagValue, err := url.PathUnescape(tagValue)
@@ -34,10 +38,13 @@ func (t Tags) Get(tagValue string) (Tag, error) {
 	return Tag{}, fmt.Errorf("tag not found. tag=%s", tagValue)
 }
 
-func (i *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
+// AllTags retrieves all tags from the Immich API.
+// It returns the list of tags, the API URL used, and any error encountered.
+// The requestID and deviceID are used for caching and logging purposes.
+func (a *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
 	var tags []Tag
 
-	u, err := url.Parse(i.requestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		return immichAPIFail(tags, err, nil, "")
 	}
@@ -48,8 +55,8 @@ func (i *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
 		Path:   path.Join("api", "tags"),
 	}
 
-	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, tags)
-	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, tags)
+	body, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(tags, err, body, apiURL.String())
 	}
@@ -62,11 +69,14 @@ func (i *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
 	return tags, apiURL.String(), nil
 }
 
-func (i *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (int, error) {
+// AssetsWithTagCount returns the total number of assets that have the specified tag.
+// The tagID parameter is the unique identifier of the tag to count assets for.
+// The requestID and deviceID are used for caching and logging purposes.
+func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (int, error) {
 
 	var allAssetsCount int
 
-	u, err := url.Parse(i.requestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(allAssetsCount, err, nil, "")
 		return allAssetsCount, err
@@ -77,25 +87,29 @@ func (i *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 		TagIDs:     []string{tagID},
 		WithPeople: false,
 		WithExif:   false,
-		Size:       i.requestConfig.Kiosk.FetchedAssetsSize,
+		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
-	if i.requestConfig.ShowArchived {
+	if a.requestConfig.ShowArchived {
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, i.requestConfig.DateFilter)
+	DateFilter(&requestBody, a.requestConfig.DateFilter)
 
-	allAssetsCount, err = i.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
+	allAssetsCount, err = a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 
 	return allAssetsCount, err
 }
 
-func (i *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset, string, error) {
+// AssetsWithTag retrieves assets that have the specified tag from the Immich API.
+// The tagID parameter is the unique identifier of the tag to find assets for.
+// The requestID and deviceID are used for caching and logging purposes.
+// It returns the list of assets, the API URL used, and any error encountered.
+func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset, string, error) {
 
 	var immichAssets []Asset
 
-	u, err := url.Parse(i.requestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		return immichAPIFail(immichAssets, err, nil, "")
 	}
@@ -105,14 +119,14 @@ func (i *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 		TagIDs:     []string{tagID},
 		WithExif:   true,
 		WithPeople: true,
-		Size:       i.requestConfig.Kiosk.FetchedAssetsSize,
+		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
-	if i.requestConfig.ShowArchived {
+	if a.requestConfig.ShowArchived {
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, i.requestConfig.DateFilter)
+	DateFilter(&requestBody, a.requestConfig.DateFilter)
 
 	// convert body to queries so url is unique and can be cached
 	queries, _ := query.Values(requestBody)
@@ -129,8 +143,8 @@ func (i *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}
 
-	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
-	apiBody, err := immichAPICall(i.ctx, http.MethodPost, apiURL.String(), jsonBody)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
+	apiBody, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 	if err != nil {
 		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}
@@ -143,7 +157,12 @@ func (i *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 	return immichAssets, apiURL.String(), nil
 }
 
-func (i *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isPrefetch bool) error {
+// RandomAssetWithTag selects a random asset that has the specified tag.
+// The tagID parameter is the unique identifier of the tag to find assets for.
+// The requestID and deviceID are used for caching and logging purposes.
+// The isPrefetch parameter indicates if this is a prefetch request.
+// The method updates the receiver Asset with the randomly selected asset's data.
+func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image with tag", tagID)
@@ -153,18 +172,18 @@ func (i *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 
 	for range MaxRetries {
 
-		immichAssets, apiURL, err := i.AssetsWithTag(tagID, requestID, deviceID)
+		immichAssets, apiURL, err := a.AssetsWithTag(tagID, requestID, deviceID)
 		if err != nil {
 			return err
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL, deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
 			cache.Delete(apiCacheKey)
 
-			immichAssetsRetry, _, retryErr := i.AssetsWithTag(tagID, requestID, deviceID)
+			immichAssetsRetry, _, retryErr := a.AssetsWithTag(tagID, requestID, deviceID)
 			if retryErr != nil || len(immichAssetsRetry) == 0 {
 				return fmt.Errorf("no assets found with tag %s after refresh", tagID)
 			}
@@ -175,14 +194,14 @@ func (i *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourceTag
-			asset.requestConfig = i.requestConfig
-			asset.ctx = i.ctx
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
 				continue
 			}
 
-			if i.requestConfig.Kiosk.Cache {
+			if a.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
@@ -200,7 +219,7 @@ func (i *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 
 			asset.BucketID = tagID
 
-			*i = asset
+			*a = asset
 
 			return nil
 		}
@@ -210,4 +229,189 @@ func (i *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 	}
 
 	return fmt.Errorf("no images found for '%s'. Max retries reached", tagID)
+}
+
+func (a *Asset) HasTag(tagID string) bool {
+	_, tagGetErr := a.Tags.Get(tagID)
+	return tagGetErr == nil
+}
+
+// AddTag adds a tag to the asset. If the tag doesn't exist, it will be created first.
+// It first checks if the tag exists by calling AllTags. If not found, it creates the tag
+// via upsertTag. Finally it associates the tag with the asset.
+func (a *Asset) AddTag(tag Tag) error {
+	tags, _, tagsError := a.AllTags("", "")
+	if tagsError != nil {
+		return tagsError
+	}
+
+	foundTag, tagGetErr := tags.Get(tag.Name)
+	if tagGetErr != nil {
+		createdTag, createdTagErr := a.upsertTag(tag)
+		if createdTagErr != nil {
+			return createdTagErr
+		}
+
+		foundTag = createdTag
+	}
+
+	return a.addTagToAsset(foundTag, a.ID)
+}
+
+func (a *Asset) RemoveTag(tag Tag) error {
+	tags, _, tagsError := a.AllTags("", "")
+	if tagsError != nil {
+		return tagsError
+	}
+
+	foundTag, tagGetErr := tags.Get(tag.Name)
+	if tagGetErr != nil {
+		createdTag, createdTagErr := a.upsertTag(tag)
+		if createdTagErr != nil {
+			return createdTagErr
+		}
+
+		foundTag = createdTag
+	}
+
+	return a.removeTagFromAsset(foundTag, a.ID)
+}
+
+// upsertTag creates a new tag in the Immich system if it doesn't already exist.
+// It makes a PUT request to the tags API endpoint with the tag name.
+// Returns the created/existing tag and any error encountered.
+func (a *Asset) upsertTag(tag Tag) (Tag, error) {
+
+	var response UpsertTagResponse
+	var createdTag Tag
+
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		return createdTag, fmt.Errorf("parsing url: %w", err)
+	}
+
+	requestBody := UpsertTagBody{
+		Tags: []string{tag.Name},
+	}
+
+	apiURL := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   "api/tags",
+	}
+
+	jsonBody, marshalErr := json.Marshal(requestBody)
+	if marshalErr != nil {
+		return createdTag, fmt.Errorf("marshaling request body: %w", marshalErr)
+	}
+
+	apiBody, resErr := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
+	if resErr != nil {
+		log.Error("Failed to add tag to asset", "error", resErr)
+		return createdTag, resErr
+	}
+
+	err = json.Unmarshal(apiBody, &response)
+	if err != nil {
+		_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
+		return createdTag, err
+	}
+
+	if len(response) == 0 || (len(response) > 0 && response[0].ID == "") {
+		log.Error("failed to create tag", "response", response, "error", err)
+		return createdTag, errors.New("failed to create tag")
+	}
+
+	createdTag = Tag{
+		ID:    response[0].ID,
+		Name:  response[0].Name,
+		Value: response[0].Value,
+	}
+
+	return createdTag, nil
+}
+
+// modifyTagAsset performs a tag modification operation on an asset in the Immich system.
+// It makes an HTTP request to modify the association between a tag and an asset.
+// Parameters:
+//   - tag: The Tag object containing the tag information
+//   - assetID: The ID of the asset to modify
+//   - method: The HTTP method to use (PUT for add, DELETE for remove)
+//   - action: Description of the action being performed for error messages
+//
+// Returns an error if the modification fails.
+func (a *Asset) modifyTagAsset(tag Tag, assetID string, method string, action string) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	var response TagAssetsResponse
+
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		return fmt.Errorf("parsing url: %w", err)
+	}
+
+	requestBody := TagAssetsBody{
+		IDs: []string{assetID},
+	}
+
+	apiURL := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   path.Join("api", "tags", tag.ID, "assets"),
+	}
+
+	jsonBody, marshalErr := json.Marshal(requestBody)
+	if marshalErr != nil {
+		return fmt.Errorf("marshaling request body: %w", marshalErr)
+	}
+
+	apiBody, resErr := a.immichAPICall(a.ctx, method, apiURL.String(), jsonBody)
+	if resErr != nil {
+		log.Error("Failed to "+action+" tag to asset", "error", resErr)
+	}
+
+	err = json.Unmarshal(apiBody, &response)
+	if err != nil {
+		_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
+		return err
+	}
+
+	if len(response) == 0 {
+		return fmt.Errorf("failed to "+action+" tag from asset: %s", tag.ID)
+	}
+
+	if !response[0].Success {
+		return fmt.Errorf("failed to "+action+" tag from asset: %s", response[0].Error)
+	}
+
+	// remove asset data from cache as we've changed its tags
+	cacheErr := a.RemoveAssetCache(a.DeviceID)
+	if cacheErr != nil {
+		log.Error("error removing asset from cache", "assetID", assetID, "error", cacheErr)
+	}
+
+	return nil
+}
+
+// addTagToAsset associates a tag with an asset in the Immich system.
+// It makes a PUT request to associate the tag ID with the asset ID.
+// Parameters:
+//   - tag: The Tag object to associate with the asset
+//   - assetID: The ID of the asset to tag
+//
+// Returns an error if the association fails.
+func (a *Asset) addTagToAsset(tag Tag, assetID string) error {
+	return a.modifyTagAsset(tag, assetID, http.MethodPut, "add")
+}
+
+// removeTagFromAsset removes a tag association from an asset in the Immich system.
+// It makes a DELETE request to remove the association between the tag ID and asset ID.
+// Parameters:
+//   - tag: The Tag object to remove from the asset
+//   - assetID: The ID of the asset to remove the tag from
+//
+// Returns an error if the removal fails.
+func (a *Asset) removeTagFromAsset(tag Tag, assetID string) error {
+	return a.modifyTagAsset(tag, assetID, http.MethodDelete, "remove")
 }

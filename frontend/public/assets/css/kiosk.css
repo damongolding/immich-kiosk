@@ -4,6 +4,9 @@
   --cool-grey: #333460;
   --mint-green: #1ed2bb;
   --yellow: #e7e65f;
+  --pink: #de475a;
+  --vibrant-pink: #ff6578;
+  --red: #da2038;
   --z-below: -1;
   --z-base: 0;
   --z-clock: 100;
@@ -675,6 +678,8 @@ form {
     border-radius: 100rem;
     font-size: 0.8rem;
   }
+.more-info--like-asset,
+.more-info--hide-asset,
 .more-info--webhook,
 .more-info--image-link {
   font-family:
@@ -697,9 +702,193 @@ form {
   transition: filter 0.2s ease;
   transition: filter 0.2s ease, -webkit-filter 0.2s ease;
 }
-.more-info--webhook:hover, .more-info--image-link:hover {
+.more-info--like-asset:hover, .more-info--hide-asset:hover, .more-info--webhook:hover, .more-info--image-link:hover {
     -webkit-filter: brightness(85%);
             filter: brightness(85%);
+  }
+.more-info--hide-asset.hidden,
+.more-info--hide-asset:hover {
+  background-color: var(--red);
+}
+.more-info--hide-asset.hidden svg, .more-info--hide-asset:hover svg {
+    fill: #6c010f;
+  }
+.more-info--like-asset:hover {
+  background-color: var(--pink);
+}
+.more-info--like-asset:hover svg {
+    fill: #63030f;
+  }
+.more-info--like-asset {
+  position: relative;
+}
+.more-info--like-asset.is-liked {
+    background-color: var(--vibrant-pink);
+    -moz-animation: like-grow 750ms ease-in-out forwards;
+         animation: like-grow 750ms ease-in-out forwards;
+  }
+.more-info--like-asset.is-liked svg {
+      fill: #63030f;
+      width: 13.94%;
+      height: 13.94%;
+      -moz-transform-origin: center;
+       -ms-transform-origin: center;
+           transform-origin: center;
+      -moz-animation: like-animation 1500ms linear forwards;
+           animation: like-animation 1500ms linear forwards;
+      overflow: visible;
+    }
+.more-info--like-asset .liked {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+.more-info--like-asset .liked div {
+      position: absolute;
+      width: 0.25rem;
+      height: 100%;
+      bottom: 50%;
+      left: 50%;
+    }
+.more-info--like-asset .liked div:after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 0%;
+        bottom: 0;
+        background-color: var(--vibrant-pink);
+        border-radius: 100rem;
+        -moz-animation: like-shine 0.5s linear forwards;
+             animation: like-shine 0.5s linear forwards;
+      }
+.more-info--like-asset .liked div:nth-child(1) {
+        -moz-transform: translate(-50%) rotate(0deg);
+         -ms-transform: translate(-50%) rotate(0deg);
+             transform: translate(-50%) rotate(0deg);
+        -moz-transform-origin: center bottom;
+         -ms-transform-origin: center bottom;
+             transform-origin: center bottom;
+      }
+.more-info--like-asset .liked div:nth-child(2) {
+        -moz-transform: translate(-50%) rotate(45deg);
+         -ms-transform: translate(-50%) rotate(45deg);
+             transform: translate(-50%) rotate(45deg);
+        -moz-transform-origin: center bottom;
+         -ms-transform-origin: center bottom;
+             transform-origin: center bottom;
+      }
+.more-info--like-asset .liked div:nth-child(3) {
+        -moz-transform: translate(-50%) rotate(90deg);
+         -ms-transform: translate(-50%) rotate(90deg);
+             transform: translate(-50%) rotate(90deg);
+        -moz-transform-origin: center bottom;
+         -ms-transform-origin: center bottom;
+             transform-origin: center bottom;
+      }
+.more-info--like-asset .liked div:nth-child(4) {
+        -moz-transform: translate(-50%) rotate(135deg);
+         -ms-transform: translate(-50%) rotate(135deg);
+             transform: translate(-50%) rotate(135deg);
+        -moz-transform-origin: center bottom;
+         -ms-transform-origin: center bottom;
+             transform-origin: center bottom;
+      }
+.more-info--like-asset .liked div:nth-child(5) {
+        -moz-transform: translate(-50%) rotate(180deg);
+         -ms-transform: translate(-50%) rotate(180deg);
+             transform: translate(-50%) rotate(180deg);
+        -moz-transform-origin: center bottom;
+         -ms-transform-origin: center bottom;
+             transform-origin: center bottom;
+      }
+.more-info--like-asset .liked div:nth-child(6) {
+        -moz-transform: translate(-50%) rotate(225deg);
+         -ms-transform: translate(-50%) rotate(225deg);
+             transform: translate(-50%) rotate(225deg);
+        -moz-transform-origin: center bottom;
+         -ms-transform-origin: center bottom;
+             transform-origin: center bottom;
+      }
+.more-info--like-asset .liked div:nth-child(7) {
+        -moz-transform: translate(-50%) rotate(270deg);
+         -ms-transform: translate(-50%) rotate(270deg);
+             transform: translate(-50%) rotate(270deg);
+        -moz-transform-origin: center bottom;
+         -ms-transform-origin: center bottom;
+             transform-origin: center bottom;
+      }
+.more-info--like-asset .liked div:nth-child(8) {
+        -moz-transform: translate(-50%) rotate(315deg);
+         -ms-transform: translate(-50%) rotate(315deg);
+             transform: translate(-50%) rotate(315deg);
+        -moz-transform-origin: center bottom;
+         -ms-transform-origin: center bottom;
+             transform-origin: center bottom;
+      }
+@-moz-keyframes like-shine {
+  0% {
+    bottom: 60%;
+    height: 0;
+  }
+  25% {
+    bottom: 60%;
+    height: 20%;
+  }
+  65% {
+    bottom: 70%;
+    height: 20%;
+  }
+  100% {
+    bottom: 100%;
+    height: 0;
+  }
+}
+@keyframes like-shine {
+  0% {
+    bottom: 60%;
+    height: 0;
+  }
+  25% {
+    bottom: 60%;
+    height: 20%;
+  }
+  65% {
+    bottom: 70%;
+    height: 20%;
+  }
+  100% {
+    bottom: 100%;
+    height: 0;
+  }
+}
+.more-info--like-asset,
+.more-info--hide-asset {
+  display: -moz-box;
+  display: flex;
+  align-content: center;
+  -moz-box-pack: center;
+       justify-content: center;
+  -moz-box-align: center;
+       align-items: center;
+  padding: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 100rem;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.more-info--like-asset svg, .more-info--hide-asset svg {
+    height: 1.3rem;
+    fill: #fff;
+  }
+.more-info--like-asset:disabled, .more-info--hide-asset:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    -webkit-filter: grayscale(1);
+            filter: grayscale(1);
+  }
+.more-info--like-asset span, .more-info--hide-asset span {
+    display: none;
   }
 .frameless.more-info #more-info {
     padding: 0;
@@ -707,6 +896,846 @@ form {
 .frameless.more-info #more-info .more-info--image {
       border-radius: 0;
     }
+@-moz-keyframes like-grow {
+  0% {
+    -moz-transform: scale(1);
+         transform: scale(1);
+  }
+  25% {
+    -moz-transform: scale(1.1);
+         transform: scale(1.1);
+  }
+  100% {
+    -moz-transform: scale(1);
+         transform: scale(1);
+  }
+}
+@keyframes like-grow {
+  0% {
+    -moz-transform: scale(1);
+         transform: scale(1);
+  }
+  25% {
+    -moz-transform: scale(1.1);
+         transform: scale(1.1);
+  }
+  100% {
+    -moz-transform: scale(1);
+         transform: scale(1);
+  }
+}
+@-moz-keyframes like-animation {
+  0% {
+    -moz-transform: scale(1);
+         transform: scale(1);
+  }
+  1% {
+    -moz-transform: scale(1.2108740964475049);
+         transform: scale(1.2108740964475049);
+  }
+  2% {
+    -moz-transform: scale(1.4390689854115075);
+         transform: scale(1.4390689854115075);
+  }
+  3% {
+    -moz-transform: scale(1.678167691045959);
+         transform: scale(1.678167691045959);
+  }
+  4% {
+    -moz-transform: scale(1.9221360318547167);
+         transform: scale(1.9221360318547167);
+  }
+  5% {
+    -moz-transform: scale(2.1654122918198286);
+         transform: scale(2.1654122918198286);
+  }
+  6% {
+    -moz-transform: scale(2.402978484884046);
+         transform: scale(2.402978484884046);
+  }
+  7% {
+    -moz-transform: scale(2.6304134751676433);
+         transform: scale(2.6304134751676433);
+  }
+  8% {
+    -moz-transform: scale(2.8439285694992313);
+         transform: scale(2.8439285694992313);
+  }
+  9% {
+    -moz-transform: scale(3.040386506448336);
+         transform: scale(3.040386506448336);
+  }
+  10% {
+    -moz-transform: scale(3.2173050250697126);
+         transform: scale(3.2173050250697126);
+  }
+  11% {
+    -moz-transform: scale(3.3728464062162864);
+         transform: scale(3.3728464062162864);
+  }
+  12% {
+    -moz-transform: scale(3.505794539866897);
+         transform: scale(3.505794539866897);
+  }
+  13% {
+    -moz-transform: scale(3.6155211847591624);
+         transform: scale(3.6155211847591624);
+  }
+  14% {
+    -moz-transform: scale(3.7019431539022585);
+         transform: scale(3.7019431539022585);
+  }
+  15% {
+    -moz-transform: scale(3.765472184198641);
+         transform: scale(3.765472184198641);
+  }
+  16% {
+    -moz-transform: scale(3.8069592339693714);
+         transform: scale(3.8069592339693714);
+  }
+  17% {
+    -moz-transform: scale(3.8276349026761656);
+         transform: scale(3.8276349026761656);
+  }
+  18% {
+    -moz-transform: scale(3.8290475869360363);
+         transform: scale(3.8290475869360363);
+  }
+  19% {
+    -moz-transform: scale(3.813000880628535);
+         transform: scale(3.813000880628535);
+  }
+  20% {
+    -moz-transform: scale(3.7814915992059572);
+         transform: scale(3.7814915992059572);
+  }
+  21% {
+    -moz-transform: scale(3.7366496639377917);
+         transform: scale(3.7366496639377917);
+  }
+  22% {
+    -moz-transform: scale(3.6806809253574744);
+         transform: scale(3.6806809253574744);
+  }
+  23% {
+    -moz-transform: scale(3.615813841051833);
+         transform: scale(3.615813841051833);
+  }
+  24% {
+    -moz-transform: scale(3.544250755300671);
+         transform: scale(3.544250755300671);
+  }
+  25% {
+    -moz-transform: scale(3.468124360772389);
+         transform: scale(3.468124360772389);
+  }
+  26% {
+    -moz-transform: scale(3.389459758976075);
+         transform: scale(3.389459758976075);
+  }
+  27% {
+    -moz-transform: scale(3.3101423795165985);
+         transform: scale(3.3101423795165985);
+  }
+  28% {
+    -moz-transform: scale(3.2318918710187186);
+         transform: scale(3.2318918710187186);
+  }
+  29% {
+    -moz-transform: scale(3.1562419410530844);
+         transform: scale(3.1562419410530844);
+  }
+  30% {
+    -moz-transform: scale(3.084526000235292);
+         transform: scale(3.084526000235292);
+  }
+  31% {
+    -moz-transform: scale(3.0178683581592014);
+         transform: scale(3.0178683581592014);
+  }
+  32% {
+    -moz-transform: scale(2.9571806268199072);
+         transform: scale(2.9571806268199072);
+  }
+  33% {
+    -moz-transform: scale(2.903162911127388);
+         transform: scale(2.903162911127388);
+  }
+  34% {
+    -moz-transform: scale(2.8563093060802625);
+         transform: scale(2.8563093060802625);
+  }
+  35% {
+    -moz-transform: scale(2.816917175890003);
+         transform: scale(2.816917175890003);
+  }
+  36% {
+    -moz-transform: scale(2.7850996612456766);
+         transform: scale(2.7850996612456766);
+  }
+  37% {
+    -moz-transform: scale(2.760800846151463);
+         transform: scale(2.760800846151463);
+  }
+  38% {
+    -moz-transform: scale(2.743813014297351);
+         transform: scale(2.743813014297351);
+  }
+  39% {
+    -moz-transform: scale(2.733795435504021);
+         transform: scale(2.733795435504021);
+  }
+  40% {
+    -moz-transform: scale(2.7302941440478534);
+         transform: scale(2.7302941440478534);
+  }
+  41% {
+    -moz-transform: scale(2.7327622011602313);
+         transform: scale(2.7327622011602313);
+  }
+  42% {
+    -moz-transform: scale(2.7405799721918878);
+         transform: scale(2.7405799721918878);
+  }
+  43% {
+    -moz-transform: scale(2.753074993306317);
+         transform: scale(2.753074993306317);
+  }
+  44% {
+    -moz-transform: scale(2.769541051601073);
+         transform: scale(2.769541051601073);
+  }
+  45% {
+    -moz-transform: scale(2.7892561547838755);
+         transform: scale(2.7892561547838755);
+  }
+  46% {
+    -moz-transform: scale(2.8114991205564888);
+         transform: scale(2.8114991205564888);
+  }
+  47% {
+    -moz-transform: scale(2.835564570383203);
+         transform: scale(2.835564570383203);
+  }
+  48% {
+    -moz-transform: scale(2.860776166155733);
+         transform: scale(2.860776166155733);
+  }
+  49% {
+    -moz-transform: scale(2.8864979803528863);
+         transform: scale(2.8864979803528863);
+  }
+  50% {
+    -moz-transform: scale(2.9121439397094564);
+         transform: scale(2.9121439397094564);
+  }
+  51% {
+    -moz-transform: scale(2.93718532837586);
+         transform: scale(2.93718532837586);
+  }
+  52% {
+    -moz-transform: scale(2.9611563784357093);
+         transform: scale(2.9611563784357093);
+  }
+  53% {
+    -moz-transform: scale(2.983658012965878);
+         transform: scale(2.983658012965878);
+  }
+  54% {
+    -moz-transform: scale(3.004359839227585);
+         transform: scale(3.004359839227585);
+  }
+  55% {
+    -moz-transform: scale(3.023000516858011);
+         transform: scale(3.023000516858011);
+  }
+  56% {
+    -moz-transform: scale(3.0393866480073117);
+         transform: scale(3.0393866480073117);
+  }
+  57% {
+    -moz-transform: scale(3.053390353269819);
+         transform: scale(3.053390353269819);
+  }
+  58% {
+    -moz-transform: scale(3.064945709129413);
+         transform: scale(3.064945709129413);
+  }
+  59% {
+    -moz-transform: scale(3.0740442297085337);
+         transform: scale(3.0740442297085337);
+  }
+  60% {
+    -moz-transform: scale(3.0807295781871398);
+         transform: scale(3.0807295781871398);
+  }
+  61% {
+    -moz-transform: scale(3.0850916917159275);
+         transform: scale(3.0850916917159275);
+  }
+  62% {
+    -moz-transform: scale(3.0872604984113563);
+         transform: scale(3.0872604984113563);
+  }
+  63% {
+    -moz-transform: scale(3.08739939654963);
+         transform: scale(3.08739939654963);
+  }
+  64% {
+    -moz-transform: scale(3.0856986548574223);
+         transform: scale(3.0856986548574223);
+  }
+  65% {
+    -moz-transform: scale(3.0823688793248762);
+         transform: scale(3.0823688793248762);
+  }
+  66% {
+    -moz-transform: scale(3.0776346767372034);
+         transform: scale(3.0776346767372034);
+  }
+  67% {
+    -moz-transform: scale(3.0717286286204843);
+         transform: scale(3.0717286286204843);
+  }
+  68% {
+    -moz-transform: scale(3.0648856719908237);
+         transform: scale(3.0648856719908237);
+  }
+  69% {
+    -moz-transform: scale(3.0573379656222675);
+         transform: scale(3.0573379656222675);
+  }
+  70% {
+    -moz-transform: scale(3.049310302912009);
+         transform: scale(3.049310302912009);
+  }
+  71% {
+    -moz-transform: scale(3.0410161151865607);
+         transform: scale(3.0410161151865607);
+  }
+  72% {
+    -moz-transform: scale(3.032654092781601);
+         transform: scale(3.032654092781601);
+  }
+  73% {
+    -moz-transform: scale(3.024405435717262);
+         transform: scale(3.024405435717262);
+  }
+  74% {
+    -moz-transform: scale(3.016431731508736);
+         transform: scale(3.016431731508736);
+  }
+  75% {
+    -moz-transform: scale(3.0088734447806624);
+         transform: scale(3.0088734447806624);
+  }
+  76% {
+    -moz-transform: scale(3.0018489920276297);
+         transform: scale(3.0018489920276297);
+  }
+  77% {
+    -moz-transform: scale(2.9954543651718986);
+         transform: scale(2.9954543651718986);
+  }
+  78% {
+    -moz-transform: scale(2.9897632595600587);
+         transform: scale(2.9897632595600587);
+  }
+  79% {
+    -moz-transform: scale(2.9848276557201054);
+         transform: scale(2.9848276557201054);
+  }
+  80% {
+    -moz-transform: scale(2.9806787995407014);
+         transform: scale(2.9806787995407014);
+  }
+  81% {
+    -moz-transform: scale(2.977328522474523);
+         transform: scale(2.977328522474523);
+  }
+  82% {
+    -moz-transform: scale(2.9747708418192795);
+         transform: scale(2.9747708418192795);
+  }
+  83% {
+    -moz-transform: scale(2.9729837809817354);
+         transform: scale(2.9729837809817354);
+  }
+  84% {
+    -moz-transform: scale(2.9719313507517775);
+         transform: scale(2.9719313507517775);
+  }
+  85% {
+    -moz-transform: scale(2.971565634860866);
+         transform: scale(2.971565634860866);
+  }
+  86% {
+    -moz-transform: scale(2.9718289263181146);
+         transform: scale(2.9718289263181146);
+  }
+  87% {
+    -moz-transform: scale(2.9726558650479498);
+         transform: scale(2.9726558650479498);
+  }
+  88% {
+    -moz-transform: scale(2.9739755320343826);
+         transform: scale(2.9739755320343826);
+  }
+  89% {
+    -moz-transform: scale(2.975713460348617);
+         transform: scale(2.975713460348617);
+  }
+  90% {
+    -moz-transform: scale(2.9777935289443036);
+         transform: scale(2.9777935289443036);
+  }
+  91% {
+    -moz-transform: scale(2.9801397108011347);
+         transform: scale(2.9801397108011347);
+  }
+  92% {
+    -moz-transform: scale(2.9826776527456884);
+         transform: scale(2.9826776527456884);
+  }
+  93% {
+    -moz-transform: scale(2.9853360699533464);
+         transform: scale(2.9853360699533464);
+  }
+  94% {
+    -moz-transform: scale(2.988047943625247);
+         transform: scale(2.988047943625247);
+  }
+  95% {
+    -moz-transform: scale(2.990751515542267);
+         transform: scale(2.990751515542267);
+  }
+  96% {
+    -moz-transform: scale(2.9933910780421313);
+         transform: scale(2.9933910780421313);
+  }
+  97% {
+    -moz-transform: scale(2.9959175623792387);
+         transform: scale(2.9959175623792387);
+  }
+  98% {
+    -moz-transform: scale(2.998288932358408);
+         transform: scale(2.998288932358408);
+  }
+  99% {
+    -moz-transform: scale(3.0004703935472623);
+         transform: scale(3.0004703935472623);
+  }
+  100% {
+    -moz-transform: scale(3.0024344312452595);
+         transform: scale(3.0024344312452595);
+  }
+}
+@keyframes like-animation {
+  0% {
+    -moz-transform: scale(1);
+         transform: scale(1);
+  }
+  1% {
+    -moz-transform: scale(1.2108740964475049);
+         transform: scale(1.2108740964475049);
+  }
+  2% {
+    -moz-transform: scale(1.4390689854115075);
+         transform: scale(1.4390689854115075);
+  }
+  3% {
+    -moz-transform: scale(1.678167691045959);
+         transform: scale(1.678167691045959);
+  }
+  4% {
+    -moz-transform: scale(1.9221360318547167);
+         transform: scale(1.9221360318547167);
+  }
+  5% {
+    -moz-transform: scale(2.1654122918198286);
+         transform: scale(2.1654122918198286);
+  }
+  6% {
+    -moz-transform: scale(2.402978484884046);
+         transform: scale(2.402978484884046);
+  }
+  7% {
+    -moz-transform: scale(2.6304134751676433);
+         transform: scale(2.6304134751676433);
+  }
+  8% {
+    -moz-transform: scale(2.8439285694992313);
+         transform: scale(2.8439285694992313);
+  }
+  9% {
+    -moz-transform: scale(3.040386506448336);
+         transform: scale(3.040386506448336);
+  }
+  10% {
+    -moz-transform: scale(3.2173050250697126);
+         transform: scale(3.2173050250697126);
+  }
+  11% {
+    -moz-transform: scale(3.3728464062162864);
+         transform: scale(3.3728464062162864);
+  }
+  12% {
+    -moz-transform: scale(3.505794539866897);
+         transform: scale(3.505794539866897);
+  }
+  13% {
+    -moz-transform: scale(3.6155211847591624);
+         transform: scale(3.6155211847591624);
+  }
+  14% {
+    -moz-transform: scale(3.7019431539022585);
+         transform: scale(3.7019431539022585);
+  }
+  15% {
+    -moz-transform: scale(3.765472184198641);
+         transform: scale(3.765472184198641);
+  }
+  16% {
+    -moz-transform: scale(3.8069592339693714);
+         transform: scale(3.8069592339693714);
+  }
+  17% {
+    -moz-transform: scale(3.8276349026761656);
+         transform: scale(3.8276349026761656);
+  }
+  18% {
+    -moz-transform: scale(3.8290475869360363);
+         transform: scale(3.8290475869360363);
+  }
+  19% {
+    -moz-transform: scale(3.813000880628535);
+         transform: scale(3.813000880628535);
+  }
+  20% {
+    -moz-transform: scale(3.7814915992059572);
+         transform: scale(3.7814915992059572);
+  }
+  21% {
+    -moz-transform: scale(3.7366496639377917);
+         transform: scale(3.7366496639377917);
+  }
+  22% {
+    -moz-transform: scale(3.6806809253574744);
+         transform: scale(3.6806809253574744);
+  }
+  23% {
+    -moz-transform: scale(3.615813841051833);
+         transform: scale(3.615813841051833);
+  }
+  24% {
+    -moz-transform: scale(3.544250755300671);
+         transform: scale(3.544250755300671);
+  }
+  25% {
+    -moz-transform: scale(3.468124360772389);
+         transform: scale(3.468124360772389);
+  }
+  26% {
+    -moz-transform: scale(3.389459758976075);
+         transform: scale(3.389459758976075);
+  }
+  27% {
+    -moz-transform: scale(3.3101423795165985);
+         transform: scale(3.3101423795165985);
+  }
+  28% {
+    -moz-transform: scale(3.2318918710187186);
+         transform: scale(3.2318918710187186);
+  }
+  29% {
+    -moz-transform: scale(3.1562419410530844);
+         transform: scale(3.1562419410530844);
+  }
+  30% {
+    -moz-transform: scale(3.084526000235292);
+         transform: scale(3.084526000235292);
+  }
+  31% {
+    -moz-transform: scale(3.0178683581592014);
+         transform: scale(3.0178683581592014);
+  }
+  32% {
+    -moz-transform: scale(2.9571806268199072);
+         transform: scale(2.9571806268199072);
+  }
+  33% {
+    -moz-transform: scale(2.903162911127388);
+         transform: scale(2.903162911127388);
+  }
+  34% {
+    -moz-transform: scale(2.8563093060802625);
+         transform: scale(2.8563093060802625);
+  }
+  35% {
+    -moz-transform: scale(2.816917175890003);
+         transform: scale(2.816917175890003);
+  }
+  36% {
+    -moz-transform: scale(2.7850996612456766);
+         transform: scale(2.7850996612456766);
+  }
+  37% {
+    -moz-transform: scale(2.760800846151463);
+         transform: scale(2.760800846151463);
+  }
+  38% {
+    -moz-transform: scale(2.743813014297351);
+         transform: scale(2.743813014297351);
+  }
+  39% {
+    -moz-transform: scale(2.733795435504021);
+         transform: scale(2.733795435504021);
+  }
+  40% {
+    -moz-transform: scale(2.7302941440478534);
+         transform: scale(2.7302941440478534);
+  }
+  41% {
+    -moz-transform: scale(2.7327622011602313);
+         transform: scale(2.7327622011602313);
+  }
+  42% {
+    -moz-transform: scale(2.7405799721918878);
+         transform: scale(2.7405799721918878);
+  }
+  43% {
+    -moz-transform: scale(2.753074993306317);
+         transform: scale(2.753074993306317);
+  }
+  44% {
+    -moz-transform: scale(2.769541051601073);
+         transform: scale(2.769541051601073);
+  }
+  45% {
+    -moz-transform: scale(2.7892561547838755);
+         transform: scale(2.7892561547838755);
+  }
+  46% {
+    -moz-transform: scale(2.8114991205564888);
+         transform: scale(2.8114991205564888);
+  }
+  47% {
+    -moz-transform: scale(2.835564570383203);
+         transform: scale(2.835564570383203);
+  }
+  48% {
+    -moz-transform: scale(2.860776166155733);
+         transform: scale(2.860776166155733);
+  }
+  49% {
+    -moz-transform: scale(2.8864979803528863);
+         transform: scale(2.8864979803528863);
+  }
+  50% {
+    -moz-transform: scale(2.9121439397094564);
+         transform: scale(2.9121439397094564);
+  }
+  51% {
+    -moz-transform: scale(2.93718532837586);
+         transform: scale(2.93718532837586);
+  }
+  52% {
+    -moz-transform: scale(2.9611563784357093);
+         transform: scale(2.9611563784357093);
+  }
+  53% {
+    -moz-transform: scale(2.983658012965878);
+         transform: scale(2.983658012965878);
+  }
+  54% {
+    -moz-transform: scale(3.004359839227585);
+         transform: scale(3.004359839227585);
+  }
+  55% {
+    -moz-transform: scale(3.023000516858011);
+         transform: scale(3.023000516858011);
+  }
+  56% {
+    -moz-transform: scale(3.0393866480073117);
+         transform: scale(3.0393866480073117);
+  }
+  57% {
+    -moz-transform: scale(3.053390353269819);
+         transform: scale(3.053390353269819);
+  }
+  58% {
+    -moz-transform: scale(3.064945709129413);
+         transform: scale(3.064945709129413);
+  }
+  59% {
+    -moz-transform: scale(3.0740442297085337);
+         transform: scale(3.0740442297085337);
+  }
+  60% {
+    -moz-transform: scale(3.0807295781871398);
+         transform: scale(3.0807295781871398);
+  }
+  61% {
+    -moz-transform: scale(3.0850916917159275);
+         transform: scale(3.0850916917159275);
+  }
+  62% {
+    -moz-transform: scale(3.0872604984113563);
+         transform: scale(3.0872604984113563);
+  }
+  63% {
+    -moz-transform: scale(3.08739939654963);
+         transform: scale(3.08739939654963);
+  }
+  64% {
+    -moz-transform: scale(3.0856986548574223);
+         transform: scale(3.0856986548574223);
+  }
+  65% {
+    -moz-transform: scale(3.0823688793248762);
+         transform: scale(3.0823688793248762);
+  }
+  66% {
+    -moz-transform: scale(3.0776346767372034);
+         transform: scale(3.0776346767372034);
+  }
+  67% {
+    -moz-transform: scale(3.0717286286204843);
+         transform: scale(3.0717286286204843);
+  }
+  68% {
+    -moz-transform: scale(3.0648856719908237);
+         transform: scale(3.0648856719908237);
+  }
+  69% {
+    -moz-transform: scale(3.0573379656222675);
+         transform: scale(3.0573379656222675);
+  }
+  70% {
+    -moz-transform: scale(3.049310302912009);
+         transform: scale(3.049310302912009);
+  }
+  71% {
+    -moz-transform: scale(3.0410161151865607);
+         transform: scale(3.0410161151865607);
+  }
+  72% {
+    -moz-transform: scale(3.032654092781601);
+         transform: scale(3.032654092781601);
+  }
+  73% {
+    -moz-transform: scale(3.024405435717262);
+         transform: scale(3.024405435717262);
+  }
+  74% {
+    -moz-transform: scale(3.016431731508736);
+         transform: scale(3.016431731508736);
+  }
+  75% {
+    -moz-transform: scale(3.0088734447806624);
+         transform: scale(3.0088734447806624);
+  }
+  76% {
+    -moz-transform: scale(3.0018489920276297);
+         transform: scale(3.0018489920276297);
+  }
+  77% {
+    -moz-transform: scale(2.9954543651718986);
+         transform: scale(2.9954543651718986);
+  }
+  78% {
+    -moz-transform: scale(2.9897632595600587);
+         transform: scale(2.9897632595600587);
+  }
+  79% {
+    -moz-transform: scale(2.9848276557201054);
+         transform: scale(2.9848276557201054);
+  }
+  80% {
+    -moz-transform: scale(2.9806787995407014);
+         transform: scale(2.9806787995407014);
+  }
+  81% {
+    -moz-transform: scale(2.977328522474523);
+         transform: scale(2.977328522474523);
+  }
+  82% {
+    -moz-transform: scale(2.9747708418192795);
+         transform: scale(2.9747708418192795);
+  }
+  83% {
+    -moz-transform: scale(2.9729837809817354);
+         transform: scale(2.9729837809817354);
+  }
+  84% {
+    -moz-transform: scale(2.9719313507517775);
+         transform: scale(2.9719313507517775);
+  }
+  85% {
+    -moz-transform: scale(2.971565634860866);
+         transform: scale(2.971565634860866);
+  }
+  86% {
+    -moz-transform: scale(2.9718289263181146);
+         transform: scale(2.9718289263181146);
+  }
+  87% {
+    -moz-transform: scale(2.9726558650479498);
+         transform: scale(2.9726558650479498);
+  }
+  88% {
+    -moz-transform: scale(2.9739755320343826);
+         transform: scale(2.9739755320343826);
+  }
+  89% {
+    -moz-transform: scale(2.975713460348617);
+         transform: scale(2.975713460348617);
+  }
+  90% {
+    -moz-transform: scale(2.9777935289443036);
+         transform: scale(2.9777935289443036);
+  }
+  91% {
+    -moz-transform: scale(2.9801397108011347);
+         transform: scale(2.9801397108011347);
+  }
+  92% {
+    -moz-transform: scale(2.9826776527456884);
+         transform: scale(2.9826776527456884);
+  }
+  93% {
+    -moz-transform: scale(2.9853360699533464);
+         transform: scale(2.9853360699533464);
+  }
+  94% {
+    -moz-transform: scale(2.988047943625247);
+         transform: scale(2.988047943625247);
+  }
+  95% {
+    -moz-transform: scale(2.990751515542267);
+         transform: scale(2.990751515542267);
+  }
+  96% {
+    -moz-transform: scale(2.9933910780421313);
+         transform: scale(2.9933910780421313);
+  }
+  97% {
+    -moz-transform: scale(2.9959175623792387);
+         transform: scale(2.9959175623792387);
+  }
+  98% {
+    -moz-transform: scale(2.998288932358408);
+         transform: scale(2.998288932358408);
+  }
+  99% {
+    -moz-transform: scale(3.0004703935472623);
+         transform: scale(3.0004703935472623);
+  }
+  100% {
+    -moz-transform: scale(3.0024344312452595);
+         transform: scale(3.0024344312452595);
+  }
+}
 
 /* src/css/error.css */
 .error-container {

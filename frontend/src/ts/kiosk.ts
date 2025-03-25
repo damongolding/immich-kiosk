@@ -7,6 +7,7 @@ import {
 import {
   initPolling,
   startPolling,
+  resumePolling,
   stopPolling,
   togglePolling,
   pausePolling,
@@ -58,6 +59,7 @@ type KioskData = {
   dateFormat: string;
   showTime: boolean;
   timeFormat: TimeFormat;
+  clockSource: "client" | "server";
   transition: string;
   showMoreInfo: boolean;
   showRedirects: boolean;
@@ -122,7 +124,10 @@ async function init(): Promise<void> {
     htmx.logAll();
   }
 
-  if (kioskData.showDate || kioskData.showTime) {
+  if (
+    kioskData.clockSource == "client" &&
+    (kioskData.showDate || kioskData.showTime)
+  ) {
     initClock(
       kioskData.showDate,
       kioskData.dateFormat,
@@ -271,16 +276,30 @@ function addEventListeners(): void {
     if (e.target !== document.body) return;
 
     switch (e.code) {
+      case "KeyP":
+        if (!e.shiftKey) {
+          // Regular P
+          e.preventDefault();
+          pausePolling(true);
+        } else {
+          // Shift + P
+          e.preventDefault();
+          resumePolling(true);
+        }
+        break;
+
       case "Space":
         e.preventDefault();
         togglePolling(true);
         break;
+
       case "KeyI":
         if (!kioskData.showMoreInfo) return;
         if (e.ctrlKey || e.metaKey) return;
         e.preventDefault();
         handleInfoKeyPress();
         break;
+
       case "KeyR":
         if (!kioskData.showRedirects) return;
         if (e.ctrlKey || e.metaKey) return;

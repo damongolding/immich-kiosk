@@ -24,6 +24,10 @@ const (
 	PrefetchAsset                 WebhookEvent = "asset.prefetch"
 	CacheFlush                    WebhookEvent = "cache.flush"
 	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"
+	UserFavoriteInfoOverlay       WebhookEvent = "user.favorite.info_overlay"
+	UserUnfavoriteInfoOverlay     WebhookEvent = "user.unfavorite.info_overlay"
+	UserHideInfoOverlay           WebhookEvent = "user.hide.info_overlay"
+	UserUnhideInfoOverlay         WebhookEvent = "user.unhide.info_overlay"
 )
 
 type Meta struct {
@@ -139,5 +143,6 @@ func Trigger(ctx context.Context, requestData *common.RouteRequestData, kioskVer
 			}
 		}(userWebhook, jsonPayload)
 	}
+
 	wg.Wait()
 }

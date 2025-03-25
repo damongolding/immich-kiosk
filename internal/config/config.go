@@ -183,6 +183,8 @@ type Config struct {
 	ShowDate bool `json:"showDate" mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
 	//  DateFormat format for date
 	DateFormat string `json:"dateFormat" mapstructure:"date_format" query:"date_format" form:"date_format" default:""`
+	// ClockSource source of clock time
+	ClockSource string `json:"clockSource" mapstructure:"clock_source" query:"clock_source" form:"clock_source" default:"client"`
 
 	// Refresh time between fetching new image
 	Refresh int `json:"refresh" mapstructure:"refresh" query:"refresh" form:"refresh" default:"60"`
@@ -285,6 +287,11 @@ type Config struct {
 	ShowMoreInfoImageLink bool `json:"showMoreInfoImageLink" mapstructure:"show_more_info_image_link" query:"show_more_info_image_link" form:"show_more_info_image_link" default:"true"`
 	// ShowMoreInfoQrCode displays a QR code linking to the original image in the additional information panel
 	ShowMoreInfoQrCode bool `json:"showMoreInfoQrCode" mapstructure:"show_more_info_qr_code" query:"show_more_info_qr_code" form:"show_more_info_qr_code" default:"true"`
+
+	// FavoriteButtonAction indicates the action to take when the favorite button is clicked
+	FavoriteButtonAction []string `json:"favoriteButtonAction" mapstructure:"favorite_button_action" query:"favorite_button_action" form:"favorite_button_action" default:"[favorite]"`
+	// HideButtonAction indicates the action to take when the hide button is clicked
+	HideButtonAction []string `json:"hideButtonAction" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
 
 	// WeatherLocations A list of locations to fetch and display weather data from. Each location
 	WeatherLocations []WeatherLocation `json:"weather" mapstructure:"weather" default:"[]"`

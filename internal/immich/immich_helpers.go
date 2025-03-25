@@ -89,7 +89,7 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 }
 
 // immichAPICall bootstrap for immich api call
-func (i *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, error) {
+func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, error) {
 
 	var responseBody []byte
 	var lastErr error
@@ -114,18 +114,18 @@ func (i *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		}
 
 		req.Header.Set("Accept", "application/json")
-		apiKey := i.requestConfig.ImmichAPIKey
-		if i.requestConfig.SelectedUser != "" {
-			if key, ok := i.requestConfig.ImmichUsersAPIKeys[i.requestConfig.SelectedUser]; ok {
+		apiKey := a.requestConfig.ImmichAPIKey
+		if a.requestConfig.SelectedUser != "" {
+			if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
 				apiKey = key
 			} else {
-				return responseBody, fmt.Errorf("no API key found for user %s in the config", i.requestConfig.SelectedUser)
+				return responseBody, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
 			}
 		}
 
 		req.Header.Set("x-api-key", apiKey)
 
-		if method == http.MethodPost || method == "PUT" || method == "PATCH" {
+		if method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch || method == http.MethodDelete {
 			req.Header.Set("Content-Type", "application/json")
 		}
 
@@ -136,7 +136,7 @@ func (i *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			}
 		}
 
-		httpClient.Timeout = time.Second * time.Duration(i.requestConfig.Kiosk.HTTPTimeout)
+		httpClient.Timeout = time.Second * time.Duration(a.requestConfig.Kiosk.HTTPTimeout)
 		res, resErr := httpClient.Do(req)
 		if resErr != nil {
 			lastErr = resErr
@@ -194,17 +194,17 @@ func (i *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 // - If RatioWanted is "portrait", returns true only if image is portrait
 // - If RatioWanted is "landscape", returns true only if image is landscape
 // - Otherwise returns false if orientations don't match
-func (i *Asset) ratioCheck(wantedRatio ImageOrientation) bool {
+func (a *Asset) ratioCheck(wantedRatio ImageOrientation) bool {
 
-	i.addRatio()
+	a.addRatio()
 
 	// specific ratio is not wanted
 	if wantedRatio == "" {
 		return true
 	}
 
-	if (wantedRatio == PortraitOrientation && i.IsPortrait) ||
-		(wantedRatio == LandscapeOrientation && i.IsLandscape) {
+	if (wantedRatio == PortraitOrientation && a.IsPortrait) ||
+		(wantedRatio == LandscapeOrientation && a.IsLandscape) {
 		return true
 	}
 
@@ -214,65 +214,77 @@ func (i *Asset) ratioCheck(wantedRatio ImageOrientation) bool {
 // addRatio determines the ratio (portrait or landscape) of the image based on its EXIF information.
 // It sets the Ratio field in ExifInfo and updates IsPortrait or IsLandscape accordingly.
 // For orientations 5, 6, 7, and 8, it considers the image rotated by 90 degrees.
-func (i *Asset) addRatio() {
+func (a *Asset) addRatio() {
 
-	switch i.ExifInfo.Orientation {
+	switch a.ExifInfo.Orientation {
 	case "5", "6", "7", "8":
 		// For these orientations, the image is rotated, so we invert the height/width comparison
-		if i.ExifInfo.ExifImageHeight < i.ExifInfo.ExifImageWidth {
-			i.ExifInfo.ImageOrientation = PortraitOrientation
-			i.IsPortrait = true
+		if a.ExifInfo.ExifImageHeight < a.ExifInfo.ExifImageWidth {
+			a.ExifInfo.ImageOrientation = PortraitOrientation
+			a.IsPortrait = true
 		} else {
-			i.ExifInfo.ImageOrientation = LandscapeOrientation
-			i.IsLandscape = true
+			a.ExifInfo.ImageOrientation = LandscapeOrientation
+			a.IsLandscape = true
 		}
 	default:
 		// For all other orientations, including 1, 2, 3, 4, and any unknown orientations
-		if i.ExifInfo.ExifImageHeight > i.ExifInfo.ExifImageWidth {
-			i.ExifInfo.ImageOrientation = PortraitOrientation
-			i.IsPortrait = true
+		if a.ExifInfo.ExifImageHeight > a.ExifInfo.ExifImageWidth {
+			a.ExifInfo.ImageOrientation = PortraitOrientation
+			a.IsPortrait = true
 		} else {
-			i.ExifInfo.ImageOrientation = LandscapeOrientation
-			i.IsLandscape = true
+			a.ExifInfo.ImageOrientation = LandscapeOrientation
+			a.IsLandscape = true
 		}
 	}
 }
 
-// mergeAssetInfo merges additional asset information into the current ImmichAsset.
-// It uses reflection to examine each field of the current asset and if a field
-// has its zero value, it copies the corresponding value from additionalInfo.
-// This allows for selective updating of asset information while preserving
-// existing non-zero values.
+// mergeAssetInfo merges additional asset information into the current Asset.
+// It uses reflection to examine each field of the current asset and updates
+// field values based on the following rules:
+// - For boolean fields: Always copies the value from additionalInfo
+// - For all other fields: Only copies from additionalInfo if the current value is zero
+//
+// This allows for selective updating of asset information while preserving existing
+// non-zero values for most fields, except booleans which are always updated.
 //
 // Parameters:
-//   - additionalInfo: The ImmichAsset containing the additional information to merge
+//   - additionalInfo: The Asset containing the additional information to merge
 //
-// Returns an error if any field in additionalInfo is invalid during the merge process.
-func (i *Asset) mergeAssetInfo(additionalInfo Asset) error {
-	v := reflect.ValueOf(i).Elem()
+// Returns:
+//   - error: If any field in additionalInfo is invalid during the merge process
+func (a *Asset) mergeAssetInfo(additionalInfo Asset) error {
+	v := reflect.ValueOf(a).Elem()
 	d := reflect.ValueOf(additionalInfo)
 
-	for index := range v.NumField() {
-		field := v.Field(index)
+	for i := range v.NumField() {
+		field := v.Field(i)
 		if !field.CanSet() {
 			continue
 		}
+
+		additionalField := d.Field(i)
+		if !additionalField.IsValid() {
+			return fmt.Errorf("invalid field at index %d", i)
+		}
+
+		if field.Kind() == reflect.Bool {
+			field.Set(additionalField)
+			continue
+		}
+
 		if reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
-			if !d.Field(index).IsValid() {
-				return fmt.Errorf("invalid field at index %d", index)
-			}
-			field.Set(d.Field(index))
+			field.Set(additionalField)
 		}
 	}
 	return nil
 }
 
 // AssetInfo fetches the image information from Immich
-func (i *Asset) AssetInfo(requestID, deviceID string) error {
+func (a *Asset) AssetInfo(requestID, deviceID string) error {
 
 	var immichAsset Asset
 
-	u, err := url.Parse(i.requestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		return err
 	}
@@ -280,11 +292,11 @@ func (i *Asset) AssetInfo(requestID, deviceID string) error {
 	apiURL := url.URL{
 		Scheme: u.Scheme,
 		Host:   u.Host,
-		Path:   path.Join("api", "assets", i.ID),
+		Path:   path.Join("api", "assets", a.ID),
 	}
 
-	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAsset)
-	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAsset)
+	body, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
 		return fmt.Errorf("fetching asset info: err %w", err)
@@ -296,48 +308,48 @@ func (i *Asset) AssetInfo(requestID, deviceID string) error {
 		return fmt.Errorf("fetching asset info: err %w", err)
 	}
 
-	return i.mergeAssetInfo(immichAsset)
+	return a.mergeAssetInfo(immichAsset)
 }
 
 // ImagePreview fetches the raw image data from Immich
-func (i *Asset) ImagePreview() ([]byte, error) {
+func (a *Asset) ImagePreview() ([]byte, error) {
 
 	var bytes []byte
 
-	u, err := url.Parse(i.requestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		log.Error(err)
 		return bytes, err
 	}
 
 	assetSize := AssetSizeThumbnail
-	if i.requestConfig.UseOriginalImage && slices.Contains(supportedImageMimeTypes, i.OriginalMimeType) {
+	if a.requestConfig.UseOriginalImage && slices.Contains(supportedImageMimeTypes, a.OriginalMimeType) {
 		assetSize = AssetSizeOriginal
 	}
 
 	apiURL := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
-		Path:     path.Join("api", "assets", i.ID, assetSize),
+		Path:     path.Join("api", "assets", a.ID, assetSize),
 		RawQuery: "size=preview",
 	}
 
-	return i.immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
+	return a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 }
 
 // FacesCenterPoint calculates the center point of all detected faces in an image as percentages.
 // It analyzes both assigned (People) and unassigned faces, finding the bounding box that encompasses
 // all faces and returning its center as x,y percentages relative to the image dimensions.
 // Returns (0,0) if no faces are detected or if image dimensions are invalid.
-func (i *Asset) FacesCenterPoint() (float64, float64) {
-	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
+func (a *Asset) FacesCenterPoint() (float64, float64) {
+	if len(a.People) == 0 && len(a.UnassignedFaces) == 0 {
 		return 0, 0
 	}
 
 	var minX, minY, maxX, maxY int
 	initialized := false
 
-	for _, person := range i.People {
+	for _, person := range a.People {
 		for _, face := range person.Faces {
 			if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
 				face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
@@ -358,7 +370,7 @@ func (i *Asset) FacesCenterPoint() (float64, float64) {
 		}
 	}
 
-	for _, face := range i.UnassignedFaces {
+	for _, face := range a.UnassignedFaces {
 		if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
 			face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
 			continue
@@ -388,12 +400,12 @@ func (i *Asset) FacesCenterPoint() (float64, float64) {
 	var imageWidth, imageHeight int
 
 	switch {
-	case len(i.People) != 0 && len(i.People[0].Faces) != 0:
-		imageWidth = i.People[0].Faces[0].ImageWidth
-		imageHeight = i.People[0].Faces[0].ImageHeight
-	case len(i.UnassignedFaces) != 0:
-		imageWidth = i.UnassignedFaces[0].ImageWidth
-		imageHeight = i.UnassignedFaces[0].ImageHeight
+	case len(a.People) != 0 && len(a.People[0].Faces) != 0:
+		imageWidth = a.People[0].Faces[0].ImageWidth
+		imageHeight = a.People[0].Faces[0].ImageHeight
+	case len(a.UnassignedFaces) != 0:
+		imageWidth = a.UnassignedFaces[0].ImageWidth
+		imageHeight = a.UnassignedFaces[0].ImageHeight
 	default:
 		return 0, 0
 	}
@@ -412,15 +424,15 @@ func (i *Asset) FacesCenterPoint() (float64, float64) {
 // It analyzes both assigned (People) and unassigned faces, finding the bounding box that encompasses
 // all faces and returning its center as x,y pixel coordinates.
 // Returns (0,0) if no faces are detected or if all bounding boxes are empty.
-func (i *Asset) FacesCenterPointPX() (float64, float64) {
-	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
+func (a *Asset) FacesCenterPointPX() (float64, float64) {
+	if len(a.People) == 0 && len(a.UnassignedFaces) == 0 {
 		return 0, 0
 	}
 
 	var minX, minY, maxX, maxY int
 	initialized := false
 
-	for _, person := range i.People {
+	for _, person := range a.People {
 		for _, face := range person.Faces {
 			if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
 				face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
@@ -441,7 +453,7 @@ func (i *Asset) FacesCenterPointPX() (float64, float64) {
 		}
 	}
 
-	for _, face := range i.UnassignedFaces {
+	for _, face := range a.UnassignedFaces {
 		if face.BoundingBoxX1 == 0 && face.BoundingBoxY1 == 0 &&
 			face.BoundingBoxX2 == 0 && face.BoundingBoxY2 == 0 {
 			continue
@@ -479,8 +491,8 @@ func (i *Asset) FacesCenterPointPX() (float64, float64) {
 //
 // Returns:
 //   - bool: true if the tag is found, false otherwise
-func (i *Asset) containsTag(tagName string) bool {
-	for _, tag := range i.Tags {
+func (a *Asset) containsTag(tagName string) bool {
+	for _, tag := range a.Tags {
 		if strings.EqualFold(tag.Name, tagName) {
 			return true
 		}
@@ -500,12 +512,12 @@ func (i *Asset) containsTag(tagName string) bool {
 //
 // Returns:
 //   - bool: true if asset meets all criteria, false otherwise
-func (i *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
-	return i.hasValidBasicProperties(allowedTypes, wantedRatio) &&
-		i.hasValidDateFilter() &&
-		i.hasValidAlbums(requestID, deviceID) &&
-		i.hasValidPeople(requestID, deviceID) &&
-		i.hasValidTags(requestID, deviceID)
+func (a *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
+	return a.hasValidBasicProperties(allowedTypes, wantedRatio) &&
+		a.hasValidDateFilter() &&
+		a.hasValidAlbums(requestID, deviceID) &&
+		a.hasValidPeople(requestID, deviceID) &&
+		a.hasValidTags(requestID, deviceID)
 }
 
 // hasValidBasicProperties checks basic asset properties including type,
@@ -517,20 +529,20 @@ func (i *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetTyp
 //
 // Returns:
 //   - bool: true if basic properties are valid, false otherwise
-func (i *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
-	if !slices.Contains(allowedTypes, i.Type) {
+func (a *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
+	if !slices.Contains(allowedTypes, a.Type) {
 		return false
 	}
-	if i.IsTrashed {
+	if a.IsTrashed {
 		return false
 	}
-	if i.IsArchived && !i.requestConfig.ShowArchived {
+	if a.IsArchived && !a.requestConfig.ShowArchived {
 		return false
 	}
-	if !i.ratioCheck(wantedRatio) {
+	if !a.ratioCheck(wantedRatio) {
 		return false
 	}
-	if slices.Contains(i.requestConfig.Blacklist, i.ID) {
+	if slices.Contains(a.requestConfig.Blacklist, a.ID) {
 		return false
 	}
 	return true
@@ -541,18 +553,18 @@ func (i *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio Im
 //
 // Returns:
 //   - bool: true if date is valid or no filter set, false if outside filter range
-func (i *Asset) hasValidDateFilter() bool {
-	if i.requestConfig.DateFilter == "" || (i.Bucket == kiosk.SourceMemories || i.Bucket == kiosk.SourceDateRange) {
+func (a *Asset) hasValidDateFilter() bool {
+	if a.requestConfig.DateFilter == "" || (a.Bucket == kiosk.SourceMemories || a.Bucket == kiosk.SourceDateRange) {
 		return true
 	}
 
-	dateStart, dateEnd, err := determineDateRange(i.requestConfig.DateFilter)
+	dateStart, dateEnd, err := determineDateRange(a.requestConfig.DateFilter)
 	if err != nil {
 		log.Error("malformed filter", "err", err)
 		return true // Continue processing if date filter is malformed
 	}
 
-	return utils.IsTimeBetween(i.LocalDateTime.Local(), dateStart, dateEnd)
+	return utils.IsTimeBetween(a.LocalDateTime.Local(), dateStart, dateEnd)
 }
 
 // hasValidAlbums checks if the asset belongs to any excluded albums.
@@ -564,13 +576,13 @@ func (i *Asset) hasValidDateFilter() bool {
 //
 // Returns:
 //   - bool: true if asset is not in any excluded albums, false otherwise
-func (i *Asset) hasValidAlbums(requestID, deviceID string) bool {
-	if len(i.AppearsIn) == 0 {
-		i.AlbumsThatContainAsset(requestID, deviceID)
+func (a *Asset) hasValidAlbums(requestID, deviceID string) bool {
+	if len(a.AppearsIn) == 0 {
+		a.AlbumsThatContainAsset(requestID, deviceID)
 	}
 
-	return !slices.ContainsFunc(i.AppearsIn, func(album Album) bool {
-		return slices.Contains(i.requestConfig.ExcludedAlbums, album.ID)
+	return !slices.ContainsFunc(a.AppearsIn, func(album Album) bool {
+		return slices.Contains(a.requestConfig.ExcludedAlbums, album.ID)
 	})
 }
 
@@ -583,13 +595,13 @@ func (i *Asset) hasValidAlbums(requestID, deviceID string) bool {
 //
 // Returns:
 //   - bool: true if asset contains no excluded people, false otherwise
-func (i *Asset) hasValidPeople(requestID, deviceID string) bool {
-	if len(i.requestConfig.ExcludedPeople) > 0 && len(i.People) == 0 {
-		i.CheckForFaces(requestID, deviceID)
+func (a *Asset) hasValidPeople(requestID, deviceID string) bool {
+	if len(a.requestConfig.ExcludedPeople) > 0 && len(a.People) == 0 {
+		a.CheckForFaces(requestID, deviceID)
 	}
 
-	return !slices.ContainsFunc(i.People, func(person Person) bool {
-		return slices.Contains(i.requestConfig.ExcludedPeople, person.ID)
+	return !slices.ContainsFunc(a.People, func(person Person) bool {
+		return slices.Contains(a.requestConfig.ExcludedPeople, person.ID)
 	})
 }
 
@@ -602,23 +614,19 @@ func (i *Asset) hasValidPeople(requestID, deviceID string) bool {
 //
 // Returns:
 //   - bool: true if asset has no excluding tags, false otherwise
-func (i *Asset) hasValidTags(requestID, deviceID string) bool {
-	if err := i.AssetInfo(requestID, deviceID); err != nil {
+func (a *Asset) hasValidTags(requestID, deviceID string) bool {
+	if err := a.AssetInfo(requestID, deviceID); err != nil {
 		log.Error("Failed to get additional asset data", "error", err)
 	}
 
-	return !i.containsTag(kiosk.TagSkip)
+	return !a.containsTag(kiosk.TagSkip)
 }
 
-func (i *Asset) fetchPaginatedMetadata(u *url.URL, requestBody interface{}, requestID string, deviceID string) (int, error) {
+func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string) (int, error) {
 	var totalCount int
-	pageCount := 1
 
 	for {
 		var response SearchMetadataResponse
-
-		// Update page number in request body
-		reflect.ValueOf(requestBody).Elem().FieldByName("Page").Set(reflect.ValueOf(pageCount))
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
@@ -636,8 +644,8 @@ func (i *Asset) fetchPaginatedMetadata(u *url.URL, requestBody interface{}, requ
 			return totalCount, err
 		}
 
-		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, response)
-		apiBody, err := immichAPICall(i.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, response)
+		apiBody, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
 			return totalCount, err
@@ -655,8 +663,57 @@ func (i *Asset) fetchPaginatedMetadata(u *url.URL, requestBody interface{}, requ
 			break
 		}
 
-		pageCount++
+		requestBody.Page++
 	}
 
 	return totalCount, nil
+}
+
+func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	var res Asset
+
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		_, _, err = immichAPIFail(res, err, nil, "")
+		return err
+	}
+
+	apiURL := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   path.Join("api", "assets", a.ID),
+	}
+
+	jsonBody, marshalErr := json.Marshal(requestBody)
+	if marshalErr != nil {
+		return fmt.Errorf("marshaling request body: %w", marshalErr)
+	}
+
+	apiBody, err := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
+	if err != nil {
+		_, _, err = immichAPIFail(res, err, apiBody, apiURL.String())
+		return err
+	}
+
+	err = json.Unmarshal(apiBody, &res)
+	if err != nil {
+		_, _, err = immichAPIFail(res, err, apiBody, apiURL.String())
+		return err
+	}
+
+	// remove asset data from cache as we've changed its data
+	cacheErr := a.RemoveAssetCache(deviceID)
+	if cacheErr != nil {
+		log.Error("error removing asset from cache", "assetID", a.ID, "error", cacheErr)
+	}
+
+	mergErr := a.mergeAssetInfo(res)
+	if mergErr != nil {
+		log.Error("error merging asset info", "assetID", a.ID, "error", mergErr)
+	}
+
+	return nil
 }

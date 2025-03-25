@@ -27,10 +27,10 @@ import (
 //   - MemoriesResponse: The memory response data
 //   - string: The API URL used for the request
 //   - error: Any error that occurred
-func (i *Asset) memories(requestID, deviceID string, assetCount bool) (MemoriesResponse, string, error) {
+func (a *Asset) memories(requestID, deviceID string, assetCount bool) (MemoriesResponse, string, error) {
 	var memories MemoriesResponse
 
-	u, err := url.Parse(i.requestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		return immichAPIFail(memories, err, nil, "")
 	}
@@ -50,8 +50,8 @@ func (i *Asset) memories(requestID, deviceID string, assetCount bool) (MemoriesR
 		apiURL.RawQuery += "&count=true"
 	}
 
-	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, memories)
-	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, memories)
+	body, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(memories, err, body, apiURL.String())
 	}
@@ -84,8 +84,8 @@ func memoriesCount(memories MemoriesResponse) int {
 //
 // Returns:
 //   - int: Total number of assets, or 0 if error occurs
-func (i *Asset) MemoriesAssetsCount(requestID, deviceID string) int {
-	m, _, err := i.memories(requestID, deviceID, true)
+func (a *Asset) MemoriesAssetsCount(requestID, deviceID string) int {
+	m, _, err := a.memories(requestID, deviceID, true)
 	if err != nil {
 		return 0
 	}
@@ -144,16 +144,16 @@ func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex 
 //
 // Returns:
 //   - error: If unable to find valid image after max retries
-func (i *Asset) RandomMemoryAsset(requestID, deviceID string) error {
+func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 
 	for range MaxRetries {
 
-		memories, apiURL, err := i.memories(requestID, deviceID, false)
+		memories, apiURL, err := a.memories(requestID, deviceID, false)
 		if err != nil {
 			return err
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL, deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 		if len(memories) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again for memories")
@@ -170,14 +170,21 @@ func (i *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
 			asset.Bucket = kiosk.SourceMemories
-			asset.requestConfig = i.requestConfig
-			asset.ctx = i.ctx
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
+			// temp fix for memories not being supplied with EXIF
+			infoErr := asset.AssetInfo(requestID, deviceID)
+			if infoErr != nil {
+				log.Error("failed to get asset info", "error", infoErr)
 				continue
 			}
 
-			if i.requestConfig.Kiosk.Cache {
+			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
+				continue
+			}
+
+			if a.requestConfig.Kiosk.Cache {
 				if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, assetIndex, apiCacheKey); cacheErr != nil {
 					return cacheErr
 				}
@@ -187,7 +194,7 @@ func (i *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 				asset.MemoryTitle = humanize.Time(memories[pickedMemoryIndex].Assets[assetIndex].LocalDateTime)
 			}
 
-			*i = asset
+			*a = asset
 
 			return nil
 		}

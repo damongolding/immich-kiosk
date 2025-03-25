@@ -16,11 +16,11 @@ import (
 )
 
 // PersonImageCount returns the number of images associated with a specific person in Immich.
-func (i *Asset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
+func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
 
 	var personStatistics PersonStatistics
 
-	u, err := url.Parse(i.requestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(personStatistics, err, nil, "")
 		return 0, err
@@ -32,8 +32,8 @@ func (i *Asset) PersonImageCount(personID, requestID, deviceID string) (int, err
 		Path:   path.Join("api", "people", personID, "statistics"),
 	}
 
-	immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, personStatistics)
-	body, err := immichAPICall(i.ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, personStatistics)
+	body, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(personStatistics, err, body, apiURL.String())
 		return 0, err
@@ -63,7 +63,7 @@ func (i *Asset) PersonImageCount(personID, requestID, deviceID string) (int, err
 //     image is found after MaxRetries attempts or if there are API/parsing failures
 //
 // The function mutates the receiver (i *ImmichAsset) to store the selected image if successful.
-func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
+func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image of", personID)
@@ -75,7 +75,7 @@ func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 
 		var immichAssets []Asset
 
-		u, err := url.Parse(i.requestConfig.ImmichURL)
+		u, err := url.Parse(a.requestConfig.ImmichURL)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, nil, "")
 			return err
@@ -86,14 +86,14 @@ func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			Type:       string(ImageType),
 			WithExif:   true,
 			WithPeople: true,
-			Size:       i.requestConfig.Kiosk.FetchedAssetsSize,
+			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
-		if i.requestConfig.ShowArchived {
+		if a.requestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
 
-		DateFilter(&requestBody, i.requestConfig.DateFilter)
+		DateFilter(&requestBody, a.requestConfig.DateFilter)
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
@@ -111,8 +111,8 @@ func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			return bodyMarshalErr
 		}
 
-		immichAPICall := withImmichAPICache(i.immichAPICall, requestID, deviceID, i.requestConfig, immichAssets)
-		apiBody, err := immichAPICall(i.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
+		apiBody, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
@@ -124,7 +124,7 @@ func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			return err
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, i.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -135,14 +135,14 @@ func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourcePerson
-			asset.requestConfig = i.requestConfig
-			asset.ctx = i.ctx
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, i.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
 				continue
 			}
 
-			if i.requestConfig.Kiosk.Cache {
+			if a.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
@@ -160,7 +160,7 @@ func (i *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 
 			asset.BucketID = personID
 
-			*i = asset
+			*a = asset
 
 			return nil
 		}
