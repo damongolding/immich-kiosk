@@ -276,7 +276,6 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 				if cacheErr != nil {
 					log.Debug("Failed to update device cache for album", "albumID", albumID, "deviceID", deviceID)
 				}
-
 			}
 
 			asset.BucketID = album.ID

@@ -183,6 +183,8 @@ type Config struct {
 	ShowDate bool `json:"showDate" mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
 	//  DateFormat format for date
 	DateFormat string `json:"dateFormat" mapstructure:"date_format" query:"date_format" form:"date_format" default:""`
+	// ClockSource source of clock time
+	ClockSource string `json:"clockSource" mapstructure:"clock_source" query:"clock_source" form:"clock_source" default:"client"`
 
 	// Refresh time between fetching new image
 	Refresh int `json:"refresh" mapstructure:"refresh" query:"refresh" form:"refresh" default:"60"`

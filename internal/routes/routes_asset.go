@@ -307,10 +307,10 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 
 		// handle error
 		if eg != nil {
-			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, !favouriteAsset, true))
+			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, !favouriteAsset, true, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, true))
+		return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, true, com.Secret()))
 	}
 }
 
@@ -397,9 +397,9 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		if eg != nil {
-			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset))
+			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, partials.HideButton(assetID, hideAsset))
+		return Render(c, http.StatusOK, partials.HideButton(assetID, hideAsset, com.Secret()))
 	}
 }

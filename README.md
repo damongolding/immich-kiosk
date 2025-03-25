@@ -307,6 +307,7 @@ services:
       KIOSK_SHOW_MORE_INFO_QR_CODE: true
       # More info actions
       KIOSK_FAVORITE_BUTTON_ACTION: favorite
+      KIOSK_HIDE_BUTTON_ACTION: tag
       # Kiosk settings
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
@@ -378,6 +379,7 @@ See the file `config.example.yaml` for an example config file
 | time_format                       | KIOSK_TIME_FORMAT       | 24 \| 12                   | 24          | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
+| clock_source                      | KIOSK_CLOCK_SOURCE      | client \| server           | client      | The source of the clock. Either client or server.                                          |
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
 | disable_screensaver             | KIOSK_DISABLE_SCREENSAVER | bool                       | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
 | optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low-powered device, this may help. |
@@ -428,8 +430,8 @@ See the file `config.example.yaml` for an example config file
 | show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s)                   |
 | show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay       |
 | show_more_info_qr_code            | KIOSK_SHOW_MORE_INFO_QR_CODE    | bool               | true        | Displays a QR code linking to the original image (in Immich) in the additional information overlay |
-| favorite_button_action            | KIOSK_FAVORITE_BUTTON_ACTION    | []string           | [favorite]  | Action(s) to perform when the favorite button is clicked. Supported actions are [favorite, album]. See [favorite button](#favorite-button) for more information. |
-| hide_button_action                | KIOSK_HIDE_BUTTON_ACTION        | []string           | [tag]       | Action(s) to perform when the hide button is clicked. Supported actions are [tag, archive]. See [hide button](#hide-button) for more information. |
+| [favorite_button_action](#favorite-button)            | KIOSK_FAVORITE_BUTTON_ACTION    | []string           | [favorite]  | Action(s) to perform when the favorite button is clicked. Supported actions are [favorite, album]. See [favorite button](#favorite-button) for more information. |
+| [hide_button_action](#hide-button)                | KIOSK_HIDE_BUTTON_ACTION        | []string           | [tag]       | Action(s) to perform when the hide button is clicked. Supported actions are [tag, archive]. See [hide button](#hide-button) for more information. |
 | immich_users_api_keys             | N/A                     | map[string]string          | {}          | key:value mappings of Immich usernames to their corresponding API keys. See [multiple users](#multiple-users) for more information. |
 | show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information. |
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
@@ -1166,6 +1168,9 @@ Kiosk's display is divided into interactive zones:
 | ← Left Arrow  | Previous Image(s)                                        |
 | i Key         | Play/Pause and Toggle Menu and display more info overlay |
 | r Key         | Play/Pause and Toggle Menu and redirects info overlay    |
+| p Key         | Pause and Toggle Menu and redirects info overlay         |
+| shift+p Key   | Play and Toggle Menu and redirects info overlay          |
+
 
 ------
 
@@ -1181,7 +1186,7 @@ favorite_button_action: favorite
 ```
 
 ### Album
-Add asset to a "Kiosk Favorites" albums, which will be created if it doesn't exist.
+Add asset to the "Kiosk Favorites" albums, which will be created if it doesn't exist.
 
 Example:
 ```yaml
@@ -1189,7 +1194,7 @@ favorite_button_action: album
 ```
 
 ### Both
-Add asset to both favorite and album
+Set asset as a favorite and add it to the "Kiosk Favorites" album.
 
 Example:
 ```yaml
@@ -1329,6 +1334,10 @@ To validate webhooks on your server, you should:
 |`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich  |
 |`cache.flushed`                     | Triggered when the cache is manually cleared            |
 |`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
+|`user.favorite.info_overlay`        | Triggered when the "favorite" button is clicked in the image details overlay |
+|`user.unfavorite.info_overlay`      | Triggered when the "unfavorite" button is clicked in the image details overlay |
+|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the image details overlay |
+|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the image details overlay |
 
 ### Webhook Payload
 
