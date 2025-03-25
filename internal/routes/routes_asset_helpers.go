@@ -218,9 +218,18 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 
 }
 
-// fetchImagePreview retrieves the preview of an image and logs the time taken.
-// It returns the image bytes and an error if any occurs.
-func fetchImagePreview(immichAsset *immich.Asset, requestID, deviceID string, isPrefetch bool) (image.Image, error) {
+// fetchImagePreview retrieves and processes the preview of an image from the Immich asset.
+// Parameters:
+//   - immichAsset: The Immich asset to retrieve the preview from
+//   - isOriginal: Whether to preserve the original image orientation
+//   - requestID: ID of the current request for logging
+//   - deviceID: ID of the device making the request
+//   - isPrefetch: Whether this is a prefetch request
+//
+// Returns:
+//   - The processed image preview
+//   - Any error that occurred during retrieval or processing
+func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, deviceID string, isPrefetch bool) (image.Image, error) {
 	imageGet := time.Now()
 
 	imgBytes, err := immichAsset.ImagePreview()
@@ -239,7 +248,9 @@ func fetchImagePreview(immichAsset *immich.Asset, requestID, deviceID string, is
 		log.Debug(requestID, "Got image in", time.Since(imageGet).Seconds())
 	}
 
-	img = utils.ApplyExifOrientation(img, immichAsset.IsLandscape, immichAsset.ExifInfo.Orientation)
+	if isOriginal {
+		img = utils.ApplyExifOrientation(img, immichAsset.IsLandscape, immichAsset.ExifInfo.Orientation)
+	}
 
 	return img, nil
 }
@@ -264,7 +275,7 @@ func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetTyp
 		return processVideo(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
 	}
 
-	return processImage(immichAsset, requestID, deviceID, isPrefetch)
+	return processImage(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 }
 
 // processVideo handles retrieving and processing video assets.
@@ -276,7 +287,7 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 
 	// Video is available
 	if VideoManager.IsDownloaded(immichAsset.ID) {
-		return fetchImagePreview(immichAsset, requestID, deviceID, isPrefetch)
+		return fetchImagePreview(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 	}
 
 	//  video is not available, is video downloading?
@@ -289,8 +300,8 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 }
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview
-func processImage(immichAsset *immich.Asset, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
-	return fetchImagePreview(immichAsset, requestID, deviceID, isPrefetch)
+func processImage(immichAsset *immich.Asset, isOriginal bool, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
+	return fetchImagePreview(immichAsset, isOriginal, requestID, deviceID, isPrefetch)
 }
 
 // imageToBase64 converts image bytes to a base64 string and logs the processing time.
