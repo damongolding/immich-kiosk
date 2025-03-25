@@ -145,16 +145,107 @@
     }
 }
 
-.more-info--like-asset.liked {
-    background-color: var(--vibrant-pink);
-    animation: like-animation-grow 750ms ease-in-out forwards;
-    svg {
-        fill: #63030f;
-        width: 13.94%;
-        height: 13.94%;
-        transform-origin: center;
-        animation: like-animation 1500ms linear forwards;
-        overflow: visible;
+.more-info--like-asset {
+    position: relative;
+
+    &.is-liked {
+        background-color: var(--vibrant-pink);
+        animation: like-animation-grow 750ms ease-in-out forwards;
+        svg {
+            fill: #63030f;
+            width: 13.94%;
+            height: 13.94%;
+            transform-origin: center;
+            animation: like-animation 1500ms linear forwards;
+            overflow: visible;
+        }
+    }
+
+    .liked {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+
+        div {
+            position: absolute;
+            width: 0.25rem;
+            height: 100%;
+            bottom: 50%;
+            left: 50%;
+
+            &:after {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 0%;
+                bottom: 0;
+                background-color: var(--vibrant-pink);
+                border-radius: 100rem;
+                animation: like-animation-shine 0.5s linear forwards;
+            }
+            &:nth-child(1) {
+                transform: translate(-50%) rotate(0deg);
+                transform-origin: center bottom;
+            }
+
+            &:nth-child(2) {
+                transform: translate(-50%) rotate(45deg);
+                transform-origin: center bottom;
+            }
+
+            &:nth-child(3) {
+                transform: translate(-50%) rotate(90deg);
+                transform-origin: center bottom;
+            }
+
+            &:nth-child(4) {
+                transform: translate(-50%) rotate(135deg);
+                transform-origin: center bottom;
+            }
+
+            &:nth-child(5) {
+                transform: translate(-50%) rotate(180deg);
+                transform-origin: center bottom;
+            }
+
+            &:nth-child(6) {
+                transform: translate(-50%) rotate(225deg);
+                transform-origin: center bottom;
+            }
+
+            &:nth-child(7) {
+                transform: translate(-50%) rotate(270deg);
+                transform-origin: center bottom;
+            }
+
+            &:nth-child(8) {
+                transform: translate(-50%) rotate(315deg);
+                transform-origin: center bottom;
+            }
+        }
+    }
+}
+
+@keyframes like-animation-shine {
+    0% {
+        bottom: 60%;
+        height: 0;
+    }
+
+    25% {
+        bottom: 60%;
+        height: 20%;
+    }
+
+    65% {
+        bottom: 70%;
+        height: 20%;
+    }
+
+    100% {
+        bottom: 100%;
+        height: 0;
     }
 }
 

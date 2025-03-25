@@ -307,10 +307,10 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 
 		// handle error
 		if eg != nil {
-			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, !favouriteAsset, true, com.Secret()))
+			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, !favouriteAsset, false, true, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, true, com.Secret()))
+		return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, favouriteAsset, true, com.Secret()))
 	}
 }
 
