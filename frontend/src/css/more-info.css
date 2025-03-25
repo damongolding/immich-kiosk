@@ -150,7 +150,7 @@
 
     &.is-liked {
         background-color: var(--vibrant-pink);
-        animation: like-animation-grow 750ms ease-in-out forwards;
+        animation: like-grow 750ms ease-in-out forwards;
         svg {
             fill: #63030f;
             width: 13.94%;
@@ -182,7 +182,7 @@
                 bottom: 0;
                 background-color: var(--vibrant-pink);
                 border-radius: 100rem;
-                animation: like-animation-shine 0.5s linear forwards;
+                animation: like-shine 0.5s linear forwards;
             }
             &:nth-child(1) {
                 transform: translate(-50%) rotate(0deg);
@@ -227,7 +227,7 @@
     }
 }
 
-@keyframes like-animation-shine {
+@keyframes like-shine {
     0% {
         bottom: 60%;
         height: 0;
@@ -287,7 +287,7 @@
     }
 }
 
-@keyframes like-animation-grow {
+@keyframes like-grow {
     0% {
         transform: scale(1);
     }

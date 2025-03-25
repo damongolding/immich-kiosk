@@ -724,8 +724,8 @@ form {
 }
 .more-info--like-asset.is-liked {
     background-color: var(--vibrant-pink);
-    -moz-animation: like-animation-grow 750ms ease-in-out forwards;
-         animation: like-animation-grow 750ms ease-in-out forwards;
+    -moz-animation: like-grow 750ms ease-in-out forwards;
+         animation: like-grow 750ms ease-in-out forwards;
   }
 .more-info--like-asset.is-liked svg {
       fill: #63030f;
@@ -759,8 +759,8 @@ form {
         bottom: 0;
         background-color: var(--vibrant-pink);
         border-radius: 100rem;
-        -moz-animation: like-animation-shine 0.5s linear forwards;
-             animation: like-animation-shine 0.5s linear forwards;
+        -moz-animation: like-shine 0.5s linear forwards;
+             animation: like-shine 0.5s linear forwards;
       }
 .more-info--like-asset .liked div:nth-child(1) {
         -moz-transform: translate(-50%) rotate(0deg);
@@ -826,7 +826,7 @@ form {
          -ms-transform-origin: center bottom;
              transform-origin: center bottom;
       }
-@-moz-keyframes like-animation-shine {
+@-moz-keyframes like-shine {
   0% {
     bottom: 60%;
     height: 0;
@@ -844,7 +844,7 @@ form {
     height: 0;
   }
 }
-@keyframes like-animation-shine {
+@keyframes like-shine {
   0% {
     bottom: 60%;
     height: 0;
@@ -896,7 +896,7 @@ form {
 .frameless.more-info #more-info .more-info--image {
       border-radius: 0;
     }
-@-moz-keyframes like-animation-grow {
+@-moz-keyframes like-grow {
   0% {
     -moz-transform: scale(1);
          transform: scale(1);
@@ -910,7 +910,7 @@ form {
          transform: scale(1);
   }
 }
-@keyframes like-animation-grow {
+@keyframes like-grow {
   0% {
     -moz-transform: scale(1);
          transform: scale(1);
