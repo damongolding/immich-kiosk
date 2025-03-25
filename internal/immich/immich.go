@@ -173,12 +173,12 @@ type Asset struct {
 	// Data added and used by Kiosk
 	mu          *sync.Mutex
 	RatioWanted ImageOrientation `json:"-"`
-	IsPortrait  bool             `json:"-"`
-	IsLandscape bool             `json:"-"`
+	IsPortrait  bool             `json:"isPortrait"`
+	IsLandscape bool             `json:"isLandscape"`
 	MemoryTitle string           `json:"-"`
-	AppearsIn   Albums           `json:"-"`
-	Bucket      kiosk.Source     `json:"-"`
-	BucketID    string           `json:"-"`
+	AppearsIn   Albums           `json:"kioskAppearsIn"`
+	Bucket      kiosk.Source     `json:"kioskBucket"`
+	BucketID    string           `json:"kioskBucketId"`
 
 	ctx           context.Context `json:"-"`
 	requestConfig config.Config   `json:"-"`
