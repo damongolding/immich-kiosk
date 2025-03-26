@@ -1327,17 +1327,17 @@ To validate webhooks on your server, you should:
 
 ### Available Events
 
-| Event                              | Description                                             |
-|------------------------------------|---------------------------------------------------------|
-|`asset.new`                         | Triggered when a new image is requested from Kiosk      |
-|`asset.previous`                    | Triggered when a previous image is requested from Kiosk |
-|`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich  |
-|`cache.flushed`                     | Triggered when the cache is manually cleared            |
+| Event                              | Description                                                                         |
+|------------------------------------|-------------------------------------------------------------------------------------|
+|`asset.new`                         | Triggered when a new image is requested from Kiosk                                  |
+|`asset.previous`                    | Triggered when a previous image is requested from Kiosk                             |
+|`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich                              |
+|`cache.flushed`                     | Triggered when the cache is manually cleared                                        |
 |`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
-|`user.favorite.info_overlay`        | Triggered when the "favorite" button is clicked in the image details overlay |
-|`user.unfavorite.info_overlay`      | Triggered when the "unfavorite" button is clicked in the image details overlay |
-|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the image details overlay |
-|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the image details overlay |
+|`user.favorite.info_overlay`        | Triggered when the "favorite" button is clicked in the image details overlay        |
+|`user.unfavorite.info_overlay`      | Triggered when the "unfavorite" button is clicked in the image details overlay      |
+|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the image details overlay            |
+|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the image details overlay          |
 
 ### Webhook Payload
 
@@ -1508,7 +1508,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - [x] prev/next navigation
 - [x] Splitview
 - [x] Splitview related images
-- [ ] Exclude albums
+- [x] Exclude albums
 - [ ] Enable albums with `date_filter`
 - [x] Multi location weather
 - [x] Default weather location

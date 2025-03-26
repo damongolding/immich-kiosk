@@ -606,18 +606,24 @@ func (a *Asset) hasValidPeople(requestID, deviceID string) bool {
 }
 
 // hasValidTags checks if the asset has any tags that would exclude it from processing.
-// Fetches asset info if needed and checks for the skip tag.
+// It first fetches additional asset metadata via AssetInfo if needed. After getting
+// the metadata, it restores the asset's orientation ratio since AssetInfo can override
+// those values. Finally it checks if the asset has the special "skip" tag that
+// indicates it should be excluded.
 //
 // Parameters:
-//   - requestID: Unique identifier for the request
-//   - deviceID: ID of the device making the request
+//   - requestID: Unique identifier for the request, used for logging and caching
+//   - deviceID: ID of the device making the request, used for caching
 //
 // Returns:
-//   - bool: true if asset has no excluding tags, false otherwise
+//   - bool: true if asset has no excluding tags (like "skip"), false if it should be excluded
 func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 	if err := a.AssetInfo(requestID, deviceID); err != nil {
 		log.Error("Failed to get additional asset data", "error", err)
 	}
+
+	// AssetInfo overrides IsPortrait and IsLandscape so lets add them back
+	a.addRatio()
 
 	return !a.containsTag(kiosk.TagSkip)
 }
