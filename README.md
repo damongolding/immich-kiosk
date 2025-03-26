@@ -248,6 +248,7 @@ services:
       KIOSK_TIME_FORMAT: 24
       KIOSK_SHOW_DATE: false
       KIOSK_DATE_FORMAT: YYYY/MM/DD
+      KIOSK_CLOCK_SOURCE: client
       # Kiosk behaviour
       KIOSK_REFRESH: 60
       KIOSK_DISABLE_SCREENSAVER: false
