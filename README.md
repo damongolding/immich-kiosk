@@ -307,7 +307,7 @@ services:
       KIOSK_SHOW_MORE_INFO_IMAGE_LINK: true
       KIOSK_SHOW_MORE_INFO_QR_CODE: true
       # More info actions
-      KIOSK_FAVORITE_BUTTON_ACTION: favorite
+      KIOSK_LIKE_BUTTON_ACTION: favorite
       KIOSK_HIDE_BUTTON_ACTION: tag
       # Kiosk settings
       KIOSK_WATCH_CONFIG: false
@@ -423,7 +423,7 @@ See the file `config.example.yaml` for an example config file
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
-| [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information. |
+| [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information.
 | show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available). |
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF           | bool               | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION       | bool               | false       | Display the image location from METADATA (if available).                                   |
@@ -431,7 +431,7 @@ See the file `config.example.yaml` for an example config file
 | show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s)                   |
 | show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay       |
 | show_more_info_qr_code            | KIOSK_SHOW_MORE_INFO_QR_CODE    | bool               | true        | Displays a QR code linking to the original image (in Immich) in the additional information overlay |
-| [favorite_button_action](#favorite-button)            | KIOSK_FAVORITE_BUTTON_ACTION    | []string           | [favorite]  | Action(s) to perform when the favorite button is clicked. Supported actions are [favorite, album]. See [favorite button](#favorite-button) for more information. |
+| [like_button_action](#like-button)            | KIOSK_LIKE_BUTTON_ACTION    | []string           | [favorite]  | Action(s) to perform when the like button is clicked. Supported actions are [favorite, album]. See [like button](#like-button) for more information. |
 | [hide_button_action](#hide-button)                | KIOSK_HIDE_BUTTON_ACTION        | []string           | [tag]       | Action(s) to perform when the hide button is clicked. Supported actions are [tag, archive]. See [hide button](#hide-button) for more information. |
 | immich_users_api_keys             | N/A                     | map[string]string          | {}          | key:value mappings of Immich usernames to their corresponding API keys. See [multiple users](#multiple-users) for more information. |
 | show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information. |
@@ -1175,15 +1175,15 @@ Kiosk's display is divided into interactive zones:
 
 ------
 
-## Favorite button
-Configure how the favorite button should behave.
+## Like button
+Configure how the like button should behave.
 
 ### Favorite (the default)
 Set asset as a favorite inside Immich.
 
 Example:
 ```yaml
-favorite_button_action: favorite
+like_button_action: favorite
 ```
 
 ### Album
@@ -1191,7 +1191,7 @@ Add asset to the "Kiosk Favorites" albums, which will be created if it doesn't e
 
 Example:
 ```yaml
-favorite_button_action: album
+like_button_action: album
 ```
 
 ### Both
@@ -1199,7 +1199,7 @@ Marks the asset as a favourite and adds it to the 'Kiosk Favorites' album
 
 Example:
 ```yaml
-favorite_button_action: [favorite, album]
+like_button_action: [favorite, album]
 ```
 
 ------
@@ -1335,8 +1335,8 @@ To validate webhooks on your server, you should:
 |`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich                              |
 |`cache.flushed`                     | Triggered when the cache is manually cleared                                        |
 |`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
-|`user.favorite.info_overlay`        | Triggered when the "favorite" button is clicked in the image details overlay        |
-|`user.unfavorite.info_overlay`      | Triggered when the "unfavorite" button is clicked in the image details overlay      |
+|`user.like.info_overlay`        | Triggered when the "like" button is clicked in the image details overlay        |
+|`user.unlike.info_overlay`      | Triggered when the "unlike" button is clicked in the image details overlay      |
 |`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the image details overlay            |
 |`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the image details overlay          |
 

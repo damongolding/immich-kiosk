@@ -24,8 +24,8 @@ const (
 	PrefetchAsset                 WebhookEvent = "asset.prefetch"
 	CacheFlush                    WebhookEvent = "cache.flush"
 	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"
-	UserFavoriteInfoOverlay       WebhookEvent = "user.favorite.info_overlay"
-	UserUnfavoriteInfoOverlay     WebhookEvent = "user.unfavorite.info_overlay"
+	UserLikeInfoOverlay           WebhookEvent = "user.like.info_overlay"
+	UserUnlikeInfoOverlay         WebhookEvent = "user.unlike.info_overlay"
 	UserHideInfoOverlay           WebhookEvent = "user.hide.info_overlay"
 	UserUnhideInfoOverlay         WebhookEvent = "user.unhide.info_overlay"
 )

@@ -288,8 +288,8 @@ type Config struct {
 	// ShowMoreInfoQrCode displays a QR code linking to the original image in the additional information panel
 	ShowMoreInfoQrCode bool `json:"showMoreInfoQrCode" mapstructure:"show_more_info_qr_code" query:"show_more_info_qr_code" form:"show_more_info_qr_code" default:"true"`
 
-	// FavoriteButtonAction indicates the action to take when the favorite button is clicked
-	FavoriteButtonAction []string `json:"favoriteButtonAction" mapstructure:"favorite_button_action" query:"favorite_button_action" form:"favorite_button_action" default:"[favorite]"`
+	// LikeButtonAction indicates the action to take when the like button is clicked
+	LikeButtonAction []string `json:"likeButtonAction" mapstructure:"like_button_action" query:"like_button_action" form:"like_button_action" default:"[favorite]"`
 	// HideButtonAction indicates the action to take when the hide button is clicked
 	HideButtonAction []string `json:"hideButtonAction" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
 

@@ -93,7 +93,8 @@ show_more_info: true
 show_more_info_image_link: true
 show_more_info_qr_code: true
 
-favorite_button_action: favorite # album, favorite or both [album, favorite]
+like_button_action: favorite # album, favorite or both [album, favorite]
+hide_button_action: tag # tag, archive, or both [tag, archive]
 
 ## Weather feature - you’ll need an API key from OpenWeatherMap
 # weather:
