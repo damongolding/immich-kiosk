@@ -66,7 +66,7 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		viewData, err := generateViewData(requestConfig, requestCtx, requestID, deviceID, false)
 		if err != nil {
-			return RenderError(c, err, "retrieving image")
+			return RenderError(c, err, "retrieving asset")
 		}
 
 		if requestConfig.Kiosk.PreFetch {

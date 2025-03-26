@@ -20,9 +20,10 @@ import (
 )
 
 const (
-	maxWeatherRetries   = 3
-	maxRedirects        = 10
-	redirectCountHeader = "X-Redirect-Count"
+	maxWeatherRetries      = 3
+	maxProcessAssetRetries = 3
+	maxRedirects           = 10
+	redirectCountHeader    = "X-Redirect-Count"
 )
 
 var (

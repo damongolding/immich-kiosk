@@ -115,7 +115,7 @@ func PreviousAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFu
 
 					imgBytes, previewErr := asset.ImagePreview()
 					if previewErr != nil {
-						return fmt.Errorf("retrieving image: %w", previewErr)
+						return fmt.Errorf("retrieving asset: %w", previewErr)
 					}
 
 					img, byteErr := utils.BytesToImage(imgBytes)

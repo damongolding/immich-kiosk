@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"image"
 	"math/rand/v2"
@@ -259,20 +260,30 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 // It returns the image bytes and an error if any step fails.
 func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetType, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
 
+	var err error
+
 	assets, assetsErr := gatherAssetBuckets(immichAsset, requestConfig, requestID, deviceID)
 	if assetsErr != nil {
 		return nil, assetsErr
 	}
 
-	pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
+	for range maxProcessAssetRetries {
 
-	if err := retrieveImage(immichAsset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, allowedAssetTypes, requestID, deviceID, isPrefetch); err != nil {
-		return nil, err
+		pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
+
+		err = retrieveImage(immichAsset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, allowedAssetTypes, requestID, deviceID, isPrefetch)
+		if err != nil {
+			continue
+		}
+
+		//  At this point immichAsset could be a video or an image
+		if requestConfig.ExperimentalAlbumVideo && immichAsset.Type == immich.VideoType {
+			return processVideo(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
+		}
 	}
 
-	//  At this point immichAsset could be a video or an image
-	if requestConfig.ExperimentalAlbumVideo && immichAsset.Type == immich.VideoType {
-		return processVideo(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
+	if err != nil {
+		return nil, errors.New("max retries exceeded")
 	}
 
 	return processImage(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
@@ -430,7 +441,7 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	// Process image
 	img, err := processAsset(&immichAsset, allowedAssetTypes, requestConfig, metadata.requestID, metadata.deviceID, metadata.urlString, isPrefetch)
 	if err != nil {
-		return common.ViewImageData{}, fmt.Errorf("selecting image: %w", err)
+		return common.ViewImageData{}, fmt.Errorf("selecting asset: %w", err)
 	}
 
 	// Handle face detection and smart zoom
