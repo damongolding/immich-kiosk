@@ -228,14 +228,14 @@ func TagAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	}
 }
 
-// FavouriteAsset returns an echo.HandlerFunc that handles requests to favorite/unfavorite assets.
+// LikeAsset returns an echo.HandlerFunc that handles requests to favorite/unfavorite assets.
 // It validates the asset ID parameter and updates the favorite status of the specified asset
 // based on the configured favorite button action (either mark as favorite or add to album).
 //
 // Parameters:
 //   - baseConfig: Pointer to the global configuration object containing core settings
 //   - com: Common module containing context and utility functions
-//   - favouriteAsset: If true, marks the asset as favorite/adds to album. If false, unfavorites/removes from album
+//   - setAssetAsLiked: If true, marks the asset as favorite/adds to album. If false, unfavorites/removes from album
 //
 // Returns:
 //   - An echo.HandlerFunc that processes the favorite/unfavorite request and handles errors
@@ -243,7 +243,7 @@ func TagAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 //   - HTTP 400 if required asset ID parameter is missing
 //   - HTTP 500 if favorite/album operations fail
 //   - Fresh like button HTML is returned regardless of success/failure
-func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsset bool) echo.HandlerFunc {
+func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -279,8 +279,8 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 		var eg error
 
 		// Favourite Asset
-		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.FavoriteButtonActionFavorite) {
-			favouriteErr := immichAsset.FavouriteStatus(requestData.DeviceID, favouriteAsset)
+		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.LikeButtonActionFavorite) {
+			favouriteErr := immichAsset.FavouriteStatus(requestData.DeviceID, setAssetAsLiked)
 			if favouriteErr != nil {
 				log.Error(requestID+" error favouriting asset", "assetID", assetID, "error", favouriteErr)
 				eg = errors.Join(eg, favouriteErr)
@@ -288,8 +288,8 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 		}
 
 		// add asset to kiosk liked album
-		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.FavoriteButtonActionAlbum) {
-			switch favouriteAsset {
+		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.LikeButtonActionAlbum) {
+			switch setAssetAsLiked {
 			case true:
 				addErr := immichAsset.AddToKioskLikedAlbum(requestID, requestData.DeviceID)
 				if addErr != nil {
@@ -307,10 +307,10 @@ func FavouriteAsset(baseConfig *config.Config, com *common.Common, favouriteAsse
 
 		// handle error
 		if eg != nil {
-			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, !favouriteAsset, false, true, com.Secret()))
+			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, !setAssetAsLiked, false, true, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, partials.LikeButton(assetID, favouriteAsset, favouriteAsset, true, com.Secret()))
+		return Render(c, http.StatusOK, partials.LikeButton(assetID, setAssetAsLiked, setAssetAsLiked, true, com.Secret()))
 	}
 }
 

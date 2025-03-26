@@ -49,8 +49,8 @@ func TestImmichURLImmichApiKeyImmutability(t *testing.T) {
 	assert.Equal(t, originalUsersAPIKeys, c.ImmichUsersAPIKeys, "ImmichUsersAPIKeys field was allowed to be changed")
 }
 
-// TestImmichURLImmichMulitplePerson tests the addition of multiple persons to the config
-func TestImmichURLImmichMulitplePerson(t *testing.T) {
+// TestImmichURLImmichMultiplePerson tests the addition of multiple persons to the config
+func TestImmichURLImmichMultiplePerson(t *testing.T) {
 	c := New()
 
 	e := echo.New()
@@ -104,8 +104,8 @@ func TestMalformedURLs(t *testing.T) {
 	}
 }
 
-// TestImmichURLImmichMulitpleAlbum tests the addition and overriding of multiple albums in the config
-func TestImmichURLImmichMulitpleAlbum(t *testing.T) {
+// TestImmichURLImmichMultipleAlbum tests the addition and overriding of multiple albums in the config
+func TestImmichURLImmichMultipleAlbum(t *testing.T) {
 
 	// configWithBase
 	configWithBase := New()

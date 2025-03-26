@@ -39,11 +39,8 @@ func New() *Common {
 	return c
 }
 
-// InitializeSecret generates and sets the shared secret used for application security.
-// The shared secret is used for authenticating and validating requests between components.
-// Generation occurs only once through sync.Once synchronization to prevent duplicate secrets.
-// The generated secret is stored in the SharedSecret global variable.
-// Returns an error if the secret generation process fails.
+// initializeSecret generates and sets a secret token that is shared between application components
+// this shared secret is used for secure communication and authentication between services
 func (c *Common) initializeSecret() error {
 
 	secret, err := utils.GenerateSharedSecret()

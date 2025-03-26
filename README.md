@@ -774,7 +774,7 @@ http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 This feature allows you to prevent specific people from being displayed in the slideshow.
 
 > [!TIP]
-> You can remove excluded people that were previously set in your `config.yaml` or environment variables by using `none` in the URL query parameters.
+> You can remove all excluded people settings (from your `config.yaml` or environment variables) by using `none` in the URL query parameters.
 >
 > Example:
 > ```url
@@ -1194,7 +1194,7 @@ favorite_button_action: album
 ```
 
 ### Both
-Set asset as a favorite and add it to the "Kiosk Favorites" album.
+Marks the asset as a favourite and adds it to the 'Kiosk Favorites' album
 
 Example:
 ```yaml

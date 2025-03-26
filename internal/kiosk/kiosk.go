@@ -27,8 +27,8 @@ const (
 
 	TagSkip string = "kiosk-skip"
 
-	FavoriteButtonActionFavorite string = "favorite"
-	FavoriteButtonActionAlbum    string = "album"
-	HideButtonActionTag          string = "tag"
-	HideButtonActionArchive      string = "archive"
+	LikeButtonActionFavorite string = "favorite"
+	LikeButtonActionAlbum    string = "album"
+	HideButtonActionTag      string = "tag"
+	HideButtonActionArchive  string = "archive"
 )

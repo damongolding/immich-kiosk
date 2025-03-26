@@ -2,7 +2,6 @@ package routes
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"image"
 	"math/rand/v2"
@@ -280,13 +279,12 @@ func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetTyp
 		if requestConfig.ExperimentalAlbumVideo && immichAsset.Type == immich.VideoType {
 			return processVideo(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
 		}
+
+		return processImage(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 	}
 
-	if err != nil {
-		return nil, errors.New("max retries exceeded")
-	}
+	return nil, fmt.Errorf("%w: max retries exceeded", err)
 
-	return processImage(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 }
 
 // processVideo handles retrieving and processing video assets.

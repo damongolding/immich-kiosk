@@ -143,8 +143,8 @@ func main() {
 
 	e.POST("/asset/tag", routes.TagAsset(baseConfig, c))
 
-	e.POST("/asset/favourite", routes.FavouriteAsset(baseConfig, c, true))
-	e.POST("/asset/unfavourite", routes.FavouriteAsset(baseConfig, c, false))
+	e.POST("/asset/like", routes.LikeAsset(baseConfig, c, true))
+	e.POST("/asset/unlike", routes.LikeAsset(baseConfig, c, false))
 
 	e.POST("/asset/hide", routes.HideAsset(baseConfig, c, true))
 	e.POST("/asset/unhide", routes.HideAsset(baseConfig, c, false))
