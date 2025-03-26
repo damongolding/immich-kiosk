@@ -21,9 +21,9 @@ import (
 
 templ LikeButton(ID string, isLiked bool, liked bool, isButtonEnabled bool, secret string) {
 	{{
-		webhook := webhooks.UserFavoriteInfoOverlay
+		webhook := webhooks.UserLikeInfoOverlay
 		if isLiked {
-			webhook = webhooks.UserUnfavoriteInfoOverlay
+			webhook = webhooks.UserUnlikeInfoOverlay
 		}
 	}}
 	<button
