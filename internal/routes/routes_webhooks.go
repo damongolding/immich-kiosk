@@ -71,8 +71,8 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		switch webhooks.WebhookEvent(kioskWebhookEvent) {
 		case webhooks.UserWebhookTriggerInfoOverlay,
-			webhooks.UserFavoriteInfoOverlay,
-			webhooks.UserUnfavoriteInfoOverlay,
+			webhooks.UserLikeInfoOverlay,
+			webhooks.UserUnlikeInfoOverlay,
 			webhooks.UserHideInfoOverlay,
 			webhooks.UserUnhideInfoOverlay:
 

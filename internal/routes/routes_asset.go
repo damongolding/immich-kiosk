@@ -279,7 +279,7 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 		var eg error
 
 		// Favourite Asset
-		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.LikeButtonActionFavorite) {
+		if slices.Contains(requestConfig.LikeButtonAction, kiosk.LikeButtonActionFavorite) {
 			favouriteErr := immichAsset.FavouriteStatus(requestData.DeviceID, setAssetAsLiked)
 			if favouriteErr != nil {
 				log.Error(requestID+" error favouriting asset", "assetID", assetID, "error", favouriteErr)
@@ -288,7 +288,7 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 		}
 
 		// add asset to kiosk liked album
-		if slices.Contains(requestConfig.FavoriteButtonAction, kiosk.LikeButtonActionAlbum) {
+		if slices.Contains(requestConfig.LikeButtonAction, kiosk.LikeButtonActionAlbum) {
 			switch setAssetAsLiked {
 			case true:
 				addErr := immichAsset.AddToKioskLikedAlbum(requestID, requestData.DeviceID)
