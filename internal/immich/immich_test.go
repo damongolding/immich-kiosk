@@ -64,13 +64,13 @@ func TestFacesCenterPoint(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		asset ImmichAsset
+		asset Asset
 		wantX float64
 		wantY float64
 	}{
 		{
 			name: "No people",
-			asset: ImmichAsset{
+			asset: Asset{
 				People:          []Person{},
 				UnassignedFaces: []Face{},
 			},
@@ -79,7 +79,7 @@ func TestFacesCenterPoint(t *testing.T) {
 		},
 		{
 			name: "People but no faces",
-			asset: ImmichAsset{
+			asset: Asset{
 				People: []Person{
 					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0, ImageWidth: 1000, ImageHeight: 1000}}},
 					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0, ImageWidth: 1000, ImageHeight: 1000}}},
@@ -91,7 +91,7 @@ func TestFacesCenterPoint(t *testing.T) {
 		},
 		{
 			name: "Zero dimensions",
-			asset: ImmichAsset{
+			asset: Asset{
 				People: []Person{
 					{Faces: []Face{{BoundingBoxX1: 10, BoundingBoxY1: 10, BoundingBoxX2: 20, BoundingBoxY2: 20, ImageWidth: 0, ImageHeight: 0}}},
 				},
@@ -102,7 +102,7 @@ func TestFacesCenterPoint(t *testing.T) {
 		},
 		{
 			name: "Single face",
-			asset: ImmichAsset{
+			asset: Asset{
 				People: []Person{
 					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
 				},
@@ -113,7 +113,7 @@ func TestFacesCenterPoint(t *testing.T) {
 		},
 		{
 			name: "Multiple faces",
-			asset: ImmichAsset{
+			asset: Asset{
 				People: []Person{
 					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
 					{Faces: []Face{{BoundingBoxX1: 300, BoundingBoxY1: 300, BoundingBoxX2: 400, BoundingBoxY2: 400, ImageWidth: 1000, ImageHeight: 1000}}},
@@ -125,7 +125,7 @@ func TestFacesCenterPoint(t *testing.T) {
 		},
 		{
 			name: "Multiple faces but not on the first person",
-			asset: ImmichAsset{
+			asset: Asset{
 				People: []Person{
 					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0, ImageWidth: 1000, ImageHeight: 1000}}},
 					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
@@ -138,7 +138,7 @@ func TestFacesCenterPoint(t *testing.T) {
 		},
 		{
 			name: "Multiple faces but not on the second person",
-			asset: ImmichAsset{
+			asset: Asset{
 				People: []Person{
 					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
 					{Faces: []Face{{BoundingBoxX1: 0, BoundingBoxY1: 0, BoundingBoxX2: 0, BoundingBoxY2: 0, ImageWidth: 1000, ImageHeight: 1000}}},
@@ -164,51 +164,51 @@ func TestFacesCenterPoint(t *testing.T) {
 func TestRemoveExcludedAlbums(t *testing.T) {
 	tests := []struct {
 		name     string
-		albums   ImmichAlbums
+		albums   Albums
 		exclude  []string
-		expected ImmichAlbums
+		expected Albums
 	}{
 		{
 			name: "removes excluded albums",
-			albums: ImmichAlbums{
+			albums: Albums{
 				{ID: "1"},
 				{ID: "2"},
 				{ID: "3"},
 			},
 			exclude: []string{"2"},
-			expected: ImmichAlbums{
+			expected: Albums{
 				{ID: "1"},
 				{ID: "3"},
 			},
 		},
 		{
 			name: "handles empty exclude list",
-			albums: ImmichAlbums{
+			albums: Albums{
 				{ID: "1"},
 				{ID: "2"},
 			},
 			exclude: []string{},
-			expected: ImmichAlbums{
+			expected: Albums{
 				{ID: "1"},
 				{ID: "2"},
 			},
 		},
 		{
 			name:     "handles empty albums list",
-			albums:   ImmichAlbums{},
+			albums:   Albums{},
 			exclude:  []string{"1"},
-			expected: ImmichAlbums{},
+			expected: Albums{},
 		},
 		{
 			name: "handles multiple excludes",
-			albums: ImmichAlbums{
+			albums: Albums{
 				{ID: "1"},
 				{ID: "2"},
 				{ID: "3"},
 				{ID: "4"},
 			},
 			exclude: []string{"1", "3", "4"},
-			expected: ImmichAlbums{
+			expected: Albums{
 				{ID: "2"},
 			},
 		},

@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
 	"github.com/charmbracelet/log"
@@ -19,55 +18,59 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var (
-	initOnce sync.Once
-
-	// shared context
-	Context context.Context
-	cancel  context.CancelFunc
-
-	// SharedSecret stores the application-wide shared secret string
-	SharedSecret string
-)
-
-// Initialize sets up the application context and shared secret.
-// It ensures initialization occurs only once using sync.Once.
-// Returns any errors that occurred during initialization.
-func Initialize() error {
-	var err error
-
-	initOnce.Do(func() {
-		err = initialize()
-	})
-
-	return err
+type Common struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+	secret string
 }
 
-// initialize performs the actual initialization work:
-// - Creates cancellable context
-// - Initializes shared secret
-// - Sets up graceful shutdown handling
-// Returns any errors that occurred during initialization.
-func initialize() error {
-	Context, cancel = context.WithCancel(context.Background())
+func New() *Common {
+	ctx, cancel := context.WithCancel(context.Background())
+	c := &Common{
+		ctx:    ctx,
+		cancel: cancel,
+	}
 
-	if err := InitializeSecret(); err != nil {
+	if err := c.initializeSecret(); err != nil {
 		log.Fatal("failed to initialize shared secret", "error", err)
 	}
 
-	// Handle graceful shutdown on interrupt signals
+	c.handleGracefulShutdown()
+	return c
+}
+
+// initializeSecret generates and sets a secret token that is shared between application components
+// this shared secret is used for secure communication and authentication between services
+func (c *Common) initializeSecret() error {
+
+	secret, err := utils.GenerateSharedSecret()
+	if err != nil {
+		return fmt.Errorf("failed to generate shared secret: %w", err)
+	}
+	c.secret = secret
+
+	return nil
+}
+
+func (c *Common) handleGracefulShutdown() {
 	go func() {
 		sigChan := make(chan os.Signal, 2)
 		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 		select {
 		case <-sigChan:
-			cancel()
-		case <-Context.Done():
+			c.cancel()
+		case <-c.ctx.Done():
 		}
 		signal.Stop(sigChan)
 	}()
+}
 
-	return nil
+func (c *Common) Context() context.Context {
+	return c.ctx
+}
+
+func (c *Common) Secret() string {
+	return c.secret
 }
 
 // RouteRequestData contains request metadata and configuration used across routes
@@ -78,38 +81,23 @@ type RouteRequestData struct {
 	ClientName    string        // Name of the client making the request
 }
 
-// InitializeSecret generates and sets the shared secret used for application security.
-// The shared secret is used for authenticating and validating requests between components.
-// Generation occurs only once through sync.Once synchronization to prevent duplicate secrets.
-// The generated secret is stored in the SharedSecret global variable.
-// Returns an error if the secret generation process fails.
-func InitializeSecret() error {
-
-	secret, err := utils.GenerateSharedSecret()
-	if err != nil {
-		return fmt.Errorf("failed to generate shared secret: %w", err)
-	}
-	SharedSecret = secret
-
-	return nil
-}
-
 // ViewImageData contains the image data and metadata for displaying an image in the view
 type ViewImageData struct {
-	ImmichAsset   immich.ImmichAsset // ImmichAsset contains immich asset data
-	ImageData     string             // ImageData contains the image as base64 data
-	ImageBlurData string             // ImageBlurData contains the blurred image as base64 data
-	ImageDate     string             // ImageDate contains the date of the image
-	User          string             // User the user api key used
+	ImmichAsset   immich.Asset // ImmichAsset contains immich asset data
+	ImageData     string       // ImageData contains the image as base64 data
+	ImageBlurData string       // ImageBlurData contains the blurred image as base64 data
+	ImageDate     string       // ImageDate contains the date of the image
+	User          string       // User the user api key used
 }
 
 // ViewData contains all the data needed to render a view in the application
 type ViewData struct {
 	KioskVersion  string          // KioskVersion contains the current build version of Kiosk
+	RequestID     string          // RequestID contains the unique identifier for the request
 	DeviceID      string          // DeviceID contains the unique identifier for the device
 	Assets        []ViewImageData // Assets contains the collection of assets to display in view
 	Queries       url.Values      // Queries contains the URL query parameters
-	CustomCss     []byte          // CustomCss contains custom CSS styling as bytes
+	CustomCSS     []byte          // CustomCSS contains custom CSS styling as bytes
 	config.Config                 // Config contains the instance configuration
 }
 

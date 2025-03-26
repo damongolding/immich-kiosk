@@ -3,7 +3,9 @@ package immich
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"regexp"
 	"slices"
@@ -32,11 +34,11 @@ import (
 // - Ratio checking of images
 //
 // Returns an error if no valid images are found after max retries
-func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
+func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
 
-	dateStart, dateEnd, err := determineDateRange(dateRange)
-	if err != nil {
-		return err
+	dateStart, dateEnd, dateErr := determineDateRange(dateRange)
+	if dateErr != nil {
+		return dateErr
 	}
 
 	dateStartHuman := dateStart.Format("2006-01-02 15:04:05 MST")
@@ -50,55 +52,55 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 
 	for range MaxRetries {
 
-		var immichAssets []ImmichAsset
+		var immichAssets []Asset
 
-		u, err := url.Parse(requestConfig.ImmichUrl)
+		u, err := url.Parse(a.requestConfig.ImmichURL)
 		if err != nil {
 			return fmt.Errorf("parsing url: %w", err)
 		}
 
-		requestBody := ImmichSearchRandomBody{
+		requestBody := SearchRandomBody{
 			Type:        string(ImageType),
 			TakenAfter:  dateStart.Format(time.RFC3339),
 			TakenBefore: dateEnd.Format(time.RFC3339),
 			WithExif:    true,
 			WithPeople:  true,
-			Size:        requestConfig.Kiosk.FetchedAssetsSize,
+			Size:        a.requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
-		if requestConfig.ShowArchived {
+		if a.requestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 
-		apiUrl := url.URL{
+		apiURL := url.URL{
 			Scheme:   u.Scheme,
 			Host:     u.Host,
 			Path:     "api/search/random",
 			RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
 		}
 
-		jsonBody, err := json.Marshal(requestBody)
-		if err != nil {
-			return fmt.Errorf("marshaling request body: %w", err)
+		jsonBody, marshalErr := json.Marshal(requestBody)
+		if marshalErr != nil {
+			return fmt.Errorf("marshaling request body: %w", marshalErr)
 		}
 
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAssets)
-		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
+		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
+		apiBody, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 
 		err = json.Unmarshal(apiBody, &immichAssets)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -108,39 +110,33 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 
 		for immichAssetIndex, asset := range immichAssets {
 
-			if !asset.isValidAsset(ImageOnlyAssetTypes, i.RatioWanted) {
+			asset.Bucket = kiosk.SourceDateRange
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
+
+			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
 				continue
 			}
 
-			err := asset.AssetInfo(requestID, deviceID)
-			if err != nil {
-				log.Error("Failed to get additional asset data", "error", err)
-			}
-
-			if asset.containsTag(kiosk.TagSkip) {
-				continue
-			}
-
-			if requestConfig.Kiosk.Cache {
+			if a.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
-				jsonBytes, err := json.Marshal(immichAssetsToCache)
-				if err != nil {
-					log.Error("Failed to marshal immichAssetsToCache", "error", err)
-					return err
+				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
+				if cacheMarshalErr != nil {
+					log.Error("Failed to marshal immichAssetsToCache", "error", cacheMarshalErr)
+					return cacheMarshalErr
 				}
 
 				// replace cache with used image(s) removed
-				err = cache.Replace(apiCacheKey, jsonBytes)
-				if err != nil {
-					log.Debug("Failed to update cache", "error", err, "url", apiUrl.String())
+				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				if cacheErr != nil {
+					log.Debug("Failed to update cache", "error", cacheErr, "url", apiURL.String())
 				}
 			}
 
-			asset.Bucket = kiosk.SourceDateRange
 			asset.BucketID = dateRange
 
-			*i = asset
+			*a = asset
 
 			return nil
 		}
@@ -149,7 +145,7 @@ func (i *ImmichAsset) RandomImageInDateRange(dateRange, requestID, deviceID stri
 		cache.Delete(apiCacheKey)
 	}
 
-	return fmt.Errorf("No images found for '%s'. Max retries reached.", dateRange)
+	return fmt.Errorf("no images found for '%s'. Max retries reached", dateRange)
 }
 
 func determineDateRange(dateRange string) (time.Time, time.Time, error) {
@@ -219,7 +215,7 @@ func processDateRange(dateRange string) (time.Time, time.Time, error) {
 
 	dates := strings.SplitN(dateRange, "_to_", 2)
 	if len(dates) != 2 {
-		return dateStart, dateEnd, fmt.Errorf("Invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
+		return dateStart, dateEnd, fmt.Errorf("invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
 	}
 
 	if !strings.EqualFold(dates[0], "today") {
@@ -251,7 +247,7 @@ func extractDays(s string) (int, error) {
 	re := regexp.MustCompile(`\d+`)
 	match := re.FindString(s)
 	if match == "" {
-		return 0, fmt.Errorf("no number found")
+		return 0, errors.New("no number found")
 	}
 	return strconv.Atoi(match)
 }

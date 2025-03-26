@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v4"
 )
 
-func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
+func NewVideo() echo.HandlerFunc {
 	const bufferSize = 1024 * 1024 // Increased to 1MB buffer
 
 	return func(c echo.Context) error {
@@ -40,6 +40,8 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get video stats")
 		}
 
+		requestID := utils.ColorizeRequestID(c.Response().Header().Get(echo.HeaderXRequestID))
+
 		fileSize := info.Size()
 
 		// Set headers
@@ -57,7 +59,7 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 
 		// Check if-modified-since header
 		if ifModifiedSince := c.Request().Header.Get("If-Modified-Since"); ifModifiedSince != "" {
-			if t, err := time.Parse(http.TimeFormat, ifModifiedSince); err == nil {
+			if t, tErr := time.Parse(http.TimeFormat, ifModifiedSince); tErr == nil {
 				if info.ModTime().Unix() <= t.Unix() {
 					return c.NoContent(http.StatusNotModified)
 				}
@@ -68,42 +70,25 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 		c.Response().Header().Set("Accept-Ranges", "bytes")
 
 		// Initialize start and end
-		start, end := int64(0), fileSize-1
+		var start, end int64
 
-		statusCode := http.StatusOK
+		var statusCode int
 		rangeHeader := c.Request().Header.Get("Range")
-		if rangeHeader != "" {
-			statusCode = http.StatusPartialContent
-			ranges := strings.Split(strings.Replace(rangeHeader, "bytes=", "", 1), "-")
-			if len(ranges) != 2 {
-				return echo.NewHTTPError(http.StatusBadRequest, "Invalid range format")
-			}
-
-			if ranges[0] != "" {
-				start, err = strconv.ParseInt(ranges[0], 10, 64)
-				if err != nil {
-					return echo.NewHTTPError(http.StatusBadRequest, "Invalid range start")
-				}
-			}
-
-			if ranges[1] != "" {
-				end, err = strconv.ParseInt(ranges[1], 10, 64)
-				if err != nil {
-					return echo.NewHTTPError(http.StatusBadRequest, "Invalid range end")
-				}
-			}
-
-			// Add some logging
-			log.Debug("Video Range request", "start", start, "end", end, "fileSize", fileSize)
+		start, end, statusCode, err = parseRangeHeader(rangeHeader, fileSize)
+		if err != nil {
+			log.Error(requestID, "err", err)
+			return err
 		}
 
 		// Validate ranges more strictly
 		if start < 0 || end < 0 || start >= fileSize {
+			log.Error(requestID+" Invalid range", "start", start, "end", end, "fileSize", fileSize)
 			return echo.NewHTTPError(http.StatusRequestedRangeNotSatisfiable,
 				fmt.Sprintf("Invalid range: start=%d, end=%d, fileSize=%d", start, end, fileSize))
 		}
 
 		if start > end {
+			log.Error(requestID+" Invalid range: start is greater than end", "start", start, "end", end)
 			return echo.NewHTTPError(http.StatusRequestedRangeNotSatisfiable,
 				fmt.Sprintf("Invalid range: start (%d) is greater than end (%d)", start, end))
 		}
@@ -126,6 +111,7 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 		c.Response().Header().Set("X-Chunk-End", strconv.FormatInt(end, 10))
 
 		if _, err = video.Seek(start, io.SeekStart); err != nil {
+			log.Error(requestID + " Failed to seek video position")
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to seek video position")
 		}
 
@@ -147,4 +133,69 @@ func NewVideo(baseConfig *config.Config) echo.HandlerFunc {
 
 		return c.Stream(statusCode, vid.ImmichAsset.OriginalMimeType, bufferedReader)
 	}
+}
+
+func parseRangeHeader(rangeHeader string, fileSize int64) (int64, int64, int, error) {
+	var start, end int64
+	var err error
+	statusCode := http.StatusOK
+
+	if rangeHeader == "" {
+		return start, end, statusCode, nil
+	}
+
+	if !strings.HasPrefix(rangeHeader, "bytes=") {
+		return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range format")
+	}
+
+	statusCode = http.StatusPartialContent
+	ranges := strings.Split(strings.Replace(rangeHeader, "bytes=", "", 1), "-")
+	if len(ranges) != 2 {
+		return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range format")
+	}
+
+	// Handle empty start range
+	if ranges[0] == "" {
+		end, err = strconv.ParseInt(ranges[1], 10, 64)
+		if err != nil {
+			return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range end")
+		}
+		start = fileSize - end
+		if start < 0 {
+			start = 0
+		}
+		end = fileSize - 1
+		return start, end, statusCode, nil
+	}
+
+	// Parse start range
+	start, err = strconv.ParseInt(ranges[0], 10, 64)
+	if err != nil {
+		return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range start")
+	}
+
+	// Handle empty end range
+	if ranges[1] == "" {
+		end = fileSize - 1
+	} else {
+		end, err = strconv.ParseInt(ranges[1], 10, 64)
+		if err != nil {
+			return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range end")
+		}
+	}
+
+	// Validate ranges
+	if start >= fileSize {
+		return 0, 0, 0, echo.NewHTTPError(http.StatusRequestedRangeNotSatisfiable, "Range start exceeds file size")
+	}
+
+	if end >= fileSize {
+		end = fileSize - 1
+	}
+
+	if start > end {
+		return 0, 0, 0, echo.NewHTTPError(http.StatusRequestedRangeNotSatisfiable, "Invalid range: start > end")
+	}
+
+	return start, end, statusCode, nil
 }

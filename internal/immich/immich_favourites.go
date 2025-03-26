@@ -3,7 +3,9 @@ package immich
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"slices"
 
@@ -14,76 +16,33 @@ import (
 )
 
 // favouriteImagesCount retrieves the total count of favorite images from the Immich server.
-func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, error) {
+func (a *Asset) favouriteImagesCount(requestID, deviceID string) (int, error) {
 
 	var allFavouritesCount int
-	pageCount := 1
 
-	u, err := url.Parse(requestConfig.ImmichUrl)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
-		_, _, err = immichApiFail(allFavouritesCount, err, nil, "")
+		_, _, err = immichAPIFail(allFavouritesCount, err, nil, "")
 		return allFavouritesCount, err
 	}
 
-	requestBody := ImmichSearchRandomBody{
+	requestBody := SearchRandomBody{
 		Type:       string(ImageType),
 		IsFavorite: true,
 		WithPeople: false,
 		WithExif:   false,
-		Size:       requestConfig.Kiosk.FetchedAssetsSize,
+		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
-	if requestConfig.ShowArchived {
+	if a.requestConfig.ShowArchived {
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, requestConfig.DateFilter)
+	DateFilter(&requestBody, a.requestConfig.DateFilter)
 
-	for {
+	allFavouritesCount, err = a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 
-		var favourites ImmichSearchMetadataResponse
-
-		requestBody.Page = pageCount
-
-		// convert body to queries so url is unique and can be cached
-		queries, _ := query.Values(requestBody)
-
-		apiUrl := url.URL{
-			Scheme:   u.Scheme,
-			Host:     u.Host,
-			Path:     "api/search/metadata",
-			RawQuery: queries.Encode(),
-		}
-
-		jsonBody, err := json.Marshal(requestBody)
-		if err != nil {
-			_, _, err = immichApiFail(allFavouritesCount, err, nil, apiUrl.String())
-			return allFavouritesCount, err
-		}
-
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, favourites)
-		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
-		if err != nil {
-			_, _, err = immichApiFail(favourites, err, apiBody, apiUrl.String())
-			return allFavouritesCount, err
-		}
-
-		err = json.Unmarshal(apiBody, &favourites)
-		if err != nil {
-			_, _, err = immichApiFail(favourites, err, apiBody, apiUrl.String())
-			return allFavouritesCount, err
-		}
-
-		allFavouritesCount += favourites.Assets.Total
-
-		if favourites.Assets.NextPage == "" {
-			break
-		}
-
-		pageCount++
-	}
-
-	return allFavouritesCount, nil
+	return allFavouritesCount, err
 }
 
 // RandomImageFromFavourites retrieves a random favorite image from the Immich server.
@@ -112,7 +71,7 @@ func (i *ImmichAsset) favouriteImagesCount(requestID, deviceID string) (int, err
 // Returns:
 //   - error: Any error encountered during the operation, including API failures,
 //     marshaling errors, cache operations, or when max retries are reached with no viable images found
-func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allowedAssetType []ImmichAssetType, isPrefetch bool) error {
+func (a *Asset) RandomImageFromFavourites(requestID, deviceID string, _ []AssetType, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite image", true)
@@ -122,31 +81,31 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 
 	for range MaxRetries {
 
-		var immichAssets []ImmichAsset
+		var immichAssets []Asset
 
-		u, err := url.Parse(requestConfig.ImmichUrl)
+		u, err := url.Parse(a.requestConfig.ImmichURL)
 		if err != nil {
 			return fmt.Errorf("parsing url: %w", err)
 		}
 
-		requestBody := ImmichSearchRandomBody{
+		requestBody := SearchRandomBody{
 			Type:       string(ImageType),
 			IsFavorite: true,
 			WithExif:   true,
 			WithPeople: true,
-			Size:       requestConfig.Kiosk.FetchedAssetsSize,
+			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
-		if requestConfig.ShowArchived {
+		if a.requestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
 
-		DateFilter(&requestBody, requestConfig.DateFilter)
+		DateFilter(&requestBody, a.requestConfig.DateFilter)
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 
-		apiUrl := url.URL{
+		apiURL := url.URL{
 			Scheme:   u.Scheme,
 			Host:     u.Host,
 			Path:     "api/search/random",
@@ -158,20 +117,20 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 			return fmt.Errorf("marshaling request body: %w", err)
 		}
 
-		immichApiCall := withImmichApiCache(i.immichApiCall, requestID, deviceID, immichAssets)
-		apiBody, err := immichApiCall("POST", apiUrl.String(), jsonBody)
+		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
+		apiBody, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 
 		err = json.Unmarshal(apiBody, &immichAssets)
 		if err != nil {
-			_, _, err = immichApiFail(immichAssets, err, apiBody, apiUrl.String())
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 
-		apiCacheKey := cache.ApiCacheKey(apiUrl.String(), deviceID, requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
@@ -181,39 +140,33 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 
 		for immichAssetIndex, asset := range immichAssets {
 
-			if !asset.isValidAsset(ImageOnlyAssetTypes, i.RatioWanted) {
+			asset.Bucket = kiosk.SourceAlbum
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
+
+			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
 				continue
 			}
 
-			err := asset.AssetInfo(requestID, deviceID)
-			if err != nil {
-				log.Error("Failed to get additional asset data", "error", err)
-			}
-
-			if asset.containsTag(kiosk.TagSkip) {
-				continue
-			}
-
-			if requestConfig.Kiosk.Cache {
+			if a.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
-				jsonBytes, err := json.Marshal(immichAssetsToCache)
-				if err != nil {
-					log.Error("Failed to marshal immichAssetsToCache", "error", err)
-					return err
+				jsonBytes, marshalErr := json.Marshal(immichAssetsToCache)
+				if marshalErr != nil {
+					log.Error("Failed to marshal immichAssetsToCache", "error", marshalErr)
+					return marshalErr
 				}
 
 				// replace cache minus used image
-				err = cache.Replace(apiCacheKey, jsonBytes)
-				if err != nil {
+				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				if cacheErr != nil {
 					log.Debug("cache not found!")
 				}
 			}
 
-			asset.Bucket = kiosk.SourceAlbum
 			asset.BucketID = kiosk.AlbumKeywordFavourites
 
-			*i = asset
+			*a = asset
 
 			return nil
 		}
@@ -222,5 +175,15 @@ func (i *ImmichAsset) RandomImageFromFavourites(requestID, deviceID string, allo
 		cache.Delete(apiCacheKey)
 	}
 
-	return fmt.Errorf("No images found for favourites. Max retries reached.")
+	return errors.New("no images found for favourites. Max retries reached")
+}
+
+func (a *Asset) FavouriteStatus(deviceID string, favourite bool) error {
+
+	body := UpdateAssetBody{
+		IsFavorite: favourite,
+		IsArchived: a.IsArchived,
+	}
+
+	return a.updateAsset(deviceID, body)
 }

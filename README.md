@@ -260,6 +260,7 @@ services:
       KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_EXPERIMENTAL_ALBUM_VIDEO: false
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
+      KIOSK_EXCLUDED_PEOPLE: "PERSON_ID,PERSON_ID,PERSON_ID"
       KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
       KIOSK_TAG: "TAG_VALUE,TAG_VALUE,TAG_VALUE"
       KIOSK_MEMORIES: false
@@ -304,6 +305,9 @@ services:
       KIOSK_SHOW_MORE_INFO: true
       KIOSK_SHOW_MORE_INFO_IMAGE_LINK: true
       KIOSK_SHOW_MORE_INFO_QR_CODE: true
+      # More info actions
+      KIOSK_FAVORITE_BUTTON_ACTION: favorite
+      KIOSK_HIDE_BUTTON_ACTION: tag
       # Kiosk settings
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
@@ -375,6 +379,7 @@ See the file `config.example.yaml` for an example config file
 | time_format                       | KIOSK_TIME_FORMAT       | 24 \| 12                   | 24          | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
+| clock_source                      | KIOSK_CLOCK_SOURCE      | client \| server           | client      | The source of the clock. Either client or server.                                          |
 | refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds a image will be displayed for.                                       |
 | disable_screensaver             | KIOSK_DISABLE_SCREENSAVER | bool                       | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
 | optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low-powered device, this may help. |
@@ -385,6 +390,7 @@ See the file `config.example.yaml` for an example config file
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [experimental_album_video](#experimental-album-video-support) | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. See [experimental album video](#experimental-album-video-support) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
+| [excluded_people](#exclude-people) | KIOSK_EXCLUDED_PEOPLE   | []string                  | []         | The ID(s) of a specific person or people you want to exclude. See [Exclude people](#exclude-people) for more information. |
 | [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges. See [Date range](#date-range) for more information. |
 | [tag](#tags)                      | KIOSK_TAG               | []string                   | []          | Tag or tags you want to display. See [Tags](#tags) for more information. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memories. |
@@ -424,8 +430,10 @@ See the file `config.example.yaml` for an example config file
 | show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s)                   |
 | show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay       |
 | show_more_info_qr_code            | KIOSK_SHOW_MORE_INFO_QR_CODE    | bool               | true        | Displays a QR code linking to the original image (in Immich) in the additional information overlay |
-| immich_users_api_keys             | N/A                     | map[string]string          | {}          | key:value mappings of Immich usernames to their corresponding API keys. See [multiple users](#multiple-users) for more information |
-| show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information |
+| [favorite_button_action](#favorite-button)            | KIOSK_FAVORITE_BUTTON_ACTION    | []string           | [favorite]  | Action(s) to perform when the favorite button is clicked. Supported actions are [favorite, album]. See [favorite button](#favorite-button) for more information. |
+| [hide_button_action](#hide-button)                | KIOSK_HIDE_BUTTON_ACTION        | []string           | [tag]       | Action(s) to perform when the hide button is clicked. Supported actions are [tag, archive]. See [hide button](#hide-button) for more information. |
+| immich_users_api_keys             | N/A                     | map[string]string          | {}          | key:value mappings of Immich usernames to their corresponding API keys. See [multiple users](#multiple-users) for more information. |
+| show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information. |
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
 
 ### Additional options
@@ -667,10 +675,18 @@ http://{URL}?experimental_album_video=true
 
 ## Exclude albums
 
-This feature allows you to prevent specific albums from being displayed in the slideshow, even when using broad album selection methods like `all` or `shared`.
+This feature allows you to prevent specific album assets from being displayed in the slideshow.
 
 > [!NOTE]
 > Excluded albums take precedence over album selection methods. If an album is in both the selected albums and excluded albums lists, it will be excluded.
+
+> [!TIP]
+> You can remove excluded albums that were previously set in your `config.yaml` or environment variables by using `none` in the URL query parameters.
+>
+> Example:
+> ```url
+> https://{URL}?album=ALBUM_ID&exclude_album=none
+> ```
 
 ### Getting an albums ID from Immich
 1. Open Immich's web interface and click on "Albums" in the left-hand navigation.
@@ -746,6 +762,58 @@ environment:
 
 ```url
 http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
+```
+
+------
+
+## Exclude people
+
+> [!NOTE]
+> The person or people you want to exclude from the slideshow must be tagged for the exclusion to work.
+
+This feature allows you to prevent specific people from being displayed in the slideshow.
+
+> [!TIP]
+> You can remove all excluded people settings (from your `config.yaml` or environment variables) by using `none` in the URL query parameters.
+>
+> Example:
+> ```url
+> https://{URL}?album=ALBUM_ID&exclude_person=none
+> ```
+
+### Getting a person's ID from Immich
+1. Open Immich's web interface and click on "Explore" in the left-hand navigation.
+2. Click on the person you want the ID of (you may have to click "view all" if you don't see them).
+3. The url will now look something like this `http://192.168.86.123:2283/people/a04175f4-97bb-4d97-8d49-3700263043e5`.
+4. The persons ID is everything after `people/`, so in this example it would be `a04175f4-97bb-4d97-8d49-3700263043e5`.
+
+
+There are **three** ways you can exclude people:
+
+> [!NOTE]
+> These methods are applied in order of precedence. URL queries take the highest priority, followed by environment variables, and finally the config.yaml file.
+> Each subsequent method overwrites the settings from the previous ones.
+
+1. via config.yaml file
+```yaml
+excluded_people:
+  - PERSON_ID
+  - PERSON_ID
+```
+
+2. via ENV in your docker-compose file use a `,` to separate IDs
+```yaml
+environment:
+  KIOSK_EXCLUDED_PEOPLE: "PERSON_ID,PERSON_ID,PERSON_ID"
+```
+
+3. via url queries:
+
+> [!NOTE]
+> it is `exclude_person=` and not `excluded_people=`
+
+```url
+http://{URL}?exclude_person=PERSON_ID&exclude_person=PERSON_ID&exclude_person=PERSON_ID
 ```
 
 ------
@@ -849,7 +917,7 @@ Filters allow you to filter asset buckets (people/albums/date etc.) by certain c
 ### Date filter
 
 > [!NOTE]
-> `date_filter` only currently applies to person and random assets.
+> `date_filter` applies to person, album, tag and random assets.
 
 `date_filter` accepts the same values as [date range](#date-range).
 
@@ -994,7 +1062,7 @@ Kiosk will display a black screen and can optionally shows a faint clock if `sho
 
 ------
 
-# Custom CSS
+## Custom CSS
 > [!NOTE]
 > Custom CSS is applied after all other styles, allowing you to override any default styles.
 
@@ -1074,6 +1142,7 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
     unit: imperial
     lang: en
 ```
+
 ------
 
 ## Navigation Controls
@@ -1099,6 +1168,67 @@ Kiosk's display is divided into interactive zones:
 | ← Left Arrow  | Previous Image(s)                                        |
 | i Key         | Play/Pause and Toggle Menu and display more info overlay |
 | r Key         | Play/Pause and Toggle Menu and redirects info overlay    |
+| p Key         | Pause and Toggle Menu and redirects info overlay         |
+| shift+p Key   | Play and Toggle Menu and redirects info overlay          |
+
+
+------
+
+## Favorite button
+Configure how the favorite button should behave.
+
+### Favorite (the default)
+Set asset as a favorite inside Immich.
+
+Example:
+```yaml
+favorite_button_action: favorite
+```
+
+### Album
+Add asset to the "Kiosk Favorites" albums, which will be created if it doesn't exist.
+
+Example:
+```yaml
+favorite_button_action: album
+```
+
+### Both
+Marks the asset as a favourite and adds it to the 'Kiosk Favorites' album
+
+Example:
+```yaml
+favorite_button_action: [favorite, album]
+```
+
+------
+
+## Hide button
+Configure how the hide button should behave.
+
+### Tag (the default)
+Tag asset with the "kiosk-skip" tag.
+
+Example:
+```yaml
+hide_button_action: tag
+```
+
+### Archive
+Set asset as archived inside Immich.
+
+Example:
+```yaml
+hide_button_action: archive
+```
+
+### Both
+Add tag and archive asset.
+
+Example:
+```yaml
+hide_button_action: [tag, archive]
+```
 
 ------
 
@@ -1120,7 +1250,7 @@ Each redirect consists of:
 - `name`: The short path that users will use
 - `url`: The destination URL where users will be redirected to
 - `type`: Optional field that controls URL behavior:
-  - `internal`: Keeps the URL unchanged during redirection (useful for maintaining browser history)
+  - `internal`: The default behavior that keeps the URL unchanged during redirection (useful for maintaining browser history)
   - `external`: Allows URL changes during redirection (default if omitted)
 
 ### Examples
@@ -1130,13 +1260,14 @@ kiosk:
   redirects:
     - name: london
       url: /?weather=london
+      type: external
 
     - name: sheffield
       url: /?weather=sheffield
-      type: internal
 
     - name: our-wedding
       url: /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
+      type: external
 
 ```
 
@@ -1196,13 +1327,17 @@ To validate webhooks on your server, you should:
 
 ### Available Events
 
-| Event                              | Description                                             |
-|------------------------------------|---------------------------------------------------------|
-|`asset.new`                         | Triggered when a new image is requested from Kiosk      |
-|`asset.previous`                    | Triggered when a previous image is requested from Kiosk |
-|`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich  |
-|`cache.flushed`                     | Triggered when the cache is manually cleared            |
+| Event                              | Description                                                                         |
+|------------------------------------|-------------------------------------------------------------------------------------|
+|`asset.new`                         | Triggered when a new image is requested from Kiosk                                  |
+|`asset.previous`                    | Triggered when a previous image is requested from Kiosk                             |
+|`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich                              |
+|`cache.flushed`                     | Triggered when the cache is manually cleared                                        |
 |`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
+|`user.favorite.info_overlay`        | Triggered when the "favorite" button is clicked in the image details overlay        |
+|`user.unfavorite.info_overlay`      | Triggered when the "unfavorite" button is clicked in the image details overlay      |
+|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the image details overlay            |
+|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the image details overlay          |
 
 ### Webhook Payload
 
@@ -1373,7 +1508,7 @@ Then to access Kiosk you MUST add the password param in your URL e.g. http://{UR
 - [x] prev/next navigation
 - [x] Splitview
 - [x] Splitview related images
-- [ ] Exclude albums
+- [x] Exclude albums
 - [ ] Enable albums with `date_filter`
 - [x] Multi location weather
 - [x] Default weather location

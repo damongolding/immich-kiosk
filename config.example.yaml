@@ -20,6 +20,8 @@ show_archived: false # Allow assets marked as archived to be displayed.
 ## ID(s) of person or people to display
 person:
   - "PERSON_ID"
+excluded_people:
+  - "PERSON_ID"
 
 ## ID(s) of album or albums to display
 album:
@@ -89,6 +91,8 @@ show_image_id: false
 show_more_info: true
 show_more_info_image_link: true
 show_more_info_qr_code: true
+
+favorite_button_action: favorite # album, favorite or both [album, favorite]
 
 ## Weather feature - you’ll need an API key from OpenWeatherMap
 # weather:

@@ -8,7 +8,9 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -23,8 +25,8 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 
-		redirectCount, err := c.Cookie(redirectCountHeader)
-		if err != nil {
+		redirectCount, countErr := c.Cookie(redirectCountHeader)
+		if countErr != nil {
 			redirectCount = &http.Cookie{Value: "0"}
 		}
 
@@ -55,45 +57,45 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 
 		if redirectItem, exists := baseConfig.Kiosk.RedirectsMap[redirectName]; exists {
 
-			if strings.EqualFold(redirectItem.Type, "internal") {
+			if strings.EqualFold(redirectItem.Type, kiosk.RedirectExternal) {
+				c.SetCookie(&http.Cookie{
+					Name:  redirectCountHeader,
+					Value: strconv.Itoa(count + 1),
+				})
 
-				parsedUrl, err := url.Parse(redirectItem.URL)
-				if err != nil {
-					log.Error("parse internal redirect URL",
-						"url", redirectItem.URL,
-						"redirect", redirectName,
-						"error", err)
-
-					return echo.NewHTTPError(http.StatusInternalServerError, "Invalid redirect URL")
+				mergedRedirect := mergeRequestQueries(c.QueryParams(), redirectItem)
+				if _, err := url.Parse(mergedRedirect.URL); err != nil {
+					log.Error("Invalid merged redirect URL", "error", err)
+					return echo.NewHTTPError(http.StatusInternalServerError, "Failed to process redirect")
 				}
 
-				for key, values := range parsedUrl.Query() {
-					for _, value := range values {
-						c.QueryParams().Add(key, value)
-					}
+				return c.Redirect(http.StatusTemporaryRedirect, mergedRedirect.URL)
+			}
+
+			parsedURL, err := url.Parse(redirectItem.URL)
+			if err != nil {
+				log.Error("parse internal redirect URL",
+					"url", redirectItem.URL,
+					"redirect", redirectName,
+					"error", err)
+
+				return echo.NewHTTPError(http.StatusInternalServerError, "Invalid redirect URL")
+			}
+
+			for key, values := range parsedURL.Query() {
+				for _, value := range values {
+					c.QueryParams().Add(key, value)
 				}
-
-				// Update the request URL with the new query parameters
-				newURL := c.Request().URL
-				queryParams := c.QueryParams()
-				newURL.RawQuery = queryParams.Encode()
-				c.Request().URL = newURL
-
-				return Home(baseConfig)(c)
 			}
 
-			c.SetCookie(&http.Cookie{
-				Name:  redirectCountHeader,
-				Value: strconv.Itoa(count + 1),
-			})
+			// Update the request URL with the new query parameters
+			newURL := c.Request().URL
+			queryParams := c.QueryParams()
+			newURL.RawQuery = queryParams.Encode()
+			c.Request().URL = newURL
 
-			mergedRedirect := mergeRequestQueries(c.QueryParams(), redirectItem)
-			if _, err := url.Parse(mergedRedirect.URL); err != nil {
-				log.Error("Invalid merged redirect URL", "error", err)
-				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to process redirect")
-			}
+			return Home(baseConfig)(c)
 
-			return c.Redirect(http.StatusTemporaryRedirect, mergedRedirect.URL)
 		}
 
 		return c.Redirect(http.StatusTemporaryRedirect, "/")

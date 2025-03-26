@@ -13,7 +13,7 @@ script videoHandler(id string) {
 	kiosk.videoHandler(id);
 }
 
-templ Video(viewData common.ViewData) {
+templ Video(viewData common.ViewData, secret string) {
 	{{ ID := uuid.New().String() }}
 	<div class="frame" hx-on::load={ videoHandler(ID) }>
 		<div class="frame--background">
@@ -34,12 +34,12 @@ templ Video(viewData common.ViewData) {
 				/>
 			</video>
 		</div>
-		if !viewData.DisableUi {
+		if !viewData.DisableUI {
 			@partials.AssetMetadata(viewData, 0)
 		}
 	</div>
 	@partials.RenderHistory(viewData, immich.VideoType)
 	if viewData.ShowMoreInfo {
-		@partials.RenderMoreInfo(viewData)
+		@partials.RenderMoreInfo(viewData, secret)
 	}
 }

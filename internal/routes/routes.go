@@ -20,9 +20,10 @@ import (
 )
 
 const (
-	maxWeatherRetries   = 3
-	maxRedirects        = 10
-	redirectCountHeader = "X-Redirect-Count"
+	maxWeatherRetries      = 3
+	maxProcessAssetRetries = 3
+	maxRedirects           = 10
+	redirectCountHeader    = "X-Redirect-Count"
 )
 
 var (
@@ -30,7 +31,7 @@ var (
 
 	drawFacesOnImages string
 
-	VideoManager *video.VideoManager
+	VideoManager *video.Manager
 )
 
 type PersonOrAlbum struct {
@@ -63,7 +64,7 @@ func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.R
 
 	kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
 	deviceID := c.Request().Header.Get("kiosk-device-id")
-	requestID := utils.ColorizeRequestId(c.Response().Header().Get(echo.HeaderXRequestID))
+	requestID := utils.ColorizeRequestID(c.Response().Header().Get(echo.HeaderXRequestID))
 	clientName := c.QueryParams().Get("client")
 	if clientName == "" {
 		clientName = c.FormValue("client")

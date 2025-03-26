@@ -15,17 +15,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestConfigWithOverrides testing whether ImmichUrl and ImmichApiKey are immutable
-func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
+// TestConfigWithOverrides testing whether ImmichURL and ImmichApiKey are immutable
+func TestImmichURLImmichApiKeyImmutability(t *testing.T) {
 
-	originalUrl := "https://my-server.com"
-	originalApi := "123456"
-	originalUsersApiKeys := map[string]string{"default": "123456"}
+	originalURL := "https://my-server.com"
+	originalAPI := "123456"
+	originalUsersAPIKeys := map[string]string{"default": "123456"}
 
 	c := New()
-	c.ImmichUrl = originalUrl
-	c.ImmichApiKey = originalApi
-	c.ImmichUsersApiKeys = originalUsersApiKeys
+	c.ImmichURL = originalURL
+	c.ImmichAPIKey = originalAPI
+	c.ImmichUsersAPIKeys = originalUsersAPIKeys
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -44,13 +44,13 @@ func TestImmichUrlImmichApiKeyImmutability(t *testing.T) {
 	err := c.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
-	assert.Equal(t, originalUrl, c.ImmichUrl, "ImmichUrl field was allowed to be changed")
-	assert.Equal(t, originalApi, c.ImmichApiKey, "ImmichApiKey field was allowed to be changed")
-	assert.Equal(t, originalUsersApiKeys, c.ImmichUsersApiKeys, "ImmichUsersApiKeys field was allowed to be changed")
+	assert.Equal(t, originalURL, c.ImmichURL, "ImmichURL field was allowed to be changed")
+	assert.Equal(t, originalAPI, c.ImmichAPIKey, "ImmichAPIKey field was allowed to be changed")
+	assert.Equal(t, originalUsersAPIKeys, c.ImmichUsersAPIKeys, "ImmichUsersAPIKeys field was allowed to be changed")
 }
 
-// TestImmichUrlImmichMulitplePerson tests the addition of multiple persons to the config
-func TestImmichUrlImmichMulitplePerson(t *testing.T) {
+// TestImmichURLImmichMultiplePerson tests the addition of multiple persons to the config
+func TestImmichURLImmichMultiplePerson(t *testing.T) {
 	c := New()
 
 	e := echo.New()
@@ -78,20 +78,20 @@ func TestImmichUrlImmichMulitplePerson(t *testing.T) {
 func TestMalformedURLs(t *testing.T) {
 
 	var tests = []struct {
-		KIOSK_IMMICH_URL string
-		Want             string
+		URL  string
+		Want string
 	}{
-		{KIOSK_IMMICH_URL: "nope", Want: defaultScheme + "nope"},
-		{KIOSK_IMMICH_URL: "192.168.1.1", Want: defaultScheme + "192.168.1.1"},
-		{KIOSK_IMMICH_URL: "192.168.1.1:1234", Want: defaultScheme + "192.168.1.1:1234"},
-		{KIOSK_IMMICH_URL: "https://192.168.1.1:1234", Want: "https://192.168.1.1:1234"},
-		{KIOSK_IMMICH_URL: "nope:32", Want: defaultScheme + "nope:32"},
+		{URL: "nope", Want: defaultScheme + "nope"},
+		{URL: "192.168.1.1", Want: defaultScheme + "192.168.1.1"},
+		{URL: "192.168.1.1:1234", Want: defaultScheme + "192.168.1.1:1234"},
+		{URL: "https://192.168.1.1:1234", Want: "https://192.168.1.1:1234"},
+		{URL: "nope:32", Want: defaultScheme + "nope:32"},
 	}
 
 	for _, test := range tests {
 
-		t.Run(test.KIOSK_IMMICH_URL, func(t *testing.T) {
-			t.Setenv("KIOSK_IMMICH_URL", test.KIOSK_IMMICH_URL)
+		t.Run(test.URL, func(t *testing.T) {
+			t.Setenv("KIOSK_IMMICH_URL", test.URL)
 			t.Setenv("KIOSK_IMMICH_API_KEY", "12345")
 
 			c := New()
@@ -99,13 +99,13 @@ func TestMalformedURLs(t *testing.T) {
 			err := c.Load()
 			assert.NoError(t, err, "Config load should not return an error")
 
-			assert.Equal(t, test.Want, c.ImmichUrl, "ImmichUrl should be formatted correctly")
+			assert.Equal(t, test.Want, c.ImmichURL, "ImmichURL should be formatted correctly")
 		})
 	}
 }
 
-// TestImmichUrlImmichMulitpleAlbum tests the addition and overriding of multiple albums in the config
-func TestImmichUrlImmichMulitpleAlbum(t *testing.T) {
+// TestImmichURLImmichMultipleAlbum tests the addition and overriding of multiple albums in the config
+func TestImmichURLImmichMultipleAlbum(t *testing.T) {
 
 	// configWithBase
 	configWithBase := New()

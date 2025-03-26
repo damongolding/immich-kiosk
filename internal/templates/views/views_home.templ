@@ -32,11 +32,11 @@ templ Home(viewData common.ViewData) {
 			if viewData.ShowProgress {
 				@partials.ProgressBar()
 			}
-			if !viewData.DisableUi {
+			if !viewData.DisableUI {
 				<section id="clock-weather-container">
 					<div>
 						if (viewData.ShowTime || viewData.ShowDate) {
-							@partials.ClockContainer(viewData.Theme)
+							@partials.ClockContainer(viewData.ClockSource, viewData.Theme)
 						}
 					</div>
 					<div>
@@ -67,6 +67,7 @@ templ Home(viewData common.ViewData) {
 				"dateFormat":         utils.DateToJavascriptLayout(viewData.DateFormat),
 				"showTime":           viewData.ShowTime,
 				"timeFormat":         viewData.TimeFormat,
+				"clockSource":        viewData.ClockSource,
 				"transition":         viewData.Transition,
 				"showMoreInfo":       viewData.ShowMoreInfo,
 				"showRedirects":      len(viewData.Kiosk.Redirects) > 0,

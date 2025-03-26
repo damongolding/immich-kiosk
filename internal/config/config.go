@@ -65,7 +65,7 @@ type Redirect struct {
 type KioskSettings struct {
 	// Redirects defines a list of URL redirections with friendly names
 	Redirects []Redirect `mapstructure:"redirects" default:"[]"`
-	//RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
+	// RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
 	RedirectsMap map[string]Redirect `json:"-"`
 
 	// Port which port to use
@@ -108,7 +108,7 @@ type WeatherLocation struct {
 }
 
 type Webhook struct {
-	Url    string `json:"url" mapstructure:"url"`
+	URL    string `json:"url" mapstructure:"url"`
 	Event  string `json:"event" mapstructure:"event"`
 	Secret string `json:"secret" mapstructure:"secret"`
 }
@@ -149,18 +149,18 @@ type Config struct {
 	// SystemLang the system language
 	SystemLang monday.Locale `json:"-" default:"en_GB"`
 
-	// ImmichApiKey Immich key to access assets
-	ImmichApiKey string `json:"-" mapstructure:"immich_api_key" default:""`
-	// ImmichUrl Immuch base url
-	ImmichUrl string `json:"-" mapstructure:"immich_url" default:""`
+	// ImmichAPIKey Immich key to access assets
+	ImmichAPIKey string `json:"-" mapstructure:"immich_api_key" default:""`
+	// ImmichURL Immuch base url
+	ImmichURL string `json:"-" mapstructure:"immich_url" default:""`
 
-	// ImmichExternalUrl specifies an external URL for Immich access. This can be used when
+	// ImmichExternalURL specifies an external URL for Immich access. This can be used when
 	// the Immich instance is accessed through a different URL externally vs internally
 	// (e.g., when using reverse proxies or different network paths)
-	ImmichExternalUrl string `json:"-" mapstructure:"immich_external_url" default:""`
+	ImmichExternalURL string `json:"-" mapstructure:"immich_external_url" default:""`
 
-	// ImmichUsersApiKeys a map of usernames to their respective api keys for accessing Immich
-	ImmichUsersApiKeys map[string]string `json:"-" mapstructure:"immich_users_api_keys" default:"{}"`
+	// ImmichUsersAPIKeys a map of usernames to their respective api keys for accessing Immich
+	ImmichUsersAPIKeys map[string]string `json:"-" mapstructure:"immich_users_api_keys" default:"{}"`
 	// User the user from ImmichUsersApiKeys to use when fetching images. If not set, it will use the default ImmichApiKey
 	User []string `json:"user" mapstructure:"user" query:"user" form:"user" default:"[]"`
 	// ShowUser whether to display user
@@ -170,8 +170,8 @@ type Config struct {
 
 	// DisableNavigation remove navigation
 	DisableNavigation bool `json:"disableNavigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
-	// DisableUi a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
-	DisableUi bool `json:"disableUi" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
+	// DisableUI a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
+	DisableUI bool `json:"disableUi" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames
 	Frameless bool `json:"frameless" mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
 
@@ -183,6 +183,8 @@ type Config struct {
 	ShowDate bool `json:"showDate" mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
 	//  DateFormat format for date
 	DateFormat string `json:"dateFormat" mapstructure:"date_format" query:"date_format" form:"date_format" default:""`
+	// ClockSource source of clock time
+	ClockSource string `json:"clockSource" mapstructure:"clock_source" query:"clock_source" form:"clock_source" default:"client"`
 
 	// Refresh time between fetching new image
 	Refresh int `json:"refresh" mapstructure:"refresh" query:"refresh" form:"refresh" default:"60"`
@@ -209,7 +211,9 @@ type Config struct {
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `json:"showArchived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display
-	Person []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
+	Person         []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
+	ExcludedPeople []string `json:"excluded_people" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
+
 	// Album ID of album(s) to display
 	Album []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
 	// AlbumOrder specifies the order in which album assets are displayed.
@@ -283,6 +287,11 @@ type Config struct {
 	ShowMoreInfoImageLink bool `json:"showMoreInfoImageLink" mapstructure:"show_more_info_image_link" query:"show_more_info_image_link" form:"show_more_info_image_link" default:"true"`
 	// ShowMoreInfoQrCode displays a QR code linking to the original image in the additional information panel
 	ShowMoreInfoQrCode bool `json:"showMoreInfoQrCode" mapstructure:"show_more_info_qr_code" query:"show_more_info_qr_code" form:"show_more_info_qr_code" default:"true"`
+
+	// FavoriteButtonAction indicates the action to take when the favorite button is clicked
+	FavoriteButtonAction []string `json:"favoriteButtonAction" mapstructure:"favorite_button_action" query:"favorite_button_action" form:"favorite_button_action" default:"[favorite]"`
+	// HideButtonAction indicates the action to take when the hide button is clicked
+	HideButtonAction []string `json:"hideButtonAction" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
 
 	// WeatherLocations A list of locations to fetch and display weather data from. Each location
 	WeatherLocations []WeatherLocation `json:"weather" mapstructure:"weather" default:"[]"`
@@ -371,7 +380,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 func isValidYAML(filename string) bool {
 	content, err := os.ReadFile(filename)
 	if err != nil {
-		log.Errorf("Error reading file: %v", err)
+		log.Error("Error reading file", "err", err)
 		return false
 	}
 
@@ -388,8 +397,8 @@ func isValidYAML(filename string) bool {
 // load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
 func (c *Config) Load() error {
 
-	if err := bindEnvironmentVariables(c.V); err != nil {
-		log.Errorf("binding environment variables: %v", err)
+	if bindErr := bindEnvironmentVariables(c.V); bindErr != nil {
+		log.Error("binding environment variables", "err", bindErr)
 	}
 
 	c.V.SetConfigName("config")
@@ -406,7 +415,8 @@ func (c *Config) Load() error {
 
 	err := c.V.ReadInConfig()
 	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		var configFileNotFoundErr viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundErr) {
 			log.Info("Not using config.yaml")
 		} else if !isValidYAML(c.V.ConfigFileUsed()) {
 			log.Fatal(err)
@@ -424,7 +434,7 @@ func (c *Config) Load() error {
 	c.checkAssetBuckets()
 	c.checkAlbumOrder()
 	c.checkExcludedAlbums()
-	c.checkUrlScheme()
+	c.checkURLScheme()
 	c.checkHideCountries()
 	c.checkWeatherLocations()
 	c.checkDebuging()
@@ -451,6 +461,10 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 	// check for person or album in quries and empty baseconfig slice if found
 	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") {
 		c.ResetBuckets()
+	}
+
+	if queries.Get("excluded_album") == "none" || queries.Get("excluded_albums") == "none" {
+		c.ExcludedAlbums = []string{}
 	}
 
 	err := e.Bind(c)

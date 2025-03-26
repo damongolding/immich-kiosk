@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -15,7 +16,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
+func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -61,15 +62,19 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			return c.NoContent(http.StatusBadRequest)
 		}
 
-		calculatedSignature := utils.CalculateSignature(common.SharedSecret, receivedTimestamp)
+		calculatedSignature := utils.CalculateSignature(com.Secret(), receivedTimestamp)
 
 		// Compare the received signature with the calculated signature
 		if !utils.IsValidSignature(receivedSignature, calculatedSignature) {
 			return echo.NewHTTPError(http.StatusForbidden, "Invalid signature")
 		}
 
-		switch kioskWebhookEvent {
-		case string(webhooks.UserWebhookTriggerInfoOverlay):
+		switch webhooks.WebhookEvent(kioskWebhookEvent) {
+		case webhooks.UserWebhookTriggerInfoOverlay,
+			webhooks.UserFavoriteInfoOverlay,
+			webhooks.UserUnfavoriteInfoOverlay,
+			webhooks.UserHideInfoOverlay,
+			webhooks.UserUnhideInfoOverlay:
 
 			historyLen := len(requestConfig.History)
 
@@ -83,6 +88,7 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 
 			viewData := common.ViewData{
 				KioskVersion: KioskVersion,
+				RequestID:    requestID,
 				DeviceID:     deviceID,
 				Assets:       make([]common.ViewImageData, len(prevImages)),
 				Config:       requestConfig,
@@ -91,32 +97,44 @@ func Webhooks(baseConfig *config.Config) echo.HandlerFunc {
 			g, _ := errgroup.WithContext(c.Request().Context())
 
 			for i, imageID := range prevImages {
-				i, imageID := i, imageID
-				g.Go(func() error {
-					image := immich.NewAsset(requestConfig)
-					image.ID = imageID
 
-					err := image.AssetInfo(requestID, deviceID)
-					if err != nil {
-						log.Error(err)
-					}
+				parts := strings.Split(imageID, ":")
+				if len(parts) != 2 {
+					return fmt.Errorf("invalid history entry format: %s", imageID)
+				}
 
-					viewData.Assets[i] = common.ViewImageData{
-						ImmichAsset: image,
+				currentAssetID := parts[0]
+
+				g.Go(func(currentAssetID string) func() error {
+					return func() error {
+						image := immich.New(com.Context(), requestConfig)
+						image.ID = currentAssetID
+
+						assetInfoErr := image.AssetInfo(requestID, deviceID)
+						if assetInfoErr != nil {
+							log.Error(assetInfoErr)
+							return assetInfoErr
+						}
+
+						viewData.Assets[i] = common.ViewImageData{
+							ImmichAsset: image,
+						}
+						return nil
 					}
-					return nil
-				})
+				}(currentAssetID))
 			}
 
 			// Wait for all goroutines to complete and check for errors
-			if err := g.Wait(); err != nil {
-				return RenderError(c, err, "retrieving image data")
+			errGroupWait := g.Wait()
+			if errGroupWait != nil {
+				return RenderError(c, errGroupWait, "retrieving image data")
 			}
 
-			go webhooks.Trigger(requestData, KioskVersion, webhooks.UserWebhookTriggerInfoOverlay, viewData)
+			go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.WebhookEvent(kioskWebhookEvent), viewData)
 
 			return c.String(http.StatusOK, "Triggered")
-
+		case webhooks.NewAsset, webhooks.PreviousAsset, webhooks.PrefetchAsset, webhooks.CacheFlush:
+			// to stop lint moaning
 		}
 
 		return c.NoContent(http.StatusNoContent)

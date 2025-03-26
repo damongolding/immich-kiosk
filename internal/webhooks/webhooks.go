@@ -2,6 +2,7 @@ package webhooks
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/url"
@@ -23,6 +24,10 @@ const (
 	PrefetchAsset                 WebhookEvent = "asset.prefetch"
 	CacheFlush                    WebhookEvent = "cache.flush"
 	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"
+	UserFavoriteInfoOverlay       WebhookEvent = "user.favorite.info_overlay"
+	UserUnfavoriteInfoOverlay     WebhookEvent = "user.unfavorite.info_overlay"
+	UserHideInfoOverlay           WebhookEvent = "user.hide.info_overlay"
+	UserUnhideInfoOverlay         WebhookEvent = "user.unhide.info_overlay"
 )
 
 type Meta struct {
@@ -31,14 +36,14 @@ type Meta struct {
 }
 
 type Payload struct {
-	Event      string               `json:"event"`
-	Timestamp  string               `json:"timestamp"`
-	DeviceID   string               `json:"deviceID"`
-	ClientName string               `json:"clientName"`
-	AssetCount int                  `json:"assetCount"`
-	Assets     []immich.ImmichAsset `json:"assets"`
-	Config     config.Config        `json:"config"`
-	Meta       Meta                 `json:"meta"`
+	Event      string         `json:"event"`
+	Timestamp  string         `json:"timestamp"`
+	DeviceID   string         `json:"deviceID"`
+	ClientName string         `json:"clientName"`
+	AssetCount int            `json:"assetCount"`
+	Assets     []immich.Asset `json:"assets"`
+	Config     config.Config  `json:"config"`
+	Meta       Meta           `json:"meta"`
 }
 
 // newHTTPClient creates a new HTTP client with the specified timeout duration.
@@ -55,10 +60,10 @@ func newHTTPClient(timeout time.Duration) *http.Client {
 // to any webhook URLs configured for the event type.
 //
 // requestData contains the current request context including device ID and client name.
-// KioskVersion is the current version string of the kiosk application.
+// kioskVersion is the current version string of the kiosk application.
 // event specifies which webhook event (NewAsset, PreviousAsset, etc) triggered this webhook.
 // viewData contains the images and other view context for the current request.
-func Trigger(requestData *common.RouteRequestData, KioskVersion string, event WebhookEvent, viewData common.ViewData) {
+func Trigger(ctx context.Context, requestData *common.RouteRequestData, kioskVersion string, event WebhookEvent, viewData common.ViewData) {
 
 	if requestData == nil {
 		log.Error("invalid request data")
@@ -75,12 +80,12 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 			continue
 		}
 
-		if _, err := url.Parse(userWebhook.Url); err != nil {
-			log.Error("invalid webhook URL", "url", userWebhook.Url, "err", err)
+		if _, err := url.Parse(userWebhook.URL); err != nil {
+			log.Error("invalid webhook URL", "url", userWebhook.URL, "err", err)
 			continue
 		}
 
-		images := make([]immich.ImmichAsset, len(viewData.Assets))
+		images := make([]immich.Asset, len(viewData.Assets))
 
 		for i, image := range viewData.Assets {
 			images[i] = image.ImmichAsset
@@ -96,7 +101,7 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 			Config:     requestConfig,
 			Meta: Meta{
 				Source:  "immich-kiosk",
-				Version: KioskVersion,
+				Version: kioskVersion,
 			},
 		}
 
@@ -110,33 +115,34 @@ func Trigger(requestData *common.RouteRequestData, KioskVersion string, event We
 		go func(webhook config.Webhook, payload []byte) {
 			defer wg.Done()
 
-			req, err := http.NewRequest("POST", webhook.Url, bytes.NewBuffer(jsonPayload))
-			if err != nil {
-				log.Error("webhook request creation", "err", err)
+			req, reqErr := http.NewRequestWithContext(ctx, http.MethodPost, webhook.URL, bytes.NewBuffer(payload))
+			if reqErr != nil {
+				log.Error("webhook request creation", "err", reqErr)
 				return
 			}
 
 			req.Header.Set("Content-Type", "application/json")
 
 			if webhook.Secret != "" {
-				signature := utils.CalculateSignature(webhook.Secret, string(jsonPayload))
+				signature := utils.CalculateSignature(webhook.Secret, string(payload))
 				req.Header.Set("X-Kiosk-Signature-256", "sha256="+signature)
 			}
 
-			resp, err := httpClient.Do(req)
-			if err != nil {
-				log.Error("webhook post", "err", err)
+			resp, respErr := httpClient.Do(req)
+			if respErr != nil {
+				log.Error("webhook post", "err", respErr)
 				return
 			}
 			defer resp.Body.Close()
 
 			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 				log.Error("webhook request failed",
-					"url", webhook.Url,
+					"url", webhook.URL,
 					"status", resp.StatusCode)
 				return
 			}
 		}(userWebhook, jsonPayload)
 	}
+
 	wg.Wait()
 }

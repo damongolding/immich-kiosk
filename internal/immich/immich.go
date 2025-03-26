@@ -6,8 +6,10 @@
 package immich
 
 import (
+	"context"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -16,8 +18,8 @@ import (
 )
 
 type ImageOrientation string
-type ImmichAssetType string
-type ImmichAssetOrder string
+type AssetType string
+type AssetOrder string
 
 const (
 	MaxRetries = 3
@@ -26,23 +28,20 @@ const (
 	LandscapeOrientation ImageOrientation = "LANDSCAPE"
 	SquareOrientation    ImageOrientation = "SQUARE"
 
-	ImageType ImmichAssetType = "IMAGE"
-	VideoType ImmichAssetType = "VIDEO"
-	AudioType ImmichAssetType = "AUDIO"
-	OtherType ImmichAssetType = "OTHER"
+	ImageType AssetType = "IMAGE"
+	VideoType AssetType = "VIDEO"
+	AudioType AssetType = "AUDIO"
+	OtherType AssetType = "OTHER"
 
 	AssetSizeThumbnail string = "thumbnail"
 	AssetSizeOriginal  string = "original"
 
-	Asc  ImmichAssetOrder = "asc"
-	Desc ImmichAssetOrder = "desc"
-	Rand ImmichAssetOrder = "rand"
+	Asc  AssetOrder = "asc"
+	Desc AssetOrder = "desc"
+	Rand AssetOrder = "rand"
 )
 
 var (
-	// requestConfig the config for this request
-	requestConfig config.Config
-
 	// httpTransport defines the transport layer configuration for HTTP requests to the Immich API.
 	// It manages connection pooling, keepalive settings, and connection timeouts.
 	httpTransport = &http.Transport{
@@ -60,7 +59,6 @@ var (
 	}
 	// httpClient default http client for Immich api calls
 	httpClient = &http.Client{
-		Timeout:   time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout),
 		Transport: httpTransport,
 	}
 
@@ -72,16 +70,16 @@ var (
 		"image/webp",
 	}
 
-	ImageOnlyAssetTypes = []ImmichAssetType{ImageType}
-	VideoOnlyAssetTypes = []ImmichAssetType{VideoType}
-	AllAssetTypes       = []ImmichAssetType{ImageType, VideoType}
+	ImageOnlyAssetTypes = []AssetType{ImageType}
+	VideoOnlyAssetTypes = []AssetType{VideoType}
+	AllAssetTypes       = []AssetType{ImageType, VideoType}
 )
 
-type ImmichPersonStatistics struct {
+type PersonStatistics struct {
 	Assets int `json:"assets"`
 }
 
-type ImmichError struct {
+type Error struct {
 	Message    []string `json:"message"`
 	Error      string   `json:"error"`
 	StatusCode int      `json:"statusCode"`
@@ -126,8 +124,9 @@ type Tag struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Value     string    `json:"value"`
-	CreatedAt time.Time `json:"-"` //`json:"createdAt"`
-	UpdatedAt time.Time `json:"-"` //`json:"updatedAt"`
+	CreatedAt time.Time `json:"-"` // `json:"createdAt"`
+	UpdatedAt time.Time `json:"-"` // `json:"updatedAt"`
+	Color     string    `json:"color"`
 }
 
 type Face struct {
@@ -140,58 +139,62 @@ type Face struct {
 	BoundingBoxY2 int    `json:"boundingBoxY2"`
 }
 
-type ImmichAsset struct {
-	ID               string          `json:"id"`
-	DeviceAssetID    string          `json:"-"` // `json:"deviceAssetId"`
-	OwnerID          string          `json:"-"` // `json:"ownerId"`
-	DeviceID         string          `json:"-"` // `json:"deviceId"`
-	LibraryID        string          `json:"-"` // `json:"libraryId"`
-	Type             ImmichAssetType `json:"type"`
-	OriginalPath     string          `json:"-"` // `json:"originalPath"`
-	OriginalFileName string          `json:"originalFileName"`
-	OriginalMimeType string          `json:"originalMimeType"`
-	Resized          bool            `json:"-"` // `json:"resized"`
-	Thumbhash        string          `json:"-"` // `json:"thumbhash"`
-	FileCreatedAt    time.Time       `json:"-"` // `json:"fileCreatedAt"`
-	FileModifiedAt   time.Time       `json:"-"` // `json:"fileModifiedAt"`
-	LocalDateTime    time.Time       `json:"localDateTime"`
-	UpdatedAt        time.Time       `json:"-"` // `json:"updatedAt"`
-	IsFavorite       bool            `json:"isFavorite"`
-	IsArchived       bool            `json:"isArchived"`
-	IsTrashed        bool            `json:"isTrashed"`
-	Duration         string          `json:"-"` // `json:"duration"`
-	ExifInfo         ExifInfo        `json:"exifInfo"`
-	LivePhotoVideoID any             `json:"-"` // `json:"livePhotoVideoId"`
-	People           []Person        `json:"people"`
-	Tags             []Tag           `json:"tags"`
-	UnassignedFaces  []Face          `json:"unassignedFaces"`
-	Checksum         string          `json:"checksum"`
-	StackCount       any             `json:"-"` // `json:"stackCount"`
-	IsOffline        bool            `json:"-"` // `json:"isOffline"`
-	HasMetadata      bool            `json:"-"` // `json:"hasMetadata"`
-	DuplicateID      any             `json:"-"` // `json:"duplicateId"`
+type Asset struct {
+	ID               string    `json:"id"`
+	DeviceAssetID    string    `json:"-"` // `json:"deviceAssetId"`
+	OwnerID          string    `json:"ownerId"`
+	DeviceID         string    `json:"-"` // `json:"deviceId"`
+	LibraryID        string    `json:"-"` // `json:"libraryId"`
+	Type             AssetType `json:"type"`
+	OriginalPath     string    `json:"-"` // `json:"originalPath"`
+	OriginalFileName string    `json:"originalFileName"`
+	OriginalMimeType string    `json:"originalMimeType"`
+	Resized          bool      `json:"-"` // `json:"resized"`
+	Thumbhash        string    `json:"-"` // `json:"thumbhash"`
+	FileCreatedAt    time.Time `json:"-"` // `json:"fileCreatedAt"`
+	FileModifiedAt   time.Time `json:"-"` // `json:"fileModifiedAt"`
+	LocalDateTime    time.Time `json:"localDateTime"`
+	UpdatedAt        time.Time `json:"-"` // `json:"updatedAt"`
+	IsFavorite       bool      `json:"isFavorite"`
+	IsArchived       bool      `json:"isArchived"`
+	IsTrashed        bool      `json:"isTrashed"`
+	Duration         string    `json:"-"` // `json:"duration"`
+	ExifInfo         ExifInfo  `json:"exifInfo"`
+	LivePhotoVideoID any       `json:"-"` // `json:"livePhotoVideoId"`
+	People           []Person  `json:"people"`
+	Tags             Tags      `json:"tags"`
+	UnassignedFaces  []Face    `json:"unassignedFaces"`
+	Checksum         string    `json:"checksum"`
+	StackCount       any       `json:"-"` // `json:"stackCount"`
+	IsOffline        bool      `json:"-"` // `json:"isOffline"`
+	HasMetadata      bool      `json:"-"` // `json:"hasMetadata"`
+	DuplicateID      any       `json:"-"` // `json:"duplicateId"`
 
 	// Data added and used by Kiosk
+	mu          *sync.Mutex
 	RatioWanted ImageOrientation `json:"-"`
-	IsPortrait  bool             `json:"-"`
-	IsLandscape bool             `json:"-"`
+	IsPortrait  bool             `json:"isPortrait"`
+	IsLandscape bool             `json:"isLandscape"`
 	MemoryTitle string           `json:"-"`
-	AppearsIn   []string         `json:"-"`
-	Bucket      kiosk.Source     `json:"-"`
-	BucketID    string           `json:"-"`
+	AppearsIn   Albums           `json:"kioskAppearsIn"`
+	Bucket      kiosk.Source     `json:"kioskBucket"`
+	BucketID    string           `json:"kioskBucketId"`
+
+	ctx           context.Context `json:"-"`
+	requestConfig config.Config   `json:"-"`
 }
 
-type ImmichAlbum struct {
-	ID            string        `json:"id"`
-	AlbumName     string        `json:"albumName"`
-	Assets        []ImmichAsset `json:"assets"`
-	AssetCount    int           `json:"assetCount"`
-	AssetsOrdered bool          `json:"assetsOrdered"`
+type Album struct {
+	ID            string  `json:"id"`
+	AlbumName     string  `json:"albumName"`
+	Assets        []Asset `json:"assets"`
+	AssetCount    int     `json:"assetCount"`
+	AssetsOrdered bool    `json:"assetsOrdered"`
 }
 
-type ImmichAlbums []ImmichAlbum
+type Albums []Album
 
-type ImmichSearchRandomBody struct {
+type SearchRandomBody struct {
 	City          string   `url:"city,omitempty" json:"city,omitempty"`
 	Country       string   `url:"country,omitempty" json:"country,omitempty"`
 	CreatedAfter  string   `url:"createdAfter,omitempty" json:"createdAfter,omitempty"`
@@ -208,7 +211,7 @@ type ImmichSearchRandomBody struct {
 	LibraryID     string   `url:"libraryId,omitempty" json:"libraryId,omitempty"`
 	Make          string   `url:"make,omitempty" json:"make,omitempty"`
 	Model         string   `url:"model,omitempty" json:"model,omitempty"`
-	PersonIds     []string `url:"personIds,omitempty" json:"personIds,omitempty"`
+	PersonIDs     []string `url:"personIds,omitempty" json:"personIds,omitempty"`
 	Size          int      `url:"size,omitempty" json:"size,omitempty"`
 	State         string   `url:"state,omitempty" json:"state,omitempty"`
 	TagIDs        []string `url:"tagIds,omitempty" json:"tagIds,omitempty"`
@@ -227,7 +230,27 @@ type ImmichSearchRandomBody struct {
 	Page          int      `url:"page,omitempty" json:"page,omitempty"`
 }
 
-type ImmichSearchMetadataResponse struct {
+type TagAssetsBody struct {
+	IDs []string `url:"ids,omitempty" json:"ids,omitempty"`
+}
+
+type AddAssetsToAlbumBody TagAssetsBody
+
+type UpsertTagBody struct {
+	Tags []string `url:"tags,omitempty" json:"tags,omitempty"`
+}
+
+type UpsertTagResponse []struct {
+	Color     string    `json:"color"`
+	CreatedAt time.Time `json:"createdAt"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	ParentID  string    `json:"parentId"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	Value     string    `json:"value"`
+}
+
+type SearchMetadataResponse struct {
 	Assets struct {
 		Total    int    `json:"total"`
 		NextPage string `json:"nextPage"`
@@ -246,8 +269,8 @@ type Memory struct {
 	Data      struct {
 		Year int `json:"year"`
 	} `json:"data"`
-	IsSaved bool          `json:"isSaved"`
-	Assets  []ImmichAsset `json:"assets"`
+	IsSaved bool    `json:"isSaved"`
+	Assets  []Asset `json:"assets"`
 }
 
 type MemoriesResponse []Memory
@@ -263,26 +286,90 @@ type AssetFaceResponse struct {
 	Person        Person `json:"person"`
 }
 
-// NewImage returns a new image instance
-func NewAsset(base config.Config) ImmichAsset {
-	requestConfig = base
-	return ImmichAsset{}
+type TagAssetsResponse []struct {
+	Error   immich_open_api.BulkIdResponseDtoError `json:"error"`
+	ID      string                                 `json:"id"`
+	Success bool                                   `json:"success"`
 }
 
-type ImmichApiCall func(string, string, []byte, ...map[string]string) ([]byte, error)
+type AlbumCreateResponse TagAssetsResponse
 
-type ImmichApiResponse interface {
-	ImmichAsset |
-		[]ImmichAsset |
-		ImmichAlbum |
-		ImmichAlbums |
-		ImmichPersonStatistics |
+type AlbumCreateBody struct {
+	AlbumName   string `json:"albumName"`
+	Description string `json:"description,omitempty"`
+}
+
+type UpdateAssetBody struct {
+	DateTimeOriginal string  `json:"dateTimeOriginal,omitempty"`
+	Description      string  `json:"description,omitempty"`
+	IsArchived       bool    `json:"isArchived"`
+	IsFavorite       bool    `json:"isFavorite"`
+	Latitude         float64 `json:"latitude,omitempty"`
+	LivePhotoVideoID string  `json:"livePhotoVideoId,omitempty"`
+	Longitude        float64 `json:"longitude,omitempty"`
+	Rating           int     `json:"rating,omitempty"`
+}
+
+// UserAvatarColor defines model for UserAvatarColor.
+type UserAvatarColor string
+
+// UserLicense defines model for UserLicense.
+type UserLicense struct {
+	ActivatedAt   time.Time `json:"activatedAt"`
+	ActivationKey string    `json:"activationKey"`
+	LicenseKey    string    `json:"licenseKey"`
+}
+
+// UserStatus defines model for UserStatus.
+type UserStatus string
+
+type UserResponse struct {
+	AvatarColor          UserAvatarColor `json:"avatarColor"`
+	CreatedAt            time.Time       `json:"createdAt"`
+	DeletedAt            *time.Time      `json:"deletedAt"`
+	Email                string          `json:"email"`
+	ID                   string          `json:"id"`
+	IsAdmin              bool            `json:"isAdmin"`
+	License              *UserLicense    `json:"license"`
+	Name                 string          `json:"name"`
+	OauthID              string          `json:"oauthId"`
+	ProfileChangedAt     time.Time       `json:"profileChangedAt"`
+	ProfileImagePath     string          `json:"profileImagePath"`
+	QuotaSizeInBytes     *int64          `json:"quotaSizeInBytes"`
+	QuotaUsageInBytes    *int64          `json:"quotaUsageInBytes"`
+	ShouldChangePassword bool            `json:"shouldChangePassword"`
+	Status               UserStatus      `json:"status"`
+	StorageLabel         *string         `json:"storageLabel"`
+	UpdatedAt            time.Time       `json:"updatedAt"`
+}
+
+type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, error)
+
+type APIResponse interface {
+	Asset |
+		[]Asset |
+		Album |
+		Albums |
+		PersonStatistics |
 		int |
-		ImmichSearchMetadataResponse |
+		SearchMetadataResponse |
 		[]Face |
 		[]Person |
 		[]Tag |
 		[]AssetFaceResponse |
 		immich_open_api.PersonResponseDto |
-		MemoriesResponse
+		MemoriesResponse |
+		TagAssetsResponse |
+		AlbumCreateResponse |
+		UpsertTagResponse |
+		UserResponse
+}
+
+// New returns a new asset instance
+func New(ctx context.Context, base config.Config) Asset {
+	return Asset{
+		requestConfig: base,
+		mu:            &sync.Mutex{},
+		ctx:           ctx,
+	}
 }

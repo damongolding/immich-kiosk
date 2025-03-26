@@ -20,7 +20,7 @@ func formatTemp(temp float64, measurement string) string {
 	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
 }
 
-templ WeatherLocation(weatherData weather.WeatherLocation) {
+templ WeatherLocation(weatherData weather.Location) {
 	<div class="weather">
 		<div class="weather--location">
 			{ cases.Title(language.Und).String(weatherData.Name) }
