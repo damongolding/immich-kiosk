@@ -129,7 +129,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 					@originalImageTimeLocation(viewData, i, viewData.HideCountries)
 					@cameraData(img.ImmichAsset.ExifInfo)
 					@originalAssetData(img.ImmichAsset)
-					@people(img.ImmichAsset.People)
+					@people(img.ImmichAsset.People, viewData.ShowPersonAge)
 					@tags(img.ImmichAsset.Tags)
 					<div class="more-info--button-group">
 						if viewData.ShowMoreInfoImageLink {
@@ -254,7 +254,7 @@ templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCo
 // Returns:
 //   - A templ.Component that renders an HTML section listing detected people's names,
 //     or a NopComponent if no valid names are found
-func people(people []immich.Person) templ.Component {
+func people(people []immich.Person, showAge bool) templ.Component {
 	if len(people) == 0 {
 		return templ.NopComponent
 	}
@@ -262,7 +262,14 @@ func people(people []immich.Person) templ.Component {
 	names := []string{}
 	for _, person := range people {
 		if person.Name != "" {
-			names = append(names, templ.EscapeString(person.Name))
+			name := person.Name
+			if showAge && person.BirthDate != "" {
+				birthDate, birthDateErr := person.BirthDate.Time()
+				if birthDateErr == nil {
+					name += fmt.Sprintf(" (%d)", calculateAge(birthDate))
+				}
+			}
+			names = append(names, templ.EscapeString(name))
 		}
 	}
 

@@ -169,21 +169,51 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 	return strings.ToLower(assetDate)
 }
 
+// calculateAge calculates a person's age based on their birth date.
+// It accounts for whether their birthday has occurred this year by comparing
+// the current date to their birthday in the current year.
+//
+// Parameters:
+//   - birthdate: time.Time representing the person's date of birth
+//
+// Returns:
+//   - int: The person's current age in years
+func calculateAge(birthdate time.Time) int {
+	today := time.Now()
+	age := today.Year() - birthdate.Year()
+
+	birthdayThisYear := time.Date(today.Year(), birthdate.Month(), birthdate.Day(), 0, 0, 0, 0, time.UTC)
+	if today.Before(birthdayThisYear) {
+		age--
+	}
+
+	return age
+}
+
 // peopleNames extracts and joins the names of people tagged in an asset.
 // Filters out empty names and joins the remaining with commas.
+// Optionally includes age if showPersonAge is true and birth date is available.
 //
 // Parameters:
 //   - people: Slice of Person structs containing name data
+//   - showPersonAge: Whether to include age calculation next to names
 //
 // Returns:
-//   - string: Comma-separated list of person names
-func peopleNames(people []immich.Person) string {
+//   - string: Comma-separated list of person names with optional ages
+func peopleNames(people []immich.Person, showAge bool) string {
 
 	var p []string
 
 	for _, person := range people {
 		if person.Name != "" {
-			p = append(p, person.Name)
+			name := person.Name
+			if showAge && person.BirthDate != "" {
+				birthDate, birthDateErr := person.BirthDate.Time()
+				if birthDateErr == nil {
+					name += fmt.Sprintf(" (%d)", calculateAge(birthDate))
+				}
+			}
+			p = append(p, name)
 		}
 	}
 	return strings.Join(p, ", ")
@@ -244,7 +274,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
 	{{ rightAlignIcons := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 || viewData.Layout == kiosk.LayoutSplitviewLandscape }}
-	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People) }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonAge) }}
 	{{ showUser := viewData.ShowUser }}
 	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
 		if showUser && viewData.Assets[assetIndex].User != "" {
