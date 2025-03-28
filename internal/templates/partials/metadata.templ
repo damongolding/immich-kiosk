@@ -170,24 +170,39 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 }
 
 // calculateAge calculates a person's age based on their birth date.
-// It accounts for whether their birthday has occurred this year by comparing
-// the current date to their birthday in the current year.
+// For individuals less than 1 year old, returns age in months.
+// For individuals 1 year or older, returns age in years.
 //
 // Parameters:
+//   - date: time.Time representing the reference date to calculate age against
 //   - birthdate: time.Time representing the person's date of birth
 //
 // Returns:
-//   - int: The person's current age in years
-func calculateAge(birthdate time.Time) int {
-	today := time.Now()
-	age := today.Year() - birthdate.Year()
-
-	birthdayThisYear := time.Date(today.Year(), birthdate.Month(), birthdate.Day(), 0, 0, 0, 0, time.UTC)
-	if today.Before(birthdayThisYear) {
-		age--
+//   - string: Age formatted as either "X months" or "X years"
+//     with appropriate pluralization
+func calculateAge(date time.Time, birthdate time.Time) string {
+	if date.Year() == birthdate.Year() {
+		months := int(date.Month() - birthdate.Month())
+		if date.Day() < birthdate.Day() {
+			months--
+		}
+		if months == 1 {
+			return fmt.Sprintf("%d month", months)
+		}
+		return fmt.Sprintf("%d months", months)
 	}
 
-	return age
+	years := date.Year() - birthdate.Year()
+
+	birthdayThisYear := time.Date(date.Year(), birthdate.Month(), birthdate.Day(), 0, 0, 0, 0, time.UTC)
+	if date.Before(birthdayThisYear) {
+		years--
+	}
+
+	if years == 1 {
+		return fmt.Sprintf("%d year", years)
+	}
+	return fmt.Sprintf("%d years", years)
 }
 
 // peopleNames extracts and joins the names of people tagged in an asset.
@@ -200,7 +215,7 @@ func calculateAge(birthdate time.Time) int {
 //
 // Returns:
 //   - string: Comma-separated list of person names with optional ages
-func peopleNames(people []immich.Person, showAge bool) string {
+func peopleNames(people []immich.Person, showAge bool, assetDate time.Time) string {
 
 	var p []string
 
@@ -210,7 +225,7 @@ func peopleNames(people []immich.Person, showAge bool) string {
 			if showAge && person.BirthDate != "" {
 				birthDate, birthDateErr := person.BirthDate.Time()
 				if birthDateErr == nil {
-					name += fmt.Sprintf(" (%d)", calculateAge(birthDate))
+					name += fmt.Sprintf(" (%s)", calculateAge(assetDate, birthDate))
 				}
 			}
 			p = append(p, name)
@@ -274,7 +289,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
 	{{ rightAlignIcons := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 || viewData.Layout == kiosk.LayoutSplitviewLandscape }}
-	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonAge) }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonAge, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
 	{{ showUser := viewData.ShowUser }}
 	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
 		if showUser && viewData.Assets[assetIndex].User != "" {
