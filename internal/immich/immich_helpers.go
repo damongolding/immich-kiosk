@@ -254,8 +254,6 @@ func (a *Asset) addRatio() {
 //   - error: If any field in additionalInfo is invalid during the merge process
 func (a *Asset) mergeAssetInfo(additionalInfo Asset) error {
 
-	log.Info("MERGE", "additionalInfo people", additionalInfo.People, "a people", a.People)
-
 	v := reflect.ValueOf(a).Elem()
 	d := reflect.ValueOf(additionalInfo)
 	t := v.Type()
@@ -529,7 +527,6 @@ func (a *Asset) containsTag(tagName string) bool {
 // Returns:
 //   - bool: true if asset meets all criteria, false otherwise
 func (a *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
-	log.Info("isValidAsset", "id", a.ID, "people", a.People)
 	return a.hasValidBasicProperties(allowedTypes, wantedRatio) &&
 		a.hasValidDateFilter() &&
 		a.hasValidAlbums(requestID, deviceID) &&

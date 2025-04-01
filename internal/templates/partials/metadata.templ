@@ -148,39 +148,58 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 }
 
 // calculateAge calculates a person's age based on their birth date.
+// For individuals less than a month old, returns age in days.
 // For individuals less than 1 year old, returns age in months.
 // For individuals 1 year or older, returns age in years.
 //
 // Parameters:
-//   - date: time.Time representing the reference date to calculate age against
-//   - birthdate: time.Time representing the person's date of birth
+//   - assetDate: time.Time representing the reference date to calculate age against
+//   - birthDate: time.Time representing the person's date of birth
 //
 // Returns:
-//   - string: Age formatted as either "X months" or "X years"
-//     with appropriate pluralization
-func calculateAge(date time.Time, birthdate time.Time) string {
-	if date.Year() == birthdate.Year() {
-		months := int(date.Month() - birthdate.Month())
-		if date.Day() < birthdate.Day() {
-			months--
+//   - string: Age formatted as "X days", "X months" or "X years"
+//     with appropriate pluralization. Returns empty string if assetDate is before birthDate.
+func calculateAge(assetDate, birthDate time.Time) string {
+	if assetDate.Before(birthDate) {
+		return ""
+	}
+
+	years := assetDate.Year() - birthDate.Year()
+	months := int(assetDate.Month() - birthDate.Month())
+	days := assetDate.Day() - birthDate.Day()
+
+	// Adjust for negative months or days
+	if days < 0 {
+		// Subtract a month and add days of the previous month
+		months--
+		previousMonth := assetDate.AddDate(0, -1, 0)
+		days += utils.DaysInMonth(previousMonth)
+	}
+	if months < 0 {
+		years--
+		months += 12
+	}
+
+	// Calculate total days for comparison
+	totalDays := int(assetDate.Sub(birthDate).Hours() / 24)
+
+	// Choose appropriate format based on the age
+	if years > 0 {
+		if years == 1 {
+			return fmt.Sprintf("%d year", years)
 		}
+		return fmt.Sprintf("%d years", years)
+	} else if months > 0 {
 		if months == 1 {
 			return fmt.Sprintf("%d month", months)
 		}
 		return fmt.Sprintf("%d months", months)
+	} else {
+		if totalDays == 1 {
+			return fmt.Sprintf("%d day", totalDays)
+		}
+		return fmt.Sprintf("%d days", totalDays)
 	}
-
-	years := date.Year() - birthdate.Year()
-
-	birthdayThisYear := time.Date(date.Year(), birthdate.Month(), birthdate.Day(), 0, 0, 0, 0, time.UTC)
-	if date.Before(birthdayThisYear) {
-		years--
-	}
-
-	if years == 1 {
-		return fmt.Sprintf("%d year", years)
-	}
-	return fmt.Sprintf("%d years", years)
 }
 
 // peopleNames extracts and joins the names of people tagged in an asset.

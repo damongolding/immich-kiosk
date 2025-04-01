@@ -739,3 +739,8 @@ func IsTimeBetween(checkTime, startTime, endTime time.Time) bool {
 	return (checkTime.Equal(startTime) || checkTime.After(startTime)) &&
 		(checkTime.Equal(endTime) || checkTime.Before(endTime))
 }
+
+// Helper function to get days in a month
+func DaysInMonth(date time.Time) int {
+	return time.Date(date.Year(), date.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
+}
