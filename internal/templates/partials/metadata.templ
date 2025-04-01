@@ -221,8 +221,9 @@ func peopleNames(people []immich.Person, showAge bool, assetDate time.Time) stri
 			name := person.Name
 			if showAge && person.BirthDate != "" {
 				birthDate, birthDateErr := person.BirthDate.Time()
-				if birthDateErr == nil {
-					name += fmt.Sprintf(" (%s)", calculateAge(assetDate, birthDate))
+				personAge := calculateAge(assetDate, birthDate)
+				if birthDateErr == nil && personAge != "" {
+					name += fmt.Sprintf(" (%s)", personAge)
 				}
 			}
 			p = append(p, name)
