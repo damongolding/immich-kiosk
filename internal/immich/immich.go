@@ -7,6 +7,7 @@ package immich
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 	"sync"
@@ -113,6 +114,9 @@ type ExifInfo struct {
 type BirthDate string
 
 func (bd BirthDate) Time() (time.Time, error) {
+	if string(bd) == "" {
+		return time.Time{}, errors.New("empty birth date")
+	}
 	return time.Parse("2006-01-02", string(bd))
 }
 
