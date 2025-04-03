@@ -8,6 +8,8 @@ const (
 	AlbumKeywordFavourites string = "favourites"
 	AlbumKeywordFavorites  string = "favorites"
 
+	PersonKeywordAll string = "all"
+
 	SourceAlbum     Source = "ALBUM"
 	SourceDateRange Source = "DATE_RANGE_ALBUM"
 	SourcePerson    Source = "PERSON"

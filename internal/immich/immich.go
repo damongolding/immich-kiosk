@@ -349,6 +349,13 @@ type UserResponse struct {
 	UpdatedAt            time.Time       `json:"updatedAt"`
 }
 
+type AllPeopleResponse struct {
+	HasNextPage bool     `json:"hasNextPage"`
+	Hidden      int      `json:"hidden"`
+	People      []Person `json:"people"`
+	Total       int      `json:"total"`
+}
+
 type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, error)
 
 type APIResponse interface {
@@ -368,7 +375,8 @@ type APIResponse interface {
 		TagAssetsResponse |
 		AlbumCreateResponse |
 		UpsertTagResponse |
-		UserResponse
+		UserResponse |
+		AllPeopleResponse
 }
 
 // New returns a new asset instance

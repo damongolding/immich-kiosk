@@ -83,7 +83,7 @@ func (c *Config) checkDebuging() {
 // cleanupSlice removes empty strings and placeholder values from a slice,
 // and trims whitespace from remaining values.
 func (c *Config) cleanupSlice(slice []string, placeholder string) []string {
-	cleaned := []string{}
+	cleaned := make([]string, 0, len(slice))
 	for _, item := range slice {
 		if item != "" && item != placeholder {
 			cleaned = append(cleaned, strings.TrimSpace(item))

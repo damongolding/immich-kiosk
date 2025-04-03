@@ -201,6 +201,14 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 		return immichAsset.RandomImageInDateRange(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourcePerson:
+		if pickedAsset.ID == kiosk.PersonKeywordAll {
+			pickedPersonID, err := immichAsset.RandomPersonFromAllPeople(requestID, deviceID, true)
+			if err != nil {
+				return err
+			}
+			pickedAsset.ID = pickedPersonID
+		}
+
 		return immichAsset.RandomImageOfPerson(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourceMemories:
