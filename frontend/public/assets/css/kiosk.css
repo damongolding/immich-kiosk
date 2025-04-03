@@ -613,7 +613,7 @@ form {
       padding: 6rem 3rem 3rem 3rem;
       color: #fff;
       border-radius: 0.74rem;
-      overflow: hidden;
+      overflow: auto;
     }
 .polling-paused.more-info #more-info .more-info--image .more-info--image--data {
         display: -moz-box;

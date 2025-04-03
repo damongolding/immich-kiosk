@@ -40,7 +40,7 @@
             color: #fff;
             border-radius: 0.74rem;
 
-            overflow: hidden;
+            overflow: auto;
 
             .more-info--image--data {
                 display: flex;
