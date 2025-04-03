@@ -105,6 +105,12 @@
     text-transform: capitalize;
 }
 
+.asset--metadata--exif {
+    .asset--metadata--icon {
+        padding: 0;
+    }
+}
+
 .asset--metadata--exif--fnumber {
     display: inline-block;
     font-size: 0.84rem;

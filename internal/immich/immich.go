@@ -7,6 +7,7 @@ package immich
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 	"sync"
@@ -110,10 +111,19 @@ type ExifInfo struct {
 	ImageOrientation ImageOrientation
 }
 
+type BirthDate string
+
+func (bd BirthDate) Time() (time.Time, error) {
+	if string(bd) == "" {
+		return time.Time{}, errors.New("empty birth date")
+	}
+	return time.Parse("2006-01-02", string(bd))
+}
+
 type Person struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
-	BirthDate     any       `json:"-"` // `json:"birthDate"`
+	BirthDate     BirthDate `json:"birthDate"`
 	ThumbnailPath string    `json:"-"` // `json:"thumbnailPath"`
 	IsHidden      bool      `json:"-"` // `json:"isHidden"`
 	UpdatedAt     time.Time `json:"-"` // `json:"updatedAt"`

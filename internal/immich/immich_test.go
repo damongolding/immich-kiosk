@@ -269,3 +269,118 @@ func TestExtractDays(t *testing.T) {
 		})
 	}
 }
+
+// TestMergeAssetInfo tests the merging of asset information between two Asset structs.
+// It verifies:
+// - Empty slices are correctly merged with populated ones
+// - Non-empty slices are preserved and not overwritten
+// - Boolean fields are always updated regardless of value
+// - Zero/empty values are updated while non-zero values are preserved
+// - Complex nested structs are merged properly while maintaining existing data
+func TestMergeAssetInfo(t *testing.T) {
+	tests := []struct {
+		name           string
+		baseAsset      Asset
+		additionalInfo Asset
+		wantErr        bool
+		expected       Asset
+	}{
+		{
+			name: "merge empty slices",
+			baseAsset: Asset{
+				People: []Person{},
+			},
+			additionalInfo: Asset{
+				People: []Person{{ID: "1", Name: "Test"}},
+			},
+			wantErr: false,
+			expected: Asset{
+				People: []Person{{ID: "1", Name: "Test"}},
+			},
+		},
+		{
+			name: "don't overwrite non-empty slices",
+			baseAsset: Asset{
+				People: []Person{{ID: "1", Name: "Original"}},
+			},
+			additionalInfo: Asset{
+				People: []Person{{ID: "2", Name: "New"}},
+			},
+			wantErr: false,
+			expected: Asset{
+				People: []Person{{ID: "1", Name: "Original"}},
+			},
+		},
+		{
+			name: "always update booleans",
+			baseAsset: Asset{
+				IsArchived: false,
+			},
+			additionalInfo: Asset{
+				IsArchived: true,
+			},
+			wantErr: false,
+			expected: Asset{
+				IsArchived: true,
+			},
+		},
+		{
+			name: "update zero values only",
+			baseAsset: Asset{
+				ID:   "",
+				Type: "image",
+			},
+			additionalInfo: Asset{
+				ID:   "new-id",
+				Type: "video",
+			},
+			wantErr: false,
+			expected: Asset{
+				ID:   "new-id",
+				Type: "image",
+			},
+		},
+		{
+			name: "full merge test",
+			baseAsset: Asset{
+				ID:         "base-id",
+				Type:       "image",
+				IsArchived: false,
+				People:     []Person{{ID: "1", Name: "Original"}},
+			},
+			additionalInfo: Asset{
+				ID:         "new-id",
+				Type:       "video",
+				IsArchived: true,
+				People:     []Person{{ID: "2", Name: "New"}},
+				ExifInfo: ExifInfo{
+					Make:  "New",
+					Model: "New",
+				},
+			},
+			wantErr: false,
+			expected: Asset{
+				ID:         "base-id",
+				Type:       "image",
+				IsArchived: true,
+				People:     []Person{{ID: "1", Name: "Original"}},
+				ExifInfo: ExifInfo{
+					Make:  "New",
+					Model: "New",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.baseAsset.mergeAssetInfo(tt.additionalInfo)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tt.expected, tt.baseAsset)
+		})
+	}
+}
