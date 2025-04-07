@@ -34,7 +34,7 @@
   "browserslist": [
     "> 0.2%",
     "not ios 11",
-    "not android 133",
+    "not android 134",
     "not op_mini all",
     "not IE 11"
   ]
