@@ -767,6 +767,12 @@ environment:
 http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 ```
 
+### Special people keywords
+
+#### ` all `
+Will use all named people.
+e.g. `http://{URL}?person=all`
+
 ------
 
 ## Exclude people

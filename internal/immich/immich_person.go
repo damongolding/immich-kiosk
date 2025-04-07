@@ -3,20 +3,142 @@ package immich
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 	"path"
 	"slices"
+	"sync/atomic"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/google/go-querystring/query"
+	"golang.org/x/sync/errgroup"
 )
+
+func (a *Asset) people(requestID, deviceID string, knowPeopleOnly bool, bypassCache bool) ([]Person, error) {
+	var people []Person
+	page := 1
+
+	for {
+
+		if page > MaxPages {
+			log.Warn(requestID + " Reached maximum page count when fetching people")
+			break
+		}
+
+		var allPeople AllPeopleResponse
+
+		u, err := url.Parse(a.requestConfig.ImmichURL)
+		if err != nil {
+			_, _, err = immichAPIFail(allPeople, err, nil, "")
+			return people, err
+		}
+
+		apiURL := url.URL{
+			Scheme:   u.Scheme,
+			Host:     u.Host,
+			Path:     path.Join("api", "people"),
+			RawQuery: fmt.Sprintf("page=%d", page),
+		}
+
+		var body []byte
+
+		if bypassCache {
+			body, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+			if err != nil {
+				_, _, err = immichAPIFail(allPeople, err, body, apiURL.String())
+				return people, err
+			}
+		} else {
+			immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, allPeople)
+			body, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+			if err != nil {
+				_, _, err = immichAPIFail(allPeople, err, body, apiURL.String())
+				return people, err
+			}
+		}
+
+		err = json.Unmarshal(body, &allPeople)
+		if err != nil {
+			_, _, err = immichAPIFail(allPeople, err, body, apiURL.String())
+			return people, err
+		}
+
+		people = append(people, allPeople.People...)
+
+		if !allPeople.HasNextPage {
+			break
+		}
+
+		page++
+
+	}
+
+	if knowPeopleOnly {
+		namedPeople := make([]Person, 0, len(people))
+		for _, person := range people {
+			if person.Name != "" {
+				namedPeople = append(namedPeople, person)
+			}
+		}
+		people = namedPeople
+	}
+
+	return people, nil
+}
+
+// allPeopleAssetCount returns the total count of images across all named people in the system.
+// It performs concurrent queries for each person's image count using a limited number of goroutines.
+//
+// Parameters:
+//   - requestID: The ID of the API request for tracking purposes
+//   - deviceID: The ID of the device making the request
+//
+// Returns:
+//   - int: The total number of images across all named people
+//   - error: nil if successful, error if the people query fails or if any individual count fails
+func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
+	allPeople, allPeopleErr := a.people(requestID, deviceID, true, false)
+	if allPeopleErr != nil {
+		return 0, allPeopleErr
+	}
+
+	var counts atomic.Int64
+	var errGroup errgroup.Group
+	errGroup.SetLimit(20)
+
+	for _, person := range allPeople {
+		p := person
+		errGroup.Go(func() error {
+			count, err := a.PersonImageCount(p.ID, requestID, deviceID)
+			if err != nil {
+				log.Error(requestID+" Failed to count images for person", "personID", p.ID, "error", err)
+				return err
+			}
+			counts.Add(int64(count))
+			return nil
+		})
+
+	}
+
+	errGroupErr := errGroup.Wait()
+	if errGroupErr != nil {
+		return 0, errGroupErr
+	}
+
+	return int(counts.Load()), nil
+}
 
 // PersonImageCount returns the number of images associated with a specific person in Immich.
 func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
+
+	if personID == kiosk.PersonKeywordAll {
+		return a.allPeopleAssetCount(requestID, deviceID)
+	}
 
 	var personStatistics PersonStatistics
 
@@ -169,4 +291,41 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 		cache.Delete(apiCacheKey)
 	}
 	return fmt.Errorf("no images found for person '%s'. Max retries reached", personID)
+}
+
+// RandomPersonFromAllPeople returns a random person ID from all people in the system.
+// It can optionally filter to only include people who have been given names.
+//
+// Parameters:
+//   - requestID: The ID of the API request for tracking purposes
+//   - deviceID: The ID of the device making the request
+//   - knowPeopleOnly: If true, only returns people who have been given names
+//
+// Returns:
+//   - string: The ID of the randomly selected person
+//   - error: nil if successful, error if no people are found or if the API call fails
+func (a *Asset) RandomPersonFromAllPeople(requestID, deviceID string, knowPeopleOnly bool) (string, error) {
+
+	people, err := a.people(requestID, deviceID, knowPeopleOnly, false)
+	if err != nil {
+		return "", fmt.Errorf("failed to get people: %w", err)
+	}
+
+	if len(people) == 0 {
+		return "", errors.New("no valid people found with names")
+	}
+
+	if len(a.requestConfig.ExcludedPeople) > 0 {
+		people = slices.DeleteFunc(people, func(person Person) bool {
+			return slices.Contains(a.requestConfig.ExcludedPeople, person.ID)
+		})
+	}
+
+	if len(people) == 0 {
+		return "", errors.New("no valid people found after exclusions")
+	}
+
+	picked := people[rand.IntN(len(people))]
+
+	return picked.ID, nil
 }
