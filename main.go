@@ -29,6 +29,8 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/video"
 	"github.com/damongolding/immich-kiosk/internal/weather"
+
+	"github.com/labstack/echo-contrib/pprof"
 )
 
 // version current build version number
@@ -92,6 +94,8 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
+
+	pprof.Register(e)
 
 	// Middleware
 	e.Use(middleware.Recover())
