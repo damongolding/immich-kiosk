@@ -23,6 +23,7 @@ type AssetOrder string
 
 const (
 	MaxRetries = 3
+	MaxPages   = 100
 
 	PortraitOrientation  ImageOrientation = "PORTRAIT"
 	LandscapeOrientation ImageOrientation = "LANDSCAPE"

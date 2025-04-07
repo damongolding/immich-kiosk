@@ -647,6 +647,12 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 	var totalCount int
 
 	for {
+
+		if requestBody.Page > MaxPages {
+			log.Warn(requestID + " Reached maximum page count when fetching Metadata")
+			break
+		}
+
 		var response SearchMetadataResponse
 
 		// convert body to queries so url is unique and can be cached

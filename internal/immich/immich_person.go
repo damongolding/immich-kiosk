@@ -10,11 +10,13 @@ import (
 	"net/url"
 	"path"
 	"slices"
+	"sync/atomic"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/google/go-querystring/query"
+	"golang.org/x/sync/errgroup"
 )
 
 func (a *Asset) people(requestID, deviceID string, knowPeopleOnly bool, bypassCache bool) ([]Person, error) {
@@ -22,6 +24,11 @@ func (a *Asset) people(requestID, deviceID string, knowPeopleOnly bool, bypassCa
 	page := 1
 
 	for {
+
+		if page > MaxPages {
+			log.Warn(requestID + " Reached maximum page count when fetching people")
+			break
+		}
 
 		var allPeople AllPeopleResponse
 
@@ -84,12 +91,53 @@ func (a *Asset) people(requestID, deviceID string, knowPeopleOnly bool, bypassCa
 	return people, nil
 }
 
+// allPeopleAssetCount returns the total count of images across all named people in the system.
+// It performs concurrent queries for each person's image count using a limited number of goroutines.
+//
+// Parameters:
+//   - requestID: The ID of the API request for tracking purposes
+//   - deviceID: The ID of the device making the request
+//
+// Returns:
+//   - int: The total number of images across all named people
+//   - error: nil if successful, error if the people query fails or if any individual count fails
+func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
+	allPeople, allPeopleErr := a.people(requestID, deviceID, true, false)
+	if allPeopleErr != nil {
+		return 0, allPeopleErr
+	}
+
+	var counts atomic.Int64
+	var errGroup errgroup.Group
+	errGroup.SetLimit(20)
+
+	for _, person := range allPeople {
+		p := person
+		errGroup.Go(func() error {
+			count, err := a.PersonImageCount(p.ID, requestID, deviceID)
+			if err != nil {
+				log.Error(requestID+" Failed to count images for person", "personID", p.ID, "error", err)
+				return err
+			}
+			counts.Add(int64(count))
+			return nil
+		})
+
+	}
+
+	errGroupErr := errGroup.Wait()
+	if errGroupErr != nil {
+		return 0, errGroupErr
+	}
+
+	return int(counts.Load()), nil
+}
+
 // PersonImageCount returns the number of images associated with a specific person in Immich.
 func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
 
 	if personID == kiosk.PersonKeywordAll {
-		allPeople, allPeopleErr := a.people(requestID, deviceID, true, false)
-		return len(allPeople), allPeopleErr
+		return a.allPeopleAssetCount(personID, requestID)
 	}
 
 	var personStatistics PersonStatistics
