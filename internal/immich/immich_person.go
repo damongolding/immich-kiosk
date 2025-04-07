@@ -137,7 +137,7 @@ func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
 func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
 
 	if personID == kiosk.PersonKeywordAll {
-		return a.allPeopleAssetCount(personID, requestID)
+		return a.allPeopleAssetCount(requestID, deviceID)
 	}
 
 	var personStatistics PersonStatistics
