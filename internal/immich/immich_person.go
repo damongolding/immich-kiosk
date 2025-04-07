@@ -275,7 +275,5 @@ func (a *Asset) RandomPersonFromAllPeople(requestID, deviceID string, knowPeople
 
 	picked := people[rand.IntN(len(people))]
 
-	log.Info("Picked", "name", picked.Name)
-
 	return picked.ID, nil
 }
