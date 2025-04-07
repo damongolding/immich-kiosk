@@ -321,6 +321,10 @@ func (a *Asset) RandomPersonFromAllPeople(requestID, deviceID string, knowPeople
 		})
 	}
 
+	if len(people) == 0 {
+		return "", errors.New("no valid people found after exclusions")
+	}
+
 	picked := people[rand.IntN(len(people))]
 
 	return picked.ID, nil
