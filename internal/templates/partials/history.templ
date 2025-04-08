@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"html/template"
 	"strings"
 )
@@ -15,20 +16,43 @@ templ History() {
 	</form>
 }
 
-// renderHistory renders a form containing the viewing history of images.
+// RenderHistory renders a form containing the viewing history of assets in the kiosk.
 //
 // Parameters:
-//   - viewData: ViewData containing the history and current images.
+//   - viewData: ViewData containing the current viewing history and list of assets
+//   - assetType: Type of asset (image, video, etc) being viewed
+//
+// The history is maintained as a list of hidden form inputs, with each entry containing
+// asset IDs and associated users. The history handling logic:
+// - If no history exists, creates initial entry
+// - If viewing history entries, maintains existing entries
+// - If viewing new assets, appends new entries while preserving relevant history
 templ RenderHistory(viewData common.ViewData, assetType immich.AssetType) {
 	<form id="kiosk-history" hx-swap-oob="true">
-		if viewData.UpdateHistory {
-			for _, historyEntry := range viewData.History {
-				<input type="hidden" class="kiosk-history--entry" name="history" value={ strings.Replace(historyEntry, "*", "", -1) }/>
-			}
-			<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Assets) }/>
-		} else {
+		{{ newEntry := newHistoryEntry(viewData.Assets) }}
+		if len(viewData.History) == 0 {
+			// no history
+			<input type="hidden" class="kiosk-history--entry" name="history" value={ newEntry }/>
+		} else if !strings.HasPrefix(viewData.History[len(viewData.History)-1], kiosk.HistoryIndicator) {
+			// using history
 			for _, historyEntry := range viewData.History {
 				<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
+			}
+		} else {
+			for i, historyEntry := range viewData.History {
+				if i == len(viewData.History)-1 {
+					if newEntry == historyEntry {
+						// still using history
+						<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
+						{{ continue }}
+					} else {
+						// new asset
+						<input type="hidden" class="kiosk-history--entry" name="history" value={ strings.Replace(historyEntry, kiosk.HistoryIndicator, "", -1) }/>
+						<input type="hidden" class="kiosk-history--entry" name="history" value={ newEntry }/>
+						{{ continue }}
+					}
+				}
+				<input type="hidden" class="kiosk-history--entry" name="history" value={ strings.Replace(historyEntry, kiosk.HistoryIndicator, "", -1) }/>
 			}
 		}
 	</form>

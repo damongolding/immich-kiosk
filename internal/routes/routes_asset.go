@@ -52,9 +52,9 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return c.NoContent(http.StatusNoContent)
 		}
 
+		// use history
 		if len(requestConfig.History) > 1 && !strings.HasPrefix(requestConfig.History[len(requestConfig.History)-1], "*") {
-			log.Info("Moving forward in history")
-			return NextAsset(baseConfig, com, c)
+			return NextHistoryAsset(baseConfig, com, c)
 		}
 
 		requestCtx := common.CopyContext(c)
@@ -74,8 +74,6 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		if err != nil {
 			return RenderError(c, err, "retrieving asset")
 		}
-
-		viewData.UpdateHistory = true
 
 		if requestConfig.Kiosk.PreFetch {
 			go assetPreFetch(com, requestData, requestCtx)
