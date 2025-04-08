@@ -110,8 +110,8 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 				wantedHistoryEntry = requestConfig.History[i-1]
 				wantedHistoryEntryIndex = i - 1
 			}
+			requestConfig.History[i] = strings.Replace(h, kiosk.HistoryIndicator, "", 1)
 		}
-		requestConfig.History[i] = strings.Replace(h, kiosk.HistoryIndicator, "", 1)
 	}
 
 	if wantedHistoryEntry == "" {
@@ -125,6 +125,9 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	}
 
 	wantedAssets := strings.Split(wantedHistoryEntry, ",")
+	if len(wantedAssets) == 0 || (len(wantedAssets) == 1 && wantedAssets[0] == "") {
+		return fmt.Errorf("no valid assets found in history entry: %s", wantedHistoryEntry)
+	}
 	requestConfig.History[wantedHistoryEntryIndex] = kiosk.HistoryIndicator + requestConfig.History[wantedHistoryEntryIndex]
 
 	viewData := common.ViewData{

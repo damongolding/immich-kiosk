@@ -35,4 +35,5 @@ const (
 	HideButtonActionArchive  string = "archive"
 
 	HistoryIndicator string = "*"
+	HistoryLimit     int    = 20
 )
