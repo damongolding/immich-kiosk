@@ -211,11 +211,12 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 		return RenderError(c, errGroupWait, "processing images")
 	}
 
+	webhookEvent := webhooks.PreviousHistoryAsset
 	if useNextImage {
-		go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NextHistoryAsset, viewData)
-	} else {
-		go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.PreviousHistoryAsset, viewData)
+		webhookEvent = webhooks.NextHistoryAsset
 	}
+
+	go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhookEvent, viewData)
 
 	if len(viewData.Assets) > 0 && requestConfig.ShowTime && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
 		return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret()))
