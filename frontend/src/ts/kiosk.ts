@@ -404,7 +404,7 @@ function checkHistoryExists(e: HTMXEvent): void {
   if (
     requestInFlight ||
     historyItems.length < 2 ||
-    historyItems[0].value[0] === "*"
+    (historyItems.length > 0 && historyItems[0].value[0] === "*")
   ) {
     e.preventDefault();
     return;

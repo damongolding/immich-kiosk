@@ -96,10 +96,17 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 
 	for i, h := range requestConfig.History {
 		if strings.HasPrefix(h, kiosk.HistoryIndicator) {
-			if useNextImage {
+			switch useNextImage {
+			case true:
+				if i+1 >= historyLen {
+					continue
+				}
 				wantedHistoryEntry = requestConfig.History[i+1]
 				wantedHistoryEntryIndex = i + 1
-			} else {
+			case false:
+				if i == 0 {
+					continue
+				}
 				wantedHistoryEntry = requestConfig.History[i-1]
 				wantedHistoryEntryIndex = i - 1
 			}
@@ -204,7 +211,11 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 		return RenderError(c, errGroupWait, "processing images")
 	}
 
-	go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.PreviousAsset, viewData)
+	if useNextImage {
+		go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NextHistoryAsset, viewData)
+	} else {
+		go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.PreviousHistoryAsset, viewData)
+	}
 
 	if len(viewData.Assets) > 0 && requestConfig.ShowTime && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
 		return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret()))
