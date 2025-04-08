@@ -98,6 +98,7 @@ type ViewData struct {
 	Assets        []ViewImageData // Assets contains the collection of assets to display in view
 	Queries       url.Values      // Queries contains the URL query parameters
 	CustomCSS     []byte          // CustomCSS contains custom CSS styling as bytes
+	UpdateHistory bool            // UpdateHistory indicates whether the history should be updated
 	config.Config                 // Config contains the instance configuration
 }
 

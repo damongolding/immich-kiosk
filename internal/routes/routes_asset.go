@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"slices"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -51,6 +52,11 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return c.NoContent(http.StatusNoContent)
 		}
 
+		if len(requestConfig.History) > 1 && !strings.HasPrefix(requestConfig.History[len(requestConfig.History)-1], "*") {
+			log.Info("Moving forward in history")
+			return NextAsset(baseConfig, com, c)
+		}
+
 		requestCtx := common.CopyContext(c)
 
 		// get and use prefetch data (if found)
@@ -68,6 +74,8 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		if err != nil {
 			return RenderError(c, err, "retrieving asset")
 		}
+
+		viewData.UpdateHistory = true
 
 		if requestConfig.Kiosk.PreFetch {
 			go assetPreFetch(com, requestData, requestCtx)

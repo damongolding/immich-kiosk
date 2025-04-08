@@ -398,8 +398,14 @@ function releaseRequestLock(): void {
  * - Sets request lock when navigation is permitted
  */
 function checkHistoryExists(e: HTMXEvent): void {
-  const historyItems = htmx.findAll(".kiosk-history--entry");
-  if (requestInFlight || historyItems.length < 2) {
+  const historyItems = htmx.findAll(
+    ".kiosk-history--entry",
+  ) as NodeListOf<HTMLInputElement>;
+  if (
+    requestInFlight ||
+    historyItems.length < 2 ||
+    historyItems[0].value[0] === "*"
+  ) {
     e.preventDefault();
     return;
   }

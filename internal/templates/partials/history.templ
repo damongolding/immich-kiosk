@@ -21,13 +21,31 @@ templ History() {
 //   - viewData: ViewData containing the history and current images.
 templ RenderHistory(viewData common.ViewData, assetType immich.AssetType) {
 	<form id="kiosk-history" hx-swap-oob="true">
-		for _, historyEntry := range viewData.History {
-			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
+		if viewData.UpdateHistory {
+			for _, historyEntry := range viewData.History {
+				<input type="hidden" class="kiosk-history--entry" name="history" value={ strings.Replace(historyEntry, "*", "", -1) }/>
+			}
+			<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Assets) }/>
+		} else {
+			for _, historyEntry := range viewData.History {
+				<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
+			}
 		}
-		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Assets) }/>
 	</form>
 }
 
+// newHistoryEntry creates a new comma-separated history entry string from a slice of images
+// It takes a slice of ViewImageData and returns a history string in the format "*id1:user1,id2:user2".
+// Each image entry is HTML escaped and prefixed with * to indicate it's new. Returns empty string if
+// no images provided.
+//
+//	\* = the current image being viewed
+//
+// Parameters:
+//   - images: Slice of ViewImageData containing image assets and associated users
+//
+// Returns:
+//   - String containing the formatted history entry or empty string if no images
 func newHistoryEntry(images []common.ViewImageData) string {
 	if len(images) == 0 {
 		return ""
@@ -38,5 +56,5 @@ func newHistoryEntry(images []common.ViewImageData) string {
 		sanitisedID := template.HTMLEscapeString(assetHistory)
 		newImages[i] = sanitisedID
 	}
-	return strings.Join(newImages, ",")
+	return "*" + strings.Join(newImages, ",")
 }
