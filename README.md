@@ -294,6 +294,7 @@ services:
       # Image metadata
       KIOSK_SHOW_ALBUM_NAME: false
       KIOSK_SHOW_PERSON_NAME: false
+      KIOSK_SHOW_PERSON_AGE: false
       KIOSK_SHOW_IMAGE_TIME: false
       KIOSK_IMAGE_TIME_FORMAT: 24
       KIOSK_SHOW_IMAGE_DATE: false
@@ -420,6 +421,7 @@ See the file `config.example.yaml` for an example config file
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fallback to using the preview. |
 | show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display album name(s) that the asset appears in.                                           |
 | show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display person name(s).                                                                    |
+| show_person_age                   | KIOSK_SHOW_PERSON_AGE   | bool                       | false       | Display person age.                                                                        |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
@@ -764,6 +766,12 @@ environment:
 ```url
 http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 ```
+
+### Special people keywords
+
+#### ` all `
+Will use all named people.
+e.g. `http://{URL}?person=all`
 
 ------
 
@@ -1330,15 +1338,16 @@ To validate webhooks on your server, you should:
 
 | Event                              | Description                                                                         |
 |------------------------------------|-------------------------------------------------------------------------------------|
-|`asset.new`                         | Triggered when a new image is requested from Kiosk                                  |
-|`asset.previous`                    | Triggered when a previous image is requested from Kiosk                             |
-|`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich                              |
+|`asset.new`                         | Triggered when a new asset is requested from Kiosk                                  |
+|`asset.prefetch`                    | Triggered when Kiosk prefetches an asset data from Immich                           |
+|`asset.history.next`                | Triggered when a history asset (next) is requested from Kiosk                       |
+|`asset.history.previous`            | Triggered when a history asset (previous) is requested from Kiosk                   |
 |`cache.flushed`                     | Triggered when the cache is manually cleared                                        |
-|`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
-|`user.like.info_overlay`        | Triggered when the "like" button is clicked in the image details overlay        |
-|`user.unlike.info_overlay`      | Triggered when the "unlike" button is clicked in the image details overlay      |
-|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the image details overlay            |
-|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the image details overlay          |
+|`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the asset details overlay |
+|`user.like.info_overlay`            | Triggered when the "like" button is clicked in the asset details overlay            |
+|`user.unlike.info_overlay`          | Triggered when the "unlike" button is clicked in the asset details overlay          |
+|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the asset details overlay            |
+|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the asset details overlay          |
 
 ### Webhook Payload
 

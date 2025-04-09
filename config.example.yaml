@@ -79,6 +79,7 @@ use_original_image: false # use the original file.
 ## Image METADATA
 show_album_name: false
 show_person_name: false
+show_person_age: false
 show_image_time: false
 image_time_format: 24 # 12 or 24
 show_image_date: false
@@ -104,6 +105,7 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 #     api: ""
 #     unit: metric
 #     lang: en
+#     default: false
 
 ## Immich API keys for specific users
 # immich_users_api_keys:

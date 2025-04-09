@@ -7,6 +7,7 @@ package immich
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 	"sync"
@@ -23,6 +24,7 @@ type AssetOrder string
 
 const (
 	MaxRetries = 3
+	MaxPages   = 100
 
 	PortraitOrientation  ImageOrientation = "PORTRAIT"
 	LandscapeOrientation ImageOrientation = "LANDSCAPE"
@@ -58,7 +60,7 @@ var (
 		ExpectContinueTimeout: 1 * time.Second,
 	}
 	// httpClient default http client for Immich api calls
-	httpClient = &http.Client{
+	HTTPClient = &http.Client{
 		Transport: httpTransport,
 	}
 
@@ -110,10 +112,19 @@ type ExifInfo struct {
 	ImageOrientation ImageOrientation
 }
 
+type BirthDate string
+
+func (bd BirthDate) Time() (time.Time, error) {
+	if string(bd) == "" {
+		return time.Time{}, errors.New("empty birth date")
+	}
+	return time.Parse("2006-01-02", string(bd))
+}
+
 type Person struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
-	BirthDate     any       `json:"-"` // `json:"birthDate"`
+	BirthDate     BirthDate `json:"birthDate"`
 	ThumbnailPath string    `json:"-"` // `json:"thumbnailPath"`
 	IsHidden      bool      `json:"-"` // `json:"isHidden"`
 	UpdatedAt     time.Time `json:"-"` // `json:"updatedAt"`
@@ -343,6 +354,13 @@ type UserResponse struct {
 	UpdatedAt            time.Time       `json:"updatedAt"`
 }
 
+type AllPeopleResponse struct {
+	HasNextPage bool     `json:"hasNextPage"`
+	Hidden      int      `json:"hidden"`
+	People      []Person `json:"people"`
+	Total       int      `json:"total"`
+}
+
 type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, error)
 
 type APIResponse interface {
@@ -362,7 +380,8 @@ type APIResponse interface {
 		TagAssetsResponse |
 		AlbumCreateResponse |
 		UpsertTagResponse |
-		UserResponse
+		UserResponse |
+		AllPeopleResponse
 }
 
 // New returns a new asset instance

@@ -25,6 +25,7 @@ import (
 
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/routes"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/video"
@@ -61,6 +62,8 @@ func main() {
 	if configErr != nil {
 		log.Error("Failed to load config", "err", configErr)
 	}
+
+	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
 
 	videoManager, videoManagerErr := video.New(c.Context())
 	if videoManagerErr != nil {
@@ -139,7 +142,7 @@ func main() {
 
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 
-	e.POST("/asset/previous", routes.PreviousAsset(baseConfig, c))
+	e.POST("/asset/previous", routes.PreviousHistoryAsset(baseConfig, c))
 
 	e.POST("/asset/tag", routes.TagAsset(baseConfig, c))
 

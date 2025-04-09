@@ -201,6 +201,14 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 		return immichAsset.RandomImageInDateRange(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourcePerson:
+		if pickedAsset.ID == kiosk.PersonKeywordAll {
+			pickedPersonID, err := immichAsset.RandomPersonFromAllPeople(requestID, deviceID, true)
+			if err != nil {
+				return err
+			}
+			pickedAsset.ID = pickedPersonID
+		}
+
 		return immichAsset.RandomImageOfPerson(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourceMemories:
@@ -614,7 +622,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 	cache.Set(cacheKey, cachedViewData[1:])
 
 	// Update history which will be outdated in cache
-	utils.TrimHistory(&requestConfig.History, 10)
+	utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
 	viewDataToRender.History = requestConfig.History
 
 	if requestConfig.ExperimentalAlbumVideo && viewDataToRender.Assets[0].ImmichAsset.Type == immich.VideoType {

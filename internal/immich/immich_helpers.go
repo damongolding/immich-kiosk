@@ -136,8 +136,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			}
 		}
 
-		httpClient.Timeout = time.Second * time.Duration(a.requestConfig.Kiosk.HTTPTimeout)
-		res, resErr := httpClient.Do(req)
+		res, resErr := HTTPClient.Do(req)
 		if resErr != nil {
 			lastErr = resErr
 
@@ -253,18 +252,21 @@ func (a *Asset) addRatio() {
 // Returns:
 //   - error: If any field in additionalInfo is invalid during the merge process
 func (a *Asset) mergeAssetInfo(additionalInfo Asset) error {
+
 	v := reflect.ValueOf(a).Elem()
 	d := reflect.ValueOf(additionalInfo)
+	t := v.Type()
 
 	for i := range v.NumField() {
 		field := v.Field(i)
+		fieldName := t.Field(i).Name
 		if !field.CanSet() {
 			continue
 		}
 
-		additionalField := d.Field(i)
+		additionalField := d.FieldByName(fieldName)
 		if !additionalField.IsValid() {
-			return fmt.Errorf("invalid field at index %d", i)
+			return fmt.Errorf("invalid field: %s", fieldName)
 		}
 
 		if field.Kind() == reflect.Bool {
@@ -272,10 +274,21 @@ func (a *Asset) mergeAssetInfo(additionalInfo Asset) error {
 			continue
 		}
 
+		if field.Kind() == reflect.Slice {
+			if field.Len() > 0 {
+				continue // Don't overwrite non-empty slices
+			}
+			if !additionalField.IsNil() {
+				field.Set(additionalField)
+			}
+			continue
+		}
+
 		if reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
 			field.Set(additionalField)
 		}
 	}
+
 	return nil
 }
 
@@ -618,6 +631,7 @@ func (a *Asset) hasValidPeople(requestID, deviceID string) bool {
 // Returns:
 //   - bool: true if asset has no excluding tags (like "skip"), false if it should be excluded
 func (a *Asset) hasValidTags(requestID, deviceID string) bool {
+
 	if err := a.AssetInfo(requestID, deviceID); err != nil {
 		log.Error("Failed to get additional asset data", "error", err)
 	}
@@ -632,6 +646,12 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 	var totalCount int
 
 	for {
+
+		if requestBody.Page > MaxPages {
+			log.Warn(requestID + " Reached maximum page count when fetching Metadata")
+			break
+		}
+
 		var response SearchMetadataResponse
 
 		// convert body to queries so url is unique and can be cached

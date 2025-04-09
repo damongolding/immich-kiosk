@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	gocache "github.com/patrickmn/go-cache"
 )
@@ -119,7 +120,7 @@ func AssetToCacheWithPosition[T any](viewDataToAdd T, requestConfig *config.Conf
 // and adds the new item either at the beginning (PREPEND) or end (APPEND) of the array.
 // If the cached data is invalid or not found, it initializes a new empty array.
 func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string, position Position) {
-	utils.TrimHistory(&requestConfig.History, 10)
+	utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
 
 	cachedViewData := []T{}
 

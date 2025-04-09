@@ -472,6 +472,9 @@ form {
 .asset--metadata--datetime {
   text-transform: capitalize;
 }
+.asset--metadata--exif .asset--metadata--icon {
+    padding: 0;
+  }
 .asset--metadata--exif--fnumber {
   display: inline-block;
   font-size: 0.84rem;
@@ -610,7 +613,7 @@ form {
       padding: 6rem 3rem 3rem 3rem;
       color: #fff;
       border-radius: 0.74rem;
-      overflow: hidden;
+      overflow: auto;
     }
 .polling-paused.more-info #more-info .more-info--image .more-info--image--data {
         display: -moz-box;
@@ -646,7 +649,7 @@ form {
              justify-content: center;
       }
 .polling-paused.more-info #more-info .more-info--image .more-info--image--qr-code img {
-          max-width: 14rem;
+          width: 8rem;
           border-radius: 0.5rem;
         }
 .polling-paused.more-info.layout-splitview-landscape #more-info {
