@@ -16,46 +16,63 @@ templ History() {
 	</form>
 }
 
-// RenderHistory renders a form containing the viewing history of assets in the kiosk.
-//
+// RenderHistory renders a form containing the kiosk history entries
 // Parameters:
-//   - viewData: ViewData containing the current viewing history and list of assets
-//   - assetType: Type of asset (image, video, etc) being viewed
-//
-// The history is maintained as a list of hidden form inputs, with each entry containing
-// asset IDs and associated users. The history handling logic:
-// - If no history exists, creates initial entry
-// - If viewing history entries, maintains existing entries
-// - If viewing new assets, appends new entries while preserving relevant history
+//   - viewData: Common view data containing assets and history
+//   - assetType: Type of asset being rendered
+// Returns:
+//   - Rendered form template containing history entries
 templ RenderHistory(viewData common.ViewData, assetType immich.AssetType) {
 	<form id="kiosk-history" hx-swap-oob="true">
-		{{ newEntry := newHistoryEntry(viewData.Assets) }}
-		if len(viewData.History) == 0 {
-			// no history
-			<input type="hidden" class="kiosk-history--entry" name="history" value={ newEntry }/>
-		} else if !strings.HasPrefix(viewData.History[len(viewData.History)-1], kiosk.HistoryIndicator) {
-			// using history
-			for _, historyEntry := range viewData.History {
-				<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
-			}
-		} else {
-			for i, historyEntry := range viewData.History {
-				if i == len(viewData.History)-1 {
-					if newEntry == historyEntry {
-						// still using history
-						<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
-						{{ continue }}
-					} else {
-						// new asset
-						<input type="hidden" class="kiosk-history--entry" name="history" value={ strings.Replace(historyEntry, kiosk.HistoryIndicator, "", -1) }/>
-						<input type="hidden" class="kiosk-history--entry" name="history" value={ newEntry }/>
-						{{ continue }}
-					}
-				}
-				<input type="hidden" class="kiosk-history--entry" name="history" value={ strings.Replace(historyEntry, kiosk.HistoryIndicator, "", -1) }/>
-			}
-		}
+		@renderEntries(viewData)
 	</form>
+}
+
+// renderHistoryInput renders a single hidden input field for a history entry
+// Parameters:
+//   - value: History entry value to store in the input
+// Returns:
+//   - Rendered input template
+templ renderHistoryInput(value string) {
+	<input type="hidden" class="kiosk-history--entry" name="history" value={ value }/>
+}
+
+// renderEntries renders all history entries for the kiosk
+// Handles three cases:
+// 1. Empty history - renders just the new entry
+// 2. Existing history - renders all existing entries
+// 3. History with indicators - processes and renders entries with indicators
+// Parameters:
+//   - viewData: Common view data containing assets and history
+// Returns:
+//   - Rendered template containing all history entries
+templ renderEntries(viewData common.ViewData) {
+	{{ newEntry := newHistoryEntry(viewData.Assets) }}
+	// Case 1: Empty history
+	if len(viewData.History) == 0 {
+		@renderHistoryInput(newEntry)
+	} else if !strings.HasPrefix(viewData.History[len(viewData.History)-1], kiosk.HistoryIndicator) {
+		// Case 2: Using existing history
+		for _, entry := range viewData.History {
+			@renderHistoryInput(entry)
+		}
+	} else {
+		// Case 3: Processing history with indicators
+		for i, entry := range viewData.History {
+			if i == len(viewData.History)-1 {
+				if newEntry == entry {
+					// Still using history
+					@renderHistoryInput(entry)
+				} else {
+					// New asset
+					@renderHistoryInput(strings.Replace(entry, kiosk.HistoryIndicator, "", -1))
+					@renderHistoryInput(newEntry)
+				}
+				{{ continue }}
+			}
+			@renderHistoryInput(strings.Replace(entry, kiosk.HistoryIndicator, "", -1))
+		}
+	}
 }
 
 // newHistoryEntry creates a new comma-separated history entry string from a slice of images
@@ -80,5 +97,5 @@ func newHistoryEntry(images []common.ViewImageData) string {
 		sanitisedID := template.HTMLEscapeString(assetHistory)
 		newImages[i] = sanitisedID
 	}
-	return "*" + strings.Join(newImages, ",")
+	return kiosk.HistoryIndicator + strings.Join(newImages, ",")
 }
