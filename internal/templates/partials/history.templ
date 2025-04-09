@@ -3,7 +3,6 @@ package partials
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
-	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"html/template"
 	"strings"
@@ -19,10 +18,9 @@ templ History() {
 // RenderHistory renders a form containing the kiosk history entries
 // Parameters:
 //   - viewData: Common view data containing assets and history
-//   - assetType: Type of asset being rendered
 // Returns:
 //   - Rendered form template containing history entries
-templ RenderHistory(viewData common.ViewData, assetType immich.AssetType) {
+templ RenderHistory(viewData common.ViewData) {
 	<form id="kiosk-history" hx-swap-oob="true">
 		@renderEntries(viewData)
 	</form>
