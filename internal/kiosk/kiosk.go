@@ -33,4 +33,7 @@ const (
 	LikeButtonActionAlbum    string = "album"
 	HideButtonActionTag      string = "tag"
 	HideButtonActionArchive  string = "archive"
+
+	HistoryIndicator string = "*"
+	HistoryLimit     int    = 20
 )

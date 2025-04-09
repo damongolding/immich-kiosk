@@ -1338,15 +1338,16 @@ To validate webhooks on your server, you should:
 
 | Event                              | Description                                                                         |
 |------------------------------------|-------------------------------------------------------------------------------------|
-|`asset.new`                         | Triggered when a new image is requested from Kiosk                                  |
-|`asset.previous`                    | Triggered when a previous image is requested from Kiosk                             |
-|`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich                              |
+|`asset.new`                         | Triggered when a new asset is requested from Kiosk                                  |
+|`asset.prefetch`                    | Triggered when Kiosk prefetches an asset data from Immich                           |
+|`asset.history.next`                | Triggered when a history asset (next) is requested from Kiosk                       |
+|`asset.history.previous`            | Triggered when a history asset (previous) is requested from Kiosk                   |
 |`cache.flushed`                     | Triggered when the cache is manually cleared                                        |
-|`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
-|`user.like.info_overlay`        | Triggered when the "like" button is clicked in the image details overlay        |
-|`user.unlike.info_overlay`      | Triggered when the "unlike" button is clicked in the image details overlay      |
-|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the image details overlay            |
-|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the image details overlay          |
+|`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the asset details overlay |
+|`user.like.info_overlay`            | Triggered when the "like" button is clicked in the asset details overlay            |
+|`user.unlike.info_overlay`          | Triggered when the "unlike" button is clicked in the asset details overlay          |
+|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the asset details overlay            |
+|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the asset details overlay          |
 
 ### Webhook Payload
 

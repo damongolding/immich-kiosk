@@ -2,7 +2,6 @@ package components
 
 import (
 	"github.com/damongolding/immich-kiosk/internal/common"
-	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 )
 
@@ -19,7 +18,7 @@ templ Image(viewData common.ViewData, secret string) {
 	} else {
 		@layoutSplitView(viewData)
 	}
-	@partials.RenderHistory(viewData, immich.ImageType)
+	@partials.RenderHistory(viewData)
 	if viewData.ShowMoreInfo {
 		@partials.RenderMoreInfo(viewData, secret)
 	}

@@ -105,6 +105,7 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 #     api: ""
 #     unit: metric
 #     lang: en
+#     default: false
 
 ## Immich API keys for specific users
 # immich_users_api_keys:

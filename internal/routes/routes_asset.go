@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"slices"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -49,6 +50,11 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		if !requestConfig.DisableSleep && isSleepMode(requestConfig) {
 			return c.NoContent(http.StatusNoContent)
+		}
+
+		// use history
+		if len(requestConfig.History) > 1 && !strings.HasPrefix(requestConfig.History[len(requestConfig.History)-1], "*") {
+			return NextHistoryAsset(baseConfig, com, c)
 		}
 
 		requestCtx := common.CopyContext(c)
