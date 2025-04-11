@@ -106,6 +106,7 @@ func AssetExif(info immich.ExifInfo) string {
 // Parameters:
 //   - viewData: ViewData struct containing display settings and assets
 //   - assetIndex: Index of the asset in the ViewData assets slice
+//   - moreInfo: Boolean indicating if additional date/time info should be shown
 //
 // Returns:
 //   - string: Formatted date/time string based on settings
@@ -202,36 +203,87 @@ func calculateAge(assetDate, birthDate time.Time) string {
 	}
 }
 
-// peopleNames extracts and joins the names of people tagged in an asset.
-// Filters out empty names and joins the remaining with commas.
-// Optionally includes age if showPersonAge is true and birth date is available.
+// peopleNames returns a comma-separated string of person names with optional ages.
 //
 // Parameters:
-//   - people: Slice of Person structs containing name data
-//   - showPersonAge: Whether to include age calculation next to names
+//   - people: Slice of Person structs containing name and birth date information
+//   - showName: Boolean indicating if names should be displayed
+//   - showAge: Boolean indicating if ages should be displayed
+//   - assetDate: Reference date for calculating ages
 //
 // Returns:
-//   - string: Comma-separated list of person names with optional ages
-func peopleNames(people []immich.Person, showAge bool, assetDate time.Time) string {
-
-	var p []string
+//   - string: Comma-separated list of formatted person names with optional ages
+func peopleNames(people []immich.Person, showName, showAge bool, assetDate time.Time) string {
+	var names []string
 
 	for _, person := range people {
-		if person.Name != "" {
-			name := person.Name
-			if showAge && person.BirthDate != "" {
-				birthDate, birthDateErr := person.BirthDate.Time()
-				personAge := calculateAge(assetDate, birthDate)
-				if birthDateErr == nil && personAge != "" {
-					name += fmt.Sprintf(" (%s)", personAge)
-				}
-			}
-			p = append(p, name)
+		if person.Name == "" {
+			continue
+		}
+
+		name := formatPersonName(person, showName, showAge, assetDate)
+		if name != "" {
+			names = append(names, name)
 		}
 	}
-	return strings.Join(p, ", ")
+
+	return strings.Join(names, ", ")
 }
 
+// formatPersonName formats a single person's name with optional age.
+//
+// Parameters:
+//   - person: Person struct containing name and birth date
+//   - showName: Boolean indicating if name should be displayed
+//   - showAge: Boolean indicating if age should be displayed
+//   - assetDate: Reference date for calculating age
+//
+// Returns:
+//   - string: Formatted name with optional age in parentheses
+func formatPersonName(person immich.Person, showName, showAge bool, assetDate time.Time) string {
+	if !showName && !showAge {
+		return ""
+	}
+
+	if !showName && showAge && person.BirthDate == "" {
+		return ""
+	}
+
+	name := person.Name
+
+	if showAge && person.BirthDate != "" {
+		if age := getPersonAge(person, assetDate); age != "" {
+			name = fmt.Sprintf("%s (%s)", name, age)
+		}
+	}
+
+	return name
+}
+
+// getPersonAge calculates the age of a person at a given reference date.
+//
+// Parameters:
+//   - person: Person struct containing birth date information
+//   - assetDate: Reference date for calculating age
+//
+// Returns:
+//   - string: Formatted age string or empty string if birth date is invalid
+func getPersonAge(person immich.Person, assetDate time.Time) string {
+	birthDate, err := person.BirthDate.Time()
+	if err != nil {
+		return ""
+	}
+
+	return calculateAge(assetDate, birthDate)
+}
+
+// joinAlbumNames joins album names into a comma-separated string.
+//
+// Parameters:
+//   - albums: Slice of Album structs containing album information
+//
+// Returns:
+//   - string: Comma-separated list of album names
 func joinAlbumNames(albums immich.Albums) string {
 	albumNames := make([]string, len(albums))
 
@@ -242,6 +294,13 @@ func joinAlbumNames(albums immich.Albums) string {
 	return strings.Join(albumNames, ", ")
 }
 
+// AssetPeople returns HTML markup for displaying people metadata with an icon.
+//
+// Parameters:
+//   - peopleNames: Comma-separated string of person names
+//
+// Returns:
+//   - string: HTML markup with people icon and names
 func AssetPeople(peopleNames string) string {
 	return fmt.Sprintf(`
 		<div class="asset--metadata--has-icon">
@@ -272,7 +331,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
 	{{ rightAlignIcons := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 || viewData.Layout == kiosk.LayoutSplitviewLandscape }}
-	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonAge, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
 	{{ showUser := viewData.ShowUser }}
 	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
 		if showUser && viewData.Assets[assetIndex].User != "" {
@@ -281,7 +340,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 		if viewData.Assets[assetIndex].ImmichAsset.MemoryTitle != "" {
 			@memoryIcon(viewData.Assets[assetIndex].ImmichAsset.MemoryTitle)
 		}
-		if viewData.ShowPersonName && names != "" {
+		if (viewData.ShowPersonName || viewData.ShowPersonAge) && names != "" {
 			@templ.Raw(AssetPeople(names))
 		}
 		if viewData.ShowAlbumName && len(viewData.Assets[assetIndex].ImmichAsset.AppearsIn) != 0 {
