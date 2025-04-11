@@ -1119,6 +1119,10 @@ You can configure multiple locations in the `config.yaml` file, and choose which
 
 ### Weather Location Configuration Options:
 
+> [!TIP]
+> If you would prefer to use the location name from OpenWeatherMap's API, add "-api" to the end of the name.
+> e.g. `name: london-api`
+
 | **Value**   | **Description** |
 |-------------|-----------------|
 | name        | The location’s display name (used in the URL query). |
@@ -1131,12 +1135,20 @@ You can configure multiple locations in the `config.yaml` file, and choose which
 
 ### Example Configuration
 
-Here’s an example of how to add London and New York to the config.yaml file. These locations would be selectable via the URL, like this:
+Here’s an example of how to add London, London using OpenWeatherMap's name and New York to the config.yaml file. These locations would be selectable via the URL, like this:
 http://{URL}?weather=london or http://{URL}?weather=new-york.
 
 ```yaml
  weather:
   - name: london
+    lat: 51.5285262
+    lon: -0.2663999
+    api: API_KEY
+    unit: metric
+    lang: en
+    default: true
+
+  - name: london-api
     lat: 51.5285262
     lon: -0.2663999
     api: API_KEY

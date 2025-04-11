@@ -18,6 +18,7 @@ import (
 const (
 	MetricSystem   = "metric"
 	ImperialSystem = "imperial"
+	APINameKeyword = "-api"
 )
 
 var (
