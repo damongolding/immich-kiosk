@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 const (
 	MetricSystem   = "metric"
 	ImperialSystem = "imperial"
+	APINameKeyword = "-api"
 )
 
 var (
@@ -127,7 +129,7 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 		Lang: location.Lang,
 	}
 
-	weatherDataStore.Store(w.Name, *w)
+	weatherDataStore.Store(strings.ToLower(w.Name), *w)
 
 	// Run once immediately
 	log.Debug("Getting initial weather for", "name", w.Name)
@@ -135,7 +137,7 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 	if newWeatherInitErr != nil {
 		log.Error("Failed to update initial weather", "name", w.Name, "error", newWeatherInitErr)
 	} else {
-		weatherDataStore.Store(w.Name, newWeatherInit)
+		weatherDataStore.Store(strings.ToLower(w.Name), newWeatherInit)
 		log.Debug("Retrieved initial weather for", "name", w.Name)
 	}
 
@@ -151,7 +153,7 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 				log.Error("Failed to update weather", "name", w.Name, "error", newWeatherErr)
 				continue
 			}
-			weatherDataStore.Store(w.Name, newWeather)
+			weatherDataStore.Store(strings.ToLower(w.Name), newWeather)
 			log.Debug("Retrieved weather for", "name", w.Name)
 		}
 	}
@@ -160,7 +162,7 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 // CurrentWeather retrieves the current weather data for a given location name.
 // Returns a WeatherLocation struct containing the weather data, or an empty struct if not found.
 func CurrentWeather(name string) Location {
-	value, ok := weatherDataStore.Load(name)
+	value, ok := weatherDataStore.Load(strings.ToLower(name))
 	if !ok {
 		return Location{}
 	}
