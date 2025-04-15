@@ -232,6 +232,8 @@ type Config struct {
 	// ExperimentalAlbumVideo whether to display videos
 	// Currently limited to albums
 	ExperimentalAlbumVideo bool `json:"experimentalAlbumVideo" mapstructure:"experimental_album_video" query:"experimental_album_video" form:"experimental_album_video" default:"false"`
+	// ExperimentalImageURL whether to image URLs rather then base64
+	ExperimentalImageURL bool `json:"experimentalImageURL" mapstructure:"experimental_image_url" query:"experimental_image_url" form:"experimental_image_url" default:"false"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`

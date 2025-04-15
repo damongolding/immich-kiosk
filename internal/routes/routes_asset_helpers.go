@@ -462,15 +462,14 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	}
 
 	// Convert images to required formats
-
-	_, imgBlurString, err := convertImages(img, immichAsset.Type, requestConfig, metadata, isPrefetch)
+	imgString, imgBlurString, err := convertImages(immichAsset.ID, img, immichAsset.Type, requestConfig, metadata, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, err
 	}
 
 	return common.ViewImageData{
 		ImmichAsset:   immichAsset,
-		ImageData:     fmt.Sprintf("/image/%s", immichAsset.ID),
+		ImageData:     imgString,
 		ImageBlurData: imgBlurString,
 		User:          requestConfig.SelectedUser,
 	}, nil
@@ -547,12 +546,21 @@ func handleFaceProcessing(img image.Image, asset *immich.Asset, config config.Co
 // Returns the base64 encoded normal image, blurred image, and any error that occurred.
 func convertImages(imgID string, img image.Image, assetType immich.AssetType, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, error) {
 
-	imgString := fmt.Sprintf("/image/%s", imgID)
+	var imgString string
+	var err error
 
-	// imgString, err := imageToBase64(img, config, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
-	// if err != nil {
-	// 	return "", "", err
-	// }
+	if config.ExperimentalImageURL {
+		if config.OptimizeImages && (config.ClientData.Width > 0 && config.ClientData.Height > 0) {
+			imgString = fmt.Sprintf("/image/%s/%d/%d", imgID, config.ClientData.Width, config.ClientData.Height)
+		} else {
+			imgString = fmt.Sprintf("/image/%s", imgID)
+		}
+	} else {
+		imgString, err = imageToBase64(img, config, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
+		if err != nil {
+			return "", "", err
+		}
+	}
 
 	imgBlurString, err := processBlurredImage(img, assetType, config, metadata.requestID, metadata.deviceID, isPrefetch)
 	if err != nil {

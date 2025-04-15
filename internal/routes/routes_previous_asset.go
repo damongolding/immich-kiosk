@@ -185,14 +185,14 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 					return byteErr
 				}
 
-				imgString, base64Err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
-				if base64Err != nil {
-					return fmt.Errorf("converting image to base64: %w", base64Err)
+				metadata := requestMetadata{
+					requestID: requestID,
+					deviceID:  deviceID,
 				}
 
-				imgBlurString, blurErr := processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
-				if blurErr != nil {
-					return fmt.Errorf("converting blurred image to base64: %w", blurErr)
+				imgString, imgBlurString, convertImagesErr := convertImages(asset.ID, img, asset.Type, requestConfig, metadata, false)
+				if err != nil {
+					return convertImagesErr
 				}
 
 				wg.Wait()

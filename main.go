@@ -139,12 +139,13 @@ func main() {
 	e.GET("/image", routes.NewRawImage(baseConfig, c))
 
 	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c))
+	e.GET("/image/:imageID/:clientWidth/:clientHeight", routes.ImageWithID(baseConfig, c))
 
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 
 	e.POST("/asset/previous", routes.PreviousHistoryAsset(baseConfig, c))
 
-	e.POST("/asset/preload", routes.PreloadAsset(baseConfig, c))
+	e.POST("/asset/preload", routes.PreloadAsset(baseConfig))
 
 	e.POST("/asset/tag", routes.TagAsset(baseConfig, c))
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -156,6 +157,8 @@ func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		if imageID == "" {
 			return echo.NewHTTPError(http.StatusBadRequest, "Image ID is required")
 		}
+		clientWidth, _ := strconv.Atoi(c.Param("clientWidth"))
+		clientHeight, _ := strconv.Atoi(c.Param("clientHeight"))
 
 		immichAsset := immich.New(com.Context(), requestConfig)
 		immichAsset.ID = imageID
@@ -170,6 +173,21 @@ func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		imgBytes, previewErr := immichAsset.ImagePreview()
 		if previewErr != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
+		}
+
+		if clientWidth > 0 && clientHeight > 0 {
+			img, imgErr := utils.BytesToImage(imgBytes)
+			if imgErr != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, "unable to convert image bytes to image")
+			}
+			img, imgErr = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
+			if imgErr != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, "unable to optimize image")
+			}
+			imgBytes, imgErr = utils.ImageToBytes(img)
+			if imgErr != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, "unable to convert image to bytes")
+			}
 		}
 
 		imageMime := utils.ImageMimeType(bytes.NewReader(imgBytes))
@@ -411,7 +429,7 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 	}
 }
 
-func PreloadAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+func PreloadAsset(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -446,7 +464,11 @@ func PreloadAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFun
 
 			for _, data := range cachedViewData {
 				for _, asset := range data.Assets {
-					html += fmt.Sprintf("<img src='/image/%s' style='display: none;' loading='eager' />", asset.ImmichAsset.ID)
+					if requestConfig.OptimizeImages && (requestConfig.ClientData.Width > 0 && requestConfig.ClientData.Height > 0) {
+						html += fmt.Sprintf("<img src='/image/%s/%d/%d' style='display: none;' loading='eager' />", asset.ImmichAsset.ID, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
+					} else {
+						html += fmt.Sprintf("<img src='/image/%s' style='display: none;' loading='eager' />", asset.ImmichAsset.ID)
+					}
 				}
 			}
 
