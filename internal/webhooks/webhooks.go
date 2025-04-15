@@ -20,7 +20,8 @@ type WebhookEvent string
 
 const (
 	NewAsset                      WebhookEvent = "asset.new"
-	PreviousAsset                 WebhookEvent = "asset.previous"
+	NextHistoryAsset              WebhookEvent = "asset.history.next"
+	PreviousHistoryAsset          WebhookEvent = "asset.history.previous"
 	PrefetchAsset                 WebhookEvent = "asset.prefetch"
 	CacheFlush                    WebhookEvent = "cache.flush"
 	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"

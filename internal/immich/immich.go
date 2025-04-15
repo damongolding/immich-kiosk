@@ -60,7 +60,7 @@ var (
 		ExpectContinueTimeout: 1 * time.Second,
 	}
 	// httpClient default http client for Immich api calls
-	httpClient = &http.Client{
+	HTTPClient = &http.Client{
 		Transport: httpTransport,
 	}
 

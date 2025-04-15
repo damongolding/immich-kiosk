@@ -23,7 +23,11 @@ func formatTemp(temp float64, measurement string) string {
 templ WeatherLocation(weatherData weather.Location) {
 	<div class="weather">
 		<div class="weather--location">
-			{ cases.Title(language.Und).String(weatherData.Name) }
+			if strings.HasSuffix(weatherData.Name, weather.APINameKeyword) {
+				{ weatherData.Weather.Name }
+			} else {
+				{ cases.Title(language.Und).String(weatherData.Name) }
+			}
 		</div>
 		<div class="weather--temp">
 			<div class="weather--temp--value">

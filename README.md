@@ -1099,6 +1099,30 @@ The custom CSS will apply to all devices connected to Kiosk by default.
 
 To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?custom_css=false`
 
+### Custom CSS class
+
+To add a class to the `<body>` tag add `custom_css_class=CUSTOM-CLASS` to the URL parameters e.g. `http://{URL}?custom_css_class=foo`
+
+This enables you to target specific devices in your CSS.
+
+e.g.
+
+```CSS
+/* applied to all */
+#clock,
+#weather,
+.image--metadata {
+    padding: 4rem;
+}
+
+/* applied to devices with `custom_css_class=foo` */
+.foo #clock,
+.foo #weather,
+.image--metadata {
+    padding: 2rem;
+}
+```
+
 ------
 
 ## Weather
@@ -1119,6 +1143,10 @@ You can configure multiple locations in the `config.yaml` file, and choose which
 
 ### Weather Location Configuration Options:
 
+> [!TIP]
+> If you would prefer to use the location name from OpenWeatherMap's API, add "-api" to the end of the name.
+> e.g. `name: london-api`
+
 | **Value**   | **Description** |
 |-------------|-----------------|
 | name        | The location’s display name (used in the URL query). |
@@ -1131,12 +1159,20 @@ You can configure multiple locations in the `config.yaml` file, and choose which
 
 ### Example Configuration
 
-Here’s an example of how to add London and New York to the config.yaml file. These locations would be selectable via the URL, like this:
+Here’s an example of how to add London, London using OpenWeatherMap's name and New York to the config.yaml file. These locations would be selectable via the URL, like this:
 http://{URL}?weather=london or http://{URL}?weather=new-york.
 
 ```yaml
  weather:
   - name: london
+    lat: 51.5285262
+    lon: -0.2663999
+    api: API_KEY
+    unit: metric
+    lang: en
+    default: true
+
+  - name: london-api
     lat: 51.5285262
     lon: -0.2663999
     api: API_KEY
@@ -1338,15 +1374,16 @@ To validate webhooks on your server, you should:
 
 | Event                              | Description                                                                         |
 |------------------------------------|-------------------------------------------------------------------------------------|
-|`asset.new`                         | Triggered when a new image is requested from Kiosk                                  |
-|`asset.previous`                    | Triggered when a previous image is requested from Kiosk                             |
-|`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich                              |
+|`asset.new`                         | Triggered when a new asset is requested from Kiosk                                  |
+|`asset.prefetch`                    | Triggered when Kiosk prefetches an asset data from Immich                           |
+|`asset.history.next`                | Triggered when a history asset (next) is requested from Kiosk                       |
+|`asset.history.previous`            | Triggered when a history asset (previous) is requested from Kiosk                   |
 |`cache.flushed`                     | Triggered when the cache is manually cleared                                        |
-|`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
-|`user.like.info_overlay`        | Triggered when the "like" button is clicked in the image details overlay        |
-|`user.unlike.info_overlay`      | Triggered when the "unlike" button is clicked in the image details overlay      |
-|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the image details overlay            |
-|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the image details overlay          |
+|`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the asset details overlay |
+|`user.like.info_overlay`            | Triggered when the "like" button is clicked in the asset details overlay            |
+|`user.unlike.info_overlay`          | Triggered when the "unlike" button is clicked in the asset details overlay          |
+|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the asset details overlay            |
+|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the asset details overlay          |
 
 ### Webhook Payload
 

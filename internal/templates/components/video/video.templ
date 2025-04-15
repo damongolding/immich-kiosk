@@ -3,7 +3,6 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
-	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/google/uuid"
 )
@@ -38,7 +37,7 @@ templ Video(viewData common.ViewData, secret string) {
 			@partials.AssetMetadata(viewData, 0)
 		}
 	</div>
-	@partials.RenderHistory(viewData, immich.VideoType)
+	@partials.RenderHistory(viewData)
 	if viewData.ShowMoreInfo {
 		@partials.RenderMoreInfo(viewData, secret)
 	}

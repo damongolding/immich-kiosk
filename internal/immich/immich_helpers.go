@@ -136,8 +136,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			}
 		}
 
-		httpClient.Timeout = time.Second * time.Duration(a.requestConfig.Kiosk.HTTPTimeout)
-		res, resErr := httpClient.Do(req)
+		res, resErr := HTTPClient.Do(req)
 		if resErr != nil {
 			lastErr = resErr
 
