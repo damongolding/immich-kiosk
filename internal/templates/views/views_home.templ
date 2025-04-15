@@ -72,6 +72,7 @@ templ Home(viewData common.ViewData) {
 				"showMoreInfo":       viewData.ShowMoreInfo,
 				"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
 			})
+			@partials.PreloadAssets()
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 		}
 	</html>

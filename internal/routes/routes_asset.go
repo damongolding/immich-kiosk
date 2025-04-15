@@ -3,6 +3,7 @@ package routes
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"net/http"
 	"slices"
 
@@ -401,5 +402,51 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		return Render(c, http.StatusOK, partials.HideButton(assetID, hideAsset, com.Secret()))
+	}
+}
+
+func PreloadAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
+
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
+		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
+		deviceID := requestData.DeviceID
+
+		log.Debug(
+			requestID,
+			"method", c.Request().Method,
+			"deviceID", deviceID,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
+
+		if !requestConfig.DisableSleep && isSleepMode(requestConfig) {
+			return c.NoContent(http.StatusNoContent)
+		}
+
+		if cachedViewData := fromCache("/asset/new", deviceID); cachedViewData != nil {
+
+			var html string
+
+			for _, data := range cachedViewData {
+				for _, asset := range data.Assets {
+					html += fmt.Sprintf("<img src='/image/%s' style='display: none;' loading='eager' />", asset.ImmichAsset.ID)
+				}
+			}
+
+			return c.HTML(http.StatusOK, html)
+		}
+
+		return c.NoContent(http.StatusOK)
 	}
 }

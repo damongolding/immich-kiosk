@@ -462,7 +462,7 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	}
 
 	// Convert images to required formats
-	imgString, imgBlurString, err := convertImages(img, immichAsset.Type, requestConfig, metadata, isPrefetch)
+	imgString, imgBlurString, err := convertImages(immichAsset.ID, img, immichAsset.Type, requestConfig, metadata, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, err
 	}
@@ -544,11 +544,14 @@ func handleFaceProcessing(img image.Image, asset *immich.Asset, config config.Co
 
 // convertImages converts the provided image to base64 strings for both normal and blurred versions.
 // Returns the base64 encoded normal image, blurred image, and any error that occurred.
-func convertImages(img image.Image, assetType immich.AssetType, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, error) {
-	imgString, err := imageToBase64(img, config, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
-	if err != nil {
-		return "", "", err
-	}
+func convertImages(imgID string, img image.Image, assetType immich.AssetType, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, error) {
+
+	imgString := fmt.Sprintf("/image/%s", imgID)
+
+	// imgString, err := imageToBase64(img, config, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
+	// if err != nil {
+	// 	return "", "", err
+	// }
 
 	imgBlurString, err := processBlurredImage(img, assetType, config, metadata.requestID, metadata.deviceID, isPrefetch)
 	if err != nil {
@@ -592,6 +595,13 @@ func assetPreFetch(common *common.Common, requestData *common.RouteRequestData, 
 }
 
 // fromCache retrieves cached page data for a given request and device ID.
+// Parameters:
+//   - urlString: The URL string used as part of the cache key
+//   - deviceID: Device identifier used as part of the cache key
+//
+// Returns:
+//   - []common.ViewData containing the cached page data if found and valid
+//   - nil if no valid cache data exists or on cache errors
 func fromCache(urlString string, deviceID string) []common.ViewData {
 	cacheKey := cache.ViewCacheKey(urlString, deviceID)
 	if data, found := cache.Get(cacheKey); found {
@@ -602,12 +612,17 @@ func fromCache(urlString string, deviceID string) []common.ViewData {
 			return nil
 		}
 
+		log.Debug("got cached data", "url", urlString, "deviceID", deviceID)
+
 		if len(cachedPageData) > 0 {
+			log.Debug("returning cached data", "url", urlString, "deviceID", deviceID)
 			return cachedPageData
 		}
 
 		cache.Delete(cacheKey)
 	}
+
+	log.Debug("no cached data found", "url", urlString, "deviceID", deviceID)
 	return nil
 }
 

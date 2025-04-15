@@ -141,6 +141,8 @@ func main() {
 
 	e.POST("/asset/previous", routes.PreviousAsset(baseConfig, c))
 
+	e.POST("/asset/preload", routes.PreloadAsset(baseConfig, c))
+
 	e.POST("/asset/tag", routes.TagAsset(baseConfig, c))
 
 	e.POST("/asset/like", routes.LikeAsset(baseConfig, c, true))
