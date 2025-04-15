@@ -1099,6 +1099,30 @@ The custom CSS will apply to all devices connected to Kiosk by default.
 
 To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?custom_css=false`
 
+### Custom CSS class
+
+To add a class to the `<body>` tag add `custom_css_class=CUSTOM-CLASS` to the URL parameters e.g. `http://{URL}?custom_css_class=foo`
+
+This enables you to target specific devices in your CSS.
+
+e.g.
+
+```CSS
+/* applied to all */
+#clock,
+#weather,
+.image--metadata {
+    padding: 4rem;
+}
+
+/* applied to devices with `custom_css_class=foo` */
+.foo #clock,
+.foo #weather,
+.image--metadata {
+    padding: 2rem;
+}
+```
+
 ------
 
 ## Weather
