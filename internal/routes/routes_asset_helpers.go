@@ -462,14 +462,15 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	}
 
 	// Convert images to required formats
-	imgString, imgBlurString, err := convertImages(immichAsset.ID, img, immichAsset.Type, requestConfig, metadata, isPrefetch)
+
+	_, imgBlurString, err := convertImages(img, immichAsset.Type, requestConfig, metadata, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, err
 	}
 
 	return common.ViewImageData{
 		ImmichAsset:   immichAsset,
-		ImageData:     imgString,
+		ImageData:     fmt.Sprintf("/image/%s", immichAsset.ID),
 		ImageBlurData: imgBlurString,
 		User:          requestConfig.SelectedUser,
 	}, nil
