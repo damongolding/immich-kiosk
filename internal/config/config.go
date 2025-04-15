@@ -256,6 +256,8 @@ type Config struct {
 	ShowProgress bool `json:"showProgress" mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
 	// CustomCSS use custom css file
 	CustomCSS bool `json:"customCSS" mapstructure:"custom_css" query:"custom_css" form:"custom_css" default:"true"`
+	// CustomCSSClass add a class to the body tag
+	CustomCSSClass string `json:"customCSSClass" mapstructure:"custom_css_class" query:"custom_css_class" form:"custom_css_class" default:""`
 
 	// ShowAlbumName whether to display the album name
 	ShowAlbumName bool `json:"showAlbumName" mapstructure:"show_album_name" query:"show_album_name" form:"show_album_name" default:"false"`

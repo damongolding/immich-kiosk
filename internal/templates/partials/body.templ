@@ -35,7 +35,7 @@ templ Body(viewData common.ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap="beforeend"
-				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
+				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
 				hx-vals="js:{...kiosk.clientData()}"
 			>
 				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
@@ -45,7 +45,7 @@ templ Body(viewData common.ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration) }
-				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
+				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
 				hx-vals="js:{...kiosk.clientData()}"
 			>
 				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
@@ -55,7 +55,7 @@ templ Body(viewData common.ViewData) {
 			<body
 				hx-headers={ headerStr }
 				hx-swap="beforeend"
-				class={ "transition-none", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless) }
+				class={ "transition-none", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
 				hx-vals="js:{...kiosk.clientData()}"
 			>
 				{ children... }
