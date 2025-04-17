@@ -822,7 +822,7 @@ When enabled:
 > [!NOTE]
 > - This setting only takes effect when multiple people are specified
 > - If no matching photos are found (where all people appear together), Kiosk will display an error message
-> - This feature can not be combined with other source/buckets like date ranges or albums
+> - This feature **cannot** be combined with other source/buckets like date ranges or albums
 > - Setting to `false` returns to default behavior where photos containing ANY of the specified people will be shown
 
 ------

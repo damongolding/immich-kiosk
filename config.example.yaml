@@ -21,7 +21,7 @@ show_archived: false # Allow assets marked as archived to be displayed.
 ## ID(s) of person or people to display
 person:
   - "PERSON_ID"
-require_all_people: false
+require_all_people: false # When true, only show images containing all specified people together
 excluded_people:
   - "PERSON_ID"
 
