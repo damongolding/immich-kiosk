@@ -786,7 +786,7 @@ The "Require all people" feature allows you to filter images to only show those 
 You can enable this feature in three ways (listed in order of precedence):
 
 1. **URL Query Parameter**:
-```
+```url
 http://{URL}?require_all_people=true
 ```
 
