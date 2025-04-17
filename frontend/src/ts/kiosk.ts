@@ -276,7 +276,10 @@ function addEventListeners(): void {
   htmx.on("htmx:timeout", function (e: HTMXEvent) {
     let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
 
-    currentTimeout = isNaN(currentTimeout) ? 1 : currentTimeout + 1;
+    currentTimeout =
+      currentTimeout === undefined || isNaN(currentTimeout)
+        ? 1
+        : currentTimeout + 1;
 
     timeouts[e.detail.pathInfo.requestPath] = currentTimeout;
 
