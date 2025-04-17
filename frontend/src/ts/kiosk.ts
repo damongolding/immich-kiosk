@@ -32,6 +32,9 @@ interface HTMXEvent extends Event {
     successful: boolean;
     parameters: FormData;
     method: string;
+    pathInfo: {
+      requestPath: string;
+    };
   };
 }
 
@@ -67,6 +70,9 @@ type KioskData = {
 };
 
 const MAX_FRAMES: number = 2 as const;
+
+const TIMEOUT_RETRIES: number = 2 as const;
+let timeouts: Record<string, number> = {};
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -261,13 +267,22 @@ function addEventListeners(): void {
 
     if (e.detail.successful) {
       htmx.removeClass(offlineSVG, "offline");
+      timeouts[e.detail.pathInfo.requestPath] = 0;
     } else {
       htmx.addClass(offlineSVG, "offline");
     }
   });
 
   htmx.on("htmx:timeout", function (e: HTMXEvent) {
-    window.location.reload();
+    let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
+
+    currentTimeout = isNaN(currentTimeout) ? 1 : currentTimeout + 1;
+
+    timeouts[e.detail.pathInfo.requestPath] = currentTimeout;
+
+    if (currentTimeout > TIMEOUT_RETRIES) {
+      window.location.reload();
+    }
   });
 
   if (kioskData.disableNavigation) {
