@@ -160,7 +160,7 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 // Returns:
 //   - string: Age formatted as "X days", "X months" or "X years"
 //     with appropriate pluralization. Returns empty string if assetDate is before birthDate.
-func calculateAge(assetDate, birthDate time.Time) string {
+func calculateAge(assetDate, birthDate time.Time, switchToYears int) string {
 	if assetDate.Before(birthDate) {
 		return ""
 	}
@@ -185,22 +185,24 @@ func calculateAge(assetDate, birthDate time.Time) string {
 	totalDays := int(assetDate.Sub(birthDate).Hours() / 24)
 
 	// Choose appropriate format based on the age
-	if years > 0 {
-		if years == 1 {
-			return fmt.Sprintf("%d year", years)
-		}
-		return fmt.Sprintf("%d years", years)
-	} else if months > 0 {
-		if months == 1 {
-			return fmt.Sprintf("%d month", months)
-		}
-		return fmt.Sprintf("%d months", months)
-	} else {
-		if totalDays == 1 {
-			return fmt.Sprintf("%d day", totalDays)
-		}
-		return fmt.Sprintf("%d days", totalDays)
+	switch {
+	case years > 0 && years < switchToYears:
+		totalMonths := months + (years * 12)
+		return pluralize(totalMonths, "month")
+	case years > 0:
+		return pluralize(years, "year")
+	case months > 0:
+		return pluralize(months, "month")
+	default:
+		return pluralize(totalDays, "day")
 	}
+}
+
+func pluralize(count int, unit string) string {
+	if count == 1 {
+		return fmt.Sprintf("%d %s", count, unit)
+	}
+	return fmt.Sprintf("%d %ss", count, unit)
 }
 
 // peopleNames returns a comma-separated string of person names with optional ages.
@@ -213,7 +215,7 @@ func calculateAge(assetDate, birthDate time.Time) string {
 //
 // Returns:
 //   - string: Comma-separated list of formatted person names with optional ages
-func peopleNames(people []immich.Person, showName, showAge bool, assetDate time.Time) string {
+func peopleNames(people []immich.Person, showName, showAge bool, switchToYears int, assetDate time.Time) string {
 	var names []string
 
 	for _, person := range people {
@@ -221,7 +223,7 @@ func peopleNames(people []immich.Person, showName, showAge bool, assetDate time.
 			continue
 		}
 
-		name := formatPersonName(person, showName, showAge, assetDate)
+		name := formatPersonName(person, showName, showAge, switchToYears, assetDate)
 		if name != "" {
 			names = append(names, name)
 		}
@@ -240,7 +242,7 @@ func peopleNames(people []immich.Person, showName, showAge bool, assetDate time.
 //
 // Returns:
 //   - string: Formatted name with optional age in parentheses
-func formatPersonName(person immich.Person, showName, showAge bool, assetDate time.Time) string {
+func formatPersonName(person immich.Person, showName, showAge bool, switchToYears int, assetDate time.Time) string {
 	if !showName && !showAge {
 		return ""
 	}
@@ -252,7 +254,7 @@ func formatPersonName(person immich.Person, showName, showAge bool, assetDate ti
 	name := person.Name
 
 	if showAge && person.BirthDate != "" {
-		if age := getPersonAge(person, assetDate); age != "" {
+		if age := getPersonAge(person, switchToYears, assetDate); age != "" {
 			name = fmt.Sprintf("%s (%s)", name, age)
 		}
 	}
@@ -268,13 +270,13 @@ func formatPersonName(person immich.Person, showName, showAge bool, assetDate ti
 //
 // Returns:
 //   - string: Formatted age string or empty string if birth date is invalid
-func getPersonAge(person immich.Person, assetDate time.Time) string {
+func getPersonAge(person immich.Person, switchToYears int, assetDate time.Time) string {
 	birthDate, err := person.BirthDate.Time()
 	if err != nil {
 		return ""
 	}
 
-	return calculateAge(assetDate, birthDate)
+	return calculateAge(assetDate, birthDate, switchToYears)
 }
 
 // joinAlbumNames joins album names into a comma-separated string.
@@ -331,7 +333,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
 	{{ rightAlignIcons := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 || viewData.Layout == kiosk.LayoutSplitviewLandscape }}
-	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
 	{{ showUser := viewData.ShowUser }}
 	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
 		if showUser && viewData.Assets[assetIndex].User != "" {
