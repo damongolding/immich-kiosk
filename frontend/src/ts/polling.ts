@@ -73,10 +73,10 @@ class PollingController {
     if (this.currentProgressSource.type === "video") {
       if (!this.currentProgressSource.element) return;
       const video = this.currentProgressSource.element;
-      progress = (video.currentTime / video.duration) * 100;
+      progress = video.currentTime / video.duration;
     } else {
       const elapsed = timestamp - this.lastPollTime!;
-      progress = Math.min(elapsed / this.pollInterval, 1) * 100;
+      progress = Math.min(elapsed / this.pollInterval, 1);
 
       if (elapsed >= this.pollInterval) {
         this.triggerNewAsset();
@@ -85,7 +85,8 @@ class PollingController {
     }
 
     if (this.progressBarElement) {
-      this.progressBarElement.style.width = `${progress}%`;
+      this.progressBarElement.style.transform = `scaleX(${progress}) translateZ(0)`;
+      // this.progressBarElement.style.width = `${progress}%`;
     }
 
     this.animationFrameId = requestAnimationFrame(this.updateProgress);

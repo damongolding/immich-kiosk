@@ -32,6 +32,9 @@ interface HTMXEvent extends Event {
     successful: boolean;
     parameters: FormData;
     method: string;
+    pathInfo: {
+      requestPath: string;
+    };
   };
 }
 
@@ -63,9 +66,13 @@ type KioskData = {
   transition: string;
   showMoreInfo: boolean;
   showRedirects: boolean;
+  httpTimeout: number;
 };
 
 const MAX_FRAMES: number = 2 as const;
+
+const TIMEOUT_RETRIES: number = 2 as const;
+let timeouts: Record<string, number> = {};
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -123,6 +130,8 @@ async function init(): Promise<void> {
   if (kioskData.debugVerbose) {
     htmx.logAll();
   }
+
+  htmx.config.timeout = kioskData.httpTimeout * 100;
 
   if (
     kioskData.clockSource == "client" &&
@@ -258,8 +267,24 @@ function addEventListeners(): void {
 
     if (e.detail.successful) {
       htmx.removeClass(offlineSVG, "offline");
+      timeouts[e.detail.pathInfo.requestPath] = 0;
     } else {
       htmx.addClass(offlineSVG, "offline");
+    }
+  });
+
+  htmx.on("htmx:timeout", function (e: HTMXEvent) {
+    let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
+
+    currentTimeout =
+      currentTimeout === undefined || isNaN(currentTimeout)
+        ? 1
+        : currentTimeout + 1;
+
+    timeouts[e.detail.pathInfo.requestPath] = currentTimeout;
+
+    if (currentTimeout > TIMEOUT_RETRIES) {
+      window.location.reload();
     }
   });
 
