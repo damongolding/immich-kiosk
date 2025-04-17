@@ -63,6 +63,7 @@ type KioskData = {
   transition: string;
   showMoreInfo: boolean;
   showRedirects: boolean;
+  httpTimeout: number;
 };
 
 const MAX_FRAMES: number = 2 as const;
@@ -123,6 +124,8 @@ async function init(): Promise<void> {
   if (kioskData.debugVerbose) {
     htmx.logAll();
   }
+
+  htmx.config.timeout = kioskData.httpTimeout * 100;
 
   if (
     kioskData.clockSource == "client" &&
@@ -261,6 +264,10 @@ function addEventListeners(): void {
     } else {
       htmx.addClass(offlineSVG, "offline");
     }
+  });
+
+  htmx.on("htmx:timeout", function (e: HTMXEvent) {
+    window.location.reload();
   });
 
   if (kioskData.disableNavigation) {
