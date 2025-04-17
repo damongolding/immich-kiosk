@@ -261,6 +261,7 @@ services:
       KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_EXPERIMENTAL_ALBUM_VIDEO: false
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
+      KIOSK_REQUIRE_ALL_PEOPLE: false
       KIOSK_EXCLUDED_PEOPLE: "PERSON_ID,PERSON_ID,PERSON_ID"
       KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
       KIOSK_TAG: "TAG_VALUE,TAG_VALUE,TAG_VALUE"
@@ -392,7 +393,8 @@ See the file `config.example.yaml` for an example config file
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [experimental_album_video](#experimental-album-video-support) | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. See [experimental album video](#experimental-album-video-support) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
-| [excluded_people](#exclude-people) | KIOSK_EXCLUDED_PEOPLE   | []string                  | []         | The ID(s) of a specific person or people you want to exclude. See [Exclude people](#exclude-people) for more information. |
+| [require_all_people](#require-all-people) | KIOSK_REQUIRE_ALL_PEOPLE | bool              | false       | Require all people to be present in an asset. See [Require all people](#require-all-people) for more information. |
+| [excluded_people](#exclude-people) | KIOSK_EXCLUDED_PEOPLE  | []string                   | []          | The ID(s) of a specific person or people you want to exclude. See [Exclude people](#exclude-people) for more information. |
 | [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges. See [Date range](#date-range) for more information. |
 | [tag](#tags)                      | KIOSK_TAG               | []string                   | []          | Tag or tags you want to display. See [Tags](#tags) for more information. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memories. |
@@ -772,6 +774,56 @@ http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 #### ` all `
 Will use all named people.
 e.g. `http://{URL}?person=all`
+
+------
+
+# Require All People
+
+The "Require all people" feature allows you to filter images to only show those where all specified people are present together in the same photo.
+
+## Configuration
+
+You can enable this feature in three ways (listed in order of precedence):
+
+1. **URL Query Parameter**:
+```
+http://{URL}?require_all_people=true
+```
+
+2. **Environment Variable**:
+```yaml
+environment:
+  KIOSK_REQUIRE_ALL_PEOPLE: "true"
+```
+
+3. **Config File** (config.yaml):
+```yaml
+require_all_people: true
+```
+
+## How It Works
+
+When enabled:
+- Only photos containing ALL specified people will be displayed
+- Photos where only some of the specified people appear will be excluded
+
+## Example Use Cases
+
+1. **Family Photos**:
+   - Set multiple person IDs for family members
+   - Enable `require_all_people` to only show assets where the whole family is together
+
+2. **Group Events**:
+   - Specify IDs for members of a group
+   - See only photos where everyone was present
+
+## Important Notes
+
+> [!NOTE]
+> - This setting only takes effect when multiple people are specified
+> - If no matching photos are found (where all people appear together), Kiosk will display an error message
+> - This feature can not be combined with other source/buckets like date ranges or albums
+> - Setting to `false` returns to default behavior where photos containing ANY of the specified people will be shown
 
 ------
 

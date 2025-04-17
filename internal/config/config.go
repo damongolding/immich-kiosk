@@ -212,8 +212,8 @@ type Config struct {
 	ShowArchived bool `json:"showArchived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display
 	Person           []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
-	ExcludedPeople   []string `json:"excludedPeople" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
 	RequireAllPeople bool     `json:"requireAllPeople" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
+	ExcludedPeople   []string `json:"excludedPeople" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
 
 	// Album ID of album(s) to display
 	Album []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
