@@ -211,6 +211,13 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
+		if a.requestConfig.RequireAllPeople {
+			requestBody.PersonIDs = []string{}
+			for _, person := range a.requestConfig.Person {
+				requestBody.PersonIDs = append(requestBody.PersonIDs, person)
+			}
+		}
+
 		if a.requestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
