@@ -213,7 +213,7 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 
 		if a.requestConfig.RequireAllPeople {
 			requestBody.PersonIDs = make([]string, len(a.requestConfig.Person))
-			requestBody.PersonIDs = append(requestBody.PersonIDs, a.requestConfig.Person...)
+			copy(requestBody.PersonIDs, a.requestConfig.Person)
 		}
 
 		if a.requestConfig.ShowArchived {
