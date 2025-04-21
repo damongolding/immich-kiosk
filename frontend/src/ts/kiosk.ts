@@ -23,6 +23,7 @@ import {
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
+import { toggleMute, applyMuteStateToVideos } from "./mute";
 
 ("use strict");
 
@@ -97,6 +98,9 @@ const nextImageMenuButton = htmx.find(
 ) as HTMLElement | null;
 const prevImageMenuButton = htmx.find(
   ".navigation--prev-asset",
+) as HTMLElement | null;
+const toggleMuteMenuButton= htmx.find(
+  ".navigation--toggle-mute",
 ) as HTMLElement | null;
 const moreInfoButton = htmx.find(
   ".navigation--more-info",
@@ -235,6 +239,7 @@ function handleRedirectsKeyPress(): void {
  * - Image overlay visibility control
  * - HTMX error handling for offline detection
  * - Server connectivity status monitoring and display
+ * - Mute button handling
  */
 function addEventListeners(): void {
   // Unable to send ajax. probably offline.
@@ -312,12 +317,22 @@ function addEventListeners(): void {
   // Fullscreen
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
+  
+  // Toggle mute
+  if (toggleMuteMenuButton) {
+    toggleMuteMenuButton.addEventListener("click", toggleMute);
+  }
 
   // More info overlay
   moreInfoButton?.addEventListener("click", () => toggleAssetOverlay());
 
   // Links overlay
   linksButton?.addEventListener("click", () => toggleRedirectsOverlay());
+
+	// Apply current mute state to any new video elements
+  documentBody.addEventListener("htmx:afterSwap", () => {
+    applyMuteStateToVideos();
+  });
 }
 
 /**

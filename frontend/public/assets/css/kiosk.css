@@ -2327,6 +2327,18 @@ form {
   cursor: not-allowed;
   pointer-events: none;
 }
+.navigation--toggle-mute .icon-muted {
+  display: block;
+}
+.navigation--toggle-mute .icon-unmuted {
+  display: none;
+}
+.navigation--toggle-mute.is-muted .icon-muted {
+  display: none;
+}
+.navigation--toggle-mute.is-muted .icon-unmuted {
+  display: block;
+}
 
 /* src/css/sleep.css */
 #sleep-controller {
