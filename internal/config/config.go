@@ -370,6 +370,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING"},
 		{"kiosk.debug", "KIOSK_DEBUG"},
 		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
+		{"kiosk.demo_mode", "KIOSK_DEMO_MODE"},
 	}
 
 	for _, bv := range bindVars {
