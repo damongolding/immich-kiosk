@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -61,6 +62,14 @@ func main() {
 	configErr := baseConfig.Load()
 	if configErr != nil {
 		log.Error("Failed to load config", "err", configErr)
+	}
+
+	if baseConfig.Kiosk.DemoMode {
+		log.Info("Demo mode enabled")
+		mkdirErr := os.Mkdir("./demo-assets", 0755)
+		if mkdirErr != nil {
+			log.Error("os.Mkdir", "err", mkdirErr)
+		}
 	}
 
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)

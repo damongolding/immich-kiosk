@@ -98,11 +98,6 @@ func DemoAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return NextHistoryAsset(baseConfig, com, c)
 		}
 
-		mkdirErr := os.Mkdir("./demo-assets", 0755)
-		if mkdirErr != nil {
-			log.Error("os.Mkdir", "err", mkdirErr)
-		}
-
 		files := []os.DirEntry{}
 		entries, fileErr := os.ReadDir("./demo-assets")
 		if fileErr != nil {
