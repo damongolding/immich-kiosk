@@ -67,7 +67,7 @@ func main() {
 	if baseConfig.Kiosk.DemoMode {
 		log.Info("Demo mode enabled")
 		mkdirErr := os.Mkdir("./demo-assets", 0755)
-		if mkdirErr != nil {
+		if mkdirErr != nil && !os.IsExist(mkdirErr) {
 			log.Error("os.Mkdir", "err", mkdirErr)
 		}
 	}
