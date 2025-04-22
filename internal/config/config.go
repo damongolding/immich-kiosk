@@ -95,6 +95,8 @@ type KioskSettings struct {
 	// debug modes
 	Debug        bool `json:"debug" mapstructure:"debug" default:"false"`
 	DebugVerbose bool `json:"debugVerbose" mapstructure:"debug_verbose" default:"false"`
+
+	DemoMode bool `json:"-" mapstructure:"demo_mode" default:"false"`
 }
 
 type WeatherLocation struct {

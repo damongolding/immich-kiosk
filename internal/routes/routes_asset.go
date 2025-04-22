@@ -3,7 +3,10 @@ package routes
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"math/rand/v2"
 	"net/http"
+	"os"
 	"slices"
 	"strings"
 
@@ -57,6 +60,25 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return NextHistoryAsset(baseConfig, com, c)
 		}
 
+		if requestConfig.Kiosk.DemoMode {
+			files, fileErr := os.ReadDir("./demo-assets")
+			if fileErr != nil {
+				return RenderError(c, fileErr, "reading demo directory")
+			}
+
+			if len(files) > 0 {
+				randomIndex := rand.IntN(len(files))
+				file, openErr := os.ReadFile(fmt.Sprintf("./demo-assets/%s", files[randomIndex].Name()))
+				if openErr != nil {
+					return RenderError(c, openErr, "reading demo file")
+				}
+
+				log.Info("Demo mode selected")
+
+				return c.HTMLBlob(http.StatusOK, file)
+			}
+		}
+
 		requestCtx := common.CopyContext(c)
 
 		// get and use prefetch data (if found)
@@ -83,6 +105,17 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		if len(viewData.Assets) > 0 && requestConfig.ExperimentalAlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
 			return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret()))
+		}
+
+		if requestConfig.Kiosk.DemoMode {
+
+			file, fileErr := os.Create(fmt.Sprintf("./demo-assets/%s.html", viewData.Assets[0].ImmichAsset.ID))
+			if fileErr != nil {
+				return RenderError(c, fileErr, "creating file")
+			}
+			defer file.Close()
+
+			imageComponent.Image(viewData, com.Secret()).Render(com.Context(), file)
 		}
 
 		return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
