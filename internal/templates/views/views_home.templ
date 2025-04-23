@@ -20,11 +20,7 @@ templ Home(viewData common.ViewData) {
 		@partials.Body(viewData) {
 			<main
 				id="kiosk"
-				if viewData.Kiosk.DemoMode {
-					hx-post="/asset/demo"
-				} else {
-					hx-post="/asset/new"
-				}
+				hx-post="/asset/new"
 				hx-include=".kiosk-history--entry"
 				hx-trigger={ triggers(viewData.DisableNavigation) }
 				hx-on::before-send="kiosk.setRequestLock(event)"

@@ -114,16 +114,26 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		}
 
 		req.Header.Set("Accept", "application/json")
-		apiKey := a.requestConfig.ImmichAPIKey
-		if a.requestConfig.SelectedUser != "" {
-			if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
-				apiKey = key
-			} else {
-				return responseBody, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
-			}
-		}
 
-		req.Header.Set("x-api-key", apiKey)
+		if a.requestConfig.Kiosk.DemoMode {
+			token, err := demoLogin(false)
+			if err != nil {
+				log.Error(err)
+				return responseBody, err
+			}
+			req.Header.Set("Authorization", "Bearer "+token)
+		} else {
+			apiKey := a.requestConfig.ImmichAPIKey
+			if a.requestConfig.SelectedUser != "" {
+				if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
+					apiKey = key
+				} else {
+					return responseBody, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
+				}
+			}
+
+			req.Header.Set("x-api-key", apiKey)
+		}
 
 		if method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch || method == http.MethodDelete {
 			req.Header.Set("Content-Type", "application/json")
@@ -168,6 +178,12 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			_, _ = io.Copy(io.Discard, res.Body)
 
 			if res.StatusCode == http.StatusUnauthorized {
+				if a.requestConfig.Kiosk.DemoMode {
+					if !validateDemoToken(demoToken) {
+						demoLogin(true)
+						continue
+					}
+				}
 				err = errors.New("received 401 (unauthorised) code from Immich. Please check your Immich API is correct")
 			}
 

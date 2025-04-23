@@ -12,7 +12,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -66,10 +65,6 @@ func main() {
 
 	if baseConfig.Kiosk.DemoMode {
 		log.Info("Demo mode enabled")
-		mkdirErr := os.Mkdir("./demo-assets", 0755)
-		if mkdirErr != nil && !os.IsExist(mkdirErr) {
-			log.Error("os.Mkdir", "err", mkdirErr)
-		}
 	}
 
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
@@ -148,8 +143,6 @@ func main() {
 	e.GET("/image", routes.NewRawImage(baseConfig, c))
 
 	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c))
-
-	e.POST("/asset/demo", routes.DemoAsset(baseConfig, c))
 
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 

@@ -79,21 +79,19 @@ func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.R
 		return nil, c.NoContent(http.StatusNoContent)
 	}
 
-	if !requestConfig.Kiosk.DemoMode {
-		queryParams := c.QueryParams()
-		formParam, err := c.FormParams()
-		if err != nil {
-			log.Error("initialise request data", "error", err, "path", c.Request().URL.Path)
-			return nil, echo.NewHTTPError(http.StatusInternalServerError, "Failed to process request")
-		}
+	queryParams := c.QueryParams()
+	formParam, err := c.FormParams()
+	if err != nil {
+		log.Error("initialise request data", "error", err, "path", c.Request().URL.Path)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, "Failed to process request")
+	}
 
-		queries := utils.MergeQueries(queryParams, formParam)
+	queries := utils.MergeQueries(queryParams, formParam)
 
-		err = requestConfig.ConfigWithOverrides(queries, c)
-		if err != nil {
-			log.Error("initialise request data", "error", err, "path", c.Request().URL.Path)
-			return nil, echo.NewHTTPError(http.StatusInternalServerError, "Failed to process request")
-		}
+	err = requestConfig.ConfigWithOverrides(queries, c)
+	if err != nil {
+		log.Error("initialise request data", "error", err, "path", c.Request().URL.Path)
+		return nil, echo.NewHTTPError(http.StatusInternalServerError, "Failed to process request")
 	}
 
 	return &common.RouteRequestData{
