@@ -161,7 +161,11 @@ func (c *Config) checkWeatherLocations() {
 			missingFields = append(missingFields, "longitude")
 		}
 		if w.API == "" {
-			missingFields = append(missingFields, "API key")
+			if c.Kiosk.DemoMode && os.Getenv("KIOSK_DEMO_WEATHER_API") != "" {
+				w.API = os.Getenv("KIOSK_DEMO_WEATHER_API")
+			} else {
+				missingFields = append(missingFields, "API key")
+			}
 		}
 		if w.Default {
 			if c.HasWeatherDefault {

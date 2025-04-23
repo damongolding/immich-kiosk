@@ -419,6 +419,10 @@ func (c *Config) Load() error {
 	c.V.AddConfigPath("./config/") // Look in the 'config/' subdirectory
 	c.V.AddConfigPath("../../")    // Look in the parent directory for testing
 
+	if os.Getenv("KIOSK_DEMO_MODE") != "" {
+		c.V.SetConfigFile("./demo.config.yaml") // use demo config file
+	}
+
 	c.V.SetEnvPrefix("kiosk")
 
 	c.V.AutomaticEnv()

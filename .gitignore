@@ -29,6 +29,7 @@ dist
 
 config.yaml
 *.config.yaml
+!demo.config.yaml
 
 *.pprof
 
