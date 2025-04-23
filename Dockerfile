@@ -28,6 +28,7 @@ RUN apk update && apk add --no-cache tzdata ca-certificates && update-ca-certifi
 
 WORKDIR /
 
+COPY --from=build /app/demo.config.yaml .
 COPY --from=build /app/dist/kiosk .
 
 ENTRYPOINT ["/kiosk"]
