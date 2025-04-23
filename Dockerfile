@@ -1,7 +1,7 @@
 # Builder
 FROM --platform=$BUILDPLATFORM golang:1.24.2-alpine AS build
 
-ARG VERSION
+ARG VERSION=demo
 ARG TARGETOS
 ARG TARGETARCH
 
