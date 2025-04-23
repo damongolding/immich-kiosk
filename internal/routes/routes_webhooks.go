@@ -10,6 +10,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 	"github.com/labstack/echo/v4"
@@ -18,6 +19,10 @@ import (
 
 func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
+
+		if baseConfig.Kiosk.DemoMode {
+			return c.NoContent(http.StatusOK)
+		}
 
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
@@ -103,7 +108,7 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 					return fmt.Errorf("invalid history entry format: %s", imageID)
 				}
 
-				currentAssetID := parts[0]
+				currentAssetID := strings.Replace(parts[0], kiosk.HistoryIndicator, "", -1)
 
 				g.Go(func(currentAssetID string) func() error {
 					return func() error {

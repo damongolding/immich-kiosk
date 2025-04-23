@@ -66,6 +66,10 @@ func newHTTPClient(timeout time.Duration) *http.Client {
 // viewData contains the images and other view context for the current request.
 func Trigger(ctx context.Context, requestData *common.RouteRequestData, kioskVersion string, event WebhookEvent, viewData common.ViewData) {
 
+	if viewData.Kiosk.DemoMode {
+		return
+	}
+
 	if requestData == nil {
 		log.Error("invalid request data")
 		return
