@@ -41,8 +41,7 @@ var demoTokenMutex sync.RWMutex
 var DemoToken string
 
 var (
-	// httpClient default http client for Immich api calls
-	HTTPClient = &http.Client{
+	httpClient = &http.Client{
 		Timeout: 30 * time.Second,
 	}
 )
@@ -57,7 +56,7 @@ func ValidateToken(ctx context.Context, token string) bool {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	resp, err := HTTPClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		log.Error("ValidateToken: sendingrequest", "err", err)
 		return false
@@ -119,7 +118,7 @@ func Login(ctx context.Context, refresh bool) (string, error) {
 	req.Header.Set("Content-Type", "application/json")
 
 	// Create HTTP client and send request
-	resp, err := HTTPClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		log.Error("DemoLogin: sending request", "err", err)
 		return "", err
