@@ -26,7 +26,7 @@ var (
 	defaultExpiration = 5 * time.Minute
 	cleanupInterval   = 10 * time.Minute
 
-	DemoMode bool = false
+	DemoMode = false
 )
 
 // initialize sets up the kiosk cache based on the current mode:

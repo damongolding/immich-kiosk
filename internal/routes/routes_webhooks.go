@@ -108,7 +108,7 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 					return fmt.Errorf("invalid history entry format: %s", imageID)
 				}
 
-				currentAssetID := strings.Replace(parts[0], kiosk.HistoryIndicator, "", -1)
+				currentAssetID := strings.Replace(parts[0], kiosk.HistoryIndicator, "", 1)
 
 				g.Go(func(currentAssetID string) func() error {
 					return func() error {

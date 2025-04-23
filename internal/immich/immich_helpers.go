@@ -18,6 +18,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/demo"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/google/go-querystring/query"
@@ -115,14 +116,17 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 		req.Header.Set("Accept", "application/json")
 
-		if a.requestConfig.Kiosk.DemoMode {
-			token, err := demoLogin(false)
-			if err != nil {
-				log.Error(err)
-				return responseBody, err
+		switch a.requestConfig.Kiosk.DemoMode {
+
+		case true:
+			token, demoLoginErr := demo.Login(a.ctx, false)
+			if demoLoginErr != nil {
+				log.Error(demoLoginErr)
+				return responseBody, demoLoginErr
 			}
 			req.Header.Set("Authorization", "Bearer "+token)
-		} else {
+
+		default:
 			apiKey := a.requestConfig.ImmichAPIKey
 			if a.requestConfig.SelectedUser != "" {
 				if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
@@ -172,18 +176,24 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 		defer res.Body.Close()
 
+		// in demo mode and unauthorized, attempt to login again
+		if res.StatusCode == http.StatusUnauthorized && a.requestConfig.Kiosk.DemoMode {
+			_, _ = io.Copy(io.Discard, res.Body)
+			if !demo.ValidateToken(a.ctx, demo.DemoToken) {
+				_, err = demo.Login(a.ctx, true)
+				if err != nil {
+					return responseBody, err
+				}
+				continue
+			}
+		}
+
 		if res.StatusCode < 200 || res.StatusCode >= 300 {
 			err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
 			log.Error(err)
 			_, _ = io.Copy(io.Discard, res.Body)
 
 			if res.StatusCode == http.StatusUnauthorized {
-				if a.requestConfig.Kiosk.DemoMode {
-					if !validateDemoToken(demoToken) {
-						demoLogin(true)
-						continue
-					}
-				}
 				err = errors.New("received 401 (unauthorised) code from Immich. Please check your Immich API is correct")
 			}
 
