@@ -23,6 +23,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/time/rate"
 
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
@@ -65,7 +66,10 @@ func main() {
 
 	if baseConfig.Kiosk.DemoMode {
 		log.Info("Demo mode enabled")
+		cache.DemoMode = true
 	}
+
+	cache.Initialize()
 
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
 

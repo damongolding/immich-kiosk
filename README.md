@@ -39,8 +39,9 @@
 > [!IMPORTANT]
 > **This project is not affiliated with [Immich][immich-github-url]**
 
-> [!WARNING]
-> Like the Immich project, this project is currently in beta and may experience breaking changes.
+> [!TIP]
+> You can try the ImmichKiosk the demo [here](https://demo.immichkiosk.app/).
+> The demo connects to the [Immich demo instance](https://demo.immich.app/).
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
@@ -80,6 +81,8 @@
 
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
+
+You can try the ImmichKiosk the demo [here](https://demo.immichkiosk.app/)
 
 ## Requirements
 - A reachable Immich server that is running version v1.127.0 or above.
