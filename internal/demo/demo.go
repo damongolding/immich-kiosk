@@ -35,11 +35,20 @@ type ValidateResponse struct {
 	AuthStatus bool `json:"authStatus"`
 }
 
+const demoImmichURL = "https://demo.immich.app"
+
 var demoTokenMutex sync.RWMutex
 var DemoToken string
 
+var (
+	// httpClient default http client for Immich api calls
+	HTTPClient = &http.Client{
+		Timeout: 30 * time.Second,
+	}
+)
+
 func ValidateToken(ctx context.Context, token string) bool {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://demo.immich.app/api/auth/validateToken", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, demoImmichURL+"/api/auth/validateToken", nil)
 	if err != nil {
 		log.Error("ValidateToken: new request", "err", err)
 		return false
@@ -48,15 +57,14 @@ func ValidateToken(ctx context.Context, token string) bool {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := HTTPClient.Do(req)
 	if err != nil {
 		log.Error("ValidateToken: sendingrequest", "err", err)
 		return false
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		log.Error("ValidateToken: unexpected status code", "status", resp.StatusCode)
 		return false
 	}
@@ -86,6 +94,8 @@ func Login(ctx context.Context, refresh bool) (string, error) {
 		return DemoToken, nil
 	}
 
+	demoTokenMutex.RUnlock()
+
 	payload := map[string]string{
 		"email":    "demo@immich.app",
 		"password": "demo",
@@ -99,7 +109,7 @@ func Login(ctx context.Context, refresh bool) (string, error) {
 	}
 
 	// Create the request
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://demo.immich.app/api/auth/login", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, demoImmichURL+"/api/auth/login", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Error("DemoLogin: creating request", "err", err)
 		return "", err
@@ -109,15 +119,14 @@ func Login(ctx context.Context, refresh bool) (string, error) {
 	req.Header.Set("Content-Type", "application/json")
 
 	// Create HTTP client and send request
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := HTTPClient.Do(req)
 	if err != nil {
 		log.Error("DemoLogin: sending request", "err", err)
 		return "", err
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		log.Error("DemoLogin: unexpected status code", "status", resp.StatusCode)
 		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
