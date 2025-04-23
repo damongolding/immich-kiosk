@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"sync"
@@ -54,6 +55,11 @@ func ValidateToken(ctx context.Context, token string) bool {
 		return false
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Error("ValidateToken: unexpected status code", "status", resp.StatusCode)
+		return false
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -110,6 +116,11 @@ func Login(ctx context.Context, refresh bool) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Error("DemoLogin: unexpected status code", "status", resp.StatusCode)
+		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
 
 	// Read response
 	body, err := io.ReadAll(resp.Body)
