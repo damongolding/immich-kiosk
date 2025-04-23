@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -33,6 +34,7 @@ type ValidateResponse struct {
 	AuthStatus bool `json:"authStatus"`
 }
 
+var demoTokenMutex sync.RWMutex
 var DemoToken string
 
 func ValidateToken(ctx context.Context, token string) bool {
@@ -71,8 +73,10 @@ func ValidateToken(ctx context.Context, token string) bool {
 }
 
 func Login(ctx context.Context, refresh bool) (string, error) {
+	demoTokenMutex.RLock()
 
 	if DemoToken != "" && !refresh {
+		defer demoTokenMutex.RUnlock()
 		return DemoToken, nil
 	}
 
@@ -122,7 +126,9 @@ func Login(ctx context.Context, refresh bool) (string, error) {
 		return "", err
 	}
 
+	demoTokenMutex.Lock()
 	DemoToken = loginResp.AccessToken
+	demoTokenMutex.Unlock()
 
 	log.Debug("Retrieved demo token", "token", DemoToken)
 
