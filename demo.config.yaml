@@ -47,7 +47,8 @@ weather:
 
 kiosk:
   port: 3000
-  http_timeout: 120
+
+  http_timeout: -1
 
   redirects:
     - name: all
