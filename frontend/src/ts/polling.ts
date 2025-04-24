@@ -25,8 +25,6 @@ class PollingController {
   private menuElement: HTMLElement | null = null;
   private currentProgressSource: ProgressSource | null = null;
   private video: HTMLVideoElement | null = null;
-  private isVideoMuted: boolean = true;
-  private muteButton: HTMLElement | null = null;
   private playTimeout: number | null;
 
   private constructor() {
