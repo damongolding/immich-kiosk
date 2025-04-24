@@ -23,7 +23,7 @@ import {
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
-import { toggleMute, applyMuteStateToVideos } from "./mute";
+import { toggleMute } from "./mute";
 
 ("use strict");
 
@@ -100,7 +100,7 @@ const prevImageMenuButton = htmx.find(
   ".navigation--prev-asset",
 ) as HTMLElement | null;
 const toggleMuteMenuButton = htmx.find(
-  ".navigation--toggle-mute",
+  ".navigation--mute",
 ) as HTMLElement | null;
 const moreInfoButton = htmx.find(
   ".navigation--more-info",
@@ -310,6 +310,12 @@ function addEventListeners(): void {
         if (e.ctrlKey || e.metaKey) return;
         e.preventDefault();
         handleRedirectsKeyPress();
+        break;
+
+      case "KeyM":
+        if (!toggleMuteMenuButton) return;
+        e.preventDefault();
+        toggleMute();
         break;
     }
   });

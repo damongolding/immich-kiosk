@@ -173,19 +173,27 @@
     pointer-events: none;
 }
 
-/* Show muted icon by default */
-.navigation--toggle-mute .icon-muted {
-  display: block; 
-}
+.navigation--mute {
+    /* Show muted icon by default */
+    &.is-muted {
+        .icon-muted {
+            display: inline;
+            visibility: visible;
+        }
 
-.navigation--toggle-mute .icon-unmuted {
-  display: none; 
-}
+        .icon-unmuted {
+            display: none;
+            visibility: hidden;
+        }
+    }
 
-.navigation--toggle-mute.is-muted .icon-muted {
-  display: none; 
-}
+    .icon-muted {
+        display: none;
+        visibility: hidden;
+    }
 
-.navigation--toggle-mute.is-muted .icon-unmuted {
-  display: block; 
+    .icon-unmuted {
+        display: inline;
+        visibility: visible;
+    }
 }

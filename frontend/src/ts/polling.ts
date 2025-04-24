@@ -25,6 +25,8 @@ class PollingController {
   private menuElement: HTMLElement | null = null;
   private currentProgressSource: ProgressSource | null = null;
   private video: HTMLVideoElement | null = null;
+  private isVideoMuted: boolean = true;
+  private muteButton: HTMLElement | null = null;
   private playTimeout: number | null;
 
   private constructor() {
@@ -54,6 +56,7 @@ class PollingController {
     this.pollInterval = interval;
     this.kioskElement = kiosk;
     this.menuElement = menu;
+    this.muteButton = htmx.find(".navigation--mute") as HTMLElement | null;
     this.progressBarElement = htmx.find(".progress--bar") as HTMLElement | null;
   }
 
@@ -201,6 +204,16 @@ class PollingController {
     return listener;
   };
 
+  muteVideo = () => {
+    if (!this.video) return;
+    this.video.muted = true;
+  };
+
+  unmuteVideo = () => {
+    if (!this.video) return;
+    this.video.muted = false;
+  };
+
   /**
    * Handles video playback
    * @param id - The ID of the video element to handle
@@ -343,3 +356,5 @@ export const resumePolling = (hideOverlay?: boolean) =>
 export const togglePolling = (hideOverlay?: boolean) =>
   pollingController.togglePolling(hideOverlay);
 export const videoHandler = (id: string) => pollingController.videoHandler(id);
+export const muteVideo = () => pollingController.muteVideo();
+export const unmuteVideo = () => pollingController.unmuteVideo();

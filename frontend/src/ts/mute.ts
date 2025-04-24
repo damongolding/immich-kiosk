@@ -1,32 +1,42 @@
 import htmx from "htmx.org";
 
-let isGloballyMuted = true;
+import { muteVideo, unmuteVideo } from "./polling";
 
-const muteButton = htmx.find(".navigation--toggle-mute") as HTMLElement | null;
+let isMuted = true;
+
+const muteButton = htmx.find(".navigation--mute") as HTMLElement | null;
+
+/**
+ * Mutes video audio globally and updates the mute button UI state.
+ */
+function mute() {
+  muteVideo();
+  muteButton?.classList.add("is-muted");
+  isMuted = true;
+}
+
+/**
+ * Unmutes video audio globally and updates the mute button UI state.
+ */
+function unmute() {
+  unmuteVideo();
+  muteButton?.classList.remove("is-muted");
+  isMuted = false;
+}
 
 /**
  * Toggles the global mute state and updates all video elements and the button icon.
  */
-export function toggleMute() {
-  isGloballyMuted = !isGloballyMuted;
-
-  applyMuteStateToVideos();
-
-  if (muteButton) {
-    muteButton.classList.toggle("is-muted", isGloballyMuted);
-  }
+function toggleMute() {
+  isMuted ? unmute() : mute();
 }
 
-// Set initial button state on load
-if (muteButton) {
-  muteButton.classList.toggle("is-muted", isGloballyMuted);
+/**
+ * Returns the current global mute state.
+ * @returns boolean indicating if audio is currently muted
+ */
+function getMuteState(): boolean {
+  return isMuted;
 }
 
-export function applyMuteStateToVideos() {
-  const newVideos = htmx.findAll("video") as NodeListOf<HTMLVideoElement>;
-  newVideos.forEach((video) => (video.muted = isGloballyMuted));
-}
-
-export function getMuteState(): boolean {
-  return isGloballyMuted;
-}
+export { toggleMute, getMuteState };
