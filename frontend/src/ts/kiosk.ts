@@ -24,6 +24,7 @@ import {
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
 import { toggleMute } from "./mute";
+import { storageUtils } from "./storage";
 
 ("use strict");
 
@@ -139,6 +140,13 @@ async function init(): Promise<void> {
       kioskData.timeFormat,
       kioskData.langCode,
     );
+  }
+
+  if (localStorage) {
+    const kioskVideoIsMuted = storageUtils.get<boolean>("kioskVideoIsMuted");
+    if (kioskVideoIsMuted !== null && kioskVideoIsMuted === false) {
+      toggleMute();
+    }
   }
 
   if (kioskData.disableScreensaver) {

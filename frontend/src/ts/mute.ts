@@ -1,6 +1,7 @@
 import htmx from "htmx.org";
 
 import { muteVideo, unmuteVideo } from "./polling";
+import { storageUtils } from "./storage";
 
 let isMuted = true;
 
@@ -29,6 +30,7 @@ function unmute() {
  */
 function toggleMute() {
   isMuted ? unmute() : mute();
+  storageUtils.set("kioskVideoIsMuted", isMuted);
 }
 
 /**
