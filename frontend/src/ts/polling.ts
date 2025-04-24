@@ -1,5 +1,6 @@
 import htmx from "htmx.org";
 import { hideAssetOverlay } from "./menu";
+import { getMuteState } from "./mute";
 
 /**
  * Represents a source for progress tracking, either an image or video
@@ -216,6 +217,8 @@ class PollingController {
       console.error("Video element not found");
       return;
     }
+
+    this.video.muted = getMuteState();
 
     // Setup timeout to check if video starts playing
     this.playTimeout = setTimeout(() => {

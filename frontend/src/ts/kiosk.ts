@@ -326,11 +326,6 @@ function addEventListeners(): void {
 
   // Links overlay
   linksButton?.addEventListener("click", () => toggleRedirectsOverlay());
-
-  // Apply current mute state to any new video elements
-  documentBody.addEventListener("htmx:afterSwap", () => {
-    applyMuteStateToVideos();
-  });
 }
 
 /**
