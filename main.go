@@ -172,7 +172,7 @@ func main() {
 
 	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
-	e.GET("/video/:videoID", routes.NewVideo())
+	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode))
 
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
@@ -203,5 +203,4 @@ func main() {
 	if shutdownErr := e.Shutdown(ctx); shutdownErr != nil {
 		log.Error(shutdownErr)
 	}
-
 }

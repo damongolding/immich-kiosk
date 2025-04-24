@@ -488,6 +488,15 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	c.checkExcludedAlbums()
 
+	// Disabled features in demo mode
+	if c.Kiosk.DemoMode {
+		c.ExperimentalAlbumVideo = false
+		c.UseOriginalImage = false
+		c.OptimizeImages = false
+		c.Memories = false
+		c.Kiosk.FetchedAssetsSize = 100
+	}
+
 	return nil
 }
 

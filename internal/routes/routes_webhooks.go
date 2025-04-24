@@ -21,7 +21,7 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		if baseConfig.Kiosk.DemoMode {
-			return c.NoContent(http.StatusOK)
+			return c.String(http.StatusOK, "Demo mode enabled")
 		}
 
 		requestData, err := InitializeRequestData(c, baseConfig)
