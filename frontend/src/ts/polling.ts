@@ -54,7 +54,6 @@ class PollingController {
     this.pollInterval = interval;
     this.kioskElement = kiosk;
     this.menuElement = menu;
-    this.muteButton = htmx.find(".navigation--mute") as HTMLElement | null;
     this.progressBarElement = htmx.find(".progress--bar") as HTMLElement | null;
   }
 
