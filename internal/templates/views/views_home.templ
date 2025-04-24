@@ -13,7 +13,7 @@ import (
 // Home renders the Home layout template
 templ Home(viewData common.ViewData) {
 	<!DOCTYPE html>
-	<html lang="en">
+	<html lang="en" hx-request={ fmt.Sprintf("{\"timeout\":%d}", viewData.Kiosk.HTTPTimeout*100) }>
 		<head>
 			@partials.Head(viewData)
 		</head>
@@ -71,6 +71,7 @@ templ Home(viewData common.ViewData) {
 				"transition":         viewData.Transition,
 				"showMoreInfo":       viewData.ShowMoreInfo,
 				"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
+				"httpTimeout":        viewData.Kiosk.HTTPTimeout,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 		}

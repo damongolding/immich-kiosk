@@ -211,8 +211,9 @@ type Config struct {
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `json:"showArchived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display
-	Person         []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
-	ExcludedPeople []string `json:"excluded_people" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
+	Person           []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
+	RequireAllPeople bool     `json:"requireAllPeople" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
+	ExcludedPeople   []string `json:"excludedPeople" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
 
 	// Album ID of album(s) to display
 	Album []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
@@ -265,6 +266,8 @@ type Config struct {
 	ShowPersonName bool `json:"showPersonName" mapstructure:"show_person_name" query:"show_person_name" form:"show_person_name" default:"false"`
 	// ShowPersonAge whether to display the person age
 	ShowPersonAge bool `json:"showPersonAge" mapstructure:"show_person_age" query:"show_person_age" form:"show_person_age" default:"false"`
+	// AgeSwitchToYearsAfter when to switch from months to years
+	AgeSwitchToYearsAfter int `json:"ageSwitchToYearsAfter" mapstructure:"age_switch_to_years_after" query:"age_switch_to_years_after" form:"age_switch_to_years_after" default:"1"`
 
 	// ShowImageTime whether to display image time
 	ShowImageTime bool `json:"showImageTime" mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`
