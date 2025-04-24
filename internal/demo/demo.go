@@ -63,6 +63,11 @@ func ValidateToken(ctx context.Context, token string) bool {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		log.Warn("ValidateToken: token is invalid", "status", resp.StatusCode)
+		return false
+	}
+
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		log.Error("ValidateToken: unexpected status code", "status", resp.StatusCode)
 		return false
