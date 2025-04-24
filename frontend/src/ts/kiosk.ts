@@ -99,7 +99,7 @@ const nextImageMenuButton = htmx.find(
 const prevImageMenuButton = htmx.find(
   ".navigation--prev-asset",
 ) as HTMLElement | null;
-const toggleMuteMenuButton= htmx.find(
+const toggleMuteMenuButton = htmx.find(
   ".navigation--toggle-mute",
 ) as HTMLElement | null;
 const moreInfoButton = htmx.find(
@@ -317,11 +317,9 @@ function addEventListeners(): void {
   // Fullscreen
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
-  
+
   // Toggle mute
-  if (toggleMuteMenuButton) {
-    toggleMuteMenuButton.addEventListener("click", toggleMute);
-  }
+  toggleMuteMenuButton?.addEventListener("click", toggleMute);
 
   // More info overlay
   moreInfoButton?.addEventListener("click", () => toggleAssetOverlay());
