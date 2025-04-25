@@ -2,7 +2,7 @@ package routes
 
 import (
 	"errors"
-	"net/http"
+	"math/rand/v2"
 	"os"
 	"path"
 	"sync/atomic"
@@ -49,9 +49,6 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 		if len(files) == 0 {
 			DownloadOfflineAssets(baseConfig, c, com, requestID, deviceID)
-			return c.JSON(http.StatusOK, map[string]string{
-				"message": "No offline assets found",
-			})
 		}
 
 		var nonDotFiles []string
@@ -61,9 +58,11 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			}
 		}
 
-		return c.JSON(http.StatusOK, map[string]string{
-			"message": "Offline mode enabled",
-		})
+		picked := nonDotFiles[rand.IntN(len(nonDotFiles))]
+
+		picked = path.Join(OfflineAssetsPath, picked)
+
+		return c.File(picked)
 	}
 }
 
