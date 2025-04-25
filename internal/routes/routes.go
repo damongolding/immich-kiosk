@@ -9,6 +9,7 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"sync"
 	"sync/atomic"
 
 	"github.com/a-h/templ"
@@ -35,6 +36,8 @@ var (
 	drawFacesOnImages string
 
 	VideoManager *video.Manager
+
+	mu sync.Mutex
 )
 
 type PersonOrAlbum struct {
@@ -141,7 +144,7 @@ func SaveOfflineAsset(ctx context.Context, filename string, t templ.Component, m
 	}
 	defer file.Close()
 
-	if err := t.Render(ctx, file); err != nil {
+	if err = t.Render(ctx, file); err != nil {
 		log.Error("saving view", "err", err)
 		return err
 	}

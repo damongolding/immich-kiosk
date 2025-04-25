@@ -3,13 +3,17 @@ package routes
 import (
 	"errors"
 	"math/rand/v2"
+	"net/http"
 	"os"
 	"path"
+	"slices"
+	"strings"
 	"sync/atomic"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/sync/errgroup"
@@ -25,30 +29,41 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			return err
 		}
 
-		if requestData == nil {
-			log.Info("Refreshing clients")
-			return nil
-		}
-
 		requestID := requestData.RequestID
 		deviceID := requestData.DeviceID
+		requestConfig := *baseConfig
+		requestConfig.History = requestData.RequestConfig.History
+		requestConfig.Memories = false
 
-		if _, err := os.Stat(OfflineAssetsPath); os.IsNotExist(err) {
-			err := os.MkdirAll(OfflineAssetsPath, os.ModePerm)
+		replacer := strings.NewReplacer(
+			kiosk.HistoryIndicator, "",
+			":", "",
+			",", "",
+		)
+		for i, h := range requestConfig.History {
+			requestConfig.History[i] = replacer.Replace(h)
+		}
+
+		if _, err = os.Stat(OfflineAssetsPath); os.IsNotExist(err) {
+			err = os.MkdirAll(OfflineAssetsPath, os.ModePerm)
 			if err != nil {
 				log.Error("OfflineMode", "err", err)
 				return err
 			}
 		}
 
-		files, ReadDirErr := os.ReadDir(OfflineAssetsPath)
-		if ReadDirErr != nil {
-			log.Error("OfflineMode", "err", ReadDirErr)
-			return ReadDirErr
+		files, readDirErr := os.ReadDir(OfflineAssetsPath)
+		if readDirErr != nil {
+			log.Error("OfflineMode", "err", readDirErr)
+			return readDirErr
 		}
 
 		if len(files) == 0 {
-			DownloadOfflineAssets(baseConfig, c, com, requestID, deviceID)
+			downloadErr := DownloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
+			if downloadErr != nil {
+				log.Error("OfflineMode: DownloadOfflineAssets", "err", downloadErr)
+				return downloadErr
+			}
 		}
 
 		var nonDotFiles []string
@@ -58,15 +73,36 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			}
 		}
 
-		picked := nonDotFiles[rand.IntN(len(nonDotFiles))]
+		if len(nonDotFiles) == 0 {
+			return c.String(http.StatusNotFound, "No offline assets found")
+		}
 
-		picked = path.Join(OfflineAssetsPath, picked)
+		for range 3 {
 
-		return c.File(picked)
+			picked := nonDotFiles[rand.IntN(len(nonDotFiles))]
+
+			if slices.Contains(requestConfig.History, strings.Replace(picked, ".html", "", 1)) {
+				log.Info("Same file!", "file", picked, "history", requestConfig.History)
+				continue
+			}
+
+			log.Info("Picked", "file", picked, "history", requestConfig.History)
+
+			picked = path.Join(OfflineAssetsPath, picked)
+
+			return c.File(picked)
+		}
+
+		return c.String(http.StatusNotFound, "No offline assets found")
 	}
 }
 
-func DownloadOfflineAssets(baseConfig *config.Config, echoCtx echo.Context, com *common.Common, requestID, deviceID string) error {
+func DownloadOfflineAssets(baseConfig config.Config, echoCtx echo.Context, com *common.Common, requestID, deviceID string) error {
+
+	if !mu.TryLock() {
+		return errors.New("DownloadOfflineAssets is already running")
+	}
+	defer mu.Unlock()
 
 	parallelDownloads := baseConfig.Kiosk.ExperimentalOfflineMode.ParallelDownloads
 	numberOfAssets := baseConfig.Kiosk.ExperimentalOfflineMode.NumberOfAssets
@@ -85,14 +121,20 @@ func DownloadOfflineAssets(baseConfig *config.Config, echoCtx echo.Context, com 
 			defer log.Info("Done", "#", i)
 
 			for range 3 {
-				viewData, err := generateViewData(*baseConfig, requestCtx, requestID, deviceID, false)
+				viewData, err := generateViewData(baseConfig, requestCtx, requestID, deviceID, false)
 				if err != nil {
 					return err
 				}
 
-				filename := path.Join(OfflineAssetsPath, viewData.Assets[0].ImmichAsset.ID+".html")
+				var filename string
 
-				if _, err := os.Stat(filename); os.IsExist(err) {
+				for _, asset := range viewData.Assets {
+					filename += asset.ImmichAsset.ID + asset.User
+				}
+
+				filename = path.Join(OfflineAssetsPath, filename+".html")
+
+				if _, err = os.Stat(filename); os.IsExist(err) {
 					continue
 				}
 
