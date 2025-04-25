@@ -150,6 +150,8 @@ func main() {
 
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 
+	e.POST("/asset/offline", routes.OfflineMode(baseConfig, c))
+
 	e.POST("/asset/previous", routes.PreviousHistoryAsset(baseConfig, c))
 
 	e.POST("/asset/tag", routes.TagAsset(baseConfig, c))

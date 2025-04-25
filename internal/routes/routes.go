@@ -6,7 +6,10 @@
 package routes
 
 import (
+	"context"
 	"net/http"
+	"os"
+	"sync/atomic"
 
 	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
@@ -122,4 +125,34 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	}
 
 	return ctx.HTML(statusCode, buf.String())
+}
+
+func SaveOfflineAsset(ctx context.Context, filename string, t templ.Component, maxOfflineSize int64, offlineSize *atomic.Int64) error {
+
+	if offlineSize.Load() >= maxOfflineSize {
+		log.Debug("SaveOfflineAsset: max storage size reached", "offlineSize", offlineSize.Load(), "maxOfflineSize", maxOfflineSize)
+		return nil
+	}
+
+	file, err := os.Create(filename)
+	if err != nil {
+		log.Error("creating file", "err", err)
+		return err
+	}
+	defer file.Close()
+
+	if err := t.Render(ctx, file); err != nil {
+		log.Error("saving view", "err", err)
+		return err
+	}
+
+	s, statErr := file.Stat()
+	if statErr != nil {
+		log.Error("getting file size", "err", statErr)
+		return err
+	}
+
+	offlineSize.Add(s.Size())
+
+	return nil
 }
