@@ -29,6 +29,7 @@ dist
 
 config.yaml
 *.config.yaml
+!demo.config.yaml
 
 *.pprof
 
@@ -39,3 +40,5 @@ node_modules/
 custom.css
 
 *_templ.go
+
+demo-assets/

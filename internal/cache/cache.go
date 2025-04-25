@@ -25,13 +25,23 @@ var (
 
 	defaultExpiration = 5 * time.Minute
 	cleanupInterval   = 10 * time.Minute
+
+	DemoMode = false
 )
 
-// init initializes the kiosk cache with a 5 minute default expiration and 10 minute cleanup interval.
-// The cleanup interval determines how often expired items are removed from the cache.
-func init() {
+// initialize sets up the kiosk cache based on the current mode:
+// - In Demo Mode: Uses 1 minute expiration and 2 minute cleanup interval
+// - In Normal Mode: Uses default 5 minute expiration and 10 minute cleanup interval
+//
+// The expiration time determines when items are considered stale and should be removed.
+// The cleanup interval determines how frequently the cache is scanned to remove expired items.
+func Initialize() {
 	// Setting up Immich api cache
-	kioskCache = gocache.New(defaultExpiration, cleanupInterval)
+	if DemoMode {
+		kioskCache = gocache.New(time.Minute, 2*time.Minute)
+	} else {
+		kioskCache = gocache.New(defaultExpiration, cleanupInterval)
+	}
 }
 
 // Flush removes all items from the cache, both expired and unexpired.
