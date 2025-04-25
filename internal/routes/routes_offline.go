@@ -121,6 +121,12 @@ func DownloadOfflineAssets(baseConfig config.Config, echoCtx echo.Context, com *
 			defer log.Info("Done", "#", i)
 
 			for range 3 {
+
+				if maxSize != 0 && offlineSize.Load() >= maxSize {
+					log.Debug("SaveOfflineAsset: max storage size reached", "offlineSize", offlineSize.Load(), "maxOfflineSize", maxSize)
+					return nil
+				}
+
 				viewData, err := generateViewData(baseConfig, requestCtx, requestID, deviceID, false)
 				if err != nil {
 					return err

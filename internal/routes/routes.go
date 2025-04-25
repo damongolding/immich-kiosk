@@ -132,11 +132,6 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 
 func SaveOfflineAsset(ctx context.Context, filename string, t templ.Component, maxOfflineSize int64, offlineSize *atomic.Int64) error {
 
-	if offlineSize.Load() >= maxOfflineSize {
-		log.Debug("SaveOfflineAsset: max storage size reached", "offlineSize", offlineSize.Load(), "maxOfflineSize", maxOfflineSize)
-		return nil
-	}
-
 	file, err := os.Create(filename)
 	if err != nil {
 		log.Error("creating file", "err", err)
