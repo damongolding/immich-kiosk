@@ -250,6 +250,7 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		return
 	}
 
+	//TODO if this fails app will crash
 	imgBytes, err := immichAsset.ImagePreview()
 	if err != nil {
 		log.Error("getting image preview", "err", err)
