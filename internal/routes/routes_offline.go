@@ -195,7 +195,7 @@ func DownloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 
 				createdFiles.Store(filename, true)
 
-				return saveMsgpackZstd(i, filename, viewData, zstd.SpeedBestCompression, &offlineSize)
+				return saveMsgpackZstd(i, filename, viewData, &offlineSize)
 			}
 
 			log.Error("DownloadOfflineAssets: max tries reached")
@@ -214,7 +214,7 @@ func DownloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 	return nil
 }
 
-func saveMsgpackZstd(i int, filename string, data common.ViewData, compressionLevel zstd.EncoderLevel, offlineSize *atomic.Int64) error {
+func saveMsgpackZstd(i int, filename string, data common.ViewData, offlineSize *atomic.Int64) error {
 	var buf bytes.Buffer
 	enc := msgpack.NewEncoder(&buf)
 	if err := enc.Encode(data); err != nil {
@@ -226,6 +226,11 @@ func saveMsgpackZstd(i int, filename string, data common.ViewData, compressionLe
 		return err
 	}
 	defer file.Close()
+
+	compressionLevel := zstd.SpeedFastest
+	if buf.Len() > 1024*1024 {
+		compressionLevel = zstd.SpeedBestCompression
+	}
 
 	encoder, err := zstd.NewWriter(file, zstd.WithEncoderLevel(compressionLevel))
 	if err != nil {
