@@ -151,13 +151,6 @@ async function init(): Promise<void> {
     );
   }
 
-  if (localStorage) {
-    const kioskVideoIsMuted = storageUtils.get<boolean>("kioskVideoIsMuted");
-    if (kioskVideoIsMuted !== null && kioskVideoIsMuted === false) {
-      toggleMute();
-    }
-  }
-
   if (kioskData.disableScreensaver) {
     await preventSleep();
   }
