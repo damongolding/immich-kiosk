@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"path"
 	"strings"
 	"sync"
 
@@ -129,6 +130,35 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 		return fmt.Errorf("no valid assets found in history entry: %s", wantedHistoryEntry)
 	}
 	requestConfig.History[wantedHistoryEntryIndex] = kiosk.HistoryIndicator + requestConfig.History[wantedHistoryEntryIndex]
+
+	if requestConfig.UseOfflineMode {
+		log.Info("using offline mode")
+		replacer := strings.NewReplacer(
+			kiosk.HistoryIndicator, "",
+			":", "",
+			",", "",
+		)
+
+		var filename string
+		for _, wa := range wantedAssets {
+			filename += replacer.Replace(wa)
+		}
+
+		filename = path.Join(OfflineAssetsPath, filename)
+
+		viewData, err := loadMsgpackZstd(filename)
+		if err != nil {
+			log.Error("OfflineMode: loadMsgpackZstd", "picked", filename, "err", err)
+			return err
+		}
+
+		viewData.KioskVersion = KioskVersion
+		viewData.RequestID = requestID
+		viewData.DeviceID = deviceID
+		viewData.History = requestConfig.History
+
+		return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
+	}
 
 	viewData := common.ViewData{
 		KioskVersion: KioskVersion,

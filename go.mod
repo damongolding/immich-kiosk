@@ -12,6 +12,7 @@ require (
 	github.com/goodsign/monday v1.0.2
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
+	github.com/klauspost/compress v1.16.7
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/oapi-codegen/runtime v1.1.1
@@ -19,6 +20,7 @@ require (
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
+	github.com/vmihailenco/msgpack/v5 v5.3.5
 	golang.org/x/image v0.26.0
 	golang.org/x/sync v0.13.0
 	golang.org/x/text v0.24.0
@@ -63,6 +65,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect

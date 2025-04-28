@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"math/rand/v2"
 	"net/http"
 	"os"
@@ -15,7 +17,10 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
+	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/klauspost/compress/zstd"
 	"github.com/labstack/echo/v4"
+	"github.com/vmihailenco/msgpack/v5"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -31,17 +36,23 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 		requestID := requestData.RequestID
 		deviceID := requestData.DeviceID
+
 		requestConfig := *baseConfig
 		requestConfig.History = requestData.RequestConfig.History
 		requestConfig.Memories = false
+
+		if len(requestConfig.History) > 1 && !strings.HasPrefix(requestConfig.History[len(requestConfig.History)-1], "*") {
+			return NextHistoryAsset(baseConfig, com, c)
+		}
 
 		replacer := strings.NewReplacer(
 			kiosk.HistoryIndicator, "",
 			":", "",
 			",", "",
 		)
+		historyAsFilenames := make([]string, len(requestConfig.History))
 		for i, h := range requestConfig.History {
-			requestConfig.History[i] = replacer.Replace(h)
+			historyAsFilenames[i] = replacer.Replace(h)
 		}
 
 		if _, err = os.Stat(OfflineAssetsPath); os.IsNotExist(err) {
@@ -58,14 +69,6 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			return readDirErr
 		}
 
-		if len(files) == 0 {
-			downloadErr := DownloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
-			if downloadErr != nil {
-				log.Error("OfflineMode: DownloadOfflineAssets", "err", downloadErr)
-				return downloadErr
-			}
-		}
-
 		var nonDotFiles []string
 		for _, file := range files {
 			if !file.IsDir() && file.Name()[0] != '.' {
@@ -74,14 +77,22 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		}
 
 		if len(nonDotFiles) == 0 {
-			return c.String(http.StatusNotFound, "No offline assets found")
+			downloadErr := DownloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
+			if downloadErr != nil {
+				log.Error("OfflineMode: DownloadOfflineAssets", "err", downloadErr)
+				return downloadErr
+			}
 		}
 
 		for range 3 {
 
+			if len(nonDotFiles) <= 0 {
+				continue
+			}
+
 			picked := nonDotFiles[rand.IntN(len(nonDotFiles))]
 
-			if slices.Contains(requestConfig.History, strings.Replace(picked, ".html", "", 1)) {
+			if slices.Contains(historyAsFilenames, picked) {
 				log.Info("Same file!", "file", picked, "history", requestConfig.History)
 				continue
 			}
@@ -90,7 +101,20 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 			picked = path.Join(OfflineAssetsPath, picked)
 
-			return c.File(picked)
+			viewData, err := loadMsgpackZstd(picked)
+			if err != nil {
+				log.Error("OfflineMode: loadMsgpackZstd", "picked", picked, "err", err)
+				continue
+			}
+
+			viewData.KioskVersion = KioskVersion
+			viewData.RequestID = requestID
+			viewData.DeviceID = deviceID
+			utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
+			viewData.History = requestConfig.History
+
+			return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
+
 		}
 
 		return c.String(http.StatusNotFound, "No offline assets found")
@@ -132,19 +156,22 @@ func DownloadOfflineAssets(baseConfig config.Config, echoCtx echo.Context, com *
 					return err
 				}
 
+				viewData.UseOfflineMode = true
+				viewData.History = []string{}
+
 				var filename string
 
 				for _, asset := range viewData.Assets {
 					filename += asset.ImmichAsset.ID + asset.User
 				}
 
-				filename = path.Join(OfflineAssetsPath, filename+".html")
+				filename = path.Join(OfflineAssetsPath, filename)
 
 				if _, err = os.Stat(filename); os.IsExist(err) {
 					continue
 				}
 
-				return SaveOfflineAsset(com.Context(), filename, imageComponent.Image(viewData, com.Secret()), maxSize, &offlineSize)
+				return saveMsgpackZstd(filename, viewData, zstd.SpeedBestCompression, &offlineSize)
 			}
 
 			return errors.New("DownloadOfflineAssets: max tries reached")
@@ -159,4 +186,58 @@ func DownloadOfflineAssets(baseConfig config.Config, echoCtx echo.Context, com *
 	}
 
 	return nil
+}
+
+func saveMsgpackZstd(filename string, data common.ViewData, compressionLevel zstd.EncoderLevel, offlineSize *atomic.Int64) error {
+	var buf bytes.Buffer
+	enc := msgpack.NewEncoder(&buf)
+	if err := enc.Encode(data); err != nil {
+		return err
+	}
+
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder, err := zstd.NewWriter(file, zstd.WithEncoderLevel(compressionLevel))
+	if err != nil {
+		return err
+	}
+	defer encoder.Close()
+
+	_, err = encoder.Write(buf.Bytes())
+	if err != nil {
+		return err
+	}
+
+	offlineSize.Add(int64(buf.Len()))
+
+	return nil
+}
+
+func loadMsgpackZstd(filename string) (common.ViewData, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return common.ViewData{}, err
+	}
+	defer file.Close()
+
+	decoder, err := zstd.NewReader(file)
+	if err != nil {
+		return common.ViewData{}, err
+	}
+	defer decoder.Close()
+
+	data, err := io.ReadAll(decoder)
+	if err != nil {
+		return common.ViewData{}, err
+	}
+
+	var viewData common.ViewData
+	buf := bytes.NewBuffer(data)
+	dec := msgpack.NewDecoder(buf)
+	err = dec.Decode(&viewData)
+	return viewData, err
 }
