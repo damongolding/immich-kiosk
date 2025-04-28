@@ -10,6 +10,7 @@ import (
 	"path"
 	"slices"
 	"strings"
+	"sync"
 	"sync/atomic"
 
 	"github.com/charmbracelet/log"
@@ -17,7 +18,9 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/dustin/go-humanize"
 	"github.com/klauspost/compress/zstd"
 	"github.com/labstack/echo/v4"
 	"github.com/vmihailenco/msgpack/v5"
@@ -40,6 +43,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		requestConfig := *baseConfig
 		requestConfig.History = requestData.RequestConfig.History
 		requestConfig.Memories = false
+		requestConfig.ExperimentalAlbumVideo = false
 
 		if len(requestConfig.History) > 1 && !strings.HasPrefix(requestConfig.History[len(requestConfig.History)-1], "*") {
 			return NextHistoryAsset(baseConfig, com, c)
@@ -77,16 +81,24 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		}
 
 		if len(nonDotFiles) == 0 {
-			downloadErr := DownloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
-			if downloadErr != nil {
-				log.Error("OfflineMode: DownloadOfflineAssets", "err", downloadErr)
-				return downloadErr
-			}
+			requestCtx := common.CopyContext(c)
+			go func(c common.ContextCopy) {
+				downloadErr := DownloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
+				if downloadErr != nil {
+					log.Error("OfflineMode: DownloadOfflineAssets", "err", downloadErr)
+				}
+			}(requestCtx)
+
+			return Render(c, http.StatusOK, partials.Message(partials.MessageData{
+				Title:         "Downloading Assets",
+				Message:       "Chicken pie",
+				IsDownloading: true,
+			}))
 		}
 
 		for range 3 {
 
-			if len(nonDotFiles) <= 0 {
+			if len(nonDotFiles) == 0 {
 				continue
 			}
 
@@ -101,9 +113,9 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 			picked = path.Join(OfflineAssetsPath, picked)
 
-			viewData, err := loadMsgpackZstd(picked)
-			if err != nil {
-				log.Error("OfflineMode: loadMsgpackZstd", "picked", picked, "err", err)
+			viewData, loadMsgpackErr := loadMsgpackZstd(picked)
+			if loadMsgpackErr != nil {
+				log.Error("OfflineMode: loadMsgpackZstd", "picked", picked, "err", loadMsgpackErr)
 				continue
 			}
 
@@ -121,38 +133,42 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 	}
 }
 
-func DownloadOfflineAssets(baseConfig config.Config, echoCtx echo.Context, com *common.Common, requestID, deviceID string) error {
+func DownloadOfflineAssets(requestConfig config.Config, requestCtx common.ContextCopy, com *common.Common, requestID, deviceID string) error {
 
 	if !mu.TryLock() {
 		return errors.New("DownloadOfflineAssets is already running")
 	}
 	defer mu.Unlock()
 
-	parallelDownloads := baseConfig.Kiosk.ExperimentalOfflineMode.ParallelDownloads
-	numberOfAssets := baseConfig.Kiosk.ExperimentalOfflineMode.NumberOfAssets
-	maxSize := baseConfig.Kiosk.ExperimentalOfflineMode.MaxSize
+	parallelDownloads := requestConfig.Kiosk.ExperimentalOfflineMode.ParallelDownloads
+	numberOfAssets := requestConfig.Kiosk.ExperimentalOfflineMode.NumberOfAssets
+	maxSize, maxSizeErr := utils.ParseSize(requestConfig.Kiosk.ExperimentalOfflineMode.MaxSize)
+	if maxSizeErr != nil {
+		return maxSizeErr
+	}
 
-	var eg errgroup.Group
+	eg, _ := errgroup.WithContext(com.Context())
 	eg.SetLimit(parallelDownloads)
 
 	var offlineSize atomic.Int64
-
-	requestCtx := common.CopyContext(echoCtx)
+	var createdFiles sync.Map
 
 	for i := range numberOfAssets {
 		eg.Go(func() error {
 
-			defer log.Info("Done", "#", i)
-
 			for range 3 {
 
 				if maxSize != 0 && offlineSize.Load() >= maxSize {
-					log.Debug("SaveOfflineAsset: max storage size reached", "offlineSize", offlineSize.Load(), "maxOfflineSize", maxSize)
+					humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
+					humanMaxSize := humanize.Bytes(uint64(maxSize))
+					log.Warn("SaveOfflineAsset: max storage size reached", "offlineSize", humanOfflineSize, "maxOfflineSize", humanMaxSize)
+					defer log.Info("Done", "#", i, "filename", "")
 					return nil
 				}
 
-				viewData, err := generateViewData(baseConfig, requestCtx, requestID, deviceID, false)
+				viewData, err := generateViewData(requestConfig, requestCtx, requestID, deviceID, false)
 				if err != nil {
+					log.Error("SaveOfflineAsset: generateViewData", "err", err)
 					return err
 				}
 
@@ -167,12 +183,22 @@ func DownloadOfflineAssets(baseConfig config.Config, echoCtx echo.Context, com *
 
 				filename = path.Join(OfflineAssetsPath, filename)
 
-				if _, err = os.Stat(filename); os.IsExist(err) {
+				if _, exists := createdFiles.Load(filename); exists {
+					log.Warn("file already exists (in memory)", "filename", filename)
 					continue
 				}
 
-				return saveMsgpackZstd(filename, viewData, zstd.SpeedBestCompression, &offlineSize)
+				if _, err = os.Stat(filename); err == nil {
+					log.Warn("file already exists (on disk)", "filename", filename)
+					continue
+				}
+
+				createdFiles.Store(filename, true)
+
+				return saveMsgpackZstd(i, filename, viewData, zstd.SpeedBestCompression, &offlineSize)
 			}
+
+			log.Error("DownloadOfflineAssets: max tries reached")
 
 			return errors.New("DownloadOfflineAssets: max tries reached")
 
@@ -188,7 +214,7 @@ func DownloadOfflineAssets(baseConfig config.Config, echoCtx echo.Context, com *
 	return nil
 }
 
-func saveMsgpackZstd(filename string, data common.ViewData, compressionLevel zstd.EncoderLevel, offlineSize *atomic.Int64) error {
+func saveMsgpackZstd(i int, filename string, data common.ViewData, compressionLevel zstd.EncoderLevel, offlineSize *atomic.Int64) error {
 	var buf bytes.Buffer
 	enc := msgpack.NewEncoder(&buf)
 	if err := enc.Encode(data); err != nil {
@@ -213,6 +239,8 @@ func saveMsgpackZstd(filename string, data common.ViewData, compressionLevel zst
 	}
 
 	offlineSize.Add(int64(buf.Len()))
+
+	log.Info("Done", "#", i, "filename", filename)
 
 	return nil
 }

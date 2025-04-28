@@ -6,11 +6,8 @@
 package routes
 
 import (
-	"context"
 	"net/http"
-	"os"
 	"sync"
-	"sync/atomic"
 
 	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
@@ -116,6 +113,13 @@ func RenderError(c echo.Context, err error, message string) error {
 	}))
 }
 
+func RenderMessage(c echo.Context, title, message string) error {
+	return Render(c, http.StatusOK, partials.Message(partials.MessageData{
+		Title:   title,
+		Message: message,
+	}))
+}
+
 // This custom Render replaces Echo's echo.Context.Render() with templ's templ.Component.Render().
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 
@@ -128,29 +132,4 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	}
 
 	return ctx.HTML(statusCode, buf.String())
-}
-
-func SaveOfflineAsset(ctx context.Context, filename string, t templ.Component, maxOfflineSize int64, offlineSize *atomic.Int64) error {
-
-	file, err := os.Create(filename)
-	if err != nil {
-		log.Error("creating file", "err", err)
-		return err
-	}
-	defer file.Close()
-
-	if err = t.Render(ctx, file); err != nil {
-		log.Error("saving view", "err", err)
-		return err
-	}
-
-	s, statErr := file.Stat()
-	if statErr != nil {
-		log.Error("getting file size", "err", statErr)
-		return err
-	}
-
-	offlineSize.Add(s.Size())
-
-	return nil
 }

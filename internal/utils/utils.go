@@ -744,3 +744,31 @@ func IsTimeBetween(checkTime, startTime, endTime time.Time) bool {
 func DaysInMonth(date time.Time) int {
 	return time.Date(date.Year(), date.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
 }
+
+func ParseSize(sizeStr string) (int64, error) {
+	re := regexp.MustCompile(`^(\d+)\s*([BKMGbkmg][Bb]?)$`)
+	matches := re.FindStringSubmatch(sizeStr)
+
+	if matches == nil {
+		return 0, fmt.Errorf("invalid size format: %s", sizeStr)
+	}
+
+	bytes, err := strconv.ParseInt(matches[1], 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid number: %v", err)
+	}
+
+	unit := strings.ToUpper(matches[2])
+	switch unit {
+	case "B":
+		return bytes, nil
+	case "KB", "K":
+		return bytes * 1024, nil
+	case "MB", "M":
+		return bytes * 1024 * 1024, nil
+	case "GB", "G":
+		return bytes * 1024 * 1024 * 1024, nil
+	default:
+		return 0, fmt.Errorf("unsupported unit: %s", unit)
+	}
+}

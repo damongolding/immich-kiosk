@@ -129,35 +129,12 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	if len(wantedAssets) == 0 || (len(wantedAssets) == 1 && wantedAssets[0] == "") {
 		return fmt.Errorf("no valid assets found in history entry: %s", wantedHistoryEntry)
 	}
+
 	requestConfig.History[wantedHistoryEntryIndex] = kiosk.HistoryIndicator + requestConfig.History[wantedHistoryEntryIndex]
 
 	if requestConfig.UseOfflineMode {
 		log.Info("using offline mode")
-		replacer := strings.NewReplacer(
-			kiosk.HistoryIndicator, "",
-			":", "",
-			",", "",
-		)
-
-		var filename string
-		for _, wa := range wantedAssets {
-			filename += replacer.Replace(wa)
-		}
-
-		filename = path.Join(OfflineAssetsPath, filename)
-
-		viewData, err := loadMsgpackZstd(filename)
-		if err != nil {
-			log.Error("OfflineMode: loadMsgpackZstd", "picked", filename, "err", err)
-			return err
-		}
-
-		viewData.KioskVersion = KioskVersion
-		viewData.RequestID = requestID
-		viewData.DeviceID = deviceID
-		viewData.History = requestConfig.History
-
-		return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
+		return historyAssetOffline(c, requestID, deviceID, wantedAssets, requestConfig.History, com.Secret())
 	}
 
 	viewData := common.ViewData{
@@ -256,4 +233,33 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	}
 
 	return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
+}
+
+func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAssets, history []string, secret string) error {
+	log.Info("using offline mode")
+	replacer := strings.NewReplacer(
+		kiosk.HistoryIndicator, "",
+		":", "",
+		",", "",
+	)
+
+	var filename string
+	for _, wa := range wantedAssets {
+		filename += replacer.Replace(wa)
+	}
+
+	filename = path.Join(OfflineAssetsPath, filename)
+
+	viewData, loadMsgpackErr := loadMsgpackZstd(filename)
+	if loadMsgpackErr != nil {
+		log.Error("OfflineMode: loadMsgpackZstd", "picked", filename, "err", loadMsgpackErr)
+		return loadMsgpackErr
+	}
+
+	viewData.KioskVersion = KioskVersion
+	viewData.RequestID = requestID
+	viewData.DeviceID = deviceID
+	viewData.History = history
+
+	return Render(c, http.StatusOK, imageComponent.Image(viewData, secret))
 }

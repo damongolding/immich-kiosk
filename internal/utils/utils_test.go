@@ -461,3 +461,83 @@ func TestMergeQueries(t *testing.T) {
 		})
 	}
 }
+
+func TestParseSize(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   string
+		want    int64
+		wantErr bool
+	}{
+		{
+			name:    "Valid bytes",
+			input:   "1024B",
+			want:    1024,
+			wantErr: false,
+		},
+		{
+			name:    "Valid kilobytes",
+			input:   "1KB",
+			want:    1024,
+			wantErr: false,
+		},
+		{
+			name:    "Valid megabytes",
+			input:   "1MB",
+			want:    1024 * 1024,
+			wantErr: false,
+		},
+		{
+			name:    "Valid gigabytes",
+			input:   "1GB",
+			want:    1024 * 1024 * 1024,
+			wantErr: false,
+		},
+		{
+			name:    "Invalid format",
+			input:   "1XB",
+			wantErr: true,
+		},
+		{
+			name:    "Empty string",
+			input:   "",
+			wantErr: true,
+		},
+		{
+			name:    "Invalid number",
+			input:   "abcKB",
+			wantErr: true,
+		},
+		{
+			name:    "With space",
+			input:   "1 KB",
+			want:    1024,
+			wantErr: false,
+		},
+		{
+			name:    "Lowercase units",
+			input:   "1kb",
+			want:    1024,
+			wantErr: false,
+		},
+		{
+			name:    "Mixed case",
+			input:   "1Kb",
+			want:    1024,
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ParseSize(tt.input)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ParseSize() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr && got != tt.want {
+				t.Errorf("ParseSize() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -58,7 +58,7 @@ type OfflineMode struct {
 	// NumberOfAssets specifies the maximum number of assets to store in offline mode
 	NumberOfAssets int `mapstructure:"number_of_assets" default:"100"`
 	// MaxSize specifies the maximum storage size for offline assets in bytes
-	MaxSize int64 `mapstructure:"max_size" default:"1073741824"` // 1GB
+	MaxSize string `mapstructure:"max_size" default:"1GB"`
 	// ParallelDownloads specifies the maximum number of concurrent downloads in offline mode
 	ParallelDownloads int `mapstructure:"parallel_downloads" default:"4"`
 }
