@@ -266,7 +266,6 @@ func findHistoryEntry(history []string, useNextImage bool) (string, int) {
 // Returns:
 // - error if loading or rendering cached data fails
 func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAssets, history []string, secret string) error {
-	log.Info("using offline mode")
 	replacer := strings.NewReplacer(
 		kiosk.HistoryIndicator, "",
 		":", "",
