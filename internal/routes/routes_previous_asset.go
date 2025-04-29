@@ -133,7 +133,6 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	requestConfig.History[wantedHistoryEntryIndex] = kiosk.HistoryIndicator + requestConfig.History[wantedHistoryEntryIndex]
 
 	if requestConfig.UseOfflineMode {
-		log.Info("using offline mode")
 		return historyAssetOffline(c, requestID, deviceID, wantedAssets, requestConfig.History, com.Secret())
 	}
 
