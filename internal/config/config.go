@@ -167,6 +167,8 @@ type Config struct {
 	ShowUser bool `json:"showUser" mapstructure:"show_user" query:"show_user" form:"show_user" default:"false"`
 	// SelectedUser selected user from User for the specific request
 	SelectedUser string `json:"selectedUser" default:""`
+	// ShowOwner whether to display owner
+	ShowOwner bool `json:"showOwner" mapstructure:"show_owner" query:"show_owner" form:"show_owner" default:"false"`
 
 	// DisableNavigation remove navigation
 	DisableNavigation bool `json:"disableNavigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
