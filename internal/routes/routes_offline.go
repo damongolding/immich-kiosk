@@ -15,6 +15,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -152,10 +153,13 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 	}
 
 	eg, _ := errgroup.WithContext(com.Context())
-	eg.SetLimit(parallelDownloads)
+	eg.SetLimit(min(parallelDownloads, numberOfAssets))
 
 	var offlineSize atomic.Int64
 	var createdFiles sync.Map
+	var maxReached atomic.Bool
+
+	startTime := time.Now()
 
 	for range numberOfAssets {
 		eg.Go(func() error {
@@ -163,9 +167,12 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 			for range 3 {
 
 				if maxSize != 0 && offlineSize.Load() >= maxSize {
-					humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
-					humanMaxSize := humanize.Bytes(uint64(maxSize))
-					log.Warn("SaveOfflineAsset: max storage size reached", "offlineSize", humanOfflineSize, "maxOfflineSize", humanMaxSize)
+					if !maxReached.Load() {
+						maxReached.Store(true)
+						humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
+						humanMaxSize := humanize.Bytes(uint64(maxSize))
+						log.Warn("SaveOfflineAsset: max offline storage size reached", "total assets saved", humanOfflineSize, "maxOfflineSize", humanMaxSize)
+					}
 					return nil
 				}
 
@@ -198,11 +205,10 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 
 				createdFiles.Store(filename, true)
 
-				return saveMsgpackZstd(filename, viewData, &offlineSize)
+				return saveMsgpackZstd(filename, viewData, &offlineSize, maxSize, &maxReached)
 			}
 
 			return errors.New("DownloadOfflineAssets: max tries reached")
-
 		})
 	}
 
@@ -212,14 +218,34 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 		return err
 	}
 
+	duration := time.Since(startTime).Seconds()
+
+	size := 0
+	createdFiles.Range(func(_, _ any) bool {
+		size++
+		return true
+	})
+
+	log.Info(fmt.Sprintf("%v offline assets downloaded", size), "in", fmt.Sprintf("%.2f seconds", duration))
+
 	return nil
 }
 
-func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.Int64) error {
+func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.Int64, maxSize int64, maxReached *atomic.Bool) error {
 	var buf bytes.Buffer
 	enc := msgpack.NewEncoder(&buf)
 	if err := enc.Encode(data); err != nil {
 		return err
+	}
+
+	if maxSize != 0 && offlineSize.Load() >= maxSize {
+		if !maxReached.Load() {
+			maxReached.Store(true)
+			humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
+			humanMaxSize := humanize.Bytes(uint64(maxSize))
+			log.Warn("SaveOfflineAsset: max offline storage size reached", "total assets saved", humanOfflineSize, "maxOfflineSize", humanMaxSize)
+		}
+		return nil
 	}
 
 	file, err := os.Create(filename)
@@ -239,12 +265,20 @@ func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.
 	}
 	defer encoder.Close()
 
-	_, err = encoder.Write(buf.Bytes())
-	if err != nil {
+	if _, err = encoder.Write(buf.Bytes()); err != nil {
 		return err
 	}
 
-	offlineSize.Add(int64(buf.Len()))
+	if err = encoder.Flush(); err != nil {
+		return err
+	}
+
+	fi, statErr := file.Stat()
+	if statErr != nil {
+		return statErr
+	}
+
+	offlineSize.Add(fi.Size())
 
 	return nil
 }

@@ -57,7 +57,7 @@ type OfflineMode struct {
 	Enabled bool `mapstructure:"enabled" default:"false"`
 	// NumberOfAssets specifies the maximum number of assets to store in offline mode
 	NumberOfAssets int `mapstructure:"number_of_assets" default:"100"`
-	// MaxSize specifies the maximum storage size for offline assets in bytes
+	// MaxSize specifies the maximum storage size for offline assets in a human-readable format e.g. "1GB", "2TB", "500MB"
 	MaxSize string `mapstructure:"max_size" default:"1GB"`
 	// ParallelDownloads specifies the maximum number of concurrent downloads in offline mode
 	ParallelDownloads int `mapstructure:"parallel_downloads" default:"4"`
@@ -469,6 +469,7 @@ func (c *Config) Load() error {
 	c.checkDebuging()
 	c.checkFetchedAssetsSize()
 	c.checkRedirects()
+	c.checkOffline()
 
 	return nil
 }

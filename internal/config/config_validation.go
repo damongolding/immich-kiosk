@@ -329,3 +329,22 @@ func (c *Config) checkAlbumOrder() {
 		c.AlbumOrder = AlbumOrderRandom
 	}
 }
+
+func (c *Config) checkOffline() {
+	if c.Kiosk.ExperimentalOfflineMode.Enabled {
+		if c.Kiosk.ExperimentalOfflineMode.NumberOfAssets <= 0 {
+			log.Warn("Invalid number_of_assets value: %d. Using default: 100", "number_of_assets", c.Kiosk.ExperimentalOfflineMode.NumberOfAssets)
+			c.Kiosk.ExperimentalOfflineMode.NumberOfAssets = 100
+		}
+
+		if c.Kiosk.ExperimentalOfflineMode.MaxSize == "" {
+			log.Warn("Invalid max_size value: %s. Using default: 1GB", "max_size", c.Kiosk.ExperimentalOfflineMode.MaxSize)
+			c.Kiosk.ExperimentalOfflineMode.MaxSize = "1GB"
+		}
+
+		if c.Kiosk.ExperimentalOfflineMode.ParallelDownloads <= 0 {
+			log.Warn("Invalid parallel_downloads value: %d. Using default: 4", "parallel_downloads", c.Kiosk.ExperimentalOfflineMode.ParallelDownloads)
+			c.Kiosk.ExperimentalOfflineMode.ParallelDownloads = 4
+		}
+	}
+}
