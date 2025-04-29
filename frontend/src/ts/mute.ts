@@ -14,6 +14,7 @@ function mute() {
   muteVideo();
   muteButton?.classList.add("is-muted");
   isMuted = true;
+  storageUtils.set("kioskVideoIsMuted", isMuted);
 }
 
 /**
@@ -23,6 +24,7 @@ function unmute() {
   unmuteVideo();
   muteButton?.classList.remove("is-muted");
   isMuted = false;
+  storageUtils.set("kioskVideoIsMuted", isMuted);
 }
 
 /**
@@ -30,7 +32,6 @@ function unmute() {
  */
 function toggleMute() {
   isMuted ? unmute() : mute();
-  storageUtils.set("kioskVideoIsMuted", isMuted);
 }
 
 /**
@@ -41,4 +42,4 @@ function getMuteState(): boolean {
   return isMuted;
 }
 
-export { toggleMute, getMuteState };
+export { toggleMute, getMuteState, unmute };

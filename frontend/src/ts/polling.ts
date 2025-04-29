@@ -1,6 +1,7 @@
 import htmx from "htmx.org";
 import { hideAssetOverlay } from "./menu";
-import { getMuteState } from "./mute";
+import { getMuteState, unmute } from "./mute";
+import { storageUtils } from "./storage";
 
 /**
  * Represents a source for progress tracking, either an image or video
@@ -229,7 +230,14 @@ class PollingController {
       return;
     }
 
-    this.video.muted = getMuteState();
+    if (navigator.userActivation?.hasBeenActive && localStorage) {
+      const kioskVideoIsMuted = storageUtils.get<boolean>("kioskVideoIsMuted");
+      if (kioskVideoIsMuted !== null && !kioskVideoIsMuted) {
+        unmute();
+      }
+    } else {
+      this.video.muted = getMuteState();
+    }
 
     // Setup timeout to check if video starts playing
     this.playTimeout = setTimeout(() => {
