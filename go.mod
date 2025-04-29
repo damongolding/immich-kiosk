@@ -12,7 +12,7 @@ require (
 	github.com/goodsign/monday v1.0.2
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
-	github.com/klauspost/compress v1.16.7
+	github.com/klauspost/compress v1.18.0
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/oapi-codegen/runtime v1.1.1
@@ -20,7 +20,7 @@ require (
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
-	github.com/vmihailenco/msgpack/v5 v5.3.5
+	github.com/vmihailenco/msgpack/v5 v5.4.1
 	golang.org/x/image v0.26.0
 	golang.org/x/sync v0.13.0
 	golang.org/x/text v0.24.0

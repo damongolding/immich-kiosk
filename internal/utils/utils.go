@@ -755,7 +755,7 @@ func ParseSize(sizeStr string) (int64, error) {
 
 	bytes, err := strconv.ParseInt(matches[1], 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("invalid number: %v", err)
+		return 0, fmt.Errorf("invalid number: %w", err)
 	}
 
 	unit := strings.ToUpper(matches[2])

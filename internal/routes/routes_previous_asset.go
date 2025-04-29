@@ -248,6 +248,8 @@ func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAsset
 		filename += replacer.Replace(wa)
 	}
 
+	filename = generateCacheFilename(filename)
+
 	filename = path.Join(OfflineAssetsPath, filename)
 
 	viewData, loadMsgpackErr := loadMsgpackZstd(filename)

@@ -2,7 +2,10 @@ package routes
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"io"
 	"math/rand/v2"
 	"net/http"
@@ -83,7 +86,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		if len(nonDotFiles) == 0 {
 			requestCtx := common.CopyContext(c)
 			go func(c common.ContextCopy) {
-				downloadErr := DownloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
+				downloadErr := downloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
 				if downloadErr != nil {
 					log.Error("OfflineMode: DownloadOfflineAssets", "err", downloadErr)
 				}
@@ -91,7 +94,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 			return Render(c, http.StatusOK, partials.Message(partials.MessageData{
 				Title:         "Downloading Assets",
-				Message:       "Chicken pie",
+				Message:       fmt.Sprintf("Getting %v assets with a storage max capacity of %s", requestConfig.Kiosk.ExperimentalOfflineMode.NumberOfAssets, requestConfig.Kiosk.ExperimentalOfflineMode.MaxSize),
 				IsDownloading: true,
 			}))
 		}
@@ -104,12 +107,10 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 			picked := nonDotFiles[rand.IntN(len(nonDotFiles))]
 
+			// check if file has already been picked (in history)
 			if slices.Contains(historyAsFilenames, picked) {
-				log.Info("Same file!", "file", picked, "history", requestConfig.History)
 				continue
 			}
-
-			log.Info("Picked", "file", picked, "history", requestConfig.History)
 
 			picked = path.Join(OfflineAssetsPath, picked)
 
@@ -129,11 +130,14 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 		}
 
-		return c.String(http.StatusNotFound, "No offline assets found")
+		return Render(c, http.StatusOK, partials.Error(partials.ErrorData{
+			Message: "No offline assets found",
+		}))
+
 	}
 }
 
-func DownloadOfflineAssets(requestConfig config.Config, requestCtx common.ContextCopy, com *common.Common, requestID, deviceID string) error {
+func downloadOfflineAssets(requestConfig config.Config, requestCtx common.ContextCopy, com *common.Common, requestID, deviceID string) error {
 
 	if !mu.TryLock() {
 		return errors.New("DownloadOfflineAssets is already running")
@@ -153,7 +157,7 @@ func DownloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 	var offlineSize atomic.Int64
 	var createdFiles sync.Map
 
-	for i := range numberOfAssets {
+	for range numberOfAssets {
 		eg.Go(func() error {
 
 			for range 3 {
@@ -162,14 +166,13 @@ func DownloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 					humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
 					humanMaxSize := humanize.Bytes(uint64(maxSize))
 					log.Warn("SaveOfflineAsset: max storage size reached", "offlineSize", humanOfflineSize, "maxOfflineSize", humanMaxSize)
-					defer log.Info("Done", "#", i, "filename", "")
 					return nil
 				}
 
 				viewData, err := generateViewData(requestConfig, requestCtx, requestID, deviceID, false)
 				if err != nil {
 					log.Error("SaveOfflineAsset: generateViewData", "err", err)
-					return err
+					continue
 				}
 
 				viewData.UseOfflineMode = true
@@ -181,24 +184,22 @@ func DownloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 					filename += asset.ImmichAsset.ID + asset.User
 				}
 
+				filename = generateCacheFilename(filename)
+
 				filename = path.Join(OfflineAssetsPath, filename)
 
 				if _, exists := createdFiles.Load(filename); exists {
-					log.Warn("file already exists (in memory)", "filename", filename)
 					continue
 				}
 
 				if _, err = os.Stat(filename); err == nil {
-					log.Warn("file already exists (on disk)", "filename", filename)
 					continue
 				}
 
 				createdFiles.Store(filename, true)
 
-				return saveMsgpackZstd(i, filename, viewData, &offlineSize)
+				return saveMsgpackZstd(filename, viewData, &offlineSize)
 			}
-
-			log.Error("DownloadOfflineAssets: max tries reached")
 
 			return errors.New("DownloadOfflineAssets: max tries reached")
 
@@ -207,14 +208,14 @@ func DownloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 
 	err := eg.Wait()
 	if err != nil {
-		log.Error("DownloadOfflineAssets", "err", err)
+		log.Error("DownloadOfflineAssets finished with", "err", err)
 		return err
 	}
 
 	return nil
 }
 
-func saveMsgpackZstd(i int, filename string, data common.ViewData, offlineSize *atomic.Int64) error {
+func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.Int64) error {
 	var buf bytes.Buffer
 	enc := msgpack.NewEncoder(&buf)
 	if err := enc.Encode(data); err != nil {
@@ -245,8 +246,6 @@ func saveMsgpackZstd(i int, filename string, data common.ViewData, offlineSize *
 
 	offlineSize.Add(int64(buf.Len()))
 
-	log.Info("Done", "#", i, "filename", filename)
-
 	return nil
 }
 
@@ -273,4 +272,9 @@ func loadMsgpackZstd(filename string) (common.ViewData, error) {
 	dec := msgpack.NewDecoder(buf)
 	err = dec.Decode(&viewData)
 	return viewData, err
+}
+
+func generateCacheFilename(uuids ...string) string {
+	hash := sha256.Sum256([]byte(strings.Join(uuids, "")))
+	return hex.EncodeToString(hash[:])
 }
