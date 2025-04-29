@@ -77,6 +77,7 @@ image_effect_amount: 120
 use_original_image: false # use the original file.
 
 ## Image METADATA
+show_owner: false # show the owner of the image
 show_album_name: false
 show_person_name: false
 show_person_age: false
