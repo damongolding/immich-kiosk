@@ -60,7 +60,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		)
 		historyAsFilenames := make([]string, len(requestConfig.History))
 		for i, h := range requestConfig.History {
-			historyAsFilenames[i] = replacer.Replace(h)
+			historyAsFilenames[i] = generateCacheFilename(replacer.Replace(h))
 		}
 
 		if _, err = os.Stat(OfflineAssetsPath); os.IsNotExist(err) {
@@ -167,12 +167,16 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 
 			for range 3 {
 
-				if maxSize != 0 && offlineSize.Load() >= maxSize {
+				sizeSoFar := offlineSize.Load()
+				if maxSize != 0 && sizeSoFar >= maxSize {
 					if !maxReached.Load() {
 						maxReached.Store(true)
 						humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
 						humanMaxSize := humanize.Bytes(uint64(maxSize))
-						log.Warn("SaveOfflineAsset: max offline storage size reached", "total assets saved", humanOfflineSize, "maxOfflineSize", humanMaxSize)
+						log.Warn("SaveOfflineAsset: max offline storage size reached",
+							"total assets saved", humanOfflineSize,
+							"maxOfflineSize", humanMaxSize,
+						)
 					}
 					return nil
 				}
@@ -206,7 +210,7 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 
 				createdFiles.Store(filename, true)
 
-				return saveMsgpackZstd(filename, viewData, &offlineSize, maxSize, &maxReached)
+				return saveMsgpackZstd(filename, viewData, &offlineSize, maxSize, &maxReached, &createdFiles)
 			}
 
 			return errors.New("DownloadOfflineAssets: max tries reached")
@@ -232,14 +236,20 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 	return nil
 }
 
-func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.Int64, maxSize int64, maxReached *atomic.Bool) error {
+func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.Int64, maxSize int64, maxReached *atomic.Bool, createdFiles *sync.Map) error {
+
+	defer func() {
+		createdFiles.Delete(filename)
+	}()
+
 	var buf bytes.Buffer
 	enc := msgpack.NewEncoder(&buf)
 	if err := enc.Encode(data); err != nil {
 		return err
 	}
 
-	if maxSize != 0 && offlineSize.Load() >= maxSize {
+	sizeSoFar := offlineSize.Load()
+	if maxSize != 0 && sizeSoFar+int64(buf.Len()) >= maxSize {
 		if !maxReached.Load() {
 			maxReached.Store(true)
 			humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
@@ -249,18 +259,26 @@ func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.
 		return nil
 	}
 
-	file, err := os.Create(filename)
+	tmp, err := os.CreateTemp(path.Dir(filename), ".offline-*")
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		tmp.Close()
+		if tmp != nil {
+			removeErr := os.Remove(tmp.Name())
+			if removeErr != nil {
+				log.Error("SaveOfflineAsset: failed to remove temporary file", "error", removeErr)
+			}
+		}
+	}()
 
 	compressionLevel := zstd.SpeedFastest
 	if buf.Len() > 1024*1024 {
 		compressionLevel = zstd.SpeedBestCompression
 	}
 
-	encoder, err := zstd.NewWriter(file, zstd.WithEncoderLevel(compressionLevel))
+	encoder, err := zstd.NewWriter(tmp, zstd.WithEncoderLevel(compressionLevel))
 	if err != nil {
 		return err
 	}
@@ -274,12 +292,24 @@ func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.
 		return err
 	}
 
-	fi, statErr := file.Stat()
+	fi, statErr := tmp.Stat()
 	if statErr != nil {
 		return statErr
 	}
 
-	offlineSize.Add(fi.Size())
+	if newTotal := offlineSize.Add(fi.Size()); maxSize != 0 && newTotal > maxSize {
+		offlineSize.Add(-fi.Size())
+		return nil
+	}
+
+	if err = os.Rename(tmp.Name(), filename); err != nil {
+		offlineSize.Add(-fi.Size())
+		return err
+	}
+
+	// prevent deferred removal
+	tmp = nil
+	filename = ""
 
 	return nil
 }
