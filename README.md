@@ -453,6 +453,8 @@ See the file `config.example.yaml` for an example config file
 | immich_users_api_keys             | N/A                     | map[string]string          | {}          | key:value mappings of Immich usernames to their corresponding API keys. See [multiple users](#multiple-users) for more information. |
 | show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information. |
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
+| use_offline_mode                  | KIOSK_USE_OFFLINE_MODE  | bool                       | false       | Enable offline mode for the device. See [offline mode](#offline-mode) for more information. |
+| [offline_mode](#offline-mode)     | N/A                     | OfflineMode{}              | OfflineMode{} | Enable offline mode. See [offline mode](#offline-mode) for more information. |
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
@@ -1254,6 +1256,50 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
 ```
 
 ------
+
+## Offline Mode
+
+> [!IMPORTANT]
+> If you are using Docker and want offline assets to persist between container restarts, you will need to mount a volume to the container.
+> e.g.
+> ```yaml
+> volumes:
+>   - /path/to/offline-assets:/offline-assets
+> ```
+
+> [!IMPORTANT]
+> Offline Mode will only use your base config (ENV or config.yaml), it will not use any url parameters.
+
+Offline Mode allows you to download assets for offline viewing.
+This feature is useful when you want to view your photos without an active connection to Immich (after download).
+
+### Offline Mode Configuration Options:
+
+| **Value**          | **Default** | **Description**                                               |
+|--------------------|-------------|---------------------------------------------------------------|
+| enabled            | false       | Enable offline mode                                           |
+| number_of_assets   | 100         | Target number of assets to download                           |
+| max_size           | 0           | Disk space assets are allowed to take up. You can use `mb`, `gb`, `tb`, etc. 0 = no limit |
+| parallel_downloads | 4           | Number of assets to download in parallel                      |
+| expiration_hours   | 0           | Number of hours before assets expire. 0 = assets never expire |
+
+### Example Configuration
+
+Here's an example configuration for offline mode:
+- Downloads up to 500 assets
+- Limits total disk usage to 50MB
+- Deletes downloaded assets after 24 hours
+
+```yaml
+offline_mode:
+  enabled: true
+  number_of_assets: 500
+  max_size: 50mb
+  expiration_hours: 24
+```
+
+------
+
 
 ## Navigation Controls
 

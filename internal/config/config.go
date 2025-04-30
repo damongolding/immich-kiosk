@@ -339,7 +339,7 @@ type Config struct {
 	// History past shown images
 	History []string `json:"history" form:"history" default:"[]"`
 
-	UseOfflineMode bool `json:"useOfflineMode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
+	UseOfflineMode bool `json:"useOfflineMode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
 
 	OfflineMode OfflineMode `json:"offlineMode" mapstructure:"offline_mode"`
 }
