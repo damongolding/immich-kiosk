@@ -252,7 +252,11 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 
 	imgBytes, err := immichAsset.ImagePreview()
 	if err != nil {
-		log.Error("getting image preview", "err", err)
+		log.Error("getting image preview for video", "id", videoID, "err", err)
+
+		log.Debug("downloaded video", "path", filePath)
+		v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestURL, immichAsset, "", "")
+		return
 	}
 
 	img, err := utils.BytesToImage(imgBytes)

@@ -1361,7 +1361,7 @@ Each redirect consists of:
 - `url`: The destination URL where users will be redirected to
 - `type`: Optional field that controls URL behavior:
   - `internal`: The default behavior that keeps the URL unchanged during redirection (useful for maintaining browser history)
-  - `external`: Allows URL changes during redirection (default if omitted)
+  - `external`: Allows URL changes during redirection
 
 ### Examples
 
