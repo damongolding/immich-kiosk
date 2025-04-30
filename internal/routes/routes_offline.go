@@ -12,7 +12,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -32,7 +31,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const OfflineAssetsPath = "./offline-assets"
+const (
+	OfflineAssetsPath         = "./offline-assets"
+	OfflineExpirationFilename = "_expiration"
+)
 
 func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -75,7 +77,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 		files, readDirErr := os.ReadDir(OfflineAssetsPath)
 		if readDirErr != nil {
-			log.Error("OfflineMode", "err", readDirErr)
+			log.Error("OfflineMode: ReadDir", "err", readDirErr)
 			return readDirErr
 		}
 
@@ -90,14 +92,14 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			return handleNoOfflineAssets(c, requestConfig, com, requestID, deviceID)
 		}
 
-		expirationContent, expirationErr := os.ReadFile(filepath.Join(OfflineAssetsPath, "_expiration"))
-		if expirationErr != nil && len(nonDotFiles) != 0 {
+		expirationContent, expirationErr := os.ReadFile(filepath.Join(OfflineAssetsPath, OfflineExpirationFilename))
+		if expirationErr != nil {
 			log.Warn("expiration missing", "err", expirationErr)
 			return expirationErr
 		}
-		expirationTime, timeparseErr := time.Parse(time.RFC3339, string(expirationContent))
+		expirationTime, timeparseErr := time.Parse(time.RFC3339, strings.TrimSpace(string(expirationContent)))
 		if timeparseErr != nil {
-			log.Error("OfflineMode", "err", err)
+			log.Error("OfflineMode", "err", timeparseErr)
 			return err
 		}
 
@@ -110,6 +112,11 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			return handleNoOfflineAssets(c, requestConfig, com, requestID, deviceID)
 		}
 
+		// check for duplicates if we have more assets then the history limit
+		if len(nonDotFiles) > kiosk.HistoryLimit {
+			utils.RemoveDuplicatesInPlace(&nonDotFiles, historyAsFilenames)
+		}
+
 		for range 3 {
 
 			if len(nonDotFiles) == 0 {
@@ -118,10 +125,13 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 			picked := nonDotFiles[rand.IntN(len(nonDotFiles))]
 
-			// check if file has already been picked (in history)
-			if slices.Contains(historyAsFilenames, picked) {
-				continue
-			}
+			// // check if file has already been picked (in history)
+			// if len(historyAsFilenames) < len(nonDotFiles) {
+			// 	if slices.Contains(historyAsFilenames, picked) {
+			// 		log.Info("Offline asset already picked", "history", historyAsFilenames, "all files", nonDotFiles)
+			// 		continue
+			// 	}
+			// }
 
 			picked = filepath.Join(OfflineAssetsPath, picked)
 
@@ -142,6 +152,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		}
 
 		return Render(c, http.StatusOK, partials.Error(partials.ErrorData{
+			Title:   "No offline assets found",
 			Message: "No offline assets found",
 		}))
 
@@ -171,7 +182,7 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 
 	startTime := time.Now()
 
-	expiration, expirationErr := os.Create(filepath.Join(OfflineAssetsPath, "_expiration"))
+	expiration, expirationErr := os.Create(filepath.Join(OfflineAssetsPath, OfflineExpirationFilename))
 	if expirationErr != nil {
 		return expirationErr
 	}

@@ -781,6 +781,9 @@ func ParseSize(sizeStr string) (int64, error) {
 	}
 }
 
+// CleanDirectory removes all files and directories within the specified directory path.
+// It reads the directory contents and recursively removes each entry using os.RemoveAll.
+// Returns an error if the directory cannot be read or if any removal operation fails.
 func CleanDirectory(dirPath string) error {
 	dir, err := os.ReadDir(dirPath)
 	if err != nil {
@@ -794,4 +797,24 @@ func CleanDirectory(dirPath string) error {
 		}
 	}
 	return nil
+}
+
+// RemoveDuplicatesInPlace modifies the first slice by removing any strings that are present in the second slice.
+// It uses a map for O(1) lookups of strings in the second slice and performs the removal in-place.
+// The operation preserves the relative order of remaining elements in the first slice.
+// The first slice is modified directly and truncated to the new length containing only unique elements.
+func RemoveDuplicatesInPlace(slice1 *[]string, slice2 []string) {
+	lookup := make(map[string]struct{})
+	for _, s := range slice2 {
+		lookup[s] = struct{}{}
+	}
+
+	j := 0
+	for i := range *slice1 {
+		if _, exists := lookup[(*slice1)[i]]; !exists {
+			(*slice1)[j] = (*slice1)[i]
+			j++
+		}
+	}
+	*slice1 = (*slice1)[:j]
 }
