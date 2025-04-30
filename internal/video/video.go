@@ -223,9 +223,9 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 	defer v.removeFromQueue(videoID)
 
 	// Get the video data
-	videoBytes, _, err := immichAsset.Video()
-	if err != nil {
-		log.Error("getting video", "err", err)
+	videoBytes, _, videoBytesErr := immichAsset.Video()
+	if videoBytesErr != nil {
+		log.Error("getting video", "err", videoBytesErr)
 		return
 	}
 
@@ -236,59 +236,59 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 	filePath := filepath.Join(customTempVideoDir, filename)
 
 	// Create a file to save the video
-	out, err := os.Create(filePath)
-	if err != nil {
-		log.Error("Error creating video file", "err", err)
+	videoFile, videoFileErr := os.Create(filePath)
+	if videoFileErr != nil {
+		log.Error("Error creating video file", "err", videoFileErr)
 		return
 	}
-	defer out.Close()
+	defer videoFile.Close()
 
 	// Write the video data to the file
-	_, err = out.Write(videoBytes)
-	if err != nil {
-		log.Error("Error writing video file", "err", err)
+	_, videoFileErr = videoFile.Write(videoBytes)
+	if videoFileErr != nil {
+		log.Error("Error writing video file", "err", videoFileErr)
 		return
 	}
 
-	imgBytes, err := immichAsset.ImagePreview()
-	if err != nil {
-		log.Error("getting image preview for video", "id", videoID, "err", err)
+	var imageData, imageBlurData string
 
+	defer func() {
 		log.Debug("downloaded video", "path", filePath)
-		v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestURL, immichAsset, "", "")
+		v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestURL, immichAsset, imageData, imageBlurData)
+	}()
+
+	imgBytes, imgBytesErr := immichAsset.ImagePreview()
+	if imgBytesErr != nil {
+		log.Error("getting image preview for video", "id", videoID, "err", imgBytesErr)
 		return
 	}
 
-	img, err := utils.BytesToImage(imgBytes)
-	if err != nil {
-		log.Error("image BytesToImage", "err", err)
+	img, imgErr := utils.BytesToImage(imgBytes)
+	if imgErr != nil {
+		log.Error("image BytesToImage", "err", imgErr)
 	}
 
 	img = utils.ApplyExifOrientation(img, immichAsset.IsLandscape, immichAsset.ExifInfo.Orientation)
 
 	if requestConfig.OptimizeImages {
-		img, err = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
-		if err != nil {
-			log.Error("OptimizeImages", "err", err)
+		img, imgErr = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
+		if imgErr != nil {
+			log.Error("OptimizeImages", "err", imgErr)
 		}
 	}
 
-	imgBlur, err := utils.BlurImage(img, requestConfig.BackgroundBlurAmount, false, 0, 0)
-	if err != nil {
-		log.Error("getting image preview", "err", err)
+	imgBlur, imgBlurErr := utils.BlurImage(img, requestConfig.BackgroundBlurAmount, false, 0, 0)
+	if imgBlurErr != nil {
+		log.Error("getting image preview", "err", imgBlurErr)
 	}
 
-	imageData, err := utils.ImageToBase64(img)
-	if err != nil {
-		log.Error("converting image to base64", "err", err)
+	imageData, imageDataErr := utils.ImageToBase64(img)
+	if imageDataErr != nil {
+		log.Error("converting image to base64", "err", imageDataErr)
 	}
 
 	imageBlurData, err := utils.ImageToBase64(imgBlur)
 	if err != nil {
 		log.Error("converting image to base64", "err", err)
 	}
-
-	log.Debug("downloaded video", "path", filePath)
-
-	v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestURL, immichAsset, imageData, imageBlurData)
 }
