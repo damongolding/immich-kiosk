@@ -23,6 +23,8 @@ import {
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
+import { toggleMute } from "./mute";
+import { storageUtils } from "./storage";
 
 ("use strict");
 
@@ -104,6 +106,9 @@ const nextImageMenuButton = htmx.find(
 ) as HTMLElement | null;
 const prevImageMenuButton = htmx.find(
   ".navigation--prev-asset",
+) as HTMLElement | null;
+const toggleMuteMenuButton = htmx.find(
+  ".navigation--mute",
 ) as HTMLElement | null;
 const moreInfoButton = htmx.find(
   ".navigation--more-info",
@@ -248,6 +253,7 @@ function handleRedirectsKeyPress(): void {
  * - Image overlay visibility control
  * - HTMX error handling for offline detection
  * - Server connectivity status monitoring and display
+ * - Mute button handling
  */
 function addEventListeners(): void {
   // Unable to send ajax. probably offline.
@@ -335,12 +341,21 @@ function addEventListeners(): void {
         e.preventDefault();
         handleRedirectsKeyPress();
         break;
+
+      case "KeyM":
+        if (!toggleMuteMenuButton) return;
+        e.preventDefault();
+        toggleMute();
+        break;
     }
   });
 
   // Fullscreen
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
+
+  // Toggle mute
+  toggleMuteMenuButton?.addEventListener("click", toggleMute);
 
   // More info overlay
   moreInfoButton?.addEventListener("click", () => toggleAssetOverlay());
