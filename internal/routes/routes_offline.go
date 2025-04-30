@@ -280,26 +280,14 @@ func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.
 		return err
 	}
 
-	sizeSoFar := offlineSize.Load()
-	if maxSize != 0 && sizeSoFar+int64(buf.Len()) >= maxSize {
-		if !maxReached.Load() {
-			maxReached.Store(true)
-			humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
-			humanMaxSize := humanize.Bytes(uint64(maxSize))
-			log.Warn("SaveOfflineAsset: max offline storage size reached", "total assets saved", humanOfflineSize, "maxOfflineSize", humanMaxSize)
-		}
-		return nil
-	}
-
 	tmp, err := os.CreateTemp(path.Dir(filename), ".offline-*")
 	if err != nil {
 		return err
 	}
 	defer func() {
-		tmp.Close()
 		if tmp != nil {
-			removeErr := os.Remove(tmp.Name())
-			if removeErr != nil {
+			_ = tmp.Close()
+			if removeErr := os.Remove(tmp.Name()); removeErr != nil {
 				log.Error("SaveOfflineAsset: failed to remove temporary file", "error", removeErr)
 			}
 		}
@@ -330,6 +318,12 @@ func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.
 	}
 
 	if newTotal := offlineSize.Add(fi.Size()); maxSize != 0 && newTotal > maxSize {
+		if !maxReached.Load() {
+			maxReached.Store(true)
+			humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
+			humanMaxSize := humanize.Bytes(uint64(maxSize))
+			log.Warn("SaveOfflineAsset: max offline storage size reached", "total assets saved", humanOfflineSize, "maxOfflineSize", humanMaxSize)
+		}
 		offlineSize.Add(-fi.Size())
 		return nil
 	}
