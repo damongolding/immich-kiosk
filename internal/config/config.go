@@ -62,7 +62,7 @@ type OfflineMode struct {
 	// ParallelDownloads specifies the maximum number of concurrent downloads in offline mode
 	ParallelDownloads int `mapstructure:"parallel_downloads" default:"4"`
 	// ExpirationHours specifies how long offline assets should be kept before being considered expired (in hours)
-	ExpirationHours int `mapstructure:"expiration_hours" default:"72"`
+	ExpirationHours int `mapstructure:"expiration_hours" default:"0"`
 }
 
 // Redirect represents a URL redirection configuration with a friendly name.

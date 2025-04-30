@@ -92,24 +92,14 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			return handleNoOfflineAssets(c, requestConfig, com, requestID, deviceID)
 		}
 
-		expirationContent, expirationErr := os.ReadFile(filepath.Join(OfflineAssetsPath, OfflineExpirationFilename))
-		if expirationErr != nil {
-			log.Warn("expiration missing", "err", expirationErr)
-			return expirationErr
-		}
-		expirationTime, timeparseErr := time.Parse(time.RFC3339, strings.TrimSpace(string(expirationContent)))
-		if timeparseErr != nil {
-			log.Error("OfflineMode", "err", timeparseErr)
-			return err
-		}
-
-		if time.Now().After(expirationTime) {
-			log.Info("Offline assets have expired")
-			cleanErr := utils.CleanDirectory(OfflineAssetsPath)
-			if cleanErr != nil {
-				log.Error("Failed to clean offline assets directory", "err", cleanErr)
+		if requestConfig.OfflineMode.ExpirationHours > 0 {
+			expired, expiredErr := checkOfflineAssetsExpiration()
+			if expiredErr != nil {
+				return expiredErr
 			}
-			return handleNoOfflineAssets(c, requestConfig, com, requestID, deviceID)
+			if expired {
+				return handleNoOfflineAssets(c, requestConfig, com, requestID, deviceID)
+			}
 		}
 
 		// check for duplicates if we have more assets then the history limit
@@ -151,6 +141,22 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 	}
 }
 
+// downloadOfflineAssets downloads and caches assets for offline mode viewing.
+// It manages parallel downloads, enforces size limits, and handles expiration.
+//
+// Parameters:
+//   - requestConfig: Configuration for the download request including parallel downloads,
+//     number of assets, and max size limits
+//   - requestCtx: Copy of the request context for async operations
+//   - com: Common context and utilities
+//   - requestID: Unique ID for this request
+//   - deviceID: ID of the requesting device
+//
+// Returns an error if:
+//   - Another download is already in progress
+//   - Max size parsing fails
+//   - File operations fail
+//   - Asset downloads fail
 func downloadOfflineAssets(requestConfig config.Config, requestCtx common.ContextCopy, com *common.Common, requestID, deviceID string) error {
 
 	if !mu.TryLock() {
@@ -374,6 +380,22 @@ func generateCacheFilename(uuids ...string) string {
 	return hex.EncodeToString(hash[:])
 }
 
+// handleNoOfflineAssets handles the case when no offline assets are available.
+// It initiates an asynchronous download of assets and displays a status message to the user.
+//
+// Parameters:
+//   - c: The Echo context
+//   - requestConfig: Configuration for the request including offline mode settings
+//   - com: Common context and utilities
+//   - requestID: Unique ID for this request
+//   - deviceID: ID of the requesting device
+//
+// The function:
+//  1. Starts asynchronous download of offline assets
+//  2. Formats user-friendly messages about storage limits and expiration
+//  3. Renders a status page with download information
+//
+// Returns an error if the render operation fails
 func handleNoOfflineAssets(c echo.Context, requestConfig config.Config, com *common.Common, requestID, deviceID string) error {
 	requestCtx := common.CopyContext(c)
 	go func(c common.ContextCopy) {
@@ -383,9 +405,71 @@ func handleNoOfflineAssets(c echo.Context, requestConfig config.Config, com *com
 		}
 	}(requestCtx)
 
+	maxSizeMessage := "None"
+	if requestConfig.OfflineMode.MaxSize != "0" {
+		maxSizeMessage = strings.ToUpper(requestConfig.OfflineMode.MaxSize)
+	}
+
+	expirayMessage := "None"
+	hours := requestConfig.OfflineMode.ExpirationHours
+	if hours > 0 {
+		switch hours {
+		case 1:
+			expirayMessage = fmt.Sprintf("%d hour", hours)
+		default:
+			expirayMessage = fmt.Sprintf("%d hours", hours)
+		}
+	}
+
+	message := fmt.Sprintf(`
+		<ul>
+			<li>Limit: <strong>%v</strong> assets</li>
+			<li>Storage Capacity: <strong>%s</strong> </li>
+			<li>Expiration: <strong>%s</strong></li>
+		</ul>
+		`,
+		requestConfig.OfflineMode.NumberOfAssets,
+		maxSizeMessage,
+		expirayMessage,
+	)
+
 	return Render(c, http.StatusOK, partials.Message(partials.MessageData{
 		Title:         "Downloading Assets",
-		Message:       fmt.Sprintf("Getting %v assets with a storage max capacity of %s", requestConfig.OfflineMode.NumberOfAssets, requestConfig.OfflineMode.MaxSize),
+		Message:       message,
 		IsDownloading: true,
 	}))
+}
+
+// checkOfflineAssetsExpiration checks if cached offline assets have expired based on
+// the expiration time stored in the _expiration file.
+//
+// It reads the expiration timestamp from the file, parses it, and compares it to the
+// current time. If the assets have expired, it cleans up the offline assets directory.
+//
+// Returns:
+//   - bool: true if assets have expired, false otherwise
+//   - error: any error encountered during the process
+func checkOfflineAssetsExpiration() (bool, error) {
+	expirationContent, expirationErr := os.ReadFile(filepath.Join(OfflineAssetsPath, OfflineExpirationFilename))
+	if expirationErr != nil {
+		log.Warn("expiration missing", "err", expirationErr)
+		return false, expirationErr
+	}
+
+	expirationTime, timeparseErr := time.Parse(time.RFC3339, strings.TrimSpace(string(expirationContent)))
+	if timeparseErr != nil {
+		log.Error("OfflineMode", "err", timeparseErr)
+		return false, timeparseErr
+	}
+
+	if time.Now().After(expirationTime) {
+		log.Info("Offline assets have expired")
+		cleanErr := utils.CleanDirectory(OfflineAssetsPath)
+		if cleanErr != nil {
+			log.Error("Failed to clean offline assets directory", "err", cleanErr)
+		}
+		return true, nil
+	}
+
+	return false, nil
 }

@@ -23,8 +23,13 @@
         fill: #fff;
     }
 
-    ul li {
-        padding-bottom: 0.5rem;
+    ul {
+        padding: 0;
+        list-style-position: inside;
+        font-size: 1.3rem;
+        li {
+            padding-bottom: 0.5rem;
+        }
     }
 }
 

@@ -1805,9 +1805,14 @@ form {
     max-width: 2rem;
     fill: #fff;
   }
-.message ul li {
-    padding-bottom: 0.5rem;
+.message ul {
+    padding: 0;
+    list-style-position: inside;
+    font-size: 1.3rem;
   }
+.message ul li {
+      padding-bottom: 0.5rem;
+    }
 .message--title {
   font-size: 2.5rem;
   margin: 1rem 0;

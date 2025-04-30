@@ -347,7 +347,7 @@ func (c *Config) checkOffline() {
 			c.OfflineMode.ParallelDownloads = 4
 		}
 
-		if c.OfflineMode.ExpirationHours <= 0 {
+		if c.OfflineMode.ExpirationHours < 0 {
 			log.Warn("Invalid expiration_hours value: %d. Using default: 72", "expiration_hours", c.OfflineMode.ExpirationHours)
 			c.OfflineMode.ExpirationHours = 72
 		}
