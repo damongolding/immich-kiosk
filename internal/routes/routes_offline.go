@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
@@ -80,25 +81,33 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 		var nonDotFiles []string
 		for _, file := range files {
-			if !file.IsDir() && file.Name()[0] != '.' {
+			if !file.IsDir() && file.Name()[0] != '.' && file.Name()[0] != '_' {
 				nonDotFiles = append(nonDotFiles, file.Name())
 			}
 		}
 
 		if len(nonDotFiles) == 0 {
-			requestCtx := common.CopyContext(c)
-			go func(c common.ContextCopy) {
-				downloadErr := downloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
-				if downloadErr != nil {
-					log.Error("OfflineMode: DownloadOfflineAssets", "err", downloadErr)
-				}
-			}(requestCtx)
+			return handleNoOfflineAssets(c, requestConfig, com, requestID, deviceID)
+		}
 
-			return Render(c, http.StatusOK, partials.Message(partials.MessageData{
-				Title:         "Downloading Assets",
-				Message:       fmt.Sprintf("Getting %v assets with a storage max capacity of %s", requestConfig.Kiosk.ExperimentalOfflineMode.NumberOfAssets, requestConfig.Kiosk.ExperimentalOfflineMode.MaxSize),
-				IsDownloading: true,
-			}))
+		expirationContent, expirationErr := os.ReadFile(filepath.Join(OfflineAssetsPath, "_expiration"))
+		if expirationErr != nil && len(nonDotFiles) != 0 {
+			log.Warn("expiration missing", "err", expirationErr)
+			return expirationErr
+		}
+		expirationTime, timeparseErr := time.Parse(time.RFC3339, string(expirationContent))
+		if timeparseErr != nil {
+			log.Error("OfflineMode", "err", err)
+			return err
+		}
+
+		if time.Now().After(expirationTime) {
+			log.Info("Offline assets have expired")
+			cleanErr := utils.CleanDirectory(OfflineAssetsPath)
+			if cleanErr != nil {
+				log.Error("Failed to clean offline assets directory", "err", cleanErr)
+			}
+			return handleNoOfflineAssets(c, requestConfig, com, requestID, deviceID)
 		}
 
 		for range 3 {
@@ -114,7 +123,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 				continue
 			}
 
-			picked = path.Join(OfflineAssetsPath, picked)
+			picked = filepath.Join(OfflineAssetsPath, picked)
 
 			viewData, loadMsgpackErr := loadMsgpackZstd(picked)
 			if loadMsgpackErr != nil {
@@ -146,9 +155,9 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 	}
 	defer mu.Unlock()
 
-	parallelDownloads := requestConfig.Kiosk.ExperimentalOfflineMode.ParallelDownloads
-	numberOfAssets := requestConfig.Kiosk.ExperimentalOfflineMode.NumberOfAssets
-	maxSize, maxSizeErr := utils.ParseSize(requestConfig.Kiosk.ExperimentalOfflineMode.MaxSize)
+	parallelDownloads := requestConfig.OfflineMode.ParallelDownloads
+	numberOfAssets := requestConfig.OfflineMode.NumberOfAssets
+	maxSize, maxSizeErr := utils.ParseSize(requestConfig.OfflineMode.MaxSize)
 	if maxSizeErr != nil {
 		return maxSizeErr
 	}
@@ -161,6 +170,17 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 	var maxReached atomic.Bool
 
 	startTime := time.Now()
+
+	expiration, expirationErr := os.Create(filepath.Join(OfflineAssetsPath, "_expiration"))
+	if expirationErr != nil {
+		return expirationErr
+	}
+	defer expiration.Close()
+
+	_, expirationErr = expiration.WriteString(startTime.Add(time.Hour * time.Duration(requestConfig.OfflineMode.ExpirationHours)).Format(time.RFC3339))
+	if expirationErr != nil {
+		return expirationErr
+	}
 
 	for range numberOfAssets {
 		eg.Go(func() error {
@@ -198,7 +218,7 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 
 				filename = generateCacheFilename(filename)
 
-				filename = path.Join(OfflineAssetsPath, filename)
+				filename = filepath.Join(OfflineAssetsPath, filename)
 
 				if _, exists := createdFiles.Load(filename); exists {
 					continue
@@ -236,6 +256,9 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 	return nil
 }
 
+// saveMsgpackZstd saves view data to a file using msgpack encoding and zstd compression.
+// It manages file size limits and updates offline storage size tracking.
+// Returns an error if encoding, compression or file operations fail.
 func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.Int64, maxSize int64, maxReached *atomic.Bool, createdFiles *sync.Map) error {
 
 	defer func() {
@@ -314,6 +337,8 @@ func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.
 	return nil
 }
 
+// loadMsgpackZstd loads and decodes a msgpack+zstd compressed file into ViewData.
+// Returns the decoded ViewData and any error encountered during the process.
 func loadMsgpackZstd(filename string) (common.ViewData, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -339,7 +364,25 @@ func loadMsgpackZstd(filename string) (common.ViewData, error) {
 	return viewData, err
 }
 
+// generateCacheFilename creates a SHA-256 hash from the concatenated UUIDs
+// and returns it as a hex-encoded string to be used as a filename.
 func generateCacheFilename(uuids ...string) string {
 	hash := sha256.Sum256([]byte(strings.Join(uuids, "")))
 	return hex.EncodeToString(hash[:])
+}
+
+func handleNoOfflineAssets(c echo.Context, requestConfig config.Config, com *common.Common, requestID, deviceID string) error {
+	requestCtx := common.CopyContext(c)
+	go func(c common.ContextCopy) {
+		downloadErr := downloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
+		if downloadErr != nil {
+			log.Error("OfflineMode: DownloadOfflineAssets", "err", downloadErr)
+		}
+	}(requestCtx)
+
+	return Render(c, http.StatusOK, partials.Message(partials.MessageData{
+		Title:         "Downloading Assets",
+		Message:       fmt.Sprintf("Getting %v assets with a storage max capacity of %s", requestConfig.OfflineMode.NumberOfAssets, requestConfig.OfflineMode.MaxSize),
+		IsDownloading: true,
+	}))
 }

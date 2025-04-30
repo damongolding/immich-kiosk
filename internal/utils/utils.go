@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
@@ -748,6 +749,11 @@ func DaysInMonth(date time.Time) int {
 // ParseSize converts a human-readable size string (e.g., "10MB", "1GB") to bytes
 // using binary prefixes (1KB = 1024B, 1MB = 1024KB, etc.)
 func ParseSize(sizeStr string) (int64, error) {
+
+	if sizeStr == "0" {
+		return 0, nil
+	}
+
 	re := regexp.MustCompile(`^(\d+)\s*([BKMGbkmg][Bb]?)$`)
 	matches := re.FindStringSubmatch(sizeStr)
 
@@ -773,4 +779,19 @@ func ParseSize(sizeStr string) (int64, error) {
 	default:
 		return 0, fmt.Errorf("unsupported unit: %s", unit)
 	}
+}
+
+func CleanDirectory(dirPath string) error {
+	dir, err := os.ReadDir(dirPath)
+	if err != nil {
+		return err
+	}
+
+	for _, d := range dir {
+		err = os.RemoveAll(filepath.Join(dirPath, d.Name()))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -58,9 +58,11 @@ type OfflineMode struct {
 	// NumberOfAssets specifies the maximum number of assets to store in offline mode
 	NumberOfAssets int `mapstructure:"number_of_assets" default:"100"`
 	// MaxSize specifies the maximum storage size for offline assets in a human-readable format e.g. "1GB", "2TB", "500MB"
-	MaxSize string `mapstructure:"max_size" default:"1GB"`
+	MaxSize string `mapstructure:"max_size" default:"0"`
 	// ParallelDownloads specifies the maximum number of concurrent downloads in offline mode
 	ParallelDownloads int `mapstructure:"parallel_downloads" default:"4"`
+	// ExpirationHours specifies how long offline assets should be kept before being considered expired (in hours)
+	ExpirationHours int `mapstructure:"expiration_hours" default:"72"`
 }
 
 // Redirect represents a URL redirection configuration with a friendly name.
@@ -108,8 +110,6 @@ type KioskSettings struct {
 	DebugVerbose bool `json:"debugVerbose" mapstructure:"debug_verbose" default:"false"`
 
 	DemoMode bool `json:"-" mapstructure:"demo_mode" default:"false"`
-
-	ExperimentalOfflineMode OfflineMode `json:"offlineMode" mapstructure:"experimental_offline_mode"`
 }
 
 type WeatherLocation struct {
@@ -340,6 +340,8 @@ type Config struct {
 	History []string `json:"history" form:"history" default:"[]"`
 
 	UseOfflineMode bool `json:"useOfflineMode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
+
+	OfflineMode OfflineMode `json:"offlineMode" mapstructure:"offline_mode"`
 }
 
 // New returns a new config pointer instance

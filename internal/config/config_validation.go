@@ -331,20 +331,25 @@ func (c *Config) checkAlbumOrder() {
 }
 
 func (c *Config) checkOffline() {
-	if c.Kiosk.ExperimentalOfflineMode.Enabled {
-		if c.Kiosk.ExperimentalOfflineMode.NumberOfAssets <= 0 {
-			log.Warn("Invalid number_of_assets value: %d. Using default: 100", "number_of_assets", c.Kiosk.ExperimentalOfflineMode.NumberOfAssets)
-			c.Kiosk.ExperimentalOfflineMode.NumberOfAssets = 100
+	if c.OfflineMode.Enabled {
+		if c.OfflineMode.NumberOfAssets <= 0 {
+			log.Warn("Invalid number_of_assets value: %d. Using default: 100", "number_of_assets", c.OfflineMode.NumberOfAssets)
+			c.OfflineMode.NumberOfAssets = 100
 		}
 
-		if c.Kiosk.ExperimentalOfflineMode.MaxSize == "" {
-			log.Warn("Invalid max_size value: %s. Using default: 1GB", "max_size", c.Kiosk.ExperimentalOfflineMode.MaxSize)
-			c.Kiosk.ExperimentalOfflineMode.MaxSize = "1GB"
+		if c.OfflineMode.MaxSize == "" {
+			log.Warn("Invalid max_size value: %s. Using default: 1GB", "max_size", c.OfflineMode.MaxSize)
+			c.OfflineMode.MaxSize = "1GB"
 		}
 
-		if c.Kiosk.ExperimentalOfflineMode.ParallelDownloads <= 0 {
-			log.Warn("Invalid parallel_downloads value: %d. Using default: 4", "parallel_downloads", c.Kiosk.ExperimentalOfflineMode.ParallelDownloads)
-			c.Kiosk.ExperimentalOfflineMode.ParallelDownloads = 4
+		if c.OfflineMode.ParallelDownloads <= 0 {
+			log.Warn("Invalid parallel_downloads value: %d. Using default: 4", "parallel_downloads", c.OfflineMode.ParallelDownloads)
+			c.OfflineMode.ParallelDownloads = 4
+		}
+
+		if c.OfflineMode.ExpirationHours <= 0 {
+			log.Warn("Invalid expiration_hours value: %d. Using default: 72", "expiration_hours", c.OfflineMode.ExpirationHours)
+			c.OfflineMode.ExpirationHours = 72
 		}
 	}
 }
