@@ -404,14 +404,14 @@ func handleNoOfflineAssets(c echo.Context, requestConfig config.Config, com *com
 		maxSizeMessage = strings.ToUpper(requestConfig.OfflineMode.MaxSize)
 	}
 
-	expirayMessage := "None"
+	expiryMessage := "None"
 	hours := requestConfig.OfflineMode.ExpirationHours
 	if hours > 0 {
 		switch hours {
 		case 1:
-			expirayMessage = fmt.Sprintf("%d hour", hours)
+			expiryMessage = fmt.Sprintf("%d hour", hours)
 		default:
-			expirayMessage = fmt.Sprintf("%d hours", hours)
+			expiryMessage = fmt.Sprintf("%d hours", hours)
 		}
 	}
 
@@ -424,7 +424,7 @@ func handleNoOfflineAssets(c echo.Context, requestConfig config.Config, com *com
 		`,
 		requestConfig.OfflineMode.NumberOfAssets,
 		maxSizeMessage,
-		expirayMessage,
+		expiryMessage,
 	)
 
 	return Render(c, http.StatusOK, partials.Message(partials.MessageData{
@@ -447,7 +447,7 @@ func checkOfflineAssetsExpiration() (bool, error) {
 	expirationContent, expirationErr := os.ReadFile(filepath.Join(OfflineAssetsPath, OfflineExpirationFilename))
 	if expirationErr != nil {
 		log.Warn("expiration missing", "err", expirationErr)
-		return false, expirationErr
+		return true, expirationErr
 	}
 
 	expirationTime, timeparseErr := time.Parse(time.RFC3339, strings.TrimSpace(string(expirationContent)))

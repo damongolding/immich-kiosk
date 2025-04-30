@@ -785,6 +785,10 @@ func ParseSize(sizeStr string) (int64, error) {
 // It reads the directory contents and recursively removes each entry using os.RemoveAll.
 // Returns an error if the directory cannot be read or if any removal operation fails.
 func CleanDirectory(dirPath string) error {
+	if dirPath == "" || dirPath == "/" {
+		return fmt.Errorf("refusing to clean unsafe directory %q", dirPath)
+	}
+
 	dir, err := os.ReadDir(dirPath)
 	if err != nil {
 		return err
