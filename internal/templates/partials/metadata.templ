@@ -338,7 +338,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 			@userIcon(cases.Title(language.English).String(viewData.Assets[assetIndex].User))
 		}
 		if viewData.ShowOwner {
-			@emailIcon(viewData.Assets[assetIndex].ImmichAsset.Owner.Name)
+			@uploadIcon(viewData.Assets[assetIndex].ImmichAsset.Owner.Name)
 		}
 		if viewData.Assets[assetIndex].ImmichAsset.MemoryTitle != "" {
 			@memoryIcon(viewData.Assets[assetIndex].ImmichAsset.MemoryTitle)
