@@ -136,7 +136,11 @@ async function init(): Promise<void> {
     htmx.logAll();
   }
 
-  htmx.config.timeout = kioskData.httpTimeout * 100;
+  if (kioskData.httpTimeout <= 0) {
+    htmx.config.timeout = 0;
+  } else {
+    htmx.config.timeout = kioskData.httpTimeout * 100 * 3;
+  }
 
   if (
     kioskData.clockSource == "client" &&

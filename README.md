@@ -39,8 +39,9 @@
 > [!IMPORTANT]
 > **This project is not affiliated with [Immich][immich-github-url]**
 
-> [!WARNING]
-> Like the Immich project, this project is currently in beta and may experience breaking changes.
+> [!TIP]
+> You can try the ImmichKiosk the demo [here](https://demo.immichkiosk.app/).
+
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
@@ -80,6 +81,18 @@
 
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
+
+### Demo
+
+> [!NOTE]
+> The demo is hosted on Render's free tier. You might see a "Application Loading" screen while the app restarts.
+
+Try the Immich Kiosk demo here: [demo.immichkiosk.app](https://demo.immichkiosk.app/)
+
+Want to explore the features? You can:
+1. Visit the [Immich demo instance](https://demo.immich.app/)
+2. Log in to browse albums
+3. Copy any album or people IDs to use in the kiosk demo e.g. `https://demo.immichkiosk.app?album=ALBUM_ID`
 
 ## Requirements
 - A reachable Immich server that is running version v1.127.0 or above.

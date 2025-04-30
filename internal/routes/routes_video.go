@@ -15,7 +15,13 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewVideo() echo.HandlerFunc {
+func NewVideo(demoMode bool) echo.HandlerFunc {
+	if demoMode {
+		return func(c echo.Context) error {
+			return c.String(http.StatusOK, "Demo mode enabled")
+		}
+	}
+
 	const bufferSize = 1024 * 1024 // Increased to 1MB buffer
 
 	return func(c echo.Context) error {

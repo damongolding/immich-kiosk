@@ -23,6 +23,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/time/rate"
 
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
@@ -62,6 +63,13 @@ func main() {
 	if configErr != nil {
 		log.Error("Failed to load config", "err", configErr)
 	}
+
+	if baseConfig.Kiosk.DemoMode {
+		log.Info("Demo mode enabled")
+		cache.DemoMode = true
+	}
+
+	cache.Initialize()
 
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
 
@@ -164,7 +172,7 @@ func main() {
 
 	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
-	e.GET("/video/:videoID", routes.NewVideo())
+	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode))
 
 	e.GET("/:redirect", routes.Redirect(baseConfig))
 
@@ -195,5 +203,4 @@ func main() {
 	if shutdownErr := e.Shutdown(ctx); shutdownErr != nil {
 		log.Error(shutdownErr)
 	}
-
 }

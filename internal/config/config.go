@@ -95,6 +95,8 @@ type KioskSettings struct {
 	// debug modes
 	Debug        bool `json:"debug" mapstructure:"debug" default:"false"`
 	DebugVerbose bool `json:"debugVerbose" mapstructure:"debug_verbose" default:"false"`
+
+	DemoMode bool `json:"-" mapstructure:"demo_mode" default:"false"`
 }
 
 type WeatherLocation struct {
@@ -368,6 +370,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING"},
 		{"kiosk.debug", "KIOSK_DEBUG"},
 		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
+		{"kiosk.demo_mode", "KIOSK_DEMO_MODE"},
 	}
 
 	for _, bv := range bindVars {
@@ -415,6 +418,10 @@ func (c *Config) Load() error {
 	c.V.AddConfigPath(".")         // Look in the current directory
 	c.V.AddConfigPath("./config/") // Look in the 'config/' subdirectory
 	c.V.AddConfigPath("../../")    // Look in the parent directory for testing
+
+	if os.Getenv("KIOSK_DEMO_MODE") != "" {
+		c.V.SetConfigFile("./demo.config.yaml") // use demo config file
+	}
 
 	c.V.SetEnvPrefix("kiosk")
 
@@ -480,6 +487,15 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 	}
 
 	c.checkExcludedAlbums()
+
+	// Disabled features in demo mode
+	if c.Kiosk.DemoMode {
+		c.ExperimentalAlbumVideo = false
+		c.UseOriginalImage = false
+		c.OptimizeImages = false
+		c.Memories = false
+		c.Kiosk.FetchedAssetsSize = 100
+	}
 
 	return nil
 }

@@ -121,5 +121,5 @@ kiosk:
   http_timeout: 20
   password: ""
   cache: true # cache select api calls
-  pre_fetch: true # fetch assets in the background
+  prefetch: true # fetch assets in the background
   asset_weighting: true # use weighting when picking assets

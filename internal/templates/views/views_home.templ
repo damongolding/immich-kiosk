@@ -10,10 +10,19 @@ import (
 	"strings"
 )
 
+func formatTimeout(timeout int) int {
+
+	if timeout <= 0 {
+		return 0
+	}
+
+	return timeout * 100 * 4
+}
+
 // Home renders the Home layout template
 templ Home(viewData common.ViewData) {
 	<!DOCTYPE html>
-	<html lang="en" hx-request={ fmt.Sprintf("{\"timeout\":%d}", viewData.Kiosk.HTTPTimeout*100) }>
+	<html lang="en" hx-request={ fmt.Sprintf("{\"timeout\":%d}", formatTimeout(viewData.Kiosk.HTTPTimeout)) }>
 		<head>
 			@partials.Head(viewData)
 		</head>
