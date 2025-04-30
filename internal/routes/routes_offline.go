@@ -125,14 +125,6 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 			picked := nonDotFiles[rand.IntN(len(nonDotFiles))]
 
-			// // check if file has already been picked (in history)
-			// if len(historyAsFilenames) < len(nonDotFiles) {
-			// 	if slices.Contains(historyAsFilenames, picked) {
-			// 		log.Info("Offline asset already picked", "history", historyAsFilenames, "all files", nonDotFiles)
-			// 		continue
-			// 	}
-			// }
-
 			picked = filepath.Join(OfflineAssetsPath, picked)
 
 			viewData, loadMsgpackErr := loadMsgpackZstd(picked)
@@ -153,7 +145,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 		return Render(c, http.StatusOK, partials.Error(partials.ErrorData{
 			Title:   "No offline assets found",
-			Message: "No offline assets found",
+			Message: "Check Kiosk logs for more information",
 		}))
 
 	}
