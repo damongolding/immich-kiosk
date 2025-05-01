@@ -388,10 +388,6 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.debug", "KIOSK_DEBUG"},
 		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
 		{"kiosk.demo_mode", "KIOSK_DEMO_MODE"},
-		{"kiosk.experimental_offline_mode.enabled", "KIOSK_EXPERIMENTAL_OFFLINE_MODE"},
-		{"kiosk.experimental_offline_mode.number_of_assets", "KIOSK_EXPERIMENTAL_OFFLINE_MODE_NUMBER_OF_ASSETS"},
-		{"kiosk.experimental_offline_mode.max_size", "KIOSK_EXPERIMENTAL_OFFLINE_MODE_MAX_SIZE"},
-		{"kiosk.experimental_offline_mode.parallel_downloads", "KIOSK_EXPERIMENTAL_OFFLINE_MODE_PARALLEL_DOWNLOADS"},
 	}
 
 	for _, bv := range bindVars {

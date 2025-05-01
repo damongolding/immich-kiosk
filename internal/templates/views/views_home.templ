@@ -29,7 +29,7 @@ templ Home(viewData common.ViewData) {
 		@partials.Body(viewData) {
 			<main
 				id="kiosk"
-				if viewData.UseOfflineMode {
+				if viewData.UseOfflineMode && viewData.OfflineMode.Enabled {
 					hx-post="/asset/offline"
 				} else {
 					hx-post="/asset/new"
