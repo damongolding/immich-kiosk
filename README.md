@@ -1261,7 +1261,7 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
 ## Offline Mode
 
 > [!IMPORTANT]
-> If you are using Docker and want offline assets to persist between container restarts, you will need to mount a volume to the container.
+> If you are using Docker and want offline assets to persist between container restarts, you will need to mount a volume into the container.
 > e.g.
 > ```yaml
 > volumes:
@@ -1273,6 +1273,12 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
 
 Offline Mode allows you to download assets for offline viewing.
 This feature is useful when you want to view your photos without an active connection to Immich (after download).
+
+### Setting Up Offline Mode
+
+1. If you are using Docker and want offline assets to persist between container restarts, mount a volume into the container.
+2. Configure Offline Mode by setting the `enabled` option to `true` (and any other options you want) in your ENVs or config.yaml.
+3. Navigate to the Immich Kiosk web interface with the `use_offline_mode` url parameter set to `true`. e.g. `http://{URL}?use_offline_mode=true`
 
 ### Offline Mode Configuration Options:
 
