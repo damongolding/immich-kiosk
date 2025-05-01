@@ -455,7 +455,7 @@ See the file `config.example.yaml` for an example config file
 | show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information. |
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
 | use_offline_mode                  | KIOSK_USE_OFFLINE_MODE  | bool                       | false       | Enable offline mode for the device. See [offline mode](#offline-mode) for more information. |
-| [offline_mode](#offline-mode)     | N/A                     | OfflineMode{}              | OfflineMode{} | Enable offline mode. See [offline mode](#offline-mode) for more information. |
+| [offline_mode](#offline-mode)     | N/A                     | OfflineMode{}              | {}          | Enable offline mode. See [offline mode](#offline-mode) for more information. |
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
@@ -1269,7 +1269,7 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
 > ```
 
 > [!IMPORTANT]
-> Offline Mode will only use your base config (ENV or config.yaml), it will not use any url parameters.
+> Offline Mode configuration options cannot be overridden via URL parameters (aside from the use_offline_mode flag).
 
 Offline Mode allows you to download assets for offline viewing.
 This feature is useful when you want to view your photos without an active connection to Immich (after download).
@@ -1280,7 +1280,7 @@ This feature is useful when you want to view your photos without an active conne
 2. Configure Offline Mode by setting the `enabled` option to `true` (and any other options you want) in your ENVs or config.yaml.
 3. Navigate to the Immich Kiosk web interface with the `use_offline_mode` url parameter set to `true`. e.g. `http://{URL}?use_offline_mode=true`
 
-### Offline Mode Configuration Options:
+### Offline Mode Configuration Options
 
 | **Value**          | **Default** | **Description**                                               |
 |--------------------|-------------|---------------------------------------------------------------|
