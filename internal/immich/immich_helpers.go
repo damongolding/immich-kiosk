@@ -116,7 +116,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 		req.Header.Set("Accept", "application/json")
 
-		switch a.requestConfig.Kiosk.DemoMode {
+		switch a.requestConfig.Kiosk.UseDemoSite {
 
 		case true:
 			token, demoLoginErr := demo.Login(a.ctx, false)

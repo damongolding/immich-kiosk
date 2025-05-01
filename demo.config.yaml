@@ -1,6 +1,9 @@
 immich_api_key: demo
 immich_url: https://demo.immich.app
 
+album:
+  - 75c4860f-d31c-4dac-9831-0e67c7ab7668
+
 # Clock
 show_time: true
 time_format: 12 # 12 or 24
@@ -51,11 +54,17 @@ kiosk:
   http_timeout: -1
 
   redirects:
-    - name: all
+    - name: curated
       url: /
 
+    - name: all-images
+      url: /?album=none
+
+    - name: fade-transition
+      url: /?transition=fade
+
     - name: simple
-      url: /?image_effect=none&layout=single&image_fit=contain&transition=none&disable_ui=true&show_more_info=false
+      url: /?album=none&image_effect=none&layout=single&image_fit=contain&transition=none&disable_ui=true&show_more_info=false
 
     - name: solid-theme
       url: /?theme=solid

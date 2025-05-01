@@ -96,7 +96,8 @@ type KioskSettings struct {
 	Debug        bool `json:"debug" mapstructure:"debug" default:"false"`
 	DebugVerbose bool `json:"debugVerbose" mapstructure:"debug_verbose" default:"false"`
 
-	DemoMode bool `json:"-" mapstructure:"demo_mode" default:"false"`
+	DemoMode    bool `json:"-" mapstructure:"demo_mode" default:"false"`
+	UseDemoSite bool `json:"-" mapstructure:"use_demo_site" default:"false"`
 }
 
 type WeatherLocation struct {
@@ -371,6 +372,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.debug", "KIOSK_DEBUG"},
 		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
 		{"kiosk.demo_mode", "KIOSK_DEMO_MODE"},
+		{"kiosk.use_demo_site", "KIOSK_USE_DEMO_SITE"},
 	}
 
 	for _, bv := range bindVars {
