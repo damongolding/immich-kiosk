@@ -68,6 +68,7 @@
   - [Sleep mode](#sleep-mode)
   - [Custom CSS](#custom-css)
   - [Weather](#weather)
+  - [Offline Mode](#offline-mode)
 - [Navigation Controls](#navigation-controls)
 - [Redirects](#redirects)
 - [PWA](#pwa)
