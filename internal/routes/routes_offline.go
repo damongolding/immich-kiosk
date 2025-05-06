@@ -546,12 +546,15 @@ func checkCanceled(ctx context.Context) error {
 
 func calcFileExistsTolerance(numAssets int) int64 {
 	// Allow up to 10%, but cap at 20 for safety
-	maxCap := 20
-	percent := int(float64(numAssets) * 0.10)
+	const tolerancePercentage = 0.10
+	const maxToleranceCap = 20
+	const minTolerance = 3
 
-	if percent > maxCap {
-		return int64(maxCap)
+	percent := int(float64(numAssets) * tolerancePercentage)
+
+	if percent > maxToleranceCap {
+		return int64(maxToleranceCap)
 	}
 
-	return max(3, int64(percent))
+	return max(minTolerance, int64(percent))
 }
