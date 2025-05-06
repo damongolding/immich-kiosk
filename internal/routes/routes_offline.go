@@ -2,6 +2,7 @@ package routes
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -35,6 +36,8 @@ const (
 	OfflineAssetsPath         = "./offline-assets"
 	OfflineExpirationFilename = "_expiration"
 )
+
+var ErrMaxStorageReached = errors.New("max offline storage size reached")
 
 func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -158,9 +161,9 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 //   - File operations fail
 //   - Asset downloads fail
 func downloadOfflineAssets(requestConfig config.Config, requestCtx common.ContextCopy, com *common.Common, requestID, deviceID string) error {
-
 	if !mu.TryLock() {
-		return errors.New("DownloadOfflineAssets is already running")
+		log.Debug("DownloadOfflineAssets is already running")
+		return nil
 	}
 	defer mu.Unlock()
 
@@ -171,22 +174,33 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 		return maxSizeErr
 	}
 
-	eg, _ := errgroup.WithContext(com.Context())
+	// Setup parent context with cancel
+	ctx, cancel := context.WithCancel(com.Context())
+	defer cancel()
+
+	// Wrap with errgroup context
+	eg, egCtx := errgroup.WithContext(ctx)
 	eg.SetLimit(min(parallelDownloads, numberOfAssets))
 
 	var offlineSize atomic.Int64
 	var createdFiles sync.Map
-	var maxReached atomic.Bool
+	var once sync.Once
+
+	fileExistsTolerance := calcFileExistsTolerance(numberOfAssets)
+	var fileExistsCount atomic.Int64
 
 	startTime := time.Now()
 
+	// Write expiration timestamp
 	expiration, expirationErr := os.Create(filepath.Join(OfflineAssetsPath, OfflineExpirationFilename))
 	if expirationErr != nil {
 		return expirationErr
 	}
 	defer expiration.Close()
 
-	_, expirationErr = expiration.WriteString(startTime.Add(time.Hour * time.Duration(requestConfig.OfflineMode.ExpirationHours)).Format(time.RFC3339))
+	_, expirationErr = expiration.WriteString(
+		startTime.Add(time.Hour * time.Duration(requestConfig.OfflineMode.ExpirationHours)).Format(time.RFC3339),
+	)
 	if expirationErr != nil {
 		return expirationErr
 	}
@@ -195,19 +209,8 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 		eg.Go(func() error {
 
 			for range 3 {
-
-				sizeSoFar := offlineSize.Load()
-				if maxSize != 0 && sizeSoFar >= maxSize {
-					if !maxReached.Load() {
-						maxReached.Store(true)
-						humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
-						humanMaxSize := humanize.Bytes(uint64(maxSize))
-						log.Warn("SaveOfflineAsset: max offline storage size reached",
-							"total assets saved", humanOfflineSize,
-							"maxOfflineSize", humanMaxSize,
-						)
-					}
-					return nil
+				if err := checkCanceled(egCtx); err != nil {
+					return err
 				}
 
 				viewData, err := generateViewData(requestConfig, requestCtx, requestID, deviceID, false)
@@ -220,39 +223,72 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 				viewData.History = []string{}
 
 				var filename string
-
 				for _, asset := range viewData.Assets {
 					filename += asset.ImmichAsset.ID + asset.User
 				}
-
-				filename = generateCacheFilename(filename)
-
-				filename = filepath.Join(OfflineAssetsPath, filename)
+				filename = filepath.Join(OfflineAssetsPath, generateCacheFilename(filename))
 
 				if _, exists := createdFiles.Load(filename); exists {
+					if fileExistsCount.Add(1) > fileExistsTolerance {
+						once.Do(func() {
+							log.Info("Too many existing assets — cancelling download",
+								"existingCount", fileExistsCount.Load(),
+								"tolerance", fileExistsTolerance)
+							cancel()
+						})
+						return nil
+					}
 					continue
 				}
-
-				if _, err = os.Stat(filename); err == nil {
+				if _, err := os.Stat(filename); err == nil {
+					if fileExistsCount.Add(1) > fileExistsTolerance {
+						once.Do(func() {
+							log.Info("Too many existing assets — cancelling download",
+								"existingCount", fileExistsCount.Load(),
+								"tolerance", fileExistsTolerance)
+							cancel()
+						})
+						return nil
+					}
 					continue
 				}
 
 				createdFiles.Store(filename, true)
 
-				return saveMsgpackZstd(filename, viewData, &offlineSize, maxSize, &maxReached, &createdFiles)
+				err = saveMsgpackZstd(egCtx, filename, viewData, &offlineSize, maxSize, &createdFiles)
+				if errors.Is(err, ErrMaxStorageReached) {
+					once.Do(func() {
+						humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
+						humanMaxSize := humanize.Bytes(uint64(maxSize))
+						log.Info("SaveOfflineAsset: max offline storage size reached",
+							"total assets saved", humanOfflineSize,
+							"maxOfflineSize", humanMaxSize,
+						)
+						cancel()
+					})
+					return nil
+				}
+				if err != nil {
+					log.Error("SaveOfflineAsset: saveMsgpackZstd", "err", err)
+					continue
+				}
+				return nil
 			}
-
-			return errors.New("DownloadOfflineAssets: max tries reached")
+			return nil
 		})
 	}
 
-	err := eg.Wait()
-	if err != nil {
+	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
 		log.Error("DownloadOfflineAssets finished with", "err", err)
 		return err
 	}
 
 	duration := time.Since(startTime).Seconds()
+	finishTime := fmt.Sprintf("%.2f seconds", duration)
+
+	if duration > 60 {
+		finishTime = fmt.Sprintf("%.2f minutes", duration/60)
+	}
 
 	size := 0
 	createdFiles.Range(func(_, _ any) bool {
@@ -260,7 +296,7 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 		return true
 	})
 
-	log.Info(fmt.Sprintf("%v offline assets downloaded", size), "in", fmt.Sprintf("%.2f seconds", duration))
+	log.Info(fmt.Sprintf("%v offline assets downloaded", size), "in", finishTime)
 
 	return nil
 }
@@ -268,16 +304,24 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 // saveMsgpackZstd saves view data to a file using msgpack encoding and zstd compression.
 // It manages file size limits and updates offline storage size tracking.
 // Returns an error if encoding, compression or file operations fail.
-func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.Int64, maxSize int64, maxReached *atomic.Bool, createdFiles *sync.Map) error {
+func saveMsgpackZstd(ctx context.Context, filename string, data common.ViewData, offlineSize *atomic.Int64, maxSize int64, createdFiles *sync.Map) error {
 
 	defer func() {
 		createdFiles.Delete(filename)
 	}()
 
+	if err := checkCanceled(ctx); err != nil {
+		return nil
+	}
+
 	var buf bytes.Buffer
 	enc := msgpack.NewEncoder(&buf)
 	if err := enc.Encode(data); err != nil {
 		return err
+	}
+
+	if err := checkCanceled(ctx); err != nil {
+		return nil
 	}
 
 	tmp, err := os.CreateTemp(path.Dir(filename), ".offline-*")
@@ -287,9 +331,7 @@ func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.
 	defer func() {
 		if tmp != nil {
 			_ = tmp.Close()
-			if removeErr := os.Remove(tmp.Name()); removeErr != nil {
-				log.Error("SaveOfflineAsset: failed to remove temporary file", "error", removeErr)
-			}
+			_ = os.Remove(tmp.Name())
 		}
 	}()
 
@@ -312,20 +354,19 @@ func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.
 		return err
 	}
 
+	if err := checkCanceled(ctx); err != nil {
+		return nil
+	}
+
 	fi, statErr := tmp.Stat()
 	if statErr != nil {
 		return statErr
 	}
 
-	if newTotal := offlineSize.Add(fi.Size()); maxSize != 0 && newTotal > maxSize {
-		if !maxReached.Load() {
-			maxReached.Store(true)
-			humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
-			humanMaxSize := humanize.Bytes(uint64(maxSize))
-			log.Warn("SaveOfflineAsset: max offline storage size reached", "total assets saved", humanOfflineSize, "maxOfflineSize", humanMaxSize)
-		}
+	newTotal := offlineSize.Add(fi.Size())
+	if maxSize != 0 && newTotal > maxSize {
 		offlineSize.Add(-fi.Size())
-		return nil
+		return ErrMaxStorageReached
 	}
 
 	if err = os.Rename(tmp.Name(), filename); err != nil {
@@ -333,7 +374,6 @@ func saveMsgpackZstd(filename string, data common.ViewData, offlineSize *atomic.
 		return err
 	}
 
-	// prevent deferred removal
 	tmp = nil
 	filename = ""
 
@@ -466,4 +506,41 @@ func checkOfflineAssetsExpiration() (bool, error) {
 	}
 
 	return false, nil
+}
+
+func IsDownloading(c echo.Context) error {
+	if IsOfflineDownloadRunning() {
+		return Render(c, http.StatusOK, partials.DownloadingStatus(true))
+	}
+
+	return Render(c, http.StatusOK, partials.DownloadingStatus(false))
+}
+
+func IsOfflineDownloadRunning() bool {
+	locked := mu.TryLock()
+	if locked {
+		mu.Unlock()
+	}
+	return !locked
+}
+
+func checkCanceled(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		return nil
+	}
+}
+
+func calcFileExistsTolerance(numAssets int) int64 {
+	// Allow up to 10%, but cap at 20 for safety
+	maxCap := 20
+	percent := int(float64(numAssets) * 0.10)
+
+	if percent > maxCap {
+		return int64(maxCap)
+	}
+
+	return max(3, int64(percent))
 }

@@ -32,4 +32,7 @@ templ Message(message MessageData) {
 			</div>
 		</div>
 	</div>
+	if message.IsDownloading {
+		@DownloadingStatus(true)
+	}
 }

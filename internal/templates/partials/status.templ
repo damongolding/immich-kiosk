@@ -1,5 +1,12 @@
 package partials
 
+templ Status() {
+	<div id="status">
+		@OfflineIcon()
+		@DownloadingStatus(false)
+	</div>
+}
+
 // offlineIcon displays an offline status icon
 templ OfflineIcon() {
 	<figure id="offline">
@@ -24,4 +31,33 @@ templ OfflineIcon() {
 			></path>
 		</svg>
 	</figure>
+}
+
+templ DownloadingIcon() {
+	<figure>
+		<svg width="46" height="46" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<g opacity="0.7" clip-path="url(#clip0_109_55)">
+				<path d="M23 0C16.9 0 11.0499 2.42321 6.73654 6.73654C2.42321 11.0499 0 16.9 0 23C0 29.1 2.42321 34.9501 6.73654 39.2635C11.0499 43.5768 16.9 46 23 46C29.1 46 34.9501 43.5768 39.2635 39.2635C43.5768 34.9501 46 29.1 46 23C46 16.9 43.5768 11.0499 39.2635 6.73654C34.9501 2.42321 29.1 0 23 0ZM21.9848 35.5152L11.9223 25.4527C11.509 25.0395 11.3922 24.4195 11.6078 23.8895C11.8234 23.3594 12.3535 23 12.9375 23H18.6875V14.375C18.6875 12.7848 19.9723 11.5 21.5625 11.5H24.4375C26.0277 11.5 27.3125 12.7848 27.3125 14.375V23H33.0625C33.6465 23 34.1676 23.3504 34.3922 23.8895C34.6168 24.4285 34.491 25.0484 34.0777 25.4527L24.0152 35.5152C23.4582 36.0723 22.5418 36.0723 21.9848 35.5152Z" fill="white"></path>
+			</g>
+			<defs>
+				<clipPath id="clip0_109_55">
+					<rect width="46" height="46" fill="white"></rect>
+				</clipPath>
+			</defs>
+		</svg>
+	</figure>
+}
+
+templ DownloadingStatus(isDownloading bool) {
+	<div
+		if isDownloading {
+			hx-post="/asset/downloading"
+			hx-trigger="every 1s"
+		}
+		id="download"
+		class={ templ.KV("downloading", isDownloading) }
+		hx-swap-oob="true"
+	>
+		@DownloadingIcon()
+	</div>
 }

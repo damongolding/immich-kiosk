@@ -1853,16 +1853,23 @@ form {
   -webkit-perspective: 1000;
 }
 
-/* src/css/offline.css */
-#offline {
+/* src/css/status.css */
+#status {
   position: absolute;
   bottom: 1rem;
   left: 50%;
-  margin-left: -1.5rem;
+  -moz-transform: translateX(-50%);
+   -ms-transform: translateX(-50%);
+       transform: translateX(-50%);
+  display: -moz-box;
+  display: flex;
+  gap: 1rem;
+  z-index: var(--z-offline);
+}
+#offline {
   width: 3rem;
   height: 3rem;
   display: none;
-  z-index: var(--z-offline);
 }
 #offline svg {
   -webkit-filter: drop-shadow(0rem 0rem 1rem black);
@@ -1874,6 +1881,15 @@ form {
 .sleep #offline {
   opacity: 0.5;
 }
+#download {
+  height: 3rem;
+  display: none;
+}
+#download.downloading {
+    display: block;
+  }
+
+/* src/css/offline.css */
 
 /* src/css/clock-weather-container.css */
 .polling-paused.more-info #clock-weather-container, .polling-paused.redirects-open #clock-weather-container {

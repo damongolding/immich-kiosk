@@ -1,0 +1,47 @@
+/* --- status container --- */
+#status {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    gap: 1rem;
+
+    z-index: var(--z-offline);
+}
+
+/* --- offline icon --- */
+#offline {
+    /* position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    margin-left: -1.5rem; */
+    width: 3rem;
+    height: 3rem;
+    display: none;
+
+    /* z-index: var(--z-offline); */
+}
+
+#offline svg {
+    filter: drop-shadow(0rem 0rem 1rem black);
+}
+
+.offline {
+    display: block !important;
+}
+
+/* In sleep mode */
+.sleep #offline {
+    opacity: 0.5;
+}
+
+#download {
+    height: 3rem;
+    display: none;
+
+    &.downloading {
+        display: block;
+    }
+}

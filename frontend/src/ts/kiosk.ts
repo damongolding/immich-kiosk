@@ -451,6 +451,7 @@ function checkHistoryExists(e: HTMXEvent): void {
 type BrowserData = {
   client_width: number;
   client_height: number;
+  client_agent: string;
 };
 
 /**
@@ -461,6 +462,7 @@ function clientData(): BrowserData {
   return {
     client_width: window.innerWidth,
     client_height: window.innerHeight,
+    client_agent: window.navigator.userAgent,
   };
 }
 
