@@ -87,6 +87,12 @@ type Error struct {
 	StatusCode int      `json:"statusCode"`
 }
 
+type Owner struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+	Name  string `json:"name"`
+}
+
 type ExifInfo struct {
 	Make             string    `json:"make"`
 	Model            string    `json:"model"`
@@ -154,6 +160,7 @@ type Asset struct {
 	ID               string    `json:"id"`
 	DeviceAssetID    string    `json:"-"` // `json:"deviceAssetId"`
 	OwnerID          string    `json:"ownerId"`
+	Owner            Owner     `json:"owner"`
 	DeviceID         string    `json:"-"` // `json:"deviceId"`
 	LibraryID        string    `json:"-"` // `json:"libraryId"`
 	Type             AssetType `json:"type"`
