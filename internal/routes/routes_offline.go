@@ -314,14 +314,15 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 // saveMsgpackZstd saves view data to a file using msgpack encoding and zstd compression.
 // It manages file size limits and updates offline storage size tracking.
 // Returns an error if encoding, compression or file operations fail.
+// Returns ErrMaxStorageReached if adding the file would exceed the configured max size.
 func saveMsgpackZstd(ctx context.Context, filename string, data common.ViewData, offlineSize *atomic.Int64, maxSize int64, createdFiles *sync.Map) error {
 
 	defer func() {
 		createdFiles.Delete(filename)
 	}()
 
-	if canclledErr := checkCanceled(ctx); canclledErr != nil {
-		return canclledErr
+	if cancelledErr := checkCanceled(ctx); cancelledErr != nil {
+		return cancelledErr
 	}
 
 	var buf bytes.Buffer
@@ -330,8 +331,8 @@ func saveMsgpackZstd(ctx context.Context, filename string, data common.ViewData,
 		return err
 	}
 
-	if canclledErr := checkCanceled(ctx); canclledErr != nil {
-		return canclledErr
+	if cancelledErr := checkCanceled(ctx); cancelledErr != nil {
+		return cancelledErr
 	}
 
 	tmp, err := os.CreateTemp(path.Dir(filename), ".offline-*")
@@ -364,8 +365,8 @@ func saveMsgpackZstd(ctx context.Context, filename string, data common.ViewData,
 		return err
 	}
 
-	if canclledErr := checkCanceled(ctx); canclledErr != nil {
-		return canclledErr
+	if cancelledErr := checkCanceled(ctx); cancelledErr != nil {
+		return cancelledErr
 	}
 
 	fi, statErr := tmp.Stat()
