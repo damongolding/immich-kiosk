@@ -184,6 +184,10 @@ body {
 form {
   display: none;
 }
+figure {
+  padding: 0;
+  margin: 0;
+}
 
 /* src/css/container.css */
 #kiosk {
@@ -1856,7 +1860,7 @@ form {
 /* src/css/status.css */
 #status {
   position: absolute;
-  bottom: 1rem;
+  bottom: 2rem;
   left: 50%;
   -moz-transform: translateX(-50%);
    -ms-transform: translateX(-50%);
@@ -1871,6 +1875,7 @@ form {
   height: 3rem;
   display: none;
 }
+#download svg,
 #offline svg {
   -webkit-filter: drop-shadow(0rem 0rem 1rem black);
           filter: drop-shadow(0rem 0rem 1rem black);

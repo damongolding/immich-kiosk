@@ -330,7 +330,6 @@ services:
       KIOSK_OFFLINE_MODE_NUMBER_OF_ASSETS: 100
       KIOSK_OFFLINE_MODE_MAX_SIZE: 0
       KIOSK_OFFLINE_MODE_EXPIRATION_HOURS: 0
-      KIOSK_OFFLINE_MODE_PARALLEL_DOWNLOADS: 4
       # Kiosk settings
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
@@ -1293,7 +1292,6 @@ This feature is useful when you want to view your photos without an active conne
 | enabled            | false       | Enable offline mode                                           |
 | number_of_assets   | 100         | Target number of assets to download                           |
 | max_size           | 0           | Disk space assets are allowed to take up. You can use `mb`, `gb`, `tb`, etc. 0 = no limit |
-| parallel_downloads | 4           | Number of assets to download in parallel                      |
 | expiration_hours   | 0           | Number of hours before assets expire. 0 = assets never expire |
 
 ### Example Configuration

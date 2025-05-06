@@ -188,6 +188,7 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 
 	fileExistsTolerance := calcFileExistsTolerance(numberOfAssets)
 	var fileExistsCount atomic.Int64
+	var errorCount atomic.Int64
 
 	startTime := time.Now()
 
@@ -216,6 +217,15 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 				viewData, err := generateViewData(requestConfig, requestCtx, requestID, deviceID, false)
 				if err != nil {
 					log.Error("SaveOfflineAsset: generateViewData", "err", err)
+					if errorCount.Add(1) > fileExistsTolerance*2 {
+						once.Do(func() {
+							log.Info("Too many errors — cancelling download",
+								"error count", errorCount.Load(),
+								"tolerance", fileExistsTolerance*2)
+							cancel()
+						})
+						return nil
+					}
 					continue
 				}
 
@@ -231,7 +241,7 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 				if _, exists := createdFiles.Load(filename); exists {
 					if fileExistsCount.Add(1) > fileExistsTolerance {
 						once.Do(func() {
-							log.Info("Too many existing assets — cancelling download",
+							log.Info("Too many duplicate assets — cancelling download",
 								"existingCount", fileExistsCount.Load(),
 								"tolerance", fileExistsTolerance)
 							cancel()
@@ -240,10 +250,10 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 					}
 					continue
 				}
-				if _, err := os.Stat(filename); err == nil {
+				if _, statErr := os.Stat(filename); statErr == nil {
 					if fileExistsCount.Add(1) > fileExistsTolerance {
 						once.Do(func() {
-							log.Info("Too many existing assets — cancelling download",
+							log.Info("Too many duplicate assets — cancelling download",
 								"existingCount", fileExistsCount.Load(),
 								"tolerance", fileExistsTolerance)
 							cancel()
@@ -260,7 +270,7 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 					once.Do(func() {
 						humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
 						humanMaxSize := humanize.Bytes(uint64(maxSize))
-						log.Info("SaveOfflineAsset: max offline storage size reached",
+						log.Info("Max offline storage size reached",
 							"total assets saved", humanOfflineSize,
 							"maxOfflineSize", humanMaxSize,
 						)
@@ -310,8 +320,8 @@ func saveMsgpackZstd(ctx context.Context, filename string, data common.ViewData,
 		createdFiles.Delete(filename)
 	}()
 
-	if err := checkCanceled(ctx); err != nil {
-		return nil
+	if canclledErr := checkCanceled(ctx); canclledErr != nil {
+		return canclledErr
 	}
 
 	var buf bytes.Buffer
@@ -320,8 +330,8 @@ func saveMsgpackZstd(ctx context.Context, filename string, data common.ViewData,
 		return err
 	}
 
-	if err := checkCanceled(ctx); err != nil {
-		return nil
+	if canclledErr := checkCanceled(ctx); canclledErr != nil {
+		return canclledErr
 	}
 
 	tmp, err := os.CreateTemp(path.Dir(filename), ".offline-*")
@@ -354,8 +364,8 @@ func saveMsgpackZstd(ctx context.Context, filename string, data common.ViewData,
 		return err
 	}
 
-	if err := checkCanceled(ctx); err != nil {
-		return nil
+	if canclledErr := checkCanceled(ctx); canclledErr != nil {
+		return canclledErr
 	}
 
 	fi, statErr := tmp.Stat()

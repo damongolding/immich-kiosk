@@ -44,3 +44,8 @@ body {
 form {
     display: none;
 }
+
+figure {
+    padding: 0;
+    margin: 0;
+}
