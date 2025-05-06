@@ -307,6 +307,7 @@ services:
       KIOSK_IMAGE_EFFECT_AMOUNT: 120
       KIOSK_USE_ORIGINAL_IMAGE: false
       # Image metadata
+      KIOSK_SHOW_OWNER: false
       KIOSK_SHOW_ALBUM_NAME: false
       KIOSK_SHOW_PERSON_NAME: false
       KIOSK_SHOW_PERSON_AGE: false
@@ -440,6 +441,7 @@ See the file `config.example.yaml` for an example config file
 | [image_effect](#image-effects)    | KIOSK_IMAGE_EFFECT      | none \| zoom \| smart-zoom | none        | Add an effect to images.                                                                   |
 | [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fallback to using the preview. |
+| show_owner                        | KIOSK_SHOW_OWNER        | bool                       | false       | Display the asset owner. Useful for shared albums.                                         |
 | show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display album name(s) that the asset appears in.                                           |
 | show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display person name(s).                                                                    |
 | show_person_age                   | KIOSK_SHOW_PERSON_AGE   | bool                       | false       | Display person age.                                                                        |
@@ -447,7 +449,7 @@ See the file `config.example.yaml` for an example config file
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
 | [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information.
-| show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available). |
+| show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available).                                    |
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF           | bool               | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION       | bool               | false       | Display the image location from METADATA (if available).                                   |
 | hide_countries                    | KIOSK_HIDE_COUNTRIES            | []string           | []          | List of countries to hide from image_location                                              |
@@ -1418,7 +1420,7 @@ Each redirect consists of:
 - `url`: The destination URL where users will be redirected to
 - `type`: Optional field that controls URL behavior:
   - `internal`: The default behavior that keeps the URL unchanged during redirection (useful for maintaining browser history)
-  - `external`: Allows URL changes during redirection (default if omitted)
+  - `external`: Allows URL changes during redirection
 
 ### Examples
 

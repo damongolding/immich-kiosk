@@ -160,9 +160,29 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 
 				}(&asset, requestID, &wg)
 
+				var imgString, imgBlurString string
+
+				defer func() {
+					viewData.Assets[prevAssetsID] = common.ViewImageData{
+						ImmichAsset:   asset,
+						ImageData:     imgString,
+						ImageBlurData: imgBlurString,
+						User:          selectedUser,
+					}
+				}()
+
+				// Image processing isn't required for video, audio, or other types
+				// So if this fails, we can still proceed with the asset view
 				imgBytes, previewErr := asset.ImagePreview()
 				if previewErr != nil {
-					return fmt.Errorf("retrieving asset: %w", previewErr)
+					switch asset.Type {
+					case immich.ImageType:
+						return fmt.Errorf("retrieving asset: %w", previewErr)
+
+					case immich.VideoType, immich.AudioType, immich.OtherType:
+						wg.Wait()
+						return nil
+					}
 				}
 
 				img, byteErr := utils.BytesToImage(imgBytes)
@@ -182,12 +202,6 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 
 				wg.Wait()
 
-				viewData.Assets[prevAssetsID] = common.ViewImageData{
-					ImmichAsset:   asset,
-					ImageData:     imgString,
-					ImageBlurData: imgBlurString,
-					User:          selectedUser,
-				}
 				return nil
 			}
 		}(prevAssetsID, currentAssetID))

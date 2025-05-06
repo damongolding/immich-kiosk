@@ -172,3 +172,28 @@
     cursor: not-allowed;
     pointer-events: none;
 }
+
+.navigation--mute {
+    /* Show muted icon by default */
+    &.is-muted {
+        .icon-muted {
+            display: inline;
+            visibility: visible;
+        }
+
+        .icon-unmuted {
+            display: none;
+            visibility: hidden;
+        }
+    }
+
+    .icon-muted {
+        display: none;
+        visibility: hidden;
+    }
+
+    .icon-unmuted {
+        display: inline;
+        visibility: visible;
+    }
+}

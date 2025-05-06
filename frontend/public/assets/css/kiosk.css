@@ -2396,6 +2396,22 @@ figure {
   cursor: not-allowed;
   pointer-events: none;
 }
+.navigation--mute.is-muted .icon-muted {
+      display: inline;
+      visibility: visible;
+    }
+.navigation--mute.is-muted .icon-unmuted {
+      display: none;
+      visibility: hidden;
+    }
+.navigation--mute .icon-muted {
+    display: none;
+    visibility: hidden;
+  }
+.navigation--mute .icon-unmuted {
+    display: inline;
+    visibility: visible;
+  }
 
 /* src/css/sleep.css */
 #sleep-controller {
@@ -2551,7 +2567,7 @@ figure {
     border-radius: 0;
   }
 
-/* src/css/utis.css */
+/* src/css/utils.css */
 .order-1 {
   -moz-box-ordinal-group: 2;
        order: 1;
