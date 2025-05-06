@@ -1272,7 +1272,7 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
 > e.g.
 > ```yaml
 > volumes:
->   - /path/to/offline-assets:/offline-assets
+>   - ./offline-assets:/offline-assets  # Mount a local directory to persist cached assets
 > ```
 
 > [!IMPORTANT]
@@ -1285,7 +1285,8 @@ This feature is useful when you want to view your photos without an active conne
 
 1. If you are using Docker and want offline assets to persist between container restarts, mount a volume into the container.
 2. Configure Offline Mode by setting the `offline_mode.enabled` option to `true` (and any other options you want) in your ENVs or config.yaml.
-3. Navigate to the Immich Kiosk web interface with the `use_offline_mode` url parameter set to `true`. e.g. `http://{URL}?use_offline_mode=true`
+3. Navigate to the Immich Kiosk web interface. To actually use offline mode on a specific device, add the `use_offline_mode=true` parameter to the URL: `http://{URL}?use_offline_mode=true`
+
 
 ### Offline Mode Configuration Options
 
