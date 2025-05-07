@@ -1276,7 +1276,17 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
 > ```
 
 > [!IMPORTANT]
-> Offline Mode configuration options cannot be overridden via URL parameters (aside from the use_offline_mode flag).
+> Unlike most Kiosk settings, most configuration options cannot be overridden via URL parameters while using Offline Mode. Only a few UI options are allowed:
+> - `use_offline_mode` (required for offline mode)
+> - `show_progress`
+> - `frameless`
+> - `disable_navigation`
+> - `clock_source`
+> - `refresh`
+> - `font_size`
+> - `sleep_start`
+> - `sleep_end`
+
 
 Offline Mode allows you to download assets for offline viewing.
 This feature is useful when you want to view your photos without an active connection to Immich (after download).
@@ -1292,9 +1302,8 @@ When using Offline Mode, some Kiosk features are unavailable. These include:
 ### Setting Up Offline Mode
 
 1. Ensure you mount a volume (see note above) if you want offline assets to persist across restarts.
-2. Configure Offline Mode by setting the `offline_mode.enabled` option to `true` (and any other options you want) in your ENVs or config.yaml.
-3. Navigate to the Immich Kiosk web interface. To actually use offline mode on a specific device, add the `use_offline_mode=true` parameter to the URL: `http://{URL}?use_offline_mode=true`
-
+2. Configure Offline Mode by setting the `offline_mode.enabled` option to `true` (and any other options you want) in your config.yaml.
+3. When accessing Immich Kiosk from a device that needs offline mode, add the `use_offline_mode=true` parameter to the URL: `http://{URL}?use_offline_mode=true`
 
 ### Offline Mode Configuration Options
 
