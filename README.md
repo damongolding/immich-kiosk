@@ -1281,6 +1281,14 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
 Offline Mode allows you to download assets for offline viewing.
 This feature is useful when you want to view your photos without an active connection to Immich (after download).
 
+### Limitations of Offline Mode
+
+When using Offline Mode, some Kiosk features are unavailable. These include:
+
+- Experimental Album Video
+- Album Ordering
+- Like/Hide Buttons
+
 ### Setting Up Offline Mode
 
 1. If you are using Docker and want offline assets to persist between container restarts, mount a volume into the container.
