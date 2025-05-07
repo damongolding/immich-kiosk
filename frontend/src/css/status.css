@@ -23,6 +23,11 @@
     filter: drop-shadow(0rem 0rem 1rem black);
 }
 
+.offline--icon {
+    width: 2.875rem;
+    height: 2.875rem;
+}
+
 .offline {
     display: block !important;
 }
@@ -38,5 +43,64 @@
 
     &.downloading {
         display: block;
+    }
+
+    #downloading--icon {
+        width: 2.875rem;
+        height: 2.875rem;
+    }
+}
+
+/* Spinner container */
+#downloading-spinner {
+    position: absolute;
+    width: 3.75rem;
+    height: 3.75rem;
+    left: -0.4375rem;
+    top: -0.4375rem;
+    display: block;
+    margin: 0 auto;
+    animation: downloading-spinner-spin 2s linear infinite;
+    will-change: transform;
+    filter: none !important;
+}
+
+@keyframes downloading-spinner-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#downloading-circle {
+    stroke-dasharray: 160;
+    stroke-dashoffset: 160;
+    stroke-linecap: round;
+    animation: downloading-spinner 1.7s cubic-bezier(0.445, 0.05, 0.55, 0.95)
+        infinite;
+    transform: translateZ(0);
+    transform-origin: center;
+    will-change: stroke-dashoffset;
+    filter: none !important;
+}
+
+@keyframes downloading-spinner {
+    0% {
+        stroke-dashoffset: 143;
+        transform: scaleY(1);
+    }
+    49.99% {
+        stroke-dashoffset: 0;
+        transform: scaleY(1);
+    }
+    50% {
+        stroke-dashoffset: 0;
+        transform: scaleY(-1) rotate(25deg);
+    }
+    100% {
+        stroke-dashoffset: 143;
+        transform: scaleY(-1) rotate(-32deg);
     }
 }

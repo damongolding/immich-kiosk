@@ -521,7 +521,7 @@ func checkOfflineAssetsExpiration() (bool, error) {
 
 func IsDownloading(c echo.Context) error {
 	if IsOfflineDownloadRunning() {
-		return Render(c, http.StatusOK, partials.DownloadingStatus(true))
+		return c.NoContent(http.StatusOK)
 	}
 
 	return Render(c, http.StatusOK, partials.DownloadingStatus(false))

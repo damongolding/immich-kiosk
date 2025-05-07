@@ -187,6 +187,7 @@ form {
 figure {
   padding: 0;
   margin: 0;
+  position: relative;
 }
 
 /* src/css/container.css */
@@ -1880,6 +1881,10 @@ figure {
   -webkit-filter: drop-shadow(0rem 0rem 1rem black);
           filter: drop-shadow(0rem 0rem 1rem black);
 }
+.offline--icon {
+  width: 2.875rem;
+  height: 2.875rem;
+}
 .offline {
   display: block !important;
 }
@@ -1893,6 +1898,103 @@ figure {
 #download.downloading {
     display: block;
   }
+#download #downloading--icon {
+    width: 2.875rem;
+    height: 2.875rem;
+  }
+#downloading-spinner {
+  position: absolute;
+  width: 3.75rem;
+  height: 3.75rem;
+  left: -0.4375rem;
+  top: -0.4375rem;
+  display: block;
+  margin: 0 auto;
+  -moz-animation: downloading-spinner-spin 2s linear infinite;
+       animation: downloading-spinner-spin 2s linear infinite;
+  will-change: transform;
+  -webkit-filter: none !important;
+          filter: none !important;
+}
+@-moz-keyframes downloading-spinner-spin {
+  from {
+    -moz-transform: rotate(0deg);
+         transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+         transform: rotate(360deg);
+  }
+}
+@keyframes downloading-spinner-spin {
+  from {
+    -moz-transform: rotate(0deg);
+         transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+         transform: rotate(360deg);
+  }
+}
+#downloading-circle {
+  stroke-dasharray: 160;
+  stroke-dashoffset: 160;
+  stroke-linecap: round;
+  -moz-animation: downloading-spinner 1.7s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
+       animation: downloading-spinner 1.7s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
+  -moz-transform: translateZ(0);
+       transform: translateZ(0);
+  -moz-transform-origin: center;
+   -ms-transform-origin: center;
+       transform-origin: center;
+  will-change: stroke-dashoffset;
+  -webkit-filter: none !important;
+          filter: none !important;
+}
+@-moz-keyframes downloading-spinner {
+  0% {
+    stroke-dashoffset: 143;
+    -moz-transform: scaleY(1);
+         transform: scaleY(1);
+  }
+  49.99% {
+    stroke-dashoffset: 0;
+    -moz-transform: scaleY(1);
+         transform: scaleY(1);
+  }
+  50% {
+    stroke-dashoffset: 0;
+    -moz-transform: scaleY(-1) rotate(25deg);
+         transform: scaleY(-1) rotate(25deg);
+  }
+  100% {
+    stroke-dashoffset: 143;
+    -moz-transform: scaleY(-1) rotate(-32deg);
+         transform: scaleY(-1) rotate(-32deg);
+  }
+}
+@keyframes downloading-spinner {
+  0% {
+    stroke-dashoffset: 143;
+    -moz-transform: scaleY(1);
+         transform: scaleY(1);
+  }
+  49.99% {
+    stroke-dashoffset: 0;
+    -moz-transform: scaleY(1);
+         transform: scaleY(1);
+  }
+  50% {
+    stroke-dashoffset: 0;
+    -moz-transform: scaleY(-1) rotate(25deg);
+         transform: scaleY(-1) rotate(25deg);
+  }
+  100% {
+    stroke-dashoffset: 143;
+    -moz-transform: scaleY(-1) rotate(-32deg);
+         transform: scaleY(-1) rotate(-32deg);
+  }
+}
 
 /* src/css/offline.css */
 
