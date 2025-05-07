@@ -23,6 +23,8 @@ import {
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
+import { toggleMute } from "./mute";
+import { storageUtils } from "./storage";
 
 ("use strict");
 
@@ -32,6 +34,9 @@ interface HTMXEvent extends Event {
     successful: boolean;
     parameters: FormData;
     method: string;
+    pathInfo: {
+      requestPath: string;
+    };
   };
 }
 
@@ -63,9 +68,13 @@ type KioskData = {
   transition: string;
   showMoreInfo: boolean;
   showRedirects: boolean;
+  httpTimeout: number;
 };
 
 const MAX_FRAMES: number = 2 as const;
+
+const TIMEOUT_RETRIES: number = 2 as const;
+let timeouts: Record<string, number> = {};
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -98,6 +107,9 @@ const nextImageMenuButton = htmx.find(
 const prevImageMenuButton = htmx.find(
   ".navigation--prev-asset",
 ) as HTMLElement | null;
+const toggleMuteMenuButton = htmx.find(
+  ".navigation--mute",
+) as HTMLElement | null;
 const moreInfoButton = htmx.find(
   ".navigation--more-info",
 ) as HTMLElement | null;
@@ -122,6 +134,12 @@ let requestInFlight = false;
 async function init(): Promise<void> {
   if (kioskData.debugVerbose) {
     htmx.logAll();
+  }
+
+  if (kioskData.httpTimeout <= 0) {
+    htmx.config.timeout = 0;
+  } else {
+    htmx.config.timeout = kioskData.httpTimeout * 100 * 3;
   }
 
   if (
@@ -235,6 +253,7 @@ function handleRedirectsKeyPress(): void {
  * - Image overlay visibility control
  * - HTMX error handling for offline detection
  * - Server connectivity status monitoring and display
+ * - Mute button handling
  */
 function addEventListeners(): void {
   // Unable to send ajax. probably offline.
@@ -258,8 +277,24 @@ function addEventListeners(): void {
 
     if (e.detail.successful) {
       htmx.removeClass(offlineSVG, "offline");
+      timeouts[e.detail.pathInfo.requestPath] = 0;
     } else {
       htmx.addClass(offlineSVG, "offline");
+    }
+  });
+
+  htmx.on("htmx:timeout", function (e: HTMXEvent) {
+    let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
+
+    currentTimeout =
+      currentTimeout === undefined || isNaN(currentTimeout)
+        ? 1
+        : currentTimeout + 1;
+
+    timeouts[e.detail.pathInfo.requestPath] = currentTimeout;
+
+    if (currentTimeout > TIMEOUT_RETRIES) {
+      window.location.reload();
     }
   });
 
@@ -306,12 +341,21 @@ function addEventListeners(): void {
         e.preventDefault();
         handleRedirectsKeyPress();
         break;
+
+      case "KeyM":
+        if (!toggleMuteMenuButton) return;
+        e.preventDefault();
+        toggleMute();
+        break;
     }
   });
 
   // Fullscreen
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
+
+  // Toggle mute
+  toggleMuteMenuButton?.addEventListener("click", toggleMute);
 
   // More info overlay
   moreInfoButton?.addEventListener("click", () => toggleAssetOverlay());
@@ -398,8 +442,14 @@ function releaseRequestLock(): void {
  * - Sets request lock when navigation is permitted
  */
 function checkHistoryExists(e: HTMXEvent): void {
-  const historyItems = htmx.findAll(".kiosk-history--entry");
-  if (requestInFlight || historyItems.length < 2) {
+  const historyItems = htmx.findAll(
+    ".kiosk-history--entry",
+  ) as NodeListOf<HTMLInputElement>;
+  if (
+    requestInFlight ||
+    historyItems.length < 2 ||
+    (historyItems.length > 0 && historyItems[0].value[0] === "*")
+  ) {
     e.preventDefault();
     return;
   }

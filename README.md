@@ -39,8 +39,9 @@
 > [!IMPORTANT]
 > **This project is not affiliated with [Immich][immich-github-url]**
 
-> [!WARNING]
-> Like the Immich project, this project is currently in beta and may experience breaking changes.
+> [!TIP]
+> You can try the ImmichKiosk the demo [here](https://demo.immichkiosk.app/).
+
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
@@ -80,6 +81,18 @@
 
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
+
+### Demo
+
+> [!NOTE]
+> The demo is hosted on Render's free tier. You might see a "Application Loading" screen while the app restarts.
+
+Try the Immich Kiosk demo here: [demo.immichkiosk.app](https://demo.immichkiosk.app/)
+
+Want to explore the features? You can:
+1. Visit the [Immich demo instance](https://demo.immich.app/)
+2. Log in to browse albums
+3. Copy any album or people IDs to use in the kiosk demo e.g. `https://demo.immichkiosk.app?album=ALBUM_ID`
 
 ## Requirements
 - A reachable Immich server that is running version v1.127.0 or above.
@@ -261,6 +274,7 @@ services:
       KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_EXPERIMENTAL_ALBUM_VIDEO: false
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
+      KIOSK_REQUIRE_ALL_PEOPLE: false
       KIOSK_EXCLUDED_PEOPLE: "PERSON_ID,PERSON_ID,PERSON_ID"
       KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
       KIOSK_TAG: "TAG_VALUE,TAG_VALUE,TAG_VALUE"
@@ -292,6 +306,7 @@ services:
       KIOSK_IMAGE_EFFECT_AMOUNT: 120
       KIOSK_USE_ORIGINAL_IMAGE: false
       # Image metadata
+      KIOSK_SHOW_OWNER: false
       KIOSK_SHOW_ALBUM_NAME: false
       KIOSK_SHOW_PERSON_NAME: false
       KIOSK_SHOW_PERSON_AGE: false
@@ -392,7 +407,8 @@ See the file `config.example.yaml` for an example config file
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [experimental_album_video](#experimental-album-video-support) | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. See [experimental album video](#experimental-album-video-support) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
-| [excluded_people](#exclude-people) | KIOSK_EXCLUDED_PEOPLE   | []string                  | []         | The ID(s) of a specific person or people you want to exclude. See [Exclude people](#exclude-people) for more information. |
+| [require_all_people](#require-all-people) | KIOSK_REQUIRE_ALL_PEOPLE | bool              | false       | Require all people to be present in an asset. See [Require all people](#require-all-people) for more information. |
+| [excluded_people](#exclude-people) | KIOSK_EXCLUDED_PEOPLE  | []string                   | []          | The ID(s) of a specific person or people you want to exclude. See [Exclude people](#exclude-people) for more information. |
 | [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges. See [Date range](#date-range) for more information. |
 | [tag](#tags)                      | KIOSK_TAG               | []string                   | []          | Tag or tags you want to display. See [Tags](#tags) for more information. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memories. |
@@ -419,6 +435,7 @@ See the file `config.example.yaml` for an example config file
 | [image_effect](#image-effects)    | KIOSK_IMAGE_EFFECT      | none \| zoom \| smart-zoom | none        | Add an effect to images.                                                                   |
 | [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fallback to using the preview. |
+| show_owner                        | KIOSK_SHOW_OWNER        | bool                       | false       | Display the asset owner. Useful for shared albums.                                         |
 | show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display album name(s) that the asset appears in.                                           |
 | show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display person name(s).                                                                    |
 | show_person_age                   | KIOSK_SHOW_PERSON_AGE   | bool                       | false       | Display person age.                                                                        |
@@ -426,7 +443,7 @@ See the file `config.example.yaml` for an example config file
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
 | [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information.
-| show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available). |
+| show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available).                                    |
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF           | bool               | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION       | bool               | false       | Display the image location from METADATA (if available).                                   |
 | hide_countries                    | KIOSK_HIDE_COUNTRIES            | []string           | []          | List of countries to hide from image_location                                              |
@@ -775,6 +792,56 @@ e.g. `http://{URL}?person=all`
 
 ------
 
+# Require All People
+
+The "Require all people" feature allows you to filter images to only show those where all specified people are present together in the same photo.
+
+## Configuration
+
+You can enable this feature in three ways (listed in order of precedence):
+
+1. **URL Query Parameter**:
+```url
+http://{URL}?require_all_people=true
+```
+
+2. **Environment Variable**:
+```yaml
+environment:
+  KIOSK_REQUIRE_ALL_PEOPLE: "true"
+```
+
+3. **Config File** (config.yaml):
+```yaml
+require_all_people: true
+```
+
+## How It Works
+
+When enabled:
+- Only photos containing ALL specified people will be displayed
+- Photos where only some of the specified people appear will be excluded
+
+## Example Use Cases
+
+1. **Family Photos**:
+   - Set multiple person IDs for family members
+   - Enable `require_all_people` to only show assets where the whole family is together
+
+2. **Group Events**:
+   - Specify IDs for members of a group
+   - See only photos where everyone was present
+
+## Important Notes
+
+> [!NOTE]
+> - This setting only takes effect when multiple people are specified
+> - If no matching photos are found (where all people appear together), Kiosk will display an error message
+> - This feature **cannot** be combined with other source/buckets like date ranges or albums
+> - Setting to `false` returns to default behavior where photos containing ANY of the specified people will be shown
+
+------
+
 ## Exclude people
 
 > [!NOTE]
@@ -1099,6 +1166,30 @@ The custom CSS will apply to all devices connected to Kiosk by default.
 
 To disable custom CSS for a specific device, add `custom_css=false` to the URL parameters e.g. `http://{URL}?custom_css=false`
 
+### Custom CSS class
+
+To add a class to the `<body>` tag add `custom_css_class=CUSTOM-CLASS` to the URL parameters e.g. `http://{URL}?custom_css_class=foo`
+
+This enables you to target specific devices in your CSS.
+
+e.g.
+
+```CSS
+/* applied to all */
+#clock,
+#weather,
+.image--metadata {
+    padding: 4rem;
+}
+
+/* applied to devices with `custom_css_class=foo` */
+.foo #clock,
+.foo #weather,
+.image--metadata {
+    padding: 2rem;
+}
+```
+
 ------
 
 ## Weather
@@ -1119,6 +1210,10 @@ You can configure multiple locations in the `config.yaml` file, and choose which
 
 ### Weather Location Configuration Options:
 
+> [!TIP]
+> If you would prefer to use the location name from OpenWeatherMap's API, add "-api" to the end of the name.
+> e.g. `name: london-api`
+
 | **Value**   | **Description** |
 |-------------|-----------------|
 | name        | The location’s display name (used in the URL query). |
@@ -1131,12 +1226,20 @@ You can configure multiple locations in the `config.yaml` file, and choose which
 
 ### Example Configuration
 
-Here’s an example of how to add London and New York to the config.yaml file. These locations would be selectable via the URL, like this:
+Here’s an example of how to add London, London using OpenWeatherMap's name and New York to the config.yaml file. These locations would be selectable via the URL, like this:
 http://{URL}?weather=london or http://{URL}?weather=new-york.
 
 ```yaml
  weather:
   - name: london
+    lat: 51.5285262
+    lon: -0.2663999
+    api: API_KEY
+    unit: metric
+    lang: en
+    default: true
+
+  - name: london-api
     lat: 51.5285262
     lon: -0.2663999
     api: API_KEY
@@ -1260,7 +1363,7 @@ Each redirect consists of:
 - `url`: The destination URL where users will be redirected to
 - `type`: Optional field that controls URL behavior:
   - `internal`: The default behavior that keeps the URL unchanged during redirection (useful for maintaining browser history)
-  - `external`: Allows URL changes during redirection (default if omitted)
+  - `external`: Allows URL changes during redirection
 
 ### Examples
 
@@ -1338,15 +1441,16 @@ To validate webhooks on your server, you should:
 
 | Event                              | Description                                                                         |
 |------------------------------------|-------------------------------------------------------------------------------------|
-|`asset.new`                         | Triggered when a new image is requested from Kiosk                                  |
-|`asset.previous`                    | Triggered when a previous image is requested from Kiosk                             |
-|`asset.prefetch`                    | Triggered when Kiosk prefecthes asset data from Immich                              |
+|`asset.new`                         | Triggered when a new asset is requested from Kiosk                                  |
+|`asset.prefetch`                    | Triggered when Kiosk prefetches an asset data from Immich                           |
+|`asset.history.next`                | Triggered when a history asset (next) is requested from Kiosk                       |
+|`asset.history.previous`            | Triggered when a history asset (previous) is requested from Kiosk                   |
 |`cache.flushed`                     | Triggered when the cache is manually cleared                                        |
-|`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the image details overlay |
-|`user.like.info_overlay`        | Triggered when the "like" button is clicked in the image details overlay        |
-|`user.unlike.info_overlay`      | Triggered when the "unlike" button is clicked in the image details overlay      |
-|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the image details overlay            |
-|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the image details overlay          |
+|`user.webhook.trigger.info_overlay` | Triggered when the "trigger webhook" button is clicked in the asset details overlay |
+|`user.like.info_overlay`            | Triggered when the "like" button is clicked in the asset details overlay            |
+|`user.unlike.info_overlay`          | Triggered when the "unlike" button is clicked in the asset details overlay          |
+|`user.hide.info_overlay`            | Triggered when the "hide" button is clicked in the asset details overlay            |
+|`user.unhide.info_overlay`          | Triggered when the "unhide" button is clicked in the asset details overlay          |
 
 ### Webhook Payload
 

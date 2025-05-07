@@ -60,7 +60,7 @@ var (
 		ExpectContinueTimeout: 1 * time.Second,
 	}
 	// httpClient default http client for Immich api calls
-	httpClient = &http.Client{
+	HTTPClient = &http.Client{
 		Transport: httpTransport,
 	}
 
@@ -85,6 +85,12 @@ type Error struct {
 	Message    []string `json:"message"`
 	Error      string   `json:"error"`
 	StatusCode int      `json:"statusCode"`
+}
+
+type Owner struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+	Name  string `json:"name"`
 }
 
 type ExifInfo struct {
@@ -154,6 +160,7 @@ type Asset struct {
 	ID               string    `json:"id"`
 	DeviceAssetID    string    `json:"-"` // `json:"deviceAssetId"`
 	OwnerID          string    `json:"ownerId"`
+	Owner            Owner     `json:"owner"`
 	DeviceID         string    `json:"-"` // `json:"deviceId"`
 	LibraryID        string    `json:"-"` // `json:"libraryId"`
 	Type             AssetType `json:"type"`

@@ -95,6 +95,8 @@ type KioskSettings struct {
 	// debug modes
 	Debug        bool `json:"debug" mapstructure:"debug" default:"false"`
 	DebugVerbose bool `json:"debugVerbose" mapstructure:"debug_verbose" default:"false"`
+
+	DemoMode bool `json:"-" mapstructure:"demo_mode" default:"false"`
 }
 
 type WeatherLocation struct {
@@ -167,6 +169,8 @@ type Config struct {
 	ShowUser bool `json:"showUser" mapstructure:"show_user" query:"show_user" form:"show_user" default:"false"`
 	// SelectedUser selected user from User for the specific request
 	SelectedUser string `json:"selectedUser" default:""`
+	// ShowOwner whether to display owner
+	ShowOwner bool `json:"showOwner" mapstructure:"show_owner" query:"show_owner" form:"show_owner" default:"false"`
 
 	// DisableNavigation remove navigation
 	DisableNavigation bool `json:"disableNavigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
@@ -211,8 +215,9 @@ type Config struct {
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `json:"showArchived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display
-	Person         []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
-	ExcludedPeople []string `json:"excluded_people" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
+	Person           []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
+	RequireAllPeople bool     `json:"requireAllPeople" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
+	ExcludedPeople   []string `json:"excludedPeople" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
 
 	// Album ID of album(s) to display
 	Album []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
@@ -256,6 +261,8 @@ type Config struct {
 	ShowProgress bool `json:"showProgress" mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
 	// CustomCSS use custom css file
 	CustomCSS bool `json:"customCSS" mapstructure:"custom_css" query:"custom_css" form:"custom_css" default:"true"`
+	// CustomCSSClass add a class to the body tag
+	CustomCSSClass string `json:"customCSSClass" mapstructure:"custom_css_class" query:"custom_css_class" form:"custom_css_class" default:""`
 
 	// ShowAlbumName whether to display the album name
 	ShowAlbumName bool `json:"showAlbumName" mapstructure:"show_album_name" query:"show_album_name" form:"show_album_name" default:"false"`
@@ -263,6 +270,8 @@ type Config struct {
 	ShowPersonName bool `json:"showPersonName" mapstructure:"show_person_name" query:"show_person_name" form:"show_person_name" default:"false"`
 	// ShowPersonAge whether to display the person age
 	ShowPersonAge bool `json:"showPersonAge" mapstructure:"show_person_age" query:"show_person_age" form:"show_person_age" default:"false"`
+	// AgeSwitchToYearsAfter when to switch from months to years
+	AgeSwitchToYearsAfter int `json:"ageSwitchToYearsAfter" mapstructure:"age_switch_to_years_after" query:"age_switch_to_years_after" form:"age_switch_to_years_after" default:"1"`
 
 	// ShowImageTime whether to display image time
 	ShowImageTime bool `json:"showImageTime" mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`
@@ -363,6 +372,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING"},
 		{"kiosk.debug", "KIOSK_DEBUG"},
 		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
+		{"kiosk.demo_mode", "KIOSK_DEMO_MODE"},
 	}
 
 	for _, bv := range bindVars {
@@ -410,6 +420,10 @@ func (c *Config) Load() error {
 	c.V.AddConfigPath(".")         // Look in the current directory
 	c.V.AddConfigPath("./config/") // Look in the 'config/' subdirectory
 	c.V.AddConfigPath("../../")    // Look in the parent directory for testing
+
+	if os.Getenv("KIOSK_DEMO_MODE") != "" {
+		c.V.SetConfigFile("./demo.config.yaml") // use demo config file
+	}
 
 	c.V.SetEnvPrefix("kiosk")
 
@@ -475,6 +489,15 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 	}
 
 	c.checkExcludedAlbums()
+
+	// Disabled features in demo mode
+	if c.Kiosk.DemoMode {
+		c.ExperimentalAlbumVideo = false
+		c.UseOriginalImage = false
+		c.OptimizeImages = false
+		c.Memories = false
+		c.Kiosk.FetchedAssetsSize = 100
+	}
 
 	return nil
 }

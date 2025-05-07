@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"slices"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -49,6 +50,11 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		if !requestConfig.DisableSleep && isSleepMode(requestConfig) {
 			return c.NoContent(http.StatusNoContent)
+		}
+
+		// use history
+		if len(requestConfig.History) > 1 && !strings.HasPrefix(requestConfig.History[len(requestConfig.History)-1], "*") {
+			return NextHistoryAsset(baseConfig, com, c)
 		}
 
 		requestCtx := common.CopyContext(c)
@@ -268,6 +274,10 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 			return echo.NewHTTPError(http.StatusBadRequest, "Asset ID is required")
 		}
 
+		if baseConfig.Kiosk.DemoMode {
+			return Render(c, http.StatusOK, partials.LikeButton(assetID, true, true, true, com.Secret()))
+		}
+
 		immichAsset := immich.New(com.Context(), requestConfig)
 		immichAsset.ID = assetID
 		infoErr := immichAsset.AssetInfo(requestID, requestData.DeviceID)
@@ -355,6 +365,10 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		if tagName == "" {
 			log.Error("Tag name is required")
 			return echo.NewHTTPError(http.StatusBadRequest, "Tag name is required")
+		}
+
+		if baseConfig.Kiosk.DemoMode {
+			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, com.Secret()))
 		}
 
 		immichAsset := immich.New(com.Context(), requestConfig)

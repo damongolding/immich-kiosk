@@ -1789,20 +1789,24 @@ form {
 }
 .progress--bar {
   position: absolute;
-  width: 0;
+  width: 100%;
   height: 100%;
   top: 0;
   left: 0;
-  border-radius: 0 1rem 1rem 0;
   background-color: #1e83f7;
-  -moz-transition: width 0.1s linear;
-  transition: width 0.1s linear;
-  -moz-transform: translateZ(0);
-       transform: translateZ(0);
-  will-change: width;
+  will-change: transform;
+  -moz-transform-origin: left;
+   -ms-transform-origin: left;
+       transform-origin: left;
+  -moz-transform: scaleX(0) translateZ(0);
+       transform: scaleX(0) translateZ(0);
   -webkit-backface-visibility: hidden;
      -moz-backface-visibility: hidden;
           backface-visibility: hidden;
+  -moz-transition: transform 0.05s linear, -moz-transform 0.05s linear;
+  transition: transform 0.05s linear;
+  transition: transform 0.05s linear, -moz-transform 0.05s linear;
+  -webkit-perspective: 1000;
 }
 
 /* src/css/offline.css */
@@ -2327,6 +2331,22 @@ form {
   cursor: not-allowed;
   pointer-events: none;
 }
+.navigation--mute.is-muted .icon-muted {
+      display: inline;
+      visibility: visible;
+    }
+.navigation--mute.is-muted .icon-unmuted {
+      display: none;
+      visibility: hidden;
+    }
+.navigation--mute .icon-muted {
+    display: none;
+    visibility: hidden;
+  }
+.navigation--mute .icon-unmuted {
+    display: inline;
+    visibility: visible;
+  }
 
 /* src/css/sleep.css */
 #sleep-controller {
@@ -2482,7 +2502,7 @@ form {
     border-radius: 0;
   }
 
-/* src/css/utis.css */
+/* src/css/utils.css */
 .order-1 {
   -moz-box-ordinal-group: 2;
        order: 1;

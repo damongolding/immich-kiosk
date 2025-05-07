@@ -20,7 +20,8 @@ type WebhookEvent string
 
 const (
 	NewAsset                      WebhookEvent = "asset.new"
-	PreviousAsset                 WebhookEvent = "asset.previous"
+	NextHistoryAsset              WebhookEvent = "asset.history.next"
+	PreviousHistoryAsset          WebhookEvent = "asset.history.previous"
 	PrefetchAsset                 WebhookEvent = "asset.prefetch"
 	CacheFlush                    WebhookEvent = "cache.flush"
 	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"
@@ -64,6 +65,10 @@ func newHTTPClient(timeout time.Duration) *http.Client {
 // event specifies which webhook event (NewAsset, PreviousAsset, etc) triggered this webhook.
 // viewData contains the images and other view context for the current request.
 func Trigger(ctx context.Context, requestData *common.RouteRequestData, kioskVersion string, event WebhookEvent, viewData common.ViewData) {
+
+	if viewData.Kiosk.DemoMode {
+		return
+	}
 
 	if requestData == nil {
 		log.Error("invalid request data")

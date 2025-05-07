@@ -14,7 +14,7 @@ export default [
       },
     },
     rules: {
-      "compat/compat": "error",
+      "compat/compat": "warn",
     },
   },
 ];

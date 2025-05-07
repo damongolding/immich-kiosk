@@ -3,7 +3,7 @@ package partials
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
-	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"html/template"
 	"strings"
 )
@@ -15,19 +15,76 @@ templ History() {
 	</form>
 }
 
-// renderHistory renders a form containing the viewing history of images.
-//
+// RenderHistory renders a form containing the kiosk history entries
 // Parameters:
-//   - viewData: ViewData containing the history and current images.
-templ RenderHistory(viewData common.ViewData, assetType immich.AssetType) {
+//   - viewData: Common view data containing assets and history
+// Returns:
+//   - Rendered form template containing history entries
+templ RenderHistory(viewData common.ViewData) {
 	<form id="kiosk-history" hx-swap-oob="true">
-		for _, historyEntry := range viewData.History {
-			<input type="hidden" class="kiosk-history--entry" name="history" value={ historyEntry }/>
-		}
-		<input type="hidden" class="kiosk-history--entry" name="history" value={ newHistoryEntry(viewData.Assets) }/>
+		@renderEntries(viewData)
 	</form>
 }
 
+// renderHistoryInput renders a single hidden input field for a history entry
+// Parameters:
+//   - value: History entry value to store in the input
+// Returns:
+//   - Rendered input template
+templ renderHistoryInput(value string) {
+	<input type="hidden" class="kiosk-history--entry" name="history" value={ value }/>
+}
+
+// renderEntries renders all history entries for the kiosk
+// Handles three cases:
+// 1. Empty history - renders just the new entry
+// 2. Existing history - renders all existing entries
+// 3. History with indicators - processes and renders entries with indicators
+// Parameters:
+//   - viewData: Common view data containing assets and history
+// Returns:
+//   - Rendered template containing all history entries
+templ renderEntries(viewData common.ViewData) {
+	{{ newEntry := newHistoryEntry(viewData.Assets) }}
+	// Case 1: Empty history
+	if len(viewData.History) == 0 {
+		@renderHistoryInput(newEntry)
+	} else if !strings.HasPrefix(viewData.History[len(viewData.History)-1], kiosk.HistoryIndicator) {
+		// Case 2: Using existing history
+		for _, entry := range viewData.History {
+			@renderHistoryInput(entry)
+		}
+	} else {
+		// Case 3: Processing history with indicators
+		for i, entry := range viewData.History {
+			if i == len(viewData.History)-1 {
+				if newEntry == entry {
+					// Still using history
+					@renderHistoryInput(entry)
+				} else {
+					// New asset
+					@renderHistoryInput(strings.Replace(entry, kiosk.HistoryIndicator, "", -1))
+					@renderHistoryInput(newEntry)
+				}
+				{{ continue }}
+			}
+			@renderHistoryInput(strings.Replace(entry, kiosk.HistoryIndicator, "", -1))
+		}
+	}
+}
+
+// newHistoryEntry creates a new comma-separated history entry string from a slice of images
+// It takes a slice of ViewImageData and returns a history string in the format "*id1:user1,id2:user2".
+// Each image entry is HTML escaped and prefixed with * to indicate it's new. Returns empty string if
+// no images provided.
+//
+//	\* = the current image being viewed
+//
+// Parameters:
+//   - images: Slice of ViewImageData containing image assets and associated users
+//
+// Returns:
+//   - String containing the formatted history entry or empty string if no images
 func newHistoryEntry(images []common.ViewImageData) string {
 	if len(images) == 0 {
 		return ""
@@ -38,5 +95,5 @@ func newHistoryEntry(images []common.ViewImageData) string {
 		sanitisedID := template.HTMLEscapeString(assetHistory)
 		newImages[i] = sanitisedID
 	}
-	return strings.Join(newImages, ",")
+	return kiosk.HistoryIndicator + strings.Join(newImages, ",")
 }
