@@ -24,6 +24,8 @@ require (
 	golang.org/x/image v0.27.0
 	golang.org/x/sync v0.14.0
 	golang.org/x/text v0.25.0
+	golang.org/x/time v0.8.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
