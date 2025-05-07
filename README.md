@@ -1291,7 +1291,7 @@ When using Offline Mode, some Kiosk features are unavailable. These include:
 
 ### Setting Up Offline Mode
 
-1. If you are using Docker and want offline assets to persist between container restarts, mount a volume into the container.
+1. Ensure you mount a volume (see note above) if you want offline assets to persist across restarts.
 2. Configure Offline Mode by setting the `offline_mode.enabled` option to `true` (and any other options you want) in your ENVs or config.yaml.
 3. Navigate to the Immich Kiosk web interface. To actually use offline mode on a specific device, add the `use_offline_mode=true` parameter to the URL: `http://{URL}?use_offline_mode=true`
 
