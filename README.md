@@ -86,7 +86,7 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 ### Demo
 
 > [!NOTE]
-> The demo is hosted on Render's free tier. You might see a "Application Loading" screen while the app restarts.
+> The demo is hosted on Render's free tier. You might see an "Application Loading" screen while the app restarts.
 
 Try the Immich Kiosk demo here: [demo.immichkiosk.app](https://demo.immichkiosk.app/)
 
@@ -399,7 +399,7 @@ See the file `config.example.yaml` for an example config file
 | immich_url                        | KIOSK_IMMICH_URL        | string                     | ""          | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`. |
 | immich_external_url             | KIOSK_IMMICH_EXTERNAL_URL | string                     | ""          | The public URL of your Immich server used for generating links and QR codes in the additional information overlay. Useful when accessing Immich through a reverse proxy or different external URL. Example: "https://photos.example.com". If not set, falls back to immich_url. |
 | show_time                         | KIOSK_SHOW_TIME         | bool                       | false       | Display clock.                                                                             |
-| time_format                       | KIOSK_TIME_FORMAT       | 24 \| 12                   | 24          | Display clock time in either 12-hour or 24-hour format. Can either be 12 or 24.            |
+| time_format                       | KIOSK_TIME_FORMAT       | 24 \| 12                   | 24          | Display clock time in either 12-hour or 24-hour format. This can either be 12 or 24.       |
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | clock_source                      | KIOSK_CLOCK_SOURCE      | client \| server           | client      | The source of the clock. Either client or server.                                          |
