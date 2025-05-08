@@ -110,7 +110,10 @@ func triggers(disableNav bool) string {
 		keyup[key=='ArrowRight'] from:body throttle:1s,
 		`)
 	}
-	b.WriteString("kiosk-new-asset throttle:1s")
+	b.WriteString(`
+		kiosk-new-asset throttle:1s,
+		kiosk-new-offline-asset from:body
+	`)
 
 	return b.String()
 }

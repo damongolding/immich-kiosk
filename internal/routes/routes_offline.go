@@ -524,6 +524,8 @@ func IsDownloading(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
 
+	c.Response().Header().Add("HX-Trigger", "kiosk-new-offline-asset")
+
 	return Render(c, http.StatusOK, partials.DownloadingStatus(false))
 }
 
