@@ -29,16 +29,18 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 		for i, img := range viewData.Assets {
 			<div class="more-info--image">
 				<div class="more-info--image--data">
-					<div class="more-info--button-group">
-						@LikeButton(
-							img.ImmichAsset.ID,
-							img.ImmichAsset.IsFavorite,
-							false,
-							img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
-							secret,
-						)
-						@HideButton(img.ImmichAsset.ID, img.ImmichAsset.HasTag(kiosk.TagSkip), secret)
-					</div>
+					if !viewData.UseOfflineMode {
+						<div class="more-info--button-group">
+							@LikeButton(
+								img.ImmichAsset.ID,
+								img.ImmichAsset.IsFavorite,
+								false,
+								img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
+								secret,
+							)
+							@HideButton(img.ImmichAsset.ID, img.ImmichAsset.HasTag(kiosk.TagSkip), secret)
+						</div>
+					}
 					@originalImageTimeLocation(viewData, i, viewData.HideCountries)
 					@cameraData(img.ImmichAsset.ExifInfo)
 					@originalAssetData(img.ImmichAsset)

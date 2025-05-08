@@ -29,7 +29,11 @@ templ Home(viewData common.ViewData) {
 		@partials.Body(viewData) {
 			<main
 				id="kiosk"
-				hx-post="/asset/new"
+				if viewData.UseOfflineMode && viewData.OfflineMode.Enabled {
+					hx-post="/asset/offline"
+				} else {
+					hx-post="/asset/new"
+				}
 				hx-include=".kiosk-history--entry"
 				hx-trigger={ triggers(viewData.DisableNavigation) }
 				hx-on::before-send="kiosk.setRequestLock(event)"
@@ -62,7 +66,7 @@ templ Home(viewData common.ViewData) {
 			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd, viewData.DisableSleep)
 			@partials.History()
 			@partials.RefreshCheck(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
-			@partials.OfflineIcon()
+			@partials.Status()
 			@kioskData(map[string]any{
 				"debug":              viewData.Kiosk.Debug,
 				"debugVerbose":       viewData.Kiosk.DebugVerbose,
@@ -106,7 +110,10 @@ func triggers(disableNav bool) string {
 		keyup[key=='ArrowRight'] from:body throttle:1s,
 		`)
 	}
-	b.WriteString("kiosk-new-asset throttle:1s")
+	b.WriteString(`
+		kiosk-new-asset throttle:1s,
+		kiosk-new-offline-asset from:body
+	`)
 
 	return b.String()
 }

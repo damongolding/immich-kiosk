@@ -7,6 +7,7 @@ package routes
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
@@ -32,6 +33,8 @@ var (
 	drawFacesOnImages string
 
 	VideoManager *video.Manager
+
+	mu sync.Mutex
 )
 
 type PersonOrAlbum struct {
@@ -107,6 +110,13 @@ func RenderError(c echo.Context, err error, message string) error {
 	return Render(c, http.StatusOK, partials.Error(partials.ErrorData{
 		Title:   "Error " + message,
 		Message: err.Error(),
+	}))
+}
+
+func RenderMessage(c echo.Context, title, message string) error {
+	return Render(c, http.StatusOK, partials.Message(partials.MessageData{
+		Title:   title,
+		Message: message,
 	}))
 }
 

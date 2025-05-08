@@ -3,6 +3,10 @@
   --light-grey: #f7f9f8;
   --cool-grey: #333460;
   --mint-green: #1ed2bb;
+  --mint-green-rgb:
+    30,
+    210,
+    187;
   --yellow: #e7e65f;
   --pink: #de475a;
   --vibrant-pink: #ff6578;
@@ -183,6 +187,11 @@ body {
 }
 form {
   display: none;
+}
+figure {
+  padding: 0;
+  margin: 0;
+  position: relative;
 }
 
 /* src/css/container.css */
@@ -1779,6 +1788,50 @@ form {
   margin-bottom: 0;
 }
 
+/* src/css/message.css */
+.message-container {
+  position: absolute;
+  display: -moz-box;
+  display: flex;
+  -moz-box-pack: center;
+       justify-content: center;
+  -moz-box-align: center;
+       align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+}
+.message {
+  background-color: rgba(var(--mint-green-rgb), 0.4);
+  border: 0.125rem solid var(--mint-green);
+  max-width: 35rem;
+  width: 100%;
+  color: #fff;
+  padding: 2rem;
+  border-radius: 0.75rem;
+}
+.message svg {
+    max-width: 2rem;
+    fill: #fff;
+  }
+.message ul {
+    padding: 0;
+    list-style-position: inside;
+    font-size: 1.3rem;
+  }
+.message ul li {
+      padding-bottom: 0.5rem;
+    }
+.message--title {
+  font-size: 2.5rem;
+  margin: 1rem 0;
+}
+.message--message {
+  font-size: 1.2rem;
+  line-height: 1.3;
+  margin-bottom: 0;
+}
+
 /* src/css/progress.css */
 .progress {
   position: absolute;
@@ -1809,20 +1862,32 @@ form {
   -webkit-perspective: 1000;
 }
 
-/* src/css/offline.css */
-#offline {
+/* src/css/status.css */
+#status {
   position: absolute;
-  bottom: 1rem;
+  bottom: 2rem;
   left: 50%;
-  margin-left: -1.5rem;
+  -moz-transform: translateX(-50%);
+   -ms-transform: translateX(-50%);
+       transform: translateX(-50%);
+  display: -moz-box;
+  display: flex;
+  gap: 1rem;
+  z-index: var(--z-offline);
+}
+#offline {
   width: 3rem;
   height: 3rem;
   display: none;
-  z-index: var(--z-offline);
 }
+#download svg,
 #offline svg {
   -webkit-filter: drop-shadow(0rem 0rem 1rem black);
           filter: drop-shadow(0rem 0rem 1rem black);
+}
+.offline--icon {
+  width: 2.875rem;
+  height: 2.875rem;
 }
 .offline {
   display: block !important;
@@ -1830,6 +1895,112 @@ form {
 .sleep #offline {
   opacity: 0.5;
 }
+#download {
+  height: 3rem;
+  display: none;
+}
+#download.downloading {
+    display: block;
+  }
+#download #downloading--icon {
+    width: 2.875rem;
+    height: 2.875rem;
+  }
+#downloading-spinner {
+  position: absolute;
+  width: 3.75rem;
+  height: 3.75rem;
+  left: -0.4375rem;
+  top: -0.4375rem;
+  display: block;
+  margin: 0 auto;
+  -moz-animation: downloading-spinner-spin 2s linear infinite;
+       animation: downloading-spinner-spin 2s linear infinite;
+  will-change: transform;
+  -webkit-filter: none !important;
+          filter: none !important;
+}
+@-moz-keyframes downloading-spinner-spin {
+  from {
+    -moz-transform: rotate(0deg);
+         transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+         transform: rotate(360deg);
+  }
+}
+@keyframes downloading-spinner-spin {
+  from {
+    -moz-transform: rotate(0deg);
+         transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+         transform: rotate(360deg);
+  }
+}
+#downloading-circle {
+  stroke-dasharray: 160;
+  stroke-dashoffset: 160;
+  stroke-linecap: round;
+  -moz-animation: downloading-spinner 1.7s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
+       animation: downloading-spinner 1.7s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
+  -moz-transform: translateZ(0);
+       transform: translateZ(0);
+  -moz-transform-origin: center;
+   -ms-transform-origin: center;
+       transform-origin: center;
+  will-change: stroke-dashoffset;
+  -webkit-filter: none !important;
+          filter: none !important;
+}
+@-moz-keyframes downloading-spinner {
+  0% {
+    stroke-dashoffset: 143;
+    -moz-transform: scaleY(1);
+         transform: scaleY(1);
+  }
+  49.99% {
+    stroke-dashoffset: 0;
+    -moz-transform: scaleY(1);
+         transform: scaleY(1);
+  }
+  50% {
+    stroke-dashoffset: 0;
+    -moz-transform: scaleY(-1) rotate(25deg);
+         transform: scaleY(-1) rotate(25deg);
+  }
+  100% {
+    stroke-dashoffset: 143;
+    -moz-transform: scaleY(-1) rotate(-32deg);
+         transform: scaleY(-1) rotate(-32deg);
+  }
+}
+@keyframes downloading-spinner {
+  0% {
+    stroke-dashoffset: 143;
+    -moz-transform: scaleY(1);
+         transform: scaleY(1);
+  }
+  49.99% {
+    stroke-dashoffset: 0;
+    -moz-transform: scaleY(1);
+         transform: scaleY(1);
+  }
+  50% {
+    stroke-dashoffset: 0;
+    -moz-transform: scaleY(-1) rotate(25deg);
+         transform: scaleY(-1) rotate(25deg);
+  }
+  100% {
+    stroke-dashoffset: 143;
+    -moz-transform: scaleY(-1) rotate(-32deg);
+         transform: scaleY(-1) rotate(-32deg);
+  }
+}
+
+/* src/css/offline.css */
 
 /* src/css/clock-weather-container.css */
 .polling-paused.more-info #clock-weather-container, .polling-paused.redirects-open #clock-weather-container {

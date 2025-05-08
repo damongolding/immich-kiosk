@@ -114,6 +114,14 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 #   user1: ""
 # show_user: false # show user name
 
+## Offline mode
+# offline_mode:
+#   enabled: false
+#   number_of_assets: 100
+#   max_size: 0
+#   parallel_downloads: 4
+#   expiration_hours: 0
+
 ## Options that can NOT be changed via url params
 kiosk:
   port: 3000

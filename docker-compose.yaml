@@ -11,4 +11,5 @@ services:
     volumes:
       - ./config.yaml:/config.yaml
       # - ./custom.css:/custom.css
+      # - ./offline-assets:/offline-assets
     restart: always

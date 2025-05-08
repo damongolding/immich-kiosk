@@ -52,6 +52,19 @@ const (
 	AlbumOrderNewest     = "newest"
 )
 
+type OfflineMode struct {
+	// Enabled indicates whether offline mode is enabled
+	Enabled bool `mapstructure:"enabled" default:"false"`
+	// NumberOfAssets specifies the maximum number of assets to store in offline mode
+	NumberOfAssets int `mapstructure:"number_of_assets" default:"100"`
+	// MaxSize specifies the maximum storage size for offline assets in a human-readable format e.g. "1GB", "2TB", "500MB"
+	MaxSize string `mapstructure:"max_size" default:"0"`
+	// ParallelDownloads specifies the maximum number of concurrent downloads in offline mode
+	ParallelDownloads int `mapstructure:"parallel_downloads" default:"1"`
+	// ExpirationHours specifies how long offline assets should be kept before being considered expired (in hours)
+	ExpirationHours int `mapstructure:"expiration_hours" default:"0"`
+}
+
 // Redirect represents a URL redirection configuration with a friendly name.
 type Redirect struct {
 	// Name is the friendly identifier used to access the redirect
@@ -121,6 +134,8 @@ type ClientData struct {
 	Width int `json:"client_width" query:"client_width" form:"client_width"`
 	// Height represents the client's viewport height in pixels
 	Height int `json:"client_height" query:"client_height" form:"client_height"`
+	// Agent
+	Agent string `json:"client_agent" query:"client_agent" form:"client_agent"`
 }
 
 // Config represents the main configuration structure for the Immich Kiosk application.
@@ -327,6 +342,10 @@ type Config struct {
 	ClientData ClientData
 	// History past shown images
 	History []string `json:"history" form:"history" default:"[]"`
+
+	UseOfflineMode bool `json:"useOfflineMode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
+
+	OfflineMode OfflineMode `json:"offlineMode" mapstructure:"offline_mode"`
 }
 
 // New returns a new config pointer instance
@@ -456,6 +475,7 @@ func (c *Config) Load() error {
 	c.checkDebuging()
 	c.checkFetchedAssetsSize()
 	c.checkRedirects()
+	c.checkOffline()
 
 	return nil
 }
