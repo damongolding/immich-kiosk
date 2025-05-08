@@ -17,6 +17,7 @@ import (
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	videoComponent "github.com/damongolding/immich-kiosk/internal/templates/components/video"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/damongolding/immich-kiosk/internal/templates/views"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
@@ -90,9 +91,9 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	}
 }
 
-// NewRawImage returns an echo.HandlerFunc that handles requests for raw images.
+// Image returns an echo.HandlerFunc that handles requests for raw images.
 // It processes the image without any additional transformations and returns it as a blob.
-func NewRawImage(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -128,6 +129,35 @@ func NewRawImage(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		}
 
 		return c.Blob(http.StatusOK, "image/jpeg", imgBytes)
+	}
+}
+
+func ImageWithReload(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
+
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
+		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
+
+		log.Debug(
+			requestID,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
+
+		queries := c.Request().URL.Query().Encode()
+
+		return Render(c, http.StatusOK, views.ImageWithReload(requestConfig.Refresh, queries))
 	}
 }
 

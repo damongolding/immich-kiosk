@@ -8,6 +8,42 @@ import (
 	"strings"
 )
 
+// Head renders the <head> content
+templ Head(viewData common.ViewData) {
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta name="version" content={ viewData.KioskVersion }/>
+	<meta name="description" content="Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses Immich as a data source."/>
+	<meta name="mobile-web-app-capable" content="yes"/>
+	<meta name="apple-mobile-web-app-capable" content="yes"/>
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+	<meta name="apple-mobile-web-app-status-bar" content="black-translucent"/>
+	<meta name="theme-color" content="black"/>
+	<title>Immich Kiosk</title>
+	<link rel="manifest" href="/assets/manifest.json"/>
+	<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))) }/>
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png"/>
+	<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png"/>
+	<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png"/>
+	if viewData.HideCursor {
+		<style>
+			html, body {
+			    cursor: none;
+			}
+		</style>
+	}
+	switch viewData.ImageEffect {
+		case "zoom":
+			@templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount, viewData.UseGpu))
+		case "smart-zoom":
+			@templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount, viewData.UseGpu))
+	}
+	@templ.Raw(baseFontSize(viewData.FontSize))
+	if len(viewData.CustomCSS) > 0 && viewData.Config.CustomCSS {
+		@templ.Raw(customCss(viewData.CustomCSS))
+	}
+}
+
 // baseFontSize generates CSS for font sizing
 func baseFontSize(fontSize int) string {
 	return fmt.Sprintf(`
@@ -362,40 +398,4 @@ func imageZoomKeyframes(zoomAmount int, useGpu bool) string {
 func customCss(css []byte) string {
 	css = bytes.Replace(css, []byte{0}, []byte{}, -1)
 	return fmt.Sprintf("<style>%s</style>", css)
-}
-
-// Head renders the <head> content
-templ Head(viewData common.ViewData) {
-	<meta charset="UTF-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<meta name="version" content={ viewData.KioskVersion }/>
-	<meta name="description" content="Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses Immich as a data source."/>
-	<meta name="mobile-web-app-capable" content="yes"/>
-	<meta name="apple-mobile-web-app-capable" content="yes"/>
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-	<meta name="apple-mobile-web-app-status-bar" content="black-translucent"/>
-	<meta name="theme-color" content="black"/>
-	<title>Immich Kiosk</title>
-	<link rel="manifest" href="/assets/manifest.json"/>
-	<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", viewData.KioskVersion))) }/>
-	<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png"/>
-	<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png"/>
-	<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png"/>
-	if viewData.HideCursor {
-		<style>
-			html, body {
-			    cursor: none;
-			}
-		</style>
-	}
-	switch viewData.ImageEffect {
-		case "zoom":
-			@templ.Raw(imageZoomKeyframes(viewData.ImageEffectAmount, viewData.UseGpu))
-		case "smart-zoom":
-			@templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount, viewData.UseGpu))
-	}
-	@templ.Raw(baseFontSize(viewData.FontSize))
-	if len(viewData.CustomCSS) > 0 && viewData.Config.CustomCSS {
-		@templ.Raw(customCss(viewData.CustomCSS))
-	}
 }
