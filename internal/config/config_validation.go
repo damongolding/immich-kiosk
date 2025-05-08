@@ -333,22 +333,22 @@ func (c *Config) checkAlbumOrder() {
 func (c *Config) checkOffline() {
 	if c.OfflineMode.Enabled {
 		if c.OfflineMode.NumberOfAssets <= 0 {
-			log.Warn("Invalid number_of_assets value: %d. Using default: 100", "number_of_assets", c.OfflineMode.NumberOfAssets)
+			log.Warn("Invalid number_of_assets value. Using default: 100", "number_of_assets", c.OfflineMode.NumberOfAssets)
 			c.OfflineMode.NumberOfAssets = 100
 		}
 
 		if c.OfflineMode.MaxSize == "" {
-			log.Warn("Invalid max_size value: %s. Using default: 1GB", "max_size", c.OfflineMode.MaxSize)
+			log.Warn("Invalid max_size value. Using default: 1GB", "max_size", c.OfflineMode.MaxSize)
 			c.OfflineMode.MaxSize = "1GB"
 		}
 
 		if c.OfflineMode.ParallelDownloads <= 0 {
-			log.Warn("Invalid parallel_downloads value: %d. Using default: 4", "parallel_downloads", c.OfflineMode.ParallelDownloads)
-			c.OfflineMode.ParallelDownloads = 4
+			log.Warn("Invalid parallel_downloads value. Using default: 1", "parallel_downloads", c.OfflineMode.ParallelDownloads)
+			c.OfflineMode.ParallelDownloads = 1
 		}
 
 		if c.OfflineMode.ExpirationHours < 0 {
-			log.Warn("Invalid expiration_hours value: %d. Using default: 72", "expiration_hours", c.OfflineMode.ExpirationHours)
+			log.Warn("Invalid expiration_hours value. Using default: 72", "expiration_hours", c.OfflineMode.ExpirationHours)
 			c.OfflineMode.ExpirationHours = 72
 		}
 	}
