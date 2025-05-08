@@ -40,7 +40,7 @@
 > **This project is not affiliated with [Immich][immich-github-url]**
 
 > [!TIP]
-> You can try the ImmichKiosk the demo [here](https://demo.immichkiosk.app/).
+> You can try the Immich Kiosk the demo [here](https://demo.immichkiosk.app/).
 
 
 ## Table of Contents
@@ -399,7 +399,7 @@ See the file `config.example.yaml` for an example config file
 | immich_url                        | KIOSK_IMMICH_URL        | string                     | ""          | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`. |
 | immich_external_url             | KIOSK_IMMICH_EXTERNAL_URL | string                     | ""          | The public URL of your Immich server used for generating links and QR codes in the additional information overlay. Useful when accessing Immich through a reverse proxy or different external URL. Example: "https://photos.example.com". If not set, falls back to immich_url. |
 | show_time                         | KIOSK_SHOW_TIME         | bool                       | false       | Display clock.                                                                             |
-| time_format                       | KIOSK_TIME_FORMAT       | 24 \| 12                   | 24          | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
+| time_format                       | KIOSK_TIME_FORMAT       | 24 \| 12                   | 24          | Display clock time in either 12-hour or 24-hour format. Can either be 12 or 24.            |
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | clock_source                      | KIOSK_CLOCK_SOURCE      | client \| server           | client      | The source of the clock. Either client or server.                                          |
@@ -446,7 +446,7 @@ See the file `config.example.yaml` for an example config file
 | show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display person name(s).                                                                    |
 | show_person_age                   | KIOSK_SHOW_PERSON_AGE   | bool                       | false       | Display person age.                                                                        |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
-| image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
+| image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12-hour or 24-hour format. Can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
 | [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information.
 | show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available).                                    |
@@ -1135,7 +1135,7 @@ When a landscape image is fetched, Kiosk automatically retrieves a second landsc
 > You can add `disable_sleep=true` to your URL queries to bypass sleepmode.
 
 ### Enabling Sleep Mode:
-Setting both `sleep_start` and `sleep_end` using the 24 hour format will enable sleep mode.
+Setting both `sleep_start` and `sleep_end` using the 24-hour format will enable sleep mode.
 
 ### During Sleep Mode:
 Kiosk will display a black screen and can optionally shows a faint clock if `show_time` or `show_date` and enabled.

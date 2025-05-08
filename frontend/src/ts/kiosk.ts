@@ -136,10 +136,14 @@ async function init(): Promise<void> {
     htmx.logAll();
   }
 
+  const MILLISECONDS_PER_SECOND = 1000;
+  const TIMEOUT_GRACE_FACTOR = 3;
+
   if (kioskData.httpTimeout <= 0) {
     htmx.config.timeout = 0;
   } else {
-    htmx.config.timeout = kioskData.httpTimeout * 100 * 3;
+    htmx.config.timeout =
+      kioskData.httpTimeout * MILLISECONDS_PER_SECOND * TIMEOUT_GRACE_FACTOR;
   }
 
   if (
