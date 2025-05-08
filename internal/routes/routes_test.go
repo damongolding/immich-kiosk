@@ -14,11 +14,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestNewRawImage tests the NewRawImage handler function.
+// TestRawImage tests the NewRawImage handler function.
 // It skips the test in CI environments, sets up a test HTTP request,
 // loads the configuration, and asserts that the handler responds
 // with a 200 OK status code.
-func TestNewRawImage(t *testing.T) {
+func TestRawImage(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("Skipping in CI environment")
 	}
@@ -39,7 +39,7 @@ func TestNewRawImage(t *testing.T) {
 
 	cache.Initialize()
 
-	h := NewRawImage(baseConfig, common.New())
+	h := Image(baseConfig, common.New())
 
 	// Assertions
 	if assert.NoError(t, h(c)) {
