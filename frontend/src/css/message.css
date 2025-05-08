@@ -10,7 +10,7 @@
 }
 
 .message {
-    background-color: rgb(from var(--mint-green) r g b / 0.4);
+    background-color: rgba(var(--mint-green-rgb), 0.4);
     border: 0.125rem solid var(--mint-green);
     max-width: 35rem;
     width: 100%;
