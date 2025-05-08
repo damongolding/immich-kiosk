@@ -498,7 +498,7 @@ func checkOfflineAssetsExpiration() (bool, error) {
 	expirationContent, expirationErr := os.ReadFile(filepath.Join(OfflineAssetsPath, OfflineExpirationFilename))
 	if expirationErr != nil {
 		log.Warn("expiration missing", "err", expirationErr)
-		return true, expirationErr
+		return true, nil
 	}
 
 	expirationTime, timeparseErr := time.Parse(time.RFC3339, strings.TrimSpace(string(expirationContent)))
