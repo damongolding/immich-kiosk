@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -36,7 +37,9 @@ func TestNewRawImage(t *testing.T) {
 		t.Error("Failed to load config", "err", err)
 	}
 
-	h := NewRawImage(baseConfig, common.New())
+	cache.Initialize()
+
+	h := Image(baseConfig, common.New())
 
 	// Assertions
 	if assert.NoError(t, h(c)) {

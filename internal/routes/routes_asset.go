@@ -132,7 +132,7 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	}
 }
 
-func ImageWithReload(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+func ImageWithReload(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)

@@ -145,7 +145,7 @@ func main() {
 	e.GET("/assets/manifest.json", routes.Manifest)
 
 	e.GET("/image", routes.Image(baseConfig, c))
-	e.GET("/image/reload", routes.ImageWithReload(baseConfig, c))
+	e.GET("/image/reload", routes.ImageWithReload(baseConfig))
 
 	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c))
 
