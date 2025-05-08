@@ -30,8 +30,15 @@ templ ImageWithReload(refresh int, queries string) {
 		<body style={ templ.SafeCSS(fmt.Sprintf("background-image: url(/image?%s);", queries)) }>
 			@templ.JSONScript("kiosk-data", refresh)
 			<script>
-			  var rawData = document.getElementById('kiosk-data').textContent;
-			  var refresh = JSON.parse(rawData) || 60;
+			    var rawData = document.getElementById('kiosk-data').textContent;
+				var refresh;
+				try {
+				    refresh = JSON.parse(rawData);
+					if (!refresh || refresh < 1) refresh = 60;
+				} catch (e) {
+				    console.error("Error parsing refresh interval:", e);
+					refresh = 60;
+				}
 
 			  setTimeout(function() {
 			    window.location.reload();
