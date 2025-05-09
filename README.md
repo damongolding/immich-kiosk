@@ -40,7 +40,7 @@
 > **This project is not affiliated with [Immich][immich-github-url]**
 
 > [!TIP]
-> You can try the Immich Kiosk the demo [here](https://demo.immichkiosk.app/).
+> You can try the Immich Kiosk demo [here](https://demo.immichkiosk.app/).
 
 
 ## Table of Contents
