@@ -45,6 +45,7 @@
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
+  - [Demo](#demo)
   - [Requirements](#requirements)
   - [Key features](#key-features)
   - [Example 1: Raspberry Pi](#example-1)
@@ -326,11 +327,6 @@ services:
       # More info actions
       KIOSK_LIKE_BUTTON_ACTION: favorite
       KIOSK_HIDE_BUTTON_ACTION: tag
-      # Offline Mode
-      KIOSK_OFFLINE_MODE: false
-      KIOSK_OFFLINE_MODE_NUMBER_OF_ASSETS: 100
-      KIOSK_OFFLINE_MODE_MAX_SIZE: 0
-      KIOSK_OFFLINE_MODE_EXPIRATION_HOURS: 0
       # Kiosk settings
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
