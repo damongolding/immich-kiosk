@@ -134,8 +134,18 @@ type ClientData struct {
 	Width int `json:"client_width" query:"client_width" form:"client_width"`
 	// Height represents the client's viewport height in pixels
 	Height int `json:"client_height" query:"client_height" form:"client_height"`
-	// Agent
-	Agent string `json:"client_agent" query:"client_agent" form:"client_agent"`
+
+	// FullyKiosk
+	// FullyVersion stores the version info for Fully Kiosk Browser
+	FullyVersion string `json:"fully_version" query:"fully_version" form:"fully_version"`
+	// FullyWebviewVersion stores the webview version for Fully Kiosk Browser
+	FullyWebviewVersion string `json:"fully_webview_version" query:"fully_webview_version" form:"fully_webview_version"`
+	// FullyAndroidVersion stores the Android version for Fully Kiosk Browser
+	FullyAndroidVersion string `json:"fully_android_version" query:"fully_android_version" form:"fully_android_version"`
+	// FullyScreenOrientation stores the screen orientation from Fully Kiosk Browser
+	FullyScreenOrientation int `json:"fully_screen_orientation" query:"fully_screen_orientation" form:"fully_screen_orientation"`
+	// FullyScreenBrightness stores the screen brightness level from Fully Kiosk Browser
+	FullyScreenBrightness int `json:"fully_screen_brightness" query:"fully_screen_brightness" form:"fully_screen_brightness"`
 }
 
 // Config represents the main configuration structure for the Immich Kiosk application.
@@ -224,6 +234,8 @@ type Config struct {
 	SleepEnd string `json:"sleepEnd" mapstructure:"sleep_end" query:"sleep_end" form:"sleep_end" default:""`
 	// SleepIcon display sleep icon
 	SleepIcon bool `json:"sleepIcon" mapstructure:"sleep_icon" query:"sleep_icon" form:"sleep_icon" default:"true"`
+	// SleepScreenOff turn off screen when sleep mode is active (for Fully Kiosk)
+	SleepScreenOff bool `json:"sleepScreenOff" mapstructure:"sleep_screen_off" query:"sleep_screen_off" form:"sleep_screen_off" default:"false"`
 	// SleepDisable disable sleep via url queries
 	DisableSleep bool `json:"disableSleep" query:"disable_sleep" form:"disable_sleep" default:"false"`
 

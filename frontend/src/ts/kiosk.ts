@@ -24,7 +24,7 @@ import {
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
 import { toggleMute } from "./mute";
-import { storageUtils } from "./storage";
+import { sleep } from "./sleep";
 
 ("use strict");
 
@@ -117,6 +117,13 @@ const linksButton = htmx.find(".navigation--links") as HTMLElement | null;
 const offlineSVG = htmx.find("#offline") as HTMLElement | null;
 
 let requestInFlight = false;
+
+declare global {
+  interface Window {
+    FullyKiosk?: any;
+    fully?: any;
+  }
+}
 
 /**
  * Initialize Kiosk functionality
@@ -470,7 +477,11 @@ function checkHistoryExists(e: HTMXEvent): void {
 type BrowserData = {
   client_width: number;
   client_height: number;
-  client_agent: string;
+  fully_version?: string;
+  fully_webview_version?: string;
+  fully_android_version?: string;
+  fully_screen_orientation?: number;
+  fully_screen_brightness?: number;
 };
 
 /**
@@ -478,11 +489,22 @@ type BrowserData = {
  * @returns {BrowserData} Object containing window width and height
  */
 function clientData(): BrowserData {
-  return {
-    client_width: window.innerWidth,
-    client_height: window.innerHeight,
-    client_agent: window.navigator.userAgent,
+  const fk = window.fully;
+
+  const data: BrowserData = {
+    client_width: fk?.getDisplayWidth?.() ?? window.innerWidth,
+    client_height: fk?.getDisplayHeight?.() ?? window.innerHeight,
   };
+
+  if (typeof fk !== "undefined") {
+    data.fully_version = fk.getFullyVersion?.() ?? "";
+    data.fully_webview_version = fk.getWebviewVersion?.() ?? "";
+    data.fully_android_version = fk.getAndroidVersion?.() ?? "";
+    data.fully_screen_orientation = fk.getScreenOrientation?.() ?? 0;
+    data.fully_screen_brightness = fk.getScreenBrightness?.() ?? 0;
+  }
+
+  return data;
 }
 
 /**
@@ -549,4 +571,5 @@ export {
   checkHistoryExists,
   clientData,
   videoHandler,
+  sleep,
 };

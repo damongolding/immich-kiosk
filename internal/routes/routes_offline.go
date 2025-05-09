@@ -133,7 +133,6 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			viewData.History = requestConfig.History
 
 			return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
-
 		}
 
 		return Render(c, http.StatusOK, partials.Error(partials.ErrorData{
