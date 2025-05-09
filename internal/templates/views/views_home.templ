@@ -42,6 +42,13 @@ templ Home(viewData common.ViewData) {
 			>
 				@partials.Spinner()
 			</main>
+			if viewData.Iframe != "" {
+				<iframe
+					src={ viewData.Iframe }
+					allowtransparency="true"
+					frameborder="0"
+				></iframe>
+			}
 			if viewData.ShowProgress {
 				@partials.ProgressBar()
 			}
