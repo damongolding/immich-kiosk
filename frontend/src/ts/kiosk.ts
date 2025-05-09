@@ -120,8 +120,22 @@ let requestInFlight = false;
 
 declare global {
   interface Window {
-    FullyKiosk?: any;
-    fully?: any;
+    FullyKiosk?: {
+      [key: string]: unknown;
+    };
+    fully?: {
+      getDisplayWidth?: () => number;
+      getDisplayHeight?: () => number;
+      getFullyVersion?: () => string;
+      getWebviewVersion?: () => string;
+      getAndroidVersion?: () => string;
+      getScreenOrientation?: () => number;
+      getScreenBrightness?: () => number;
+      getScreenOn?: () => boolean;
+      turnScreenOff?: () => void;
+      turnScreenOn?: () => void;
+      showToast?: (message: string) => void;
+    };
   }
 }
 
@@ -486,7 +500,9 @@ type BrowserData = {
 
 /**
  * Get current browser viewport dimensions
+ * and Fully Kiosk Browser information if available
  * @returns {BrowserData} Object containing window width and height
+ * and Fully Kiosk Browser details when present
  */
 function clientData(): BrowserData {
   const fk = window.fully;
