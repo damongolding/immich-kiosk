@@ -12,7 +12,7 @@ function sleep(turnOn: boolean): void {
     if (typeof fk !== "undefined" && fk.getScreenOn?.()) {
       try {
         fk.showToast?.("Entering sleep mode");
-        setTimeout(() => fk.turnScreenOff?.(), SCREEN_OFF_DELAY_MS);
+        setTimeout(() => fk.turnScreenOff?.(true), SCREEN_OFF_DELAY_MS);
       } catch (error) {
         console.error("Error in Fully Kiosk screen operations:", error);
       }

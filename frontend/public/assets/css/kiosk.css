@@ -2279,6 +2279,9 @@ figure {
 }
 
 /* src/css/weather.css */
+#weather {
+  position: relative;
+}
 .weather {
   position: relative;
   color: #fff;

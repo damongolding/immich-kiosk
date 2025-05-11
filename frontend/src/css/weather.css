@@ -1,4 +1,8 @@
 /* --- weather --- */
+#weather {
+    position: relative;
+}
+
 .weather {
     position: relative;
     color: #fff;

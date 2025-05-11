@@ -132,7 +132,7 @@ declare global {
       getScreenOrientation?: () => number;
       getScreenBrightness?: () => number;
       getScreenOn?: () => boolean;
-      turnScreenOff?: () => void;
+      turnScreenOff?: (arg0?: boolean) => void;
       turnScreenOn?: () => void;
       showToast?: (message: string) => void;
     };
