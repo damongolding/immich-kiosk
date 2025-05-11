@@ -1,5 +1,5 @@
 /* --- weather --- */
-#weather {
+#weather-container {
     position: relative;
 }
 
@@ -87,6 +87,6 @@
 }
 
 /* sleep mode */
-.sleep #weather {
+.sleep #weather-container {
     display: none;
 }

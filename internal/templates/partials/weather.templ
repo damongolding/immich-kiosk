@@ -103,7 +103,7 @@ templ WeatherLocation(weatherData weather.Location) {
 // WeatherContainer renders a weather component with HTMX updates
 templ Weather(theme string) {
 	<div
-		id="weather"
+		id="weather-container"
 		class={ fmt.Sprintf("weather--theme-%s", theme) }
 		hx-post="/weather"
 		hx-trigger="load, every 61s"

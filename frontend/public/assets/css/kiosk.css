@@ -2279,7 +2279,7 @@ figure {
 }
 
 /* src/css/weather.css */
-#weather {
+#weather-container {
   position: relative;
 }
 .weather {
@@ -2357,7 +2357,7 @@ figure {
   border-radius: 0 0 0 2rem;
   align-self: start;
 }
-.sleep #weather {
+.sleep #weather-container {
   display: none;
 }
 
