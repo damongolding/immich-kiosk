@@ -388,11 +388,28 @@ figure {
 }
 
 /* src/css/image.css */
+.asset-metadata-container {
+  position: absolute;
+  display: -moz-box;
+  display: flex;
+  gap: 0.5rem;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  padding: 1rem;
+  -moz-box-pack: justify;
+       justify-content: space-between;
+  -moz-box-align: end;
+       align-items: flex-end;
+}
+.asset-metadata-qr img {
+  width: 4rem;
+  border-radius: 0.2rem;
+}
 .polling-paused.more-info .asset--metadata, .polling-paused.redirects-open .asset--metadata {
     opacity: 0.2;
   }
 .asset--metadata {
-  position: absolute;
   display: -moz-box;
   display: flex;
   gap: 0.5rem;
@@ -404,7 +421,6 @@ figure {
   bottom: 0;
   right: 0;
   max-width: 70vw;
-  padding: 1rem;
   color: #fff;
   font-size: 1.1rem;
   text-align: right;

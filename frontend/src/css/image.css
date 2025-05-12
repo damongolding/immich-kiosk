@@ -1,3 +1,20 @@
+.asset-metadata-container {
+    position: absolute;
+    display: flex;
+    gap: 0.5rem;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    padding: 1rem;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.asset-metadata-qr img {
+    width: 4rem;
+    border-radius: 0.2rem;
+}
+
 /* --- image metadata --- */
 .polling-paused.more-info,
 .polling-paused.redirects-open {
@@ -7,7 +24,7 @@
 }
 
 .asset--metadata {
-    position: absolute;
+    /* position: absolute; */
     display: flex;
     gap: 0.5rem;
     flex-direction: column;
@@ -15,7 +32,7 @@
     bottom: 0;
     right: 0;
     max-width: 70vw;
-    padding: 1rem;
+    /* padding: 1rem; */
     color: #fff;
     font-size: 1.1rem;
     text-align: right;

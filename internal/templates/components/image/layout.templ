@@ -2,8 +2,12 @@ package components
 
 import (
 	"fmt"
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/damongolding/immich-kiosk/internal/utils"
+	"net/url"
+	"path"
 	"strings"
 )
 
@@ -84,6 +88,26 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 	}
 }
 
+func immichAssetUrl(baseUrl, externalUrl, imageID string) string {
+
+	urlToParse := externalUrl
+	if urlToParse == "" {
+		urlToParse = baseUrl
+	}
+
+	u, err := url.Parse(urlToParse)
+	if err != nil {
+		log.Warn("Failed to parse base URL", "error", err)
+		return "#"
+	}
+
+	return (&url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   path.Join("photos", imageID),
+	}).String()
+}
+
 // renderSingleImage renders a single image with its background and metadata.
 //
 // Parameters:
@@ -94,7 +118,14 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 	@renderImageBackground(viewData, imageData)
 	@renderImage(viewData, imageData)
 	if !viewData.DisableUI {
-		@partials.AssetMetadata(viewData, imageIndex)
+		<div class="asset-metadata-container">
+			<div class="asset-metadata-qr">
+				if (viewData.ShowImageQR) {
+					<img src={ utils.CreateQrCode(immichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, imageData.ImmichAsset.ID)) }/>
+				}
+			</div>
+			@partials.AssetMetadata(viewData, imageIndex)
+		</div>
 	}
 }
 
