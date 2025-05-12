@@ -13,12 +13,17 @@
 .asset-metadata-qr img {
     width: 4rem;
     border-radius: 0.2rem;
+    display: block;
 }
 
 /* --- image metadata --- */
 .polling-paused.more-info,
 .polling-paused.redirects-open {
-    .asset--metadata {
+    .asset-metadata-container {
+        opacity: 0.2;
+    }
+
+    .asset-metadata-qr img {
         opacity: 0.2;
     }
 }
@@ -147,20 +152,27 @@
     }
 }
 
-.frame--layout-splitview:nth-child(1) .asset--metadata {
-    position: absolute;
-    display: flex;
-    gap: 0.5rem;
-    flex-direction: column;
-    align-items: flex-start;
-    bottom: 0;
+.frame--layout-splitview:nth-child(1) {
+    .asset--metadata {
+        /* position: absolute; */
+        display: flex;
+        gap: 0.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        /* bottom: 0;
     left: 0;
-    right: unset;
-    max-width: 70vw;
-    color: #fff;
-    font-size: 1.1rem;
-    text-align: left;
-    text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+    right: unset; */
+        max-width: 70vw;
+        color: #fff;
+        font-size: 1.1rem;
+        text-align: left;
+        text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+        order: 1;
+    }
+
+    .asset-metadata-qr {
+        order: 2;
+    }
 }
 
 /* Image zoom effect  */

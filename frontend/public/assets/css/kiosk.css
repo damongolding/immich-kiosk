@@ -405,8 +405,12 @@ figure {
 .asset-metadata-qr img {
   width: 4rem;
   border-radius: 0.2rem;
+  display: block;
 }
-.polling-paused.more-info .asset--metadata, .polling-paused.redirects-open .asset--metadata {
+.polling-paused.more-info .asset-metadata-container, .polling-paused.redirects-open .asset-metadata-container {
+    opacity: 0.2;
+  }
+.polling-paused.more-info .asset-metadata-qr img, .polling-paused.redirects-open .asset-metadata-qr img {
     opacity: 0.2;
   }
 .asset--metadata {
@@ -516,24 +520,26 @@ figure {
     max-width: 50%;
   }
 .frame--layout-splitview:nth-child(1) .asset--metadata {
-  position: absolute;
-  display: -moz-box;
-  display: flex;
-  gap: 0.5rem;
-  -moz-box-orient: vertical;
-  -moz-box-direction: normal;
-       flex-direction: column;
-  -moz-box-align: start;
-       align-items: flex-start;
-  bottom: 0;
-  left: 0;
-  right: unset;
-  max-width: 70vw;
-  color: #fff;
-  font-size: 1.1rem;
-  text-align: left;
-  text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
-}
+    display: -moz-box;
+    display: flex;
+    gap: 0.5rem;
+    -moz-box-orient: vertical;
+    -moz-box-direction: normal;
+         flex-direction: column;
+    -moz-box-align: start;
+         align-items: flex-start;
+    max-width: 70vw;
+    color: #fff;
+    font-size: 1.1rem;
+    text-align: left;
+    text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+    -moz-box-ordinal-group: 2;
+         order: 1;
+  }
+.frame--layout-splitview:nth-child(1) .asset-metadata-qr {
+    -moz-box-ordinal-group: 3;
+         order: 2;
+  }
 .frame--image-zoom img {
   -moz-animation-direction: normal;
        animation-direction: normal;
