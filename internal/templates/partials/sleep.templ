@@ -13,9 +13,9 @@ templ SleepController(sleepMode, sleepIcon, sleepScreenOff bool) {
 				</span>
 			</figure>
 		}
-		<div hx-on::load={ templ.JSFuncCall("kiosk.sleep", true, sleepScreenOff) } hidden></div>
+		<div hx-on::load={ templ.JSFuncCall("kiosk.sleepMode", true, sleepScreenOff) } hidden></div>
 	} else {
-		<div hx-on::load={ templ.JSFuncCall("kiosk.sleep", false, sleepScreenOff) } hidden></div>
+		<div hx-on::load={ templ.JSFuncCall("kiosk.sleepMode", false, sleepScreenOff) } hidden></div>
 	}
 }
 

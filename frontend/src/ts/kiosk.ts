@@ -24,7 +24,8 @@ import {
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
 import { toggleMute } from "./mute";
-import { sleep } from "./sleep";
+import fullyKiosk from "./fullykiosk";
+import { sleepMode } from "./sleep";
 
 ("use strict");
 
@@ -117,27 +118,6 @@ const linksButton = htmx.find(".navigation--links") as HTMLElement | null;
 const offlineSVG = htmx.find("#offline") as HTMLElement | null;
 
 let requestInFlight = false;
-
-declare global {
-  interface Window {
-    FullyKiosk?: {
-      [key: string]: unknown;
-    };
-    fully?: {
-      getDisplayWidth?: () => number;
-      getDisplayHeight?: () => number;
-      getFullyVersion?: () => string;
-      getWebviewVersion?: () => string;
-      getAndroidVersion?: () => string;
-      getScreenOrientation?: () => number;
-      getScreenBrightness?: () => number;
-      getScreenOn?: () => boolean;
-      turnScreenOff?: (arg0?: boolean) => void;
-      turnScreenOn?: () => void;
-      showToast?: (message: string) => void;
-    };
-  }
-}
 
 /**
  * Initialize Kiosk functionality
@@ -505,19 +485,17 @@ type BrowserData = {
  * and Fully Kiosk Browser details when present
  */
 function clientData(): BrowserData {
-  const fk = window.fully;
-
   const data: BrowserData = {
-    client_width: fk?.getDisplayWidth?.() ?? window.innerWidth,
-    client_height: fk?.getDisplayHeight?.() ?? window.innerHeight,
+    client_width: fullyKiosk.getDisplayDimensions().width,
+    client_height: fullyKiosk.getDisplayDimensions().width,
   };
 
-  if (typeof fk !== "undefined") {
-    data.fully_version = fk.getFullyVersion?.() ?? "";
-    data.fully_webview_version = fk.getWebviewVersion?.() ?? "";
-    data.fully_android_version = fk.getAndroidVersion?.() ?? "";
-    data.fully_screen_orientation = fk.getScreenOrientation?.() ?? 0;
-    data.fully_screen_brightness = fk.getScreenBrightness?.() ?? 0;
+  if (fullyKiosk.fully !== undefined) {
+    data.fully_version = fullyKiosk.fully.getFullyVersion();
+    data.fully_webview_version = fullyKiosk.fully.getWebviewVersion();
+    data.fully_android_version = fullyKiosk.fully.getAndroidVersion();
+    data.fully_screen_orientation = fullyKiosk.fully.getScreenOrientation();
+    data.fully_screen_brightness = fullyKiosk.fully.getScreenBrightness();
   }
 
   return data;
@@ -587,5 +565,5 @@ export {
   checkHistoryExists,
   clientData,
   videoHandler,
-  sleep,
+  sleepMode,
 };
