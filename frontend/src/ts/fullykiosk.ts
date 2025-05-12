@@ -83,7 +83,7 @@ class FullyKiosk {
       return;
     }
 
-    if (!this.fully.getScreenOn()) {
+    if (this.fully.getScreenOn() === false) {
       try {
         this.fully.turnScreenOn();
         this.fully.showToast("Exited sleep mode");
@@ -95,7 +95,11 @@ class FullyKiosk {
 
   public showToast(message: string): void {
     if (this.fully === undefined) return;
-    this.fully.showToast(message);
+    try {
+      this.fully.showToast(message);
+    } catch (error) {
+      console.error("Error in Fully Kiosk toast operations:", error);
+    }
   }
 }
 
