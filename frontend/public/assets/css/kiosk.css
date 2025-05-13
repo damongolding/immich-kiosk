@@ -387,20 +387,20 @@ figure {
   will-change: opacity;
 }
 @media (orientation: portrait) {
-  .frame {
-    -moz-box-orient: vertical;
-    -moz-box-direction: normal;
-         flex-direction: column;
-    border: 0.4rem solid black;
-    border-radius: 0.75rem;
-  }
-  &.frameless .frame {
-    -moz-box-orient: vertical;
-    -moz-box-direction: normal;
-         flex-direction: column;
-    border: none;
-    border-radius: 0;
-  }
+    .layout-splitview .frame {
+      -moz-box-orient: vertical;
+      -moz-box-direction: normal;
+           flex-direction: column;
+      border: 0.4rem solid black;
+      border-radius: 0.75rem;
+    }
+    .layout-splitview.frameless .frame {
+      -moz-box-orient: vertical;
+      -moz-box-direction: normal;
+           flex-direction: column;
+      border: none;
+      border-radius: 0;
+    }
   .frame--layout-splitview {
     position: relative;
     width: 100%;
@@ -636,6 +636,45 @@ figure {
     .asset--metadata--location .responsive-break {
       display: inline;
     }
+}
+@media (orientation: portrait) {
+    .frame--layout-splitview:nth-child(2) .asset--metadata {
+      display: -moz-box;
+      display: flex;
+      gap: 0.5rem;
+      -moz-box-orient: vertical;
+      -moz-box-direction: normal;
+           flex-direction: column;
+      -moz-box-align: start;
+           align-items: flex-start;
+      max-width: 70vw;
+      color: #fff;
+      font-size: 1.1rem;
+      text-align: left;
+      text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+      -moz-box-ordinal-group: 2;
+           order: 1;
+    }
+    .frame--layout-splitview:nth-child(2) .asset-metadata-qr {
+      -moz-box-ordinal-group: 3;
+           order: 2;
+    }
+  .asset--metadata--icon {
+    -moz-box-ordinal-group: 1 !important;
+         order: 0 !important;
+  }
+  .frame--layout-splitview:nth-child(2) .asset--metadata--theme-fade::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: unset;
+    left: 0;
+    width: 150%;
+    height: 200%;
+    background-image: -moz-radial-gradient(0% 100%, 100% 100%, var(--fade-gradient));
+    background-image: radial-gradient(100% 100% at 0% 100%, var(--fade-gradient));
+    z-index: var(--z-base);
+  }
 }
 
 /* src/css/more-info.css */

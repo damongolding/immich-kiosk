@@ -179,16 +179,18 @@
 /* END Cross fade transtion */
 
 @media (orientation: portrait) {
-    .frame {
-        flex-direction: column;
-        border: 0.4rem solid black;
-        border-radius: 0.75rem;
-    }
+    .layout-splitview {
+        .frame {
+            flex-direction: column;
+            border: 0.4rem solid black;
+            border-radius: 0.75rem;
+        }
 
-    &.frameless .frame {
-        flex-direction: column;
-        border: none;
-        border-radius: 0;
+        &.frameless .frame {
+            flex-direction: column;
+            border: none;
+            border-radius: 0;
+        }
     }
 
     .frame--layout-splitview {
