@@ -297,7 +297,7 @@ services:
       # Sleep mode
       # KIOSK_SLEEP_START: 22
       # KIOSK_SLEEP_END: 7
-      # KIOSK_SLEEP_SCREEN_OFF: false
+      # KIOSK_SLEEP_SCREEN_DIM: false
       # Transistion options
       KIOSK_TRANSITION: none
       KIOSK_FADE_TRANSITION_DURATION: 1
@@ -430,7 +430,7 @@ See the file `config.example.yaml` for an example config file
 | [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [sleep_icon](#sleep-mode)         | KIOSK_SLEEP_ICON        | string                     | ""          | Display icon during sleep mode. See [Sleep mode](#sleep-mode) for more information. |
-| [sleep_screen_off](#sleep-mode)   | KIOSK_SLEEP_SCREEN_OFF  | bool                       | false       | Turn off screen (when possible) during sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [sleep_screen_dim](#sleep-mode)   | KIOSK_SLEEP_SCREEN_DIM  | bool                       | false       | Dim screen (when possible) during sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [disable_sleep](#sleep-mode)      | N/A                     | bool                       | false       | Bypass sleep mode by adding `disable_sleep=true` to the URL. See [Sleep mode](#sleep-mode) for more information. |
 | [custom_css](#custom-css)         | N/A                     | bool                       | true        | Allow custom CSS to be used. See [Custom CSS](#custom-css) for more information.           |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
@@ -1141,8 +1141,8 @@ Setting both `sleep_start` and `sleep_end` using the 24-hour format will enable 
 ### During Sleep Mode:
 Kiosk will display a black screen and can optionally shows a faint clock if `show_time` or `show_date` and enabled.
 
-### Turning the screen on and off
-If you are running Kiosk with [Fully Kiosk](https://www.fully-kiosk.com/) (and have purchased the pro version), setting `sleep_screen_off=true` will turn off the screen during sleep mode.
+### Dimming the Screen Off with Fully Kiosk Browser
+If you are running Kiosk with [Fully Kiosk Browser](https://www.fully-kiosk.com/) (and have purchased the pro version), setting `sleep_screen_dim=true` will dim the screen during sleep mode.
 
 ### Examples
 - Setting `sleep_start=22` and `sleep_end=7` will enable sleep mode from 22:00 (10pm) to 07:00 (7am).

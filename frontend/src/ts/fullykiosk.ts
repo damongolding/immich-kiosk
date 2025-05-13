@@ -27,12 +27,13 @@ class FullyKiosk {
   private readonly SCREEN_OFF_DELAY_MS = 4 * 1000;
 
   initBrightness: number;
-  inSleepMode: boolean;
+  inSleepMode: boolean = false;
 
   private constructor() {
     this.fully = window.fully;
     if (this.fully !== undefined) {
-      this.initBrightness = this.fully.getScreenBrightness();
+      const currentBrightness = this.fully.getScreenBrightness();
+      this.initBrightness = currentBrightness > 1 ? currentBrightness : 255;
     }
   }
 
@@ -72,32 +73,30 @@ class FullyKiosk {
   }
 
   public toggleScreen(turnOff: boolean): void {
-    if (this.fully === undefined) return;
-
-    if (turnOff) {
-      if (this.inSleepMode) return;
-      try {
-        this.fully.showToast("Entering sleep mode");
-        setTimeout(() => {
-          if (this.fully) {
-            this.fully.setScreenBrightness(0);
-            this.inSleepMode = true;
-            // this.fully.turnScreenOff();
-          }
-        }, this.SCREEN_OFF_DELAY_MS);
-      } catch (error) {
-        console.error("Error in Fully Kiosk screen operations:", error);
-      }
-      return;
-    }
-
-    if (!this.inSleepMode) return;
+    if (!this.fully) return;
 
     try {
-      // this.fully.turnScreenOn();
-      this.fully.setScreenBrightness(this.initBrightness);
-      this.inSleepMode = false;
-      this.fully.showToast("Exited sleep mode");
+      if (turnOff) {
+        if (this.inSleepMode) return;
+
+        this.fully.showToast("Entering sleep mode");
+        this.inSleepMode = true;
+
+        const fullyRef = this.fully; // capture reference for setTimeout
+        setTimeout(() => {
+          try {
+            fullyRef.setScreenBrightness(0);
+          } catch (error) {
+            console.error("Error turning screen off:", error);
+          }
+        }, this.SCREEN_OFF_DELAY_MS);
+      } else {
+        if (!this.inSleepMode) return;
+
+        this.fully.setScreenBrightness(this.initBrightness);
+        this.fully.showToast("Exited sleep mode");
+        this.inSleepMode = false;
+      }
     } catch (error) {
       console.error("Error in Fully Kiosk screen operations:", error);
     }
