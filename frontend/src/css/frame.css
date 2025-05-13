@@ -125,13 +125,22 @@
     overflow: hidden;
 
     &:nth-child(1) {
+        border: none;
         border-bottom: 0.2rem solid black;
         border-radius: 0.75rem;
     }
 
     &:nth-child(2) {
+        border: none;
         border-top: 0.2rem solid black;
         border-radius: 0.75rem;
+    }
+
+    .frame--image {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 

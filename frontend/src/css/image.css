@@ -29,18 +29,16 @@
 }
 
 .asset--metadata {
-    /* position: absolute; */
     display: flex;
     gap: 0.5rem;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start;
     bottom: 0;
     right: 0;
     max-width: 70vw;
-    /* padding: 1rem; */
     color: #fff;
     font-size: 1.1rem;
-    text-align: right;
+    text-align: lefgt;
     text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 }
 
@@ -49,26 +47,26 @@
     content: "";
     position: absolute;
     bottom: 0;
-    right: 0;
-    width: 150%;
-    height: 200%;
-    background-image: radial-gradient(
-        100% 100% at 100% 100%,
-        var(--fade-gradient)
-    );
-    z-index: var(--z-base);
-}
-
-.frame--layout-splitview:nth-child(1) .asset--metadata--theme-fade::before {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    right: unset;
     left: 0;
     width: 150%;
     height: 200%;
     background-image: radial-gradient(
         100% 100% at 0% 100%,
+        var(--fade-gradient)
+    );
+    z-index: var(--z-base);
+}
+
+.frame--layout-splitview:nth-child(2) .asset--metadata--theme-fade::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: unset;
+    width: 150%;
+    height: 200%;
+    background-image: radial-gradient(
+        100% 100% at 100% 100%,
         var(--fade-gradient)
     );
     z-index: var(--z-base);
@@ -145,22 +143,22 @@
     padding: 0 0.5rem;
 }
 
-.frame--layout-splitview:nth-child(1) {
+.frame--layout-splitview:nth-child(2) {
     .asset--metadata {
         display: flex;
         gap: 0.5rem;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: flex-end;
         max-width: 70vw;
         color: #fff;
         font-size: 1.1rem;
-        text-align: left;
+        text-align: right;
         text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
-        order: 1;
+        order: 2;
     }
 
     .asset-metadata-qr {
-        order: 2;
+        order: 1;
     }
 }
 

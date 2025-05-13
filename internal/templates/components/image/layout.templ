@@ -119,12 +119,12 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 	@renderImage(viewData, imageData)
 	if !viewData.DisableUI {
 		<div class="asset-metadata-container">
+			@partials.AssetMetadata(viewData, imageIndex)
 			<div class="asset-metadata-qr">
 				if (viewData.ShowImageQR) {
 					<img src={ utils.CreateQrCode(immichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, imageData.ImmichAsset.ID)) }/>
 				}
 			</div>
-			@partials.AssetMetadata(viewData, imageIndex)
 		</div>
 	}
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
-	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/goodsign/monday"
 	"golang.org/x/text/cases"
@@ -30,7 +29,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	// {{ showSourceName := shouldShowSourceName(viewData, assetIndex) }}
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
-	{{ rightAlignIcons := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 || viewData.Layout == kiosk.LayoutSplitviewLandscape }}
+	{{ rightAlignIcons := len(viewData.Assets) > 1 && assetIndex == 1 }}
 	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
 	{{ showUser := viewData.ShowUser }}
 	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
