@@ -122,14 +122,15 @@ func RenderMessage(c echo.Context, title, message string) error {
 
 // This custom Render replaces Echo's echo.Context.Render() with templ's templ.Component.Render().
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
+	// Set content type manually
+	ctx.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTMLCharsetUTF8)
+	ctx.Response().WriteHeader(statusCode)
 
-	buf := templ.GetBuffer()
-	defer templ.ReleaseBuffer(buf)
-
-	if err := t.Render(ctx.Request().Context(), buf); err != nil {
+	// Stream the rendered HTML directly
+	if err := t.Render(ctx.Request().Context(), ctx.Response().Writer); err != nil {
 		log.Error("rendering view", "err", err)
 		return err
 	}
 
-	return ctx.HTML(statusCode, buf.String())
+	return nil
 }
