@@ -319,7 +319,7 @@ type Config struct {
 	// ShowImageID display image ID
 	ShowImageID bool `json:"showImageID" mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
 	// ShowImageQR display image QR code
-	ShowImageQR bool `json:"showImageQR" mapstructure:"show_image_qr" query:"show_image_qr" form:"show_image_qr" default:"true"`
+	ShowImageQR bool `json:"showImageQR" mapstructure:"show_image_qr" query:"show_image_qr" form:"show_image_qr" default:"false"`
 
 	// ShowMoreInfo enables the display of additional information about the current image
 	ShowMoreInfo bool `json:"showMoreInfo" mapstructure:"show_more_info" query:"show_more_info" form:"show_more_info" default:"true"`
