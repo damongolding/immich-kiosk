@@ -24,14 +24,14 @@ class FullyKiosk {
   private static instance: FullyKiosk | null = null;
   public readonly fully: FullyKioskBrowser | undefined;
 
-  private readonly SCREEN_OFF_DELAY_MS = 4 * 1000;
+  private readonly SCREEN_DIM_DELAY_MS = 4 * 1000;
 
   initBrightness: number;
   inSleepMode: boolean = false;
 
   private constructor() {
     this.fully = window.fully;
-    if (this.fully !== undefined) {
+    if (this.fully) {
       const currentBrightness = this.fully.getScreenBrightness();
       this.initBrightness = currentBrightness > 1 ? currentBrightness : 255;
     }
@@ -89,7 +89,7 @@ class FullyKiosk {
           } catch (error) {
             console.error("Error turning screen off:", error);
           }
-        }, this.SCREEN_OFF_DELAY_MS);
+        }, this.SCREEN_DIM_DELAY_MS);
       } else {
         if (!this.inSleepMode) return;
 

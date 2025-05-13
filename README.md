@@ -1141,8 +1141,12 @@ Setting both `sleep_start` and `sleep_end` using the 24-hour format will enable 
 ### During Sleep Mode:
 Kiosk will display a black screen and can optionally shows a faint clock if `show_time` or `show_date` and enabled.
 
-### Dimming the Screen Off with Fully Kiosk Browser
-If you are running Kiosk with [Fully Kiosk Browser](https://www.fully-kiosk.com/) (and have purchased the pro version), setting `sleep_screen_dim=true` will dim the screen during sleep mode.
+### Dimming the Screen with Fully Kiosk Browser
+
+> [!IMPORTANT]
+> If you will need the pro version of Fully Kiosk Browser, and will need to turn on "Enable JavaScript Interface" in the Advanced Web Settings.
+
+If you are running Kiosk with [Fully Kiosk Browser](https://www.fully-kiosk.com/), setting `sleep_screen_dim=true` will dim the screen during sleep mode.
 
 ### Examples
 - Setting `sleep_start=22` and `sleep_end=7` will enable sleep mode from 22:00 (10pm) to 07:00 (7am).
