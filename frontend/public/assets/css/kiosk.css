@@ -408,10 +408,12 @@ figure {
     overflow: hidden;
   }
     .frame--layout-splitview:nth-child(1) {
+      border: none;
       border-bottom: 0.2rem solid black;
       border-radius: 0.75rem;
     }
     .frame--layout-splitview:nth-child(2) {
+      border: none;
       border-top: 0.2rem solid black;
       border-radius: 0.75rem;
     }
@@ -424,6 +426,9 @@ figure {
       -moz-box-align: center;
            align-items: center;
     }
+  .frameless .frame--layout-splitview {
+    border-radius: 0;
+  }
 }
 
 /* src/css/image.css */
@@ -555,9 +560,6 @@ figure {
   opacity: 0.3;
   padding: 0 0.5rem;
 }
-.frame--layout-splitview .asset--metadata--description, .frame--layout-splitview-landscape .asset--metadata--description {
-    max-width: 50%;
-  }
 .frame--layout-splitview:nth-child(1) .asset--metadata {
     display: -moz-box;
     display: flex;

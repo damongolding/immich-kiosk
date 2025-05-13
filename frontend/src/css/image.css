@@ -145,13 +145,6 @@
     padding: 0 0.5rem;
 }
 
-.frame--layout-splitview,
-.frame--layout-splitview-landscape {
-    .asset--metadata--description {
-        max-width: 50%;
-    }
-}
-
 .frame--layout-splitview:nth-child(1) {
     .asset--metadata {
         display: flex;
