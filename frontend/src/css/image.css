@@ -74,15 +74,15 @@
 
 /* solid theme */
 .asset--metadata--theme-solid {
-    padding-left: 1.5rem;
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 2rem 0 0 0;
-}
-
-.frame--layout-splitview:nth-child(1) .asset--metadata--theme-solid {
-    padding-right: 1.5rem;
+    padding: 1rem;
+    margin: -1rem;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 0 2rem 0 0;
+}
+
+.frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 2rem 0 0 0;
 }
 
 .asset--metadata .responsive-break {
@@ -257,5 +257,10 @@
             var(--fade-gradient)
         );
         z-index: var(--z-base);
+    }
+
+    .frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 0 2rem 0 0;
     }
 }
