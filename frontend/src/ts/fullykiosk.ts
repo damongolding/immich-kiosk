@@ -10,6 +10,7 @@ interface FullyKioskBrowser {
   turnScreenOff: (keepAlive?: boolean) => void;
   turnScreenOn: () => void;
   showToast: (message: string) => void;
+  setScreenBrightness: (brightness: number) => void;
 }
 
 // Augment the Window interface
@@ -25,8 +26,14 @@ class FullyKiosk {
 
   private readonly SCREEN_OFF_DELAY_MS = 4 * 1000;
 
+  initBrightness: number;
+  inSleepMode: boolean;
+
   private constructor() {
     this.fully = window.fully;
+    if (this.fully !== undefined) {
+      this.initBrightness = this.fully.getScreenBrightness();
+    }
   }
 
   public static getInstance(): FullyKiosk {
@@ -68,28 +75,31 @@ class FullyKiosk {
     if (this.fully === undefined) return;
 
     if (turnOff) {
-      if (this.fully.getScreenOn()) {
-        try {
-          this.fully.showToast("Entering sleep mode");
-          setTimeout(() => {
-            if (this.fully) {
-              this.fully.turnScreenOff(true);
-            }
-          }, this.SCREEN_OFF_DELAY_MS);
-        } catch (error) {
-          console.error("Error in Fully Kiosk screen operations:", error);
-        }
+      if (this.inSleepMode) return;
+      try {
+        this.fully.showToast("Entering sleep mode");
+        setTimeout(() => {
+          if (this.fully) {
+            this.fully.setScreenBrightness(0);
+            this.inSleepMode = true;
+            // this.fully.turnScreenOff();
+          }
+        }, this.SCREEN_OFF_DELAY_MS);
+      } catch (error) {
+        console.error("Error in Fully Kiosk screen operations:", error);
       }
       return;
     }
 
-    if (this.fully.getScreenOn() === false) {
-      try {
-        this.fully.turnScreenOn();
-        this.fully.showToast("Exited sleep mode");
-      } catch (error) {
-        console.error("Error in Fully Kiosk screen operations:", error);
-      }
+    if (!this.inSleepMode) return;
+
+    try {
+      // this.fully.turnScreenOn();
+      this.fully.setScreenBrightness(this.initBrightness);
+      this.inSleepMode = false;
+      this.fully.showToast("Exited sleep mode");
+    } catch (error) {
+      console.error("Error in Fully Kiosk screen operations:", error);
     }
   }
 
