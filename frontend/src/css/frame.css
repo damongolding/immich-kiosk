@@ -177,3 +177,42 @@
     will-change: opacity;
 }
 /* END Cross fade transtion */
+
+@media (orientation: portrait) {
+    .frame {
+        flex-direction: column;
+        border: 0.4rem solid black;
+        border-radius: 0.75rem;
+    }
+
+    &.frameless .frame {
+        flex-direction: column;
+        border: none;
+        border-radius: 0;
+    }
+
+    .frame--layout-splitview {
+        position: relative;
+        width: 100%;
+        height: 100%;
+
+        overflow: hidden;
+
+        &:nth-child(1) {
+            border-bottom: 0.2rem solid black;
+            border-radius: 0.75rem;
+        }
+
+        &:nth-child(2) {
+            border-top: 0.2rem solid black;
+            border-radius: 0.75rem;
+        }
+
+        .frame--image {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}
