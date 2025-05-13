@@ -90,6 +90,7 @@ image_date_format: YYYY-MM-DD
 show_image_description: false
 show_image_exif: false
 show_image_location: false
+show_image_qr: false
 hide_countries:
   - "country to hide"
 show_image_id: false

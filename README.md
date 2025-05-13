@@ -45,6 +45,7 @@
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
+  - [Demo](#demo)
   - [Requirements](#requirements)
   - [Key features](#key-features)
   - [Example 1: Raspberry Pi](#example-1)
@@ -321,17 +322,13 @@ services:
       KIOSK_SHOW_IMAGE_LOCATION: false
       KIOSK_HIDE_COUNTRIES: "HIDDEN_COUNTRY,HIDDEN_COUNTRY"
       KIOSK_SHOW_IMAGE_ID: false
+      KIOSK_SHOW_IMAGE_QR: false
       KIOSK_SHOW_MORE_INFO: true
       KIOSK_SHOW_MORE_INFO_IMAGE_LINK: true
       KIOSK_SHOW_MORE_INFO_QR_CODE: true
       # More info actions
       KIOSK_LIKE_BUTTON_ACTION: favorite
       KIOSK_HIDE_BUTTON_ACTION: tag
-      # Offline Mode
-      KIOSK_OFFLINE_MODE: false
-      KIOSK_OFFLINE_MODE_NUMBER_OF_ASSETS: 100
-      KIOSK_OFFLINE_MODE_MAX_SIZE: 0
-      KIOSK_OFFLINE_MODE_EXPIRATION_HOURS: 0
       # Kiosk settings
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
@@ -455,6 +452,7 @@ See the file `config.example.yaml` for an example config file
 | show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available).                                    |
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF           | bool               | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION       | bool               | false       | Display the image location from METADATA (if available).                                   |
+| show_image_qr                     | KIOSK_SHOW_IMAGE_QR             | bool               | false       | Displays a QR code linking to the original image (in Immich) next to the image metadata.   |
 | hide_countries                    | KIOSK_HIDE_COUNTRIES            | []string           | []          | List of countries to hide from image_location                                              |
 | show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s)                   |
 | show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay       |

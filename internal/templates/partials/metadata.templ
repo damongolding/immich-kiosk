@@ -9,12 +9,62 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
-	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/goodsign/monday"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
+
+// AssetMetadata renders metadata for an asset as an HTML component.
+// Displays configurable metadata including people, albums, date/time,
+// description, EXIF data, location and asset ID.
+//
+// Parameters:
+//   - viewData: ViewData struct with display settings and asset data
+//   - assetIndex: Index of asset to display metadata for
+//
+// Returns:
+//   - templ.Component: HTML component with formatted metadata
+templ AssetMetadata(viewData common.ViewData, assetIndex int) {
+	// {{ showSourceName := shouldShowSourceName(viewData, assetIndex) }}
+	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
+	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
+	{{ rightAlignIcons := len(viewData.Assets) > 1 && assetIndex == 1 }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
+	{{ showUser := viewData.ShowUser }}
+	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
+		if showUser && viewData.Assets[assetIndex].User != "" {
+			@userIcon(cases.Title(language.English).String(viewData.Assets[assetIndex].User))
+		}
+		if viewData.ShowOwner {
+			@uploadIcon(viewData.Assets[assetIndex].ImmichAsset.Owner.Name)
+		}
+		if viewData.Assets[assetIndex].ImmichAsset.MemoryTitle != "" {
+			@memoryIcon(viewData.Assets[assetIndex].ImmichAsset.MemoryTitle)
+		}
+		if (viewData.ShowPersonName || viewData.ShowPersonAge) && names != "" {
+			@templ.Raw(AssetPeople(names))
+		}
+		if viewData.ShowAlbumName && len(viewData.Assets[assetIndex].ImmichAsset.AppearsIn) != 0 {
+			@albumIcon(joinAlbumNames(viewData.Assets[assetIndex].ImmichAsset.AppearsIn))
+		}
+		if showDateTime {
+			@calendarIcon(AssetDateTime(viewData, assetIndex, false))
+		}
+		if showDescription && len(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description) > 0 {
+			@descriptionIcon(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description)
+		}
+		if viewData.ShowImageExif {
+			@exifIcon(AssetExif(viewData.Assets[assetIndex].ImmichAsset.ExifInfo))
+		}
+		if viewData.ShowImageLocation {
+			@locationIcon(AssetLocation(viewData.Assets[assetIndex].ImmichAsset.ExifInfo, viewData.HideCountries))
+		}
+		if viewData.ShowImageID {
+			@idIcon(viewData.Assets[assetIndex].ImmichAsset.ID)
+		}
+	</div>
+}
 
 // AssetLocation generates a formatted string containing location metadata for an asset.
 // Builds a hierarchical location string from EXIF city, state and country data.
@@ -316,55 +366,4 @@ func AssetPeople(peopleNames string) string {
 				%s
 			</div>
 		</div>`, peopleNames)
-}
-
-// AssetMetadata renders metadata for an asset as an HTML component.
-// Displays configurable metadata including people, albums, date/time,
-// description, EXIF data, location and asset ID.
-//
-// Parameters:
-//   - viewData: ViewData struct with display settings and asset data
-//   - assetIndex: Index of asset to display metadata for
-//
-// Returns:
-//   - templ.Component: HTML component with formatted metadata
-templ AssetMetadata(viewData common.ViewData, assetIndex int) {
-	// {{ showSourceName := shouldShowSourceName(viewData, assetIndex) }}
-	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
-	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
-	{{ rightAlignIcons := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 || viewData.Layout == kiosk.LayoutSplitviewLandscape }}
-	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
-	{{ showUser := viewData.ShowUser }}
-	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
-		if showUser && viewData.Assets[assetIndex].User != "" {
-			@userIcon(cases.Title(language.English).String(viewData.Assets[assetIndex].User))
-		}
-		if viewData.ShowOwner {
-			@uploadIcon(viewData.Assets[assetIndex].ImmichAsset.Owner.Name)
-		}
-		if viewData.Assets[assetIndex].ImmichAsset.MemoryTitle != "" {
-			@memoryIcon(viewData.Assets[assetIndex].ImmichAsset.MemoryTitle)
-		}
-		if (viewData.ShowPersonName || viewData.ShowPersonAge) && names != "" {
-			@templ.Raw(AssetPeople(names))
-		}
-		if viewData.ShowAlbumName && len(viewData.Assets[assetIndex].ImmichAsset.AppearsIn) != 0 {
-			@albumIcon(joinAlbumNames(viewData.Assets[assetIndex].ImmichAsset.AppearsIn))
-		}
-		if showDateTime {
-			@calendarIcon(AssetDateTime(viewData, assetIndex, false))
-		}
-		if showDescription && len(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description) > 0 {
-			@descriptionIcon(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description)
-		}
-		if viewData.ShowImageExif {
-			@exifIcon(AssetExif(viewData.Assets[assetIndex].ImmichAsset.ExifInfo))
-		}
-		if viewData.ShowImageLocation {
-			@locationIcon(AssetLocation(viewData.Assets[assetIndex].ImmichAsset.ExifInfo, viewData.HideCountries))
-		}
-		if viewData.ShowImageID {
-			@idIcon(viewData.Assets[assetIndex].ImmichAsset.ID)
-		}
-	</div>
 }
