@@ -199,6 +199,9 @@
 }
 
 @media screen and (max-width: 31.25rem) {
+    .asset-metadata-container {
+        padding: 0.5rem;
+    }
     .asset--metadata {
         padding: 0.5rem !important;
         max-width: 50vw;
