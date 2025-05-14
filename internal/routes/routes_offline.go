@@ -39,6 +39,9 @@ const (
 
 var ErrMaxStorageReached = errors.New("max offline storage size reached")
 
+// OfflineMode returns an HTTP handler that serves offline assets for the kiosk application.
+// It attempts to load and render a cached offline asset, handling asset expiration, cache directory creation, and duplicate removal.
+// If no valid offline assets are available or assets have expired, it initiates an asynchronous download and displays a status page.
 func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -133,7 +136,6 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			viewData.History = requestConfig.History
 
 			return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
-
 		}
 
 		return Render(c, http.StatusOK, partials.Error(partials.ErrorData{

@@ -29,6 +29,7 @@
 }
 
 .asset--metadata {
+    position: relative;
     display: flex;
     gap: 0.5rem;
     flex-direction: column;
@@ -46,8 +47,8 @@
 .asset--metadata--theme-fade::before {
     content: "";
     position: absolute;
-    bottom: 0;
-    left: 0;
+    bottom: -1rem;
+    left: -1rem;
     width: 150%;
     height: 200%;
     background-image: radial-gradient(
@@ -60,8 +61,8 @@
 .frame--layout-splitview:nth-child(2) .asset--metadata--theme-fade::before {
     content: "";
     position: absolute;
-    bottom: 0;
-    right: 0;
+    bottom: -1rem;
+    right: -1rem;
     left: unset;
     width: 150%;
     height: 200%;
@@ -247,9 +248,9 @@
     .frame--layout-splitview:nth-child(2) .asset--metadata--theme-fade::before {
         content: "";
         position: absolute;
-        bottom: 0;
+        bottom: -1rem;
         right: unset;
-        left: 0;
+        left: -1rem;
         width: 150%;
         height: 200%;
         background-image: radial-gradient(
