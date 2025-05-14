@@ -479,10 +479,11 @@ type BrowserData = {
 };
 
 /**
- * Get current browser viewport dimensions
- * and Fully Kiosk Browser information if available
- * @returns {BrowserData} Object containing window width and height
- * and Fully Kiosk Browser details when present
+ * Returns the current browser viewport dimensions and, if available, Fully Kiosk Browser details.
+ *
+ * When debug mode is enabled and Fully Kiosk Browser integration is present, the returned object includes version, orientation, and brightness information from the browser.
+ *
+ * @returns An object containing the viewport width and height, and optionally Fully Kiosk Browser details.
  */
 function clientData(): BrowserData {
   const data: BrowserData = {

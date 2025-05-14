@@ -12,7 +12,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
-// Sleep sleep mode endpoint
+// Sleep returns an HTTP handler that renders the sleep mode page based on the configured sleep period and settings.
 func Sleep(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
