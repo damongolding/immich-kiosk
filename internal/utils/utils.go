@@ -432,6 +432,8 @@ func ColorizeRequestID(requestID string) string {
 		textColor = lipgloss.Color("#ffffff")
 	}
 
+	requestID = strings.ToUpper(requestID)
+
 	if len(requestID) > 4 {
 		return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestID[len(requestID)-4:])
 	}
