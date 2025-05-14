@@ -97,7 +97,7 @@ class PollingController {
   /**
    * Triggers a new image to be loaded
    */
-  private triggerNewAsset = () => {
+  triggerNewAsset = () => {
     this.stopPolling();
     this.lastPollTime = performance.now();
     htmx.trigger(this.kioskElement as HTMLElement, "kiosk-new-asset");
@@ -364,3 +364,4 @@ export const togglePolling = (hideOverlay?: boolean) =>
 export const videoHandler = (id: string) => pollingController.videoHandler(id);
 export const muteVideo = () => pollingController.muteVideo();
 export const unmuteVideo = () => pollingController.unmuteVideo();
+export const triggerNewAsset = () => pollingController.triggerNewAsset();

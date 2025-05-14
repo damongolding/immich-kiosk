@@ -1,3 +1,5 @@
+import { triggerNewAsset } from "./polling";
+
 interface FullyKioskBrowser {
   getDisplayWidth: () => number;
   getDisplayHeight: () => number;
@@ -93,6 +95,7 @@ class FullyKiosk {
         this.fully.stopScreensaver();
         this.fully.showToast("Exited sleep mode");
         this.inSleepMode = false;
+        triggerNewAsset();
       }
     } catch (error) {
       console.error("Error in Fully Kiosk screen operations:", error);
