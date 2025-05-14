@@ -68,7 +68,7 @@ jobs:
         if: ${{ matrix.build-mode == 'manual' }}
         uses: actions/setup-go@v5
         with:
-          go-version-file: "${{ inputs.path }}/${{ inputs.go-version-file }}"
+          go-version: "1.24.3"
 
       - name: Build Templ
         if: ${{ matrix.build-mode == 'manual' }}
