@@ -488,7 +488,7 @@ type BrowserData = {
 function clientData(): BrowserData {
   const data: BrowserData = {
     client_width: fullyKiosk.getDisplayDimensions().width,
-    client_height: fullyKiosk.getDisplayDimensions().width,
+    client_height: fullyKiosk.getDisplayDimensions().height,
   };
 
   if (kioskData.debug && fullyKiosk.fully !== undefined) {

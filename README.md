@@ -446,7 +446,7 @@ See the file `config.example.yaml` for an example config file
 | show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display person name(s).                                                                    |
 | show_person_age                   | KIOSK_SHOW_PERSON_AGE   | bool                       | false       | Display person age.                                                                        |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
-| image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12-hour or 24-hour format. Can either be 12 or 24.            |
+| image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12-hour or 24-hour format. This can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
 | [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information.
 | show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available).                                    |
@@ -1139,7 +1139,7 @@ When a landscape image is fetched, Kiosk automatically retrieves a second landsc
 Setting both `sleep_start` and `sleep_end` using the 24-hour format will enable sleep mode.
 
 ### During Sleep Mode:
-Kiosk will display a black screen and can optionally shows a faint clock if `show_time` or `show_date` and enabled.
+Kiosk will display a black screen and can optionally show a faint clock if `show_time` or `show_date` and enabled.
 
 ### Dimming the Screen with Fully Kiosk Browser
 
