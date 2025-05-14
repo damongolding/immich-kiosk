@@ -20,8 +20,8 @@ jobs:
 
       - name: Install templ and generate
         run: |
-          go install github.com/a-h/templ/cmd/templ@latest
-          templ generate
+          go mod download
+          go tool templ generate
 
       - name: Run tests
         env:

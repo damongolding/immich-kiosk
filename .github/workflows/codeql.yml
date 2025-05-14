@@ -36,6 +36,9 @@ jobs:
             build-mode: manual
           - language: typescript
             build-mode: none
+            paths-ignore:
+              - src/node_modules
+              - frontend/public/**
         # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
@@ -64,8 +67,8 @@ jobs:
       - if: ${{ matrix.build-mode == 'manual' }}
         name: Build Templ
         run: |
-          go install github.com/a-h/templ/cmd/templ@latest
-          $HOME/go/bin/templ generate
+          go mod download
+          go tool templ generate
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
