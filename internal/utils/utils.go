@@ -432,7 +432,7 @@ func ColorizeRequestID(requestID string) string {
 		textColor = lipgloss.Color("#ffffff")
 	}
 
-	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestID)
+	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestID[len(requestID)-4:])
 }
 
 // calculateContrastRatio computes the contrast ratio between two RGB colors according to WCAG 2.0.
