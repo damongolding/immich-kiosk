@@ -1146,7 +1146,7 @@ Kiosk will display a black screen and can optionally shows a faint clock if `sho
 > [!IMPORTANT]
 > If you will need the pro version of Fully Kiosk Browser, and will need to turn on "Enable JavaScript Interface" in the Advanced Web Settings.
 
-If you are running Kiosk with the [Fully Kiosk Browser](https://www.fully-kiosk.com/), setting `sleep_screensaver=true` will enable the screensaver during sleep mode.
+If you are running Kiosk within the [Fully Kiosk Browser](https://www.fully-kiosk.com/), setting `sleep_screensaver=true` will enable the screensaver during sleep mode.
 
 ### Examples
 - Setting `sleep_start=22` and `sleep_end=7` will enable sleep mode from 22:00 (10pm) to 07:00 (7am).
