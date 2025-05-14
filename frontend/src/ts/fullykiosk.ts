@@ -15,6 +15,11 @@ interface FullyKioskBrowser {
   turnScreenOn: () => void;
   showToast: (message: string) => void;
   setScreenBrightness: (brightness: number) => void;
+  getBooleanSetting: (key: string) => string;
+  getStringSetting: (key: string) => string;
+  setBooleanSetting: (key: string, value: boolean) => void;
+  setStringSetting: (key: string, value: string) => void;
+  importSettingsFile: (url: string) => void;
 }
 
 // Augment the Window interface
@@ -30,10 +35,27 @@ class FullyKiosk {
 
   private readonly SCREENSAVER_DELAY_MS = 4 * 1000;
 
+  private readonly screensaverBrightness = "screensaverBrightness";
+  private readonly screensaverWallpaperURL = "screensaverWallpaperURL";
+  private readonly screensaverWallpaperURLBlack = "fully://color#000000";
+  private readonly preventSleepWhileScreenOff = "preventSleepWhileScreenOff";
+
+  private initScreensaverBrightness: string;
+  private initScreensaverWallpaperURL: string;
+
   inSleepMode: boolean = false;
 
-  private constructor() {
+  private constructor(debug: boolean = false) {
     this.fully = window.fully;
+
+    if (this.fully) {
+      this.initScreensaverBrightness = this.fully.getStringSetting(
+        this.screensaverBrightness,
+      );
+      this.initScreensaverWallpaperURL = this.fully.getStringSetting(
+        this.screensaverWallpaperURL,
+      );
+    }
   }
 
   public static getInstance(): FullyKiosk {
@@ -71,6 +93,30 @@ class FullyKiosk {
     };
   }
 
+  private setScreensaverSettings() {
+    if (!this.fully) return;
+
+    this.fully.setStringSetting(this.screensaverBrightness, "0");
+    this.fully.setStringSetting(
+      this.screensaverWallpaperURL,
+      this.screensaverWallpaperURLBlack,
+    );
+    this.fully.setBooleanSetting(this.preventSleepWhileScreenOff, true);
+  }
+
+  private resetScreensaverSettings() {
+    if (!this.fully) return;
+
+    this.fully.setStringSetting(
+      this.screensaverBrightness,
+      this.initScreensaverBrightness,
+    );
+    this.fully.setStringSetting(
+      this.screensaverWallpaperURL,
+      this.initScreensaverWallpaperURL,
+    );
+  }
+
   public setScreensaverState(enable: boolean): void {
     if (!this.fully) return;
 
@@ -84,6 +130,7 @@ class FullyKiosk {
         const fullyRef = this.fully; // capture reference for setTimeout
         setTimeout(() => {
           try {
+            this.setScreensaverSettings();
             fullyRef.startScreensaver();
           } catch (error) {
             console.error("Error turning screen off:", error);
@@ -92,6 +139,7 @@ class FullyKiosk {
       } else {
         if (!this.inSleepMode) return;
 
+        this.resetScreensaverSettings();
         this.fully.stopScreensaver();
         this.fully.showToast("Exited sleep mode");
         this.inSleepMode = false;
