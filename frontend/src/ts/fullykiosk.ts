@@ -6,6 +6,8 @@ interface FullyKioskBrowser {
   getAndroidVersion: () => string;
   getScreenOrientation: () => number;
   getScreenBrightness: () => number;
+  startScreensaver: () => void;
+  stopScreensaver: () => void;
   getScreenOn: () => boolean;
   turnScreenOff: (keepAlive?: boolean) => void;
   turnScreenOn: () => void;
@@ -24,17 +26,12 @@ class FullyKiosk {
   private static instance: FullyKiosk | null = null;
   public readonly fully: FullyKioskBrowser | undefined;
 
-  private readonly SCREEN_DIM_DELAY_MS = 4 * 1000;
+  private readonly SCREENSAVER_DELAY_MS = 4 * 1000;
 
-  initBrightness: number;
   inSleepMode: boolean = false;
 
   private constructor() {
     this.fully = window.fully;
-    if (this.fully) {
-      const currentBrightness = this.fully.getScreenBrightness();
-      this.initBrightness = currentBrightness > 1 ? currentBrightness : 255;
-    }
   }
 
   public static getInstance(): FullyKiosk {
@@ -72,11 +69,11 @@ class FullyKiosk {
     };
   }
 
-  public toggleScreen(turnOff: boolean): void {
+  public setScreensaverState(enable: boolean): void {
     if (!this.fully) return;
 
     try {
-      if (turnOff) {
+      if (enable) {
         if (this.inSleepMode) return;
 
         this.fully.showToast("Entering sleep mode");
@@ -85,15 +82,15 @@ class FullyKiosk {
         const fullyRef = this.fully; // capture reference for setTimeout
         setTimeout(() => {
           try {
-            fullyRef.setScreenBrightness(0);
+            fullyRef.startScreensaver();
           } catch (error) {
             console.error("Error turning screen off:", error);
           }
-        }, this.SCREEN_DIM_DELAY_MS);
+        }, this.SCREENSAVER_DELAY_MS);
       } else {
         if (!this.inSleepMode) return;
 
-        this.fully.setScreenBrightness(this.initBrightness);
+        this.fully.stopScreensaver();
         this.fully.showToast("Exited sleep mode");
         this.inSleepMode = false;
       }

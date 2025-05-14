@@ -490,7 +490,7 @@ function clientData(): BrowserData {
     client_height: fullyKiosk.getDisplayDimensions().width,
   };
 
-  if (fullyKiosk.fully !== undefined) {
+  if (kioskData.debug && fullyKiosk.fully !== undefined) {
     data.fully_version = fullyKiosk.fully.getFullyVersion();
     data.fully_webview_version = fullyKiosk.fully.getWebviewVersion();
     data.fully_android_version = fullyKiosk.fully.getAndroidVersion();
