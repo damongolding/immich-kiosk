@@ -48,6 +48,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Go environment
+        if: ${{ matrix.language == 'go' }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.3"
+
+      - name: Build Templ
+        if: ${{ matrix.language == 'go' }}
+        run: |
+          go mod download
+          go tool templ generate
+
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -63,18 +75,6 @@ jobs:
 
           # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
           # queries: security-extended,security-and-quality
-
-      - name: Setup Go environment
-        if: ${{ matrix.build-mode == 'manual' }}
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.24.3"
-
-      - name: Build Templ
-        if: ${{ matrix.build-mode == 'manual' }}
-        run: |
-          go mod download
-          go tool templ generate
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
