@@ -42,9 +42,9 @@ templ Home(viewData common.ViewData) {
 			>
 				@partials.Spinner()
 			</main>
-			if viewData.Iframe != "" {
+			for _, iframe := range viewData.Iframe {
 				<iframe
-					src={ viewData.Iframe }
+					src={ iframe }
 					allowtransparency="true"
 					frameborder="0"
 				></iframe>
