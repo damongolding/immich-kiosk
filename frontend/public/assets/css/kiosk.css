@@ -2808,7 +2808,7 @@ figure {
        order: 2;
 }
 
-/* src/css/kiosk.css */
+/* src/css/iframe.css */
 iframe {
   background: transparent;
   border: none;
@@ -2820,3 +2820,5 @@ iframe {
   left: 0;
   z-index: var(--z-iframe);
 }
+
+/* src/css/kiosk.css */
