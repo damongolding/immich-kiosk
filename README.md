@@ -807,7 +807,7 @@ e.g. `http://{URL}?person=all`
 
 The "Require all people" feature allows you to filter images to only show those where all specified people are present together in the same photo.
 
-## Configuration
+### Configuration
 
 You can enable this feature in three ways (listed in order of precedence):
 
@@ -827,13 +827,13 @@ environment:
 require_all_people: true
 ```
 
-## How It Works
+### How It Works
 
 When enabled:
 - Only photos containing ALL specified people will be displayed
 - Photos where only some of the specified people appear will be excluded
 
-## Example Use Cases
+### Example Use Cases
 
 1. **Family Photos**:
    - Set multiple person IDs for family members
@@ -843,7 +843,7 @@ When enabled:
    - Specify IDs for members of a group
    - See only photos where everyone was present
 
-## Important Notes
+### Important Notes
 
 > [!NOTE]
 > - This setting only takes effect when multiple people are specified
