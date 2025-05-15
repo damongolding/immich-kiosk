@@ -39,23 +39,16 @@ class FullyKiosk {
   private readonly screensaverWallpaperURL = "screensaverWallpaperURL";
   private readonly screensaverWallpaperURLBlack = "fully://color#000000";
   private readonly preventSleepWhileScreenOff = "preventSleepWhileScreenOff";
+  private readonly screensaverDaydream = "screensaverDaydream";
 
   private initScreensaverBrightness: string;
   private initScreensaverWallpaperURL: string;
+  private initScreensaverDaydream: boolean;
 
   inSleepMode: boolean = false;
 
   private constructor(debug: boolean = false) {
     this.fully = window.fully;
-
-    if (this.fully) {
-      this.initScreensaverBrightness = this.fully.getStringSetting(
-        this.screensaverBrightness,
-      );
-      this.initScreensaverWallpaperURL = this.fully.getStringSetting(
-        this.screensaverWallpaperURL,
-      );
-    }
   }
 
   public static getInstance(): FullyKiosk {
@@ -96,6 +89,17 @@ class FullyKiosk {
   private setScreensaverSettings() {
     if (!this.fully) return;
 
+    // Get initial settings
+    this.initScreensaverBrightness = this.fully.getStringSetting(
+      this.screensaverBrightness,
+    );
+    this.initScreensaverWallpaperURL = this.fully.getStringSetting(
+      this.screensaverWallpaperURL,
+    );
+    this.initScreensaverDaydream =
+      this.fully.getBooleanSetting(this.screensaverDaydream) === "true";
+
+    // Set settings
     this.fully.setStringSetting(this.screensaverBrightness, "0");
     this.fully.setStringSetting(
       this.screensaverWallpaperURL,
@@ -114,6 +118,10 @@ class FullyKiosk {
     this.fully.setStringSetting(
       this.screensaverWallpaperURL,
       this.initScreensaverWallpaperURL,
+    );
+    this.fully.setBooleanSetting(
+      this.screensaverDaydream,
+      this.initScreensaverDaydream,
     );
   }
 
