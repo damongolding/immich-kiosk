@@ -1,6 +1,8 @@
 package views
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -31,11 +33,29 @@ func isIframeUrl(iframeURL string) (bool, string) {
 		return true, u.String()
 	}
 
+	// Validate file extension
+	if !strings.HasSuffix(strings.ToLower(iframeURL), ".html") {
+		log.Warn("Non-HTML file requested for iframe", "path", iframeURL)
+		var buf bytes.Buffer
+		d := partials.ErrorData{
+			Title:   "Error loading iframe content",
+			Message: "Non-HTML file requested for iframe: " + iframeURL,
+		}
+		partials.IframeError(d).Render(context.Background(), &buf)
+		return false, buf.String()
+	}
+
 	// Try reading it as a file
 	content, readErr := os.ReadFile(iframeURL)
 	if readErr != nil {
 		log.Error("Error reading iframe file", "err", readErr)
-		return false, ""
+		var buf bytes.Buffer
+		d := partials.ErrorData{
+			Title:   "Error loading iframe content",
+			Message: "Error reading iframe file: " + iframeURL,
+		}
+		partials.IframeError(d).Render(context.Background(), &buf)
+		return false, buf.String()
 	}
 
 	return false, string(content)
