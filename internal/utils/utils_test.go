@@ -371,6 +371,7 @@ func TestParseTimeString(t *testing.T) {
 		{"abcd", "", true},
 		{"", "", true},
 		{" ", "", true},
+		{"730", "07:30", false},
 		{"9:30", "09:30", false},
 		{"19:30", "19:30", false},
 		{"0930", "09:30", false},

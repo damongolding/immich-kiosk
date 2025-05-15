@@ -335,12 +335,23 @@ figure {
   overflow: hidden;
 }
 .frame--layout-splitview-landscape:nth-child(1) {
+    border: none;
     border-bottom: 0.2rem solid black;
     border-radius: 0.75rem;
   }
 .frame--layout-splitview-landscape:nth-child(2) {
+    border: none;
     border-top: 0.2rem solid black;
     border-radius: 0.75rem;
+  }
+.frame--layout-splitview-landscape .frame--image {
+    position: absolute;
+    display: -moz-box;
+    display: flex;
+    -moz-box-pack: center;
+         justify-content: center;
+    -moz-box-align: center;
+         align-items: center;
   }
 .frameless .frame--layout-splitview-landscape {
   border-radius: 0;
@@ -387,62 +398,127 @@ figure {
   opacity: 0;
   will-change: opacity;
 }
+@media (orientation: portrait) {
+    .layout-splitview .frame {
+      -moz-box-orient: vertical;
+      -moz-box-direction: normal;
+           flex-direction: column;
+      border: 0.4rem solid black;
+      border-radius: 0.75rem;
+    }
+    .layout-splitview.frameless .frame {
+      -moz-box-orient: vertical;
+      -moz-box-direction: normal;
+           flex-direction: column;
+      border: none;
+      border-radius: 0;
+    }
+  .frame--layout-splitview {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+    .frame--layout-splitview:nth-child(1) {
+      border: none;
+      border-bottom: 0.2rem solid black;
+      border-radius: 0.75rem;
+    }
+    .frame--layout-splitview:nth-child(2) {
+      border: none;
+      border-top: 0.2rem solid black;
+      border-radius: 0.75rem;
+    }
+    .frame--layout-splitview .frame--image {
+      position: absolute;
+      display: -moz-box;
+      display: flex;
+      -moz-box-pack: center;
+           justify-content: center;
+      -moz-box-align: center;
+           align-items: center;
+    }
+  .frameless .frame--layout-splitview {
+    border-radius: 0;
+  }
+}
 
 /* src/css/image.css */
-.polling-paused.more-info .asset--metadata, .polling-paused.redirects-open .asset--metadata {
+.asset-metadata-container {
+  position: absolute;
+  display: -moz-box;
+  display: flex;
+  gap: 0.5rem;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  padding: 1rem;
+  -moz-box-pack: justify;
+       justify-content: space-between;
+  -moz-box-align: end;
+       align-items: flex-end;
+}
+.asset-metadata-qr img {
+  width: 4rem;
+  border-radius: 0.2rem;
+  display: block;
+}
+.polling-paused.more-info .asset-metadata-container, .polling-paused.redirects-open .asset-metadata-container {
+    opacity: 0.2;
+  }
+.polling-paused.more-info .asset-metadata-qr img, .polling-paused.redirects-open .asset-metadata-qr img {
     opacity: 0.2;
   }
 .asset--metadata {
-  position: absolute;
+  position: relative;
   display: -moz-box;
   display: flex;
   gap: 0.5rem;
   -moz-box-orient: vertical;
   -moz-box-direction: normal;
        flex-direction: column;
-  -moz-box-align: end;
-       align-items: flex-end;
+  -moz-box-align: start;
+       align-items: flex-start;
   bottom: 0;
   right: 0;
   max-width: 70vw;
-  padding: 1rem;
   color: #fff;
   font-size: 1.1rem;
-  text-align: right;
+  text-align: left;
   text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 }
 .asset--metadata--theme-fade::before {
   content: "";
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 150%;
-  height: 200%;
-  background-image: -moz-radial-gradient(100% 100%, 100% 100%, var(--fade-gradient));
-  background-image: radial-gradient(100% 100% at 100% 100%, var(--fade-gradient));
-  z-index: var(--z-base);
-}
-.frame--layout-splitview:nth-child(1) .asset--metadata--theme-fade::before {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: unset;
-  left: 0;
+  bottom: -1rem;
+  left: -1rem;
   width: 150%;
   height: 200%;
   background-image: -moz-radial-gradient(0% 100%, 100% 100%, var(--fade-gradient));
   background-image: radial-gradient(100% 100% at 0% 100%, var(--fade-gradient));
   z-index: var(--z-base);
 }
-.asset--metadata--theme-solid {
-  padding-left: 1.5rem;
-  background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 2rem 0 0 0;
+.frame--layout-splitview:nth-child(2) .asset--metadata--theme-fade::before {
+  content: "";
+  position: absolute;
+  bottom: -1rem;
+  right: -1rem;
+  left: unset;
+  width: 150%;
+  height: 200%;
+  background-image: -moz-radial-gradient(100% 100%, 100% 100%, var(--fade-gradient));
+  background-image: radial-gradient(100% 100% at 100% 100%, var(--fade-gradient));
+  z-index: var(--z-base);
 }
-.frame--layout-splitview:nth-child(1) .asset--metadata--theme-solid {
-  padding-right: 1.5rem;
+.asset--metadata--theme-solid {
+  padding: 1rem;
+  margin: -1rem;
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 0 2rem 0 0;
+}
+.frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 2rem 0 0 0;
 }
 .asset--metadata .responsive-break {
   display: none;
@@ -497,28 +573,27 @@ figure {
   opacity: 0.3;
   padding: 0 0.5rem;
 }
-.frame--layout-splitview .asset--metadata--description, .frame--layout-splitview-landscape .asset--metadata--description {
-    max-width: 50%;
+.frame--layout-splitview:nth-child(2) .asset--metadata {
+    display: -moz-box;
+    display: flex;
+    gap: 0.5rem;
+    -moz-box-orient: vertical;
+    -moz-box-direction: normal;
+         flex-direction: column;
+    -moz-box-align: end;
+         align-items: flex-end;
+    max-width: 70vw;
+    color: #fff;
+    font-size: 1.1rem;
+    text-align: right;
+    text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+    -moz-box-ordinal-group: 3;
+         order: 2;
   }
-.frame--layout-splitview:nth-child(1) .asset--metadata {
-  position: absolute;
-  display: -moz-box;
-  display: flex;
-  gap: 0.5rem;
-  -moz-box-orient: vertical;
-  -moz-box-direction: normal;
-       flex-direction: column;
-  -moz-box-align: start;
-       align-items: flex-start;
-  bottom: 0;
-  left: 0;
-  right: unset;
-  max-width: 70vw;
-  color: #fff;
-  font-size: 1.1rem;
-  text-align: left;
-  text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
-}
+.frame--layout-splitview:nth-child(2) .asset-metadata-qr {
+    -moz-box-ordinal-group: 2;
+         order: 1;
+  }
 .frame--image-zoom img {
   -moz-animation-direction: normal;
        animation-direction: normal;
@@ -560,6 +635,9 @@ figure {
          animation-play-state: paused;
   }
 @media screen and (max-width: 31.25rem) {
+  .asset-metadata-container {
+    padding: 0.5rem;
+  }
   .asset--metadata {
     padding: 0.5rem !important;
     max-width: 50vw;
@@ -576,6 +654,49 @@ figure {
     .asset--metadata--location .responsive-break {
       display: inline;
     }
+}
+@media (orientation: portrait) {
+    .frame--layout-splitview:nth-child(2) .asset--metadata {
+      display: -moz-box;
+      display: flex;
+      gap: 0.5rem;
+      -moz-box-orient: vertical;
+      -moz-box-direction: normal;
+           flex-direction: column;
+      -moz-box-align: start;
+           align-items: flex-start;
+      max-width: 70vw;
+      color: #fff;
+      font-size: 1.1rem;
+      text-align: left;
+      text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+      -moz-box-ordinal-group: 2;
+           order: 1;
+    }
+    .frame--layout-splitview:nth-child(2) .asset-metadata-qr {
+      -moz-box-ordinal-group: 3;
+           order: 2;
+    }
+  .asset--metadata--icon {
+    -moz-box-ordinal-group: 1 !important;
+         order: 0 !important;
+  }
+  .frame--layout-splitview:nth-child(2) .asset--metadata--theme-fade::before {
+    content: "";
+    position: absolute;
+    bottom: -1rem;
+    right: unset;
+    left: -1rem;
+    width: 150%;
+    height: 200%;
+    background-image: -moz-radial-gradient(0% 100%, 100% 100%, var(--fade-gradient));
+    background-image: radial-gradient(100% 100% at 0% 100%, var(--fade-gradient));
+    z-index: var(--z-base);
+  }
+  .frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 0 2rem 0 0;
+  }
 }
 
 /* src/css/more-info.css */
@@ -2280,6 +2401,9 @@ figure {
 }
 
 /* src/css/weather.css */
+#weather-container {
+  position: relative;
+}
 .weather {
   position: relative;
   color: #fff;
@@ -2355,7 +2479,7 @@ figure {
   border-radius: 0 0 0 2rem;
   align-self: start;
 }
-.sleep #weather {
+.sleep #weather-container {
   display: none;
 }
 

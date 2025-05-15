@@ -297,6 +297,7 @@ services:
       # Sleep mode
       # KIOSK_SLEEP_START: 22
       # KIOSK_SLEEP_END: 7
+      # KIOSK_SLEEP_SCREENSAVER: false
       # Transistion options
       KIOSK_TRANSITION: none
       KIOSK_FADE_TRANSITION_DURATION: 1
@@ -321,6 +322,7 @@ services:
       KIOSK_SHOW_IMAGE_LOCATION: false
       KIOSK_HIDE_COUNTRIES: "HIDDEN_COUNTRY,HIDDEN_COUNTRY"
       KIOSK_SHOW_IMAGE_ID: false
+      KIOSK_SHOW_IMAGE_QR: false
       KIOSK_SHOW_MORE_INFO: true
       KIOSK_SHOW_MORE_INFO_IMAGE_LINK: true
       KIOSK_SHOW_MORE_INFO_QR_CODE: true
@@ -427,6 +429,8 @@ See the file `config.example.yaml` for an example config file
 | [layout](#layouts)                | KIOSK_LAYOUT            | single \| portrait \| landscape \| splitview \| splitview-landscape | Which layout to use. See [Layouts](#layouts) for more information.                         |
 | [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [sleep_icon](#sleep-mode)         | KIOSK_SLEEP_ICON        | string                     | ""          | Display icon during sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [sleep_screensaver](#sleep-mode)   | KIOSK_SLEEP_SCREENSAVER | bool                      | false       | Enable screensaver during sleep mode when using Fully Kiosk Browser. See [Sleep mode](#sleep-mode) for more information. |
 | [disable_sleep](#sleep-mode)      | N/A                     | bool                       | false       | Bypass sleep mode by adding `disable_sleep=true` to the URL. See [Sleep mode](#sleep-mode) for more information. |
 | [custom_css](#custom-css)         | N/A                     | bool                       | true        | Allow custom CSS to be used. See [Custom CSS](#custom-css) for more information.           |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
@@ -442,12 +446,13 @@ See the file `config.example.yaml` for an example config file
 | show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display person name(s).                                                                    |
 | show_person_age                   | KIOSK_SHOW_PERSON_AGE   | bool                       | false       | Display person age.                                                                        |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
-| image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12-hour or 24-hour format. Can either be 12 or 24.            |
+| image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12-hour or 24-hour format. This can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
 | [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information.
 | show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available).                                    |
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF           | bool               | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION       | bool               | false       | Display the image location from METADATA (if available).                                   |
+| show_image_qr                     | KIOSK_SHOW_IMAGE_QR             | bool               | false       | Displays a QR code linking to the original image (in Immich) next to the image metadata.   |
 | hide_countries                    | KIOSK_HIDE_COUNTRIES            | []string           | []          | List of countries to hide from image_location                                              |
 | show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s)                   |
 | show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay       |
@@ -1134,7 +1139,14 @@ When a landscape image is fetched, Kiosk automatically retrieves a second landsc
 Setting both `sleep_start` and `sleep_end` using the 24-hour format will enable sleep mode.
 
 ### During Sleep Mode:
-Kiosk will display a black screen and can optionally shows a faint clock if `show_time` or `show_date` and enabled.
+Kiosk will display a black screen and can optionally show a faint clock if `show_time` or `show_date` and enabled.
+
+### Dimming the Screen with Fully Kiosk Browser
+
+> [!IMPORTANT]
+> If you will need the pro version of Fully Kiosk Browser, and will need to turn on "Enable JavaScript Interface" in the Advanced Web Settings.
+
+If you are running Kiosk within the [Fully Kiosk Browser](https://www.fully-kiosk.com/), setting `sleep_screensaver=true` will enable the screensaver during sleep mode.
 
 ### Examples
 - Setting `sleep_start=22` and `sleep_end=7` will enable sleep mode from 22:00 (10pm) to 07:00 (7am).

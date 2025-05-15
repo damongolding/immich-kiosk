@@ -24,7 +24,8 @@ import {
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
 import { toggleMute } from "./mute";
-import { storageUtils } from "./storage";
+import fullyKiosk from "./fullykiosk";
+import { sleepMode } from "./sleep";
 
 ("use strict");
 
@@ -470,19 +471,35 @@ function checkHistoryExists(e: HTMXEvent): void {
 type BrowserData = {
   client_width: number;
   client_height: number;
-  client_agent: string;
+  fully_version?: string;
+  fully_webview_version?: string;
+  fully_android_version?: string;
+  fully_screen_orientation?: number;
+  fully_screen_brightness?: number;
 };
 
 /**
- * Get current browser viewport dimensions
- * @returns {BrowserData} Object containing window width and height
+ * Returns the current browser viewport dimensions and, if available, Fully Kiosk Browser details.
+ *
+ * When debug mode is enabled and Fully Kiosk Browser integration is present, the returned object includes version, orientation, and brightness information from the browser.
+ *
+ * @returns An object containing the viewport width and height, and optionally Fully Kiosk Browser details.
  */
 function clientData(): BrowserData {
-  return {
-    client_width: window.innerWidth,
-    client_height: window.innerHeight,
-    client_agent: window.navigator.userAgent,
+  const data: BrowserData = {
+    client_width: fullyKiosk.getDisplayDimensions().width,
+    client_height: fullyKiosk.getDisplayDimensions().height,
   };
+
+  if (kioskData.debug && fullyKiosk.fully !== undefined) {
+    data.fully_version = fullyKiosk.fully.getFullyVersion();
+    data.fully_webview_version = fullyKiosk.fully.getWebviewVersion();
+    data.fully_android_version = fullyKiosk.fully.getAndroidVersion();
+    data.fully_screen_orientation = fullyKiosk.fully.getScreenOrientation();
+    data.fully_screen_brightness = fullyKiosk.fully.getScreenBrightness();
+  }
+
+  return data;
 }
 
 /**
@@ -549,4 +566,5 @@ export {
   checkHistoryExists,
   clientData,
   videoHandler,
+  sleepMode,
 };
