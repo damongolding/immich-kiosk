@@ -92,15 +92,12 @@ func isIframeUrl(iframeURL string) (bool, string) {
 			Title:   "Error loading iframe content",
 			Message: "Error reading iframe file: " + iframeURL,
 		}
-         // render the iframe error into buf, handling any Render() errors
--        partials.IframeError(d).Render(context.Background(), &buf)
--        return false, buf.String()
-+        renderErr := partials.IframeError(d).Render(context.Background(), &buf)
-+        if renderErr != nil {
-+            log.Error("Rendering iFrame error", "err", renderErr)
-+            return false, ""
-+        }
-+        return false, buf.String()
+		renderErr := partials.IframeError(d).Render(context.Background(), &buf)
+		if renderErr != nil {
+			log.Error("Rendering iFrame error", "err", renderErr)
+			return false, ""
+		}
+		return false, buf.String()
 	}
 
 	return false, string(content)
