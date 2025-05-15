@@ -87,6 +87,18 @@
     }
 }
 
+@media (orientation: portrait) {
+    .polling-paused.more-info {
+        #more-info {
+            flex-direction: column;
+
+            .more-info--image {
+                flex-direction: row;
+            }
+        }
+    }
+}
+
 .more-info--button-group {
     display: flex;
     gap: 1rem;

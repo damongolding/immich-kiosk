@@ -792,6 +792,18 @@ figure {
       -moz-box-direction: normal;
            flex-direction: row;
     }
+@media (orientation: portrait) {
+    .polling-paused.more-info #more-info {
+      -moz-box-orient: vertical;
+      -moz-box-direction: normal;
+           flex-direction: column;
+    }
+      .polling-paused.more-info #more-info .more-info--image {
+        -moz-box-orient: horizontal;
+        -moz-box-direction: normal;
+             flex-direction: row;
+      }
+}
 .more-info--button-group {
   display: -moz-box;
   display: flex;

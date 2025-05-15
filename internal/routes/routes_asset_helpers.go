@@ -662,6 +662,13 @@ func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView comm
 	return nil
 }
 
+func determineLayoutMode(layout string, clientHeight, clientWidth int) string {
+	if layout == kiosk.LayoutSplitview && clientHeight > clientWidth {
+		return kiosk.LayoutSplitviewLandscape
+	}
+	return layout
+}
+
 // generateViewData generates page data for the current request.
 func generateViewData(requestConfig config.Config, c common.ContextCopy, requestID, deviceID string, isPrefetch bool) (common.ViewData, error) {
 
@@ -670,6 +677,8 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, request
 		DeviceID:  deviceID,
 		Config:    requestConfig,
 	}
+
+	requestConfig.Layout = determineLayoutMode(requestConfig.Layout, requestConfig.ClientData.Height, requestConfig.ClientData.Width)
 
 	switch requestConfig.Layout {
 	case kiosk.LayoutLandscape, kiosk.LayoutPortrait:

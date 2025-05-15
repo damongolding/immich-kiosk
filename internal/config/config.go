@@ -234,8 +234,8 @@ type Config struct {
 	SleepEnd string `json:"sleepEnd" mapstructure:"sleep_end" query:"sleep_end" form:"sleep_end" default:""`
 	// SleepIcon display sleep icon
 	SleepIcon bool `json:"sleepIcon" mapstructure:"sleep_icon" query:"sleep_icon" form:"sleep_icon" default:"true"`
-	// SleepScreensaver enable screen when sleep mode is active (for Fully Kiosk Browser)
-	SleepScreensaver bool `json:"sleepScreensaver" mapstructure:"sleep_screensaver" query:"sleep_screensaver" form:"sleep_screensaver" default:"false"`
+	// SleepDimScreen dim screen when sleep mode is active (for Fully Kiosk Browser)
+	SleepDimScreen bool `json:"sleepDimScreen" mapstructure:"sleep_dim_screen" query:"sleep_dim_screen" form:"sleep_dim_screen" default:"false"`
 	// SleepDisable disable sleep via url queries
 	DisableSleep bool `json:"disableSleep" query:"disable_sleep" form:"disable_sleep" default:"false"`
 

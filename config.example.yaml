@@ -63,7 +63,7 @@ layout: single # which layout to use. single | splitview | splitview-landscape |
 ## Sleep mode
 # sleep_start: 22 # sleep mode start time
 # sleep_end: 7 # sleep mode end time
-# sleep_screensaver: false # enable screensaver when sleep mode is active (only works with Fully Kiosk Browser)
+# sleep_dim_screen: false # dim screen when sleep mode is active (only works with Fully Kiosk Browser)
 sleep_icon: true
 
 ## Transition options
