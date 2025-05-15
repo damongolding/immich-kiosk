@@ -11,6 +11,7 @@ import (
 	"html"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -41,11 +42,48 @@ func isIframeUrl(iframeURL string) (bool, string) {
 			Title:   "Error loading iframe content",
 			Message: "Non-HTML file requested for iframe: " + iframeURL,
 		}
-		partials.IframeError(d).Render(context.Background(), &buf)
+		renderErr := partials.IframeError(d).Render(context.Background(), &buf)
+		if renderErr != nil {
+			log.Error("Rendering iFrame error", "err", renderErr)
+			return false, ""
+		}
+		return false, buf.String()
+	}
+
+	// Prevent path traversal
+	cleanPath := filepath.Clean(iframeURL)
+	if strings.Contains(cleanPath, "..") {
+		log.Warn("Potential directory traversal attempt", "path", iframeURL)
+		var buf bytes.Buffer
+		d := partials.ErrorData{
+			Title:   "Error loading iframe content",
+			Message: "Security Error: Invalid file path: " + iframeURL,
+		}
+		renderErr := partials.IframeError(d).Render(context.Background(), &buf)
+		if renderErr != nil {
+			log.Error("Rendering iFrame error", "err", renderErr)
+			return false, ""
+		}
 		return false, buf.String()
 	}
 
 	// Try reading it as a file
+	_, statErr := os.Stat(iframeURL)
+	if statErr != nil {
+		log.Error("Error accessing iframe file", "err", statErr)
+		var buf bytes.Buffer
+		d := partials.ErrorData{
+			Title:   "Error loading iframe content",
+			Message: "Error accessing iframe file: " + iframeURL,
+		}
+		renderErr := partials.IframeError(d).Render(context.Background(), &buf)
+		if renderErr != nil {
+			log.Error("Rendering iFrame error", "err", renderErr)
+			return false, ""
+		}
+		return false, buf.String()
+	}
+
 	content, readErr := os.ReadFile(iframeURL)
 	if readErr != nil {
 		log.Error("Error reading iframe file", "err", readErr)
@@ -89,8 +127,10 @@ templ Home(viewData common.ViewData) {
 				<iframe
 					if isUrl {
 						src={ iframe }
+						title={ "External content from " + iframe }
 					} else {
 						srcdoc={ html }
+						title="Embedded local content"
 					}
 					allowtransparency="true"
 					frameborder="0"
