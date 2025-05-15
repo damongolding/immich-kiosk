@@ -34,70 +34,45 @@ func isIframeUrl(iframeURL string) (bool, string) {
 		return true, u.String()
 	}
 
-	// Validate file extension
-	if !strings.HasSuffix(strings.ToLower(iframeURL), ".html") {
-		log.Warn("Non-HTML file requested for iframe", "path", iframeURL)
+	// Helper function to create error HTML
+	renderErrorHTML := func(title, message string) string {
 		var buf bytes.Buffer
 		d := partials.ErrorData{
-			Title:   "Error loading iframe content",
-			Message: "Non-HTML file requested for iframe: " + iframeURL,
+			Title:   title,
+			Message: message,
 		}
 		renderErr := partials.IframeError(d).Render(context.Background(), &buf)
 		if renderErr != nil {
 			log.Error("Rendering iFrame error", "err", renderErr)
-			return false, ""
+			return ""
 		}
-		return false, buf.String()
+		return buf.String()
+	}
+
+	// Validate file extension
+	if !strings.HasSuffix(strings.ToLower(iframeURL), ".html") {
+		log.Warn("Non-HTML file requested for iframe", "path", iframeURL)
+		return false, renderErrorHTML("Error loading iframe content", "Non-HTML file requested for iframe: "+iframeURL)
 	}
 
 	// Prevent path traversal
 	cleanPath := filepath.Clean(iframeURL)
 	if strings.Contains(cleanPath, "..") {
 		log.Warn("Potential directory traversal attempt", "path", iframeURL)
-		var buf bytes.Buffer
-		d := partials.ErrorData{
-			Title:   "Error loading iframe content",
-			Message: "Security Error: Invalid file path: " + iframeURL,
-		}
-		renderErr := partials.IframeError(d).Render(context.Background(), &buf)
-		if renderErr != nil {
-			log.Error("Rendering iFrame error", "err", renderErr)
-			return false, ""
-		}
-		return false, buf.String()
+		return false, renderErrorHTML("Error loading iframe content", "Security Error: Invalid file path: "+iframeURL)
 	}
 
 	// Try reading it as a file
 	_, statErr := os.Stat(iframeURL)
 	if statErr != nil {
 		log.Error("Error accessing iframe file", "err", statErr)
-		var buf bytes.Buffer
-		d := partials.ErrorData{
-			Title:   "Error loading iframe content",
-			Message: "Error accessing iframe file: " + iframeURL,
-		}
-		renderErr := partials.IframeError(d).Render(context.Background(), &buf)
-		if renderErr != nil {
-			log.Error("Rendering iFrame error", "err", renderErr)
-			return false, ""
-		}
-		return false, buf.String()
+		return false, renderErrorHTML("Error loading iframe content", "Error accessing iframe file: "+iframeURL)
 	}
 
 	content, readErr := os.ReadFile(iframeURL)
 	if readErr != nil {
 		log.Error("Error reading iframe file", "err", readErr)
-		var buf bytes.Buffer
-		d := partials.ErrorData{
-			Title:   "Error loading iframe content",
-			Message: "Error reading iframe file: " + iframeURL,
-		}
-		renderErr := partials.IframeError(d).Render(context.Background(), &buf)
-		if renderErr != nil {
-			log.Error("Rendering iFrame error", "err", renderErr)
-			return false, ""
-		}
-		return false, buf.String()
+		return false, renderErrorHTML("Error loading iframe content", "Error reading iframe file: "+iframeURL)
 	}
 
 	return false, string(content)
