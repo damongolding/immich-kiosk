@@ -338,6 +338,8 @@ type Config struct {
 	// HasWeatherDefault indicates whether any weather location has been set as the default.
 	HasWeatherDefault bool `json:"-" default:"false"`
 
+	Iframe []string `json:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:""`
+
 	// OptimizeImages tells Kiosk to optimize imahes
 	OptimizeImages bool `json:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
 	// UseGpu tells Kiosk to use GPU where possible

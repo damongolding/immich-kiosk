@@ -13,6 +13,7 @@
   --red: #da2038;
   --z-below: -1;
   --z-base: 0;
+  --z-iframe: 50;
   --z-clock: 100;
   --z-progress: 150;
   --z-sleep: 200;
@@ -2817,6 +2818,19 @@ figure {
 .order-2 {
   -moz-box-ordinal-group: 3;
        order: 2;
+}
+
+/* src/css/iframe.css */
+iframe {
+  background: transparent;
+  border: none;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: var(--z-iframe);
 }
 
 /* src/css/kiosk.css */

@@ -12,6 +12,7 @@
     /* Z-index hierarchy */
     --z-below: -1;
     --z-base: 0;
+    --z-iframe: 50;
     --z-clock: 100;
     --z-progress: 150;
     --z-sleep: 200;
