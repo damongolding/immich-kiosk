@@ -1,0 +1,52 @@
+package partials
+
+templ IframeError(d ErrorData) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>iFrame demo</title>
+			<style>
+			html{
+			    background-color: rgba(0,0,0,0.7);
+			}
+
+            html,
+            body {
+                width: 100%;
+                min-height: 100%;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: white;
+            }
+            .iframe-error {
+                padding: 1.5rem;
+                background-color: rgba(204, 0, 0, 0.4);
+                border: 0.125rem solid rgb(204, 0, 0);
+                border-radius: 0.75rem;
+            }
+
+            .iframe-error h1 {
+                font-size: 3rem;
+            }
+
+            .iframe-error p {
+                font-size: 1.5rem;
+            }
+
+        </style>
+		</head>
+		<body>
+			<div class="iframe-error">
+				<h1>{ d.Title }</h1>
+				<p>{ d.Message }</p>
+			</div>
+		</body>
+	</html>
+}

@@ -68,10 +68,11 @@
   - [Layouts](#layouts)
   - [Sleep mode](#sleep-mode)
   - [Custom CSS](#custom-css)
+  - [Redirects](#redirects)
   - [Weather](#weather)
   - [Offline Mode](#offline-mode)
+  - [iFrame](#iframe)
 - [Navigation Controls](#navigation-controls)
-- [Redirects](#redirects)
 - [PWA](#pwa)
 - [Webhooks](#webhooks)
 - [Home Assistant](#home-assistant)
@@ -464,6 +465,7 @@ See the file `config.example.yaml` for an example config file
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
 | use_offline_mode                  | KIOSK_USE_OFFLINE_MODE  | bool                       | false       | Enable offline mode for the device. See [offline mode](#offline-mode) for more information. |
 | [offline_mode](#offline-mode)     | N/A                     | OfflineMode{}              | {}          | Enable offline mode. See [offline mode](#offline-mode) for more information. |
+| [iframe](#iframe)                 | KIOSK_IFRAME            | []starting                 | []          | Add iframes into Kiosk. See [iframe](#iframe) for more information. |
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
@@ -1208,6 +1210,53 @@ e.g.
 
 ------
 
+## Redirects
+
+> [!IMPORTANT]
+> This feature can only be configured using a `config.yaml` file.
+
+Redirects provide a simple way to map short, memorable paths to longer URLs.
+It's particularly useful for creating friendly URLs that redirect to more
+complex endpoints with query parameters.
+
+## How they Work
+
+### Configuration
+Redirects are defined in the `config.yaml` file under the `kiosk.redirects` section:
+
+Each redirect consists of:
+- `name`: The short path that users will use
+- `url`: The destination URL where users will be redirected to
+- `type`: Optional field that controls URL behavior:
+  - `internal`: The default behavior that keeps the URL unchanged during redirection (useful for maintaining browser history)
+  - `external`: Allows URL changes during redirection
+
+### Examples
+
+```yaml
+kiosk:
+  redirects:
+    - name: london
+      url: /?weather=london
+      type: external
+
+    - name: sheffield
+      url: /?weather=sheffield
+
+    - name: our-wedding
+      url: /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
+      type: external
+
+```
+
+| Source URL                  | Redirects to                                                |
+|-----------------------------|-------------------------------------------------------------|
+| http://{URL}/london         | /?weather=london                                            |
+| http://{URL}/sheffield      | http://{URL}/sheffield                                      |
+| http://{URL}/our-wedding    | /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3 |
+
+------
+
 ## Weather
 
 > [!IMPORTANT]
@@ -1336,9 +1385,40 @@ offline_mode:
   max_size: 50mb
   expiration_hours: 24
 ```
-
 ------
 
+## iFrame
+
+> [!WARNING]
+> If you plan to add iFrames to untrusted or external content, be aware of security implications. Only load content from trusted sources that you control.
+
+If you want to display custom content in Kiosk you can use iFrames.
+
+### Adding iFrames to Kiosk
+
+You can configure Kiosk to display external or local (html) content using iFrames. This can be set in your `config.yaml` file:
+
+```yaml
+iframe: "https://example.com"  # Remote URL
+```
+
+For local files, they must be `.html` files and at the same level or in a subdirectory of the Kiosk application:
+
+> [!TIP]
+> If using docker you will need to mount local files into the container.
+> ```yaml
+> volumes:
+>   - ./weather.html:/weather.html
+>   - ./content/dashboard.html:/content/dashboard.html
+> ```
+
+```yaml
+iframe:
+  - "./weather.html"  # Local file in same directory
+  - "./content/dashboard.html"  # Local file in subdirectory
+```
+
+------
 
 ## Navigation Controls
 
@@ -1424,53 +1504,6 @@ Example:
 ```yaml
 hide_button_action: [tag, archive]
 ```
-
-------
-
-## Redirects
-
-> [!IMPORTANT]
-> This feature can only be configured using a `config.yaml` file.
-
-Redirects provide a simple way to map short, memorable paths to longer URLs.
-It's particularly useful for creating friendly URLs that redirect to more
-complex endpoints with query parameters.
-
-## How they Work
-
-### Configuration
-Redirects are defined in the `config.yaml` file under the `kiosk.redirects` section:
-
-Each redirect consists of:
-- `name`: The short path that users will use
-- `url`: The destination URL where users will be redirected to
-- `type`: Optional field that controls URL behavior:
-  - `internal`: The default behavior that keeps the URL unchanged during redirection (useful for maintaining browser history)
-  - `external`: Allows URL changes during redirection
-
-### Examples
-
-```yaml
-kiosk:
-  redirects:
-    - name: london
-      url: /?weather=london
-      type: external
-
-    - name: sheffield
-      url: /?weather=sheffield
-
-    - name: our-wedding
-      url: /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
-      type: external
-
-```
-
-| Source URL                  | Redirects to                                                |
-|-----------------------------|-------------------------------------------------------------|
-| http://{URL}/london         | /?weather=london                                            |
-| http://{URL}/sheffield      | http://{URL}/sheffield                                      |
-| http://{URL}/our-wedding    | /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3 |
 
 ------
 
