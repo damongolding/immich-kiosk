@@ -609,7 +609,7 @@ func CreateQrCode(link string) string {
 		return ""
 	}
 
-	png, err := qrcode.Encode(link, qrcode.Medium, 128)
+	png, err := qrcode.Encode(link, qrcode.Low, 128)
 	if err != nil {
 		log.Error("QR code generation failed", "link", link, "err", err)
 		return ""
