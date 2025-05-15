@@ -644,7 +644,9 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 //   - options: Options for processing the second image
 //
 // Returns:
-//   - Error if asset retrieval fails after maximum attempts
+// fetchSecondSplitViewAsset attempts to retrieve a second asset for split view layouts that is different from the first asset.
+// It tries up to three times to obtain a unique asset and appends it to the provided ViewData if successful.
+// Returns an error if asset retrieval fails.
 func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView common.ViewImageData, requestConfig config.Config, c common.ContextCopy, isPrefetch bool, options common.ViewImageDataOptions) error {
 	const maxImageRetrievalAttempts = 3
 
@@ -662,6 +664,8 @@ func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView comm
 	return nil
 }
 
+// determineLayoutMode returns the appropriate layout mode based on the requested layout and client display dimensions.
+// If the requested layout is split view and the client height exceeds the width, it switches to landscape split view mode.
 func determineLayoutMode(layout string, clientHeight, clientWidth int) string {
 	if layout == kiosk.LayoutSplitview && clientHeight > clientWidth {
 		return kiosk.LayoutSplitviewLandscape
@@ -669,7 +673,8 @@ func determineLayoutMode(layout string, clientHeight, clientWidth int) string {
 	return layout
 }
 
-// generateViewData generates page data for the current request.
+// generateViewData prepares view data for a kiosk page request based on the specified layout and client display dimensions.
+// It selects and processes one or two assets as needed for the layout, handling orientation and split view logic, and returns the resulting ViewData or an error.
 func generateViewData(requestConfig config.Config, c common.ContextCopy, requestID, deviceID string, isPrefetch bool) (common.ViewData, error) {
 
 	viewData := common.ViewData{
