@@ -2,11 +2,13 @@ package views
 
 import (
 	"fmt"
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"html"
 	"net/url"
+	"os"
 	"strings"
 )
 
@@ -17,6 +19,26 @@ func formatTimeout(timeout int) int {
 	}
 
 	return timeout * 100 * 4
+}
+
+// isIframeUrl checks if iframeURL is a valid URL. If not, it tries to read it as a file path.
+// Returns:
+//   - true and the URL string if it is a valid URL
+//   - false and the file content (or empty string if read fails) otherwise
+func isIframeUrl(iframeURL string) (bool, string) {
+	u, err := url.ParseRequestURI(iframeURL)
+	if err == nil && u.Scheme != "" && u.Host != "" {
+		return true, u.String()
+	}
+
+	// Try reading it as a file
+	content, readErr := os.ReadFile(iframeURL)
+	if readErr != nil {
+		log.Error("Error reading iframe file", "err", readErr)
+		return false, ""
+	}
+
+	return false, string(content)
 }
 
 // Home renders the Home layout template
@@ -43,8 +65,13 @@ templ Home(viewData common.ViewData) {
 				@partials.Spinner()
 			</main>
 			for _, iframe := range viewData.Iframe {
+				{{ isUrl, html := isIframeUrl(iframe) }}
 				<iframe
-					src={ iframe }
+					if isUrl {
+						src={ iframe }
+					} else {
+						srcdoc={ html }
+					}
 					allowtransparency="true"
 					frameborder="0"
 				></iframe>

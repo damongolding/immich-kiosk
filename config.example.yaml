@@ -111,6 +111,11 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 #     lang: en
 #     default: false
 
+## Add iframes into Kiosk - you can use local files or remote URLs
+#iframe:
+# - https://iframe.immichframe.app/pokemon
+# - ./iframes/pokemon.html
+
 ## Immich API keys for specific users
 # immich_users_api_keys:
 #   user1: ""
