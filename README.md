@@ -756,7 +756,7 @@ http://{URL}?exclude_album=ALBUM_ID&exclude_album=ALBUM_ID&exclude_album=ALBUM_I
 
 ------
 
-### People
+## People
 
 ### Getting a person's ID from Immich
 1. Open Immich's web interface and click on "Explore" in the left-hand navigation.
@@ -803,7 +803,7 @@ e.g. `http://{URL}?person=all`
 
 ------
 
-# Require All People
+## Require All People
 
 The "Require all people" feature allows you to filter images to only show those where all specified people are present together in the same photo.
 
