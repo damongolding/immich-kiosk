@@ -118,6 +118,7 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 // Parameters:
 //   - imageData: A string containing the image data (typically a URL or base64-encoded image).
 //   - imageFit: A string specifying the desired image fit style ("cover", "none", or any other value for "contain").
+//   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
 //
 // The function uses a switch statement to determine which template to use:
 //   - "cover": Uses RenderImageWithCoverFit
@@ -138,7 +139,7 @@ templ renderImageFit(imageData, imageFit, imageOrientation string) {
 //
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
-//   - imageFit: A string specifying the image fit style (unused in this function).
+//   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
 templ RenderImageWithCoverFit(ImageData, imageOrientation string) {
 	<img
 		class={ "frame--image-fit-cover", "frame--image--"+imageOrientation }
@@ -151,7 +152,7 @@ templ RenderImageWithCoverFit(ImageData, imageOrientation string) {
 //
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
-//   - imageFit: A string specifying the image fit style (unused in this function).
+//   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
 templ RenderImageWithoutFit(ImageData, imageOrientation string) {
 	<img
 		class={ "frame--image--" + imageOrientation }
@@ -164,7 +165,7 @@ templ RenderImageWithoutFit(ImageData, imageOrientation string) {
 //
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
-//   - imageFit: A string specifying the image fit style (unused in this function).
+//   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
 templ RenderImageWithContainFit(ImageData, imageOrientation string) {
 	<img
 		class={ "frame--image-fit-contain", "frame--image--"+imageOrientation }
