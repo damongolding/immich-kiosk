@@ -21,6 +21,8 @@ show_progress: true # display a progress bar
 image_fit: cover # how the image fits the screen. Options are none, contain and cover
 image_effect: smart-zoom
 
+album: 75c4860f-d31c-4dac-9831-0e67c7ab7668
+
 ## Image METADATA
 show_album_name: true
 show_person_name: true
@@ -51,8 +53,11 @@ kiosk:
   http_timeout: -1
 
   redirects:
-    - name: all
+    - name: curated
       url: /
+
+    - name: all
+      url: /?album=none
 
     - name: simple
       url: /?image_effect=none&layout=single&image_fit=contain&transition=none&disable_ui=true&show_more_info=false
