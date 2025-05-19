@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"strings"
@@ -69,18 +70,24 @@ templ renderImageBackground(viewData common.ViewData, imageData common.ViewImage
 // The function uses frameWithZoom for zoom effects and frame for default rendering.
 // It delegates to RenderImageWithCoverFit or renderImageFit based on the image effect.
 templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
+	{{
+		imageOrientation := kiosk.LandscapeOrientation
+		if imageData.ImmichAsset.IsPortrait {
+			imageOrientation = kiosk.PortraitOrientation
+		}
+	}}
 	switch viewData.ImageEffect {
 		case "zoom":
 			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
-				@renderImageFit(imageData.ImageData, viewData.ImageFit)
+				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation)
 			}
 		case "smart-zoom":
 			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
-				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
+				@RenderImageWithCoverFit(imageData.ImageData, imageOrientation)
 			}
 		default:
 			@frame() {
-				@renderImageFit(imageData.ImageData, viewData.ImageFit)
+				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation)
 			}
 	}
 }
@@ -116,14 +123,14 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 //   - "cover": Uses RenderImageWithCoverFit
 //   - "none": Uses RenderImageWithoutFit
 //   - Any other value: Uses RenderImageWithContainFit (default behavior)
-templ renderImageFit(imageData string, imageFit string) {
+templ renderImageFit(imageData, imageFit, imageOrientation string) {
 	switch imageFit {
 		case "cover":
-			@RenderImageWithCoverFit(imageData, imageFit)
+			@RenderImageWithCoverFit(imageData, imageOrientation)
 		case "none":
-			@RenderImageWithoutFit(imageData, imageFit)
+			@RenderImageWithoutFit(imageData, imageOrientation)
 		default:
-			@RenderImageWithContainFit(imageData, imageFit)
+			@RenderImageWithContainFit(imageData, imageOrientation)
 	}
 }
 
@@ -132,9 +139,9 @@ templ renderImageFit(imageData string, imageFit string) {
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
 //   - imageFit: A string specifying the image fit style (unused in this function).
-templ RenderImageWithCoverFit(ImageData, imageFit string) {
+templ RenderImageWithCoverFit(ImageData, imageOrientation string) {
 	<img
-		class="frame--image-fit-cover"
+		class={ "frame--image-fit-cover", "frame--image--"+imageOrientation }
 		src={ ImageData }
 		alt="Main image"
 	/>
@@ -145,8 +152,9 @@ templ RenderImageWithCoverFit(ImageData, imageFit string) {
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
 //   - imageFit: A string specifying the image fit style (unused in this function).
-templ RenderImageWithoutFit(ImageData, imageFit string) {
+templ RenderImageWithoutFit(ImageData, imageOrientation string) {
 	<img
+		class={ "frame--image--" + imageOrientation }
 		src={ ImageData }
 		alt="Main image"
 	/>
@@ -157,9 +165,9 @@ templ RenderImageWithoutFit(ImageData, imageFit string) {
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
 //   - imageFit: A string specifying the image fit style (unused in this function).
-templ RenderImageWithContainFit(ImageData, imageFit string) {
+templ RenderImageWithContainFit(ImageData, imageOrientation string) {
 	<img
-		class="frame--image-fit-contain"
+		class={ "frame--image-fit-contain", "frame--image--"+imageOrientation }
 		src={ ImageData }
 		alt="Main image"
 	/>
