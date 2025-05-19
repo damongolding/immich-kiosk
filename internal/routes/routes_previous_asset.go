@@ -154,6 +154,8 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 						log.Error(processingErr)
 					}
 
+					asset.AddRatio()
+
 					if requestConfig.ShowAlbumName {
 						asset.AlbumsThatContainAsset(requestID, deviceID)
 					}

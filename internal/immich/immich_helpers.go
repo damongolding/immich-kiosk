@@ -220,7 +220,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 // - Otherwise returns false if orientations don't match
 func (a *Asset) ratioCheck(wantedRatio ImageOrientation) bool {
 
-	a.addRatio()
+	a.AddRatio()
 
 	// specific ratio is not wanted
 	if wantedRatio == "" {
@@ -235,10 +235,10 @@ func (a *Asset) ratioCheck(wantedRatio ImageOrientation) bool {
 	return false
 }
 
-// addRatio determines the ratio (portrait or landscape) of the image based on its EXIF information.
+// AddRatio determines the ratio (portrait or landscape) of the image based on its EXIF information.
 // It sets the Ratio field in ExifInfo and updates IsPortrait or IsLandscape accordingly.
 // For orientations 5, 6, 7, and 8, it considers the image rotated by 90 degrees.
-func (a *Asset) addRatio() {
+func (a *Asset) AddRatio() {
 
 	switch a.ExifInfo.Orientation {
 	case "5", "6", "7", "8":
@@ -662,7 +662,7 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 	}
 
 	// AssetInfo overrides IsPortrait and IsLandscape so lets add them back
-	a.addRatio()
+	a.AddRatio()
 
 	return !a.containsTag(kiosk.TagSkip)
 }
