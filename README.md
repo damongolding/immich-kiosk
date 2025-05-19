@@ -111,7 +111,7 @@ You have a two Raspberry Pi's. One hooked up to a LCD screen and the other you c
 
 You want the pi connected to the LCD screen to only show images from your recent holiday, which are stored in a album on Immich. It's an older pi so you want to disable CSS transitions, also we don't want to display the time of the image.
 
-Using this URL `http://{URL}?album={ALBUM_ID}&transtion=none&show_time=false` would achieve what we want.
+Using this URL `http://{URL}?album={ALBUM_ID}&transition=none&show_time=false` would achieve what we want.
 
 On the pi connected to the TV you want to display a random image from your library but only images of two specific people. We want the image to cover the whole screen (knowing some cropping will happen) and we want to use the fade transition.
 
