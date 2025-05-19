@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -47,7 +48,13 @@ var (
 )
 
 func ValidateToken(ctx context.Context, token string) bool {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, demoImmichURL+"/api/auth/validateToken", nil)
+
+	demoURL := demoImmichURL
+	if os.Getenv("KIOSK_IMMICH_URL") != "" {
+		demoURL = os.Getenv("KIOSK_IMMICH_URL")
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, demoURL+"/api/auth/validateToken", nil)
 	if err != nil {
 		log.Error("ValidateToken: new request", "err", err)
 		return false
@@ -112,8 +119,13 @@ func Login(ctx context.Context, refresh bool) (string, error) {
 		return "", err
 	}
 
+	demoURL := demoImmichURL
+	if os.Getenv("KIOSK_IMMICH_URL") != "" {
+		demoURL = os.Getenv("KIOSK_IMMICH_URL")
+	}
+
 	// Create the request
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, demoImmichURL+"/api/auth/login", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, demoURL+"/api/auth/login", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Error("DemoLogin: creating request", "err", err)
 		return "", err
