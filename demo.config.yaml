@@ -53,7 +53,7 @@ offline_mode:
   enabled: true
   number_of_assets: 40
   max_size: 1gb
-  expiration_hours: -1
+  expiration_hours: 0
 
 kiosk:
   port: 3000
