@@ -47,6 +47,14 @@ weather:
     lang: en
     default: true
 
+use_offline_mode: true
+
+offline_mode:
+  enabled: true
+  number_of_assets: 40
+  max_size: 1gb
+  expiration_hours: -1
+
 kiosk:
   port: 3000
 
@@ -57,10 +65,10 @@ kiosk:
       url: /
 
     - name: all
-      url: /?album=none
+      url: /?album=none&use_offline_mode=false
 
     - name: simple
-      url: /?image_effect=none&layout=single&image_fit=contain&transition=none&disable_ui=true&show_more_info=false
+      url: /?image_effect=none&layout=single&image_fit=contain&transition=none&disable_ui=true&show_more_info=false&use_offline_mode=false
 
     - name: solid-theme
-      url: /?theme=solid
+      url: /?theme=solid&use_offline_mode=false
