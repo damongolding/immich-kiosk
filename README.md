@@ -1348,6 +1348,11 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
 Offline Mode allows you to download assets for offline viewing.
 This feature is useful when you want to view your photos without an active connection to Immich (after download).
 
+### Why it's useful:
+Offline Mode is ideal for setups where maintaining a live connection to Immich might be costly or inefficient.
+For example, if your Immich storage is hosted on a NAS with disks that spin down to save power, using Offline
+Mode prevents Kiosk from constantly triggering disk spin-ups.
+
 ### Limitations of Offline Mode
 
 When using Offline Mode, some Kiosk features are unavailable. These include:
@@ -1387,16 +1392,16 @@ offline_mode:
 ```
 ------
 
-## iFrame
+## iframe
 
 > [!WARNING]
-> If you plan to add iFrames to untrusted or external content, be aware of security implications. Only load content from trusted sources that you control.
+> If you plan to add iframes to untrusted or external content, be aware of security implications. Only load content from trusted sources that you control.
 
-If you want to display custom content in Kiosk, you can use iFrames.
+If you want to display custom content in Kiosk, you can use iframes.
 
-### Adding iFrames to Kiosk
+### Adding iframes to Kiosk
 
-You can configure Kiosk to display external or local HTML content using iFrames. This can be set in your `config.yaml` file:
+You can configure Kiosk to display external or local HTML content using iframes. This can be set in your `config.yaml` file:
 
 ```yaml
 iframe: "https://example.com"  # Remote URL
