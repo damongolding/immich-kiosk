@@ -9,12 +9,62 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
-	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/goodsign/monday"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
+
+// AssetMetadata renders metadata for an asset as an HTML component.
+// Displays configurable metadata including people, albums, date/time,
+// description, EXIF data, location and asset ID.
+//
+// Parameters:
+//   - viewData: ViewData struct with display settings and asset data
+//   - assetIndex: Index of asset to display metadata for
+//
+// Returns:
+//   - templ.Component: HTML component with formatted metadata
+templ AssetMetadata(viewData common.ViewData, assetIndex int) {
+	// {{ showSourceName := shouldShowSourceName(viewData, assetIndex) }}
+	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
+	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
+	{{ rightAlignIcons := len(viewData.Assets) > 1 && assetIndex == 1 }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
+	{{ showUser := viewData.ShowUser }}
+	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
+		if showUser && viewData.Assets[assetIndex].User != "" {
+			@userIcon(cases.Title(language.English).String(viewData.Assets[assetIndex].User))
+		}
+		if viewData.ShowOwner {
+			@uploadIcon(viewData.Assets[assetIndex].ImmichAsset.Owner.Name)
+		}
+		if viewData.Assets[assetIndex].ImmichAsset.MemoryTitle != "" {
+			@memoryIcon(viewData.Assets[assetIndex].ImmichAsset.MemoryTitle)
+		}
+		if (viewData.ShowPersonName || viewData.ShowPersonAge) && names != "" {
+			@templ.Raw(AssetPeople(names))
+		}
+		if viewData.ShowAlbumName && len(viewData.Assets[assetIndex].ImmichAsset.AppearsIn) != 0 {
+			@albumIcon(joinAlbumNames(viewData.Assets[assetIndex].ImmichAsset.AppearsIn))
+		}
+		if showDateTime {
+			@calendarIcon(AssetDateTime(viewData, assetIndex, false))
+		}
+		if showDescription && len(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description) > 0 {
+			@descriptionIcon(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description)
+		}
+		if viewData.ShowImageExif {
+			@exifIcon(AssetExif(viewData.Assets[assetIndex].ImmichAsset.ExifInfo))
+		}
+		if viewData.ShowImageLocation {
+			@locationIcon(AssetLocation(viewData.Assets[assetIndex].ImmichAsset.ExifInfo, viewData.HideCountries))
+		}
+		if viewData.ShowImageID {
+			@idIcon(viewData.Assets[assetIndex].ImmichAsset.ID)
+		}
+	</div>
+}
 
 // AssetLocation generates a formatted string containing location metadata for an asset.
 // Builds a hierarchical location string from EXIF city, state and country data.
@@ -160,7 +210,7 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 // Returns:
 //   - string: Age formatted as "X days", "X months" or "X years"
 //     with appropriate pluralization. Returns empty string if assetDate is before birthDate.
-func calculateAge(assetDate, birthDate time.Time) string {
+func calculateAge(assetDate, birthDate time.Time, switchToYears int) string {
 	if assetDate.Before(birthDate) {
 		return ""
 	}
@@ -185,22 +235,24 @@ func calculateAge(assetDate, birthDate time.Time) string {
 	totalDays := int(assetDate.Sub(birthDate).Hours() / 24)
 
 	// Choose appropriate format based on the age
-	if years > 0 {
-		if years == 1 {
-			return fmt.Sprintf("%d year", years)
-		}
-		return fmt.Sprintf("%d years", years)
-	} else if months > 0 {
-		if months == 1 {
-			return fmt.Sprintf("%d month", months)
-		}
-		return fmt.Sprintf("%d months", months)
-	} else {
-		if totalDays == 1 {
-			return fmt.Sprintf("%d day", totalDays)
-		}
-		return fmt.Sprintf("%d days", totalDays)
+	switch {
+	case years > 0 && years < switchToYears:
+		totalMonths := months + (years * 12)
+		return pluralize(totalMonths, "month")
+	case years > 0:
+		return pluralize(years, "year")
+	case months > 0:
+		return pluralize(months, "month")
+	default:
+		return pluralize(totalDays, "day")
 	}
+}
+
+func pluralize(count int, unit string) string {
+	if count == 1 {
+		return fmt.Sprintf("%d %s", count, unit)
+	}
+	return fmt.Sprintf("%d %ss", count, unit)
 }
 
 // peopleNames returns a comma-separated string of person names with optional ages.
@@ -213,7 +265,7 @@ func calculateAge(assetDate, birthDate time.Time) string {
 //
 // Returns:
 //   - string: Comma-separated list of formatted person names with optional ages
-func peopleNames(people []immich.Person, showName, showAge bool, assetDate time.Time) string {
+func peopleNames(people []immich.Person, showName, showAge bool, switchToYears int, assetDate time.Time) string {
 	var names []string
 
 	for _, person := range people {
@@ -221,7 +273,7 @@ func peopleNames(people []immich.Person, showName, showAge bool, assetDate time.
 			continue
 		}
 
-		name := formatPersonName(person, showName, showAge, assetDate)
+		name := formatPersonName(person, showName, showAge, switchToYears, assetDate)
 		if name != "" {
 			names = append(names, name)
 		}
@@ -240,7 +292,7 @@ func peopleNames(people []immich.Person, showName, showAge bool, assetDate time.
 //
 // Returns:
 //   - string: Formatted name with optional age in parentheses
-func formatPersonName(person immich.Person, showName, showAge bool, assetDate time.Time) string {
+func formatPersonName(person immich.Person, showName, showAge bool, switchToYears int, assetDate time.Time) string {
 	if !showName && !showAge {
 		return ""
 	}
@@ -252,7 +304,7 @@ func formatPersonName(person immich.Person, showName, showAge bool, assetDate ti
 	name := person.Name
 
 	if showAge && person.BirthDate != "" {
-		if age := getPersonAge(person, assetDate); age != "" {
+		if age := getPersonAge(person, switchToYears, assetDate); age != "" {
 			name = fmt.Sprintf("%s (%s)", name, age)
 		}
 	}
@@ -268,13 +320,13 @@ func formatPersonName(person immich.Person, showName, showAge bool, assetDate ti
 //
 // Returns:
 //   - string: Formatted age string or empty string if birth date is invalid
-func getPersonAge(person immich.Person, assetDate time.Time) string {
+func getPersonAge(person immich.Person, switchToYears int, assetDate time.Time) string {
 	birthDate, err := person.BirthDate.Time()
 	if err != nil {
 		return ""
 	}
 
-	return calculateAge(assetDate, birthDate)
+	return calculateAge(assetDate, birthDate, switchToYears)
 }
 
 // joinAlbumNames joins album names into a comma-separated string.
@@ -314,52 +366,4 @@ func AssetPeople(peopleNames string) string {
 				%s
 			</div>
 		</div>`, peopleNames)
-}
-
-// AssetMetadata renders metadata for an asset as an HTML component.
-// Displays configurable metadata including people, albums, date/time,
-// description, EXIF data, location and asset ID.
-//
-// Parameters:
-//   - viewData: ViewData struct with display settings and asset data
-//   - assetIndex: Index of asset to display metadata for
-//
-// Returns:
-//   - templ.Component: HTML component with formatted metadata
-templ AssetMetadata(viewData common.ViewData, assetIndex int) {
-	// {{ showSourceName := shouldShowSourceName(viewData, assetIndex) }}
-	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
-	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
-	{{ rightAlignIcons := len(viewData.Assets) == 1 || len(viewData.Assets) > 1 && assetIndex == 1 || viewData.Layout == kiosk.LayoutSplitviewLandscape }}
-	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
-	{{ showUser := viewData.ShowUser }}
-	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
-		if showUser && viewData.Assets[assetIndex].User != "" {
-			@userIcon(cases.Title(language.English).String(viewData.Assets[assetIndex].User))
-		}
-		if viewData.Assets[assetIndex].ImmichAsset.MemoryTitle != "" {
-			@memoryIcon(viewData.Assets[assetIndex].ImmichAsset.MemoryTitle)
-		}
-		if (viewData.ShowPersonName || viewData.ShowPersonAge) && names != "" {
-			@templ.Raw(AssetPeople(names))
-		}
-		if viewData.ShowAlbumName && len(viewData.Assets[assetIndex].ImmichAsset.AppearsIn) != 0 {
-			@albumIcon(joinAlbumNames(viewData.Assets[assetIndex].ImmichAsset.AppearsIn))
-		}
-		if showDateTime {
-			@calendarIcon(AssetDateTime(viewData, assetIndex, false))
-		}
-		if showDescription && len(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description) > 0 {
-			@descriptionIcon(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description)
-		}
-		if viewData.ShowImageExif {
-			@exifIcon(AssetExif(viewData.Assets[assetIndex].ImmichAsset.ExifInfo))
-		}
-		if viewData.ShowImageLocation {
-			@locationIcon(AssetLocation(viewData.Assets[assetIndex].ImmichAsset.ExifInfo, viewData.HideCountries))
-		}
-		if viewData.ShowImageID {
-			@idIcon(viewData.Assets[assetIndex].ImmichAsset.ID)
-		}
-	</div>
 }

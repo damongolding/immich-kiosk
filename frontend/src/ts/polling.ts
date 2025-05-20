@@ -1,5 +1,7 @@
 import htmx from "htmx.org";
 import { hideAssetOverlay } from "./menu";
+import { getMuteState, unmute } from "./mute";
+import { storageUtils } from "./storage";
 
 /**
  * Represents a source for progress tracking, either an image or video
@@ -73,10 +75,10 @@ class PollingController {
     if (this.currentProgressSource.type === "video") {
       if (!this.currentProgressSource.element) return;
       const video = this.currentProgressSource.element;
-      progress = (video.currentTime / video.duration) * 100;
+      progress = video.currentTime / video.duration;
     } else {
       const elapsed = timestamp - this.lastPollTime!;
-      progress = Math.min(elapsed / this.pollInterval, 1) * 100;
+      progress = Math.min(elapsed / this.pollInterval, 1);
 
       if (elapsed >= this.pollInterval) {
         this.triggerNewAsset();
@@ -85,7 +87,8 @@ class PollingController {
     }
 
     if (this.progressBarElement) {
-      this.progressBarElement.style.width = `${progress}%`;
+      this.progressBarElement.style.transform = `scaleX(${progress}) translateZ(0)`;
+      // this.progressBarElement.style.width = `${progress}%`;
     }
 
     this.animationFrameId = requestAnimationFrame(this.updateProgress);
@@ -94,7 +97,7 @@ class PollingController {
   /**
    * Triggers a new image to be loaded
    */
-  private triggerNewAsset = () => {
+  triggerNewAsset = () => {
     this.stopPolling();
     this.lastPollTime = performance.now();
     htmx.trigger(this.kioskElement as HTMLElement, "kiosk-new-asset");
@@ -200,6 +203,16 @@ class PollingController {
     return listener;
   };
 
+  muteVideo = () => {
+    if (!this.video) return;
+    this.video.muted = true;
+  };
+
+  unmuteVideo = () => {
+    if (!this.video) return;
+    this.video.muted = false;
+  };
+
   /**
    * Handles video playback
    * @param id - The ID of the video element to handle
@@ -215,6 +228,15 @@ class PollingController {
     if (!this.video) {
       console.error("Video element not found");
       return;
+    }
+
+    if (navigator.userActivation?.hasBeenActive && localStorage) {
+      const kioskVideoIsMuted = storageUtils.get<boolean>("kioskVideoIsMuted");
+      if (kioskVideoIsMuted !== null && !kioskVideoIsMuted) {
+        unmute();
+      }
+    } else {
+      this.video.muted = getMuteState();
     }
 
     // Setup timeout to check if video starts playing
@@ -340,3 +362,6 @@ export const resumePolling = (hideOverlay?: boolean) =>
 export const togglePolling = (hideOverlay?: boolean) =>
   pollingController.togglePolling(hideOverlay);
 export const videoHandler = (id: string) => pollingController.videoHandler(id);
+export const muteVideo = () => pollingController.muteVideo();
+export const unmuteVideo = () => pollingController.unmuteVideo();
+export const triggerNewAsset = () => pollingController.triggerNewAsset();

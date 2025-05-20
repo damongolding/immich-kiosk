@@ -52,6 +52,19 @@ const (
 	AlbumOrderNewest     = "newest"
 )
 
+type OfflineMode struct {
+	// Enabled indicates whether offline mode is enabled
+	Enabled bool `mapstructure:"enabled" default:"false"`
+	// NumberOfAssets specifies the maximum number of assets to store in offline mode
+	NumberOfAssets int `mapstructure:"number_of_assets" default:"100"`
+	// MaxSize specifies the maximum storage size for offline assets in a human-readable format e.g. "1GB", "2TB", "500MB"
+	MaxSize string `mapstructure:"max_size" default:"0"`
+	// ParallelDownloads specifies the maximum number of concurrent downloads in offline mode
+	ParallelDownloads int `mapstructure:"parallel_downloads" default:"1"`
+	// ExpirationHours specifies how long offline assets should be kept before being considered expired (in hours)
+	ExpirationHours int `mapstructure:"expiration_hours" default:"0"`
+}
+
 // Redirect represents a URL redirection configuration with a friendly name.
 type Redirect struct {
 	// Name is the friendly identifier used to access the redirect
@@ -95,6 +108,8 @@ type KioskSettings struct {
 	// debug modes
 	Debug        bool `json:"debug" mapstructure:"debug" default:"false"`
 	DebugVerbose bool `json:"debugVerbose" mapstructure:"debug_verbose" default:"false"`
+
+	DemoMode bool `json:"-" mapstructure:"demo_mode" default:"false"`
 }
 
 type WeatherLocation struct {
@@ -119,6 +134,18 @@ type ClientData struct {
 	Width int `json:"client_width" query:"client_width" form:"client_width"`
 	// Height represents the client's viewport height in pixels
 	Height int `json:"client_height" query:"client_height" form:"client_height"`
+
+	// FullyKiosk
+	// FullyVersion stores the version info for Fully Kiosk Browser
+	FullyVersion string `json:"fully_version" query:"fully_version" form:"fully_version"`
+	// FullyWebviewVersion stores the webview version for Fully Kiosk Browser
+	FullyWebviewVersion string `json:"fully_webview_version" query:"fully_webview_version" form:"fully_webview_version"`
+	// FullyAndroidVersion stores the Android version for Fully Kiosk Browser
+	FullyAndroidVersion string `json:"fully_android_version" query:"fully_android_version" form:"fully_android_version"`
+	// FullyScreenOrientation stores the screen orientation from Fully Kiosk Browser
+	FullyScreenOrientation int `json:"fully_screen_orientation" query:"fully_screen_orientation" form:"fully_screen_orientation"`
+	// FullyScreenBrightness stores the screen brightness level from Fully Kiosk Browser
+	FullyScreenBrightness int `json:"fully_screen_brightness" query:"fully_screen_brightness" form:"fully_screen_brightness"`
 }
 
 // Config represents the main configuration structure for the Immich Kiosk application.
@@ -167,6 +194,8 @@ type Config struct {
 	ShowUser bool `json:"showUser" mapstructure:"show_user" query:"show_user" form:"show_user" default:"false"`
 	// SelectedUser selected user from User for the specific request
 	SelectedUser string `json:"selectedUser" default:""`
+	// ShowOwner whether to display owner
+	ShowOwner bool `json:"showOwner" mapstructure:"show_owner" query:"show_owner" form:"show_owner" default:"false"`
 
 	// DisableNavigation remove navigation
 	DisableNavigation bool `json:"disableNavigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
@@ -205,14 +234,17 @@ type Config struct {
 	SleepEnd string `json:"sleepEnd" mapstructure:"sleep_end" query:"sleep_end" form:"sleep_end" default:""`
 	// SleepIcon display sleep icon
 	SleepIcon bool `json:"sleepIcon" mapstructure:"sleep_icon" query:"sleep_icon" form:"sleep_icon" default:"true"`
+	// SleepDimScreen dim screen when sleep mode is active (for Fully Kiosk Browser)
+	SleepDimScreen bool `json:"sleepDimScreen" mapstructure:"sleep_dim_screen" query:"sleep_dim_screen" form:"sleep_dim_screen" default:"false"`
 	// SleepDisable disable sleep via url queries
 	DisableSleep bool `json:"disableSleep" query:"disable_sleep" form:"disable_sleep" default:"false"`
 
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `json:"showArchived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display
-	Person         []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
-	ExcludedPeople []string `json:"excluded_people" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
+	Person           []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
+	RequireAllPeople bool     `json:"requireAllPeople" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
+	ExcludedPeople   []string `json:"excludedPeople" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
 
 	// Album ID of album(s) to display
 	Album []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
@@ -265,6 +297,8 @@ type Config struct {
 	ShowPersonName bool `json:"showPersonName" mapstructure:"show_person_name" query:"show_person_name" form:"show_person_name" default:"false"`
 	// ShowPersonAge whether to display the person age
 	ShowPersonAge bool `json:"showPersonAge" mapstructure:"show_person_age" query:"show_person_age" form:"show_person_age" default:"false"`
+	// AgeSwitchToYearsAfter when to switch from months to years
+	AgeSwitchToYearsAfter int `json:"ageSwitchToYearsAfter" mapstructure:"age_switch_to_years_after" query:"age_switch_to_years_after" form:"age_switch_to_years_after" default:"1"`
 
 	// ShowImageTime whether to display image time
 	ShowImageTime bool `json:"showImageTime" mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`
@@ -284,6 +318,8 @@ type Config struct {
 	HideCountries []string `json:"hideCountries" mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
 	// ShowImageID display image ID
 	ShowImageID bool `json:"showImageID" mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
+	// ShowImageQR display image QR code
+	ShowImageQR bool `json:"showImageQR" mapstructure:"show_image_qr" query:"show_image_qr" form:"show_image_qr" default:"false"`
 
 	// ShowMoreInfo enables the display of additional information about the current image
 	ShowMoreInfo bool `json:"showMoreInfo" mapstructure:"show_more_info" query:"show_more_info" form:"show_more_info" default:"true"`
@@ -301,6 +337,8 @@ type Config struct {
 	WeatherLocations []WeatherLocation `json:"weather" mapstructure:"weather" default:"[]"`
 	// HasWeatherDefault indicates whether any weather location has been set as the default.
 	HasWeatherDefault bool `json:"-" default:"false"`
+
+	Iframe []string `json:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:""`
 
 	// OptimizeImages tells Kiosk to optimize imahes
 	OptimizeImages bool `json:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
@@ -320,6 +358,10 @@ type Config struct {
 	ClientData ClientData
 	// History past shown images
 	History []string `json:"history" form:"history" default:"[]"`
+
+	UseOfflineMode bool `json:"useOfflineMode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
+
+	OfflineMode OfflineMode `json:"offlineMode" mapstructure:"offline_mode"`
 }
 
 // New returns a new config pointer instance
@@ -365,6 +407,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING"},
 		{"kiosk.debug", "KIOSK_DEBUG"},
 		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
+		{"kiosk.demo_mode", "KIOSK_DEMO_MODE"},
 	}
 
 	for _, bv := range bindVars {
@@ -413,6 +456,10 @@ func (c *Config) Load() error {
 	c.V.AddConfigPath("./config/") // Look in the 'config/' subdirectory
 	c.V.AddConfigPath("../../")    // Look in the parent directory for testing
 
+	if os.Getenv("KIOSK_DEMO_MODE") != "" {
+		c.V.SetConfigFile("./demo.config.yaml") // use demo config file
+	}
+
 	c.V.SetEnvPrefix("kiosk")
 
 	c.V.AutomaticEnv()
@@ -444,6 +491,7 @@ func (c *Config) Load() error {
 	c.checkDebuging()
 	c.checkFetchedAssetsSize()
 	c.checkRedirects()
+	c.checkOffline()
 
 	return nil
 }
@@ -477,6 +525,15 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 	}
 
 	c.checkExcludedAlbums()
+
+	// Disabled features in demo mode
+	if c.Kiosk.DemoMode {
+		c.ExperimentalAlbumVideo = false
+		c.UseOriginalImage = false
+		c.OptimizeImages = false
+		c.Memories = false
+		c.Kiosk.FetchedAssetsSize = 100
+	}
 
 	return nil
 }

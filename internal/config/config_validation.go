@@ -161,7 +161,11 @@ func (c *Config) checkWeatherLocations() {
 			missingFields = append(missingFields, "longitude")
 		}
 		if w.API == "" {
-			missingFields = append(missingFields, "API key")
+			if c.Kiosk.DemoMode && os.Getenv("KIOSK_DEMO_WEATHER_API") != "" {
+				w.API = os.Getenv("KIOSK_DEMO_WEATHER_API")
+			} else {
+				missingFields = append(missingFields, "API key")
+			}
 		}
 		if w.Default {
 			if c.HasWeatherDefault {
@@ -323,5 +327,29 @@ func (c *Config) checkAlbumOrder() {
 	if !isValid {
 		log.Warnf("Invalid album_order value: %s. Using default: random", c.AlbumOrder)
 		c.AlbumOrder = AlbumOrderRandom
+	}
+}
+
+func (c *Config) checkOffline() {
+	if c.OfflineMode.Enabled {
+		if c.OfflineMode.NumberOfAssets <= 0 {
+			log.Warn("Invalid number_of_assets value. Using default: 100", "number_of_assets", c.OfflineMode.NumberOfAssets)
+			c.OfflineMode.NumberOfAssets = 100
+		}
+
+		if c.OfflineMode.MaxSize == "" {
+			log.Warn("Invalid max_size value. Using default: 1GB", "max_size", c.OfflineMode.MaxSize)
+			c.OfflineMode.MaxSize = "1GB"
+		}
+
+		if c.OfflineMode.ParallelDownloads <= 0 {
+			log.Warn("Invalid parallel_downloads value. Using default: 1", "parallel_downloads", c.OfflineMode.ParallelDownloads)
+			c.OfflineMode.ParallelDownloads = 1
+		}
+
+		if c.OfflineMode.ExpirationHours < 0 {
+			log.Warn("Invalid expiration_hours value. Using default: 72", "expiration_hours", c.OfflineMode.ExpirationHours)
+			c.OfflineMode.ExpirationHours = 72
+		}
 	}
 }

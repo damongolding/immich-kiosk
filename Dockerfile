@@ -1,7 +1,7 @@
 # Builder
-FROM --platform=$BUILDPLATFORM golang:1.24.2-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.24.3-alpine AS build
 
-ARG VERSION
+ARG VERSION=demo
 ARG TARGETOS
 ARG TARGETARCH
 
@@ -10,8 +10,7 @@ WORKDIR /app
 COPY . .
 
 RUN go mod download
-RUN go install github.com/a-h/templ/cmd/templ@latest
-RUN templ generate
+RUN go tool templ generate
 
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION}" -o dist/kiosk .
 
@@ -28,6 +27,7 @@ RUN apk update && apk add --no-cache tzdata ca-certificates && update-ca-certifi
 
 WORKDIR /
 
+COPY --from=build /app/demo.config.yaml .
 COPY --from=build /app/dist/kiosk .
 
 ENTRYPOINT ["/kiosk"]

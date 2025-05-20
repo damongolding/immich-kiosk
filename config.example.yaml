@@ -21,6 +21,7 @@ show_archived: false # Allow assets marked as archived to be displayed.
 ## ID(s) of person or people to display
 person:
   - "PERSON_ID"
+require_all_people: false # When true, only show images containing all specified people together
 excluded_people:
   - "PERSON_ID"
 
@@ -62,6 +63,7 @@ layout: single # which layout to use. single | splitview | splitview-landscape |
 ## Sleep mode
 # sleep_start: 22 # sleep mode start time
 # sleep_end: 7 # sleep mode end time
+# sleep_dim_screen: false # dim screen when sleep mode is active (only works with Fully Kiosk Browser)
 sleep_icon: true
 
 ## Transition options
@@ -77,6 +79,7 @@ image_effect_amount: 120
 use_original_image: false # use the original file.
 
 ## Image METADATA
+show_owner: false # show the owner of the image
 show_album_name: false
 show_person_name: false
 show_person_age: false
@@ -87,6 +90,7 @@ image_date_format: YYYY-MM-DD
 show_image_description: false
 show_image_exif: false
 show_image_location: false
+show_image_qr: false
 hide_countries:
   - "country to hide"
 show_image_id: false
@@ -107,10 +111,23 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 #     lang: en
 #     default: false
 
+## Add iframes into Kiosk - you can use local files or remote URLs
+#iframe:
+# - https://iframe.immichkiosk.app/pokemon
+# - ./iframes/pokemon.html
+
 ## Immich API keys for specific users
 # immich_users_api_keys:
 #   user1: ""
 # show_user: false # show user name
+
+## Offline mode
+# offline_mode:
+#   enabled: false
+#   number_of_assets: 100
+#   max_size: 0
+#   parallel_downloads: 4
+#   expiration_hours: 0
 
 ## Options that can NOT be changed via url params
 kiosk:
@@ -120,5 +137,5 @@ kiosk:
   http_timeout: 20
   password: ""
   cache: true # cache select api calls
-  pre_fetch: true # fetch assets in the background
+  prefetch: true # fetch assets in the background
   asset_weighting: true # use weighting when picking assets

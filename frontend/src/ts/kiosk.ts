@@ -23,6 +23,9 @@ import {
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
+import { toggleMute } from "./mute";
+import fullyKiosk from "./fullykiosk";
+import { sleepMode } from "./sleep";
 
 ("use strict");
 
@@ -32,6 +35,9 @@ interface HTMXEvent extends Event {
     successful: boolean;
     parameters: FormData;
     method: string;
+    pathInfo: {
+      requestPath: string;
+    };
   };
 }
 
@@ -63,9 +69,13 @@ type KioskData = {
   transition: string;
   showMoreInfo: boolean;
   showRedirects: boolean;
+  httpTimeout: number;
 };
 
 const MAX_FRAMES: number = 2 as const;
+
+const TIMEOUT_RETRIES: number = 2 as const;
+let timeouts: Record<string, number> = {};
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -98,6 +108,9 @@ const nextImageMenuButton = htmx.find(
 const prevImageMenuButton = htmx.find(
   ".navigation--prev-asset",
 ) as HTMLElement | null;
+const toggleMuteMenuButton = htmx.find(
+  ".navigation--mute",
+) as HTMLElement | null;
 const moreInfoButton = htmx.find(
   ".navigation--more-info",
 ) as HTMLElement | null;
@@ -122,6 +135,16 @@ let requestInFlight = false;
 async function init(): Promise<void> {
   if (kioskData.debugVerbose) {
     htmx.logAll();
+  }
+
+  const MILLISECONDS_PER_SECOND = 1000;
+  const TIMEOUT_GRACE_FACTOR = 3;
+
+  if (kioskData.httpTimeout <= 0) {
+    htmx.config.timeout = 0;
+  } else {
+    htmx.config.timeout =
+      kioskData.httpTimeout * MILLISECONDS_PER_SECOND * TIMEOUT_GRACE_FACTOR;
   }
 
   if (
@@ -235,6 +258,7 @@ function handleRedirectsKeyPress(): void {
  * - Image overlay visibility control
  * - HTMX error handling for offline detection
  * - Server connectivity status monitoring and display
+ * - Mute button handling
  */
 function addEventListeners(): void {
   // Unable to send ajax. probably offline.
@@ -258,8 +282,24 @@ function addEventListeners(): void {
 
     if (e.detail.successful) {
       htmx.removeClass(offlineSVG, "offline");
+      timeouts[e.detail.pathInfo.requestPath] = 0;
     } else {
       htmx.addClass(offlineSVG, "offline");
+    }
+  });
+
+  htmx.on("htmx:timeout", function (e: HTMXEvent) {
+    let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
+
+    currentTimeout =
+      currentTimeout === undefined || isNaN(currentTimeout)
+        ? 1
+        : currentTimeout + 1;
+
+    timeouts[e.detail.pathInfo.requestPath] = currentTimeout;
+
+    if (currentTimeout > TIMEOUT_RETRIES) {
+      window.location.reload();
     }
   });
 
@@ -306,12 +346,21 @@ function addEventListeners(): void {
         e.preventDefault();
         handleRedirectsKeyPress();
         break;
+
+      case "KeyM":
+        if (!toggleMuteMenuButton) return;
+        e.preventDefault();
+        toggleMute();
+        break;
     }
   });
 
   // Fullscreen
   fullscreenButton?.addEventListener("click", handleFullscreenClick);
   addFullscreenEventListener(fullscreenButton);
+
+  // Toggle mute
+  toggleMuteMenuButton?.addEventListener("click", toggleMute);
 
   // More info overlay
   moreInfoButton?.addEventListener("click", () => toggleAssetOverlay());
@@ -422,17 +471,35 @@ function checkHistoryExists(e: HTMXEvent): void {
 type BrowserData = {
   client_width: number;
   client_height: number;
+  fully_version?: string;
+  fully_webview_version?: string;
+  fully_android_version?: string;
+  fully_screen_orientation?: number;
+  fully_screen_brightness?: number;
 };
 
 /**
- * Get current browser viewport dimensions
- * @returns {BrowserData} Object containing window width and height
+ * Returns the current browser viewport dimensions and, if available, Fully Kiosk Browser details.
+ *
+ * When debug mode is enabled and Fully Kiosk Browser integration is present, the returned object includes version, orientation, and brightness information from the browser.
+ *
+ * @returns An object containing the viewport width and height, and optionally Fully Kiosk Browser details.
  */
 function clientData(): BrowserData {
-  return {
-    client_width: window.innerWidth,
-    client_height: window.innerHeight,
+  const data: BrowserData = {
+    client_width: fullyKiosk.getDisplayDimensions().width,
+    client_height: fullyKiosk.getDisplayDimensions().height,
   };
+
+  if (kioskData.debug && fullyKiosk.fully !== undefined) {
+    data.fully_version = fullyKiosk.fully.getFullyVersion();
+    data.fully_webview_version = fullyKiosk.fully.getWebviewVersion();
+    data.fully_android_version = fullyKiosk.fully.getAndroidVersion();
+    data.fully_screen_orientation = fullyKiosk.fully.getScreenOrientation();
+    data.fully_screen_brightness = fullyKiosk.fully.getScreenBrightness();
+  }
+
+  return data;
 }
 
 /**
@@ -499,4 +566,5 @@ export {
   checkHistoryExists,
   clientData,
   videoHandler,
+  sleepMode,
 };

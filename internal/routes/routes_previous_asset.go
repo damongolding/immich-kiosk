@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"path"
 	"strings"
 	"sync"
 
@@ -91,44 +92,28 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 		return c.NoContent(http.StatusNoContent)
 	}
 
-	var wantedHistoryEntry string
-	var wantedHistoryEntryIndex int
+	historyEntry, entryIndex := findHistoryEntry(requestConfig.History, useNextImage)
 
-	for i, h := range requestConfig.History {
-		if strings.HasPrefix(h, kiosk.HistoryIndicator) {
-			switch useNextImage {
-			case true:
-				if i+1 >= historyLen {
-					continue
-				}
-				wantedHistoryEntry = requestConfig.History[i+1]
-				wantedHistoryEntryIndex = i + 1
-			case false:
-				if i == 0 {
-					continue
-				}
-				wantedHistoryEntry = requestConfig.History[i-1]
-				wantedHistoryEntryIndex = i - 1
-			}
-			requestConfig.History[i] = strings.Replace(h, kiosk.HistoryIndicator, "", 1)
-		}
-	}
-
-	if wantedHistoryEntry == "" {
+	if historyEntry == "" {
 		if useNextImage {
-			wantedHistoryEntry = requestConfig.History[historyLen-1]
-			wantedHistoryEntryIndex = historyLen - 1
+			historyEntry = requestConfig.History[historyLen-1]
+			entryIndex = historyLen - 1
 		} else {
-			wantedHistoryEntry = requestConfig.History[historyLen-2]
-			wantedHistoryEntryIndex = historyLen - 2
+			historyEntry = requestConfig.History[historyLen-2]
+			entryIndex = historyLen - 2
 		}
 	}
 
-	wantedAssets := strings.Split(wantedHistoryEntry, ",")
+	wantedAssets := strings.Split(historyEntry, ",")
 	if len(wantedAssets) == 0 || (len(wantedAssets) == 1 && wantedAssets[0] == "") {
-		return fmt.Errorf("no valid assets found in history entry: %s", wantedHistoryEntry)
+		return fmt.Errorf("no valid assets found in history entry: %s", historyEntry)
 	}
-	requestConfig.History[wantedHistoryEntryIndex] = kiosk.HistoryIndicator + requestConfig.History[wantedHistoryEntryIndex]
+
+	requestConfig.History[entryIndex] = kiosk.HistoryIndicator + requestConfig.History[entryIndex]
+
+	if requestConfig.UseOfflineMode && requestConfig.OfflineMode.Enabled {
+		return historyAssetOffline(c, requestID, deviceID, wantedAssets, requestConfig.History, com.Secret())
+	}
 
 	viewData := common.ViewData{
 		KioskVersion: KioskVersion,
@@ -169,15 +154,37 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 						log.Error(processingErr)
 					}
 
+					asset.AddRatio()
+
 					if requestConfig.ShowAlbumName {
 						asset.AlbumsThatContainAsset(requestID, deviceID)
 					}
 
 				}(&asset, requestID, &wg)
 
+				var imgString, imgBlurString string
+
+				defer func() {
+					viewData.Assets[prevAssetsID] = common.ViewImageData{
+						ImmichAsset:   asset,
+						ImageData:     imgString,
+						ImageBlurData: imgBlurString,
+						User:          selectedUser,
+					}
+				}()
+
+				// Image processing isn't required for video, audio, or other types
+				// So if this fails, we can still proceed with the asset view
 				imgBytes, previewErr := asset.ImagePreview()
 				if previewErr != nil {
-					return fmt.Errorf("retrieving asset: %w", previewErr)
+					switch asset.Type {
+					case immich.ImageType:
+						return fmt.Errorf("retrieving asset: %w", previewErr)
+
+					case immich.VideoType, immich.AudioType, immich.OtherType:
+						wg.Wait()
+						return nil
+					}
 				}
 
 				img, byteErr := utils.BytesToImage(imgBytes)
@@ -197,12 +204,6 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 
 				wg.Wait()
 
-				viewData.Assets[prevAssetsID] = common.ViewImageData{
-					ImmichAsset:   asset,
-					ImageData:     imgString,
-					ImageBlurData: imgBlurString,
-					User:          selectedUser,
-				}
 				return nil
 			}
 		}(prevAssetsID, currentAssetID))
@@ -226,4 +227,86 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	}
 
 	return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
+}
+
+// findHistoryEntry searches through the history slice to find and return the appropriate
+// history entry and its index based on navigation direction.
+//
+// Parameters:
+// - history: Slice of history entries to search through
+// - useNextImage: If true, looks for next entry, if false looks for previous entry
+//
+// Returns:
+// - string: The found history entry, or empty string if none found
+// - int: The index of the found entry
+func findHistoryEntry(history []string, useNextImage bool) (string, int) {
+
+	historyLen := len(history)
+	entry := ""
+	entryIndex := 0
+
+	for i, h := range history {
+		if strings.HasPrefix(h, kiosk.HistoryIndicator) {
+			switch useNextImage {
+			case true:
+				if i+1 >= historyLen {
+					continue
+				}
+				entry = history[i+1]
+				entryIndex = i + 1
+			case false:
+				if i == 0 {
+					continue
+				}
+				entry = history[i-1]
+				entryIndex = i - 1
+			}
+			history[i] = strings.Replace(h, kiosk.HistoryIndicator, "", 1)
+		}
+	}
+
+	return entry, entryIndex
+}
+
+// historyAssetOffline handles displaying assets when in offline mode by loading
+// cached data from the filesystem.
+//
+// Parameters:
+// - c: Echo context for the HTTP request
+// - requestID: Unique identifier for the request
+// - deviceID: Device identifier
+// - wantedAssets: Slice of asset IDs to display
+// - history: Navigation history
+// - secret: Secret key for rendering
+//
+// Returns:
+// - error if loading or rendering cached data fails
+func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAssets, history []string, secret string) error {
+	replacer := strings.NewReplacer(
+		kiosk.HistoryIndicator, "",
+		":", "",
+		",", "",
+	)
+
+	var filename string
+	for _, wa := range wantedAssets {
+		filename += replacer.Replace(wa)
+	}
+
+	filename = generateCacheFilename(filename)
+
+	filename = path.Join(OfflineAssetsPath, filename)
+
+	viewData, loadMsgpackErr := loadMsgpackZstd(filename)
+	if loadMsgpackErr != nil {
+		log.Error("OfflineMode: loadMsgpackZstd", "picked", filename, "err", loadMsgpackErr)
+		return loadMsgpackErr
+	}
+
+	viewData.KioskVersion = KioskVersion
+	viewData.RequestID = requestID
+	viewData.DeviceID = deviceID
+	viewData.History = history
+
+	return Render(c, http.StatusOK, imageComponent.Image(viewData, secret))
 }

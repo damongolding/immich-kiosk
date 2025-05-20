@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -13,11 +14,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestNewRawImage tests the NewRawImage handler function.
+// TestRawImage tests the NewRawImage handler function.
 // It skips the test in CI environments, sets up a test HTTP request,
 // loads the configuration, and asserts that the handler responds
 // with a 200 OK status code.
-func TestNewRawImage(t *testing.T) {
+func TestRawImage(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("Skipping in CI environment")
 	}
@@ -36,7 +37,9 @@ func TestNewRawImage(t *testing.T) {
 		t.Error("Failed to load config", "err", err)
 	}
 
-	h := NewRawImage(baseConfig, common.New())
+	cache.Initialize()
+
+	h := Image(baseConfig, common.New())
 
 	// Assertions
 	if assert.NoError(t, h(c)) {

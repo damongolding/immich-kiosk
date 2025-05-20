@@ -632,19 +632,9 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 	return Render(c, http.StatusOK, imageComponent.Image(viewDataToRender, secret))
 }
 
-// fetchSecondSplitViewAsset retrieves a second asset for split view layouts. It will attempt
-// to find a unique asset that is different from the first one to avoid duplicates.
-//
-// Parameters:
-//   - viewData: The view data object to append the second asset to
-//   - viewDataSplitView: The first asset's view data to compare against
-//   - requestConfig: Configuration for the request
-//   - c: Copy of the request context
-//   - isPrefetch: Whether this is a prefetch request
-//   - options: Options for processing the second image
-//
-// Returns:
-//   - Error if asset retrieval fails after maximum attempts
+// fetchSecondSplitViewAsset attempts to retrieve a second asset for split view layouts that is different from the first asset.
+// It tries up to three times to obtain a unique asset and appends it to the provided ViewData if successful.
+// Returns an error if asset retrieval fails.
 func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView common.ViewImageData, requestConfig config.Config, c common.ContextCopy, isPrefetch bool, options common.ViewImageDataOptions) error {
 	const maxImageRetrievalAttempts = 3
 
@@ -662,7 +652,17 @@ func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView comm
 	return nil
 }
 
-// generateViewData generates page data for the current request.
+// determineLayoutMode returns the appropriate layout mode based on the requested layout and client display dimensions.
+// If the requested layout is split view and the client height exceeds the width, it switches to landscape split view mode.
+func determineLayoutMode(layout string, clientHeight, clientWidth int) string {
+	if layout == kiosk.LayoutSplitview && clientHeight > clientWidth {
+		return kiosk.LayoutSplitviewLandscape
+	}
+	return layout
+}
+
+// generateViewData prepares view data for a kiosk page request based on the specified layout and client display dimensions.
+// It selects and processes one or two assets as needed for the layout, handling orientation and split view logic, and returns the resulting ViewData or an error.
 func generateViewData(requestConfig config.Config, c common.ContextCopy, requestID, deviceID string, isPrefetch bool) (common.ViewData, error) {
 
 	viewData := common.ViewData{
@@ -670,6 +670,8 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, request
 		DeviceID:  deviceID,
 		Config:    requestConfig,
 	}
+
+	requestConfig.Layout = determineLayoutMode(requestConfig.Layout, requestConfig.ClientData.Height, requestConfig.ClientData.Width)
 
 	switch requestConfig.Layout {
 	case kiosk.LayoutLandscape, kiosk.LayoutPortrait:

@@ -17,6 +17,7 @@ import (
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	videoComponent "github.com/damongolding/immich-kiosk/internal/templates/components/video"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/damongolding/immich-kiosk/internal/templates/views"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 )
@@ -90,9 +91,9 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	}
 }
 
-// NewRawImage returns an echo.HandlerFunc that handles requests for raw images.
+// Image returns an echo.HandlerFunc that handles requests for raw images.
 // It processes the image without any additional transformations and returns it as a blob.
-func NewRawImage(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -128,6 +129,35 @@ func NewRawImage(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		}
 
 		return c.Blob(http.StatusOK, "image/jpeg", imgBytes)
+	}
+}
+
+func ImageWithReload(baseConfig *config.Config) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		requestData, err := InitializeRequestData(c, baseConfig)
+		if err != nil {
+			return err
+		}
+
+		if requestData == nil {
+			log.Info("Refreshing clients")
+			return nil
+		}
+
+		requestConfig := requestData.RequestConfig
+		requestID := requestData.RequestID
+
+		log.Debug(
+			requestID,
+			"method", c.Request().Method,
+			"path", c.Request().URL.String(),
+			"requestConfig", requestConfig.String(),
+		)
+
+		queries := c.Request().URL.Query().Encode()
+
+		return Render(c, http.StatusOK, views.ImageWithReload(requestConfig.Refresh, queries))
 	}
 }
 
@@ -274,6 +304,10 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 			return echo.NewHTTPError(http.StatusBadRequest, "Asset ID is required")
 		}
 
+		if baseConfig.Kiosk.DemoMode {
+			return Render(c, http.StatusOK, partials.LikeButton(assetID, true, true, true, com.Secret()))
+		}
+
 		immichAsset := immich.New(com.Context(), requestConfig)
 		immichAsset.ID = assetID
 		infoErr := immichAsset.AssetInfo(requestID, requestData.DeviceID)
@@ -361,6 +395,10 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		if tagName == "" {
 			log.Error("Tag name is required")
 			return echo.NewHTTPError(http.StatusBadRequest, "Tag name is required")
+		}
+
+		if baseConfig.Kiosk.DemoMode {
+			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, com.Secret()))
 		}
 
 		immichAsset := immich.New(com.Context(), requestConfig)

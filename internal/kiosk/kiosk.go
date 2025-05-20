@@ -22,6 +22,10 @@ const (
 	LayoutSplitview          string = "splitview"
 	LayoutSplitviewLandscape string = "splitview-landscape"
 
+	PortraitOrientation  string = LayoutPortrait
+	LandscapeOrientation string = LayoutLandscape
+	SquareOrientation    string = "square"
+
 	RedirectExternal string = "EXTERNAL"
 	RedirectInternal string = "INTERNAL"
 

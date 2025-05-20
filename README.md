@@ -39,11 +39,13 @@
 > [!IMPORTANT]
 > **This project is not affiliated with [Immich][immich-github-url]**
 
-> [!WARNING]
-> Like the Immich project, this project is currently in beta and may experience breaking changes.
+> [!TIP]
+> You can try the Immich Kiosk demo [here](https://demo.immichkiosk.app/).
+
 
 ## Table of Contents
 - [What is Immich Kiosk?](#what-is-immich-kiosk)
+  - [Demo](#demo)
   - [Requirements](#requirements)
   - [Key features](#key-features)
   - [Example 1: Raspberry Pi](#example-1)
@@ -66,9 +68,11 @@
   - [Layouts](#layouts)
   - [Sleep mode](#sleep-mode)
   - [Custom CSS](#custom-css)
+  - [Redirects](#redirects)
   - [Weather](#weather)
+  - [Offline Mode](#offline-mode)
+  - [iFrame](#iframe)
 - [Navigation Controls](#navigation-controls)
-- [Redirects](#redirects)
 - [PWA](#pwa)
 - [Webhooks](#webhooks)
 - [Home Assistant](#home-assistant)
@@ -80,6 +84,18 @@
 
 ## What is Immich Kiosk?
 Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
+
+### Demo
+
+> [!NOTE]
+> The demo is hosted on Render's free tier. You might see an "Application Loading" screen while the app restarts.
+
+Try the Immich Kiosk demo here: [demo.immichkiosk.app](https://demo.immichkiosk.app/)
+
+Want to explore the features? You can:
+1. Visit the [Immich demo instance](https://demo.immich.app/)
+2. Log in to browse albums
+3. Copy any album or people IDs to use in the kiosk demo e.g. `https://demo.immichkiosk.app?album=ALBUM_ID`
 
 ## Requirements
 - A reachable Immich server that is running version v1.127.0 or above.
@@ -261,6 +277,7 @@ services:
       KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
       KIOSK_EXPERIMENTAL_ALBUM_VIDEO: false
       KIOSK_PERSON: "PERSON_ID,PERSON_ID,PERSON_ID"
+      KIOSK_REQUIRE_ALL_PEOPLE: false
       KIOSK_EXCLUDED_PEOPLE: "PERSON_ID,PERSON_ID,PERSON_ID"
       KIOSK_DATE: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
       KIOSK_TAG: "TAG_VALUE,TAG_VALUE,TAG_VALUE"
@@ -281,6 +298,7 @@ services:
       # Sleep mode
       # KIOSK_SLEEP_START: 22
       # KIOSK_SLEEP_END: 7
+      # KIOSK_SLEEP_DIM_SCREEN: false
       # Transistion options
       KIOSK_TRANSITION: none
       KIOSK_FADE_TRANSITION_DURATION: 1
@@ -292,6 +310,7 @@ services:
       KIOSK_IMAGE_EFFECT_AMOUNT: 120
       KIOSK_USE_ORIGINAL_IMAGE: false
       # Image metadata
+      KIOSK_SHOW_OWNER: false
       KIOSK_SHOW_ALBUM_NAME: false
       KIOSK_SHOW_PERSON_NAME: false
       KIOSK_SHOW_PERSON_AGE: false
@@ -304,6 +323,7 @@ services:
       KIOSK_SHOW_IMAGE_LOCATION: false
       KIOSK_HIDE_COUNTRIES: "HIDDEN_COUNTRY,HIDDEN_COUNTRY"
       KIOSK_SHOW_IMAGE_ID: false
+      KIOSK_SHOW_IMAGE_QR: false
       KIOSK_SHOW_MORE_INFO: true
       KIOSK_SHOW_MORE_INFO_IMAGE_LINK: true
       KIOSK_SHOW_MORE_INFO_QR_CODE: true
@@ -378,7 +398,7 @@ See the file `config.example.yaml` for an example config file
 | immich_url                        | KIOSK_IMMICH_URL        | string                     | ""          | The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`. |
 | immich_external_url             | KIOSK_IMMICH_EXTERNAL_URL | string                     | ""          | The public URL of your Immich server used for generating links and QR codes in the additional information overlay. Useful when accessing Immich through a reverse proxy or different external URL. Example: "https://photos.example.com". If not set, falls back to immich_url. |
 | show_time                         | KIOSK_SHOW_TIME         | bool                       | false       | Display clock.                                                                             |
-| time_format                       | KIOSK_TIME_FORMAT       | 24 \| 12                   | 24          | Display clock time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
+| time_format                       | KIOSK_TIME_FORMAT       | 24 \| 12                   | 24          | Display clock time in either 12-hour or 24-hour format. This can either be 12 or 24.       |
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | [date_format](#date-format)       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year. See [date format](#date-format) for more information.|
 | clock_source                      | KIOSK_CLOCK_SOURCE      | client \| server           | client      | The source of the clock. Either client or server.                                          |
@@ -392,7 +412,8 @@ See the file `config.example.yaml` for an example config file
 | [excluded_albums](#exclude-albums) | KIOSK_EXCLUDED_ALBUMS  | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. See [Exclude albums](#exclude-albums) for more information. |
 | [experimental_album_video](#experimental-album-video-support) | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. See [experimental album video](#experimental-album-video-support) for more information. |
 | [person](#people)                 | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. See [People](#people) for more information. |
-| [excluded_people](#exclude-people) | KIOSK_EXCLUDED_PEOPLE   | []string                  | []         | The ID(s) of a specific person or people you want to exclude. See [Exclude people](#exclude-people) for more information. |
+| [require_all_people](#require-all-people) | KIOSK_REQUIRE_ALL_PEOPLE | bool              | false       | Require all people to be present in an asset. See [Require all people](#require-all-people) for more information. |
+| [excluded_people](#exclude-people) | KIOSK_EXCLUDED_PEOPLE  | []string                   | []          | The ID(s) of a specific person or people you want to exclude. See [Exclude people](#exclude-people) for more information. |
 | [date](#date-range)               | KIOSK_DATE              | []string                   | []          | A date range or ranges. See [Date range](#date-range) for more information. |
 | [tag](#tags)                      | KIOSK_TAG               | []string                   | []          | Tag or tags you want to display. See [Tags](#tags) for more information. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memories. |
@@ -409,6 +430,8 @@ See the file `config.example.yaml` for an example config file
 | [layout](#layouts)                | KIOSK_LAYOUT            | single \| portrait \| landscape \| splitview \| splitview-landscape | Which layout to use. See [Layouts](#layouts) for more information.                         |
 | [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. See [Sleep mode](#sleep-mode) for more information. |
 | [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [sleep_icon](#sleep-mode)         | KIOSK_SLEEP_ICON        | string                     | ""          | Display icon during sleep mode. See [Sleep mode](#sleep-mode) for more information. |
+| [sleep_dim_screen](#sleep-mode)   | KIOSK_SLEEP_DIM_SCREEN  | bool                       | false       | Dim screen during sleep mode when using Fully Kiosk Browser. See [Sleep mode](#sleep-mode) for more information. |
 | [disable_sleep](#sleep-mode)      | N/A                     | bool                       | false       | Bypass sleep mode by adding `disable_sleep=true` to the URL. See [Sleep mode](#sleep-mode) for more information. |
 | [custom_css](#custom-css)         | N/A                     | bool                       | true        | Allow custom CSS to be used. See [Custom CSS](#custom-css) for more information.           |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
@@ -419,16 +442,18 @@ See the file `config.example.yaml` for an example config file
 | [image_effect](#image-effects)    | KIOSK_IMAGE_EFFECT      | none \| zoom \| smart-zoom | none        | Add an effect to images.                                                                   |
 | [image_effect_amount](#image-effects) | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fallback to using the preview. |
+| show_owner                        | KIOSK_SHOW_OWNER        | bool                       | false       | Display the asset owner. Useful for shared albums.                                         |
 | show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display album name(s) that the asset appears in.                                           |
 | show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display person name(s).                                                                    |
 | show_person_age                   | KIOSK_SHOW_PERSON_AGE   | bool                       | false       | Display person age.                                                                        |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
-| image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12 hour or 24 hour format. Can either be 12 or 24.            |
+| image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12-hour or 24-hour format. This can either be 12 or 24.            |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
 | [image_date_format](#date-format) | KIOSK_IMAGE_DATE_FORMAT | string                     | DD/MM/YYYY  | The format of the image date. default is day/month/year. See [date format](#date-format) for more information.
-| show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available). |
+| show_image_description            | KIOSK_SHOW_IMAGE_DESCRIPTION    | bool               | false       | Display image description from METADATA (if available).                                    |
 | show_image_exif                   | KIOSK_SHOW_IMAGE_EXIF           | bool               | false       | Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).      |
 | show_image_location               | KIOSK_SHOW_IMAGE_LOCATION       | bool               | false       | Display the image location from METADATA (if available).                                   |
+| show_image_qr                     | KIOSK_SHOW_IMAGE_QR             | bool               | false       | Displays a QR code linking to the original image (in Immich) next to the image metadata.   |
 | hide_countries                    | KIOSK_HIDE_COUNTRIES            | []string           | []          | List of countries to hide from image_location                                              |
 | show_more_info                    | KIOSK_SHOW_MORE_INFO            | bool               | true        | Enables the display of additional information about the current image(s)                   |
 | show_more_info_image_link         | KIOSK_SHOW_MORE_INFO_IMAGE_LINK | bool               | true        | Shows a link to the original image (in Immich) in the additional information overlay       |
@@ -438,6 +463,9 @@ See the file `config.example.yaml` for an example config file
 | immich_users_api_keys             | N/A                     | map[string]string          | {}          | key:value mappings of Immich usernames to their corresponding API keys. See [multiple users](#multiple-users) for more information. |
 | show_user                         | KIOSK_SHOW_USER         | bool                       | false       | Display the user used to fetch the image. See [multiple users](#multiple-users) for more information. |
 | [weather](#weather)               | N/A                     | []WeatherLocation          | []          | Display the current weather. See [weather](#weather) for more information.                 |
+| use_offline_mode                  | KIOSK_USE_OFFLINE_MODE  | bool                       | false       | Enable offline mode for the device. See [offline mode](#offline-mode) for more information. |
+| [offline_mode](#offline-mode)     | N/A                     | OfflineMode{}              | {}          | Enable offline mode. See [offline mode](#offline-mode) for more information. |
+| [iframe](#iframe)                 | KIOSK_IFRAME            | []string                   | []          | Add iframes into Kiosk. See [iframe](#iframe) for more information. |
 
 ### Additional options
 The below options are NOT configurable through URL params. In the `config.yaml` file they sit under `kiosk` (demo below and in example `config.yaml`)
@@ -728,7 +756,7 @@ http://{URL}?exclude_album=ALBUM_ID&exclude_album=ALBUM_ID&exclude_album=ALBUM_I
 
 ------
 
-### People
+## People
 
 ### Getting a person's ID from Immich
 1. Open Immich's web interface and click on "Explore" in the left-hand navigation.
@@ -772,6 +800,56 @@ http://{URL}?person=PERSON_ID&person=PERSON_ID&person=PERSON_ID
 #### ` all `
 Will use all named people.
 e.g. `http://{URL}?person=all`
+
+------
+
+## Require All People
+
+The "Require all people" feature allows you to filter images to only show those where all specified people are present together in the same photo.
+
+### Configuration
+
+You can enable this feature in three ways (listed in order of precedence):
+
+1. **URL Query Parameter**:
+```url
+http://{URL}?require_all_people=true
+```
+
+2. **Environment Variable**:
+```yaml
+environment:
+  KIOSK_REQUIRE_ALL_PEOPLE: "true"
+```
+
+3. **Config File** (config.yaml):
+```yaml
+require_all_people: true
+```
+
+### How It Works
+
+When enabled:
+- Only photos containing ALL specified people will be displayed
+- Photos where only some of the specified people appear will be excluded
+
+### Example Use Cases
+
+1. **Family Photos**:
+   - Set multiple person IDs for family members
+   - Enable `require_all_people` to only show assets where the whole family is together
+
+2. **Group Events**:
+   - Specify IDs for members of a group
+   - See only photos where everyone was present
+
+### Important Notes
+
+> [!NOTE]
+> - This setting only takes effect when multiple people are specified
+> - If no matching photos are found (where all people appear together), Kiosk will display an error message
+> - This feature **cannot** be combined with other source/buckets like date ranges or albums
+> - Setting to `false` returns to default behavior where photos containing ANY of the specified people will be shown
 
 ------
 
@@ -1060,10 +1138,17 @@ When a landscape image is fetched, Kiosk automatically retrieves a second landsc
 > You can add `disable_sleep=true` to your URL queries to bypass sleepmode.
 
 ### Enabling Sleep Mode:
-Setting both `sleep_start` and `sleep_end` using the 24 hour format will enable sleep mode.
+Setting both `sleep_start` and `sleep_end` using the 24-hour format will enable sleep mode.
 
 ### During Sleep Mode:
-Kiosk will display a black screen and can optionally shows a faint clock if `show_time` or `show_date` and enabled.
+Kiosk will display a black screen and can optionally show a faint clock if `show_time` or `show_date` and enabled.
+
+### Dimming the Screen with Fully Kiosk Browser
+
+> [!IMPORTANT]
+> If you will need the pro version of Fully Kiosk Browser, and will need to turn on "Enable JavaScript Interface" in the Advanced Web Settings.
+
+If you are running Kiosk within the [Fully Kiosk Browser](https://www.fully-kiosk.com/), setting `sleep_dim_screen=true` will dim the screen during sleep mode.
 
 ### Examples
 - Setting `sleep_start=22` and `sleep_end=7` will enable sleep mode from 22:00 (10pm) to 07:00 (7am).
@@ -1122,6 +1207,53 @@ e.g.
     padding: 2rem;
 }
 ```
+
+------
+
+## Redirects
+
+> [!IMPORTANT]
+> This feature can only be configured using a `config.yaml` file.
+
+Redirects provide a simple way to map short, memorable paths to longer URLs.
+It's particularly useful for creating friendly URLs that redirect to more
+complex endpoints with query parameters.
+
+## How they Work
+
+### Configuration
+Redirects are defined in the `config.yaml` file under the `kiosk.redirects` section:
+
+Each redirect consists of:
+- `name`: The short path that users will use
+- `url`: The destination URL where users will be redirected to
+- `type`: Optional field that controls URL behavior:
+  - `internal`: The default behavior that keeps the URL unchanged during redirection (useful for maintaining browser history)
+  - `external`: Allows URL changes during redirection
+
+### Examples
+
+```yaml
+kiosk:
+  redirects:
+    - name: london
+      url: /?weather=london
+      type: external
+
+    - name: sheffield
+      url: /?weather=sheffield
+
+    - name: our-wedding
+      url: /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
+      type: external
+
+```
+
+| Source URL                  | Redirects to                                                |
+|-----------------------------|-------------------------------------------------------------|
+| http://{URL}/london         | /?weather=london                                            |
+| http://{URL}/sheffield      | http://{URL}/sheffield                                      |
+| http://{URL}/our-wedding    | /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3 |
 
 ------
 
@@ -1186,6 +1318,104 @@ http://{URL}?weather=london or http://{URL}?weather=new-york.
     api: API_KEY
     unit: imperial
     lang: en
+```
+
+------
+
+## Offline Mode
+
+> [!IMPORTANT]
+> If you are using Docker and want offline assets to persist between container restarts, you will need to mount a volume into the container.
+> e.g.
+> ```yaml
+> volumes:
+>   - ./offline-assets:/offline-assets  # Mount a local directory to persist cached assets
+> ```
+
+> [!IMPORTANT]
+> Unlike most Kiosk settings, most configuration options cannot be overridden via URL parameters while using Offline Mode. Only a few UI options are allowed:
+> - `use_offline_mode` (required for offline mode)
+> - `show_progress`
+> - `frameless`
+> - `disable_navigation`
+> - `clock_source`
+> - `refresh`
+> - `font_size`
+> - `sleep_start`
+> - `sleep_end`
+
+
+Offline Mode allows you to download assets for offline viewing.
+This feature is useful when you want to view your photos without an active connection to Immich (after download).
+
+### Limitations of Offline Mode
+
+When using Offline Mode, some Kiosk features are unavailable. These include:
+
+- Experimental Album Video
+- Album Ordering
+- Like/Hide Buttons
+
+### Setting Up Offline Mode
+
+1. Ensure you mount a volume (see note above) if you want offline assets to persist across restarts.
+2. Configure Offline Mode by setting the `offline_mode.enabled` option to `true` (and any other options you want) in your config.yaml.
+3. When accessing Immich Kiosk from a device that needs offline mode, add the `use_offline_mode=true` parameter to the URL: `http://{URL}?use_offline_mode=true`
+
+### Offline Mode Configuration Options
+
+| **Value**          | **Default** | **Description**                                               |
+|--------------------|-------------|---------------------------------------------------------------|
+| enabled            | false       | Enable offline mode                                           |
+| number_of_assets   | 100         | Target number of assets to download                           |
+| max_size           | 0           | Disk space assets are allowed to take up. You can use `mb`, `gb`, `tb`, etc. 0 = no limit |
+| expiration_hours   | 0           | Number of hours before assets expire. 0 = assets never expire |
+
+### Example Configuration
+
+Here's an example configuration for offline mode:
+- Downloads up to 500 assets
+- Limits total disk usage to 50MB
+- Deletes downloaded assets after 24 hours
+
+```yaml
+offline_mode:
+  enabled: true
+  number_of_assets: 500
+  max_size: 50mb
+  expiration_hours: 24
+```
+------
+
+## iFrame
+
+> [!WARNING]
+> If you plan to add iFrames to untrusted or external content, be aware of security implications. Only load content from trusted sources that you control.
+
+If you want to display custom content in Kiosk, you can use iFrames.
+
+### Adding iFrames to Kiosk
+
+You can configure Kiosk to display external or local HTML content using iFrames. This can be set in your `config.yaml` file:
+
+```yaml
+iframe: "https://example.com"  # Remote URL
+```
+
+For local files, they must be `.html` files and at the same level or in a subdirectory of the Kiosk application:
+
+> [!TIP]
+> If using docker you will need to mount local files into the container.
+> ```yaml
+> volumes:
+>   - ./weather.html:/weather.html
+>   - ./content/dashboard.html:/content/dashboard.html
+> ```
+
+```yaml
+iframe:
+  - "./weather.html"  # Local file in same directory
+  - "./content/dashboard.html"  # Local file in subdirectory
 ```
 
 ------
@@ -1274,53 +1504,6 @@ Example:
 ```yaml
 hide_button_action: [tag, archive]
 ```
-
-------
-
-## Redirects
-
-> [!IMPORTANT]
-> This feature can only be configured using a `config.yaml` file.
-
-Redirects provide a simple way to map short, memorable paths to longer URLs.
-It's particularly useful for creating friendly URLs that redirect to more
-complex endpoints with query parameters.
-
-## How they Work
-
-### Configuration
-Redirects are defined in the `config.yaml` file under the `kiosk.redirects` section:
-
-Each redirect consists of:
-- `name`: The short path that users will use
-- `url`: The destination URL where users will be redirected to
-- `type`: Optional field that controls URL behavior:
-  - `internal`: The default behavior that keeps the URL unchanged during redirection (useful for maintaining browser history)
-  - `external`: Allows URL changes during redirection
-
-### Examples
-
-```yaml
-kiosk:
-  redirects:
-    - name: london
-      url: /?weather=london
-      type: external
-
-    - name: sheffield
-      url: /?weather=sheffield
-
-    - name: our-wedding
-      url: /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3
-      type: external
-
-```
-
-| Source URL                  | Redirects to                                                |
-|-----------------------------|-------------------------------------------------------------|
-| http://{URL}/london         | /?weather=london                                            |
-| http://{URL}/sheffield      | http://{URL}/sheffield                                      |
-| http://{URL}/our-wedding    | /?weather=london&album=51be319b-55ea-40b0-83b7-27ac0a0d84a3 |
 
 ------
 

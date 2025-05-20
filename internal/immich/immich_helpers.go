@@ -18,6 +18,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/demo"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/google/go-querystring/query"
@@ -114,16 +115,28 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		}
 
 		req.Header.Set("Accept", "application/json")
-		apiKey := a.requestConfig.ImmichAPIKey
-		if a.requestConfig.SelectedUser != "" {
-			if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
-				apiKey = key
-			} else {
-				return responseBody, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
-			}
-		}
 
-		req.Header.Set("x-api-key", apiKey)
+		switch a.requestConfig.Kiosk.DemoMode {
+		case true:
+			token, demoLoginErr := demo.Login(a.ctx, false)
+			if demoLoginErr != nil {
+				log.Error(demoLoginErr)
+				return responseBody, demoLoginErr
+			}
+			req.Header.Set("Authorization", "Bearer "+token)
+
+		default:
+			apiKey := a.requestConfig.ImmichAPIKey
+			if a.requestConfig.SelectedUser != "" {
+				if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
+					apiKey = key
+				} else {
+					return responseBody, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
+				}
+			}
+
+			req.Header.Set("x-api-key", apiKey)
+		}
 
 		if method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch || method == http.MethodDelete {
 			req.Header.Set("Content-Type", "application/json")
@@ -162,6 +175,18 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 		defer res.Body.Close()
 
+		// in demo mode and unauthorized, attempt to login again
+		if res.StatusCode == http.StatusUnauthorized && a.requestConfig.Kiosk.DemoMode {
+			_, _ = io.Copy(io.Discard, res.Body)
+			if !demo.ValidateToken(a.ctx, demo.DemoToken) {
+				_, err = demo.Login(a.ctx, true)
+				if err != nil {
+					return responseBody, err
+				}
+				continue
+			}
+		}
+
 		if res.StatusCode < 200 || res.StatusCode >= 300 {
 			err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
 			log.Error(err)
@@ -195,7 +220,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 // - Otherwise returns false if orientations don't match
 func (a *Asset) ratioCheck(wantedRatio ImageOrientation) bool {
 
-	a.addRatio()
+	a.AddRatio()
 
 	// specific ratio is not wanted
 	if wantedRatio == "" {
@@ -210,10 +235,10 @@ func (a *Asset) ratioCheck(wantedRatio ImageOrientation) bool {
 	return false
 }
 
-// addRatio determines the ratio (portrait or landscape) of the image based on its EXIF information.
+// AddRatio determines the ratio (portrait or landscape) of the image based on its EXIF information.
 // It sets the Ratio field in ExifInfo and updates IsPortrait or IsLandscape accordingly.
 // For orientations 5, 6, 7, and 8, it considers the image rotated by 90 degrees.
-func (a *Asset) addRatio() {
+func (a *Asset) AddRatio() {
 
 	switch a.ExifInfo.Orientation {
 	case "5", "6", "7", "8":
@@ -637,7 +662,7 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 	}
 
 	// AssetInfo overrides IsPortrait and IsLandscape so lets add them back
-	a.addRatio()
+	a.AddRatio()
 
 	return !a.containsTag(kiosk.TagSkip)
 }
