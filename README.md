@@ -89,7 +89,7 @@ Immich Kiosk is a lightweight slideshow for running on kiosk devices and browser
 
 > [!NOTE]
 > The demo is hosted on Render’s free tier, so you may briefly see an “Application Loading” screen while the app restarts.
-> Additionally, the default demo runs in Offline Mode with a limited set of images, which means you may notice some duplicates.
+> Additionally, the default demo runs in Offline Mode with a limited set of images, which means you may notice some duplicate images.
 
 Try the Immich Kiosk demo here: [demo.immichkiosk.app](https://demo.immichkiosk.app/)
 
