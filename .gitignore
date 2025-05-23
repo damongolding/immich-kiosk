@@ -44,3 +44,6 @@ custom.css
 demo-assets/
 
 offline-assets/
+
+frontend/public/assets/css
+frontend/public/assets/js/kiosk.js
