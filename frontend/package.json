@@ -37,5 +37,6 @@
     "not android 134",
     "not op_mini all",
     "not IE 11"
-  ]
+  ],
+  "packageManager": "pnpm@10.11.0"
 }

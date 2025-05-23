@@ -1,4 +1,22 @@
-# Builder
+# Frontend Base Image
+FROM node:20-slim AS frontend-base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+COPY . /app
+WORKDIR /app/frontend
+
+# Frontend Dependencies
+FROM frontend-base AS frontend-prod-deps
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+
+# Frontend Build
+FROM frontend-base AS frontend-build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm css && pnpm js
+
+# Go Builder
 FROM --platform=$BUILDPLATFORM golang:1.24.3-alpine AS build
 
 ARG VERSION=demo
@@ -8,6 +26,8 @@ ARG TARGETARCH
 WORKDIR /app
 
 COPY . .
+COPY --from=frontend-build /app/frontend/public/assets/css /app/frontend/public/assets/css
+COPY --from=frontend-build /app/frontend/public/assets/js/kiosk.js /app/frontend/public/assets/js/kiosk.js
 
 RUN go mod download
 RUN go tool templ generate
@@ -15,7 +35,7 @@ RUN go tool templ generate
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION}" -o dist/kiosk .
 
 # Release
-FROM  alpine:latest
+FROM alpine:latest
 
 ENV TZ=Europe/London
 
