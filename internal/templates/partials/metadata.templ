@@ -181,18 +181,25 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 		assetDateFormat = config.DefaultDateLayout
 	}
 
-	localDateTime := viewData.Assets[assetIndex].ImmichAsset.LocalDateTime
+	parsedDateTime := viewData.Assets[assetIndex].ImmichAsset.LocalDateTime
+	timeZone := viewData.Assets[assetIndex].ImmichAsset.ExifInfo.TimeZone
+	if timeZone != "" {
+		loc, err := time.LoadLocation(timeZone)
+		if err == nil {
+			parsedDateTime = viewData.Assets[assetIndex].ImmichAsset.ExifInfo.DateTimeOriginal.In(loc)
+		}
+	}
 	switch {
 	case moreInfo || (viewData.ShowImageDate && viewData.ShowImageTime):
 		assetDate = fmt.Sprintf(
 			"%s %s",
-			monday.Format(localDateTime, assetDateFormat, viewData.SystemLang),
-			localDateTime.Format(assetTimeFormat),
+			monday.Format(parsedDateTime, assetDateFormat, viewData.SystemLang),
+			parsedDateTime.Format(assetTimeFormat),
 		)
 	case viewData.ShowImageDate:
-		assetDate = monday.Format(localDateTime, assetDateFormat, viewData.SystemLang)
+		assetDate = monday.Format(parsedDateTime, assetDateFormat, viewData.SystemLang)
 	case viewData.ShowImageTime:
-		assetDate = localDateTime.Format(assetTimeFormat)
+		assetDate = parsedDateTime.Format(assetTimeFormat)
 	}
 
 	return strings.ToLower(assetDate)
