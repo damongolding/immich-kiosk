@@ -154,6 +154,7 @@ type Face struct {
 	BoundingBoxX2 int    `json:"boundingBoxX2"`
 	BoundingBoxY1 int    `json:"boundingBoxY1"`
 	BoundingBoxY2 int    `json:"boundingBoxY2"`
+	SourceType    string `json:"sourceType"`
 }
 
 type Asset struct {
@@ -167,7 +168,6 @@ type Asset struct {
 	OriginalPath     string    `json:"-"` // `json:"originalPath"`
 	OriginalFileName string    `json:"originalFileName"`
 	OriginalMimeType string    `json:"originalMimeType"`
-	Resized          bool      `json:"-"` // `json:"resized"`
 	Thumbhash        string    `json:"-"` // `json:"thumbhash"`
 	FileCreatedAt    time.Time `json:"-"` // `json:"fileCreatedAt"`
 	FileModifiedAt   time.Time `json:"-"` // `json:"fileModifiedAt"`
@@ -187,6 +187,7 @@ type Asset struct {
 	IsOffline        bool      `json:"-"` // `json:"isOffline"`
 	HasMetadata      bool      `json:"-"` // `json:"hasMetadata"`
 	DuplicateID      any       `json:"-"` // `json:"duplicateId"`
+	Visibility       string    `json:"-"` // `json:"visibility"`
 
 	// Data added and used by Kiosk
 	mu          *sync.Mutex
