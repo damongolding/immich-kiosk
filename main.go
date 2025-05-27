@@ -142,6 +142,8 @@ func main() {
 
 	e.GET("/", routes.Home(baseConfig))
 
+	e.GET("/about", routes.About(baseConfig))
+
 	e.GET("/assets/manifest.json", routes.Manifest)
 
 	e.GET("/image", routes.Image(baseConfig, c))
