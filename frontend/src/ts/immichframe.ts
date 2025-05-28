@@ -19,6 +19,8 @@ class ImmichFrame {
 
   inSleepMode: boolean = false;
 
+  private timeoutId: number | null = null;
+
   public static getInstance(): ImmichFrame {
     if (!ImmichFrame.instance) {
       ImmichFrame.instance = new ImmichFrame();
@@ -26,26 +28,42 @@ class ImmichFrame {
     return ImmichFrame.instance;
   }
 
-  public dimScreen(): void {
-    fetch(`${this.BASE_URL}/${this.endpoints.DIM}`).catch((error) =>
-      console.error("Error dimming ImmichFrame screen:", error),
-    );
+  public async dimScreen(): Promise<void> {
+    try {
+      await fetch(`${this.BASE_URL}/${this.endpoints.DIM}`, {
+        signal: AbortSignal.timeout(5000),
+      });
+    } catch (error) {
+      console.debug("Error dimming ImmichFrame screen:", error);
+    }
   }
 
-  public undimScreen(): void {
-    fetch(`${this.BASE_URL}/${this.endpoints.UNDIM}`).catch((error) =>
-      console.error("Error undimming ImmichFrame screen:", error),
-    );
+  public async undimScreen(): Promise<void> {
+    try {
+      await fetch(`${this.BASE_URL}/${this.endpoints.UNDIM}`, {
+        signal: AbortSignal.timeout(5000),
+      });
+    } catch (error) {
+      console.debug("Error undimming ImmichFrame screen:", error);
+    }
   }
 
   public setScreensaverState(enable: boolean): void {
     try {
+      if (this.timeoutId) {
+        clearTimeout(this.timeoutId);
+        this.timeoutId = null;
+      }
+
       if (enable) {
         if (this.inSleepMode) return;
 
         this.inSleepMode = true;
 
-        setTimeout(() => this.dimScreen(), this.SCREENSAVER_DELAY_MS);
+        this.timeoutId = setTimeout(() => {
+          this.dimScreen();
+          this.timeoutId = null;
+        }, this.SCREENSAVER_DELAY_MS);
       } else {
         if (!this.inSleepMode) return;
 

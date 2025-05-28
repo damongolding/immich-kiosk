@@ -39,7 +39,9 @@ func Sleep(baseConfig *config.Config) echo.HandlerFunc {
 
 		sleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now())
 
-		return Render(c, http.StatusOK, partials.SleepController(sleepTime, requestData.RequestConfig.SleepIcon, requestData.RequestConfig.SleepDimScreen))
+		runningInImmichFrame := c.Request().Header.Get("X-Requested-With") == "com.immichframe.immichframe"
+
+		return Render(c, http.StatusOK, partials.SleepController(sleepTime, requestData.RequestConfig.SleepIcon, requestData.RequestConfig.SleepDimScreen, runningInImmichFrame))
 
 	}
 }
