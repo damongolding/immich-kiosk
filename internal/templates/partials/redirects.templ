@@ -5,27 +5,27 @@ import (
 	"net/url"
 )
 
-func checkPassword(queries url.Values) (bool, string) {
+func checkAuthParam(queries url.Values) (bool, string, string) {
 	if queries.Has("password") {
-		return true, queries.Get("password")
+		return true, queries.Get("password"), "password"
 	}
 	if queries.Has("authsecret") {
-		return true, queries.Get("authsecret")
+		return true, queries.Get("authsecret"), "authsecret"
 	}
-	return false, ""
+	return false, "", ""
 }
 
 templ Redirects(redirects []config.Redirect, queries url.Values) {
-	{{ hasPassword, password := checkPassword(queries) }}
+	{{ hasPassword, password, paramType := checkAuthParam(queries) }}
 	<div id="redirects-container">
 		<div class="redirects">
 			<div class="redirects--shadow">
 				if hasPassword {
-					<a href={ templ.SafeURL("/?password=" + password) }>Home</a>
+					<a href={ templ.SafeURL("/?" + paramType + "=" + password) }>Home</a>
 				}
 				for _ , redirect := range redirects {
 					if hasPassword {
-						<a href={ templ.SafeURL(redirect.Name + "?password=" + password) }>{ redirect.Name }</a>
+						<a href={ templ.SafeURL(redirect.Name + "?" + paramType + "=" + password) }>{ redirect.Name }</a>
 					} else {
 						<a href={ templ.SafeURL(redirect.Name) }>{ redirect.Name }</a>
 					}
