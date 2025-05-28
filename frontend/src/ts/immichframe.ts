@@ -48,7 +48,7 @@ class ImmichFrame {
     }
   }
 
-  public setScreensaverState(enable: boolean): void {
+  public async setScreensaverState(enable: boolean): void {
     try {
       if (this.timeoutId) {
         clearTimeout(this.timeoutId);
@@ -60,14 +60,14 @@ class ImmichFrame {
 
         this.inSleepMode = true;
 
-        this.timeoutId = setTimeout(() => {
-          this.dimScreen();
+        this.timeoutId = setTimeout(async () => {
+          await this.dimScreen();
           this.timeoutId = null;
         }, this.SCREENSAVER_DELAY_MS);
       } else {
         if (!this.inSleepMode) return;
 
-        this.undimScreen();
+        await this.undimScreen();
 
         this.inSleepMode = false;
 
