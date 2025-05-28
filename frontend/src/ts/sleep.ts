@@ -2,14 +2,21 @@ import fullyKiosk from "./fullykiosk";
 import immichFrame from "./immichframe";
 
 /**
- * Toggles UI sleep mode and optionally controls the device screensaver via the Fully Kiosk API.
+ * Enables or disables UI sleep mode and optionally controls the device screensaver state.
  *
- * Adds or removes the "sleep" CSS class on the document body based on {@link turnOn}. If {@link screensaver} is true, also enables or disables the device screensaver accordingly.
+ * When sleep mode is enabled, the "sleep" CSS class is added to the document body; when disabled, it is removed.
+ * If {@link screensaver} is true, the device screensaver state is set to match {@link turnOn} using the Fully Kiosk API.
+ * If {@link runningInImmichFrame} is true, the Immich Frame screensaver state is also updated.
  *
- * @param turnOn - If true, enters sleep mode; if false, exits sleep mode.
- * @param screensaver - If true, toggles the device screensaver state to match {@link turnOn}.
+ * @param turnOn - Whether to enable (true) or disable (false) sleep mode.
+ * @param screensaver - Whether to also control the device screensaver state.
+ * @param runningInImmichFrame - Whether the app is running inside Immich Frame and should update its screensaver state.
  */
-function sleepMode(turnOn: boolean, screensaver: boolean): void {
+function sleepMode(
+  turnOn: boolean,
+  screensaver: boolean,
+  runningInImmichFrame: boolean,
+): void {
   if (turnOn) {
     document.body.classList.add("sleep");
   } else {
@@ -18,7 +25,7 @@ function sleepMode(turnOn: boolean, screensaver: boolean): void {
 
   if (screensaver) {
     fullyKiosk.setScreensaverState(turnOn);
-    immichFrame.setScreensaverState(turnOn);
+    if (runningInImmichFrame) immichFrame.setScreensaverState(turnOn);
   }
 }
 

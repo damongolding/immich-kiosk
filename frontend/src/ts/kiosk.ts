@@ -166,7 +166,7 @@ async function init(): Promise<void> {
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/assets/js/sw.js").then(
-      function (registration) {
+      function () {
         console.log("ServiceWorker registration successful");
       },
       function (err) {
