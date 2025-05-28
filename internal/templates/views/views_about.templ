@@ -50,7 +50,13 @@ templ Stats(service, version string, online bool) {
 							Version
 						</div>
 						<div class="value">
-							v{ strings.Replace(version, "v", "", 1) }
+							if version == "" {
+								"Unknown"
+							} else if strings.HasPrefix(version, "v") {
+								{ version }
+							} else {
+								v{ version }
+							}
 						</div>
 					</div>
 					<div>

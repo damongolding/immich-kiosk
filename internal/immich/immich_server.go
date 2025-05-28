@@ -55,5 +55,5 @@ func (a *Asset) AboutInfo() (ServerAboutResponse, error) {
 		return serverAboutResponse, err
 	}
 
-	return serverAboutResponse, err
+	return serverAboutResponse, nil
 }
