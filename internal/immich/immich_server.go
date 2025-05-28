@@ -9,8 +9,8 @@ import (
 type ServerAboutResponse struct {
 	Build                      *string `json:"build,omitempty"`
 	BuildImage                 *string `json:"buildImage,omitempty"`
-	BuildImageUrl              *string `json:"buildImageUrl,omitempty"`
-	BuildUrl                   *string `json:"buildUrl,omitempty"`
+	BuildImageURL              *string `json:"buildImageUrl,omitempty"`
+	BuildURL                   *string `json:"buildUrl,omitempty"`
 	Exiftool                   *string `json:"exiftool,omitempty"`
 	Ffmpeg                     *string `json:"ffmpeg,omitempty"`
 	Imagemagick                *string `json:"imagemagick,omitempty"`
@@ -18,16 +18,16 @@ type ServerAboutResponse struct {
 	Licensed                   bool    `json:"licensed"`
 	Nodejs                     *string `json:"nodejs,omitempty"`
 	Repository                 *string `json:"repository,omitempty"`
-	RepositoryUrl              *string `json:"repositoryUrl,omitempty"`
+	RepositoryURL              *string `json:"repositoryUrl,omitempty"`
 	SourceCommit               *string `json:"sourceCommit,omitempty"`
 	SourceRef                  *string `json:"sourceRef,omitempty"`
-	SourceUrl                  *string `json:"sourceUrl,omitempty"`
-	ThirdPartyBugFeatureUrl    *string `json:"thirdPartyBugFeatureUrl,omitempty"`
-	ThirdPartyDocumentationUrl *string `json:"thirdPartyDocumentationUrl,omitempty"`
-	ThirdPartySourceUrl        *string `json:"thirdPartySourceUrl,omitempty"`
-	ThirdPartySupportUrl       *string `json:"thirdPartySupportUrl,omitempty"`
+	SourceURL                  *string `json:"sourceUrl,omitempty"`
+	ThirdPartyBugFeatureURL    *string `json:"thirdPartyBugFeatureUrl,omitempty"`
+	ThirdPartyDocumentationURL *string `json:"thirdPartyDocumentationUrl,omitempty"`
+	ThirdPartySourceURL        *string `json:"thirdPartySourceUrl,omitempty"`
+	ThirdPartySupportURL       *string `json:"thirdPartySupportUrl,omitempty"`
 	Version                    string  `json:"version"`
-	VersionUrl                 string  `json:"versionUrl"`
+	VersionURL                 string  `json:"versionUrl"`
 }
 
 func (a *Asset) AboutInfo() (ServerAboutResponse, error) {

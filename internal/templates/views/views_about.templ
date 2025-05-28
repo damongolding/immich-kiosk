@@ -2,14 +2,20 @@ package views
 
 import (
 	"context"
+	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 templ About(viewData common.ViewData) {
-	{{ immichStats, immichStatsErr := getImmichStats(viewData.ImmichURL, viewData.ImmichAPIKey) }}
+	{{
+		immichStats, immichStatsErr := getImmichStats(viewData.ImmichURL, viewData.ImmichAPIKey)
+		immichOnline := immichStatsErr == nil
+	}}
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -111,75 +117,52 @@ templ About(viewData common.ViewData) {
 		<body>
 			<div class="about-container">
 				<div class="about-container--immich">
-					<div class="about-container--immich--content">
-						<div class="logo">
-							<img src="/assets/images/immich-logo.svg" alt="Immich Logo"/>
-						</div>
-						<div class="content">
-							<h1>Immich</h1>
-							<div class="stats">
-								<div>
-									<div class="label">
-										Online
-									</div>
-									<div class="value">
-										if immichStatsErr != nil {
-											False
-										} else {
-											True
-										}
-									</div>
-								</div>
-								<div>
-									<div class="label">
-										Version
-									</div>
-									<div class="value">
-										{ immichStats.Version }
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
+					@Stats("immich", immichStats.Version, immichOnline)
 				</div>
 				<div class="about-container--kiosk">
-					<div class="about-container--kiosk--content">
-						<div class="logo">
-							<img src="/assets/images/kiosk-logo.svg" alt="Immich Logo"/>
-						</div>
-						<div class="content">
-							<h1>Kiosk</h1>
-							<div class="stats">
-								<div>
-									<div class="label">
-										Online
-									</div>
-									<div class="value">
-										if immichStatsErr != nil {
-											False
-										} else {
-											True
-										}
-									</div>
-								</div>
-								<div>
-									<div class="label">
-										Version
-									</div>
-									<div class="value">
-										v{ viewData.KioskVersion }
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
+					@Stats("kiosk", viewData.KioskVersion, true)
 				</div>
 			</div>
 		</body>
 	</html>
 }
 
-func getImmichStats(immichUrl, immichApiKey string) (*immich.ServerAboutResponse, error) {
+templ Stats(service, version string, online bool) {
+	<div class={ fmt.Sprintf("about-container--%s--content", service) }>
+		<div class="logo">
+			<img src={ fmt.Sprintf("/assets/images/%s-logo.svg", service) } alt="Immich Logo"/>
+		</div>
+		<div class="content">
+			<h1>{ cases.Title(language.Und).String(service) }</h1>
+			<div class="stats">
+				<div>
+					<div class="label">
+						Version
+					</div>
+					<div class="value">
+						{ version }
+					</div>
+				</div>
+				<div>
+					<div class="label">
+						Online
+					</div>
+					<div class="value">
+						if online {
+							True
+						} else {
+							False
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+func getImmichStats(immichUrl, immichApiKey string) (immich.ServerAboutResponse, error) {
+
+	var d immich.ServerAboutResponse
 
 	c := config.Config{
 		ImmichAPIKey: immichApiKey,
@@ -190,9 +173,9 @@ func getImmichStats(immichUrl, immichApiKey string) (*immich.ServerAboutResponse
 
 	d, err := a.AboutInfo()
 	if err != nil {
-		return nil, err
+		return d, err
 	}
 
-	return &d, nil
+	return d, nil
 
 }
