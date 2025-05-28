@@ -7,7 +7,7 @@ services:
       LANG: "en_GB"
       TZ: "Europe/London"
     ports:
-      - 4000:4000
+      - 3000:3000
     volumes:
       - ./config.yaml:/config.yaml
       # - ./custom.css:/custom.css
