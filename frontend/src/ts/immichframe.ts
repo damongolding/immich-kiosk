@@ -6,13 +6,18 @@ class ImmichFrame {
   private readonly SCREENSAVER_DELAY_MS = 4 * 1000;
 
   private readonly PORT = 53287 as const;
+  private readonly BASE_URL = `http://localhost:${this.PORT}`;
+
+  private readonly endpoints = {
+    DIM: "dim",
+    UNDIM: "undim",
+    NEXT: "next",
+    PREVIOUS: "previous",
+    PAUSE: "pause",
+    SETTINGS: "settings",
+  };
 
   inSleepMode: boolean = false;
-  // scheme: string = "http";
-
-  // constructor() {
-  //   // this.scheme = window.location.protocol;
-  // }
 
   public static getInstance(): ImmichFrame {
     if (!ImmichFrame.instance) {
@@ -22,13 +27,13 @@ class ImmichFrame {
   }
 
   public dimScreen(): void {
-    fetch(`http://localhost:${this.PORT}/dim`).catch((error) =>
+    fetch(`${this.BASE_URL}/${this.endpoints.DIM}`).catch((error) =>
       console.error("Error dimming ImmichFrame screen:", error),
     );
   }
 
   public undimScreen(): void {
-    fetch(`http://localhost:${this.PORT}/undim`).catch((error) =>
+    fetch(`${this.BASE_URL}/${this.endpoints.UNDIM}`).catch((error) =>
       console.error("Error undimming ImmichFrame screen:", error),
     );
   }
@@ -40,8 +45,7 @@ class ImmichFrame {
 
         this.inSleepMode = true;
 
-        const i = this; // capture reference for setTimeout
-        setTimeout(() => i.dimScreen(), this.SCREENSAVER_DELAY_MS);
+        setTimeout(() => this.dimScreen(), this.SCREENSAVER_DELAY_MS);
       } else {
         if (!this.inSleepMode) return;
 
