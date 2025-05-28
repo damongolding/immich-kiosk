@@ -9,6 +9,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"strings"
 )
 
 templ About(viewData common.ViewData) {
@@ -20,144 +21,54 @@ templ About(viewData common.ViewData) {
 	<html lang="en">
 		<head>
 			@partials.Head(viewData)
-			<style>
-			html, body {
-				margin: 0;
-				padding: 0;
-				font-family: Arial, sans-serif;
-				overflow: auto;
-			}
-
-			.about-container{
-				display: flex;
-				align-items: center;
-				justify-content: space-around;
-				min-height: 100vh;
-				width: 100vw;
-			}
-
-			.about-container--immich,
-			.about-container--kiosk{
-			    width: 50%;
-				min-height: 100vh;
-			}
-
-			.about-container--immich{
-			    background-color: rgb(27, 27, 29);
-			}
-
-			.about-container--kiosk{
-			    background-color: var(--cool-grey);
-			}
-
-			.about-container--immich--content,
-			.about-container--kiosk--content{
-			    max-width: 31.25rem;
-				margin: 0 auto;
-				padding: 2rem;
-			}
-
-			.logo img{
-    			max-width: 6.25rem;
-    			height: auto;
-                display: block;
-                margin: 1rem auto;
-			}
-
-			.content{
-    			background-color: white;
-    			border-radius: 1rem;
-   				padding: 2rem;
-
-			}
-
-
-
-            h1  {
-                font-size: 3rem;
-                font-weight: bold;
-                color: #333;
-                margin: 0.5rem 0 1.5rem 0;
-            }
-
-            .stats{
-				display: flex;
-				flex-direction: column;
-			}
-
-			.stats > div {
-				border-top: 1px solid #eee;
-				padding: 1.3rem 0;
-			}
-
-			.label{
-				font-size: 1rem;
-				color: #6d727a;
-				margin-bottom: 0.3rem;
-			}
-			.value{
-			    font-size: 1.8rem;
-			    font-weight: bold;
-			    color: black;
-			}
-
-			@media (orientation: portrait) {
-    			.about-container{
-       				flex-direction: column;
-    			}
-
-    			.about-container--immich,
-    			.about-container--kiosk{
-    			    width: 100%;
-                    min-height: unset;
-    			}
-			}
-			</style>
 		</head>
 		<body>
 			<div class="about-container">
-				<div class="about-container--immich">
-					@Stats("immich", immichStats.Version, immichOnline)
-				</div>
-				<div class="about-container--kiosk">
-					@Stats("kiosk", viewData.KioskVersion, true)
-				</div>
+				@Stats("immich", immichStats.Version, immichOnline)
+				@Stats("kiosk", viewData.KioskVersion, true)
 			</div>
 		</body>
 	</html>
 }
 
+css background(service string) {
+	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url('/assets/images/%s-logo.svg');", service)) };
+}
+
 templ Stats(service, version string, online bool) {
-	<div class={ fmt.Sprintf("about-container--%s--content", service) }>
-		<div class="logo">
-			<img src={ fmt.Sprintf("/assets/images/%s-logo.svg", service) } alt="Immich Logo"/>
-		</div>
-		<div class="content">
-			<h1>{ cases.Title(language.Und).String(service) }</h1>
-			<div class="stats">
-				<div>
-					<div class="label">
-						Version
+	<section class={ fmt.Sprintf("about-container--%s", service) }>
+		<div class={ fmt.Sprintf("about-container--%s--content", service) }>
+			<div class={ "background", background(service) }></div>
+			<div class="logo">
+				<img src={ fmt.Sprintf("/assets/images/%s-logo.svg", service) } alt="Immich Logo"/>
+			</div>
+			<div class="content">
+				<h1>{ cases.Title(language.Und).String(service) }</h1>
+				<div class="stats">
+					<div>
+						<div class="label">
+							Version
+						</div>
+						<div class="value">
+							v{ strings.Replace(version, "v", "", 1) }
+						</div>
 					</div>
-					<div class="value">
-						{ version }
-					</div>
-				</div>
-				<div>
-					<div class="label">
-						Online
-					</div>
-					<div class="value">
-						if online {
-							True
-						} else {
-							False
-						}
+					<div>
+						<div class="label">
+							Online
+						</div>
+						<div class="value">
+							if online {
+								<span class="service-online">True</span>
+							} else {
+								<span class="service-offline">False</span>
+							}
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	</section>
 }
 
 func getImmichStats(immichUrl, immichApiKey string) (immich.ServerAboutResponse, error) {
