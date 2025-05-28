@@ -1,4 +1,5 @@
 import fullyKiosk from "./fullykiosk";
+import immichFrame from "./immichframe";
 
 /**
  * Toggles UI sleep mode and optionally controls the device screensaver via the Fully Kiosk API.
@@ -15,7 +16,10 @@ function sleepMode(turnOn: boolean, screensaver: boolean): void {
     document.body.classList.remove("sleep");
   }
 
-  if (screensaver) fullyKiosk.setScreensaverState(turnOn);
+  if (screensaver) {
+    fullyKiosk.setScreensaverState(turnOn);
+    immichFrame.setScreensaverState(turnOn);
+  }
 }
 
 export { sleepMode };
