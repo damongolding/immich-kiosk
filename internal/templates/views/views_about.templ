@@ -24,8 +24,8 @@ templ About(viewData common.ViewData) {
 		</head>
 		<body>
 			<div class="about-container">
-				@Stats("immich", immichStats.Version, immichOnline)
 				@Stats("kiosk", viewData.KioskVersion, true)
+				@Stats("immich", immichStats.Version, immichOnline)
 			</div>
 		</body>
 	</html>
