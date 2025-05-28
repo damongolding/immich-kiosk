@@ -72,21 +72,11 @@ templ Stats(service, version string, online bool) {
 }
 
 func getImmichStats(immichUrl, immichApiKey string) (immich.ServerAboutResponse, error) {
-
-	var d immich.ServerAboutResponse
-
 	c := config.Config{
 		ImmichAPIKey: immichApiKey,
 		ImmichURL:    immichUrl,
 	}
 
 	a := immich.New(context.Background(), c)
-
-	d, err := a.AboutInfo()
-	if err != nil {
-		return d, err
-	}
-
-	return d, nil
-
+	return a.AboutInfo()
 }
