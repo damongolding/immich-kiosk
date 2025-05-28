@@ -48,7 +48,7 @@ class ImmichFrame {
     }
   }
 
-  public async setScreensaverState(enable: boolean): void {
+  public async setScreensaverState(enable: boolean): Promise<void> {
     try {
       if (this.timeoutId) {
         clearTimeout(this.timeoutId);
