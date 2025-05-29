@@ -2,13 +2,16 @@ package views
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"net/http"
 	"strings"
 )
 
@@ -36,6 +39,7 @@ css background(service string) {
 }
 
 templ Stats(service, version string, online bool) {
+	{{ tag, link := getLatestRelease(service, service) }}
 	<section class={ fmt.Sprintf("about-container--%s", service) }>
 		<div class={ fmt.Sprintf("about-container--%s--content", service) }>
 			<div class={ "background", background(service) }></div>
@@ -51,6 +55,22 @@ templ Stats(service, version string, online bool) {
 						</div>
 						<div class="value">
 							v{ strings.Replace(version, "v", "", 1) }
+						</div>
+					</div>
+					<div>
+						<div class="label">
+							Latest Version
+						</div>
+						<div class="value">
+							<a href={ templ.SafeURL(link) }>
+								if tag == "" {
+									Unknown
+								} else if strings.HasPrefix(tag, "v") {
+									{ tag }
+								} else {
+									v{ tag }
+								}
+							</a>
 						</div>
 					</div>
 					<div>
@@ -79,4 +99,45 @@ func getImmichStats(immichUrl, immichApiKey string) (immich.ServerAboutResponse,
 
 	a := immich.New(context.Background(), c)
 	return a.AboutInfo()
+}
+
+type GitHubRelease struct {
+	TagName string `json:"tag_name"`
+}
+
+func getLatestRelease(owner, repo string) (string, string) {
+
+	switch repo {
+	case "immich":
+		owner = "immich-app"
+		repo = "immich"
+	case "kiosk":
+		owner = "damongolding"
+		repo = "immich-kiosk"
+	}
+
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", owner, repo)
+	link := fmt.Sprintf("https://github.com/%s/%s/releases/tag/latest", owner, repo)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Error(err)
+		return "Unknown", link
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		log.Error(err)
+		return "Unknown", link
+	}
+
+	var release GitHubRelease
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		log.Error(err)
+		return "Unknown", link
+	}
+
+	link = fmt.Sprintf("https://github.com/%s/%s/releases/tag/%s", owner, repo, release.TagName)
+
+	return release.TagName, link
 }

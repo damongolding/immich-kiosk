@@ -38,7 +38,7 @@ body {
     max-width: 31.25rem;
     width: 100%;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1.5rem;
 }
 
 .logo {
@@ -57,12 +57,12 @@ body {
     position: relative;
     background-color: white;
     border-radius: 1rem;
-    padding: 2rem;
+    padding: 1.5rem;
     z-index: var(--z-base);
 }
 
 h1 {
-    font-size: 3rem;
+    font-size: 2rem;
     font-weight: bold;
     color: #333;
     margin: 0.5rem 0 1.5rem 0;
@@ -75,7 +75,7 @@ h1 {
 
 .stats > div {
     border-top: 1px solid #eee;
-    padding: 1.3rem 0;
+    padding: 1rem 0;
 }
 
 .stats > div:last-child {
@@ -83,15 +83,20 @@ h1 {
 }
 
 .label {
-    font-size: 1rem;
+    font-size: 0.8rem;
     color: #6d727a;
     margin-bottom: 0.3rem;
 }
 
 .value {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: bold;
     color: black;
+}
+
+.value a {
+    color: black;
+    text-underline-offset: 0.3rem;
 }
 
 .value .service-online {
