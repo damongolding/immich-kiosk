@@ -58,7 +58,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 			@exifIcon(AssetExif(viewData.Assets[assetIndex].ImmichAsset.ExifInfo))
 		}
 		if viewData.ShowImageLocation {
-			@locationIcon(AssetLocation(viewData.Assets[assetIndex].ImmichAsset.ExifInfo, viewData.HideCountries))
+			@locationIcon(AssetLocation(viewData.Assets[assetIndex].ImmichAsset, viewData.HideCountries))
 		}
 		if viewData.ShowImageID {
 			@idIcon(viewData.Assets[assetIndex].ImmichAsset.ID)
@@ -79,8 +79,13 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 // Returns:
 //   - string: Comma-separated location with optional line break before country,
 //     or empty string if no location data present
-func AssetLocation(info immich.ExifInfo, hideCountries []string) string {
+func AssetLocation(asset immich.Asset, hideCountries []string) string {
 	var parts []string
+	info := asset.ExifInfo
+
+	if info.City == "" && info.State == "" && info.Country == "" {
+		info.City, info.State, info.Country = asset.LocationFromLatLong(info.Latitude, info.Longitude)
+	}
 
 	if info.City != "" {
 		parts = append(parts, info.City)

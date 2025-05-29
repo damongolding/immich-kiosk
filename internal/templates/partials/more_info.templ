@@ -227,7 +227,7 @@ templ originalAssetData(img immich.Asset) {
 //   - hideCountries: List of country names to hide from location display
 templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCountries []string) {
 	{{ imageDatetime := AssetDateTime(viewData, imageIndex, true) }}
-	{{ location := AssetLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo, hideCountries) }}
+	{{ location := AssetLocation(viewData.Assets[imageIndex].ImmichAsset, hideCountries) }}
 	<div>
 		<div>
 			<h3>
