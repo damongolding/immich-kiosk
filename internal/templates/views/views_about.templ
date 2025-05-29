@@ -1,0 +1,88 @@
+package views
+
+import (
+	"context"
+	"fmt"
+	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"strings"
+)
+
+templ About(viewData common.ViewData) {
+	{{
+		immichStats, immichStatsErr := getImmichStats(viewData.ImmichURL, viewData.ImmichAPIKey)
+		immichOnline := immichStatsErr == nil
+	}}
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			@partials.Head(viewData)
+		</head>
+		<body>
+			<div class="about-container">
+				@Stats("kiosk", viewData.KioskVersion, true)
+				@Stats("immich", immichStats.Version, immichOnline)
+			</div>
+		</body>
+	</html>
+}
+
+css background(service string) {
+	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url('/assets/images/%s-logo.svg');", service)) };
+}
+
+templ Stats(service, version string, online bool) {
+	<section class={ fmt.Sprintf("about-container--%s", service) }>
+		<div class={ fmt.Sprintf("about-container--%s--content", service) }>
+			<div class={ "background", background(service) }></div>
+			<div class="logo">
+				<img src={ fmt.Sprintf("/assets/images/%s-logo.svg", service) } alt="Immich Logo"/>
+			</div>
+			<div class="content">
+				<h1>{ cases.Title(language.Und).String(service) }</h1>
+				<div class="stats">
+					<div>
+						<div class="label">
+							Version
+						</div>
+						<div class="value">
+							if version == "" {
+								"Unknown"
+							} else if strings.HasPrefix(version, "v") {
+								{ version }
+							} else {
+								v{ version }
+							}
+						</div>
+					</div>
+					<div>
+						<div class="label">
+							Online
+						</div>
+						<div class="value">
+							if online {
+								<span class="service-online">True</span>
+							} else {
+								<span class="service-offline">False</span>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+}
+
+func getImmichStats(immichUrl, immichApiKey string) (immich.ServerAboutResponse, error) {
+	c := config.Config{
+		ImmichAPIKey: immichApiKey,
+		ImmichURL:    immichUrl,
+	}
+
+	a := immich.New(context.Background(), c)
+	return a.AboutInfo()
+}

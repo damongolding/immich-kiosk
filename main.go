@@ -121,7 +121,7 @@ func main() {
 				// skip auth for assets
 				return strings.HasPrefix(c.Request().URL.String(), "/assets")
 			},
-			KeyLookup: "query:password,form:password",
+			KeyLookup: "query:authsecret,form:authsecret,query:password,form:password",
 			Validator: func(queryPassword string, _ echo.Context) (bool, error) {
 				return queryPassword == baseConfig.Kiosk.Password, nil
 			},
@@ -141,6 +141,8 @@ func main() {
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
 
 	e.GET("/", routes.Home(baseConfig))
+
+	e.GET("/about", routes.About(baseConfig))
 
 	e.GET("/assets/manifest.json", routes.Manifest)
 

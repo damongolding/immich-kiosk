@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.21.0
+  VERSION: 0.21.1
 
 includes:
   frontend:
@@ -67,3 +67,8 @@ tasks:
     cmds:
       - go list -u -m -json all | go tool go-mod-outdated -direct -update
       - cd frontend && pnpm outdated
+
+  openapi:
+    desc: Generate OpenAPI specification
+    cmds:
+      - go tool oapi-codegen --generate types,client -package immich_open_api https://raw.githubusercontent.com/immich-app/immich/refs/heads/main/open-api/immich-openapi-specs.json > internal/immich_open_api/immich_open_api.go
