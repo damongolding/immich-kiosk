@@ -105,6 +105,7 @@ func main() {
 	e.HidePort = true
 
 	// Middleware
+	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
 
