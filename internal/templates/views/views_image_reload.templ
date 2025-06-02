@@ -47,18 +47,28 @@ templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string)
 			@templ.JSONScript("kiosk-data", requestConfig.Refresh)
 			<script>
 			    var rawData = document.getElementById('kiosk-data').textContent;
-				var refresh;
+				var kioskData;
+				var refresh = 60;
+				var queries = '';
 				try {
-				    refresh = JSON.parse(rawData);
-					if (!refresh || refresh < 1) refresh = 60;
+				    kioskData = JSON.parse(rawData);
+					if (kioskData.refresh && kioskData.refresh > 0) refresh = kioskData.refresh;
+					if (kioskData.queries) queries = kioskData.queries;
 				} catch (e) {
 				    console.error("Error parsing refresh interval:", e);
 					refresh = 60;
 				}
 
-			  setTimeout(function() {
-			    window.location.reload();
-			  }, refresh * 1000);
+				var bodyElement = document.querySelector('body');
+
+			    function refreshImage() {
+                  var date = new Date();
+                  bodyElement.style.backgroundImage = 'url(/image?timestamp=' + date.getTime() + '&' + queries)';
+			    }
+
+				setTimeout(function() {
+	              refreshImage();
+			    }, refresh * 1000);
 			</script>
 		</body>
 	</html>
