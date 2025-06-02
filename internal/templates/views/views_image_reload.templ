@@ -61,7 +61,7 @@ templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string)
 
 				try {
 				    kioskData = JSON.parse(rawData);
-					if (kioskData.refresh && kioskData.refresh > 0) refresh = kioskData.refresh;
+					if (kioskData.refresh && kioskData.refresh > 5) refresh = kioskData.refresh;
 					if (kioskData.queries) queries = kioskData.queries;
 				} catch (e) {
 				    console.error("Error parsing refresh interval:", e);
