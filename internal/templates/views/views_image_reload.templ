@@ -3,6 +3,11 @@ package views
 import "fmt"
 import "github.com/damongolding/immich-kiosk/internal/config"
 
+type ReloadData struct {
+	Queries string `json:"queries"`
+	Refresh int    `json:"refresh"`
+}
+
 css imageFit(imageFit string) {
 	background-size: { imageFit };
 }
@@ -44,12 +49,16 @@ templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string)
 			</style>
 		</head>
 		<body class={ imageFit(requestConfig.ImageFit) } style={ templ.SafeCSS(fmt.Sprintf("background-image: url(/image?%s);", queries)) }>
-			@templ.JSONScript("kiosk-data", requestConfig.Refresh)
+			{{ data := ReloadData{Queries: queries, Refresh: requestConfig.Refresh} }}
+			@templ.JSONScript("kiosk-data", data)
 			<script>
-			    var rawData = document.getElementById('kiosk-data').textContent;
+
 				var kioskData;
 				var refresh = 60;
 				var queries = '';
+
+				var rawData = document.getElementById('kiosk-data').textContent;
+
 				try {
 				    kioskData = JSON.parse(rawData);
 					if (kioskData.refresh && kioskData.refresh > 0) refresh = kioskData.refresh;
@@ -59,16 +68,14 @@ templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string)
 					refresh = 60;
 				}
 
-				var bodyElement = document.querySelector('body');
+				var bodyElement = document.body;
 
 			    function refreshImage() {
                   var date = new Date();
-                  bodyElement.style.backgroundImage = 'url(/image?timestamp=' + date.getTime() + '&' + queries)';
+                  bodyElement.style.backgroundImage = "url(/image?timestamp=" + date.getTime() + "&" + queries + ")";
 			    }
 
-				setTimeout(function() {
-	              refreshImage();
-			    }, refresh * 1000);
+				setInterval(refreshImage, refresh * 1000);
 			</script>
 		</body>
 	</html>
