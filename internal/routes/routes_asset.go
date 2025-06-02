@@ -157,7 +157,7 @@ func ImageWithReload(baseConfig *config.Config) echo.HandlerFunc {
 
 		queries := c.Request().URL.Query().Encode()
 
-		return Render(c, http.StatusOK, views.ImageWithReload(requestConfig.Refresh, queries, KioskVersion))
+		return Render(c, http.StatusOK, views.ImageWithReload(requestConfig, queries, KioskVersion))
 	}
 }
 

@@ -1,8 +1,13 @@
 package views
 
 import "fmt"
+import "github.com/damongolding/immich-kiosk/internal/config"
 
-templ ImageWithReload(refresh int, queries, kioskVersion string) {
+css imageFit(imageFit string) {
+	background-size: { imageFit };
+}
+
+templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -33,14 +38,13 @@ templ ImageWithReload(refresh int, queries, kioskVersion string) {
 				}
 
 			    body {
-					background-size: cover;
 					background-position: center;
 					background-repeat: no-repeat;
 				}
 			</style>
 		</head>
-		<body style={ templ.SafeCSS(fmt.Sprintf("background-image: url(/image?%s);", queries)) }>
-			@templ.JSONScript("kiosk-data", refresh)
+		<body class={ imageFit(requestConfig.ImageFit) } style={ templ.SafeCSS(fmt.Sprintf("background-image: url(/image?%s);", queries)) }>
+			@templ.JSONScript("kiosk-data", requestConfig.Refresh)
 			<script>
 			    var rawData = document.getElementById('kiosk-data').textContent;
 				var refresh;
