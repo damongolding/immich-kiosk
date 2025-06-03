@@ -8,8 +8,9 @@ type ReloadData struct {
 	Refresh int    `json:"refresh"`
 }
 
-css imageFit(imageFit string) {
+css ReloadBody(imageFit, queries string) {
 	background-size: { imageFit };
+	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url(/image?%s)", queries)) };
 }
 
 templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string) {
@@ -48,7 +49,7 @@ templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string)
 				}
 			</style>
 		</head>
-		<body class={ imageFit(requestConfig.ImageFit) } style={ templ.SafeCSS(fmt.Sprintf("background-image: url(/image?%s);", queries)) }>
+		<body class={ ReloadBody(requestConfig.ImageFit, queries) }>
 			{{ data := ReloadData{Queries: queries, Refresh: requestConfig.Refresh} }}
 			@templ.JSONScript("kiosk-data", data)
 			<script>
