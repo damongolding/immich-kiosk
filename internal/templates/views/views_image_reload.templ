@@ -1,13 +1,36 @@
 package views
 
 import "fmt"
+import "github.com/damongolding/immich-kiosk/internal/config"
 
-templ ImageWithReload(refresh int, queries string) {
+type ReloadData struct {
+	Queries string `json:"queries"`
+	Refresh int    `json:"refresh"`
+}
+
+css ReloadBody(imageFit, queries string) {
+	background-size: { imageFit };
+	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url(/image?%s)", queries)) };
+}
+
+templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta name="version" content={ kioskVersion }/>
+			<meta name="description" content="Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses Immich as a data source."/>
+			<meta name="mobile-web-app-capable" content="yes"/>
+			<meta name="apple-mobile-web-app-capable" content="yes"/>
+			<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+			<meta name="apple-mobile-web-app-status-bar" content="black-translucent"/>
+			<meta name="theme-color" content="black"/>
+			<title>Immich Kiosk</title>
+			<link rel="manifest" href="/assets/manifest.json"/>
+			<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png"/>
+			<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png"/>
+			<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png"/>
 			<style>
 				html, body {
                     width: 100%;
@@ -21,28 +44,41 @@ templ ImageWithReload(refresh int, queries string) {
 				}
 
 			    body {
-					background-size: cover;
 					background-position: center;
 					background-repeat: no-repeat;
 				}
 			</style>
 		</head>
-		<body style={ templ.SafeCSS(fmt.Sprintf("background-image: url(/image?%s);", queries)) }>
-			@templ.JSONScript("kiosk-data", refresh)
+		<body class={ ReloadBody(requestConfig.ImageFit, queries) }>
+			{{ data := ReloadData{Queries: queries, Refresh: requestConfig.Refresh} }}
+			@templ.JSONScript("kiosk-data", data)
 			<script>
-			    var rawData = document.getElementById('kiosk-data').textContent;
-				var refresh;
+
+				var kioskData;
+				var refresh = 60;
+				var queries = '';
+
+				var rawData = document.getElementById('kiosk-data').textContent;
+
 				try {
-				    refresh = JSON.parse(rawData);
-					if (!refresh || refresh < 1) refresh = 60;
+				    kioskData = JSON.parse(rawData);
+					if (kioskData.refresh && kioskData.refresh > 5) refresh = kioskData.refresh;
+					if (kioskData.queries) queries = kioskData.queries;
 				} catch (e) {
 				    console.error("Error parsing refresh interval:", e);
 					refresh = 60;
 				}
 
-			  setTimeout(function() {
-			    window.location.reload();
-			  }, refresh * 1000);
+				var bodyElement = document.body;
+
+			    function refreshImage() {
+                  var date = new Date();
+                  var separator = queries ? "&" : "";
+                  bodyElement.style.backgroundImage = "url(/image?" + queries + separator + "timestamp=" + date.getTime() + ")";
+
+			    }
+
+				setInterval(refreshImage, refresh * 1000);
 			</script>
 		</body>
 	</html>

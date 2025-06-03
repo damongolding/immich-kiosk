@@ -15,18 +15,18 @@
   "author": "Damon Golding",
   "license": "AGPL-3.0-only",
   "engine": {
-    "node": "20.17.0"
+    "node": "22.16.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
-    "browserslist": "^4.24.5",
+    "browserslist": "4.24.5",
     "date-fns": "^4.1.0",
     "esbuild": "^0.25.5",
-    "eslint": "^9.27.0",
+    "eslint": "^9.28.0",
     "eslint-plugin-compat": "^6.0.2",
     "globals": "^16.2.0",
     "htmx.org": "^2.0.4",
-    "postcss": "^8.5.3",
+    "postcss": "^8.5.4",
     "postcss-cli": "^11.0.1",
     "postcss-nested": "^7.0.2",
     "typescript": "^5.8.3"
