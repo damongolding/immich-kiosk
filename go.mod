@@ -3,7 +3,7 @@ module github.com/damongolding/immich-kiosk
 go 1.24.3
 
 require (
-	github.com/a-h/templ v0.3.865
+	github.com/a-h/templ v0.3.887
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/disintegration/imaging v1.6.2
