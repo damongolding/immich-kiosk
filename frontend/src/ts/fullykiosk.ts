@@ -93,6 +93,10 @@ class FullyKiosk {
     this.initScreensaverBrightness = this.fully.getStringSetting(
       this.screensaverBrightness,
     );
+    if (Number(this.initScreensaverBrightness) < 1) {
+      this.initScreensaverBrightness = "225";
+    }
+
     this.initScreensaverWallpaperURL = this.fully.getStringSetting(
       this.screensaverWallpaperURL,
     );
