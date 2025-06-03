@@ -34,6 +34,7 @@ class FullyKiosk {
   public readonly fully: FullyKioskBrowser | undefined;
 
   private readonly SCREENSAVER_DELAY_MS = 4 * 1000;
+  private readonly DEFAULT_MAX_BRIGHTNESS = "225";
 
   private readonly screensaverBrightness = "screensaverBrightness";
   private readonly screensaverWallpaperURL = "screensaverWallpaperURL";
@@ -47,7 +48,7 @@ class FullyKiosk {
 
   inSleepMode: boolean = false;
 
-  private constructor(debug: boolean = false) {
+  private constructor() {
     this.fully = window.fully;
   }
 
@@ -93,6 +94,10 @@ class FullyKiosk {
     this.initScreensaverBrightness = this.fully.getStringSetting(
       this.screensaverBrightness,
     );
+    if (Number(this.initScreensaverBrightness) < 1) {
+      this.initScreensaverBrightness = this.DEFAULT_MAX_BRIGHTNESS;
+    }
+
     this.initScreensaverWallpaperURL = this.fully.getStringSetting(
       this.screensaverWallpaperURL,
     );
