@@ -15,7 +15,7 @@
   "author": "Damon Golding",
   "license": "AGPL-3.0-only",
   "engine": {
-    "node": "20.17.0"
+    "node": "22.16.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",

@@ -1,5 +1,5 @@
 # Frontend Base Image
-FROM node:20-slim AS frontend-base
+FROM node:22-slim AS frontend-base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
