@@ -124,7 +124,6 @@ func main() {
 			},
 			KeyLookup: "header:Authorization,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
 			Validator: func(queryPassword string, _ echo.Context) (bool, error) {
-				log.Info(queryPassword)
 				return queryPassword == baseConfig.Kiosk.Password, nil
 			},
 			ErrorHandler: func(_ error, c echo.Context) error {
