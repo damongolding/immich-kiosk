@@ -72,9 +72,12 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 	}
 }
 
+// generateDeviceID generates a stable device identifier based on request-specific information.
+//
+// It uses the "kiosk-device-id" header if present, otherwise falls back to a combination of
+// the client's IP address and User-Agent. The identifier also incorporates normalized query
+// parameters. The resulting string is hashed using SHA-256 and returned as a hex string.
 func generateDeviceID(c echo.Context) string {
-
-	// 1. Extract query parameters and normalize
 	queryParams := c.QueryParams()
 	var parts []string
 	for key, values := range queryParams {
@@ -84,19 +87,15 @@ func generateDeviceID(c echo.Context) string {
 	sort.Strings(parts)
 	normalizedQuery := strings.Join(parts, "&")
 
-	// 2. Get device-specific info
 	deviceTag := c.Request().Header.Get("kiosk-device-id")
 	if deviceTag == "" {
-		// Fallback to IP + User-Agent
 		ip := c.RealIP()
 		userAgent := c.Request().UserAgent()
 		deviceTag = ip + "|" + userAgent
 	}
 
-	// 3. Combine device info + query params
 	idSource := deviceTag + "|" + normalizedQuery
 
-	// 4. Hash it to generate stable ID
 	hash := sha256.Sum256([]byte(idSource))
 	deviceID := hex.EncodeToString(hash[:])
 
