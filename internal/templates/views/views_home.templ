@@ -16,13 +16,13 @@ import (
 )
 
 // Home renders the Home layout template
-templ Home(viewData common.ViewData) {
+templ Home(viewData common.ViewData, secret string) {
 	<!DOCTYPE html>
 	<html lang="en" hx-request={ fmt.Sprintf("{\"timeout\":%d}", formatTimeout(viewData.Kiosk.HTTPTimeout)) }>
 		<head>
 			@partials.Head(viewData)
 		</head>
-		@partials.Body(viewData) {
+		@partials.Body(viewData, secret) {
 			<main
 				id="kiosk"
 				if viewData.UseOfflineMode && viewData.OfflineMode.Enabled {

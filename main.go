@@ -43,6 +43,7 @@ func init() {
 	routes.KioskVersion = version
 }
 
+// main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
 func main() {
 
 	fmt.Println(kioskBanner)
@@ -146,7 +147,7 @@ func main() {
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
 
-	e.GET("/", routes.Home(baseConfig))
+	e.GET("/", routes.Home(baseConfig, c))
 
 	e.GET("/about", routes.About(baseConfig))
 
@@ -186,7 +187,7 @@ func main() {
 
 	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode))
 
-	e.GET("/:redirect", routes.Redirect(baseConfig))
+	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 
 	for _, w := range baseConfig.WeatherLocations {
 		go weather.AddWeatherLocation(c.Context(), w)
