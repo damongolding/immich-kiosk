@@ -18,7 +18,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/weather"
 )
 
-// Home home endpoint
+// Home returns an HTTP handler for the home endpoint, initializing request data, applying custom CSS if available, and rendering the home view with device identification and configuration context.
 func Home(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 

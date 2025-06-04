@@ -21,7 +21,9 @@ import (
 // If the requested redirect name exists in the RedirectsMap, it redirects to the mapped URL.
 // Otherwise, it redirects to the root path "/".
 //
-// The function returns a temporary (307) redirect in both cases.
+// Redirect returns an Echo handler that processes redirect requests based on a configured map of redirect paths.
+// It manages redirect counts via cookies to prevent redirect loops, supports both internal and external redirects, and merges query parameters as needed.
+// If the redirect name is not found, it redirects to the root path. If the maximum number of redirects is exceeded, it returns HTTP 429.
 func Redirect(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
