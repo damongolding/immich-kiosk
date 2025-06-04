@@ -43,6 +43,7 @@ func init() {
 	routes.KioskVersion = version
 }
 
+// main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
 func main() {
 
 	fmt.Println(kioskBanner)
