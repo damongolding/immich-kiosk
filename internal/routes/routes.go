@@ -113,6 +113,10 @@ func RenderError(c echo.Context, err error, message string) error {
 	}))
 }
 
+func RenderUnauthorized(c echo.Context) error {
+	return Render(c, http.StatusUnauthorized, partials.Unauthorized())
+}
+
 func RenderMessage(c echo.Context, title, message string) error {
 	return Render(c, http.StatusOK, partials.Message(partials.MessageData{
 		Title:   title,
