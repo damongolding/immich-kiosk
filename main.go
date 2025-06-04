@@ -127,7 +127,7 @@ func main() {
 				return queryPassword == baseConfig.Kiosk.Password, nil
 			},
 			ErrorHandler: func(_ error, c echo.Context) error {
-				return c.String(http.StatusUnauthorized, "Unauthorized")
+				return routes.RenderUnauthorized(c)
 			},
 		}))
 	}
