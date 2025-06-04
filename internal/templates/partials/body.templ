@@ -31,13 +31,19 @@ func fadeDurationCSS(fadeDuration float32) string {
 func BodyAttributes(viewData common.ViewData, secret string) templ.Attributes {
 	headerStr := fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s", "X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.interaction.click"}`, viewData.KioskVersion, viewData.DeviceID, time.Now().Unix(), WebhookSignature(secret))
 
-	return templ.Attributes{
+	attr := templ.Attributes{
 		"hx-headers": headerStr,
-		"hx-post":    "/webhooks",
 		"hx-trigger": "click throttle:1s",
 		"hx-include": ".kiosk-history--entry",
 		"hx-vals":    "js:{...kiosk.clientData()}",
 	}
+
+	if len(viewData.Webhooks) > 0 {
+		attr["hx-post"] = "/webhooks"
+		attr["hx-trigger"] = "click throttle:0.5s"
+	}
+
+	return attr
 }
 
 // Body renders the <body> content
