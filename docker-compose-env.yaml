@@ -46,6 +46,7 @@ services:
       KIOSK_BACKGROUND_BLUR_AMOUNT: 10
       KIOSK_THEME: fade
       KIOSK_LAYOUT: single
+      KIOSK_SHOW_USER: false
       # Sleep mode
       # KIOSK_SLEEP_START: 22
       # KIOSK_SLEEP_END: 7
@@ -82,6 +83,8 @@ services:
       KIOSK_LIKE_BUTTON_ACTION: favorite
       KIOSK_HIDE_BUTTON_ACTION: tag
       # Kiosk settings
+      KIOSK_PORT: 3000
+      KIOSK_BEHIND_PROXY: false
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
       KIOSK_HTTP_TIMEOUT: 20
@@ -89,8 +92,6 @@ services:
       KIOSK_CACHE: true
       KIOSK_PREFETCH: true
       KIOSK_ASSET_WEIGHTING: true
-      KIOSK_PORT: 3000
-      KIOSK_SHOW_USER: false
     ports:
       - 3000:3000
     restart: always

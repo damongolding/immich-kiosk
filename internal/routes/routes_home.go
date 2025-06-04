@@ -1,8 +1,12 @@
 package routes
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"net/http"
 	"os"
+	"sort"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -58,7 +62,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 		viewData := common.ViewData{
 			KioskVersion: KioskVersion,
 			RequestID:    requestID,
-			DeviceID:     utils.GenerateUUID(),
+			DeviceID:     generateDeviceID(c),
 			Queries:      queryParams,
 			CustomCSS:    customCSS,
 			Config:       requestConfig,
@@ -66,6 +70,36 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 
 		return Render(c, http.StatusOK, views.Home(viewData))
 	}
+}
+
+// generateDeviceID generates a stable device identifier based on request-specific information.
+//
+// It uses the "kiosk-device-id" header if present, otherwise falls back to a combination of
+// the client's IP address and User-Agent. The identifier also incorporates normalized query
+// parameters. The resulting string is hashed using SHA-256 and returned as a hex string.
+func generateDeviceID(c echo.Context) string {
+	queryParams := c.QueryParams()
+	var parts []string
+	for key, values := range queryParams {
+		joined := strings.Join(values, ",")
+		parts = append(parts, key+"="+joined)
+	}
+	sort.Strings(parts)
+	normalizedQuery := strings.Join(parts, "&")
+
+	deviceTag := c.Request().Header.Get("kiosk-device-id")
+	if deviceTag == "" {
+		ip := c.RealIP()
+		userAgent := c.Request().UserAgent()
+		deviceTag = ip + "|" + userAgent
+	}
+
+	idSource := deviceTag + "|" + normalizedQuery
+
+	hash := sha256.Sum256([]byte(idSource))
+	deviceID := hex.EncodeToString(hash[:])
+
+	return deviceID
 }
 
 func loadCustomCSS() ([]byte, error) {

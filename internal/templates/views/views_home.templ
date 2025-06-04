@@ -15,69 +15,6 @@ import (
 	"strings"
 )
 
-func formatTimeout(timeout int) int {
-
-	if timeout <= 0 {
-		return 0
-	}
-
-	return timeout * 100 * 4
-}
-
-// isIframeUrl checks if iframeURL is a valid URL. If not, it tries to read it as a file path.
-// Returns:
-//   - true and the URL string if it is a valid URL
-//   - false and the file content (or empty string if read fails) otherwise
-func isIframeUrl(iframeURL string) (bool, string) {
-	u, err := url.ParseRequestURI(iframeURL)
-	if err == nil && u.Scheme != "" && u.Host != "" {
-		return true, u.String()
-	}
-
-	// Helper function to create error HTML
-	renderErrorHTML := func(title, message string) string {
-		var buf bytes.Buffer
-		d := partials.ErrorData{
-			Title:   title,
-			Message: message,
-		}
-		renderErr := partials.IframeError(d).Render(context.Background(), &buf)
-		if renderErr != nil {
-			log.Error("Rendering iFrame error", "err", renderErr)
-			return ""
-		}
-		return buf.String()
-	}
-
-	// Validate file extension
-	if !strings.HasSuffix(strings.ToLower(iframeURL), ".html") {
-		log.Warn("Non-HTML file requested for iframe", "path", iframeURL)
-		return false, renderErrorHTML("Error loading iframe content", "Non-HTML file requested for iframe: "+iframeURL)
-	}
-
-	// Prevent path traversal
-	cleanPath := filepath.Clean(iframeURL)
-	if strings.Contains(cleanPath, "..") {
-		log.Warn("Potential directory traversal attempt", "path", iframeURL)
-		return false, renderErrorHTML("Error loading iframe content", "Security Error: Invalid file path: "+iframeURL)
-	}
-
-	// Try reading it as a file
-	_, statErr := os.Stat(iframeURL)
-	if statErr != nil {
-		log.Error("Error accessing iframe file", "err", statErr)
-		return false, renderErrorHTML("Error loading iframe content", "Error accessing iframe file: "+iframeURL)
-	}
-
-	content, readErr := os.ReadFile(iframeURL)
-	if readErr != nil {
-		log.Error("Error reading iframe file", "err", readErr)
-		return false, renderErrorHTML("Error loading iframe content", "Error reading iframe file: "+iframeURL)
-	}
-
-	return false, string(content)
-}
-
 // Home renders the Home layout template
 templ Home(viewData common.ViewData) {
 	<!DOCTYPE html>
@@ -162,6 +99,69 @@ templ Home(viewData common.ViewData) {
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 		}
 	</html>
+}
+
+func formatTimeout(timeout int) int {
+
+	if timeout <= 0 {
+		return 0
+	}
+
+	return timeout * 100 * 4
+}
+
+// isIframeUrl checks if iframeURL is a valid URL. If not, it tries to read it as a file path.
+// Returns:
+//   - true and the URL string if it is a valid URL
+//   - false and the file content (or empty string if read fails) otherwise
+func isIframeUrl(iframeURL string) (bool, string) {
+	u, err := url.ParseRequestURI(iframeURL)
+	if err == nil && u.Scheme != "" && u.Host != "" {
+		return true, u.String()
+	}
+
+	// Helper function to create error HTML
+	renderErrorHTML := func(title, message string) string {
+		var buf bytes.Buffer
+		d := partials.ErrorData{
+			Title:   title,
+			Message: message,
+		}
+		renderErr := partials.IframeError(d).Render(context.Background(), &buf)
+		if renderErr != nil {
+			log.Error("Rendering iFrame error", "err", renderErr)
+			return ""
+		}
+		return buf.String()
+	}
+
+	// Validate file extension
+	if !strings.HasSuffix(strings.ToLower(iframeURL), ".html") {
+		log.Warn("Non-HTML file requested for iframe", "path", iframeURL)
+		return false, renderErrorHTML("Error loading iframe content", "Non-HTML file requested for iframe: "+iframeURL)
+	}
+
+	// Prevent path traversal
+	cleanPath := filepath.Clean(iframeURL)
+	if strings.Contains(cleanPath, "..") {
+		log.Warn("Potential directory traversal attempt", "path", iframeURL)
+		return false, renderErrorHTML("Error loading iframe content", "Security Error: Invalid file path: "+iframeURL)
+	}
+
+	// Try reading it as a file
+	_, statErr := os.Stat(iframeURL)
+	if statErr != nil {
+		log.Error("Error accessing iframe file", "err", statErr)
+		return false, renderErrorHTML("Error loading iframe content", "Error accessing iframe file: "+iframeURL)
+	}
+
+	content, readErr := os.ReadFile(iframeURL)
+	if readErr != nil {
+		log.Error("Error reading iframe file", "err", readErr)
+		return false, renderErrorHTML("Error loading iframe content", "Error reading iframe file: "+iframeURL)
+	}
+
+	return false, string(content)
 }
 
 // triggers returns a string of HTMX trigger events for the kiosk.

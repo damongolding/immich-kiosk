@@ -103,6 +103,11 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
+	if baseConfig.Kiosk.BehindProxy {
+		e.IPExtractor = echo.ExtractIPFromXFFHeader()
+	} else {
+		e.IPExtractor = echo.ExtractIPDirect()
+	}
 
 	// Middleware
 	e.Pre(middleware.RemoveTrailingSlash())
