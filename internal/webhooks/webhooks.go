@@ -24,6 +24,7 @@ const (
 	PreviousHistoryAsset          WebhookEvent = "asset.history.previous"
 	PrefetchAsset                 WebhookEvent = "asset.prefetch"
 	CacheFlush                    WebhookEvent = "cache.flush"
+	UserInteractionClick          WebhookEvent = "user.interaction.click"
 	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"
 	UserLikeInfoOverlay           WebhookEvent = "user.like.info_overlay"
 	UserUnlikeInfoOverlay         WebhookEvent = "user.unlike.info_overlay"

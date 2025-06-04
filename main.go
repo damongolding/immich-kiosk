@@ -146,7 +146,7 @@ func main() {
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
 
-	e.GET("/", routes.Home(baseConfig))
+	e.GET("/", routes.Home(baseConfig, c))
 
 	e.GET("/about", routes.About(baseConfig))
 
@@ -186,7 +186,7 @@ func main() {
 
 	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode))
 
-	e.GET("/:redirect", routes.Redirect(baseConfig))
+	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 
 	for _, w := range baseConfig.WeatherLocations {
 		go weather.AddWeatherLocation(c.Context(), w)

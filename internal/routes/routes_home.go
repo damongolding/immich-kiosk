@@ -19,7 +19,7 @@ import (
 )
 
 // Home home endpoint
-func Home(baseConfig *config.Config) echo.HandlerFunc {
+func Home(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		c.SetCookie(&http.Cookie{
@@ -68,7 +68,7 @@ func Home(baseConfig *config.Config) echo.HandlerFunc {
 			Config:       requestConfig,
 		}
 
-		return Render(c, http.StatusOK, views.Home(viewData))
+		return Render(c, http.StatusOK, views.Home(viewData, com.Secret()))
 	}
 }
 

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -21,7 +22,7 @@ import (
 // Otherwise, it redirects to the root path "/".
 //
 // The function returns a temporary (307) redirect in both cases.
-func Redirect(baseConfig *config.Config) echo.HandlerFunc {
+func Redirect(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 
@@ -94,7 +95,7 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 			newURL.RawQuery = queryParams.Encode()
 			c.Request().URL = newURL
 
-			return Home(baseConfig)(c)
+			return Home(baseConfig, com)(c)
 
 		}
 

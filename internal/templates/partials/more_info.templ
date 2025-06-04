@@ -58,7 +58,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 								hx-post="/webhooks"
 								hx-trigger="click throttle:2s"
 								hx-include=".kiosk-history--entry"
-								hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.webhook.trigger.info_overlay"}`, time.Now().Unix(), webhookSignature(secret)) }
+								hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.webhook.trigger.info_overlay"}`, time.Now().Unix(), WebhookSignature(secret)) }
 								hx-swap="textContent"
 							>
 								Trigger webhook
@@ -105,7 +105,7 @@ templ LikeButton(ID string, isLiked bool, liked bool, isButtonEnabled bool, secr
 		<div
 			hx-post="/webhooks"
 			hx-trigger="click from:closest .more-info--like-asset"
-			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), webhookSignature(secret), webhook) }
+			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), WebhookSignature(secret), webhook) }
 			hx-include=".kiosk-history--entry"
 			hx-swap="none"
 			style="display: none"
@@ -162,7 +162,7 @@ templ HideButton(ID string, isHidden bool, secret string) {
 		<div
 			hx-post="/webhooks"
 			hx-trigger="click from:closest .more-info--hide-asset"
-			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), webhookSignature(secret), webhook) }
+			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), WebhookSignature(secret), webhook) }
 			hx-include=".kiosk-history--entry"
 			hx-swap="none"
 			style="display: none"
@@ -372,11 +372,11 @@ func ImmichAssetUrl(baseUrl, externalUrl, imageID string) string {
 	}).String()
 }
 
-// webhookSignature generates a signature for webhook authentication.
+// WebhookSignature generates a signature for webhook authentication.
 // It combines the shared secret with the current Unix timestamp
 // to create a time-based signature for securing webhook requests.
 // Returns:
 //   - A string containing the calculated signature
-func webhookSignature(secret string) string {
+func WebhookSignature(secret string) string {
 	return utils.CalculateSignature(secret, strconv.FormatInt(time.Now().Unix(), 10))
 }
