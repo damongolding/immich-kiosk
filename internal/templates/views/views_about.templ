@@ -27,7 +27,7 @@ templ About(viewData common.ViewData) {
 		<head>
 			@partials.Head(viewData)
 		</head>
-		<body>
+		<body id="about">
 			<div class="about-container">
 				@Stats("kiosk", viewData.KioskVersion, true)
 				@Stats("immich", immichStats.Version, immichOnline)
