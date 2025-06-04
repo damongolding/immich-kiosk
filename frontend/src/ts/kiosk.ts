@@ -12,6 +12,7 @@ import {
   togglePolling,
   pausePolling,
   videoHandler,
+  triggerNewAsset,
 } from "./polling";
 import { preventSleep } from "./wakelock";
 import {
@@ -558,6 +559,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 export {
+  triggerNewAsset,
   cleanupFrames,
   startPolling,
   stopPolling,
