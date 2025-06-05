@@ -98,8 +98,10 @@ templ LikeButton(ID string, isLiked bool, liked bool, isButtonEnabled bool, secr
 	<button
 		if isLiked {
 			hx-post="/asset/unlike"
+			title="Unlike asset"
 		} else {
 			hx-post="/asset/like"
+			title="Like asset"
 		}
 		class={ "more-info--like-asset", templ.KV("is-liked", isLiked) }
 		hx-trigger="click throttle:2s"
@@ -158,11 +160,13 @@ templ HideButton(ID string, isHidden bool, isButtonEnabled bool, secret string) 
 		class={ "more-info--hide-asset", templ.KV("hidden", isHidden) }
 		if !isHidden {
 			hx-post="/asset/hide"
+			title="Hide asset"
 		} else {
 			hx-post="/asset/unhide"
+			title="Unhide asset"
 		}
 		hx-trigger="click throttle:2s"
-		hx-vals={ fmt.Sprintf("{\"assetID\": \"%s\", \"tagName\": \"%s\"}", ID, kiosk.TagSkip) }
+		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "tagName": "%s"}`, ID, kiosk.TagSkip) }
 		hx-swap="outerHTML"
 		disabled?={ !isButtonEnabled }
 	>
