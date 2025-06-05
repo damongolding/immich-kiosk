@@ -368,6 +368,7 @@ func (a *Asset) modifyTagAsset(tag Tag, assetID string, method string, action st
 
 	apiBody, resErr := a.immichAPICall(a.ctx, method, apiURL.String(), jsonBody)
 	if resErr != nil {
+		_, _, resErr = immichAPIFail(response, resErr, apiBody, apiURL.String())
 		log.Error("Failed to "+action+" tag to asset", "error", resErr)
 	}
 
