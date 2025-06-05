@@ -178,6 +178,12 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 				return err
 			}
 			pickedAsset.ID = pickedAlbumID
+		case kiosk.AlbumKeywordOwned:
+			pickedAlbumID, err := immichAsset.RandomAlbumFromOwnedAlbums(requestID, deviceID, excludedAlbums)
+			if err != nil {
+				return err
+			}
+			pickedAsset.ID = pickedAlbumID
 		case kiosk.AlbumKeywordShared:
 			pickedAlbumID, err := immichAsset.RandomAlbumFromSharedAlbums(requestID, deviceID, excludedAlbums)
 			if err != nil {
