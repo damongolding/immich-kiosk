@@ -188,18 +188,17 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		}
 
 		if res.StatusCode < 200 || res.StatusCode >= 300 {
-			log.Error("unexpected status code", "code", res.StatusCode)
 			responseBody, err = io.ReadAll(res.Body)
 			if err != nil {
 				log.Error("reading unexpected response body", "url", apiURL, "err", err)
 				return responseBody, err
 			}
 
-			if res.StatusCode == http.StatusUnauthorized {
-				return responseBody, errors.New("received 401 (unauthorised) code from Immich. Please check your Immich API is correct")
+			if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusForbidden {
+				return responseBody, fmt.Errorf("received %d (unauthorised) code from Immich. Please check your Immich API is correct", res.StatusCode)
 			}
 
-			return responseBody, err
+			return responseBody, fmt.Errorf("HTTP %d: unexpected status code", res.StatusCode)
 		}
 
 		responseBody, err = io.ReadAll(res.Body)
