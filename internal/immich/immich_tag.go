@@ -307,6 +307,7 @@ func (a *Asset) upsertTag(tag Tag) (Tag, error) {
 
 	apiBody, resErr := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
 	if resErr != nil {
+		_, _, resErr = immichAPIFail(response, resErr, apiBody, apiURL.String())
 		log.Error("Failed to add tag to asset", "error", resErr)
 		return createdTag, resErr
 	}
@@ -370,6 +371,7 @@ func (a *Asset) modifyTagAsset(tag Tag, assetID string, method string, action st
 	if resErr != nil {
 		_, _, resErr = immichAPIFail(response, resErr, apiBody, apiURL.String())
 		log.Error("Failed to "+action+" tag to asset", "error", resErr)
+		return resErr
 	}
 
 	err = json.Unmarshal(apiBody, &response)
