@@ -99,6 +99,28 @@ func (a *Asset) allSharedAlbums(requestID, deviceID string) (Albums, string, err
 
 // allAlbums retrieves all non-shared albums from Immich.
 func (a *Asset) allAlbums(requestID, deviceID string) (Albums, string, error) {
+	owned, _, ownedErr := a.albums(requestID, deviceID, false, "", false)
+	shared, _, sharedErr := a.albums(requestID, deviceID, true, "", false)
+	all := append(owned, shared...)
+
+	if ownedErr != nil {
+		log.Error("Error retrieving owned albums", "err", ownedErr)
+	}
+
+	if sharedErr != nil {
+		log.Error("Error retrieving shared albums", "err", sharedErr)
+	}
+
+	var albumNames []string
+	for _, album := range all {
+		albumNames = append(albumNames, album.AlbumName)
+	}
+
+	return all, "", nil
+}
+
+// allOwnedAlbums retrieves all non-shared albums from Immich.
+func (a *Asset) allOwnedAlbums(requestID, deviceID string) (Albums, string, error) {
 	return a.albums(requestID, deviceID, false, "", false)
 }
 
@@ -167,6 +189,13 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 	switch albumID {
 	case kiosk.AlbumKeywordAll:
 		albums, _, err := a.allAlbums(requestID, deviceID)
+		if err != nil {
+			return 0, fmt.Errorf("failed to get all albums: %w", err)
+		}
+		return countAssetsInAlbums(albums), nil
+
+	case kiosk.AlbumKeywordOwned:
+		albums, _, err := a.allOwnedAlbums(requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get all albums: %w", err)
 		}
@@ -335,6 +364,19 @@ func (a *Asset) RandomAlbumFromSharedAlbums(requestID, deviceID string, excluded
 // Returns an error if there are no available albums after exclusions or if the API call fails.
 func (a *Asset) RandomAlbumFromAllAlbums(requestID, deviceID string, excludedAlbums []string) (string, error) {
 	albums, _, err := a.allAlbums(requestID, deviceID)
+	if err != nil {
+		return "", err
+	}
+
+	return a.selectRandomAlbum(albums, excludedAlbums)
+}
+
+// RandomAlbumFromOwnedAlbums returns a random album ID from all albums.
+// It takes a requestID for API call tracking and a slice of excluded album IDs.
+// The selection is weighted based on the number of assets in each album.
+// Returns an error if there are no available albums after exclusions or if the API call fails.
+func (a *Asset) RandomAlbumFromOwnedAlbums(requestID, deviceID string, excludedAlbums []string) (string, error) {
+	albums, _, err := a.allOwnedAlbums(requestID, deviceID)
 	if err != nil {
 		return "", err
 	}

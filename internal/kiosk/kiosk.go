@@ -4,6 +4,7 @@ type Source string
 
 const (
 	AlbumKeywordAll        string = "all"
+	AlbumKeywordOwned      string = "owned"
 	AlbumKeywordShared     string = "shared"
 	AlbumKeywordFavourites string = "favourites"
 	AlbumKeywordFavorites  string = "favorites"
