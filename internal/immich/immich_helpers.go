@@ -159,6 +159,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 				log.Error("Request failed",
 					"attempt", attempts,
 					"URL", apiURL,
+					"method", method,
 					"operation", urlErr.Op,
 					"error_type", fmt.Sprintf("%T", urlErr.Err),
 					"error", urlErr.Err)
@@ -166,6 +167,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 				log.Error("Request failed",
 					"attempt", attempts,
 					"URL", apiURL,
+					"method", method,
 					"error_type", fmt.Sprintf("%T", resErr),
 					"error", resErr)
 			}
@@ -190,7 +192,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		if res.StatusCode < 200 || res.StatusCode >= 300 {
 			responseBody, err = io.ReadAll(res.Body)
 			if err != nil {
-				log.Error("reading unexpected response body", "url", apiURL, "err", err)
+				log.Error("reading unexpected response body", "method", method, "url", apiURL, "err", err)
 				return responseBody, err
 			}
 
@@ -203,7 +205,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 		responseBody, err = io.ReadAll(res.Body)
 		if err != nil {
-			log.Error("reading response body", "url", apiURL, "err", err)
+			log.Error("reading response body", "method", method, "url", apiURL, "err", err)
 			return responseBody, err
 		}
 
