@@ -195,7 +195,8 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 	case kiosk.AlbumKeywordOwned:
 		albums, albumsURL, err := a.allOwnedAlbums(requestID, deviceID)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get all albums (%s) err=%w", albumsURL, err)
+			return 0, fmt.Errorf("failed to get owned albums (%s) err=%w", albumsURL, err)
+
 		}
 		return countAssetsInAlbums(albums), nil
 
@@ -369,7 +370,7 @@ func (a *Asset) RandomAlbumFromAllAlbums(requestID, deviceID string, excludedAlb
 	return a.selectRandomAlbum(albums, excludedAlbums)
 }
 
-// RandomAlbumFromOwnedAlbums returns a random album ID from all albums.
+// RandomAlbumFromOwnedAlbums returns a random album ID from owned albums.
 // It takes a requestID for API call tracking and a slice of excluded album IDs.
 // The selection is weighted based on the number of assets in each album.
 // Returns an error if there are no available albums after exclusions or if the API call fails.
