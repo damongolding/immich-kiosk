@@ -90,6 +90,9 @@ func generateDeviceID(c echo.Context) string {
 	deviceTag := c.Request().Header.Get("kiosk-device-id")
 	if deviceTag == "" {
 		ip := c.RealIP()
+		if ip == "" {
+			ip = utils.GenerateUUID()
+		}
 		userAgent := c.Request().UserAgent()
 		deviceTag = ip + "|" + userAgent
 	}
