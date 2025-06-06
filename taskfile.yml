@@ -62,11 +62,14 @@ tasks:
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5
       - go mod tidy
 
-  outdated:
-    desc: Check for outdated dependencies
+  outdated-go:
+    desc: Check for outdated Go dependencies
     cmds:
-      - go list -u -m -json all | go tool go-mod-outdated -direct -update
-      - cd frontend && pnpm outdated
+      - (printf "MODULE\tCURRENT\tLATEST\n" && go list -u -m -json all | jq -r 'select(.Main or .Indirect | not) | select(.Update) | [.Path, .Version, .Update.Version] | @tsv') | column -t -s $'\t'
+
+  outdated:
+    desc: Check for outdated Go and frontend dependencies
+    deps: [outdated-go, frontend-outdated]
 
   openapi:
     desc: Generate OpenAPI specification

@@ -37,3 +37,9 @@ tasks:
     desc: Build JavaScript assets
     cmds:
       - pnpm js
+
+  frontend-outdated:
+    dir: ./frontend
+    desc: Check for outdated frontend dependencies
+    cmds:
+      - pnpm outdated || true
