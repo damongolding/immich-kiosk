@@ -97,7 +97,7 @@ func (a *Asset) allSharedAlbums(requestID, deviceID string) (Albums, string, err
 	return a.albums(requestID, deviceID, true, "", false)
 }
 
-// allAlbums retrieves all non-shared albums from Immich.
+// allAlbums retrieves all albums (owned and shared) from Immich.
 func (a *Asset) allAlbums(requestID, deviceID string) (Albums, string, error) {
 	owned, ownedURL, ownedErr := a.albums(requestID, deviceID, false, "", false)
 	shared, sharedURL, sharedErr := a.albums(requestID, deviceID, true, "", false)
