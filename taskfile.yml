@@ -65,10 +65,10 @@ tasks:
   outdated-go:
     desc: Check for outdated Go dependencies
     cmds:
-      - (echo -e "MODULE\tCURRENT\tLATEST" && go list -u -m -json all | jq -r 'select(.Main or .Indirect | not) | select(.Update) | [.Path, .Version, .Update.Version] | @tsv') | column -t -s $'\t'
+      - (printf "MODULE\tCURRENT\tLATEST\n" && go list -u -m -json all | jq -r 'select(.Main or .Indirect | not) | select(.Update) | [.Path, .Version, .Update.Version] | @tsv') | column -t -s $'\t'
 
   outdated:
-    desc: Check for outdated dependencies
+    desc: Check for outdated Go and frontend dependencies
     deps: [outdated-go, frontend-outdated]
 
   openapi:
