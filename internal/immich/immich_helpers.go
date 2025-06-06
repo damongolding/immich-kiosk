@@ -159,6 +159,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 				log.Error("Request failed",
 					"attempt", attempts,
 					"URL", apiURL,
+					"method", method,
 					"operation", urlErr.Op,
 					"error_type", fmt.Sprintf("%T", urlErr.Err),
 					"error", urlErr.Err)
@@ -166,6 +167,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 				log.Error("Request failed",
 					"attempt", attempts,
 					"URL", apiURL,
+					"method", method,
 					"error_type", fmt.Sprintf("%T", resErr),
 					"error", resErr)
 			}
@@ -188,20 +190,22 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		}
 
 		if res.StatusCode < 200 || res.StatusCode >= 300 {
-			err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
-			log.Error(err)
-			_, _ = io.Copy(io.Discard, res.Body)
-
-			if res.StatusCode == http.StatusUnauthorized {
-				err = errors.New("received 401 (unauthorised) code from Immich. Please check your Immich API is correct")
+			responseBody, err = io.ReadAll(res.Body)
+			if err != nil {
+				log.Error("reading unexpected response body", "method", method, "url", apiURL, "err", err)
+				return responseBody, err
 			}
 
-			return responseBody, err
+			if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusForbidden {
+				return responseBody, fmt.Errorf("received %d (unauthorised) code from Immich. Please check your Immich API is correct", res.StatusCode)
+			}
+
+			return responseBody, fmt.Errorf("HTTP %d: unexpected status code", res.StatusCode)
 		}
 
 		responseBody, err = io.ReadAll(res.Body)
 		if err != nil {
-			log.Error("reading response body", "url", apiURL, "err", err)
+			log.Error("reading response body", "method", method, "url", apiURL, "err", err)
 			return responseBody, err
 		}
 

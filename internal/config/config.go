@@ -84,6 +84,9 @@ type KioskSettings struct {
 	// Port which port to use
 	Port int `json:"port" mapstructure:"port" default:"3000"`
 
+	// BehindProxy specifies whether the kiosk is behind a proxy
+	BehindProxy bool `json:"behindProxy" mapstructure:"behind_proxy" default:"false"`
+
 	// WatchConfig if kiosk should watch config file for changes
 	WatchConfig bool `json:"watchConfig" mapstructure:"watch_config" default:"false"`
 
@@ -398,6 +401,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		envVar    string
 	}{
 		{"kiosk.port", "KIOSK_PORT"},
+		{"kiosk.behind_proxy", "KIOSK_BEHIND_PROXY"},
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
 		{"kiosk.fetched_assets_size", "KIOSK_FETCHED_ASSETS_SIZE"},
 		{"kiosk.http_timeout", "KIOSK_HTTP_TIMEOUT"},

@@ -132,6 +132,7 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 ## Options that can NOT be changed via url params
 kiosk:
   port: 3000
+  behind_proxy: false
   watch_config: false
   fetched_assets_size: 1000
   http_timeout: 20

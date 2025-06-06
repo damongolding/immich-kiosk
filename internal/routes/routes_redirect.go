@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -14,14 +15,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Redirect returns an echo.HandlerFunc that handles URL redirections based on configured redirect paths.
-// It takes a baseConfig parameter containing the application configuration including redirect mappings.
-//
-// If the requested redirect name exists in the RedirectsMap, it redirects to the mapped URL.
-// Otherwise, it redirects to the root path "/".
-//
-// The function returns a temporary (307) redirect in both cases.
-func Redirect(baseConfig *config.Config) echo.HandlerFunc {
+// Redirect returns an Echo handler that processes redirect requests based on a configured map of redirect paths.
+// It manages redirect counts via cookies to prevent redirect loops, supports both internal and external redirects, and merges query parameters as needed.
+// If the redirect name is not found, it redirects to the root path. If the maximum number of redirects is exceeded, it returns HTTP 429.
+func Redirect(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 
@@ -94,7 +91,7 @@ func Redirect(baseConfig *config.Config) echo.HandlerFunc {
 			newURL.RawQuery = queryParams.Encode()
 			c.Request().URL = newURL
 
-			return Home(baseConfig)(c)
+			return Home(baseConfig, com)(c)
 
 		}
 

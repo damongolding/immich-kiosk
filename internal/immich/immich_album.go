@@ -97,8 +97,28 @@ func (a *Asset) allSharedAlbums(requestID, deviceID string) (Albums, string, err
 	return a.albums(requestID, deviceID, true, "", false)
 }
 
-// allAlbums retrieves all non-shared albums from Immich.
+// allAlbums retrieves all albums (owned and shared) from Immich.
 func (a *Asset) allAlbums(requestID, deviceID string) (Albums, string, error) {
+	owned, ownedURL, ownedErr := a.albums(requestID, deviceID, false, "", false)
+	shared, sharedURL, sharedErr := a.albums(requestID, deviceID, true, "", false)
+	all := make(Albums, len(owned)+len(shared))
+	copy(all, owned)
+	copy(all[len(owned):], shared)
+
+	var err error
+	if ownedErr != nil {
+		err = errors.Join(err, ownedErr)
+	}
+
+	if sharedErr != nil {
+		err = errors.Join(err, sharedErr)
+	}
+
+	return all, ownedURL + " && " + sharedURL, err
+}
+
+// allOwnedAlbums retrieves all non-shared albums from Immich.
+func (a *Asset) allOwnedAlbums(requestID, deviceID string) (Albums, string, error) {
 	return a.albums(requestID, deviceID, false, "", false)
 }
 
@@ -166,16 +186,24 @@ func countAssetsInAlbums(albums Albums) int {
 func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int, error) {
 	switch albumID {
 	case kiosk.AlbumKeywordAll:
-		albums, _, err := a.allAlbums(requestID, deviceID)
+		albums, albumsURL, err := a.allAlbums(requestID, deviceID)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get all albums: %w", err)
+			return 0, fmt.Errorf("failed to get all albums (%s) err=%w", albumsURL, err)
+		}
+		return countAssetsInAlbums(albums), nil
+
+	case kiosk.AlbumKeywordOwned:
+		albums, albumsURL, err := a.allOwnedAlbums(requestID, deviceID)
+		if err != nil {
+			return 0, fmt.Errorf("failed to get owned albums (%s) err=%w", albumsURL, err)
+
 		}
 		return countAssetsInAlbums(albums), nil
 
 	case kiosk.AlbumKeywordShared:
-		albums, _, err := a.allSharedAlbums(requestID, deviceID)
+		albums, albumsURL, err := a.allSharedAlbums(requestID, deviceID)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get shared albums: %w", err)
+			return 0, fmt.Errorf("failed to get shared albums (%s) err=%w", albumsURL, err)
 		}
 		return countAssetsInAlbums(albums), nil
 
@@ -335,6 +363,19 @@ func (a *Asset) RandomAlbumFromSharedAlbums(requestID, deviceID string, excluded
 // Returns an error if there are no available albums after exclusions or if the API call fails.
 func (a *Asset) RandomAlbumFromAllAlbums(requestID, deviceID string, excludedAlbums []string) (string, error) {
 	albums, _, err := a.allAlbums(requestID, deviceID)
+	if err != nil {
+		return "", err
+	}
+
+	return a.selectRandomAlbum(albums, excludedAlbums)
+}
+
+// RandomAlbumFromOwnedAlbums returns a random album ID from owned albums.
+// It takes a requestID for API call tracking and a slice of excluded album IDs.
+// The selection is weighted based on the number of assets in each album.
+// Returns an error if there are no available albums after exclusions or if the API call fails.
+func (a *Asset) RandomAlbumFromOwnedAlbums(requestID, deviceID string, excludedAlbums []string) (string, error) {
+	albums, _, err := a.allOwnedAlbums(requestID, deviceID)
 	if err != nil {
 		return "", err
 	}

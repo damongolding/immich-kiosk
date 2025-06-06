@@ -17,6 +17,9 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// Webhooks returns an HTTP handler for processing incoming webhook requests to the kiosk.
+//
+// The handler validates request signatures, timestamps, and payloads, and processes supported webhook events such as user interactions. For relevant events, it retrieves asset information based on the request history and triggers asynchronous webhook actions. Returns appropriate HTTP responses for demo mode, invalid requests, or processing errors.
 func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -75,7 +78,9 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		}
 
 		switch webhooks.WebhookEvent(kioskWebhookEvent) {
-		case webhooks.UserWebhookTriggerInfoOverlay,
+		case
+			webhooks.UserInteractionClick,
+			webhooks.UserWebhookTriggerInfoOverlay,
 			webhooks.UserLikeInfoOverlay,
 			webhooks.UserUnlikeInfoOverlay,
 			webhooks.UserHideInfoOverlay,
@@ -132,7 +137,7 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			// Wait for all goroutines to complete and check for errors
 			errGroupWait := g.Wait()
 			if errGroupWait != nil {
-				return RenderError(c, errGroupWait, "retrieving image data")
+				return RenderError(c, errGroupWait, "retrieving image data", requestConfig.Refresh)
 			}
 
 			go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.WebhookEvent(kioskWebhookEvent), viewData)
