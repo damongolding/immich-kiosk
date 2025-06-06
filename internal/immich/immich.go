@@ -389,7 +389,8 @@ type APIResponse interface {
 		AlbumCreateResponse |
 		UpsertTagResponse |
 		UserResponse |
-		AllPeopleResponse
+		AllPeopleResponse |
+		[]byte
 }
 
 // New returns a new asset instance

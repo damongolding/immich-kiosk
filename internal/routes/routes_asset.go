@@ -398,7 +398,7 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		if baseConfig.Kiosk.DemoMode {
-			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, com.Secret()))
+			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, true, com.Secret()))
 		}
 
 		immichAsset := immich.New(com.Context(), requestConfig)
@@ -441,9 +441,9 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		if eg != nil {
-			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, com.Secret()))
+			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, true, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, partials.HideButton(assetID, hideAsset, com.Secret()))
+		return Render(c, http.StatusOK, partials.HideButton(assetID, hideAsset, true, com.Secret()))
 	}
 }
