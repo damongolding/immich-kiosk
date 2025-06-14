@@ -22,10 +22,8 @@ jobs:
       - name: Get dependencies
         run: go mod download
 
-      - name: Install templ and generate
-        run: |
-          go install github.com/a-h/templ/cmd/templ@latest
-          templ generate
+      - name: Run templ generate
+        run: go tool templ generate
 
       - name: Extract version from tag
         id: extract_version
