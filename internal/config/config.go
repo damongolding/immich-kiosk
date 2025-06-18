@@ -125,6 +125,13 @@ type WeatherLocation struct {
 	Default bool   `mapstructure:"default"`
 }
 
+type WeatherIPGeolocation struct {
+	Enabled bool   `mapstructure:"enabled" default:"false"`
+	API     string `mapstructure:"api"`
+	Unit    string `mapstructure:"unit"`
+	Lang    string `mapstructure:"lang"`
+}
+
 type Webhook struct {
 	URL    string `json:"url" mapstructure:"url"`
 	Event  string `json:"event" mapstructure:"event"`
@@ -340,6 +347,8 @@ type Config struct {
 	WeatherLocations []WeatherLocation `json:"weather" mapstructure:"weather" default:"[]"`
 	// HasWeatherDefault indicates whether any weather location has been set as the default.
 	HasWeatherDefault bool `json:"-" default:"false"`
+	// WeatherIPGeolocation automatically fetch weather based on the users IP
+	WeatherIPGeolocation WeatherIPGeolocation `json:"weather_ip_geolocation" mapstructure:"weather_ip_geolocation"`
 
 	Iframe []string `json:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:""`
 

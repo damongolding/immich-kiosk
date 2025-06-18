@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"net/http"
 	"strings"
 	"time"
@@ -23,6 +24,19 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 		if requestData == nil {
 			log.Info("Refreshing clients")
 			return nil
+		}
+		if baseConfig.WeatherIPGeolocation.Enabled {
+			ip := c.RealIP()
+			if (ip == "127.0.0.1" || ip == "::1") && baseConfig.Kiosk.Debug {
+				log.Info("Using test IP for localhost")
+				ip = "8.8.8.8" // Google DNS
+			}
+			weatherLocation, err := weather.GetWeatherByIP(context.Background(), ip, baseConfig.WeatherIPGeolocation.API, baseConfig.WeatherIPGeolocation.Unit, baseConfig.WeatherIPGeolocation.Lang)
+			if err != nil {
+				log.Error("failed to fetch weather data by IP", "error", err)
+				return c.NoContent(http.StatusNoContent)
+			}
+			return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation))
 		}
 
 		requestID := requestData.RequestID

@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -26,6 +27,23 @@ var (
 	defaultLocationMu sync.RWMutex
 	defaultLocation   string
 )
+
+type IPLocation struct {
+	Status      string  `json:"status"`
+	Country     string  `json:"country"`
+	CountryCode string  `json:"countryCode"`
+	Region      string  `json:"region"`
+	RegionName  string  `json:"regionName"`
+	City        string  `json:"city"`
+	Zip         string  `json:"zip"`
+	Lat         float64 `json:"lat"`
+	Lon         float64 `json:"lon"`
+	Timezone    string  `json:"timezone"`
+	Isp         string  `json:"isp"`
+	Org         string  `json:"org"`
+	As          string  `json:"as"`
+	Query       string  `json:"query"`
+}
 
 type Location struct {
 	Name string
@@ -177,11 +195,25 @@ func CurrentWeather(name string) Location {
 // Returns the updated WeatherLocation and any error that occurred.
 func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 
+	newWeather, err := getWeather(ctx, w.API, w.Lat, w.Lon, w.Unit, w.Lang)
+	if err != nil {
+		return *w, err
+	}
+	w.Weather = newWeather
+
+	return *w, nil
+}
+
+// getWeather fetches new weather data from the OpenWeatherMap API for this location.
+// Returns the updated WeatherLocation and any error that occurred.
+func getWeather(ctx context.Context, apiKey string, lat string, lon string, unit string, lang string) (Weather, error) {
+	var weather Weather
+
 	apiURL := url.URL{
 		Scheme:   "https",
 		Host:     "api.openweathermap.org",
 		Path:     "data/2.5/weather",
-		RawQuery: fmt.Sprintf("appid=%s&lat=%s&lon=%s&units=%s&lang=%s", w.API, w.Lat, w.Lon, w.Unit, w.Lang),
+		RawQuery: fmt.Sprintf("appid=%s&lat=%s&lon=%s&units=%s&lang=%s", apiKey, lat, lon, unit, lang),
 	}
 
 	client := &http.Client{
@@ -190,7 +222,7 @@ func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		log.Error(err)
-		return *w, err
+		return weather, err
 	}
 
 	req.Header.Add("Accept", "application/json")
@@ -207,7 +239,7 @@ func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 	}
 	if err != nil {
 		log.Error("Request failed after retries", "err", err)
-		return *w, err
+		return weather, err
 	}
 
 	defer res.Body.Close()
@@ -215,23 +247,75 @@ func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
 		log.Error(err)
-		return *w, err
+		return weather, err
 	}
 
 	responseBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Error("reading response body", "url", apiURL, "err", err)
-		return *w, err
+		return weather, err
 	}
 
-	var newWeather Weather
-
-	unmarshalErr := json.Unmarshal(responseBody, &newWeather)
+	unmarshalErr := json.Unmarshal(responseBody, &weather)
 	if unmarshalErr != nil {
-		log.Error("updateWeather", "err", unmarshalErr)
+		log.Error("getWeather", "err", unmarshalErr)
 	}
 
-	w.Weather = newWeather
+	return weather, nil
+}
 
-	return *w, nil
+func GetWeatherByIP(ctx context.Context, ip string, apiKey string, unit string, lang string) (Location, error) {
+	var location Location
+	// Use ip-api.com to get lat and lon from IP
+	apiURL := url.URL{
+		Scheme: "http",
+		Host:   "ip-api.com",
+		Path:   fmt.Sprintf("json/%s", ip),
+	}
+
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL.String(), nil)
+	if err != nil {
+		return location, err
+	}
+
+	req.Header.Add("Accept", "application/json")
+
+	res, err := client.Do(req)
+	if err != nil {
+		return location, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return location, fmt.Errorf("ip-api.com returned non-2xx status code: %d", res.StatusCode)
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return location, err
+	}
+
+	var ipLocation IPLocation
+	if err := json.Unmarshal(body, &ipLocation); err != nil {
+		return location, err
+	}
+
+	if ipLocation.Status != "success" {
+		return location, fmt.Errorf("ip-api.com query failed with status: %s", ipLocation.Status)
+	}
+
+	lat := strconv.FormatFloat(ipLocation.Lat, 'f', -1, 64)
+	lon := strconv.FormatFloat(ipLocation.Lon, 'f', -1, 64)
+
+	weather, err := getWeather(ctx, apiKey, lat, lon, unit, lang)
+	if err != nil {
+		return location, err
+	}
+	location.Weather = weather
+	location.Name = weather.Name
+
+	return location, nil
 }
