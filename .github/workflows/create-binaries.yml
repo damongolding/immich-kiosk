@@ -22,7 +22,7 @@ jobs:
           package_json_file: frontend/package.json
           run_install: |
             - recursive: true
-              args: [--prod, --frozen-lockfile]
+              args: [--frozen-lockfile]
 
       - name: Build frontend
         run: cd frontend && pnpm css && pnpm js
