@@ -327,6 +327,7 @@ type UpdateAssetBody struct {
 	LivePhotoVideoID string  `json:"livePhotoVideoId,omitempty"`
 	Longitude        float64 `json:"longitude,omitempty"`
 	Rating           int     `json:"rating,omitempty"`
+	Visibility       string  `json:"visibility,omitempty"`
 }
 
 // UserAvatarColor defines model for UserAvatarColor.
