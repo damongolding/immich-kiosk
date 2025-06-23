@@ -202,6 +202,8 @@ type Config struct {
 
 	// DisableNavigation remove navigation
 	DisableNavigation bool `json:"disableNavigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
+	// MenuPosition position of menu
+	MenuPosition string `json:"menuPosition" mapstructure:"menu_position" query:"menu_position" form:"menu_position" default:"top"`
 	// DisableUI a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
 	DisableUI bool `json:"disableUi" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames
@@ -289,6 +291,8 @@ type Config struct {
 
 	// ShowProgress display a progress bar
 	ShowProgress bool `json:"showProgress" mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
+	// ProgressPosition
+	ProgressPosition string `json:"progressPosition" mapstructure:"progress_position" query:"progress_position" form:"progress_position" default:"top"`
 	// CustomCSS use custom css file
 	CustomCSS bool `json:"customCSS" mapstructure:"custom_css" query:"custom_css" form:"custom_css" default:"true"`
 	// CustomCSSClass add a class to the body tag
