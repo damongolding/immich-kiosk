@@ -30,7 +30,15 @@ This can be found on the startup banner in the terminal, in the browser via the 
 - Binary
 
 **Your Kiosk ENV or config file**
-Please make sure to remove any sensitive data (such as the Immich API key and URL) before sharing your configuration. To view a sanitized version of your config, visit `/config` while either the `KIOSK_DEBUG` or `KIOSK_DEBUG_VERBOSE` environment variables are set to true, or set `debug` or `debug_verbose` to true in your config.yaml file.
+Please remove any sensitive data (e.g. Immich API key or URL) before sharing your configuration.
+
+To generate a sanitised copy automatically:
+
+1. Enable one of the following debug flags
+   • `KIOSK_DEBUG: true`
+   • `KIOSK_DEBUG_VERBOSE: true`
+   • `debug: true` **or** `debug_verbose: true` in `config.yaml`
+2. Navigate to `/config` in your browser – a redacted YAML version will be displayed.
 
 **Any parms passed to the URL used to access Kiosk**
 - http://****/?show_time=true&time_format=12
