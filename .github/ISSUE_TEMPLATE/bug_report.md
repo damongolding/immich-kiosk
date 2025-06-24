@@ -40,15 +40,15 @@ Please remove any sensitive data (e.g. Immich API key or URL) before sharing you
    - `debug: true` **or** `debug_verbose: true` in `config.yaml`
 2. Navigate to `/config` in your browser – a redacted YAML version will be displayed.
 
-### Any parms passed to the URL used to access Kiosk
+### Any params passed to the URL used to access Kiosk
 - http://****/?show_time=true&time_format=12
 
-### Desktop:
+### Desktop
  - OS: [e.g. iOS]
  - Browser [e.g. chrome, safari]
  - Version [e.g. 22]
 
-### Smartphone:
+### Smartphone
  - Device: [e.g. iPhone6]
  - OS: [e.g. iOS8.1]
  - Browser [e.g. stock browser, safari]
