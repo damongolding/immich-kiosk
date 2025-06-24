@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-templ Menu(showModeInfo bool, redirects []config.Redirect, queries url.Values, experimentalAlbumVideo bool) {
+templ Menu(menuPosition string, showModeInfo bool, redirects []config.Redirect, queries url.Values, experimentalAlbumVideo bool) {
 	<nav id="navigation-interaction-area">
 		<div
 			id="navigation-interaction-area--previous-asset"
@@ -22,14 +22,14 @@ templ Menu(showModeInfo bool, redirects []config.Redirect, queries url.Values, e
 			hx-on::after-request="kiosk.startPolling()"
 			hx-on::after-swap="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
 		></div>
-		<div id="navigation-interaction-area--menu"></div>
+		<div id="navigation-interaction-area--menu" class={ "navigation-interaction-area--menu-" + menuPosition }></div>
 		<div id="navigation-interaction-area--next-asset"></div>
 	</nav>
 	<div id="more-info" hx-swap-oob="true"></div>
 	if len(redirects) > 0 {
 		@Redirects(redirects, queries)
 	}
-	<nav class="navigation navigation-hidden">
+	<nav class={ "navigation navigation-hidden", "navigation-"+menuPosition }>
 		<div class="navigation--media-buttons rounded">
 			<div class="navigation--item navigation--prev-asset" title="Previous Asset">
 				<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">

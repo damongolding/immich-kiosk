@@ -1,8 +1,8 @@
 package partials
 
 // ProgressBar renders a progress indicator
-templ ProgressBar() {
-	<div class="progress">
+templ ProgressBar(position string) {
+	<div class={ "progress", "progress-"+position }>
 		<div class="progress--bar"></div>
 	</div>
 }

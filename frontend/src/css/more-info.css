@@ -42,6 +42,10 @@
 
             overflow: auto;
 
+            &.more-info--image-bottom {
+                padding: 3rem 3rem 6rem 3rem;
+            }
+
             .more-info--image--data {
                 display: flex;
                 width: fit-content;
