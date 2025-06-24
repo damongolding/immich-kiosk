@@ -29,8 +29,8 @@ templ About(viewData common.ViewData) {
 		</head>
 		<body id="about">
 			<div class="about-container">
-				@Stats("kiosk", viewData.KioskVersion, true)
-				@Stats("immich", immichStats.Version, immichOnline)
+				@Stats("kiosk", viewData.KioskVersion, true, viewData.Config)
+				@Stats("immich", immichStats.Version, immichOnline, viewData.Config)
 			</div>
 		</body>
 	</html>
@@ -40,7 +40,7 @@ css background(service string) {
 	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url('/assets/images/%s-logo.svg');", service)) };
 }
 
-templ Stats(service, version string, online bool) {
+templ Stats(service, version string, online bool, c config.Config) {
 	{{ tag, link := getLatestRelease(service, service) }}
 	<section class={ fmt.Sprintf("about-container--%s", service) }>
 		<div class={ fmt.Sprintf("about-container--%s--content", service) }>
@@ -93,6 +93,16 @@ templ Stats(service, version string, online bool) {
 							}
 						</div>
 					</div>
+					if service == "kiosk" && (c.Kiosk.Debug || c.Kiosk.DebugVerbose) {
+						<div>
+							<div class="label">
+								Configuration
+							</div>
+							<div class="value">
+								<a href="/config" class="btn btn-primary">View Configuration</a>
+							</div>
+						</div>
+					}
 				</div>
 			</div>
 		</div>

@@ -55,6 +55,7 @@ func main() {
 	c := common.New()
 
 	baseConfig := config.New()
+	baseConfig.Kiosk.Version = version
 
 	systemLang := monday.Locale(utils.SystemLanguage())
 	baseConfig.SystemLang = systemLang
@@ -146,6 +147,12 @@ func main() {
 
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
+
+	if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
+		e.GET("/config", func(c echo.Context) error {
+			return c.String(http.StatusOK, baseConfig.SanitizedYaml())
+		})
+	}
 
 	e.GET("/", routes.Home(baseConfig, c))
 
