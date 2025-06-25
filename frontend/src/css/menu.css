@@ -1,208 +1,208 @@
 /* --- menu hit box --- */
 #navigation-interaction-area {
-	position: absolute;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	display: flex;
-	justify-content: center;
-	width: 100%;
-	height: 100%;
-	z-index: var(--z-interaction);
-	background-color: transparent;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    z-index: var(--z-interaction);
+    background-color: transparent;
 }
 
 #navigation-interaction-area--previous-asset,
 #navigation-interaction-area--next-asset {
-	width: 50%;
-	height: 100%;
+    width: 50%;
+    height: 100%;
 }
 
 #navigation-interaction-area--menu {
-	position: absolute;
-	width: 50%;
-	height: 50%;
+    position: absolute;
+    width: 50%;
+    height: 50%;
 
-	&.navigation-interaction-area--menu-bottom {
-		bottom: 0;
-	}
+    &.navigation-interaction-area--menu-bottom {
+        bottom: 0;
+    }
 }
 
 /* --- menu --- */
 .navigation {
-	display: flex;
-	gap: 1.4rem;
-	position: absolute;
-	top: 1rem;
-	right: 50%;
-	transform: translateX(50%);
-	padding: 0.5rem;
-	background-color: rgba(0, 0, 0, 0.5);
-	border-radius: 40rem;
-	opacity: 1;
-	visibility: visible;
-	transition: opacity 0.5s ease;
-	will-change: opacity;
-	box-shadow:
-		rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem,
-		rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
-	z-index: var(--z-navigation);
+    display: flex;
+    gap: 1.4rem;
+    position: absolute;
+    top: 1rem;
+    right: 50%;
+    transform: translateX(50%);
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 40rem;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease;
+    will-change: opacity;
+    box-shadow:
+        rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem,
+        rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
+    z-index: var(--z-navigation);
 
-	&.navigation-bottom {
-		bottom: 1rem;
-		top: unset;
-	}
+    &.navigation-bottom {
+        bottom: 1rem;
+        top: unset;
+    }
 }
 
 .navigation--item {
-	width: 3.62rem;
-	height: 3.62rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
+    width: 3.62rem;
+    height: 3.62rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 
-	&:hover {
-		background-color: var(--mint-green);
-		svg {
-			fill: var(--cool-grey);
-		}
-	}
+    &:hover {
+        background-color: var(--mint-green);
+        svg {
+            fill: var(--cool-grey);
+        }
+    }
 }
 
 .navigation--item--separator {
-	border: 0.0625rem solid rgba(255, 255, 255, 0.2);
+    border: 0.0625rem solid rgba(255, 255, 255, 0.2);
 }
 
 .navigation-hidden {
-	transition-duration: 0s;
-	opacity: 0;
-	visibility: hidden;
+    transition-duration: 0s;
+    opacity: 0;
+    visibility: hidden;
 }
 
 .navigation svg {
-	fill: white;
-	width: 1.8rem;
-	height: 1.8rem;
+    fill: white;
+    width: 1.8rem;
+    height: 1.8rem;
 }
 
 .rounded {
-	border-radius: 40rem;
-	background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 40rem;
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
 .navigation--flush-cache svg {
-	fill: white;
+    fill: white;
 }
 
 /* nav fullscreen */
 .navigation--fullscreen--exit {
-	display: none;
-	visibility: hidden;
+    display: none;
+    visibility: hidden;
 }
 
 .navigation--fullscreen-enabled {
-	.navigation--fullscreen--exit {
-		display: inline;
-		visibility: visible;
-	}
+    .navigation--fullscreen--exit {
+        display: inline;
+        visibility: visible;
+    }
 
-	.navigation--fullscreen--enter {
-		display: none;
-		visibility: hidden;
-	}
+    .navigation--fullscreen--enter {
+        display: none;
+        visibility: hidden;
+    }
 }
 
 .navigation--more-info {
-	svg {
-		width: 1.5rem;
-		height: 1.5rem;
-	}
+    svg {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
 }
 
 .polling-paused {
-	&.more-info {
-		.navigation--more-info {
-			background-color: var(--mint-green);
-			svg {
-				fill: var(--cool-grey);
-			}
-		}
-	}
+    &.more-info {
+        .navigation--more-info {
+            background-color: var(--mint-green);
+            svg {
+                fill: var(--cool-grey);
+            }
+        }
+    }
 
-	&.redirects-open {
-		.navigation--links {
-			background-color: var(--mint-green);
-			svg {
-				fill: var(--cool-grey);
-			}
-		}
-	}
+    &.redirects-open {
+        .navigation--links {
+            background-color: var(--mint-green);
+            svg {
+                fill: var(--cool-grey);
+            }
+        }
+    }
 }
 
 /* nav controls */
 .navigation--media-buttons {
-	display: flex;
+    display: flex;
 }
 
 .navigation--media-buttons .navigation--item {
-	width: 4.62rem;
+    width: 4.62rem;
 }
 
 .navigation--play-pause--play {
-	display: none;
-	visibility: hidden;
+    display: none;
+    visibility: hidden;
 }
 
 .polling-paused {
-	.navigation--play-pause--play {
-		display: inline;
-		visibility: visible;
-	}
+    .navigation--play-pause--play {
+        display: inline;
+        visibility: visible;
+    }
 
-	.navigation--play-pause--pause {
-		display: none;
-		visibility: hidden;
-	}
+    .navigation--play-pause--pause {
+        display: none;
+        visibility: hidden;
+    }
 }
 
 .navigation--next-asset {
-	border-radius: 0 60rem 60rem 0;
+    border-radius: 0 60rem 60rem 0;
 }
 
 .navigation--prev-asset {
-	border-radius: 60rem 0 0 60rem;
+    border-radius: 60rem 0 0 60rem;
 }
 
 .navigation--next-asset.disabled,
 .navigation--prev-asset.disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-	pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .navigation--mute {
-	/* Show muted icon by default */
-	&.is-muted {
-		.icon-muted {
-			display: inline;
-			visibility: visible;
-		}
+    /* Show muted icon by default */
+    &.is-muted {
+        .icon-muted {
+            display: inline;
+            visibility: visible;
+        }
 
-		.icon-unmuted {
-			display: none;
-			visibility: hidden;
-		}
-	}
+        .icon-unmuted {
+            display: none;
+            visibility: hidden;
+        }
+    }
 
-	.icon-muted {
-		display: none;
-		visibility: hidden;
-	}
+    .icon-muted {
+        display: none;
+        visibility: hidden;
+    }
 
-	.icon-unmuted {
-		display: inline;
-		visibility: visible;
-	}
+    .icon-unmuted {
+        display: inline;
+        visibility: visible;
+    }
 }

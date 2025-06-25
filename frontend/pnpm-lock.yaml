@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      help:
+        specifier: ^3.0.2
+        version: 3.0.2
     devDependencies:
       '@biomejs/biome':
         specifier: 2.0.5
@@ -362,6 +366,9 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  help@3.0.2:
+    resolution: {integrity: sha512-jDd0MU+9xzvOQRC6CIzdjvb+agCvpzQY/Fp11quDnugDO4QQzh134EsLkRQMvFIJBleFkvnXagHFm4MTefkkpA==}
 
   htmx.org@2.0.5:
     resolution: {integrity: sha512-ocgvtHCShWFW0DvSV1NbJC7Y5EzUMy2eo5zeWvGj2Ac4LOr7sv9YKg4jzCZJdXN21fXACmCViwKSy+cm6i2dWQ==}
@@ -790,6 +797,8 @@ snapshots:
   globals@16.2.0: {}
 
   graceful-fs@4.2.11: {}
+
+  help@3.0.2: {}
 
   htmx.org@2.0.5: {}
 

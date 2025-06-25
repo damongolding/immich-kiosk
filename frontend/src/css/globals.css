@@ -1,52 +1,52 @@
 * {
-	box-sizing: border-box;
-	user-select: none;
+    box-sizing: border-box;
+    user-select: none;
 
-	text-rendering: optimizeLegibility;
+    text-rendering: optimizeLegibility;
 
-	font-smoothing: always;
-	-webkit-font-smoothing: subpixel-antialiased;
-	-moz-osx-font-smoothing: grayscale;
+    font-smoothing: always;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: grayscale;
 
-	&:focus {
-		outline: none;
-		border: none;
-		box-shadow: none;
-	}
+    &:focus {
+        outline: none;
+        border: none;
+        box-shadow: none;
+    }
 }
 
 html,
 body {
-	padding: 0;
-	margin: 0;
-	font-size: 100%; /* 16px */
-	font-family: "Barlow", Arial, Helvetica, sans-serif;
-	letter-spacing: 0.0625rem;
-	background-color: #000;
-	width: 100%;
-	width: 100vw;
-	min-width: 100%;
-	min-width: 100vw;
-	height: 100%;
-	height: 100vh;
-	min-height: 100%;
-	min-height: 100vh;
-	overflow: hidden;
+    padding: 0;
+    margin: 0;
+    font-size: 100%; /* 16px */
+    font-family: "Barlow", Arial, Helvetica, sans-serif;
+    letter-spacing: 0.0625rem;
+    background-color: #000;
+    width: 100%;
+    width: 100vw;
+    min-width: 100%;
+    min-width: 100vw;
+    height: 100%;
+    height: 100vh;
+    min-height: 100%;
+    min-height: 100vh;
+    overflow: hidden;
 }
 
 @media screen and (max-width: 31.25rem) {
-	html,
-	body {
-		font-size: 80%; /* 12px */
-	}
+    html,
+    body {
+        font-size: 80%; /* 12px */
+    }
 }
 
 form {
-	display: none;
+    display: none;
 }
 
 figure {
-	padding: 0;
-	margin: 0;
-	position: relative;
+    padding: 0;
+    margin: 0;
+    position: relative;
 }

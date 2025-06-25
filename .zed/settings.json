@@ -3,27 +3,32 @@
 // For a full list of overridable settings, and general information on folder-specific settings,
 // see the documentation: https://zed.dev/docs/configuring-zed#settings-files
 {
-	"lsp": {
-		"biome": {
-			"settings": {
-				"require_config_file": true,
-				"config_path": "./frontend/biome.json",
-				"root": false
-			}
-		}
-	},
-	"languages": {
-		"JavaScript": { "formatter": { "language_server": { "name": "biome" } } },
-		"TypeScript": { "formatter": { "language_server": { "name": "biome" } } },
-		"JSX": { "formatter": { "language_server": { "name": "biome" } } },
-		"TSX": { "formatter": { "language_server": { "name": "biome" } } },
-		"JSON": { "formatter": { "language_server": { "name": "biome" } } },
-		"JSONC": { "formatter": { "language_server": { "name": "biome" } } },
-		"CSS": { "formatter": { "language_server": { "name": "biome" } } },
-		"GraphQL": { "formatter": { "language_server": { "name": "biome" } } }
-	},
-	"code_actions_on_format": {
-		"source.organizeImports.biome": true,
-		"source.fixAll.biome": true
-	}
+  "languages": {
+    "JavaScript": {
+      "formatter": {
+        "external": {
+          "command": "biome",
+          "arguments": [
+            "check",
+            "--stdin-file-path",
+            "{buffer_path}",
+            "--write"
+          ]
+        }
+      }
+    },
+    "TypeScript": {
+      "formatter": {
+        "external": {
+          "command": "biome",
+          "arguments": [
+            "check",
+            "--stdin-file-path",
+            "{buffer_path}",
+            "--write"
+          ]
+        }
+      }
+    }
+  }
 }
