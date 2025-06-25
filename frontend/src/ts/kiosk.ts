@@ -1,26 +1,26 @@
 import htmx from "htmx.org";
 import {
-  addFullscreenEventListener,
-  fullscreenAPI,
-  toggleFullscreen,
+    addFullscreenEventListener,
+    fullscreenAPI,
+    toggleFullscreen,
 } from "./fullscreen";
 import {
-  initPolling,
-  startPolling,
-  resumePolling,
-  stopPolling,
-  togglePolling,
-  pausePolling,
-  videoHandler,
-  triggerNewAsset,
+    initPolling,
+    startPolling,
+    resumePolling,
+    stopPolling,
+    togglePolling,
+    pausePolling,
+    videoHandler,
+    triggerNewAsset,
 } from "./polling";
 import { preventSleep } from "./wakelock";
 import {
-  initMenu,
-  disableAssetNavigationButtons,
-  enableAssetNavigationButtons,
-  toggleAssetOverlay,
-  toggleRedirectsOverlay,
+    initMenu,
+    disableAssetNavigationButtons,
+    enableAssetNavigationButtons,
+    toggleAssetOverlay,
+    toggleRedirectsOverlay,
 } from "./menu";
 import { initClock } from "./clock";
 import type { TimeFormat } from "./clock";
@@ -31,15 +31,15 @@ import { sleepMode } from "./sleep";
 ("use strict");
 
 interface HTMXEvent extends Event {
-  preventDefault: () => void;
-  detail: {
-    successful: boolean;
-    parameters: FormData;
-    method: string;
-    pathInfo: {
-      requestPath: string;
+    preventDefault: () => void;
+    detail: {
+        successful: boolean;
+        parameters: FormData;
+        method: string;
+        pathInfo: {
+            requestPath: string;
+        };
     };
-  };
 }
 
 /**
@@ -54,23 +54,23 @@ interface HTMXEvent extends Event {
  * - Transition animations
  */
 type KioskData = {
-  debug: boolean;
-  debugVerbose: boolean;
-  version: string;
-  langCode: string;
-  params: Record<string, unknown>;
-  refresh: number;
-  disableNavigation: boolean;
-  disableScreensaver: boolean;
-  showDate: boolean;
-  dateFormat: string;
-  showTime: boolean;
-  timeFormat: TimeFormat;
-  clockSource: "client" | "server";
-  transition: string;
-  showMoreInfo: boolean;
-  showRedirects: boolean;
-  httpTimeout: number;
+    debug: boolean;
+    debugVerbose: boolean;
+    version: string;
+    langCode: string;
+    params: Record<string, unknown>;
+    refresh: number;
+    disableNavigation: boolean;
+    disableScreensaver: boolean;
+    showDate: boolean;
+    dateFormat: string;
+    showTime: boolean;
+    timeFormat: TimeFormat;
+    clockSource: "client" | "server";
+    transition: string;
+    showMoreInfo: boolean;
+    showRedirects: boolean;
+    httpTimeout: number;
 };
 
 const MAX_FRAMES: number = 2 as const;
@@ -80,7 +80,7 @@ const timeouts: Record<string, number> = {};
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
-  document.getElementById("kiosk-data")?.textContent || "{}",
+    document.getElementById("kiosk-data")?.textContent || "{}",
 );
 
 // Set polling interval based on the refresh rate in kiosk data
@@ -89,31 +89,31 @@ const pollInterval = htmx.parseInterval(`${kioskData.refresh}s`);
 // Cache DOM elements for better performance
 const documentBody = document.body;
 const fullscreenButton = htmx.find(
-  ".navigation--fullscreen",
+    ".navigation--fullscreen",
 ) as HTMLElement | null;
 const fullScreenButtonSeperator = htmx.find(
-  ".navigation--fullscreen-separator",
+    ".navigation--fullscreen-separator",
 ) as HTMLElement | null;
 const kiosk = htmx.find("#kiosk") as HTMLElement | null;
 const kioskQueries = htmx.findAll(".kiosk-param");
 const menu = htmx.find(".navigation") as HTMLElement | null;
 const menuInteraction = htmx.find(
-  "#navigation-interaction-area--menu",
+    "#navigation-interaction-area--menu",
 ) as HTMLElement | null;
 const menuPausePlayButton = htmx.find(
-  ".navigation--play-pause",
+    ".navigation--play-pause",
 ) as HTMLElement | null;
 const nextImageMenuButton = htmx.find(
-  ".navigation--next-asset",
+    ".navigation--next-asset",
 ) as HTMLElement | null;
 const prevImageMenuButton = htmx.find(
-  ".navigation--prev-asset",
+    ".navigation--prev-asset",
 ) as HTMLElement | null;
 const toggleMuteMenuButton = htmx.find(
-  ".navigation--mute",
+    ".navigation--mute",
 ) as HTMLElement | null;
 const moreInfoButton = htmx.find(
-  ".navigation--more-info",
+    ".navigation--more-info",
 ) as HTMLElement | null;
 const linksButton = htmx.find(".navigation--links") as HTMLElement | null;
 const offlineSVG = htmx.find("#offline") as HTMLElement | null;
@@ -134,69 +134,71 @@ let requestInFlight = false;
  * @returns {Promise<void>} Promise that resolves when initialization is complete
  */
 async function init(): Promise<void> {
-  if (kioskData.debugVerbose) {
-    htmx.logAll();
-  }
+    if (kioskData.debugVerbose) {
+        htmx.logAll();
+    }
 
-  const MILLISECONDS_PER_SECOND = 1000;
-  const TIMEOUT_GRACE_FACTOR = 3;
+    const MILLISECONDS_PER_SECOND = 1000;
+    const TIMEOUT_GRACE_FACTOR = 3;
 
-  if (kioskData.httpTimeout <= 0) {
-    htmx.config.timeout = 0;
-  } else {
-    htmx.config.timeout =
-      kioskData.httpTimeout * MILLISECONDS_PER_SECOND * TIMEOUT_GRACE_FACTOR;
-  }
+    if (kioskData.httpTimeout <= 0) {
+        htmx.config.timeout = 0;
+    } else {
+        htmx.config.timeout =
+            kioskData.httpTimeout *
+            MILLISECONDS_PER_SECOND *
+            TIMEOUT_GRACE_FACTOR;
+    }
 
-  if (
-    kioskData.clockSource == "client" &&
-    (kioskData.showDate || kioskData.showTime)
-  ) {
-    initClock(
-      kioskData.showDate,
-      kioskData.dateFormat,
-      kioskData.showTime,
-      kioskData.timeFormat,
-      kioskData.langCode,
+    if (
+        kioskData.clockSource == "client" &&
+        (kioskData.showDate || kioskData.showTime)
+    ) {
+        initClock(
+            kioskData.showDate,
+            kioskData.dateFormat,
+            kioskData.showTime,
+            kioskData.timeFormat,
+            kioskData.langCode,
+        );
+    }
+
+    if (kioskData.disableScreensaver) {
+        await preventSleep();
+    }
+
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/assets/js/sw.js").then(
+            () => {
+                console.log("ServiceWorker registration successful");
+            },
+            (err) => {
+                console.log("ServiceWorker registration failed: ", err);
+            },
+        );
+    }
+
+    if (!fullscreenAPI.requestFullscreen) {
+        fullscreenButton && htmx.remove(fullscreenButton);
+        fullScreenButtonSeperator && htmx.remove(fullScreenButtonSeperator);
+    }
+
+    if (pollInterval) {
+        initPolling(pollInterval, kiosk, menu);
+    } else {
+        console.error("Could not start polling");
+    }
+
+    initMenu(
+        kioskData.disableNavigation,
+        nextImageMenuButton as HTMLElement,
+        prevImageMenuButton as HTMLElement,
+        kioskData.showMoreInfo,
+        handleInfoKeyPress,
+        handleRedirectsKeyPress,
     );
-  }
 
-  if (kioskData.disableScreensaver) {
-    await preventSleep();
-  }
-
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/assets/js/sw.js").then(
-      () => {
-        console.log("ServiceWorker registration successful");
-      },
-      (err) => {
-        console.log("ServiceWorker registration failed: ", err);
-      },
-    );
-  }
-
-  if (!fullscreenAPI.requestFullscreen) {
-    fullscreenButton && htmx.remove(fullscreenButton);
-    fullScreenButtonSeperator && htmx.remove(fullScreenButtonSeperator);
-  }
-
-  if (pollInterval) {
-    initPolling(pollInterval, kiosk, menu);
-  } else {
-    console.error("Could not start polling");
-  }
-
-  initMenu(
-    kioskData.disableNavigation,
-    nextImageMenuButton as HTMLElement,
-    prevImageMenuButton as HTMLElement,
-    kioskData.showMoreInfo,
-    handleInfoKeyPress,
-    handleRedirectsKeyPress,
-  );
-
-  addEventListeners();
+    addEventListeners();
 }
 
 /**
@@ -205,7 +207,7 @@ async function init(): Promise<void> {
  * The button state is automatically updated based on fullscreen status
  */
 function handleFullscreenClick(): void {
-  toggleFullscreen(documentBody, fullscreenButton);
+    toggleFullscreen(documentBody, fullscreenButton);
 }
 
 /**
@@ -218,18 +220,18 @@ function handleFullscreenClick(): void {
  * - Toggling the overlay visibility
  */
 function handleOverlayToggle(overlayClass: string, toggleFn: () => void): void {
-  const isPollingPaused = document.body.classList.contains("polling-paused");
-  const isOverlayOpen = document.body.classList.contains(overlayClass);
+    const isPollingPaused = document.body.classList.contains("polling-paused");
+    const isOverlayOpen = document.body.classList.contains(overlayClass);
 
-  if (isPollingPaused && isOverlayOpen) {
-    togglePolling();
-    toggleFn();
-  } else {
-    if (!isPollingPaused) {
-      togglePolling();
+    if (isPollingPaused && isOverlayOpen) {
+        togglePolling();
+        toggleFn();
+    } else {
+        if (!isPollingPaused) {
+            togglePolling();
+        }
+        toggleFn();
     }
-    toggleFn();
-  }
 }
 
 /**
@@ -238,7 +240,7 @@ function handleOverlayToggle(overlayClass: string, toggleFn: () => void): void {
  * when 'i' key is pressed
  */
 function handleInfoKeyPress(): void {
-  handleOverlayToggle("more-info", toggleAssetOverlay);
+    handleOverlayToggle("more-info", toggleAssetOverlay);
 }
 
 /**
@@ -247,7 +249,7 @@ function handleInfoKeyPress(): void {
  * when 'r' key is pressed
  */
 function handleRedirectsKeyPress(): void {
-  handleOverlayToggle("redirects-open", toggleRedirectsOverlay);
+    handleOverlayToggle("redirects-open", toggleRedirectsOverlay);
 }
 
 /**
@@ -262,112 +264,112 @@ function handleRedirectsKeyPress(): void {
  * - Mute button handling
  */
 function addEventListeners(): void {
-  // Unable to send ajax. probably offline.
-  htmx.on("htmx:sendError", () => {
-    releaseRequestLock();
+    // Unable to send ajax. probably offline.
+    htmx.on("htmx:sendError", () => {
+        releaseRequestLock();
 
-    if (!offlineSVG) {
-      console.error("offline svg missing");
-      return;
-    }
-
-    htmx.addClass(offlineSVG, "offline");
-  });
-
-  // Server online check. Fires after every AJAX request.
-  htmx.on("htmx:afterRequest", (e: HTMXEvent) => {
-    if (!offlineSVG) {
-      console.error("offline svg missing");
-      return;
-    }
-
-    if (e.detail.successful) {
-      htmx.removeClass(offlineSVG, "offline");
-      timeouts[e.detail.pathInfo.requestPath] = 0;
-    } else {
-      htmx.addClass(offlineSVG, "offline");
-    }
-  });
-
-  htmx.on("htmx:timeout", (e: HTMXEvent) => {
-    let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
-
-    currentTimeout =
-      currentTimeout === undefined || isNaN(currentTimeout)
-        ? 1
-        : currentTimeout + 1;
-
-    timeouts[e.detail.pathInfo.requestPath] = currentTimeout;
-
-    if (currentTimeout > TIMEOUT_RETRIES) {
-      window.location.reload();
-    }
-  });
-
-  if (kioskData.disableNavigation) {
-    console.log("Navigation disabled");
-    return;
-  }
-
-  // Pause/resume polling and show/hide menu
-  menuInteraction?.addEventListener("click", () => togglePolling());
-  menuPausePlayButton?.addEventListener("click", () => togglePolling());
-
-  document.addEventListener("keydown", (e) => {
-    if (e.target !== document.body) return;
-
-    switch (e.code) {
-      case "KeyP":
-        if (!e.shiftKey) {
-          // Regular P
-          e.preventDefault();
-          pausePolling(true);
-        } else {
-          // Shift + P
-          e.preventDefault();
-          resumePolling(true);
+        if (!offlineSVG) {
+            console.error("offline svg missing");
+            return;
         }
-        break;
 
-      case "Space":
-        e.preventDefault();
-        togglePolling(true);
-        break;
+        htmx.addClass(offlineSVG, "offline");
+    });
 
-      case "KeyI":
-        if (!kioskData.showMoreInfo) return;
-        if (e.ctrlKey || e.metaKey) return;
-        e.preventDefault();
-        handleInfoKeyPress();
-        break;
+    // Server online check. Fires after every AJAX request.
+    htmx.on("htmx:afterRequest", (e: HTMXEvent) => {
+        if (!offlineSVG) {
+            console.error("offline svg missing");
+            return;
+        }
 
-      case "KeyR":
-        if (!kioskData.showRedirects) return;
-        if (e.ctrlKey || e.metaKey) return;
-        e.preventDefault();
-        handleRedirectsKeyPress();
-        break;
+        if (e.detail.successful) {
+            htmx.removeClass(offlineSVG, "offline");
+            timeouts[e.detail.pathInfo.requestPath] = 0;
+        } else {
+            htmx.addClass(offlineSVG, "offline");
+        }
+    });
 
-      case "KeyM":
-        if (!toggleMuteMenuButton) return;
-        e.preventDefault();
-        toggleMute();
-        break;
+    htmx.on("htmx:timeout", (e: HTMXEvent) => {
+        let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
+
+        currentTimeout =
+            currentTimeout === undefined || isNaN(currentTimeout)
+                ? 1
+                : currentTimeout + 1;
+
+        timeouts[e.detail.pathInfo.requestPath] = currentTimeout;
+
+        if (currentTimeout > TIMEOUT_RETRIES) {
+            window.location.reload();
+        }
+    });
+
+    if (kioskData.disableNavigation) {
+        console.log("Navigation disabled");
+        return;
     }
-  });
 
-  // Fullscreen
-  fullscreenButton?.addEventListener("click", handleFullscreenClick);
-  addFullscreenEventListener(fullscreenButton);
+    // Pause/resume polling and show/hide menu
+    menuInteraction?.addEventListener("click", () => togglePolling());
+    menuPausePlayButton?.addEventListener("click", () => togglePolling());
 
-  // Toggle mute
-  toggleMuteMenuButton?.addEventListener("click", toggleMute);
+    document.addEventListener("keydown", (e) => {
+        if (e.target !== document.body) return;
 
-  // More info overlay
-  moreInfoButton?.addEventListener("click", () => toggleAssetOverlay());
+        switch (e.code) {
+            case "KeyP":
+                if (!e.shiftKey) {
+                    // Regular P
+                    e.preventDefault();
+                    pausePolling(true);
+                } else {
+                    // Shift + P
+                    e.preventDefault();
+                    resumePolling(true);
+                }
+                break;
 
-  // Links overlay
-  linksButton?.addEventListener("click", () => toggleRedirectsOverlay());
+            case "Space":
+                e.preventDefault();
+                togglePolling(true);
+                break;
+
+            case "KeyI":
+                if (!kioskData.showMoreInfo) return;
+                if (e.ctrlKey || e.metaKey) return;
+                e.preventDefault();
+                handleInfoKeyPress();
+                break;
+
+            case "KeyR":
+                if (!kioskData.showRedirects) return;
+                if (e.ctrlKey || e.metaKey) return;
+                e.preventDefault();
+                handleRedirectsKeyPress();
+                break;
+
+            case "KeyM":
+                if (!toggleMuteMenuButton) return;
+                e.preventDefault();
+                toggleMute();
+                break;
+        }
+    });
+
+    // Fullscreen
+    fullscreenButton?.addEventListener("click", handleFullscreenClick);
+    addFullscreenEventListener(fullscreenButton);
+
+    // Toggle mute
+    toggleMuteMenuButton?.addEventListener("click", toggleMute);
+
+    // More info overlay
+    moreInfoButton?.addEventListener("click", () => toggleAssetOverlay());
+
+    // Links overlay
+    linksButton?.addEventListener("click", () => toggleRedirectsOverlay());
 }
 
 /**
@@ -383,24 +385,24 @@ function addEventListeners(): void {
  * @throws {Error} If frame removal operation fails
  */
 async function cleanupFrames(): Promise<void> {
-  const kioskScripts = htmx.findAll(kiosk as HTMLElement, "script");
-  if (kioskScripts?.length) {
-    kioskScripts.forEach((s) => htmx.remove(s, 1000));
-  }
-
-  const frames = htmx.findAll(".frame");
-  if (!frames?.length) {
-    console.debug("No frames found to clean up");
-    return;
-  }
-
-  if (frames.length > MAX_FRAMES) {
-    try {
-      htmx.remove(frames[0]);
-    } catch (error) {
-      console.error("Failed to remove frame:", error);
+    const kioskScripts = htmx.findAll(kiosk as HTMLElement, "script");
+    if (kioskScripts?.length) {
+        kioskScripts.forEach((s) => htmx.remove(s, 1000));
     }
-  }
+
+    const frames = htmx.findAll(".frame");
+    if (!frames?.length) {
+        console.debug("No frames found to clean up");
+        return;
+    }
+
+    if (frames.length > MAX_FRAMES) {
+        try {
+            htmx.remove(frames[0]);
+        } catch (error) {
+            console.error("Failed to remove frame:", error);
+        }
+    }
 }
 
 /**
@@ -414,16 +416,16 @@ async function cleanupFrames(): Promise<void> {
  * @throws {Error} If request lock is already set
  */
 function setRequestLock(e: HTMXEvent): void {
-  if (requestInFlight) {
-    e.preventDefault();
-    return;
-  }
+    if (requestInFlight) {
+        e.preventDefault();
+        return;
+    }
 
-  pausePolling(false);
+    pausePolling(false);
 
-  disableAssetNavigationButtons();
+    disableAssetNavigationButtons();
 
-  requestInFlight = true;
+    requestInFlight = true;
 }
 
 /**
@@ -434,9 +436,9 @@ function setRequestLock(e: HTMXEvent): void {
  * - Restores normal kiosk operation state
  */
 function releaseRequestLock(): void {
-  enableAssetNavigationButtons();
+    enableAssetNavigationButtons();
 
-  requestInFlight = false;
+    requestInFlight = false;
 }
 
 /**
@@ -448,19 +450,19 @@ function releaseRequestLock(): void {
  * - Sets request lock when navigation is permitted
  */
 function checkHistoryExists(e: HTMXEvent): void {
-  const historyItems = htmx.findAll(
-    ".kiosk-history--entry",
-  ) as NodeListOf<HTMLInputElement>;
-  if (
-    requestInFlight ||
-    historyItems.length < 2 ||
-    (historyItems.length > 0 && historyItems[0].value[0] === "*")
-  ) {
-    e.preventDefault();
-    return;
-  }
+    const historyItems = htmx.findAll(
+        ".kiosk-history--entry",
+    ) as NodeListOf<HTMLInputElement>;
+    if (
+        requestInFlight ||
+        historyItems.length < 2 ||
+        (historyItems.length > 0 && historyItems[0].value[0] === "*")
+    ) {
+        e.preventDefault();
+        return;
+    }
 
-  setRequestLock(e);
+    setRequestLock(e);
 }
 
 /**
@@ -470,13 +472,13 @@ function checkHistoryExists(e: HTMXEvent): void {
  * - client_height: Height of the browser viewport in pixels
  */
 type BrowserData = {
-  client_width: number;
-  client_height: number;
-  fully_version?: string;
-  fully_webview_version?: string;
-  fully_android_version?: string;
-  fully_screen_orientation?: number;
-  fully_screen_brightness?: number;
+    client_width: number;
+    client_height: number;
+    fully_version?: string;
+    fully_webview_version?: string;
+    fully_android_version?: string;
+    fully_screen_orientation?: number;
+    fully_screen_brightness?: number;
 };
 
 /**
@@ -487,20 +489,20 @@ type BrowserData = {
  * @returns An object containing the viewport width and height, and optionally Fully Kiosk Browser details.
  */
 function clientData(): BrowserData {
-  const data: BrowserData = {
-    client_width: fullyKiosk.getDisplayDimensions().width,
-    client_height: fullyKiosk.getDisplayDimensions().height,
-  };
+    const data: BrowserData = {
+        client_width: fullyKiosk.getDisplayDimensions().width,
+        client_height: fullyKiosk.getDisplayDimensions().height,
+    };
 
-  if (kioskData.debug && fullyKiosk.fully !== undefined) {
-    data.fully_version = fullyKiosk.fully.getFullyVersion();
-    data.fully_webview_version = fullyKiosk.fully.getWebviewVersion();
-    data.fully_android_version = fullyKiosk.fully.getAndroidVersion();
-    data.fully_screen_orientation = fullyKiosk.fully.getScreenOrientation();
-    data.fully_screen_brightness = fullyKiosk.fully.getScreenBrightness();
-  }
+    if (kioskData.debug && fullyKiosk.fully !== undefined) {
+        data.fully_version = fullyKiosk.fully.getFullyVersion();
+        data.fully_webview_version = fullyKiosk.fully.getWebviewVersion();
+        data.fully_android_version = fullyKiosk.fully.getAndroidVersion();
+        data.fully_screen_orientation = fullyKiosk.fully.getScreenOrientation();
+        data.fully_screen_brightness = fullyKiosk.fully.getScreenBrightness();
+    }
 
-  return data;
+    return data;
 }
 
 /**
@@ -515,58 +517,58 @@ function clientData(): BrowserData {
  * @description Prevents XSS attacks by encoding potentially dangerous characters
  */
 function sanitiseInput(value: string): string {
-  return value
-    .replace(/[<>]/g, "")
-    .replace(/[&]/g, "&amp;")
-    .replace(/["]/g, "&quot;")
-    .replace(/[']/g, "&#x27;")
-    .replace(/[`]/g, "&#x60;");
+    return value
+        .replace(/[<>]/g, "")
+        .replace(/[&]/g, "&amp;")
+        .replace(/["]/g, "&quot;")
+        .replace(/[']/g, "&#x27;")
+        .replace(/[`]/g, "&#x60;");
 }
 
 // Add kiosk query parameters to HTMX requests
 if (kioskQueries.length > 0) {
-  document.body.addEventListener("htmx:configRequest", (e: HTMXEvent) => {
-    if (!e.detail?.parameters) {
-      console.warn("Request parameters object not found");
-      return;
-    }
-
-    try {
-      kioskQueries.forEach((q: HTMLInputElement) => {
-        if (!(q instanceof HTMLInputElement)) {
-          console.warn(`Element ${q} is not an input`);
-          return;
+    document.body.addEventListener("htmx:configRequest", (e: HTMXEvent) => {
+        if (!e.detail?.parameters) {
+            console.warn("Request parameters object not found");
+            return;
         }
 
-        if (!q.name || !q.value) {
-          console.debug(`Skipping invalid input: ${q}`);
-          return;
+        try {
+            kioskQueries.forEach((q: HTMLInputElement) => {
+                if (!(q instanceof HTMLInputElement)) {
+                    console.warn(`Element ${q} is not an input`);
+                    return;
+                }
+
+                if (!q.name || !q.value) {
+                    console.debug(`Skipping invalid input: ${q}`);
+                    return;
+                }
+
+                const sanitizedValue = sanitiseInput(q.value);
+
+                e.detail.parameters.append(q.name, sanitizedValue);
+            });
+        } catch (error) {
+            console.error("Error processing parameters:", error);
         }
-
-        const sanitizedValue = sanitiseInput(q.value);
-
-        e.detail.parameters.append(q.name, sanitizedValue);
-      });
-    } catch (error) {
-      console.error("Error processing parameters:", error);
-    }
-  });
+    });
 }
 
 // Initialize Kiosk when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
-  init();
+    init();
 });
 
 export {
-  triggerNewAsset,
-  cleanupFrames,
-  startPolling,
-  stopPolling,
-  setRequestLock,
-  releaseRequestLock,
-  checkHistoryExists,
-  clientData,
-  videoHandler,
-  sleepMode,
+    triggerNewAsset,
+    cleanupFrames,
+    startPolling,
+    stopPolling,
+    setRequestLock,
+    releaseRequestLock,
+    checkHistoryExists,
+    clientData,
+    videoHandler,
+    sleepMode,
 };

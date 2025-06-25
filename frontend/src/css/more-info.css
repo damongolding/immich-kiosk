@@ -1,624 +1,624 @@
 #more-info {
-  display: none;
-  * {
-    user-select: text;
-  }
+    display: none;
+    * {
+        user-select: text;
+    }
 }
 
 .polling-paused.more-info {
-  .frame--image img,
-  .frame--background img,
-  .frame--video video {
-    filter: grayscale(1) blur(4px) brightness(0.4);
-  }
-
-  #more-info {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-    gap: 0.4rem;
-    padding: 0.4rem;
-
-    z-index: var(--z-overlay);
-
-    .more-info--image {
-      width: 100%;
-      height: 100%;
-      background-color: rgb(51 52 96 / 60%);
-
-      display: flex;
-      align-items: center;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 2rem;
-
-      padding: 6rem 3rem 3rem 3rem;
-      color: #fff;
-      border-radius: 0.74rem;
-
-      overflow: auto;
-
-      &.more-info--image-bottom {
-        padding: 3rem 3rem 6rem 3rem;
-      }
-
-      .more-info--image--data {
-        display: flex;
-        width: fit-content;
-        flex: 1;
-        flex-direction: column;
-        justify-content: center;
-        gap: 1rem;
-      }
-
-      h3 {
-        margin: 0.5rem 0;
-      }
-
-      .more-info--image--maps-link {
-        color: #fff;
-        text-decoration: none;
-
-        .responsive-break {
-          display: none;
-        }
-      }
-
-      .more-info--image--qr-code {
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        img {
-          width: 8rem;
-          border-radius: 0.5rem;
-        }
-      }
+    .frame--image img,
+    .frame--background img,
+    .frame--video video {
+        filter: grayscale(1) blur(4px) brightness(0.4);
     }
-  }
+
+    #more-info {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+        gap: 0.4rem;
+        padding: 0.4rem;
+
+        z-index: var(--z-overlay);
+
+        .more-info--image {
+            width: 100%;
+            height: 100%;
+            background-color: rgb(51 52 96 / 60%);
+
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 2rem;
+
+            padding: 6rem 3rem 3rem 3rem;
+            color: #fff;
+            border-radius: 0.74rem;
+
+            overflow: auto;
+
+            &.more-info--image-bottom {
+                padding: 3rem 3rem 6rem 3rem;
+            }
+
+            .more-info--image--data {
+                display: flex;
+                width: fit-content;
+                flex: 1;
+                flex-direction: column;
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            h3 {
+                margin: 0.5rem 0;
+            }
+
+            .more-info--image--maps-link {
+                color: #fff;
+                text-decoration: none;
+
+                .responsive-break {
+                    display: none;
+                }
+            }
+
+            .more-info--image--qr-code {
+                display: flex;
+                align-items: flex-end;
+                justify-content: center;
+                img {
+                    width: 8rem;
+                    border-radius: 0.5rem;
+                }
+            }
+        }
+    }
 }
 
 .polling-paused.more-info.layout-splitview-landscape {
-  #more-info {
-    flex-direction: column;
+    #more-info {
+        flex-direction: column;
 
-    .more-info--image {
-      flex-direction: row;
+        .more-info--image {
+            flex-direction: row;
+        }
     }
-  }
 }
 
 @media (orientation: portrait) {
-  .polling-paused.more-info {
-    #more-info {
-      flex-direction: column;
+    .polling-paused.more-info {
+        #more-info {
+            flex-direction: column;
 
-      .more-info--image {
-        flex-direction: row;
-      }
+            .more-info--image {
+                flex-direction: row;
+            }
+        }
     }
-  }
 }
 
 .more-info--button-group {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding-top: 1rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 1rem;
 }
 
 .more-info--tag-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .more-info--tag {
-  span {
-    padding: 0.5rem 1rem;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 100rem;
-    font-size: 0.8rem;
-  }
+    span {
+        padding: 0.5rem 1rem;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 100rem;
+        font-size: 0.8rem;
+    }
 }
 
 .more-info--like-asset,
 .more-info--hide-asset,
 .more-info--webhook,
 .more-info--image-link {
-  font-family: "Barlow", Arial, Helvetica, sans-serif;
-  background-color: var(--mint-green);
-  outline: none;
-  border: none;
-  color: var(--cool-grey);
-  font-weight: 600;
-  border-radius: 0.4rem;
-  padding: 0.5rem 2rem;
-  font-size: 1rem;
-  cursor: pointer;
-  text-decoration: none;
-  transition: filter 0.2s ease;
-  &:hover {
-    filter: brightness(85%);
-  }
+    font-family: "Barlow", Arial, Helvetica, sans-serif;
+    background-color: var(--mint-green);
+    outline: none;
+    border: none;
+    color: var(--cool-grey);
+    font-weight: 600;
+    border-radius: 0.4rem;
+    padding: 0.5rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: filter 0.2s ease;
+    &:hover {
+        filter: brightness(85%);
+    }
 }
 
 .more-info--hide-asset.hidden,
 .more-info--hide-asset:hover {
-  background-color: var(--red);
-  svg {
-    fill: #6c010f;
-  }
+    background-color: var(--red);
+    svg {
+        fill: #6c010f;
+    }
 }
 
 .more-info--like-asset:hover {
-  background-color: var(--pink);
-  svg {
-    fill: #63030f;
-  }
+    background-color: var(--pink);
+    svg {
+        fill: #63030f;
+    }
 }
 
 .more-info--like-asset {
-  position: relative;
+    position: relative;
 
-  &.is-liked {
-    background-color: var(--vibrant-pink);
-    animation: like-grow 750ms ease-in-out forwards;
-    svg {
-      fill: #63030f;
-      width: 13.94%;
-      height: 13.94%;
-      transform-origin: center;
-      animation: like-animation 1500ms linear forwards;
-      overflow: visible;
+    &.is-liked {
+        background-color: var(--vibrant-pink);
+        animation: like-grow 750ms ease-in-out forwards;
+        svg {
+            fill: #63030f;
+            width: 13.94%;
+            height: 13.94%;
+            transform-origin: center;
+            animation: like-animation 1500ms linear forwards;
+            overflow: visible;
+        }
     }
-  }
 
-  .liked {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-
-    div {
-      position: absolute;
-      width: 0.25rem;
-      height: 100%;
-      bottom: 50%;
-      left: 50%;
-
-      &:after {
-        content: "";
+    .liked {
         position: absolute;
         width: 100%;
-        height: 0%;
-        bottom: 0;
-        background-color: var(--vibrant-pink);
-        border-radius: 100rem;
-        animation: like-shine 0.5s linear forwards;
-      }
-      &:nth-child(1) {
-        transform: translate(-50%) rotate(0deg);
-        transform-origin: center bottom;
-      }
+        height: 100%;
+        z-index: -1;
 
-      &:nth-child(2) {
-        transform: translate(-50%) rotate(45deg);
-        transform-origin: center bottom;
-      }
+        div {
+            position: absolute;
+            width: 0.25rem;
+            height: 100%;
+            bottom: 50%;
+            left: 50%;
 
-      &:nth-child(3) {
-        transform: translate(-50%) rotate(90deg);
-        transform-origin: center bottom;
-      }
+            &:after {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 0%;
+                bottom: 0;
+                background-color: var(--vibrant-pink);
+                border-radius: 100rem;
+                animation: like-shine 0.5s linear forwards;
+            }
+            &:nth-child(1) {
+                transform: translate(-50%) rotate(0deg);
+                transform-origin: center bottom;
+            }
 
-      &:nth-child(4) {
-        transform: translate(-50%) rotate(135deg);
-        transform-origin: center bottom;
-      }
+            &:nth-child(2) {
+                transform: translate(-50%) rotate(45deg);
+                transform-origin: center bottom;
+            }
 
-      &:nth-child(5) {
-        transform: translate(-50%) rotate(180deg);
-        transform-origin: center bottom;
-      }
+            &:nth-child(3) {
+                transform: translate(-50%) rotate(90deg);
+                transform-origin: center bottom;
+            }
 
-      &:nth-child(6) {
-        transform: translate(-50%) rotate(225deg);
-        transform-origin: center bottom;
-      }
+            &:nth-child(4) {
+                transform: translate(-50%) rotate(135deg);
+                transform-origin: center bottom;
+            }
 
-      &:nth-child(7) {
-        transform: translate(-50%) rotate(270deg);
-        transform-origin: center bottom;
-      }
+            &:nth-child(5) {
+                transform: translate(-50%) rotate(180deg);
+                transform-origin: center bottom;
+            }
 
-      &:nth-child(8) {
-        transform: translate(-50%) rotate(315deg);
-        transform-origin: center bottom;
-      }
+            &:nth-child(6) {
+                transform: translate(-50%) rotate(225deg);
+                transform-origin: center bottom;
+            }
+
+            &:nth-child(7) {
+                transform: translate(-50%) rotate(270deg);
+                transform-origin: center bottom;
+            }
+
+            &:nth-child(8) {
+                transform: translate(-50%) rotate(315deg);
+                transform-origin: center bottom;
+            }
+        }
     }
-  }
 }
 
 @keyframes like-shine {
-  0% {
-    bottom: 60%;
-    height: 0;
-  }
+    0% {
+        bottom: 60%;
+        height: 0;
+    }
 
-  25% {
-    bottom: 60%;
-    height: 20%;
-  }
+    25% {
+        bottom: 60%;
+        height: 20%;
+    }
 
-  65% {
-    bottom: 70%;
-    height: 20%;
-  }
+    65% {
+        bottom: 70%;
+        height: 20%;
+    }
 
-  100% {
-    bottom: 100%;
-    height: 0;
-  }
+    100% {
+        bottom: 100%;
+        height: 0;
+    }
 }
 
 .more-info--like-asset,
 .more-info--hide-asset {
-  display: flex;
-  align-content: center;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 100rem;
-  background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 100rem;
+    background-color: rgba(0, 0, 0, 0.5);
 
-  svg {
-    height: 1.3rem;
-    fill: #fff;
-  }
+    svg {
+        height: 1.3rem;
+        fill: #fff;
+    }
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    filter: grayscale(1);
-  }
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        filter: grayscale(1);
+    }
 
-  span {
-    display: none;
-  }
+    span {
+        display: none;
+    }
 }
 
 /* .frameless */
 .frameless.more-info {
-  #more-info {
-    padding: 0;
-    .more-info--image {
-      border-radius: 0;
+    #more-info {
+        padding: 0;
+        .more-info--image {
+            border-radius: 0;
+        }
     }
-  }
 }
 
 @keyframes like-grow {
-  0% {
-    transform: scale(1);
-  }
+    0% {
+        transform: scale(1);
+    }
 
-  25% {
-    transform: scale(1.1);
-  }
+    25% {
+        transform: scale(1.1);
+    }
 
-  100% {
-    transform: scale(1);
-  }
+    100% {
+        transform: scale(1);
+    }
 }
 
 @keyframes like-animation {
-  0% {
-    transform: scale(1);
-  }
-  1% {
-    transform: scale(1.2108740964475049);
-  }
-  2% {
-    transform: scale(1.4390689854115075);
-  }
-  3% {
-    transform: scale(1.678167691045959);
-  }
-  4% {
-    transform: scale(1.9221360318547167);
-  }
-  5% {
-    transform: scale(2.1654122918198286);
-  }
-  6% {
-    transform: scale(2.402978484884046);
-  }
-  7% {
-    transform: scale(2.6304134751676433);
-  }
-  8% {
-    transform: scale(2.8439285694992313);
-  }
-  9% {
-    transform: scale(3.040386506448336);
-  }
-  10% {
-    transform: scale(3.2173050250697126);
-  }
-  11% {
-    transform: scale(3.3728464062162864);
-  }
-  12% {
-    transform: scale(3.505794539866897);
-  }
-  13% {
-    transform: scale(3.6155211847591624);
-  }
-  14% {
-    transform: scale(3.7019431539022585);
-  }
-  15% {
-    transform: scale(3.765472184198641);
-  }
-  16% {
-    transform: scale(3.8069592339693714);
-  }
-  17% {
-    transform: scale(3.8276349026761656);
-  }
-  18% {
-    transform: scale(3.8290475869360363);
-  }
-  19% {
-    transform: scale(3.813000880628535);
-  }
-  20% {
-    transform: scale(3.7814915992059572);
-  }
-  21% {
-    transform: scale(3.7366496639377917);
-  }
-  22% {
-    transform: scale(3.6806809253574744);
-  }
-  23% {
-    transform: scale(3.615813841051833);
-  }
-  24% {
-    transform: scale(3.544250755300671);
-  }
-  25% {
-    transform: scale(3.468124360772389);
-  }
-  26% {
-    transform: scale(3.389459758976075);
-  }
-  27% {
-    transform: scale(3.3101423795165985);
-  }
-  28% {
-    transform: scale(3.2318918710187186);
-  }
-  29% {
-    transform: scale(3.1562419410530844);
-  }
-  30% {
-    transform: scale(3.084526000235292);
-  }
-  31% {
-    transform: scale(3.0178683581592014);
-  }
-  32% {
-    transform: scale(2.9571806268199072);
-  }
-  33% {
-    transform: scale(2.903162911127388);
-  }
-  34% {
-    transform: scale(2.8563093060802625);
-  }
-  35% {
-    transform: scale(2.816917175890003);
-  }
-  36% {
-    transform: scale(2.7850996612456766);
-  }
-  37% {
-    transform: scale(2.760800846151463);
-  }
-  38% {
-    transform: scale(2.743813014297351);
-  }
-  39% {
-    transform: scale(2.733795435504021);
-  }
-  40% {
-    transform: scale(2.7302941440478534);
-  }
-  41% {
-    transform: scale(2.7327622011602313);
-  }
-  42% {
-    transform: scale(2.7405799721918878);
-  }
-  43% {
-    transform: scale(2.753074993306317);
-  }
-  44% {
-    transform: scale(2.769541051601073);
-  }
-  45% {
-    transform: scale(2.7892561547838755);
-  }
-  46% {
-    transform: scale(2.8114991205564888);
-  }
-  47% {
-    transform: scale(2.835564570383203);
-  }
-  48% {
-    transform: scale(2.860776166155733);
-  }
-  49% {
-    transform: scale(2.8864979803528863);
-  }
-  50% {
-    transform: scale(2.9121439397094564);
-  }
-  51% {
-    transform: scale(2.93718532837586);
-  }
-  52% {
-    transform: scale(2.9611563784357093);
-  }
-  53% {
-    transform: scale(2.983658012965878);
-  }
-  54% {
-    transform: scale(3.004359839227585);
-  }
-  55% {
-    transform: scale(3.023000516858011);
-  }
-  56% {
-    transform: scale(3.0393866480073117);
-  }
-  57% {
-    transform: scale(3.053390353269819);
-  }
-  58% {
-    transform: scale(3.064945709129413);
-  }
-  59% {
-    transform: scale(3.0740442297085337);
-  }
-  60% {
-    transform: scale(3.0807295781871398);
-  }
-  61% {
-    transform: scale(3.0850916917159275);
-  }
-  62% {
-    transform: scale(3.0872604984113563);
-  }
-  63% {
-    transform: scale(3.08739939654963);
-  }
-  64% {
-    transform: scale(3.0856986548574223);
-  }
-  65% {
-    transform: scale(3.0823688793248762);
-  }
-  66% {
-    transform: scale(3.0776346767372034);
-  }
-  67% {
-    transform: scale(3.0717286286204843);
-  }
-  68% {
-    transform: scale(3.0648856719908237);
-  }
-  69% {
-    transform: scale(3.0573379656222675);
-  }
-  70% {
-    transform: scale(3.049310302912009);
-  }
-  71% {
-    transform: scale(3.0410161151865607);
-  }
-  72% {
-    transform: scale(3.032654092781601);
-  }
-  73% {
-    transform: scale(3.024405435717262);
-  }
-  74% {
-    transform: scale(3.016431731508736);
-  }
-  75% {
-    transform: scale(3.0088734447806624);
-  }
-  76% {
-    transform: scale(3.0018489920276297);
-  }
-  77% {
-    transform: scale(2.9954543651718986);
-  }
-  78% {
-    transform: scale(2.9897632595600587);
-  }
-  79% {
-    transform: scale(2.9848276557201054);
-  }
-  80% {
-    transform: scale(2.9806787995407014);
-  }
-  81% {
-    transform: scale(2.977328522474523);
-  }
-  82% {
-    transform: scale(2.9747708418192795);
-  }
-  83% {
-    transform: scale(2.9729837809817354);
-  }
-  84% {
-    transform: scale(2.9719313507517775);
-  }
-  85% {
-    transform: scale(2.971565634860866);
-  }
-  86% {
-    transform: scale(2.9718289263181146);
-  }
-  87% {
-    transform: scale(2.9726558650479498);
-  }
-  88% {
-    transform: scale(2.9739755320343826);
-  }
-  89% {
-    transform: scale(2.975713460348617);
-  }
-  90% {
-    transform: scale(2.9777935289443036);
-  }
-  91% {
-    transform: scale(2.9801397108011347);
-  }
-  92% {
-    transform: scale(2.9826776527456884);
-  }
-  93% {
-    transform: scale(2.9853360699533464);
-  }
-  94% {
-    transform: scale(2.988047943625247);
-  }
-  95% {
-    transform: scale(2.990751515542267);
-  }
-  96% {
-    transform: scale(2.9933910780421313);
-  }
-  97% {
-    transform: scale(2.9959175623792387);
-  }
-  98% {
-    transform: scale(2.998288932358408);
-  }
-  99% {
-    transform: scale(3.0004703935472623);
-  }
-  100% {
-    transform: scale(3.0024344312452595);
-  }
+    0% {
+        transform: scale(1);
+    }
+    1% {
+        transform: scale(1.2108740964475049);
+    }
+    2% {
+        transform: scale(1.4390689854115075);
+    }
+    3% {
+        transform: scale(1.678167691045959);
+    }
+    4% {
+        transform: scale(1.9221360318547167);
+    }
+    5% {
+        transform: scale(2.1654122918198286);
+    }
+    6% {
+        transform: scale(2.402978484884046);
+    }
+    7% {
+        transform: scale(2.6304134751676433);
+    }
+    8% {
+        transform: scale(2.8439285694992313);
+    }
+    9% {
+        transform: scale(3.040386506448336);
+    }
+    10% {
+        transform: scale(3.2173050250697126);
+    }
+    11% {
+        transform: scale(3.3728464062162864);
+    }
+    12% {
+        transform: scale(3.505794539866897);
+    }
+    13% {
+        transform: scale(3.6155211847591624);
+    }
+    14% {
+        transform: scale(3.7019431539022585);
+    }
+    15% {
+        transform: scale(3.765472184198641);
+    }
+    16% {
+        transform: scale(3.8069592339693714);
+    }
+    17% {
+        transform: scale(3.8276349026761656);
+    }
+    18% {
+        transform: scale(3.8290475869360363);
+    }
+    19% {
+        transform: scale(3.813000880628535);
+    }
+    20% {
+        transform: scale(3.7814915992059572);
+    }
+    21% {
+        transform: scale(3.7366496639377917);
+    }
+    22% {
+        transform: scale(3.6806809253574744);
+    }
+    23% {
+        transform: scale(3.615813841051833);
+    }
+    24% {
+        transform: scale(3.544250755300671);
+    }
+    25% {
+        transform: scale(3.468124360772389);
+    }
+    26% {
+        transform: scale(3.389459758976075);
+    }
+    27% {
+        transform: scale(3.3101423795165985);
+    }
+    28% {
+        transform: scale(3.2318918710187186);
+    }
+    29% {
+        transform: scale(3.1562419410530844);
+    }
+    30% {
+        transform: scale(3.084526000235292);
+    }
+    31% {
+        transform: scale(3.0178683581592014);
+    }
+    32% {
+        transform: scale(2.9571806268199072);
+    }
+    33% {
+        transform: scale(2.903162911127388);
+    }
+    34% {
+        transform: scale(2.8563093060802625);
+    }
+    35% {
+        transform: scale(2.816917175890003);
+    }
+    36% {
+        transform: scale(2.7850996612456766);
+    }
+    37% {
+        transform: scale(2.760800846151463);
+    }
+    38% {
+        transform: scale(2.743813014297351);
+    }
+    39% {
+        transform: scale(2.733795435504021);
+    }
+    40% {
+        transform: scale(2.7302941440478534);
+    }
+    41% {
+        transform: scale(2.7327622011602313);
+    }
+    42% {
+        transform: scale(2.7405799721918878);
+    }
+    43% {
+        transform: scale(2.753074993306317);
+    }
+    44% {
+        transform: scale(2.769541051601073);
+    }
+    45% {
+        transform: scale(2.7892561547838755);
+    }
+    46% {
+        transform: scale(2.8114991205564888);
+    }
+    47% {
+        transform: scale(2.835564570383203);
+    }
+    48% {
+        transform: scale(2.860776166155733);
+    }
+    49% {
+        transform: scale(2.8864979803528863);
+    }
+    50% {
+        transform: scale(2.9121439397094564);
+    }
+    51% {
+        transform: scale(2.93718532837586);
+    }
+    52% {
+        transform: scale(2.9611563784357093);
+    }
+    53% {
+        transform: scale(2.983658012965878);
+    }
+    54% {
+        transform: scale(3.004359839227585);
+    }
+    55% {
+        transform: scale(3.023000516858011);
+    }
+    56% {
+        transform: scale(3.0393866480073117);
+    }
+    57% {
+        transform: scale(3.053390353269819);
+    }
+    58% {
+        transform: scale(3.064945709129413);
+    }
+    59% {
+        transform: scale(3.0740442297085337);
+    }
+    60% {
+        transform: scale(3.0807295781871398);
+    }
+    61% {
+        transform: scale(3.0850916917159275);
+    }
+    62% {
+        transform: scale(3.0872604984113563);
+    }
+    63% {
+        transform: scale(3.08739939654963);
+    }
+    64% {
+        transform: scale(3.0856986548574223);
+    }
+    65% {
+        transform: scale(3.0823688793248762);
+    }
+    66% {
+        transform: scale(3.0776346767372034);
+    }
+    67% {
+        transform: scale(3.0717286286204843);
+    }
+    68% {
+        transform: scale(3.0648856719908237);
+    }
+    69% {
+        transform: scale(3.0573379656222675);
+    }
+    70% {
+        transform: scale(3.049310302912009);
+    }
+    71% {
+        transform: scale(3.0410161151865607);
+    }
+    72% {
+        transform: scale(3.032654092781601);
+    }
+    73% {
+        transform: scale(3.024405435717262);
+    }
+    74% {
+        transform: scale(3.016431731508736);
+    }
+    75% {
+        transform: scale(3.0088734447806624);
+    }
+    76% {
+        transform: scale(3.0018489920276297);
+    }
+    77% {
+        transform: scale(2.9954543651718986);
+    }
+    78% {
+        transform: scale(2.9897632595600587);
+    }
+    79% {
+        transform: scale(2.9848276557201054);
+    }
+    80% {
+        transform: scale(2.9806787995407014);
+    }
+    81% {
+        transform: scale(2.977328522474523);
+    }
+    82% {
+        transform: scale(2.9747708418192795);
+    }
+    83% {
+        transform: scale(2.9729837809817354);
+    }
+    84% {
+        transform: scale(2.9719313507517775);
+    }
+    85% {
+        transform: scale(2.971565634860866);
+    }
+    86% {
+        transform: scale(2.9718289263181146);
+    }
+    87% {
+        transform: scale(2.9726558650479498);
+    }
+    88% {
+        transform: scale(2.9739755320343826);
+    }
+    89% {
+        transform: scale(2.975713460348617);
+    }
+    90% {
+        transform: scale(2.9777935289443036);
+    }
+    91% {
+        transform: scale(2.9801397108011347);
+    }
+    92% {
+        transform: scale(2.9826776527456884);
+    }
+    93% {
+        transform: scale(2.9853360699533464);
+    }
+    94% {
+        transform: scale(2.988047943625247);
+    }
+    95% {
+        transform: scale(2.990751515542267);
+    }
+    96% {
+        transform: scale(2.9933910780421313);
+    }
+    97% {
+        transform: scale(2.9959175623792387);
+    }
+    98% {
+        transform: scale(2.998288932358408);
+    }
+    99% {
+        transform: scale(3.0004703935472623);
+    }
+    100% {
+        transform: scale(3.0024344312452595);
+    }
 }

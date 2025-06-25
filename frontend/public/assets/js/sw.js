@@ -1,17 +1,17 @@
 var staticCacheName = "immich-kiosk";
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(
-    caches.open(staticCacheName).then((cache) => cache.addAll(["/"])),
-  );
+    e.waitUntil(
+        caches.open(staticCacheName).then((cache) => cache.addAll(["/"])),
+    );
 });
 
 self.addEventListener("fetch", (event) => {
-  console.log(event.request.url);
+    console.log(event.request.url);
 
-  event.respondWith(
-    caches
-      .match(event.request)
-      .then((response) => response || fetch(event.request)),
-  );
+    event.respondWith(
+        caches
+            .match(event.request)
+            .then((response) => response || fetch(event.request)),
+    );
 });
