@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      help:
-        specifier: ^3.0.2
-        version: 3.0.2
     devDependencies:
       '@biomejs/biome':
         specifier: 2.0.5
@@ -24,6 +20,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      dompurify:
+        specifier: ^3.2.6
+        version: 3.2.6
       esbuild:
         specifier: ^0.25.5
         version: 0.25.5
@@ -251,6 +250,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@types/trusted-types@2.0.7':
+    resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
+
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
@@ -313,6 +315,9 @@ packages:
     resolution: {integrity: sha512-cW3gggJ28HZ/LExwxP2B++aiKxhJXMSIt9K48FOXQkm+vuG5gyatXnLsONRJdzO/7VfjDIiaOOa/bs4l464Lwg==}
     engines: {node: '>=4'}
 
+  dompurify@3.2.6:
+    resolution: {integrity: sha512-/2GogDQlohXPZe6D6NOgQvXLPSYBqIWMnZ8zzOhn09REE4eyAzb+Hed3jhoM9OkuaJ8P6ZGTTVWQKAi8ieIzfQ==}
+
   electron-to-chromium@1.5.173:
     resolution: {integrity: sha512-2bFhXP2zqSfQHugjqJIDFVwa+qIxyNApenmXTp9EjaKtdPrES5Qcn9/aSFy/NaP2E+fWG/zxKu/LBvY36p5VNQ==}
 
@@ -366,9 +371,6 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
-
-  help@3.0.2:
-    resolution: {integrity: sha512-jDd0MU+9xzvOQRC6CIzdjvb+agCvpzQY/Fp11quDnugDO4QQzh134EsLkRQMvFIJBleFkvnXagHFm4MTefkkpA==}
 
   htmx.org@2.0.5:
     resolution: {integrity: sha512-ocgvtHCShWFW0DvSV1NbJC7Y5EzUMy2eo5zeWvGj2Ac4LOr7sv9YKg4jzCZJdXN21fXACmCViwKSy+cm6i2dWQ==}
@@ -669,6 +671,9 @@ snapshots:
   '@esbuild/win32-x64@0.25.5':
     optional: true
 
+  '@types/trusted-types@2.0.7':
+    optional: true
+
   ansi-regex@5.0.1: {}
 
   ansi-styles@4.3.0:
@@ -735,6 +740,10 @@ snapshots:
 
   dependency-graph@1.0.0: {}
 
+  dompurify@3.2.6:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
+
   electron-to-chromium@1.5.173: {}
 
   emoji-regex@8.0.0: {}
@@ -797,8 +806,6 @@ snapshots:
   globals@16.2.0: {}
 
   graceful-fs@4.2.11: {}
-
-  help@3.0.2: {}
 
   htmx.org@2.0.5: {}
 

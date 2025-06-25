@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import htmx from "htmx.org";
 import type { TimeFormat } from "./clock";
 import { initClock } from "./clock";
@@ -505,26 +506,6 @@ function clientData(): BrowserData {
     return data;
 }
 
-/**
- * Sanitizes input string by escaping special characters
- * @param {string} value The input string to sanitize
- * @returns {string} Sanitized string with HTML special characters escaped:
- * - < and > removed entirely
- * - & encoded as &amp;
- * - " encoded as &quot;
- * - ' encoded as &#x27;
- * - ` encoded as &#x60;
- * @description Prevents XSS attacks by encoding potentially dangerous characters
- */
-function sanitiseInput(value: string): string {
-    return value
-        .replace(/[<>]/g, "")
-        .replace(/[&]/g, "&amp;")
-        .replace(/["]/g, "&quot;")
-        .replace(/[']/g, "&#x27;")
-        .replace(/[`]/g, "&#x60;");
-}
-
 // Add kiosk query parameters to HTMX requests
 if (kioskQueries.length > 0) {
     document.body.addEventListener("htmx:configRequest", (e: HTMXEvent) => {
@@ -545,7 +526,7 @@ if (kioskQueries.length > 0) {
                     return;
                 }
 
-                const sanitizedValue = sanitiseInput(q.value);
+                const sanitizedValue = DOMPurify.sanitize(q.value);
 
                 e.detail.parameters.append(q.name, sanitizedValue);
             });
