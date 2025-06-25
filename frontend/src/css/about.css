@@ -1,141 +1,141 @@
 body#about {
-    overflow: auto;
+	overflow: auto;
 }
 
 .about-container {
-    display: flex;
-    align-items: center;
-    min-height: 100vh;
-    width: 100vw;
+	display: flex;
+	align-items: center;
+	min-height: 100vh;
+	width: 100vw;
 }
 
 .about-container--immich,
 .about-container--kiosk {
-    position: relative;
-    display: flex;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
-    width: 50%;
-    min-height: 100vh;
-    z-index: var(--z-base);
+	position: relative;
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	align-items: center;
+	width: 50%;
+	min-height: 100vh;
+	z-index: var(--z-base);
 }
 
 .about-container--immich {
-    background-color: rgb(27, 27, 29);
+	background-color: rgb(27, 27, 29);
 }
 
 .about-container--kiosk {
-    background-color: var(--cool-grey);
+	background-color: var(--cool-grey);
 }
 
 .about-container--immich--content,
 .about-container--kiosk--content {
-    max-width: 31.25rem;
-    width: 100%;
-    margin: 0 auto;
-    padding: 1.5rem;
+	max-width: 31.25rem;
+	width: 100%;
+	margin: 0 auto;
+	padding: 1.5rem;
 }
 
 .logo {
-    position: relative;
-    z-index: var(--z-base);
+	position: relative;
+	z-index: var(--z-base);
 }
 
 .logo img {
-    max-width: 6.25rem;
-    height: auto;
-    display: block;
-    margin: 1rem auto;
+	max-width: 6.25rem;
+	height: auto;
+	display: block;
+	margin: 1rem auto;
 }
 
 .content {
-    position: relative;
-    background-color: white;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    z-index: var(--z-base);
+	position: relative;
+	background-color: white;
+	border-radius: 1rem;
+	padding: 1.5rem;
+	z-index: var(--z-base);
 }
 
 h1 {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #333;
-    margin: 0.5rem 0 1.5rem 0;
+	font-size: 2rem;
+	font-weight: bold;
+	color: #333;
+	margin: 0.5rem 0 1.5rem 0;
 }
 
 .stats {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .stats > div {
-    border-top: 1px solid #eee;
-    padding: 1rem 0;
+	border-top: 1px solid #eee;
+	padding: 1rem 0;
 }
 
 .stats > div:last-child {
-    padding-bottom: 0;
+	padding-bottom: 0;
 }
 
 .label {
-    font-size: 0.8rem;
-    color: #6d727a;
-    margin-bottom: 0.3rem;
+	font-size: 0.8rem;
+	color: #6d727a;
+	margin-bottom: 0.3rem;
 }
 
 .value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: black;
+	font-size: 1.5rem;
+	font-weight: bold;
+	color: black;
 }
 
 .value a {
-    color: black;
-    text-underline-offset: 0.3rem;
+	color: black;
+	text-underline-offset: 0.3rem;
 }
 
 .value .service-online {
-    margin-top: 0.3rem;
-    padding: 0.5rem 1rem;
-    border: 1px solid #18c249;
-    background-color: rgba(24, 194, 73, 0.1);
-    color: #0f762c;
-    border-radius: 0.5rem;
-    display: inline-block;
+	margin-top: 0.3rem;
+	padding: 0.5rem 1rem;
+	border: 1px solid #18c249;
+	background-color: rgba(24, 194, 73, 0.1);
+	color: #0f762c;
+	border-radius: 0.5rem;
+	display: inline-block;
 }
 
 .value .service-offline {
-    margin-top: 0.3rem;
-    padding: 0.5rem 1rem;
-    border: 1px solid #fa2921;
-    background-color: rgba(250, 41, 33, 0.1);
-    color: #d10800;
-    border-radius: 0.5rem;
-    display: inline-block;
+	margin-top: 0.3rem;
+	padding: 0.5rem 1rem;
+	border: 1px solid #fa2921;
+	background-color: rgba(250, 41, 33, 0.1);
+	color: #d10800;
+	border-radius: 0.5rem;
+	display: inline-block;
 }
 
 .background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    z-index: var(--z-below);
-    filter: blur(64px);
-    opacity: 0.4;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-size: cover;
+	background-position: center;
+	z-index: var(--z-below);
+	filter: blur(64px);
+	opacity: 0.4;
 }
 
 @media (orientation: portrait) {
-    .about-container {
-        flex-direction: column;
-    }
+	.about-container {
+		flex-direction: column;
+	}
 
-    .about-container--immich,
-    .about-container--kiosk {
-        width: 100%;
-        min-height: unset;
-    }
+	.about-container--immich,
+	.about-container--kiosk {
+		width: 100%;
+		min-height: unset;
+	}
 }
