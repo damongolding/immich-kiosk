@@ -1,35 +1,35 @@
 :root {
-	/* colours */
-	--light-grey: #f7f9f8;
-	--cool-grey: #333460;
-	--mint-green: #1ed2bb;
-	--mint-green-rgb: 30, 210, 187;
-	--yellow: #e7e65f;
-	--pink: #de475a;
-	--vibrant-pink: #ff6578;
-	--red: #da2038;
+  /* colours */
+  --light-grey: #f7f9f8;
+  --cool-grey: #333460;
+  --mint-green: #1ed2bb;
+  --mint-green-rgb: 30, 210, 187;
+  --yellow: #e7e65f;
+  --pink: #de475a;
+  --vibrant-pink: #ff6578;
+  --red: #da2038;
 
-	/* Z-index hierarchy */
-	--z-below: -1;
-	--z-base: 0;
-	--z-iframe: 50;
-	--z-clock: 100;
-	--z-progress: 150;
-	--z-sleep: 200;
-	--z-sleep-clock: 300;
-	--z-interaction: 400;
-	--z-overlay: 500;
-	--z-navigation: 600;
-	--z-offline: 700;
+  /* Z-index hierarchy */
+  --z-below: -1;
+  --z-base: 0;
+  --z-iframe: 50;
+  --z-clock: 100;
+  --z-progress: 150;
+  --z-sleep: 200;
+  --z-sleep-clock: 300;
+  --z-interaction: 400;
+  --z-overlay: 500;
+  --z-navigation: 600;
+  --z-offline: 700;
 
-	/* gradients */
-	--fade-gradient:
-		hsla(0, 0%, 0%, 0.59) 0%, hsla(0, 0%, 0%, 0.582) 5.2%,
-		hsla(0, 0%, 0%, 0.561) 10.9%, hsla(0, 0%, 0%, 0.529) 16.9%,
-		hsla(0, 0%, 0%, 0.487) 23.3%, hsla(0, 0%, 0%, 0.437) 29.9%,
-		hsla(0, 0%, 0%, 0.382) 36.8%, hsla(0, 0%, 0%, 0.324) 43.8%,
-		hsla(0, 0%, 0%, 0.266) 51%, hsla(0, 0%, 0%, 0.208) 58.2%,
-		hsla(0, 0%, 0%, 0.153) 65.4%, hsla(0, 0%, 0%, 0.103) 72.6%,
-		hsla(0, 0%, 0%, 0.061) 79.7%, hsla(0, 0%, 0%, 0.029) 86.7%,
-		hsla(0, 0%, 0%, 0.008) 93.5%, hsla(0, 0%, 0%, 0) 100%;
+  /* gradients */
+  --fade-gradient:
+    hsla(0, 0%, 0%, 0.59) 0%, hsla(0, 0%, 0%, 0.582) 5.2%,
+    hsla(0, 0%, 0%, 0.561) 10.9%, hsla(0, 0%, 0%, 0.529) 16.9%,
+    hsla(0, 0%, 0%, 0.487) 23.3%, hsla(0, 0%, 0%, 0.437) 29.9%,
+    hsla(0, 0%, 0%, 0.382) 36.8%, hsla(0, 0%, 0%, 0.324) 43.8%,
+    hsla(0, 0%, 0%, 0.266) 51%, hsla(0, 0%, 0%, 0.208) 58.2%,
+    hsla(0, 0%, 0%, 0.153) 65.4%, hsla(0, 0%, 0%, 0.103) 72.6%,
+    hsla(0, 0%, 0%, 0.061) 79.7%, hsla(0, 0%, 0%, 0.029) 86.7%,
+    hsla(0, 0%, 0%, 0.008) 93.5%, hsla(0, 0%, 0%, 0) 100%;
 }
