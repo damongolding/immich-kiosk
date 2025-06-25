@@ -1,38 +1,38 @@
-.polling-paused.more-info,
-.polling-paused.redirects-open {
-    #clock-weather-container {
-        opacity: 0.2;
-    }
+#clock-weather-container {
+	position: absolute;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 100%;
+	width: 100vw;
+	min-width: 100%;
+	min-width: 100vw;
+	height: auto;
+	min-height: auto;
+	top: 0;
+	left: 0;
+
+	z-index: var(--z-clock);
 }
 
-#clock-weather-container {
-    position: absolute;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    width: 100vw;
-    min-width: 100%;
-    min-width: 100vw;
-    height: auto;
-    min-height: auto;
-    top: 0;
-    left: 0;
-
-    z-index: var(--z-clock);
+.polling-paused.more-info,
+.polling-paused.redirects-open {
+	#clock-weather-container {
+		opacity: 0.2;
+	}
 }
 
 /* Splitview */
 .layout-splitview #clock-weather-container {
-    flex-direction: row;
-    width: 100%;
-    height: auto;
-    min-height: auto;
-    bottom: unset;
+	flex-direction: row;
+	width: 100%;
+	height: auto;
+	min-height: auto;
+	bottom: unset;
 }
 
 .sleep #clock-weather-container {
-    height: 100%;
-    width: 100%;
-    z-index: var(--z-sleep-clock);
+	height: 100%;
+	width: 100%;
+	z-index: var(--z-sleep-clock);
 }

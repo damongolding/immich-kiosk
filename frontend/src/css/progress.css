@@ -1,29 +1,29 @@
 /* --- progress bar --- */
 .progress {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 0.18rem;
-    z-index: var(--z-progress);
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 0.18rem;
+	z-index: var(--z-progress);
 
-    &.progress-bottom {
-        bottom: 0;
-        top: auto;
-    }
+	&.progress-bottom {
+		bottom: 0;
+		top: auto;
+	}
 }
 
 .progress--bar {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background-color: #1e83f7;
-    will-change: transform;
-    transform-origin: left;
-    transform: scaleX(0) translateZ(0);
-    backface-visibility: hidden;
-    transition: transform 0.05s linear;
-    -webkit-perspective: 1000;
-    /* border-radius: 0 1rem 1rem 0; */
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background-color: #1e83f7;
+	will-change: transform;
+	transform-origin: left;
+	transform: scaleX(0) translateZ(0);
+	backface-visibility: hidden;
+	transition: transform 0.05s linear;
+	-webkit-perspective: 1000;
+	/* border-radius: 0 1rem 1rem 0; */
 }
