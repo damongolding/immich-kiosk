@@ -106,10 +106,6 @@
     gap: 0.5rem;
 }
 
-.right-align-icons .asset--metadata--icon {
-    order: 2;
-}
-
 .asset--metadata--icon {
     display: flex;
     justify-content: center;
@@ -120,6 +116,10 @@
         width: 0.9rem;
         fill: white;
     }
+}
+
+.right-align-icons .asset--metadata--icon {
+    order: 2;
 }
 
 .asset--metadata--datetime {

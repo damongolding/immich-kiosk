@@ -113,6 +113,7 @@ func main() {
 
 	// Middleware
 	e.Pre(middleware.RemoveTrailingSlash())
+	e.Pre(NoCacheMiddleware)
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
 
@@ -140,10 +141,10 @@ func main() {
 	}
 
 	// CSS cache busting
-	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public)
+	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public, StaticCacheMiddleware)
 
 	// JS cache busting
-	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public)
+	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public, StaticCacheMiddleware)
 
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
@@ -222,5 +223,21 @@ func main() {
 
 	if shutdownErr := e.Shutdown(ctx); shutdownErr != nil {
 		log.Error(shutdownErr)
+	}
+}
+
+// Middleware to set no-store for dynamic endpoints
+func NoCacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set("Cache-Control", "no-store")
+		return next(c)
+	}
+}
+
+// Middleware for static routes
+func StaticCacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set("Cache-Control", "public, max-age=86400, immutable")
+		return next(c)
 	}
 }
