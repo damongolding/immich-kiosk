@@ -16,12 +16,6 @@
     }
 }
 
-/* solid theme */
-.clock--theme-solid {
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 0 0 2rem 0;
-}
-
 .clock--date {
     position: relative;
     font-size: 1.5rem;

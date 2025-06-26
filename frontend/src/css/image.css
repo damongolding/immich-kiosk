@@ -43,19 +43,6 @@
     text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 }
 
-/* solid theme */
-.asset--metadata--theme-solid {
-    padding: 1rem;
-    margin: -1rem;
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 0 2rem 0 0;
-}
-
-.frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 2rem 0 0 0;
-}
-
 .asset--metadata .responsive-break {
     display: none;
 }
@@ -216,10 +203,5 @@
 
     .asset--metadata--icon {
         order: 0 !important;
-    }
-
-    .frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 0 2rem 0 0;
     }
 }
