@@ -45,9 +45,9 @@ func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 	dateEndHuman := dateEnd.Format("2006-01-02 15:04:05 MST")
 
 	if isPrefetch {
-		log.Info(requestID, "PREFETCH", deviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
 	} else {
-		log.Info(requestID+" Getting Random image", "from", dateStartHuman, "to", dateEndHuman)
+		log.Debug(requestID+" Getting Random image", "from", dateStartHuman, "to", dateEndHuman)
 	}
 
 	for range MaxRetries {
