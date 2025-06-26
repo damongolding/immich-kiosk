@@ -35,9 +35,9 @@ Please remove any sensitive data (e.g. Immich API key or URL) before sharing you
 **To generate a sanitised copy automatically:**
 
 1. Enable one of the following debug flags
-   - `KIOSK_DEBUG: true`
-   - `KIOSK_DEBUG_VERBOSE: true`
-   - `debug: true` **or** `debug_verbose: true` in `config.yaml`
+  - `KIOSK_DEBUG: true`
+  - `KIOSK_DEBUG_VERBOSE: true`
+  - `debug: true` **or** `debug_verbose: true` in `config.yaml`
 2. Navigate to `/config` in your browser – a redacted YAML version will be displayed.
 
 ### Any params passed to the URL used to access Kiosk
