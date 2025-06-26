@@ -37,9 +37,10 @@ tasks:
       - go test ./...
 
   lint:
-    desc: Run linter
+    desc: Run linters
     cmds:
       - golangci-lint run
+      - cd frontend && pnpm lint
 
   # Build tasks
   build:
