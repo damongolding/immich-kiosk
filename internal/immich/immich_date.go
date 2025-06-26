@@ -45,9 +45,9 @@ func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 	dateEndHuman := dateEnd.Format("2006-01-02 15:04:05 MST")
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
+		log.Info(requestID, "PREFETCH", deviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
 	} else {
-		log.Debug(requestID+" Getting Random image", "from", dateStartHuman, "to", dateEndHuman)
+		log.Info(requestID+" Getting Random image", "from", dateStartHuman, "to", dateEndHuman)
 	}
 
 	for range MaxRetries {
@@ -257,9 +257,7 @@ func extractDays(s string) (int, error) {
 // Returns an error if the number of days cannot be extracted from the string.
 func processLastDays(dateRange string) (time.Time, time.Time, error) {
 
-	now := time.Now().Local()
-	dateStart := now
-	dateEnd := now
+	dateStart, dateEnd := processTodayDateRange()
 
 	days, err := extractDays(dateRange)
 	if err != nil {
