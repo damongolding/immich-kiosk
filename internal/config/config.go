@@ -54,81 +54,83 @@ const (
 
 type OfflineMode struct {
 	// Enabled indicates whether offline mode is enabled
-	Enabled bool `mapstructure:"enabled" default:"false"`
+	Enabled bool `yaml:"enabled" mapstructure:"enabled" default:"false"`
 	// NumberOfAssets specifies the maximum number of assets to store in offline mode
-	NumberOfAssets int `mapstructure:"number_of_assets" default:"100"`
+	NumberOfAssets int `yaml:"number_of_assets" mapstructure:"number_of_assets" default:"100"`
 	// MaxSize specifies the maximum storage size for offline assets in a human-readable format e.g. "1GB", "2TB", "500MB"
-	MaxSize string `mapstructure:"max_size" default:"0"`
+	MaxSize string `yaml:"max_size" mapstructure:"max_size" default:"0"`
 	// ParallelDownloads specifies the maximum number of concurrent downloads in offline mode
-	ParallelDownloads int `mapstructure:"parallel_downloads" default:"1"`
+	ParallelDownloads int `yaml:"parallel_downloads" mapstructure:"parallel_downloads" default:"1"`
 	// ExpirationHours specifies how long offline assets should be kept before being considered expired (in hours)
-	ExpirationHours int `mapstructure:"expiration_hours" default:"0"`
+	ExpirationHours int `yaml:"expiration_hours" mapstructure:"expiration_hours" default:"0"`
 }
 
 // Redirect represents a URL redirection configuration with a friendly name.
 type Redirect struct {
 	// Name is the friendly identifier used to access the redirect
-	Name string `mapstructure:"name"`
+	Name string `yaml:"name" mapstructure:"name"`
 	// URL is the destination address for the redirect
-	URL string `mapstructure:"url"`
+	URL string `yaml:"url" mapstructure:"url"`
 	// Type specifies the redirect behaviour (e.g., "internal", "external")
-	Type string `mapstructure:"type"`
+	Type string `yaml:"type" mapstructure:"type"`
 }
 
 type KioskSettings struct {
+	// Version
+	Version string `json:"version" yaml:"version"`
 	// Redirects defines a list of URL redirections with friendly names
-	Redirects []Redirect `mapstructure:"redirects" default:"[]"`
+	Redirects []Redirect `yaml:"redirects" mapstructure:"redirects" default:"[]"`
 	// RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
-	RedirectsMap map[string]Redirect `json:"-"`
+	RedirectsMap map[string]Redirect `json:"-" yaml:"-"`
 
 	// Port which port to use
-	Port int `json:"port" mapstructure:"port" default:"3000"`
+	Port int `json:"port" yaml:"port" mapstructure:"port" default:"3000"`
 
 	// BehindProxy specifies whether the kiosk is behind a proxy
-	BehindProxy bool `json:"behindProxy" mapstructure:"behind_proxy" default:"false"`
+	BehindProxy bool `json:"behindProxy" yaml:"behind_proxy" mapstructure:"behind_proxy" default:"false"`
 
 	// WatchConfig if kiosk should watch config file for changes
-	WatchConfig bool `json:"watchConfig" mapstructure:"watch_config" default:"false"`
+	WatchConfig bool `json:"watchConfig" yaml:"watch_config" mapstructure:"watch_config" default:"false"`
 
 	// FetchedAssetsSize the size of assets requests from Immich. min=1 max=1000
-	FetchedAssetsSize int `json:"fetchedAssetsSize" mapstructure:"fetched_assets_size" default:"1000"`
+	FetchedAssetsSize int `json:"fetchedAssetsSize" yaml:"fetched_assets_size" mapstructure:"fetched_assets_size" default:"1000"`
 
 	// HTTPTimeout time in seconds before an http request will timeout
-	HTTPTimeout int `json:"httpTimeout" mapstructure:"http_timeout" default:"20"`
+	HTTPTimeout int `json:"httpTimeout" yaml:"http_timeout" mapstructure:"http_timeout" default:"20"`
 
 	// Cache enable/disable api call and image caching
-	Cache bool `json:"cache" mapstructure:"cache" default:"true"`
+	Cache bool `json:"cache" yaml:"cache" mapstructure:"cache" default:"true"`
 
 	// PreFetch fetch and cache an image in the background
-	PreFetch bool `json:"preFetch" mapstructure:"prefetch" default:"true"`
+	PreFetch bool `json:"preFetch" yaml:"prefetch" mapstructure:"prefetch" default:"true"`
 
 	// Password the password used to add authentication to the frontend
-	Password string `json:"-" mapstructure:"password" default:""`
+	Password string `json:"-" yaml:"password" mapstructure:"password" default:""`
 
 	// AssetWeighting use weighting when picking assets
-	AssetWeighting bool `json:"assetWeighting" mapstructure:"asset_weighting" default:"true"`
+	AssetWeighting bool `json:"assetWeighting" yaml:"asset_weighting" mapstructure:"asset_weighting" default:"true"`
 
 	// debug modes
-	Debug        bool `json:"debug" mapstructure:"debug" default:"false"`
-	DebugVerbose bool `json:"debugVerbose" mapstructure:"debug_verbose" default:"false"`
+	Debug        bool `json:"debug" yaml:"debug" mapstructure:"debug" default:"false"`
+	DebugVerbose bool `json:"debugVerbose" yaml:"debug_verbose" mapstructure:"debug_verbose" default:"false"`
 
-	DemoMode bool `json:"-" mapstructure:"demo_mode" default:"false"`
+	DemoMode bool `json:"-" yaml:"-" mapstructure:"demo_mode" default:"false"`
 }
 
 type WeatherLocation struct {
-	Name    string `mapstructure:"name"`
-	Lat     string `mapstructure:"lat"`
-	Lon     string `mapstructure:"lon"`
-	API     string `mapstructure:"api"`
-	Unit    string `mapstructure:"unit"`
-	Lang    string `mapstructure:"lang"`
-	Default bool   `mapstructure:"default"`
+	Name    string `yaml:"name" mapstructure:"name"`
+	Lat     string `yaml:"lat" mapstructure:"lat"`
+	Lon     string `yaml:"lon" mapstructure:"lon"`
+	API     string `yaml:"api" mapstructure:"api"`
+	Unit    string `yaml:"unit" mapstructure:"unit"`
+	Lang    string `yaml:"lang" mapstructure:"lang"`
+	Default bool   `yaml:"default" mapstructure:"default"`
 }
 
 type Webhook struct {
-	URL    string `json:"url" mapstructure:"url"`
-	Event  string `json:"event" mapstructure:"event"`
-	Secret string `json:"secret" mapstructure:"secret"`
+	URL    string `json:"url" yaml:"url" mapstructure:"url"`
+	Event  string `json:"event" yaml:"event" mapstructure:"event"`
+	Secret string `json:"secret" yaml:"secret" mapstructure:"secret"`
 }
 
 // ClientData represents the client-specific dimensions received from the frontend.
@@ -167,204 +169,208 @@ type ClientData struct {
 //   - lowercase: converts string value to lowercase
 type Config struct {
 	// V is the viper instance used for configuration management
-	V *viper.Viper `json:"-"`
+	V *viper.Viper `json:"-" yaml:"-"`
 	// mu is a mutex used to ensure thread-safe access to the configuration
-	mu *sync.RWMutex `json:"-"`
+	mu *sync.RWMutex `json:"-" yaml:"-"`
 	// ReloadTimeStamp timestamp for when the last client reload was called for
-	ReloadTimeStamp string `json:"-"`
+	ReloadTimeStamp string `json:"-" yaml:"-"`
 	// configLastModTime stores the last modification time of the configuration file
-	configLastModTime time.Time `json:"-"`
+	configLastModTime time.Time `json:"-" yaml:"-"`
 	// configHash stores the SHA-256 hash of the configuration file
-	configHash string `json:"-"`
+	configHash string `json:"-" yaml:"-"`
 	// SystemLang the system language
-	SystemLang monday.Locale `json:"-" default:"en_GB"`
+	SystemLang monday.Locale `json:"-" yaml:"-" default:"en_GB"`
 
 	// ImmichAPIKey Immich key to access assets
-	ImmichAPIKey string `json:"-" mapstructure:"immich_api_key" default:""`
+	ImmichAPIKey string `json:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:""`
 	// ImmichURL Immuch base url
-	ImmichURL string `json:"-" mapstructure:"immich_url" default:""`
+	ImmichURL string `json:"-" yaml:"immich_url" mapstructure:"immich_url" default:""`
 
 	// ImmichExternalURL specifies an external URL for Immich access. This can be used when
 	// the Immich instance is accessed through a different URL externally vs internally
 	// (e.g., when using reverse proxies or different network paths)
-	ImmichExternalURL string `json:"-" mapstructure:"immich_external_url" default:""`
+	ImmichExternalURL string `json:"-" yaml:"immich_external_url" mapstructure:"immich_external_url" default:""`
 
 	// ImmichUsersAPIKeys a map of usernames to their respective api keys for accessing Immich
-	ImmichUsersAPIKeys map[string]string `json:"-" mapstructure:"immich_users_api_keys" default:"{}"`
+	ImmichUsersAPIKeys map[string]string `json:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}"`
 	// User the user from ImmichUsersApiKeys to use when fetching images. If not set, it will use the default ImmichApiKey
-	User []string `json:"user" mapstructure:"user" query:"user" form:"user" default:"[]"`
+	User []string `json:"user" yaml:"user" mapstructure:"user" query:"user" form:"user" default:"[]"`
 	// ShowUser whether to display user
-	ShowUser bool `json:"showUser" mapstructure:"show_user" query:"show_user" form:"show_user" default:"false"`
+	ShowUser bool `json:"showUser" yaml:"show_user" mapstructure:"show_user" query:"show_user" form:"show_user" default:"false"`
 	// SelectedUser selected user from User for the specific request
-	SelectedUser string `json:"selectedUser" default:""`
+	SelectedUser string `json:"selectedUser" yaml:"-" default:""`
 	// ShowOwner whether to display owner
-	ShowOwner bool `json:"showOwner" mapstructure:"show_owner" query:"show_owner" form:"show_owner" default:"false"`
+	ShowOwner bool `json:"showOwner" yaml:"show_owner" mapstructure:"show_owner" query:"show_owner" form:"show_owner" default:"false"`
 
 	// DisableNavigation remove navigation
-	DisableNavigation bool `json:"disableNavigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
+	DisableNavigation bool `json:"disableNavigation" yaml:"disable_navigation" mapstructure:"disable_navigation" query:"disable_navigation" form:"disable_navigation" default:"false"`
+	// MenuPosition position of menu
+	MenuPosition string `json:"menuPosition" yaml:"menu_position" mapstructure:"menu_position" query:"menu_position" form:"menu_position" default:"top"`
 	// DisableUI a shortcut to disable ShowTime, ShowDate, ShowImageTime and ShowImageDate
-	DisableUI bool `json:"disableUi" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
+	DisableUI bool `json:"disableUi" yaml:"disable_ui" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames
-	Frameless bool `json:"frameless" mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
+	Frameless bool `json:"frameless" yaml:"frameless" mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
 
 	// ShowTime whether to display clock
-	ShowTime bool `json:"showTime" mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`
+	ShowTime bool `json:"showTime" yaml:"show_time" mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`
 	// TimeFormat whether to use 12 of 24 hour format for clock
-	TimeFormat string `json:"timeFormat" mapstructure:"time_format" query:"time_format" form:"time_format" default:""`
+	TimeFormat string `json:"timeFormat" yaml:"time_format" mapstructure:"time_format" query:"time_format" form:"time_format" default:""`
 	// ShowDate whether to display date
-	ShowDate bool `json:"showDate" mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
+	ShowDate bool `json:"showDate" yaml:"show_date" mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
 	//  DateFormat format for date
-	DateFormat string `json:"dateFormat" mapstructure:"date_format" query:"date_format" form:"date_format" default:""`
+	DateFormat string `json:"dateFormat" yaml:"date_format" mapstructure:"date_format" query:"date_format" form:"date_format" default:""`
 	// ClockSource source of clock time
-	ClockSource string `json:"clockSource" mapstructure:"clock_source" query:"clock_source" form:"clock_source" default:"client"`
+	ClockSource string `json:"clockSource" yaml:"clock_source" mapstructure:"clock_source" query:"clock_source" form:"clock_source" default:"client"`
 
 	// Refresh time between fetching new image
-	Refresh int `json:"refresh" mapstructure:"refresh" query:"refresh" form:"refresh" default:"60"`
+	Refresh int `json:"refresh" yaml:"refresh" mapstructure:"refresh" query:"refresh" form:"refresh" default:"60"`
 	// DisableScreensaver asks browser to disable screensaver
-	DisableScreensaver bool `json:"disableScreensaver" mapstructure:"disable_screensaver" query:"disable_screensaver" form:"disable_screensaver" default:"false"`
+	DisableScreensaver bool `json:"disableScreensaver" yaml:"disable_screensaver" mapstructure:"disable_screensaver" query:"disable_screensaver" form:"disable_screensaver" default:"false"`
 	// HideCursor hide cursor via CSS
-	HideCursor bool `json:"hideCursor" mapstructure:"hide_cursor" query:"hide_cursor" form:"hide_cursor" default:"false"`
+	HideCursor bool `json:"hideCursor" yaml:"hide_cursor" mapstructure:"hide_cursor" query:"hide_cursor" form:"hide_cursor" default:"false"`
 	// FontSize the base font size as a percentage
-	FontSize int `json:"fontSize" mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
+	FontSize int `json:"fontSize" yaml:"font_size" mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
 	// Theme which theme to use
-	Theme string `json:"theme" mapstructure:"theme" query:"theme" form:"theme" default:"fade" lowercase:"true"`
+	Theme string `json:"theme" yaml:"theme" mapstructure:"theme" query:"theme" form:"theme" default:"fade" lowercase:"true"`
 	// Layout which layout to use
-	Layout string `json:"layout" mapstructure:"layout" query:"layout" form:"layout" default:"single" lowercase:"true"`
+	Layout string `json:"layout" yaml:"layout" mapstructure:"layout" query:"layout" form:"layout" default:"single" lowercase:"true"`
 
 	// SleepStart when to start sleep mode
-	SleepStart string `json:"sleepStart" mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
+	SleepStart string `json:"sleepStart" yaml:"sleep_start" mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
 	// SleepEnd when to exit sleep mode
-	SleepEnd string `json:"sleepEnd" mapstructure:"sleep_end" query:"sleep_end" form:"sleep_end" default:""`
+	SleepEnd string `json:"sleepEnd" yaml:"sleep_end" mapstructure:"sleep_end" query:"sleep_end" form:"sleep_end" default:""`
 	// SleepIcon display sleep icon
-	SleepIcon bool `json:"sleepIcon" mapstructure:"sleep_icon" query:"sleep_icon" form:"sleep_icon" default:"true"`
+	SleepIcon bool `json:"sleepIcon" yaml:"sleep_icon" mapstructure:"sleep_icon" query:"sleep_icon" form:"sleep_icon" default:"true"`
 	// SleepDimScreen dim screen when sleep mode is active (for Fully Kiosk Browser)
-	SleepDimScreen bool `json:"sleepDimScreen" mapstructure:"sleep_dim_screen" query:"sleep_dim_screen" form:"sleep_dim_screen" default:"false"`
+	SleepDimScreen bool `json:"sleepDimScreen" yaml:"sleep_dim_screen" mapstructure:"sleep_dim_screen" query:"sleep_dim_screen" form:"sleep_dim_screen" default:"false"`
 	// SleepDisable disable sleep via url queries
 	DisableSleep bool `json:"disableSleep" query:"disable_sleep" form:"disable_sleep" default:"false"`
 
 	// ShowArchived allow archived image to be displayed
-	ShowArchived bool `json:"showArchived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
+	ShowArchived bool `json:"showArchived" yaml:"show_archived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display
-	Person           []string `json:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
-	RequireAllPeople bool     `json:"requireAllPeople" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
-	ExcludedPeople   []string `json:"excludedPeople" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
+	Person           []string `json:"person" yaml:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
+	RequireAllPeople bool     `json:"requireAllPeople" yaml:"require_all_people" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
+	ExcludedPeople   []string `json:"excludedPeople" yaml:"excluded_people" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
 
 	// Album ID of album(s) to display
-	Album []string `json:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
+	Album []string `json:"album" yaml:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
 	// AlbumOrder specifies the order in which album assets are displayed.
-	AlbumOrder     string   `json:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
-	ExcludedAlbums []string `json:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
+	AlbumOrder     string   `json:"album_order" yaml:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
+	ExcludedAlbums []string `json:"excluded_albums" yaml:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
 	// Tag Name of tag to display
-	Tag []string `json:"tag" mapstructure:"tag" query:"tag" form:"tag" default:"[]" lowercase:"true"`
+	Tag []string `json:"tag" yaml:"tag" mapstructure:"tag" query:"tag" form:"tag" default:"[]" lowercase:"true"`
 	// Date date filter
-	Date []string `json:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
+	Date []string `json:"date" yaml:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
 	// Memories show memories
-	Memories bool `json:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
+	Memories bool `json:"memories" yaml:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
 
 	// DateFilter filter certain asset bucket assets by date
-	DateFilter string `json:"dateFilter" mapstructure:"date_filter" query:"date_filter" form:"date_filter" default:""`
+	DateFilter string `json:"dateFilter" yaml:"date_filter" mapstructure:"date_filter" query:"date_filter" form:"date_filter" default:""`
 
 	// ExperimentalAlbumVideo whether to display videos
 	// Currently limited to albums
-	ExperimentalAlbumVideo bool `json:"experimentalAlbumVideo" mapstructure:"experimental_album_video" query:"experimental_album_video" form:"experimental_album_video" default:"false"`
+	ExperimentalAlbumVideo bool `json:"experimentalAlbumVideo" yaml:"experimental_album_video" mapstructure:"experimental_album_video" query:"experimental_album_video" form:"experimental_album_video" default:"false"`
 
 	// ImageFit the fit style for main image
-	ImageFit string `json:"imageFit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
+	ImageFit string `json:"imageFit" yaml:"image_fit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
 	// ImageEffect which effect to apply to image (if any)
-	ImageEffect string `json:"imageEffect" mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:"" lowercase:"true"`
+	ImageEffect string `json:"imageEffect" yaml:"image_effect" mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:"" lowercase:"true"`
 	// ImageEffectAmount the amount of effect to apply
-	ImageEffectAmount int `json:"imageEffectAmount" mapstructure:"image_effect_amount" query:"image_effect_amount" form:"image_effect_amount" default:"120"`
+	ImageEffectAmount int `json:"imageEffectAmount" yaml:"image_effect_amount" mapstructure:"image_effect_amount" query:"image_effect_amount" form:"image_effect_amount" default:"120"`
 	// UseOriginalImage use the original image
-	UseOriginalImage bool `json:"useOriginalImage" mapstructure:"use_original_image" query:"use_original_image" form:"use_original_image" default:"false"`
+	UseOriginalImage bool `json:"useOriginalImage" yaml:"use_original_image" mapstructure:"use_original_image" query:"use_original_image" form:"use_original_image" default:"false"`
 	// BackgroundBlur whether to display blurred image as background
-	BackgroundBlur bool `json:"backgroundBlur" mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
+	BackgroundBlur bool `json:"backgroundBlur" yaml:"background_blur" mapstructure:"background_blur" query:"background_blur" form:"background_blur" default:"true"`
 	// BackgroundBlurAmount the amount of blur to apply
-	BackgroundBlurAmount int `json:"backgroundBlurAmount" mapstructure:"background_blur_amount" query:"background_blur_amount" form:"background_blur_amount" default:"10"`
+	BackgroundBlurAmount int `json:"backgroundBlurAmount" yaml:"background_blur_amount" mapstructure:"background_blur_amount" query:"background_blur_amount" form:"background_blur_amount" default:"10"`
 	// BackgroundBlur which transition to use none|fade|cross-fade
-	Transition string `json:"transition" mapstructure:"transition" query:"transition" form:"transition" default:"" lowercase:"true"`
+	Transition string `json:"transition" yaml:"transition" mapstructure:"transition" query:"transition" form:"transition" default:"" lowercase:"true"`
 	// FadeTransitionDuration sets the length of the fade transition
-	FadeTransitionDuration float32 `json:"fadeTransitionDuration" mapstructure:"fade_transition_duration" query:"fade_transition_duration" form:"fade_transition_duration" default:"1"`
+	FadeTransitionDuration float32 `json:"fadeTransitionDuration" yaml:"fade_transition_duration" mapstructure:"fade_transition_duration" query:"fade_transition_duration" form:"fade_transition_duration" default:"1"`
 	// CrossFadeTransitionDuration sets the length of the cross-fade transition
-	CrossFadeTransitionDuration float32 `json:"crossFadeTransitionDuration" mapstructure:"cross_fade_transition_duration" query:"cross_fade_transition_duration" form:"cross_fade_transition_duration" default:"1"`
+	CrossFadeTransitionDuration float32 `json:"crossFadeTransitionDuration" yaml:"cross_fade_transition_duration" mapstructure:"cross_fade_transition_duration" query:"cross_fade_transition_duration" form:"cross_fade_transition_duration" default:"1"`
 
 	// ShowProgress display a progress bar
-	ShowProgress bool `json:"showProgress" mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
+	ShowProgress bool `json:"showProgress" yaml:"show_progress" mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
+	// ProgressPosition
+	ProgressPosition string `json:"progressPosition" yaml:"progress_position" mapstructure:"progress_position" query:"progress_position" form:"progress_position" default:"top"`
 	// CustomCSS use custom css file
-	CustomCSS bool `json:"customCSS" mapstructure:"custom_css" query:"custom_css" form:"custom_css" default:"true"`
+	CustomCSS bool `json:"customCSS" yaml:"custom_css" mapstructure:"custom_css" query:"custom_css" form:"custom_css" default:"true"`
 	// CustomCSSClass add a class to the body tag
-	CustomCSSClass string `json:"customCSSClass" mapstructure:"custom_css_class" query:"custom_css_class" form:"custom_css_class" default:""`
+	CustomCSSClass string `json:"customCSSClass" yaml:"custom_css_class" mapstructure:"custom_css_class" query:"custom_css_class" form:"custom_css_class" default:""`
 
 	// ShowAlbumName whether to display the album name
-	ShowAlbumName bool `json:"showAlbumName" mapstructure:"show_album_name" query:"show_album_name" form:"show_album_name" default:"false"`
+	ShowAlbumName bool `json:"showAlbumName" yaml:"show_album_name" mapstructure:"show_album_name" query:"show_album_name" form:"show_album_name" default:"false"`
 	// ShowPersonName whether to display the person name
-	ShowPersonName bool `json:"showPersonName" mapstructure:"show_person_name" query:"show_person_name" form:"show_person_name" default:"false"`
+	ShowPersonName bool `json:"showPersonName" yaml:"show_person_name" mapstructure:"show_person_name" query:"show_person_name" form:"show_person_name" default:"false"`
 	// ShowPersonAge whether to display the person age
-	ShowPersonAge bool `json:"showPersonAge" mapstructure:"show_person_age" query:"show_person_age" form:"show_person_age" default:"false"`
+	ShowPersonAge bool `json:"showPersonAge" yaml:"show_person_age" mapstructure:"show_person_age" query:"show_person_age" form:"show_person_age" default:"false"`
 	// AgeSwitchToYearsAfter when to switch from months to years
-	AgeSwitchToYearsAfter int `json:"ageSwitchToYearsAfter" mapstructure:"age_switch_to_years_after" query:"age_switch_to_years_after" form:"age_switch_to_years_after" default:"1"`
+	AgeSwitchToYearsAfter int `json:"ageSwitchToYearsAfter" yaml:"age_switch_to_years_after" mapstructure:"age_switch_to_years_after" query:"age_switch_to_years_after" form:"age_switch_to_years_after" default:"1"`
 
 	// ShowImageTime whether to display image time
-	ShowImageTime bool `json:"showImageTime" mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`
+	ShowImageTime bool `json:"showImageTime" yaml:"show_image_time" mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`
 	// ImageTimeFormat  whether to use 12 of 24 hour format
-	ImageTimeFormat string `json:"imageTimeFormat" mapstructure:"image_time_format" query:"image_time_format" form:"image_time_format" default:""`
+	ImageTimeFormat string `json:"imageTimeFormat" yaml:"image_time_format" mapstructure:"image_time_format" query:"image_time_format" form:"image_time_format" default:""`
 	// ShowImageDate whether to display image date
-	ShowImageDate bool `json:"showImageDate" mapstructure:"show_image_date" query:"show_image_date" form:"show_image_date"  default:"false"`
+	ShowImageDate bool `json:"showImageDate" yaml:"show_image_date" mapstructure:"show_image_date" query:"show_image_date" form:"show_image_date"  default:"false"`
 	// ImageDateFormat format for image date
-	ImageDateFormat string `json:"imageDateFormat" mapstructure:"image_date_format" query:"image_date_format" form:"image_date_format" default:""`
+	ImageDateFormat string `json:"imageDateFormat" yaml:"image_date_format" mapstructure:"image_date_format" query:"image_date_format" form:"image_date_format" default:""`
 	// ShowImageDescription isplay image description
-	ShowImageDescription bool `json:"showImageDescription" mapstructure:"show_image_description" query:"show_image_description" form:"show_image_description" default:"false"`
+	ShowImageDescription bool `json:"showImageDescription" yaml:"show_image_description" mapstructure:"show_image_description" query:"show_image_description" form:"show_image_description" default:"false"`
 	// ShowImageExif display image exif data (f number, iso, shutter speed, Focal length)
-	ShowImageExif bool `json:"showImageExif" mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
+	ShowImageExif bool `json:"showImageExif" yaml:"show_image_exif" mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
 	// ShowImageLocation display image location data
-	ShowImageLocation bool `json:"showImageLocation" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
+	ShowImageLocation bool `json:"showImageLocation" yaml:"show_image_location" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
 	// HideCountries hide country names in location information
-	HideCountries []string `json:"hideCountries" mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
+	HideCountries []string `json:"hideCountries" yaml:"hide_countries" mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
 	// ShowImageID display image ID
-	ShowImageID bool `json:"showImageID" mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
+	ShowImageID bool `json:"showImageID" yaml:"show_image_id" mapstructure:"show_image_id" query:"show_image_id" form:"show_image_id" default:"false"`
 	// ShowImageQR display image QR code
-	ShowImageQR bool `json:"showImageQR" mapstructure:"show_image_qr" query:"show_image_qr" form:"show_image_qr" default:"false"`
+	ShowImageQR bool `json:"showImageQR" yaml:"show_image_qr" mapstructure:"show_image_qr" query:"show_image_qr" form:"show_image_qr" default:"false"`
 
 	// ShowMoreInfo enables the display of additional information about the current image
-	ShowMoreInfo bool `json:"showMoreInfo" mapstructure:"show_more_info" query:"show_more_info" form:"show_more_info" default:"true"`
+	ShowMoreInfo bool `json:"showMoreInfo" yaml:"show_more_info" mapstructure:"show_more_info" query:"show_more_info" form:"show_more_info" default:"true"`
 	// ShowMoreInfoImageLink shows a link to the original image in the additional information panel
-	ShowMoreInfoImageLink bool `json:"showMoreInfoImageLink" mapstructure:"show_more_info_image_link" query:"show_more_info_image_link" form:"show_more_info_image_link" default:"true"`
+	ShowMoreInfoImageLink bool `json:"showMoreInfoImageLink" yaml:"show_more_info_image_link" mapstructure:"show_more_info_image_link" query:"show_more_info_image_link" form:"show_more_info_image_link" default:"true"`
 	// ShowMoreInfoQrCode displays a QR code linking to the original image in the additional information panel
-	ShowMoreInfoQrCode bool `json:"showMoreInfoQrCode" mapstructure:"show_more_info_qr_code" query:"show_more_info_qr_code" form:"show_more_info_qr_code" default:"true"`
+	ShowMoreInfoQrCode bool `json:"showMoreInfoQrCode" yaml:"show_more_info_qr_code" mapstructure:"show_more_info_qr_code" query:"show_more_info_qr_code" form:"show_more_info_qr_code" default:"true"`
 
 	// LikeButtonAction indicates the action to take when the like button is clicked
-	LikeButtonAction []string `json:"likeButtonAction" mapstructure:"like_button_action" query:"like_button_action" form:"like_button_action" default:"[favorite]"`
+	LikeButtonAction []string `json:"likeButtonAction" yaml:"like_button_action" mapstructure:"like_button_action" query:"like_button_action" form:"like_button_action" default:"[favorite]"`
 	// HideButtonAction indicates the action to take when the hide button is clicked
-	HideButtonAction []string `json:"hideButtonAction" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
+	HideButtonAction []string `json:"hideButtonAction" yaml:"hide_button_action" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
 
 	// WeatherLocations A list of locations to fetch and display weather data from. Each location
-	WeatherLocations []WeatherLocation `json:"weather" mapstructure:"weather" default:"[]"`
+	WeatherLocations []WeatherLocation `json:"weather" yaml:"weather" mapstructure:"weather" default:"[]"`
 	// HasWeatherDefault indicates whether any weather location has been set as the default.
-	HasWeatherDefault bool `json:"-" default:"false"`
+	HasWeatherDefault bool `json:"-" yaml:"-" default:"false"`
 
-	Iframe []string `json:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:""`
+	Iframe []string `json:"iframe" yaml:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:""`
 
 	// OptimizeImages tells Kiosk to optimize imahes
-	OptimizeImages bool `json:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
+	OptimizeImages bool `json:"optimize_images" yaml:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
 	// UseGpu tells Kiosk to use GPU where possible
-	UseGpu bool `json:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
+	UseGpu bool `json:"use_gpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
 
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
-	Webhooks []Webhook `json:"webhooks" mapstructure:"webhooks" default:"[]"`
+	Webhooks []Webhook `json:"webhooks" yaml:"webhooks" mapstructure:"webhooks" default:"[]"`
 
 	// Blacklist define a list of assets to skip
-	Blacklist []string `json:"blacklist" mapstructure:"blacklist" default:"[]"`
+	Blacklist []string `json:"blacklist" yaml:"blacklist" mapstructure:"blacklist" default:"[]"`
 
 	// Kiosk settings that are unable to be changed via URL queries
-	Kiosk KioskSettings `json:"kiosk" mapstructure:"kiosk"`
+	Kiosk KioskSettings `json:"kiosk" yaml:"kiosk" mapstructure:"kiosk"`
 
 	// ClientData data sent from the client with data regarding itself
-	ClientData ClientData
+	ClientData ClientData `yaml:"-"`
 	// History past shown images
-	History []string `json:"history" form:"history" default:"[]"`
+	History []string `json:"history" yaml:"-" form:"history" default:"[]"`
 
-	UseOfflineMode bool `json:"useOfflineMode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
+	UseOfflineMode bool `json:"useOfflineMode" yaml:"use_offline_mode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
 
-	OfflineMode OfflineMode `json:"offlineMode" mapstructure:"offline_mode"`
+	OfflineMode OfflineMode `json:"offlineMode" yaml:"offline_mode" mapstructure:"offline_mode"`
 }
 
 // New returns a new config pointer instance
@@ -561,5 +567,65 @@ func (c *Config) String() string {
 	if err != nil {
 		log.Error("", "err", err)
 	}
+	return string(out)
+}
+
+func (c *Config) SanitizedYaml() string {
+
+	const redacted = "REDACTED"
+
+	o := *c
+
+	o.ImmichAPIKey = redacted
+	o.ImmichURL = redacted
+	o.ImmichExternalURL = redacted
+
+	for i := range o.Album {
+		o.Album[i] = redacted
+	}
+
+	for i := range o.ExcludedAlbums {
+		o.ExcludedAlbums[i] = redacted
+	}
+
+	for i := range o.Person {
+		o.Person[i] = redacted
+	}
+
+	for i := range o.ExcludedPeople {
+		o.ExcludedPeople[i] = redacted
+	}
+
+	for i := range o.Tag {
+		o.Tag[i] = redacted
+	}
+
+	for i := range o.ImmichUsersAPIKeys {
+		o.ImmichUsersAPIKeys[i] = redacted
+	}
+
+	for i := range o.WeatherLocations {
+		o.WeatherLocations[i].Name = redacted
+		o.WeatherLocations[i].Lat = redacted
+		o.WeatherLocations[i].Lon = redacted
+		o.WeatherLocations[i].API = redacted
+	}
+
+	for i := range o.Webhooks {
+		o.Webhooks[i].Secret = redacted
+		o.Webhooks[i].URL = redacted
+	}
+
+	for i := range o.Kiosk.Redirects {
+		o.Kiosk.Redirects[i].URL = redacted
+	}
+
+	o.Kiosk.Password = redacted
+
+	out, err := yaml.Marshal(o)
+	if err != nil {
+		log.Error("", "err", err)
+	}
+
 	return string(out)
 }

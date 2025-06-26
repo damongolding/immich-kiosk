@@ -53,7 +53,7 @@ templ Home(viewData common.ViewData, secret string) {
 				></iframe>
 			}
 			if viewData.ShowProgress {
-				@partials.ProgressBar()
+				@partials.ProgressBar(viewData.ProgressPosition)
 			}
 			if !viewData.DisableUI {
 				<section id="clock-weather-container">
@@ -70,7 +70,7 @@ templ Home(viewData common.ViewData, secret string) {
 				</section>
 			}
 			if !viewData.DisableNavigation {
-				@partials.Menu(viewData.ShowMoreInfo, viewData.Kiosk.Redirects, viewData.Queries, viewData.Config.ExperimentalAlbumVideo)
+				@partials.Menu(viewData.MenuPosition, viewData.ShowMoreInfo, viewData.Kiosk.Redirects, viewData.Queries, viewData.Config.ExperimentalAlbumVideo)
 			}
 			@partials.Params(viewData.Queries)
 			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd, viewData.DisableSleep)

@@ -23,6 +23,10 @@
     position: absolute;
     width: 50%;
     height: 50%;
+
+    &.navigation-interaction-area--menu-bottom {
+        bottom: 0;
+    }
 }
 
 /* --- menu --- */
@@ -44,6 +48,11 @@
         rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem,
         rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
     z-index: var(--z-navigation);
+
+    &.navigation-bottom {
+        bottom: 1rem;
+        top: unset;
+    }
 }
 
 .navigation--item {

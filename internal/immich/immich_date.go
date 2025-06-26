@@ -257,9 +257,7 @@ func extractDays(s string) (int, error) {
 // Returns an error if the number of days cannot be extracted from the string.
 func processLastDays(dateRange string) (time.Time, time.Time, error) {
 
-	now := time.Now().Local()
-	dateStart := now
-	dateEnd := now
+	dateStart, dateEnd := processTodayDateRange()
 
 	days, err := extractDays(dateRange)
 	if err != nil {

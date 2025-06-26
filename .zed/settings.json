@@ -1,0 +1,34 @@
+// Folder-specific settings
+//
+// For a full list of overridable settings, and general information on folder-specific settings,
+// see the documentation: https://zed.dev/docs/configuring-zed#settings-files
+{
+  "languages": {
+    "JavaScript": {
+      "formatter": {
+        "external": {
+          "command": "biome",
+          "arguments": [
+            "check",
+            "--stdin-file-path",
+            "{buffer_path}",
+            "--write"
+          ]
+        }
+      }
+    },
+    "TypeScript": {
+      "formatter": {
+        "external": {
+          "command": "biome",
+          "arguments": [
+            "check",
+            "--stdin-file-path",
+            "{buffer_path}",
+            "--write"
+          ]
+        }
+      }
+    }
+  }
+}

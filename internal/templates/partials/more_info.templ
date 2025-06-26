@@ -27,7 +27,7 @@ import (
 templ RenderMoreInfo(viewData common.ViewData, secret string) {
 	<div id="more-info" hx-swap-oob="true">
 		for i, img := range viewData.Assets {
-			<div class="more-info--image">
+			<div class={ "more-info--image", "more-info--image-"+viewData.MenuPosition }>
 				<div class="more-info--image--data">
 					if !viewData.UseOfflineMode {
 						<div class="more-info--button-group">

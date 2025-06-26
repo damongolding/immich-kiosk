@@ -14,10 +14,23 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile]
+
+      - name: Build frontend
+        run: cd frontend && pnpm css && pnpm js
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.24.4"
+          go-version-file: "go.mod"
 
       - name: Get dependencies
         run: go mod download
