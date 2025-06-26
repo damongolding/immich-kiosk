@@ -572,53 +572,55 @@ func (c *Config) String() string {
 
 func (c *Config) SanitizedYaml() string {
 
+	const redacted = "REDACTED"
+
 	o := *c
 
-	o.ImmichAPIKey = "REDACTED"
-	o.ImmichURL = "REDACTED"
-	o.ImmichExternalURL = "REDACTED"
+	o.ImmichAPIKey = redacted
+	o.ImmichURL = redacted
+	o.ImmichExternalURL = redacted
 
-	for i, _ := range o.Album {
-		o.Album[i] = "REDACTED"
+	for i := range o.Album {
+		o.Album[i] = redacted
 	}
 
-	for i, _ := range o.ExcludedAlbums {
-		o.ExcludedAlbums[i] = "REDACTED"
+	for i := range o.ExcludedAlbums {
+		o.ExcludedAlbums[i] = redacted
 	}
 
-	for i, _ := range o.Person {
-		o.Person[i] = "REDACTED"
+	for i := range o.Person {
+		o.Person[i] = redacted
 	}
 
-	for i, _ := range o.ExcludedPeople {
-		o.ExcludedPeople[i] = "REDACTED"
+	for i := range o.ExcludedPeople {
+		o.ExcludedPeople[i] = redacted
 	}
 
-	for i, _ := range o.Tag {
-		o.Tag[i] = "REDACTED"
+	for i := range o.Tag {
+		o.Tag[i] = redacted
 	}
 
-	for i, _ := range o.ImmichUsersAPIKeys {
-		o.ImmichUsersAPIKeys[i] = "REDACTED"
+	for i := range o.ImmichUsersAPIKeys {
+		o.ImmichUsersAPIKeys[i] = redacted
 	}
 
-	for i, _ := range o.WeatherLocations {
-		o.WeatherLocations[i].Name = "REDACTED"
-		o.WeatherLocations[i].Lat = "REDACTED"
-		o.WeatherLocations[i].Lon = "REDACTED"
-		o.WeatherLocations[i].API = "REDACTED"
+	for i := range o.WeatherLocations {
+		o.WeatherLocations[i].Name = redacted
+		o.WeatherLocations[i].Lat = redacted
+		o.WeatherLocations[i].Lon = redacted
+		o.WeatherLocations[i].API = redacted
 	}
 
-	for i, _ := range o.Webhooks {
-		o.Webhooks[i].Secret = "REDACTED"
-		o.Webhooks[i].URL = "REDACTED"
+	for i := range o.Webhooks {
+		o.Webhooks[i].Secret = redacted
+		o.Webhooks[i].URL = redacted
 	}
 
-	for i, _ := range o.Kiosk.Redirects {
-		o.Kiosk.Redirects[i].URL = "REDACTED"
+	for i := range o.Kiosk.Redirects {
+		o.Kiosk.Redirects[i].URL = redacted
 	}
 
-	o.Kiosk.Password = "REDACTED"
+	o.Kiosk.Password = redacted
 
 	out, err := yaml.Marshal(o)
 	if err != nil {
