@@ -63,13 +63,6 @@
     z-index: 1;
 }
 
-/* solid theme */
-.weather--theme-solid {
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 0 0 0 2rem;
-    align-self: start;
-}
-
 /* sleep mode */
 .sleep #weather-container {
     display: none;
