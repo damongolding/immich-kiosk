@@ -8,7 +8,7 @@
 
     &.progress-bottom {
         bottom: 0;
-        top: auto;
+        top: unset;
     }
 }
 
