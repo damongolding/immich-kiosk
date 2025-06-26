@@ -45,12 +45,42 @@ jobs:
           RELEASE_URL="https://github.com/$REPO_OWNER/$REPO_NAME/releases/tag/v${{ env.VERSION }}"
           echo "RELEASE_URL=$RELEASE_URL" >> $GITHUB_ENV
 
+      - name: Collect H2 headings from the release notes
+        id: collect_h2
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          BODY=$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/$TAG_NAME" --jq .body)
+
+          if [ "$BODY" = "null" ] || [ -z "$BODY" ]; then
+            echo "No release found for tag $TAG_NAME" >&2
+            exit 1
+          fi
+
+          HEADERS=$(printf '%s\n' "$BODY" \
+            | sed -n '/^## /p' \
+            | sed "/^## What's Changed/,\$d" \
+            | sed 's/^## \s*//; s/^/- /')
+
+          {
+            echo 'HEADERS<<EOF'
+            echo "$HEADERS"
+            echo EOF
+          } >> "$GITHUB_ENV"
+
       - name: Discord Notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: "Immich Kiosk ${{ env.VERSION }} has been released! Check it out: ${{ env.RELEASE_URL }}"
+          args: |
+            **Immich Kiosk ${{ env.VERSION }} released!**
+
+            What's changed:
+            ${{ env.HEADERS }}
+
+            ${{ env.RELEASE_URL }}
 
   trigger:
     runs-on: ubuntu-latest
