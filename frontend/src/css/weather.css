@@ -25,22 +25,6 @@
     }
 }
 
-.weather--theme-fade::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: unset;
-    right: 0;
-    bottom: unset;
-    width: 150%;
-    height: 200%;
-    background-image: radial-gradient(
-        100% 100% at 100% 0%,
-        var(--fade-gradient)
-    );
-    z-index: var(--z-base);
-}
-
 .weather--temp {
     display: flex;
     font-size: 3rem;
@@ -61,7 +45,7 @@
     display: flex;
     padding-top: 0.1rem;
     gap: 0.5rem;
-    align-items: end;
+    align-items: center;
 }
 
 .weather--description--icon {
@@ -77,13 +61,6 @@
 
 .weather--description--value {
     z-index: 1;
-}
-
-/* solid theme */
-.weather--theme-solid {
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 0 0 0 2rem;
-    align-self: start;
 }
 
 /* sleep mode */
