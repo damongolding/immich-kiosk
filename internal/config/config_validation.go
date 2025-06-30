@@ -318,11 +318,8 @@ func (c *Config) checkAlbumOrder() {
 		AlbumOrderDescending,
 		AlbumOrderNewest,
 	}
-	isValid := false
 
-	if slices.Contains(validOrders, c.AlbumOrder) {
-		isValid = true
-	}
+	isValid := slices.Contains(validOrders, c.AlbumOrder)
 
 	if !isValid {
 		log.Warnf("Invalid album_order value: %s. Using default: random", c.AlbumOrder)
