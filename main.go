@@ -149,7 +149,7 @@ func main() {
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
 
-	if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
+	if !baseConfig.Kiosk.DisableConfigEndpoint {
 		e.GET("/config", func(c echo.Context) error {
 			return c.String(http.StatusOK, baseConfig.SanitizedYaml())
 		})
