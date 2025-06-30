@@ -108,10 +108,7 @@ func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.R
 func RenderError(c echo.Context, err error, message string, refresh int) error {
 	log.Error(message, "err", err)
 
-	retry := false
-	if refresh > 5 {
-		retry = true
-	}
+	retry := refresh > 5
 
 	return Render(c, http.StatusOK, partials.Error(partials.ErrorData{
 		Title:   "Error " + message,
