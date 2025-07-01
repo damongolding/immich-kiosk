@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cenkalti/dominantcolor"
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -473,11 +474,14 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		return common.ViewImageData{}, err
 	}
 
+	dominantColor := utils.DarkenColor(dominantcolor.Find(img), 0.3)
+
 	return common.ViewImageData{
-		ImmichAsset:   immichAsset,
-		ImageData:     imgString,
-		ImageBlurData: imgBlurString,
-		User:          requestConfig.SelectedUser,
+		ImmichAsset:        immichAsset,
+		ImageData:          imgString,
+		ImageBlurData:      imgBlurString,
+		ImageDominantColor: dominantColor,
+		User:               requestConfig.SelectedUser,
 	}, nil
 }
 

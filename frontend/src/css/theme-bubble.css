@@ -7,7 +7,7 @@
     gap: 0.3rem;
     .asset--metadata--has-icon {
         padding: 0.4rem 1rem;
-        background-color: var(--bubble-background);
+        /* background-color: var(--bubble-background); */
         border-radius: 10rem;
         backdrop-filter: blur(0.5rem);
     }

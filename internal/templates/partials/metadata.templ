@@ -15,6 +15,16 @@ import (
 	"golang.org/x/text/language"
 )
 
+func bubbleBackground(c string, asset common.ViewImageData) string {
+	return fmt.Sprintf(`
+	<style>
+	 .%s .asset--metadata--has-icon {
+		background-color: rgba(%d, %d, %d, 0.6);
+		}
+	</style>
+	`, c, asset.ImageDominantColor.R, asset.ImageDominantColor.G, asset.ImageDominantColor.B)
+}
+
 // AssetMetadata renders metadata for an asset as an HTML component.
 // Displays configurable metadata including people, albums, date/time,
 // description, EXIF data, location and asset ID.
@@ -32,7 +42,11 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ rightAlignIcons := len(viewData.Assets) > 1 && assetIndex == 1 }}
 	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
 	{{ showUser := viewData.ShowUser }}
-	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
+	{{ className := "bubble-" + utils.GenerateUUID() }}
+	if viewData.Theme == "bubble" {
+		@templ.Raw(bubbleBackground(className, viewData.Assets[assetIndex]))
+	}
+	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons), className }>
 		if showUser && viewData.Assets[assetIndex].User != "" {
 			@userIcon(cases.Title(language.English).String(viewData.Assets[assetIndex].User))
 		}

@@ -139,7 +139,7 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 
 	// Stream the rendered HTML directly
 	if err := t.Render(ctx.Request().Context(), ctx.Response().Writer); err != nil {
-		log.Error("rendering view", "err", err)
+		log.Warn("rendering view", "err", err)
 		return err
 	}
 

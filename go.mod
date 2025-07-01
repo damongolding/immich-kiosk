@@ -4,6 +4,7 @@ go 1.24.4
 
 require (
 	github.com/a-h/templ v0.3.906
+	github.com/cenkalti/dominantcolor v1.0.3
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/disintegration/imaging v1.6.2
