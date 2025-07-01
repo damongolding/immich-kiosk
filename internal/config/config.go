@@ -23,10 +23,13 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"os"
+	"reflect"
 	"sync"
 	"time"
+	"unsafe"
 
 	"github.com/charmbracelet/log"
 	"github.com/goodsign/monday"
@@ -50,6 +53,8 @@ const (
 	AlbumOrderDescending = "descending"
 	AlbumOrderDesc       = "desc"
 	AlbumOrderNewest     = "newest"
+
+	redactedMarker = "REDACTED"
 )
 
 type OfflineMode struct {
@@ -68,9 +73,9 @@ type OfflineMode struct {
 // Redirect represents a URL redirection configuration with a friendly name.
 type Redirect struct {
 	// Name is the friendly identifier used to access the redirect
-	Name string `yaml:"name" mapstructure:"name"`
+	Name string `yaml:"name" mapstructure:"name" redact:"true"`
 	// URL is the destination address for the redirect
-	URL string `yaml:"url" mapstructure:"url"`
+	URL string `yaml:"url" mapstructure:"url" redact:"true"`
 	// Type specifies the redirect behaviour (e.g., "internal", "external")
 	Type string `yaml:"type" mapstructure:"type"`
 }
@@ -89,6 +94,9 @@ type KioskSettings struct {
 	// BehindProxy specifies whether the kiosk is behind a proxy
 	BehindProxy bool `json:"behindProxy" yaml:"behind_proxy" mapstructure:"behind_proxy" default:"false"`
 
+	// DisableConfigEndpoint disables the config endpoint
+	DisableConfigEndpoint bool `json:"disableConfigEndpoint"  yaml:"disable_config_endpoint" mapstructure:"disable_config_endpoint" default:"false"`
+
 	// WatchConfig if kiosk should watch config file for changes
 	WatchConfig bool `json:"watchConfig" yaml:"watch_config" mapstructure:"watch_config" default:"false"`
 
@@ -105,7 +113,7 @@ type KioskSettings struct {
 	PreFetch bool `json:"preFetch" yaml:"prefetch" mapstructure:"prefetch" default:"true"`
 
 	// Password the password used to add authentication to the frontend
-	Password string `json:"-" yaml:"password" mapstructure:"password" default:""`
+	Password string `json:"-" yaml:"password" mapstructure:"password" default:"" redact:"true"`
 
 	// AssetWeighting use weighting when picking assets
 	AssetWeighting bool `json:"assetWeighting" yaml:"asset_weighting" mapstructure:"asset_weighting" default:"true"`
@@ -118,19 +126,19 @@ type KioskSettings struct {
 }
 
 type WeatherLocation struct {
-	Name    string `yaml:"name" mapstructure:"name"`
-	Lat     string `yaml:"lat" mapstructure:"lat"`
-	Lon     string `yaml:"lon" mapstructure:"lon"`
-	API     string `yaml:"api" mapstructure:"api"`
-	Unit    string `yaml:"unit" mapstructure:"unit"`
-	Lang    string `yaml:"lang" mapstructure:"lang"`
+	Name    string `yaml:"name" mapstructure:"name" redact:"true"`
+	Lat     string `yaml:"lat" mapstructure:"lat" redact:"true"`
+	Lon     string `yaml:"lon" mapstructure:"lon" redact:"true"`
+	API     string `yaml:"api" mapstructure:"api" redact:"true"`
+	Unit    string `yaml:"unit" mapstructure:"unit" redact:"true"`
+	Lang    string `yaml:"lang" mapstructure:"lang" redact:"true"`
 	Default bool   `yaml:"default" mapstructure:"default"`
 }
 
 type Webhook struct {
-	URL    string `json:"url" yaml:"url" mapstructure:"url"`
+	URL    string `json:"url" yaml:"url" mapstructure:"url" redact:"true"`
 	Event  string `json:"event" yaml:"event" mapstructure:"event"`
-	Secret string `json:"secret" yaml:"secret" mapstructure:"secret"`
+	Secret string `json:"secret" yaml:"secret" mapstructure:"secret" redact:"true"`
 }
 
 // ClientData represents the client-specific dimensions received from the frontend.
@@ -182,19 +190,19 @@ type Config struct {
 	SystemLang monday.Locale `json:"-" yaml:"-" default:"en_GB"`
 
 	// ImmichAPIKey Immich key to access assets
-	ImmichAPIKey string `json:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:""`
+	ImmichAPIKey string `json:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:"" redact:"true"`
 	// ImmichURL Immuch base url
-	ImmichURL string `json:"-" yaml:"immich_url" mapstructure:"immich_url" default:""`
+	ImmichURL string `json:"-" yaml:"immich_url" mapstructure:"immich_url" default:"" redact:"true"`
 
 	// ImmichExternalURL specifies an external URL for Immich access. This can be used when
 	// the Immich instance is accessed through a different URL externally vs internally
 	// (e.g., when using reverse proxies or different network paths)
-	ImmichExternalURL string `json:"-" yaml:"immich_external_url" mapstructure:"immich_external_url" default:""`
+	ImmichExternalURL string `json:"-" yaml:"immich_external_url" mapstructure:"immich_external_url" default:"" redact:"true"`
 
 	// ImmichUsersAPIKeys a map of usernames to their respective api keys for accessing Immich
-	ImmichUsersAPIKeys map[string]string `json:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}"`
+	ImmichUsersAPIKeys map[string]string `json:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}" redact:"true"`
 	// User the user from ImmichUsersApiKeys to use when fetching images. If not set, it will use the default ImmichApiKey
-	User []string `json:"user" yaml:"user" mapstructure:"user" query:"user" form:"user" default:"[]"`
+	User []string `json:"user" yaml:"user" mapstructure:"user" query:"user" form:"user" default:"[]" redact:"true"`
 	// ShowUser whether to display user
 	ShowUser bool `json:"showUser" yaml:"show_user" mapstructure:"show_user" query:"show_user" form:"show_user" default:"false"`
 	// SelectedUser selected user from User for the specific request
@@ -244,22 +252,22 @@ type Config struct {
 	// SleepDimScreen dim screen when sleep mode is active (for Fully Kiosk Browser)
 	SleepDimScreen bool `json:"sleepDimScreen" yaml:"sleep_dim_screen" mapstructure:"sleep_dim_screen" query:"sleep_dim_screen" form:"sleep_dim_screen" default:"false"`
 	// SleepDisable disable sleep via url queries
-	DisableSleep bool `json:"disableSleep" query:"disable_sleep" form:"disable_sleep" default:"false"`
+	DisableSleep bool `json:"disableSleep" yaml:"disable_sleep" query:"disable_sleep" form:"disable_sleep" default:"false"`
 
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `json:"showArchived" yaml:"show_archived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 	// Person ID of person to display
-	Person           []string `json:"person" yaml:"person" mapstructure:"person" query:"person" form:"person" default:"[]"`
+	Person           []string `json:"person" yaml:"person" mapstructure:"person" query:"person" form:"person" default:"[]" redact:"true"`
 	RequireAllPeople bool     `json:"requireAllPeople" yaml:"require_all_people" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
-	ExcludedPeople   []string `json:"excludedPeople" yaml:"excluded_people" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]"`
+	ExcludedPeople   []string `json:"excludedPeople" yaml:"excluded_people" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]" redact:"true"`
 
 	// Album ID of album(s) to display
-	Album []string `json:"album" yaml:"album" mapstructure:"album" query:"album" form:"album" default:"[]"`
+	Album []string `json:"album" yaml:"album" mapstructure:"album" query:"album" form:"album" default:"[]" redact:"true"`
 	// AlbumOrder specifies the order in which album assets are displayed.
 	AlbumOrder     string   `json:"album_order" yaml:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
-	ExcludedAlbums []string `json:"excluded_albums" yaml:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]"`
+	ExcludedAlbums []string `json:"excluded_albums" yaml:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]" redact:"true"`
 	// Tag Name of tag to display
-	Tag []string `json:"tag" yaml:"tag" mapstructure:"tag" query:"tag" form:"tag" default:"[]" lowercase:"true"`
+	Tag []string `json:"tag" yaml:"tag" mapstructure:"tag" query:"tag" form:"tag" default:"[]" lowercase:"true" redact:"true"`
 	// Date date filter
 	Date []string `json:"date" yaml:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
 	// Memories show memories
@@ -358,10 +366,7 @@ type Config struct {
 	Webhooks []Webhook `json:"webhooks" yaml:"webhooks" mapstructure:"webhooks" default:"[]"`
 
 	// Blacklist define a list of assets to skip
-	Blacklist []string `json:"blacklist" yaml:"blacklist" mapstructure:"blacklist" default:"[]"`
-
-	// Kiosk settings that are unable to be changed via URL queries
-	Kiosk KioskSettings `json:"kiosk" yaml:"kiosk" mapstructure:"kiosk"`
+	Blacklist []string `json:"blacklist" yaml:"blacklist" mapstructure:"blacklist" default:"[]" redact:"true"`
 
 	// ClientData data sent from the client with data regarding itself
 	ClientData ClientData `yaml:"-"`
@@ -371,6 +376,9 @@ type Config struct {
 	UseOfflineMode bool `json:"useOfflineMode" yaml:"use_offline_mode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
 
 	OfflineMode OfflineMode `json:"offlineMode" yaml:"offline_mode" mapstructure:"offline_mode"`
+
+	// Kiosk settings that are unable to be changed via URL queries
+	Kiosk KioskSettings `json:"kiosk" yaml:"kiosk" mapstructure:"kiosk"`
 }
 
 // New returns a new config pointer instance
@@ -409,6 +417,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.behind_proxy", "KIOSK_BEHIND_PROXY"},
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
+		{"kiosk.disable_config_endpoint", "KIOSK_DISABLE_CONFIG_ENDPOINT"},
 		{"kiosk.fetched_assets_size", "KIOSK_FETCHED_ASSETS_SIZE"},
 		{"kiosk.http_timeout", "KIOSK_HTTP_TIMEOUT"},
 		{"kiosk.password", "KIOSK_PASSWORD"},
@@ -572,60 +581,128 @@ func (c *Config) String() string {
 
 func (c *Config) SanitizedYaml() string {
 
-	const redacted = "REDACTED"
-
-	o := *c
-
-	o.ImmichAPIKey = redacted
-	o.ImmichURL = redacted
-	o.ImmichExternalURL = redacted
-
-	for i := range o.Album {
-		o.Album[i] = redacted
-	}
-
-	for i := range o.ExcludedAlbums {
-		o.ExcludedAlbums[i] = redacted
-	}
-
-	for i := range o.Person {
-		o.Person[i] = redacted
-	}
-
-	for i := range o.ExcludedPeople {
-		o.ExcludedPeople[i] = redacted
-	}
-
-	for i := range o.Tag {
-		o.Tag[i] = redacted
-	}
-
-	for i := range o.ImmichUsersAPIKeys {
-		o.ImmichUsersAPIKeys[i] = redacted
-	}
-
-	for i := range o.WeatherLocations {
-		o.WeatherLocations[i].Name = redacted
-		o.WeatherLocations[i].Lat = redacted
-		o.WeatherLocations[i].Lon = redacted
-		o.WeatherLocations[i].API = redacted
-	}
-
-	for i := range o.Webhooks {
-		o.Webhooks[i].Secret = redacted
-		o.Webhooks[i].URL = redacted
-	}
-
-	for i := range o.Kiosk.Redirects {
-		o.Kiosk.Redirects[i].URL = redacted
-	}
-
-	o.Kiosk.Password = redacted
-
-	out, err := yaml.Marshal(o)
+	red := RedactedCopy(*c) // deep redacted clone
+	out, err := yaml.Marshal(red)
 	if err != nil {
-		log.Error("", "err", err)
+		log.Error("yaml marshal", "err", err)
+		return ""
+	}
+	return string(out)
+}
+
+// RedactedCopy returns a *new* value of the same concrete type as in,
+// with any field tagged `redact:"true"` masked.  It never touches the
+// original and uses only the standard library.
+func RedactedCopy[T any](in T) T {
+	src := reflect.ValueOf(in)
+	dst := reflect.New(src.Type()).Elem()
+	seen := make(map[unsafe.Pointer]reflect.Value) // cycle-guard
+	copyRec(src, dst, seen)
+	out, ok := dst.Interface().(T)
+	if !ok {
+		var zero T
+		return zero
+	}
+	return out
+}
+
+func copyRec(src, dst reflect.Value, seen map[unsafe.Pointer]reflect.Value) {
+	if !src.IsValid() {
+		return
 	}
 
-	return string(out)
+	switch src.Kind() {
+
+	case reflect.Pointer:
+		if src.IsNil() {
+			return
+		}
+		addr := unsafe.Pointer(src.Pointer())
+		if v, ok := seen[addr]; ok {
+			dst.Set(v)
+			return
+		}
+		dst.Set(reflect.New(src.Elem().Type()))
+		seen[addr] = dst
+		copyRec(src.Elem(), dst.Elem(), seen)
+
+	case reflect.Struct:
+		for i := range src.NumField() {
+			fsrc, fdst := src.Field(i), dst.Field(i)
+			fieldInfo := src.Type().Field(i)
+			if fieldInfo.Tag.Get("redact") == "true" {
+				maskValue(fsrc, fdst)
+				continue
+			}
+			if fdst.CanSet() {
+				copyRec(fsrc, fdst, seen)
+			}
+		}
+
+	case reflect.Slice, reflect.Array:
+		l := src.Len()
+		dslice := reflect.MakeSlice(src.Type(), l, l)
+		for i := range l {
+			copyRec(src.Index(i), dslice.Index(i), seen)
+		}
+		dst.Set(dslice)
+
+	case reflect.Map:
+		dmap := reflect.MakeMapWithSize(src.Type(), src.Len())
+		for _, k := range src.MapKeys() {
+			v := reflect.New(src.Type().Elem()).Elem()
+			copyRec(src.MapIndex(k), v, seen)
+			dmap.SetMapIndex(k, v)
+		}
+		dst.Set(dmap)
+
+	default: // primitives, interfaces, chans, funcs
+		dst.Set(src)
+	}
+}
+
+func maskValue(src, dst reflect.Value) {
+	switch dst.Kind() {
+	case reflect.String:
+		if src.String() == "" {
+			return
+		}
+		dst.SetString(redactedMarker)
+
+	case reflect.Slice:
+		if dst.Type().Elem().Kind() == reflect.String {
+			if src.Len() == 0 {
+				dst.Set(reflect.MakeSlice(src.Type(), 0, 0))
+				return
+			}
+			out := reflect.MakeSlice(src.Type(), src.Len(), src.Len())
+			for i := range src.Len() {
+				out.Index(i).SetString(redactedMarker)
+			}
+			dst.Set(out)
+			return
+		}
+		dst.Set(reflect.Zero(dst.Type()))
+
+	case reflect.Map:
+		if dst.Type().Key().Kind() == reflect.String && dst.Type().Elem().Kind() == reflect.String {
+			if src.Len() == 0 {
+				dst.Set(reflect.MakeMap(src.Type()))
+				return
+			}
+			out := reflect.MakeMapWithSize(src.Type(), src.Len())
+			i := 0
+			for range src.MapKeys() {
+				key := fmt.Sprintf("%s_%d", redactedMarker, i+1)
+				out.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(redactedMarker))
+				i++
+			}
+			dst.Set(out)
+			return
+		}
+		dst.Set(reflect.Zero(dst.Type()))
+
+	default:
+		dst.Set(reflect.Zero(dst.Type()))
+	}
 }
