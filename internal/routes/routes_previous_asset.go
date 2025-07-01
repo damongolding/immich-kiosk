@@ -2,11 +2,13 @@ package routes
 
 import (
 	"fmt"
+	"image/color"
 	"net/http"
 	"path"
 	"strings"
 	"sync"
 
+	pc "github.com/EdlinOrg/prominentcolor"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/sync/errgroup"
@@ -163,13 +165,15 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 				}(&asset, requestID, &wg)
 
 				var imgString, imgBlurString string
+				var dominantColor color.RGBA
 
 				defer func() {
 					viewData.Assets[prevAssetsID] = common.ViewImageData{
-						ImmichAsset:   asset,
-						ImageData:     imgString,
-						ImageBlurData: imgBlurString,
-						User:          selectedUser,
+						ImmichAsset:        asset,
+						ImageData:          imgString,
+						ImageBlurData:      imgBlurString,
+						ImageDominantColor: dominantColor,
+						User:               selectedUser,
 					}
 				}()
 
@@ -200,6 +204,15 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 				imgBlurString, blurErr := processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
 				if blurErr != nil {
 					return fmt.Errorf("converting blurred image to base64: %w", blurErr)
+				}
+
+				if requestConfig.Theme == kiosk.ThemeBubble {
+					colours, coloursErr := pc.Kmeans(img)
+					if coloursErr != nil {
+						return fmt.Errorf("converting blurred image to base64: %w", blurErr)
+					}
+
+					dominantColor = utils.DarkenColor(color.RGBA{R: uint8(colours[0].Color.R), G: uint8(colours[0].Color.G), B: uint8(colours[0].Color.B), A: 255}, 0.3)
 				}
 
 				wg.Wait()

@@ -831,22 +831,25 @@ func RemoveDuplicatesInPlace(slice1 *[]string, slice2 []string) {
 }
 
 // Converts RGB (0–255) to HSL
-func rgbToHsl(r, g, b uint8) (h, s, l float64) {
+func rgbToHsl(r, g, b uint8) (float64, float64, float64) {
 	rf, gf, bf := float64(r)/255, float64(g)/255, float64(b)/255
-	max := math.Max(rf, math.Max(gf, bf))
-	min := math.Min(rf, math.Min(gf, bf))
-	l = (max + min) / 2
+	maximum := math.Max(rf, math.Max(gf, bf))
+	minimum := math.Min(rf, math.Min(gf, bf))
 
-	if max == min {
+	var h, s, l float64
+
+	l = (maximum + minimum) / 2
+
+	if maximum == minimum {
 		h, s = 0, 0 // achromatic
 	} else {
-		d := max - min
+		d := maximum - minimum
 		if l > 0.5 {
-			s = d / (2.0 - max - min)
+			s = d / (2.0 - maximum - minimum)
 		} else {
-			s = d / (max + min)
+			s = d / (maximum + minimum)
 		}
-		switch max {
+		switch maximum {
 		case rf:
 			h = (gf - bf) / d
 			if gf < bf {
@@ -859,44 +862,44 @@ func rgbToHsl(r, g, b uint8) (h, s, l float64) {
 		}
 		h /= 6
 	}
-	return
+	return h, s, l
 }
 
 // Converts HSL to RGB (0–255)
-func hslToRgb(h, s, l float64) (r, g, b uint8) {
+func hslToRgb(h, s, l float64) (uint8, uint8, uint8) {
 	var rF, gF, bF float64
 
 	if s == 0 {
-		rF, gF, bF = l, l, l // achromatic
-	} else {
-		var hueToRgb = func(p, q, t float64) float64 {
-			if t < 0 {
-				t += 1
-			}
-			if t > 1 {
-				t -= 1
-			}
-			if t < 1.0/6 {
-				return p + (q-p)*6*t
-			}
-			if t < 1.0/2 {
-				return q
-			}
-			if t < 2.0/3 {
-				return p + (q-p)*(2.0/3-t)*6
-			}
-			return p
-		}
-
-		q := l * (1 + s)
-		if l >= 0.5 {
-			q = l + s - l*s
-		}
-		p := 2*l - q
-		rF = hueToRgb(p, q, h+1.0/3)
-		gF = hueToRgb(p, q, h)
-		bF = hueToRgb(p, q, h-1.0/3)
+		return uint8(l * 255), uint8(l * 255), uint8(l * 255)
 	}
+
+	var hueToRgb = func(p, q, t float64) float64 {
+		if t < 0 {
+			t += 1
+		}
+		if t > 1 {
+			t -= 1
+		}
+		if t < 1.0/6 {
+			return p + (q-p)*6*t
+		}
+		if t < 1.0/2 {
+			return q
+		}
+		if t < 2.0/3 {
+			return p + (q-p)*(2.0/3-t)*6
+		}
+		return p
+	}
+
+	q := l * (1 + s)
+	if l >= 0.5 {
+		q = l + s - l*s
+	}
+	p := 2*l - q
+	rF = hueToRgb(p, q, h+1.0/3)
+	gF = hueToRgb(p, q, h)
+	bF = hueToRgb(p, q, h-1.0/3)
 
 	return uint8(rF * 255), uint8(gF * 255), uint8(bF * 255)
 }

@@ -14,10 +14,40 @@
 }
 
 /* clock and weather */
-.clock--theme-bubble,
+/* .clock--theme-bubble,
 .weather--theme-bubble .weather {
     margin: 1rem;
     background-color: var(--bubble-background);
     border-radius: 0.6rem;
     backdrop-filter: blur(0.5rem);
+} */
+
+/* clock */
+.clock--theme-bubble::before {
+    content: "";
+    position: absolute;
+    bottom: unset;
+    top: 0;
+    left: 0;
+    width: 150%;
+    height: 200%;
+    background-image: radial-gradient(100% 100% at 0% 0%, var(--fade-gradient));
+    z-index: var(--z-base);
+}
+
+/* weather */
+.weather--theme-bubble::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: unset;
+    right: 0;
+    bottom: unset;
+    width: 150%;
+    height: 200%;
+    background-image: radial-gradient(
+        100% 100% at 100% 0%,
+        var(--fade-gradient)
+    );
+    z-index: var(--z-base);
 }

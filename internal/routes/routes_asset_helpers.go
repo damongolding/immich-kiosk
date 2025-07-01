@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"image"
+	"image/color"
 	"math/rand/v2"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/cenkalti/dominantcolor"
+	pc "github.com/EdlinOrg/prominentcolor"
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -469,12 +470,10 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	}
 
 	// Convert images to required formats
-	imgString, imgBlurString, err := convertImages(img, immichAsset.Type, requestConfig, metadata, isPrefetch)
+	imgString, imgBlurString, dominantColor, err := convertImages(img, immichAsset.Type, requestConfig, metadata, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, err
 	}
-
-	dominantColor := utils.DarkenColor(dominantcolor.Find(img), 0.3)
 
 	return common.ViewImageData{
 		ImmichAsset:        immichAsset,
@@ -554,18 +553,30 @@ func handleFaceProcessing(img image.Image, asset *immich.Asset, config config.Co
 
 // convertImages converts the provided image to base64 strings for both normal and blurred versions.
 // Returns the base64 encoded normal image, blurred image, and any error that occurred.
-func convertImages(img image.Image, assetType immich.AssetType, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, error) {
+func convertImages(img image.Image, assetType immich.AssetType, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, color.RGBA, error) {
+
+	var dominantColor color.RGBA
+
 	imgString, err := imageToBase64(img, config, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
 	if err != nil {
-		return "", "", err
+		return "", "", dominantColor, err
 	}
 
 	imgBlurString, err := processBlurredImage(img, assetType, config, metadata.requestID, metadata.deviceID, isPrefetch)
 	if err != nil {
-		return "", "", err
+		return "", "", dominantColor, err
 	}
 
-	return imgString, imgBlurString, nil
+	if config.Theme == kiosk.ThemeBubble {
+		colours, coloursErr := pc.Kmeans(img)
+		if coloursErr != nil {
+			return "", "", dominantColor, coloursErr
+		}
+
+		dominantColor = utils.DarkenColor(color.RGBA{R: uint8(colours[0].Color.R), G: uint8(colours[0].Color.G), B: uint8(colours[0].Color.B), A: 255}, 0.3)
+	}
+
+	return imgString, imgBlurString, dominantColor, nil
 }
 
 // ProcessViewImageData processes view data for an image without orientation constraints
