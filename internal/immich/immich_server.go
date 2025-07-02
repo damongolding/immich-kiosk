@@ -62,13 +62,13 @@ func (a *Asset) AboutInfo() (ServerAboutResponse, error) {
 	return serverAboutResponse, nil
 }
 
-type ServerPingResonse struct {
+type ServerPingResponse struct {
 	Res string `json:"res"`
 }
 
-func IsOnline(immichURL string) bool {
+func IsOnline(ctx context.Context, immichURL string) bool {
 
-	var pong ServerPingResonse
+	var pong ServerPingResponse
 
 	u, err := url.Parse(immichURL)
 	if err != nil {
@@ -81,7 +81,7 @@ func IsOnline(immichURL string) bool {
 		Path:   "api/server/ping",
 	}
 
-	req, reqErr := http.NewRequestWithContext(context.TODO(), http.MethodGet, apiURL.String(), nil)
+	req, reqErr := http.NewRequestWithContext(ctx, http.MethodGet, apiURL.String(), nil)
 	if reqErr != nil {
 		return false
 	}
@@ -101,7 +101,7 @@ func IsOnline(immichURL string) bool {
 
 	responseBody, responseBodyErr := io.ReadAll(res.Body)
 	if responseBodyErr != nil {
-		log.Error("reading response body", "method", "GET", "url", apiURL.String(), "err", err)
+		log.Error("reading response body", "method", "GET", "url", apiURL.String(), "err", responseBodyErr)
 		return false
 	}
 

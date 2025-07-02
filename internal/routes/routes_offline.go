@@ -100,7 +100,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		}
 
 		if requestConfig.OfflineMode.ExpirationHours > 0 {
-			expired, expiredErr := checkOfflineAssetsExpiration(requestConfig.ImmichURL)
+			expired, expiredErr := checkOfflineAssetsExpiration(com.Context(), requestConfig.ImmichURL)
 			if expiredErr != nil {
 				return expiredErr
 			}
@@ -497,7 +497,7 @@ func handleNoOfflineAssets(c echo.Context, requestConfig config.Config, com *com
 // Returns:
 //   - bool: true if assets have expired, false otherwise
 //   - error: any error encountered during the process
-func checkOfflineAssetsExpiration(immichURL string) (bool, error) {
+func checkOfflineAssetsExpiration(ctx context.Context, immichURL string) (bool, error) {
 	expirationContent, expirationErr := os.ReadFile(filepath.Join(OfflineAssetsPath, OfflineExpirationFilename))
 	if expirationErr != nil {
 		log.Warn("expiration missing", "err", expirationErr)
@@ -511,7 +511,7 @@ func checkOfflineAssetsExpiration(immichURL string) (bool, error) {
 	}
 
 	if time.Now().After(expirationTime) {
-		if !immich.IsOnline(immichURL) {
+		if !immich.IsOnline(ctx, immichURL) {
 			log.Warn("Offline assets have expired but Immich is offline")
 			return false, nil
 		}
