@@ -21,6 +21,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
@@ -99,7 +100,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		}
 
 		if requestConfig.OfflineMode.ExpirationHours > 0 {
-			expired, expiredErr := checkOfflineAssetsExpiration()
+			expired, expiredErr := checkOfflineAssetsExpiration(requestConfig.ImmichURL)
 			if expiredErr != nil {
 				return expiredErr
 			}
@@ -496,7 +497,7 @@ func handleNoOfflineAssets(c echo.Context, requestConfig config.Config, com *com
 // Returns:
 //   - bool: true if assets have expired, false otherwise
 //   - error: any error encountered during the process
-func checkOfflineAssetsExpiration() (bool, error) {
+func checkOfflineAssetsExpiration(immichURL string) (bool, error) {
 	expirationContent, expirationErr := os.ReadFile(filepath.Join(OfflineAssetsPath, OfflineExpirationFilename))
 	if expirationErr != nil {
 		log.Warn("expiration missing", "err", expirationErr)
@@ -510,6 +511,10 @@ func checkOfflineAssetsExpiration() (bool, error) {
 	}
 
 	if time.Now().After(expirationTime) {
+		if !immich.IsOnline(immichURL) {
+			log.Warn("Offline assets have expired but Immich is offline")
+			return false, nil
+		}
 		log.Info("Offline assets have expired")
 		cleanErr := utils.CleanDirectory(OfflineAssetsPath)
 		if cleanErr != nil {

@@ -1,9 +1,13 @@
 package immich
 
 import (
+	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/charmbracelet/log"
 )
 
 type ServerAboutResponse struct {
@@ -56,4 +60,57 @@ func (a *Asset) AboutInfo() (ServerAboutResponse, error) {
 	}
 
 	return serverAboutResponse, nil
+}
+
+type ServerPingResonse struct {
+	Res string `json:"res"`
+}
+
+func IsOnline(immichURL string) bool {
+
+	var pong ServerPingResonse
+
+	u, err := url.Parse(immichURL)
+	if err != nil {
+		return false
+	}
+
+	apiURL := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   "api/server/ping",
+	}
+
+	req, reqErr := http.NewRequestWithContext(context.TODO(), http.MethodGet, apiURL.String(), nil)
+	if reqErr != nil {
+		return false
+	}
+
+	req.Header.Set("Accept", "application/json")
+
+	res, resErr := HTTPClient.Do(req)
+	if resErr != nil {
+		return false
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		log.Error("Immich server Ping", "status", res.StatusCode)
+		return false
+	}
+
+	responseBody, responseBodyErr := io.ReadAll(res.Body)
+	if responseBodyErr != nil {
+		log.Error("reading response body", "method", "GET", "url", apiURL.String(), "err", err)
+		return false
+	}
+
+	err = json.Unmarshal(responseBody, &pong)
+	if err != nil {
+		log.Error("Immich server Ping", "err", err)
+		return false
+	}
+
+	return pong.Res == "pong"
+
 }
