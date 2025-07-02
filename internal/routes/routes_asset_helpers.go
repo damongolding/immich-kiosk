@@ -263,7 +263,7 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 	}
 
 	if isOriginal {
-		img = utils.ApplyExifOrientation(img, immichAsset.IsLandscape, immichAsset.ExifInfo.Orientation)
+		img = utils.ApplyExifOrientation(img, immichAsset.ExifInfo.Orientation)
 	}
 
 	return img, nil

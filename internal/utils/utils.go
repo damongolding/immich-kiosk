@@ -141,8 +141,8 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 	return img, nil
 }
 
-// ApplyExifOrientation adjusts an image's orientation based on EXIF data and desired landscape/portrait mode.
-// It takes an image, a boolean indicating if landscape orientation is desired, and an EXIF orientation string.
+// ApplyExifOrientation adjusts an image's orientation based on EXIF data.
+// It takes an image and an EXIF orientation string.
 // The EXIF orientation values follow the standard specification:
 //
 //	1 = Normal
@@ -155,7 +155,7 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 //	8 = Rotated 90° CW
 //
 // Returns the properly oriented image.
-func ApplyExifOrientation(img image.Image, isLandscape bool, exifOrientation string) image.Image {
+func ApplyExifOrientation(img image.Image, exifOrientation string) image.Image {
 
 	if img == nil {
 		return nil
