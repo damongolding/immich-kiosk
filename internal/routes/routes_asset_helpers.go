@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/EdlinOrg/prominentcolor"
 	pc "github.com/EdlinOrg/prominentcolor"
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -568,7 +569,7 @@ func convertImages(img image.Image, assetType immich.AssetType, config config.Co
 	}
 
 	if config.Theme == kiosk.ThemeBubble {
-		colours, coloursErr := pc.Kmeans(img)
+		colours, coloursErr := pc.KmeansWithArgs(prominentcolor.ArgumentNoCropping, img)
 		if coloursErr != nil {
 			return "", "", dominantColor, coloursErr
 		}

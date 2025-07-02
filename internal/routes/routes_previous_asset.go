@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/EdlinOrg/prominentcolor"
 	pc "github.com/EdlinOrg/prominentcolor"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -207,7 +208,7 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 				}
 
 				if requestConfig.Theme == kiosk.ThemeBubble {
-					colours, coloursErr := pc.Kmeans(img)
+					colours, coloursErr := pc.KmeansWithArgs(prominentcolor.ArgumentNoCropping, img)
 					if coloursErr != nil {
 						return fmt.Errorf("converting blurred image to base64: %w", blurErr)
 					}

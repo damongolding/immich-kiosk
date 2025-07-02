@@ -1,26 +1,13 @@
 /* Bubble theme */
-* {
-    text-shadow: none;
-}
-
 .asset--metadata--theme-bubble {
     gap: 0.3rem;
     .asset--metadata--has-icon {
         padding: 0.4rem 1rem;
-        /* background-color: var(--bubble-background); */
         border-radius: 10rem;
-        backdrop-filter: blur(0.5rem);
+        backdrop-filter: blur(0.2rem);
+        text-shadow: none;
     }
 }
-
-/* clock and weather */
-/* .clock--theme-bubble,
-.weather--theme-bubble .weather {
-    margin: 1rem;
-    background-color: var(--bubble-background);
-    border-radius: 0.6rem;
-    backdrop-filter: blur(0.5rem);
-} */
 
 /* clock */
 .clock--theme-bubble::before {

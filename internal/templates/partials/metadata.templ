@@ -42,7 +42,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ rightAlignIcons := len(viewData.Assets) > 1 && assetIndex == 1 }}
 	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
 	{{ showUser := viewData.ShowUser }}
-	{{ className := "bubble-" + utils.GenerateUUID() }}
+	{{ className := "frame-" + utils.GenerateUUID() }}
 	if viewData.Theme == "bubble" {
 		@templ.Raw(bubbleBackground(className, viewData.Assets[assetIndex]))
 	}
