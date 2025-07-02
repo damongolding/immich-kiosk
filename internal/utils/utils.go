@@ -161,34 +161,25 @@ func ApplyExifOrientation(img image.Image, isLandscape bool, exifOrientation str
 		return nil
 	}
 
-	bounds := img.Bounds()
-	width := bounds.Dx()
-	height := bounds.Dy()
-
-	if width == height {
+	o, err := strconv.Atoi(exifOrientation)
+	if err != nil {
 		return img
 	}
 
-	// return if image is already in the correct orientation
-	isCurrentlyLandscape := width > height
-	if isCurrentlyLandscape == isLandscape {
-		return img
-	}
-
-	switch exifOrientation {
-	case "2":
+	switch o {
+	case 2:
 		return imaging.FlipH(img)
-	case "3":
+	case 3:
 		return imaging.Rotate180(img)
-	case "4":
+	case 4:
 		return imaging.FlipV(img)
-	case "5":
+	case 5:
 		return imaging.Transpose(img)
-	case "6":
+	case 6:
 		return imaging.Rotate270(img)
-	case "7":
+	case 7:
 		return imaging.Transverse(img)
-	case "8":
+	case 8:
 		return imaging.Rotate90(img)
 	default:
 		return img
