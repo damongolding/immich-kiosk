@@ -167,6 +167,8 @@ func ApplyExifOrientation(img image.Image, exifOrientation string) image.Image {
 	}
 
 	switch o {
+	case 1:
+		return img
 	case 2:
 		return imaging.FlipH(img)
 	case 3:
