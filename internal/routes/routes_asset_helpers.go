@@ -295,7 +295,7 @@ func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetTyp
 			return processVideo(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
 		}
 
-		return processImage(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
+		return processImage(immichAsset, requestConfig, requestID, deviceID, isPrefetch)
 	}
 
 	return nil, fmt.Errorf("%w: max retries exceeded", err)
@@ -324,8 +324,24 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 }
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview
-func processImage(immichAsset *immich.Asset, isOriginal bool, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
-	return fetchImagePreview(immichAsset, isOriginal, requestID, deviceID, isPrefetch)
+func processImage(immichAsset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
+
+	if requestConfig.LivePhotos && immichAsset.LivePhotoVideoID != "" {
+
+		isDownloaded := VideoManager.IsDownloaded(immichAsset.LivePhotoVideoID)
+		isDownloading := VideoManager.IsDownloading(immichAsset.LivePhotoVideoID)
+
+		if !isDownloaded && !isDownloading {
+
+			livePhoto := immich.New(context.TODO(), requestConfig)
+			livePhoto.ID = immichAsset.LivePhotoVideoID
+			livePhoto.AssetInfo(requestID, deviceID)
+
+			go VideoManager.DownloadVideo(livePhoto, requestConfig, deviceID, "")
+		}
+	}
+
+	return fetchImagePreview(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 }
 
 // imageToBase64 converts image bytes to a base64 string and logs the processing time.
@@ -347,8 +363,8 @@ func imageToBase64(img image.Image, config config.Config, requestID, deviceID st
 func processBlurredImage(img image.Image, assetType immich.AssetType, config config.Config, requestID, deviceID string, isPrefetch bool) (string, error) {
 	isImage := assetType == immich.ImageType
 	shouldSkipBlur := !config.BackgroundBlur ||
-		strings.EqualFold(config.ImageFit, "cover") ||
-		(config.ImageEffect != "" && config.ImageEffect != "none" && config.Layout != "single")
+		(strings.EqualFold(config.ImageFit, "cover") && !config.LivePhotos) ||
+		(config.ImageEffect != "" && config.ImageEffect != "none" && config.Layout != "single" && !config.LivePhotos)
 
 	if isImage && shouldSkipBlur {
 		return "", nil

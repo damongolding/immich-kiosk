@@ -193,6 +193,8 @@ func main() {
 
 	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
+	e.GET("/live/:liveID", routes.LivePhoto(baseConfig.Kiosk.DemoMode))
+
 	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode))
 
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
