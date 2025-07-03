@@ -12,6 +12,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v4"
 )
@@ -228,21 +229,7 @@ func LivePhoto(demoMode bool) echo.HandlerFunc {
 			videoOrientation = kiosk.PortraitOrientation
 		}
 
-		return c.HTML(http.StatusOK, fmt.Sprintf(`
-			<video
-				id="%s"
-				class="frame--video--%s live-photo"
-				autoplay
-				muted
-				loop
-				playsinline
-				webkit-playsinline
-				x-webkit-airplay="allow"
-			>
-				<source
-					src="/video/%s"
-				/>
-			</video>
-		`, video.ID, videoOrientation, video.ImmichAsset.ID))
+		return Render(c, http.StatusOK, partials.LivePhoto(video.ID, videoOrientation))
 	}
+
 }

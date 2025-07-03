@@ -1,0 +1,22 @@
+package partials
+
+import (
+	"fmt"
+)
+
+templ LivePhoto(videoID, videoOrientation string) {
+	<video
+		id={ videoID }
+		class={ "frame--video--"+videoOrientation, "live-photo"}
+		autoplay
+		muted
+		loop
+		playsinline
+		webkit-playsinline
+		x-webkit-airplay="allow"
+	>
+		<source
+			src={ fmt.Sprintf("/video/%s", videoID) }
+		/>
+	</video>
+}
