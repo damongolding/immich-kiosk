@@ -141,10 +141,10 @@ func main() {
 	}
 
 	// CSS cache busting
-	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public, StaticCacheMiddleware)
+	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public, StaticCacheMiddlewareWithConfig(baseConfig))
 
 	// JS cache busting
-	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public, StaticCacheMiddleware)
+	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public, StaticCacheMiddlewareWithConfig(baseConfig))
 
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
@@ -234,10 +234,17 @@ func NoCacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-// Middleware for static routes
-func StaticCacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		c.Response().Header().Set("Cache-Control", "public, max-age=86400, immutable")
-		return next(c)
+// Middleware for static routes with access to baseConfig
+func StaticCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+
+		if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
+			return NoCacheMiddleware(next)
+		}
+
+		return func(c echo.Context) error {
+			c.Response().Header().Set("Cache-Control", "public, max-age=86400, immutable")
+			return next(c)
+		}
 	}
 }

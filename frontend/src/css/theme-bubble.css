@@ -1,0 +1,40 @@
+/* Bubble theme */
+.asset--metadata--theme-bubble {
+    gap: 0.3rem;
+    .asset--metadata--has-icon {
+        padding: 0.4rem 1rem;
+        border-radius: 10rem;
+        backdrop-filter: blur(0.2rem);
+        text-shadow: none;
+    }
+}
+
+/* clock */
+.clock--theme-bubble::before {
+    content: "";
+    position: absolute;
+    bottom: unset;
+    top: 0;
+    left: 0;
+    width: 150%;
+    height: 200%;
+    background-image: radial-gradient(100% 100% at 0% 0%, var(--fade-gradient));
+    z-index: var(--z-base);
+}
+
+/* weather */
+.weather--theme-bubble::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: unset;
+    right: 0;
+    bottom: unset;
+    width: 150%;
+    height: 200%;
+    background-image: radial-gradient(
+        100% 100% at 100% 0%,
+        var(--fade-gradient)
+    );
+    z-index: var(--z-base);
+}

@@ -58,6 +58,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		requestConfig.History = requestData.RequestConfig.History
 		requestConfig.Memories = false
 		requestConfig.ExperimentalAlbumVideo = false
+		requestConfig.Theme = requestData.RequestConfig.Theme
 
 		if len(requestConfig.History) > 1 && !strings.HasPrefix(requestConfig.History[len(requestConfig.History)-1], "*") {
 			return NextHistoryAsset(baseConfig, com, c)
@@ -135,6 +136,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			viewData.DeviceID = deviceID
 			utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
 			viewData.History = requestConfig.History
+			viewData.Theme = requestConfig.Theme
 
 			return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
 		}
@@ -170,6 +172,7 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 	}
 	defer mu.Unlock()
 
+	requestConfig.UseOfflineMode = true
 	parallelDownloads := requestConfig.OfflineMode.ParallelDownloads
 	numberOfAssets := requestConfig.OfflineMode.NumberOfAssets
 	maxSize, maxSizeErr := utils.ParseSize(requestConfig.OfflineMode.MaxSize)
