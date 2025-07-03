@@ -568,7 +568,7 @@ func convertImages(img image.Image, assetType immich.AssetType, config config.Co
 		return "", "", dominantColor, err
 	}
 
-	if config.Theme == kiosk.ThemeBubble {
+	if config.Theme == kiosk.ThemeBubble || config.UseOfflineMode {
 		colours, coloursErr := pc.KmeansWithArgs(prominentcolor.ArgumentNoCropping, img)
 		if coloursErr != nil {
 			return "", "", dominantColor, coloursErr
