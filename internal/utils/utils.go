@@ -33,6 +33,7 @@ import (
 
 	"golang.org/x/image/webp"
 
+	"github.com/EdlinOrg/prominentcolor"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
@@ -898,7 +899,7 @@ func hslToRgb(h, s, l float64) (uint8, uint8, uint8) {
 }
 
 // Adjust lightness toward dark
-func DarkenColor(c color.Color, minL float64) color.RGBA {
+func darkenColor(c color.Color, minL float64) color.RGBA {
 	r, g, b, a := c.RGBA()
 	h, s, l := rgbToHsl(uint8(r>>8), uint8(g>>8), uint8(b>>8))
 
@@ -908,4 +909,22 @@ func DarkenColor(c color.Color, minL float64) color.RGBA {
 
 	r8, g8, b8 := hslToRgb(h, s, l)
 	return color.RGBA{r8, g8, b8, uint8(a >> 8)}
+}
+
+func ExtractDominantColor(img image.Image) (color.RGBA, error) {
+	colours, err := prominentcolor.KmeansWithArgs(prominentcolor.ArgumentNoCropping, img)
+	if err != nil {
+		return color.RGBA{}, err
+	}
+
+	if len(colours) == 0 {
+		return color.RGBA{}, errors.New("no prominent colors found")
+	}
+
+	return darkenColor(color.RGBA{
+		R: uint8(colours[0].Color.R),
+		G: uint8(colours[0].Color.G),
+		B: uint8(colours[0].Color.B),
+		A: 255,
+	}, 0.3), nil
 }

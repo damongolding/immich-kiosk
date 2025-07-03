@@ -16,13 +16,17 @@ import (
 )
 
 func bubbleBackground(c string, asset common.ViewImageData) string {
+	r := max(0, min(255, asset.ImageDominantColor.R))
+	g := max(0, min(255, asset.ImageDominantColor.G))
+	b := max(0, min(255, asset.ImageDominantColor.B))
+
 	return fmt.Sprintf(`
 	<style>
-	 .%s .asset--metadata--has-icon {
-		background-color: rgba(%d, %d, %d, 0.6);
+		.%s .asset--metadata--has-icon {
+			background-color: rgba(%d, %d, %d, 0.6);
 		}
 	</style>
-	`, c, asset.ImageDominantColor.R, asset.ImageDominantColor.G, asset.ImageDominantColor.B)
+	`, c, r, g, b)
 }
 
 // AssetMetadata renders metadata for an asset as an HTML component.

@@ -8,8 +8,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/EdlinOrg/prominentcolor"
-	pc "github.com/EdlinOrg/prominentcolor"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/sync/errgroup"
@@ -208,12 +206,10 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 				}
 
 				if requestConfig.Theme == kiosk.ThemeBubble {
-					colours, coloursErr := pc.KmeansWithArgs(prominentcolor.ArgumentNoCropping, img)
-					if coloursErr != nil {
-						return fmt.Errorf("converting blurred image to base64: %w", blurErr)
+					dominantColor, err = utils.ExtractDominantColor(img)
+					if err != nil {
+						return fmt.Errorf("converting blurred image to base64: %w", err)
 					}
-
-					dominantColor = utils.DarkenColor(color.RGBA{R: uint8(colours[0].Color.R), G: uint8(colours[0].Color.G), B: uint8(colours[0].Color.B), A: 255}, 0.3)
 				}
 
 				wg.Wait()

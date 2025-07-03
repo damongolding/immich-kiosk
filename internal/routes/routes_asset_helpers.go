@@ -10,8 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/EdlinOrg/prominentcolor"
-	pc "github.com/EdlinOrg/prominentcolor"
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -569,12 +567,10 @@ func convertImages(img image.Image, assetType immich.AssetType, config config.Co
 	}
 
 	if config.Theme == kiosk.ThemeBubble || config.UseOfflineMode {
-		colours, coloursErr := pc.KmeansWithArgs(prominentcolor.ArgumentNoCropping, img)
-		if coloursErr != nil {
-			return "", "", dominantColor, coloursErr
+		dominantColor, err = utils.ExtractDominantColor(img)
+		if err != nil {
+			return "", "", dominantColor, err
 		}
-
-		dominantColor = utils.DarkenColor(color.RGBA{R: uint8(colours[0].Color.R), G: uint8(colours[0].Color.G), B: uint8(colours[0].Color.B), A: 255}, 0.3)
 	}
 
 	return imgString, imgBlurString, dominantColor, nil
