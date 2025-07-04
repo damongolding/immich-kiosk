@@ -335,7 +335,10 @@ func processImage(immichAsset *immich.Asset, requestConfig config.Config, reques
 
 			livePhoto := immich.New(context.TODO(), requestConfig)
 			livePhoto.ID = immichAsset.LivePhotoVideoID
-			livePhoto.AssetInfo(requestID, deviceID)
+			err := livePhoto.AssetInfo(requestID, deviceID)
+			if err != nil {
+				return nil, err
+			}
 
 			go VideoManager.DownloadVideo(livePhoto, requestConfig, deviceID, "")
 		}
