@@ -78,18 +78,18 @@ This section is used to generate the UnRaid template.
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | date_format                       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year.                                         |
 | clock_source                      | KIOSK_CLOCK_SOURCE      | client \| server           | client      | The source of the clock. Either client or server.                                          |
-| refresh                           | KIOSK_REFRESH           | int                        | 60          | The amount in seconds an image will be displayed for.                                      |
+| refresh                           | KIOSK_REFRESH           | int                        | 60          | The duration in seconds an image will be displayed for.                                      |
 | disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking.        |
 | optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions                 |
 | use_gpu                           | KIOSK_USE_GPU           | bool                       | true        | Enable GPU acceleration for improved performance (e.g., CSS transforms)                    |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
-| album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. | information. |
+| album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. |
 | album_order                       | KIOSK_ALBUM_ORDER       | random \| newest \| oldest | random      | The order an album's assets will be displayed. |
-| excluded_albums                   | KIOSK_EXCLUDED_ALBUMS   | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. | for more information. |
+| excluded_albums                   | KIOSK_EXCLUDED_ALBUMS   | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. |
 | experimental_album_video          | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. |
-| person                            | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. | information. |
-| require_all_people                | KIOSK_REQUIRE_ALL_PEOPLE | bool                      | false       | Require all people to be present in an asset. | more information. |
-| excluded_people                   | KIOSK_EXCLUDED_PEOPLE   | []string                   | []          | The ID(s) of a specific person or people you want to exclude. | for more information. |
+| person                            | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. |
+| require_all_people                | KIOSK_REQUIRE_ALL_PEOPLE | bool                      | false       | Require all people to be present in an asset. |
+| excluded_people                   | KIOSK_EXCLUDED_PEOPLE   | []string                   | []          | The ID(s) of a specific person or people you want to exclude. |
 | date                              | KIOSK_DATE              | []string                   | []          | A date range or ranges. |
 | tag                               | KIOSK_TAG               | []string                   | []          | Tag or tags you want to display. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memories. |
@@ -97,6 +97,7 @@ This section is used to generate the UnRaid template.
 | date_filter                       | KIOSK_DATE_FILTER       | string                     | ""          | Filter person and random assets by date. |
 | disable_navigation               | KIOSK_DISABLE_NAVIGATION | bool                       | false       | Disable all Kiosk's navigation (touch/click, keyboard and menu).    |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and image_date_format to false.    |
+| menu_position                     | KIOSK_MENU_POSITION     | top \| bottom              | top         | Sets the position of the menu bar.    |
 | frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
 | hide_cursor                       | KIOSK_HIDE_CURSOR       | bool                       | false       | Hide cursor/mouse via CSS.                                                                 |
 | font_size                         | KIOSK_FONT_SIZE         | int                        | 100         | The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.      |
@@ -115,7 +116,7 @@ This section is used to generate the UnRaid template.
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
-| progress_position                 | KIOSK_PROGRESS_POSITION | top \| bottom              | top         | Set the position of the progress bar.                                                      |
+| progress_position                 | KIOSK_PROGRESS_POSITION | top \| bottom              | top         | Sets the position of the progress bar.                                                      |
 | image_fit                         | KIOSK_IMAGE_FIT         | contain \| cover \| none   | contain     | How your image will fit on the screen. Default is contain. |
 | image_effect                      | KIOSK_IMAGE_EFFECT      | none \| zoom \| smart-zoom | none        | Add an effect to images.                                                                   |
 | image_effect_amount               | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
