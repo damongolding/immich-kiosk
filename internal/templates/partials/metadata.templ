@@ -3,6 +3,7 @@ package partials
 import (
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -244,15 +245,14 @@ func calculateAge(assetDate, birthDate time.Time, switchToYears int) string {
 	// Choose appropriate format based on the age
 	switch {
 	case years > 0 && years < switchToYears:
-		// totalMonths := months + (years * 12)
 		if months == 0 {
-			return fmt.Sprintf("%d yrs", years)
+			return strconv.Itoa(years)
 		}
 		return fmt.Sprintf("%dy %dm", years, months)
 	case years > 0:
-		return pluralize(years, "yr")
+		return strconv.Itoa(years)
 	case months > 0:
-		return fmt.Sprintf("%d mo", months)
+		return fmt.Sprintf("%dm", months)
 	default:
 		return pluralize(totalDays, "day")
 	}
