@@ -42,25 +42,3 @@ export function livePhoto(delay: number) {
         true,
     );
 }
-
-// export function livePhoto(delay: number) {
-//     document.addEventListener(
-//         "ended",
-//         (event) => {
-//             const target = event.target;
-//             if (!(target instanceof HTMLVideoElement)) return;
-//             if (!target.hasAttribute("data-live-photo")) return;
-
-//             target.classList.add("live-photo-fade");
-
-//             setTimeout(() => {
-//                 if (!target.isConnected) return;
-
-//                 target.currentTime = 0;
-//                 target.classList.remove("live-photo-fade");
-//                 target.play();
-//             }, 500 + delay);
-//         },
-//         true,
-//     );
-// }
