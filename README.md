@@ -104,12 +104,12 @@ This section is used to generate the UnRaid template.
 | background_blur_amount            | KIOSK_BACKGROUND_BLUR_AMOUNT | int                   | 10          | The amount of blur to apply to the background image (sigma).                               |
 | theme                             | KIOSK_THEME             | fade \| solid              | fade        | Which theme to use. |
 | layout                            | KIOSK_LAYOUT            | single \| portrait \| landscape \| splitview \| splitview-landscape | single | Which layout to use.                         |
-| [sleep_start](#sleep-mode)        | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. |
-| [sleep_end](#sleep-mode)          | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. |
-| [sleep_icon](#sleep-mode)         | KIOSK_SLEEP_ICON        | string                     | ""          | Display icon during sleep mode. |
-| [sleep_dim_screen](#sleep-mode)   | KIOSK_SLEEP_DIM_SCREEN  | bool                       | false       | Dim screen during sleep mode when using Fully Kiosk Browser. |
-| [disable_sleep](#sleep-mode)      | N/A                     | bool                       | false       | Bypass sleep mode by adding `disable_sleep=true` to the URL. |
-| [custom_css](#custom-css)         | N/A                     | bool                       | true        | Allow custom CSS to be used. |
+| sleep_start                       | KIOSK_SLEEP_START       | string                     | ""          | Time (in 24hr format) to start sleep mode. |
+| sleep_end                         | KIOSK_SLEEP_END         | string                     | ""          | Time (in 24hr format) to end sleep mode. |
+| sleep_icon                        | KIOSK_SLEEP_ICON        | string                     | ""          | Display icon during sleep mode. |
+| sleep_dim_screen                  | KIOSK_SLEEP_DIM_SCREEN  | bool                       | false       | Dim screen during sleep mode when using Fully Kiosk Browser. |
+| disable_sleep                     | N/A                     | bool                       | false       | Bypass sleep mode by adding `disable_sleep=true` to the URL. |
+| custom_css                        | N/A                     | bool                       | true        | Allow custom CSS to be used. |
 | custom_css_class                  | N/A                     | string                     | ""          | This enables you to target specific devices in your CSS.              |
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
