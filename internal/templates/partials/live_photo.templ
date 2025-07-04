@@ -1,0 +1,38 @@
+package partials
+
+import (
+	"fmt"
+)
+
+templ LivePhoto(videoID, videoOrientation string) {
+	<video
+		data-live-photo
+		data-group={ fmt.Sprintf("live-photo-%s", videoID) }
+		data-live-photo-role="bottom"
+		class={ "frame--video--"+videoOrientation, "live-photo", "live-photo-bottom"}
+		muted
+		playsinline
+		webkit-playsinline
+		x-webkit-airplay="allow"
+	>
+		<source
+			src={ fmt.Sprintf("/video/%s", videoID) }
+		/>
+	</video>
+
+	<video
+		data-live-photo
+		data-group={ fmt.Sprintf("live-photo-%s", videoID) }
+		data-live-photo-role="top"
+		class={ "frame--video--"+videoOrientation, "live-photo", "live-photo-top"}
+		autoplay
+		muted
+		playsinline
+		webkit-playsinline
+		x-webkit-airplay="allow"
+	>
+		<source
+			src={ fmt.Sprintf("/video/%s", videoID) }
+		/>
+	</video>
+}

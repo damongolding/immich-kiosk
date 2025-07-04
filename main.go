@@ -164,7 +164,7 @@ func main() {
 	e.GET("/image", routes.Image(baseConfig, c))
 	e.GET("/image/reload", routes.ImageWithReload(baseConfig))
 
-	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c))
+	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c), StaticCacheMiddlewareWithConfig(baseConfig))
 
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 
@@ -193,7 +193,9 @@ func main() {
 
 	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
-	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode))
+	e.GET("/live/:liveID", routes.LivePhoto(baseConfig.Kiosk.DemoMode))
+
+	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode), StaticCacheMiddlewareWithConfig(baseConfig))
 
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 
