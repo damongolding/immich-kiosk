@@ -244,12 +244,17 @@ func calculateAge(assetDate, birthDate time.Time, switchToYears int) string {
 	// Choose appropriate format based on the age
 	switch {
 	case years > 0 && years < switchToYears:
-		totalMonths := months + (years * 12)
-		return pluralize(totalMonths, "month")
+		// totalMonths := months + (years * 12)
+		if months == 0 {
+			return fmt.Sprintf("%d yrs", years)
+		}
+		return fmt.Sprintf("%dy %dm", years, months)
+		// return pluralize(totalMonths, "month")
 	case years > 0:
-		return pluralize(years, "year")
+		return pluralize(years, "yr")
 	case months > 0:
-		return pluralize(months, "month")
+		// return pluralize(months, "month")
+		return fmt.Sprintf("%d mo", months)
 	default:
 		return pluralize(totalDays, "day")
 	}
