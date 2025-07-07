@@ -69,7 +69,6 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		// Compare the received signature with the calculated signature
 		if !utils.IsValidSignature(receivedSignature, calculatedSignature) {
-			log.Info("SIG", "receivedSignature", receivedSignature, "calculatedSignature", calculatedSignature)
 			return echo.NewHTTPError(http.StatusForbidden, "Invalid signature")
 		}
 

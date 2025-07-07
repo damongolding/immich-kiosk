@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
-	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -19,15 +18,6 @@ import (
 	"strings"
 	"time"
 )
-
-func hasUserWebhookTriggerInfoOverlay(userWebhooks []config.Webhook) bool {
-	for _, webhook := range userWebhooks {
-		if webhook.Event == string(webhooks.UserWebhookTriggerInfoOverlay) {
-			return true
-		}
-	}
-	return false
-}
 
 // renderMoreInfo generates the HTML for displaying detailed information about images
 // It shows camera data, original image data, detected people, and optional QR codes/links
