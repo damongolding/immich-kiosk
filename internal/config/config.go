@@ -94,6 +94,8 @@ type KioskSettings struct {
 	// BehindProxy specifies whether the kiosk is behind a proxy
 	BehindProxy bool `json:"behindProxy" yaml:"behind_proxy" mapstructure:"behind_proxy" default:"false"`
 
+	// DisableURLQueries disables the ability to override config via URL queries
+	DisableURLQueries bool `json:"disableURLQueries" yaml:"disable_url_queries" mapstructure:"disable_url_queries" default:"false"`
 	// DisableConfigEndpoint disables the config endpoint
 	DisableConfigEndpoint bool `json:"disableConfigEndpoint"  yaml:"disable_config_endpoint" mapstructure:"disable_config_endpoint" default:"false"`
 
@@ -428,6 +430,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.behind_proxy", "KIOSK_BEHIND_PROXY"},
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
+		{"kiosk.disable_url_queries", "KIOSK_DISABLE_URL_QUERIES"},
 		{"kiosk.disable_config_endpoint", "KIOSK_DISABLE_CONFIG_ENDPOINT"},
 		{"kiosk.fetched_assets_size", "KIOSK_FETCHED_ASSETS_SIZE"},
 		{"kiosk.http_timeout", "KIOSK_HTTP_TIMEOUT"},
@@ -537,8 +540,25 @@ func (c *Config) ResetBuckets() {
 	c.Tag = []string{}
 }
 
+func getHistory(queries url.Values) []string {
+	h := make([]string, 0, len(queries))
+
+	for key, query := range queries {
+		if key == "history" {
+			h = append(h, query...)
+		}
+	}
+
+	return h
+}
+
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
+
+	if c.Kiosk.DisableURLQueries {
+		c.History = getHistory(queries)
+		return nil
+	}
 
 	// check for person or album in quries and empty baseconfig slice if found
 	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") {
