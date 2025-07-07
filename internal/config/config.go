@@ -540,10 +540,23 @@ func (c *Config) ResetBuckets() {
 	c.Tag = []string{}
 }
 
+func getHistory(queries url.Values) []string {
+	h := make([]string, 0, len(queries))
+
+	for key, query := range queries {
+		if key == "history" {
+			h = append(h, query...)
+		}
+	}
+
+	return h
+}
+
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	if c.Kiosk.DisableURLQueries {
+		c.History = getHistory(queries)
 		return nil
 	}
 
