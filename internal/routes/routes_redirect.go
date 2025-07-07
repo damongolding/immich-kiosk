@@ -22,6 +22,15 @@ func Redirect(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 	return func(c echo.Context) error {
 
+		if baseConfig.Kiosk.DisableURLQueries {
+			log.Warn("Redirects are disabled")
+			homeURL := "/"
+			if c.Request().URL.Query().Has("password") {
+				homeURL = homeURL + "?password=" + url.QueryEscape(c.Request().URL.Query().Get("password"))
+			}
+			return c.Redirect(http.StatusTemporaryRedirect, homeURL)
+		}
+
 		redirectCount, countErr := c.Cookie(redirectCountHeader)
 		if countErr != nil {
 			redirectCount = &http.Cookie{Value: "0"}
