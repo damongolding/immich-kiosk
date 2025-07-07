@@ -67,7 +67,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 								View in Immich
 							</a>
 						}
-						if hasUserWebhookTriggerInfoOverlay(viewData.Webhooks) {
+						if viewData.Webhooks.ContainsEvent(webhooks.UserWebhookTriggerInfoOverlay.String()) {
 							<button
 								class="more-info--webhook"
 								hx-post="/webhooks"
