@@ -67,8 +67,6 @@ templ Menu(viewData common.ViewData, queries url.Values, secret string) {
 		if hasCustomNavigation {
 			<div
 				id="navigation-interaction-area--custom-navigation"
-				hx-post="/webhooks"
-				hx-trigger="click throttle:0.5s"
 				{ webhookAttributes(viewData, webhooks.UserNavigationCustom.String(), secret)... }
 				class={ "navigation-interaction-area--custom-navigation-" + viewData.MenuPosition }
 			></div>
