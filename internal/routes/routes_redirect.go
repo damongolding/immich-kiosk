@@ -23,12 +23,14 @@ func Redirect(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		if baseConfig.Kiosk.DisableURLQueries {
-			log.Warn("Redirects are disabled")
-			homeURL := "/"
+			log.Warn("URL query overrides disabled, redirecting to root")
+			homeURL, _ := url.Parse("/")
 			if c.Request().URL.Query().Has("password") {
-				homeURL = homeURL + "?password=" + url.QueryEscape(c.Request().URL.Query().Get("password"))
+				params := url.Values{}
+				params.Set("password", c.Request().URL.Query().Get("password"))
+				homeURL.RawQuery = params.Encode()
 			}
-			return c.Redirect(http.StatusTemporaryRedirect, homeURL)
+			return c.Redirect(http.StatusTemporaryRedirect, homeURL.String())
 		}
 
 		redirectCount, countErr := c.Cookie(redirectCountHeader)
