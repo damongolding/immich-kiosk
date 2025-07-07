@@ -73,7 +73,7 @@ type KioskData = {
     showMoreInfo: boolean;
     showRedirects: boolean;
     livePhotos: boolean;
-    livePhotoDelay: number;
+    LivePhotoLoopDelay: number;
     httpTimeout: number;
 };
 
@@ -204,7 +204,7 @@ async function init(): Promise<void> {
 
     addEventListeners();
 
-    if (kioskData.livePhotos) livePhoto(kioskData.livePhotoDelay);
+    if (kioskData.livePhotos) livePhoto(kioskData.LivePhotoLoopDelay);
 }
 
 /**
