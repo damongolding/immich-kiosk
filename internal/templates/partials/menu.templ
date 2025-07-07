@@ -1,7 +1,8 @@
 package partials
 
 import (
-	"fmt"
+	"encoding/json"
+	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 	"net/url"
@@ -10,18 +11,25 @@ import (
 
 func webhookAttributes(viewData common.ViewData, event, secret string) templ.Attributes {
 
-	e := ""
-	if viewData.Webhooks.ContainsEvent(event) {
-		e = event
+	validEvent := viewData.Webhooks.ContainsEvent(event)
+
+	headers := map[string]interface{}{
+		"kiosk-version":   viewData.KioskVersion,
+		"kiosk-device-id": viewData.DeviceID,
+		"X-Timestamp":     time.Now().Unix(),
+		"X-Signature":     WebhookSignature(secret),
 	}
 
-	headerStr := fmt.Sprintf(`{
-			"kiosk-version": "%s",
-			"kiosk-device-id": "%s",
-			"X-Timestamp": "%d",
-			"X-Signature": "%s",
-			"kiosk-webhook-event": "%s"
-		}`, viewData.KioskVersion, viewData.DeviceID, time.Now().Unix(), WebhookSignature(secret), e)
+	if validEvent {
+		headers["kiosk-webhook-event"] = event
+	}
+
+	headerBytes, err := json.Marshal(headers)
+	if err != nil {
+		log.Error("Failed to marshal webhookAttributes headers")
+	}
+
+	headerStr := string(headerBytes)
 
 	attr := templ.Attributes{
 		"hx-headers": headerStr,
@@ -29,7 +37,7 @@ func webhookAttributes(viewData common.ViewData, event, secret string) templ.Att
 		"hx-vals":    "js:{...kiosk.clientData()}",
 	}
 
-	if e != "" {
+	if validEvent {
 		attr["hx-post"] = "/webhooks"
 		attr["hx-trigger"] = "click throttle:0.5s"
 	}
