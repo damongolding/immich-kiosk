@@ -9,7 +9,7 @@ date_format: MM/DD/YYYY
 clock_source: client
 
 # Kiosk behaviour
-refresh: 30 # in seconds
+duration: 30 # in seconds
 
 layout: splitview # which layout to use. single, splitview or splitview-landscape
 

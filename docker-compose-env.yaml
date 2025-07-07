@@ -17,7 +17,7 @@ services:
       KIOSK_DATE_FORMAT: YYYY/MM/DD
       KIOSK_CLOCK_SOURCE: client
       # Kiosk behaviour
-      KIOSK_REFRESH: 60
+      KIOSK_DURATION: 60
       KIOSK_DISABLE_SCREENSAVER: false
       KIOSK_OPTIMIZE_IMAGES: false
       KIOSK_USE_GPU: true

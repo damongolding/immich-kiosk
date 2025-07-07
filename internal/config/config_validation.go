@@ -100,13 +100,13 @@ func (c *Config) cleanupSlice(slice []string, placeholder string) []string {
 // The cleaned lists are then stored back in their respective Config fields.
 func (c *Config) checkAssetBuckets() {
 
-	c.Album = c.cleanupSlice(c.Album, "ALBUM_ID")
+	c.Albums = c.cleanupSlice(c.Albums, "ALBUM_ID")
 
 	c.ExcludedAlbums = c.cleanupSlice(c.ExcludedAlbums, "ALBUM_ID")
 
-	c.Person = c.cleanupSlice(c.Person, "PERSON_ID")
+	c.People = c.cleanupSlice(c.People, "PERSON_ID")
 
-	c.Tag = c.cleanupSlice(c.Tag, "TAG_VALUE")
+	c.Tags = c.cleanupSlice(c.Tags, "TAG_VALUE")
 
 	c.Date = c.cleanupSlice(c.cleanupSlice(c.Date, "DATE_RANGE"), "YYYY-MM-DD_to_YYYY-MM-DD")
 }
@@ -120,7 +120,7 @@ func (c *Config) checkExcludedAlbums() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if len(c.ExcludedAlbums) == 0 || len(c.Album) == 0 {
+	if len(c.ExcludedAlbums) == 0 || len(c.Albums) == 0 {
 		return
 	}
 
@@ -129,17 +129,17 @@ func (c *Config) checkExcludedAlbums() {
 		excludeMap[id] = struct{}{}
 	}
 
-	filtered := c.Album[:0]
-	for _, album := range c.Album {
+	filtered := c.Albums[:0]
+	for _, album := range c.Albums {
 		if _, excluded := excludeMap[album]; !excluded {
 			filtered = append(filtered, album)
 		}
 	}
 
-	c.Album = filtered
+	c.Albums = filtered
 
-	if excess := cap(c.Album) - len(c.Album); excess > len(c.Album) {
-		c.Album = append(make([]string, 0, len(c.Album)), c.Album...)
+	if excess := cap(c.Albums) - len(c.Albums); excess > len(c.Albums) {
+		c.Albums = append(make([]string, 0, len(c.Albums)), c.Albums...)
 	}
 }
 

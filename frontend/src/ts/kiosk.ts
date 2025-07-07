@@ -45,14 +45,6 @@ interface HTMXEvent extends Event {
 
 /**
  * Configuration data for managing the kiosk display and behavior
- *
- * Provides options for:
- * - Debug settings and version info
- * - Language and localization
- * - Screen refresh and display settings
- * - Date/time formatting preferences
- * - UI elements visibility control
- * - Transition animations
  */
 type KioskData = {
     debug: boolean;
@@ -60,7 +52,7 @@ type KioskData = {
     version: string;
     langCode: string;
     params: Record<string, unknown>;
-    refresh: number;
+    duration: number;
     disableNavigation: boolean;
     disableScreensaver: boolean;
     showDate: boolean;
@@ -84,8 +76,8 @@ const kioskData: KioskData = JSON.parse(
     document.getElementById("kiosk-data")?.textContent || "{}",
 );
 
-// Set polling interval based on the refresh rate in kiosk data
-const pollInterval = htmx.parseInterval(`${kioskData.refresh}s`);
+// Set polling interval based on the duration rate in kiosk data
+const pollInterval = htmx.parseInterval(`${kioskData.duration}s`);
 
 // Cache DOM elements for better performance
 const documentBody = document.body;

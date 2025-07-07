@@ -42,7 +42,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	assets := []utils.AssetWithWeighting{}
 
-	for _, person := range requestConfig.Person {
+	for _, person := range requestConfig.People {
 		if person == "" || strings.EqualFold(person, "none") {
 			continue
 		}
@@ -66,7 +66,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
-	for _, album := range requestConfig.Album {
+	for _, album := range requestConfig.Albums {
 		if album == "" || strings.EqualFold(album, "none") {
 			continue
 		}
@@ -90,7 +90,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
-	for _, tag := range requestConfig.Tag {
+	for _, tag := range requestConfig.Tags {
 		if tag == "" || strings.EqualFold(tag, "none") {
 			continue
 		}
@@ -522,13 +522,13 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 
 	switch options.RelativeAssetBucket {
 	case kiosk.SourceAlbum:
-		config.Album = append(config.Album, options.RelativeAssetBucketID)
+		config.Albums = append(config.Albums, options.RelativeAssetBucketID)
 	case kiosk.SourcePerson:
-		config.Person = append(config.Person, options.RelativeAssetBucketID)
+		config.People = append(config.People, options.RelativeAssetBucketID)
 	case kiosk.SourceDateRange:
 		config.Date = append(config.Date, options.RelativeAssetBucketID)
 	case kiosk.SourceTag:
-		config.Tag = append(config.Tag, options.RelativeAssetBucketID)
+		config.Tags = append(config.Tags, options.RelativeAssetBucketID)
 	case kiosk.SourceMemories:
 		config.Memories = true
 	case kiosk.SourceRandom:

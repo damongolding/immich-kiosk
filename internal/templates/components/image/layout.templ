@@ -78,11 +78,11 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 	}}
 	switch viewData.ImageEffect {
 		case "zoom":
-			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
+			@frameWithZoom(viewData.Duration, viewData.ImageEffect, imageData.ImmichAsset) {
 				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation)
 			}
 		case "smart-zoom":
-			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
+			@frameWithZoom(viewData.Duration, viewData.ImageEffect, imageData.ImmichAsset) {
 				@RenderImageWithCoverFit(imageData.ImageData, imageOrientation)
 			}
 		default:

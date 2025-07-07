@@ -52,8 +52,8 @@ templ Home(viewData common.ViewData, secret string) {
 					frameborder="0"
 				></iframe>
 			}
-			if viewData.ShowProgress {
-				@partials.ProgressBar(viewData.ProgressPosition)
+			if viewData.ShowProgressBar {
+				@partials.ProgressBar(viewData.ProgressBarPosition)
 			}
 			if !viewData.DisableUI {
 				<section id="clock-weather-container">
@@ -83,7 +83,7 @@ templ Home(viewData common.ViewData, secret string) {
 				"langCode":           viewData.SystemLang,
 				"version":            viewData.KioskVersion,
 				"params":             queriesToJson(viewData.Queries),
-				"refresh":            viewData.Refresh,
+				"duration":           viewData.Duration,
 				"disableNavigation":  viewData.DisableNavigation,
 				"disableScreensaver": viewData.DisableScreensaver,
 				"showDate":           viewData.ShowDate,

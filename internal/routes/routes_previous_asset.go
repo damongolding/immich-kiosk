@@ -222,7 +222,7 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	// Wait for all goroutines to complete and check for errors
 	errGroupWait := g.Wait()
 	if errGroupWait != nil {
-		return RenderError(c, errGroupWait, "processing images", requestConfig.Refresh)
+		return RenderError(c, errGroupWait, "processing images", requestConfig.Duration)
 	}
 
 	webhookEvent := webhooks.PreviousHistoryAsset
