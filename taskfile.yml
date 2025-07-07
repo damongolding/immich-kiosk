@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.21.6
+  VERSION: 0.22.0-webhook_fix
 
 includes:
   frontend:

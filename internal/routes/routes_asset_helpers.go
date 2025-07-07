@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"image"
+	"image/color"
 	"math/rand/v2"
 	"net/http"
 	"strings"
@@ -263,7 +264,7 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 	}
 
 	if isOriginal {
-		img = utils.ApplyExifOrientation(img, immichAsset.IsLandscape, immichAsset.ExifInfo.Orientation)
+		img = utils.ApplyExifOrientation(img, immichAsset.ExifInfo.Orientation)
 	}
 
 	return img, nil
@@ -468,16 +469,17 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	}
 
 	// Convert images to required formats
-	imgString, imgBlurString, err := convertImages(img, immichAsset.Type, requestConfig, metadata, isPrefetch)
+	imgString, imgBlurString, dominantColor, err := convertImages(img, immichAsset.Type, requestConfig, metadata, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, err
 	}
 
 	return common.ViewImageData{
-		ImmichAsset:   immichAsset,
-		ImageData:     imgString,
-		ImageBlurData: imgBlurString,
-		User:          requestConfig.SelectedUser,
+		ImmichAsset:        immichAsset,
+		ImageData:          imgString,
+		ImageBlurData:      imgBlurString,
+		ImageDominantColor: dominantColor,
+		User:               requestConfig.SelectedUser,
 	}, nil
 }
 
@@ -550,18 +552,28 @@ func handleFaceProcessing(img image.Image, asset *immich.Asset, config config.Co
 
 // convertImages converts the provided image to base64 strings for both normal and blurred versions.
 // Returns the base64 encoded normal image, blurred image, and any error that occurred.
-func convertImages(img image.Image, assetType immich.AssetType, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, error) {
+func convertImages(img image.Image, assetType immich.AssetType, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, color.RGBA, error) {
+
+	var dominantColor color.RGBA
+
 	imgString, err := imageToBase64(img, config, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
 	if err != nil {
-		return "", "", err
+		return "", "", dominantColor, err
 	}
 
 	imgBlurString, err := processBlurredImage(img, assetType, config, metadata.requestID, metadata.deviceID, isPrefetch)
 	if err != nil {
-		return "", "", err
+		return "", "", dominantColor, err
 	}
 
-	return imgString, imgBlurString, nil
+	if config.Theme == kiosk.ThemeBubble || config.UseOfflineMode {
+		dominantColor, err = utils.ExtractDominantColor(img)
+		if err != nil {
+			return "", "", dominantColor, err
+		}
+	}
+
+	return imgString, imgBlurString, dominantColor, nil
 }
 
 // ProcessViewImageData processes view data for an image without orientation constraints

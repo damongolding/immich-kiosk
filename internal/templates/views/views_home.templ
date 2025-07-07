@@ -70,7 +70,7 @@ templ Home(viewData common.ViewData, secret string) {
 				</section>
 			}
 			if !viewData.DisableNavigation {
-				@partials.Menu(viewData.MenuPosition, viewData.ShowMoreInfo, viewData.Kiosk.Redirects, viewData.Queries, viewData.Config.ExperimentalAlbumVideo)
+				@partials.Menu(viewData, viewData.Queries, secret)
 			}
 			@partials.Params(viewData.Queries)
 			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd, viewData.DisableSleep)

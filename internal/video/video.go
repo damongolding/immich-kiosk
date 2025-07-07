@@ -268,7 +268,7 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		log.Error("image BytesToImage", "err", imgErr)
 	}
 
-	img = utils.ApplyExifOrientation(img, immichAsset.IsLandscape, immichAsset.ExifInfo.Orientation)
+	img = utils.ApplyExifOrientation(img, immichAsset.ExifInfo.Orientation)
 
 	if requestConfig.OptimizeImages {
 		img, imgErr = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
