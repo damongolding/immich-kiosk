@@ -141,6 +141,17 @@ type Webhook struct {
 	Secret string `json:"secret" yaml:"secret" mapstructure:"secret" redact:"true"`
 }
 
+type Webhooks []Webhook
+
+func (w Webhooks) ContainsEvent(event string) bool {
+	for _, webhook := range w {
+		if webhook.Event == event {
+			return true
+		}
+	}
+	return false
+}
+
 // ClientData represents the client-specific dimensions received from the frontend.
 type ClientData struct {
 	// Width represents the client's viewport width in pixels
@@ -363,7 +374,7 @@ type Config struct {
 	UseGpu bool `json:"use_gpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
 
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
-	Webhooks []Webhook `json:"webhooks" yaml:"webhooks" mapstructure:"webhooks" default:"[]"`
+	Webhooks Webhooks `json:"webhooks" yaml:"webhooks" mapstructure:"webhooks" default:"[]"`
 
 	// Blacklist define a list of assets to skip
 	Blacklist []string `json:"blacklist" yaml:"blacklist" mapstructure:"blacklist" default:"[]" redact:"true"`
