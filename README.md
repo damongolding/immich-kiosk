@@ -83,10 +83,12 @@ This section is used to generate the UnRaid template.
 | optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions                 |
 | use_gpu                           | KIOSK_USE_GPU           | bool                       | true        | Enable GPU acceleration for improved performance (e.g., CSS transforms)                    |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
-| album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of a specific album or albums you want to display. |
+| album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of one or more albums to display. |
 | album_order                       | KIOSK_ALBUM_ORDER       | random \| newest \| oldest | random      | The order an album's assets will be displayed. |
 | excluded_albums                   | KIOSK_EXCLUDED_ALBUMS   | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. |
 | experimental_album_video          | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. |
+| live_photos                       | KIOSK_LIVE_PHOTOS       | bool | false | Enable live photos playback for albums. |
+| live_photo_loop_delay             | KIOSK_LIVE_PHOTOS_LOOP_DELAY       | int | 0 | Delay in milliseconds before looping live photos. |
 | person                            | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. |
 | require_all_people                | KIOSK_REQUIRE_ALL_PEOPLE | bool                      | false       | Require all people to be present in an asset. |
 | excluded_people                   | KIOSK_EXCLUDED_PEOPLE   | []string                   | []          | The ID(s) of a specific person or people you want to exclude. |
@@ -117,7 +119,7 @@ This section is used to generate the UnRaid template.
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
 | progress_position                 | KIOSK_PROGRESS_POSITION | top \| bottom              | top         | Sets the position of the progress bar.                                                      |
-| image_fit                         | KIOSK_IMAGE_FIT         | contain \| cover \| none   | contain     | How your image will fit on the screen. Default is contain. |
+| image_fit                         | KIOSK_IMAGE_FIT         | contain \| cover \| none   | contain     | How the image should fit on the screen. Default is "contain". |
 | image_effect                      | KIOSK_IMAGE_EFFECT      | none \| zoom \| smart-zoom | none        | Add an effect to images.                                                                   |
 | image_effect_amount               | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fall back to using the preview. |
