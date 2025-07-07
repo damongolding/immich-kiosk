@@ -291,7 +291,7 @@ func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetTyp
 		}
 
 		//  At this point immichAsset could be a video or an image
-		if requestConfig.ExperimentalAlbumVideo && immichAsset.Type == immich.VideoType {
+		if requestConfig.AlbumVideo && immichAsset.Type == immich.VideoType {
 			return processVideo(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
 		}
 
@@ -508,7 +508,7 @@ func setupImmichAsset(config config.Config, orientation immich.ImageOrientation)
 // Returns AllAssetTypes if experimental video is enabled and isPrefetch is true,
 // otherwise returns ImageOnlyAssetTypes
 func determineAllowedAssetTypes(config config.Config, isPrefetch bool) []immich.AssetType {
-	if config.ExperimentalAlbumVideo && isPrefetch {
+	if config.AlbumVideo && isPrefetch {
 		return immich.AllAssetTypes
 	}
 	return immich.ImageOnlyAssetTypes
@@ -643,7 +643,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 	utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
 	viewDataToRender.History = requestConfig.History
 
-	if requestConfig.ExperimentalAlbumVideo && viewDataToRender.Assets[0].ImmichAsset.Type == immich.VideoType {
+	if requestConfig.AlbumVideo && viewDataToRender.Assets[0].ImmichAsset.Type == immich.VideoType {
 		return Render(c, http.StatusOK, videoComponent.Video(viewDataToRender, secret))
 	}
 

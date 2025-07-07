@@ -289,9 +289,9 @@ type Config struct {
 	// DateFilter filter certain asset bucket assets by date
 	DateFilter string `json:"dateFilter" yaml:"date_filter" mapstructure:"date_filter" query:"date_filter" form:"date_filter" default:""`
 
-	// ExperimentalAlbumVideo whether to display videos
+	// AlbumVideo whether to display videos
 	// Currently limited to albums
-	ExperimentalAlbumVideo bool `json:"experimentalAlbumVideo" yaml:"experimental_album_video" mapstructure:"experimental_album_video" query:"experimental_album_video" form:"experimental_album_video" default:"false"`
+	AlbumVideo bool `json:"albumVideo" yaml:"album_video" mapstructure:"album_video" query:"album_video" form:"album_video" default:"false"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" yaml:"image_fit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
@@ -578,7 +578,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	// Disabled features in demo mode
 	if c.Kiosk.DemoMode {
-		c.ExperimentalAlbumVideo = false
+		c.AlbumVideo = false
 		c.UseOriginalImage = false
 		c.OptimizeImages = false
 		c.Memories = false
