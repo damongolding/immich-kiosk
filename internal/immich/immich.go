@@ -178,7 +178,7 @@ type Asset struct {
 	IsTrashed        bool      `json:"isTrashed"`
 	Duration         string    `json:"-"` // `json:"duration"`
 	ExifInfo         ExifInfo  `json:"exifInfo"`
-	LivePhotoVideoID any       `json:"-"` // `json:"livePhotoVideoId"`
+	LivePhotoVideoID string    `json:"livePhotoVideoId"`
 	People           []Person  `json:"people"`
 	Tags             Tags      `json:"tags"`
 	UnassignedFaces  []Face    `json:"unassignedFaces"`

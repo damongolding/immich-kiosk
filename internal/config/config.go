@@ -292,6 +292,9 @@ type Config struct {
 	// DateFilter filter certain asset bucket assets by date
 	DateFilter string `json:"dateFilter" yaml:"date_filter" mapstructure:"date_filter" query:"date_filter" form:"date_filter" default:""`
 
+	LivePhotos         bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
+	LivePhotoLoopDelay int  `json:"livePhotoLoopDelay" yaml:"live_photo_loop_delay" mapstructure:"live_photo_loop_delay" query:"live_photo_loop_delay" form:"live_photo_loop_delay" default:"0"`
+
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" yaml:"image_fit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
 	// ImageEffect which effect to apply to image (if any)

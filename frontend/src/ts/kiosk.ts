@@ -8,6 +8,7 @@ import {
     toggleFullscreen,
 } from "./fullscreen";
 import fullyKiosk from "./fullykiosk";
+import { livePhoto } from "./live-photo";
 import {
     disableAssetNavigationButtons,
     enableAssetNavigationButtons,
@@ -63,6 +64,8 @@ type KioskData = {
     transition: string;
     showMoreInfo: boolean;
     showRedirects: boolean;
+    livePhotos: boolean;
+    LivePhotoLoopDelay: number;
     httpTimeout: number;
 };
 
@@ -192,6 +195,8 @@ async function init(): Promise<void> {
     );
 
     addEventListeners();
+
+    if (kioskData.livePhotos) livePhoto(kioskData.LivePhotoLoopDelay);
 }
 
 /**

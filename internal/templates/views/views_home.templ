@@ -94,6 +94,8 @@ templ Home(viewData common.ViewData, secret string) {
 				"transition":         viewData.Transition,
 				"showMoreInfo":       viewData.ShowMoreInfo,
 				"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
+				"livePhotos":         viewData.LivePhotos,
+				"LivePhotoLoopDelay": viewData.LivePhotoLoopDelay * 1000,
 				"httpTimeout":        viewData.Kiosk.HTTPTimeout,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
