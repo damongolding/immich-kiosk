@@ -126,7 +126,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
-	for _, date := range requestConfig.Date {
+	for _, date := range requestConfig.Dates {
 		if date == "" || strings.EqualFold(date, "none") {
 			continue
 		}
@@ -526,7 +526,7 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 	case kiosk.SourcePerson:
 		config.People = append(config.People, options.RelativeAssetBucketID)
 	case kiosk.SourceDateRange:
-		config.Date = append(config.Date, options.RelativeAssetBucketID)
+		config.Dates = append(config.Dates, options.RelativeAssetBucketID)
 	case kiosk.SourceTag:
 		config.Tags = append(config.Tags, options.RelativeAssetBucketID)
 	case kiosk.SourceMemories:

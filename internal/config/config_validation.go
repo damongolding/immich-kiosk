@@ -108,7 +108,7 @@ func (c *Config) checkAssetBuckets() {
 
 	c.Tags = c.cleanupSlice(c.Tags, "TAG_VALUE")
 
-	c.Date = c.cleanupSlice(c.cleanupSlice(c.Date, "DATE_RANGE"), "YYYY-MM-DD_to_YYYY-MM-DD")
+	c.Dates = c.cleanupSlice(c.cleanupSlice(c.Dates, "DATE_RANGE"), "YYYY-MM-DD_to_YYYY-MM-DD")
 }
 
 // checkExcludedAlbums filters out any albums from c.Album that are present in
