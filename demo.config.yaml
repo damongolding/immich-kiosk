@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/damongolding/immich-kiosk/feature/config-schema/config.schema.json
+
 immich_api_key: demo
 immich_url: https://demo.immich.app
 
@@ -25,7 +27,7 @@ albums: 75c4860f-d31c-4dac-9831-0e67c7ab7668
 
 ## Image METADATA
 show_album_name: true
-show_person_name: true
+show_names: true
 show_image_time: true
 image_time_format: 24
 show_image_date: true
@@ -42,7 +44,7 @@ weather:
   - name: London
     lat: 51.5285262
     lon: -0.2663999
-    api:
+    api: ""
     unit: metric
     lang: en
     default: true

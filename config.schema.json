@@ -58,7 +58,7 @@
       }
     },
     "albums": {
-      "type": "array",
+      "type": ["string", "array"],
       "items": {
         "type": "string"
       }
@@ -70,19 +70,19 @@
       "type": "string"
     },
     "excluded_albums": {
-      "type": "array",
+      "type": ["string", "array"],
       "items": {
         "type": "string"
       }
     },
     "dates": {
-      "type": "array",
+      "type": ["string", "array"],
       "items": {
         "type": "string"
       }
     },
     "tags": {
-      "type": "array",
+      "type": ["string", "array"],
       "items": {
         "type": "string"
       }
@@ -205,7 +205,7 @@
       "type": "boolean"
     },
     "hide_countries": {
-      "type": "array",
+      "type": ["string", "array"],
       "items": {
         "type": "string"
       }
@@ -311,7 +311,7 @@
           "type": "integer"
         },
         "max_size": {
-          "type": "integer"
+          "type": "string"
         },
         "parallel_downloads": {
           "type": "integer"
