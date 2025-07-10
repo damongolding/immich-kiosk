@@ -208,7 +208,7 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 				if requestConfig.Theme == kiosk.ThemeBubble {
 					dominantColor, err = utils.ExtractDominantColor(img)
 					if err != nil {
-						return fmt.Errorf("converting blurred image to base64: %w", err)
+						return fmt.Errorf("extracting dominant colour: %w", err)
 					}
 				}
 

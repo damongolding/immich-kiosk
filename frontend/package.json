@@ -1,6 +1,6 @@
 {
   "name": "immich-kiosk",
-  "version": "0.15.1",
+  "version": "0.22.0",
   "description": "",
   "main": "src/kiosk.ts",
   "scripts": {

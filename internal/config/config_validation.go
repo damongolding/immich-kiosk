@@ -17,6 +17,11 @@ var (
 	SchemaJSON string
 )
 
+// IsSchemaLoaded returns true if the schema has been initialized
+func IsSchemaLoaded() bool {
+	return SchemaJSON != ""
+}
+
 // validateConfigFile checks if the given file path is valid and not a directory.
 // It returns an error if the file is a directory, and nil if the file doesn't exist.
 func validateConfigFile(path string) error {
@@ -358,6 +363,12 @@ func (c *Config) checkOffline() {
 }
 
 func checkSchema(config map[string]any) bool {
+
+	if !IsSchemaLoaded() {
+		log.Warn("Schema not loaded, skipping validation")
+		return true
+	}
+
 	jsonData, err := json.Marshal(config)
 	if err != nil {
 		log.Error("Failed to marshal config to JSON", "err", err)
