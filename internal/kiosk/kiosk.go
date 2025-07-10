@@ -41,4 +41,9 @@ const (
 
 	HistoryIndicator string = "*"
 	HistoryLimit     int    = 20
+
+	ThemeFade   string = "fade"
+	ThemeSolid  string = "solid"
+	ThemeBubble string = "bubble"
+	ThemeBlur   string = "blur"
 )

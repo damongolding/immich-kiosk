@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v4"
 )
@@ -166,10 +168,7 @@ func parseRangeHeader(rangeHeader string, fileSize int64) (int64, int64, int, er
 		if err != nil {
 			return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range end")
 		}
-		start = fileSize - end
-		if start < 0 {
-			start = 0
-		}
+		start = max(0, fileSize-end)
 		end = fileSize - 1
 		return start, end, statusCode, nil
 	}
@@ -204,4 +203,33 @@ func parseRangeHeader(rangeHeader string, fileSize int64) (int64, int64, int, er
 	}
 
 	return start, end, statusCode, nil
+}
+
+func LivePhoto(demoMode bool) echo.HandlerFunc {
+	if demoMode {
+		return func(c echo.Context) error {
+			return c.NoContent(http.StatusNoContent)
+		}
+	}
+
+	return func(c echo.Context) error {
+
+		liveID := c.Param("liveID")
+		if liveID == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "Live photo ID is required")
+		}
+
+		video, err := VideoManager.GetVideo(liveID)
+		if err != nil {
+			return c.NoContent(http.StatusNoContent)
+		}
+
+		videoOrientation := kiosk.LandscapeOrientation
+		if video.ImmichAsset.IsPortrait {
+			videoOrientation = kiosk.PortraitOrientation
+		}
+
+		return Render(c, http.StatusOK, partials.LivePhoto(video.ID, videoOrientation))
+	}
+
 }

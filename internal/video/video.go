@@ -190,7 +190,9 @@ func (v *Manager) AddVideoToViewCache(id, fileName, filePath string, requestConf
 		},
 	}
 
-	cache.AssetToCacheWithPosition(viewDataToAdd, requestConfig, deviceID, requestURL, cache.PREPEND)
+	if requestURL != "" {
+		cache.AssetToCacheWithPosition(viewDataToAdd, requestConfig, deviceID, requestURL, cache.PREPEND)
+	}
 }
 
 // removeFromQueue removes a video ID from the download queue
@@ -259,7 +261,7 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 
 	imgBytes, imgBytesErr := immichAsset.ImagePreview()
 	if imgBytesErr != nil {
-		log.Error("getting image preview for video", "id", videoID, "err", imgBytesErr)
+		log.Debug("getting image preview for video", "id", videoID, "err", imgBytesErr)
 		return
 	}
 
@@ -268,7 +270,7 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		log.Error("image BytesToImage", "err", imgErr)
 	}
 
-	img = utils.ApplyExifOrientation(img, immichAsset.IsLandscape, immichAsset.ExifInfo.Orientation)
+	img = utils.ApplyExifOrientation(img, immichAsset.ExifInfo.Orientation)
 
 	if requestConfig.OptimizeImages {
 		img, imgErr = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)

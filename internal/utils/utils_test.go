@@ -13,7 +13,7 @@ import (
 // TestCombineQueries test to see if referer queries overwrite url queries
 func TestCombineQueries(t *testing.T) {
 	baseQueries := url.Values{}
-	baseQueries.Set("refresh", "60")
+	baseQueries.Set("duration", "60")
 	baseQueries.Set("transition", "fade")
 	baseQueries.Set("raw", "false")
 
@@ -24,7 +24,7 @@ func TestCombineQueries(t *testing.T) {
 
 	assert.Equal(t, []string{"fade", "none"}, q["transition"])
 	assert.Equal(t, "cover", q.Get("image_fit"))
-	assert.Equal(t, "60", q.Get("refresh"))
+	assert.Equal(t, "60", q.Get("duration"))
 	assert.True(t, q.Has("raw"))
 }
 

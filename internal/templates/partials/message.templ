@@ -7,7 +7,12 @@ type MessageData struct {
 }
 
 templ Message(message MessageData) {
-	<div class="frame frame-message">
+	<div
+		class="frame frame-message"
+		if message.IsDownloading {
+			hx-on:htmx:load="setTimeout(function() { kiosk.triggerNewAsset(); }, 5000);"
+		}
+	>
 		<div class="message-container">
 			<div class="message">
 				if message.IsDownloading {

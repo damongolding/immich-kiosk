@@ -44,7 +44,7 @@ func (a *Asset) memories(requestID, deviceID string, assetCount bool) (MemoriesR
 		RawQuery: fmt.Sprintf("for=%s", url.PathEscape(startOfToday.Format("2006-01-02T15:04:05.000Z"))),
 	}
 
-	// If we want the memories assets count we will use a seperate cache entry
+	// If we want the memories assets count we will use a separate cache entry
 	// because Kiosk removes used assets from the normal cache entry
 	if assetCount {
 		apiURL.RawQuery += "&count=true"

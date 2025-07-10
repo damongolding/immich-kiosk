@@ -69,9 +69,9 @@ func TestImmichURLImmichMultiplePerson(t *testing.T) {
 	err := c.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
-	assert.Equal(t, 2, len(c.Person), "Expected 2 people to be added")
-	assert.Contains(t, c.Person, "bea", "Expected 'bea' to be added to Person slice")
-	assert.Contains(t, c.Person, "laura", "Expected 'laura' to be added to Person slice")
+	assert.Equal(t, 2, len(c.People), "Expected 2 people to be added")
+	assert.Contains(t, c.People, "bea", "Expected 'bea' to be added to Person slice")
+	assert.Contains(t, c.People, "laura", "Expected 'laura' to be added to Person slice")
 }
 
 // TestMalformedURLs testing urls without scheme or ports
@@ -109,7 +109,7 @@ func TestImmichURLImmichMultipleAlbum(t *testing.T) {
 
 	// configWithBase
 	configWithBase := New()
-	configWithBase.Album = []string{"BASE_ALBUM"}
+	configWithBase.Albums = []string{"BASE_ALBUM"}
 
 	e := echo.New()
 
@@ -127,12 +127,12 @@ func TestImmichURLImmichMultipleAlbum(t *testing.T) {
 	err := configWithBase.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
-	t.Log("album", configWithBase.Album)
+	t.Log("album", configWithBase.Albums)
 
-	assert.NotContains(t, configWithBase.Album, "BASE_ALBUM", "BASE_ALBUM should not be present")
-	assert.Equal(t, 2, len(configWithBase.Album), "Expected 2 albums to be added")
-	assert.Contains(t, configWithBase.Album, "ALBUM_1", "ALBUM_1 should be present")
-	assert.Contains(t, configWithBase.Album, "ALBUM_2", "ALBUM_2 should be present")
+	assert.NotContains(t, configWithBase.Albums, "BASE_ALBUM", "BASE_ALBUM should not be present")
+	assert.Equal(t, 2, len(configWithBase.Albums), "Expected 2 albums to be added")
+	assert.Contains(t, configWithBase.Albums, "ALBUM_1", "ALBUM_1 should be present")
+	assert.Contains(t, configWithBase.Albums, "ALBUM_2", "ALBUM_2 should be present")
 
 	// configWithoutBase
 	configWithoutBase := New()
@@ -151,15 +151,15 @@ func TestImmichURLImmichMultipleAlbum(t *testing.T) {
 	err = configWithoutBase.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
-	t.Log("album", configWithoutBase.Album)
+	t.Log("album", configWithoutBase.Albums)
 
-	assert.Equal(t, 2, len(configWithoutBase.Album), "Expected 2 albums to be added")
-	assert.Contains(t, configWithoutBase.Album, "ALBUM_1", "ALBUM_1 should be present")
-	assert.Contains(t, configWithoutBase.Album, "ALBUM_2", "ALBUM_2 should be present")
+	assert.Equal(t, 2, len(configWithoutBase.Albums), "Expected 2 albums to be added")
+	assert.Contains(t, configWithoutBase.Albums, "ALBUM_1", "ALBUM_1 should be present")
+	assert.Contains(t, configWithoutBase.Albums, "ALBUM_2", "ALBUM_2 should be present")
 
 	// configWithBaseOnly
 	configWithBaseOnly := New()
-	configWithBaseOnly.Album = []string{"BASE_ALBUM_1", "BASE_ALBUM_2"}
+	configWithBaseOnly.Albums = []string{"BASE_ALBUM_1", "BASE_ALBUM_2"}
 
 	req = httptest.NewRequest(http.MethodGet, "/", nil)
 	rec = httptest.NewRecorder()
@@ -169,11 +169,11 @@ func TestImmichURLImmichMultipleAlbum(t *testing.T) {
 	err = configWithBaseOnly.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
 	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
 
-	t.Log("album", configWithBaseOnly.Album)
+	t.Log("album", configWithBaseOnly.Albums)
 
-	assert.Equal(t, 2, len(configWithBaseOnly.Album), "Base albums should persist")
-	assert.Contains(t, configWithBaseOnly.Album, "BASE_ALBUM_1", "BASE_ALBUM_1 should be present")
-	assert.Contains(t, configWithBaseOnly.Album, "BASE_ALBUM_2", "BASE_ALBUM_2 should be present")
+	assert.Equal(t, 2, len(configWithBaseOnly.Albums), "Base albums should persist")
+	assert.Contains(t, configWithBaseOnly.Albums, "BASE_ALBUM_1", "BASE_ALBUM_1 should be present")
+	assert.Contains(t, configWithBaseOnly.Albums, "BASE_ALBUM_2", "BASE_ALBUM_2 should be present")
 }
 
 func TestAlbumAndPerson(t *testing.T) {
@@ -224,14 +224,14 @@ func TestAlbumAndPerson(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			c := &Config{
-				Album:  tc.inputAlbum,
-				Person: tc.inputPerson,
+				Albums: tc.inputAlbum,
+				People: tc.inputPerson,
 			}
 
 			c.checkAssetBuckets()
 
-			assert.Equal(t, tc.expectedAlbum, c.Album, "Album mismatch")
-			assert.Equal(t, tc.expectedPerson, c.Person, "Person mismatch")
+			assert.Equal(t, tc.expectedAlbum, c.Albums, "Album mismatch")
+			assert.Equal(t, tc.expectedPerson, c.People, "Person mismatch")
 		})
 	}
 }

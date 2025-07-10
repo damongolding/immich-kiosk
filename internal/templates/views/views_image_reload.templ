@@ -4,8 +4,8 @@ import "fmt"
 import "github.com/damongolding/immich-kiosk/internal/config"
 
 type ReloadData struct {
-	Queries string `json:"queries"`
-	Refresh int    `json:"refresh"`
+	Queries  string `json:"queries"`
+	Duration int    `json:"duration"`
 }
 
 css ReloadBody(imageFit, queries string) {
@@ -50,23 +50,23 @@ templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string)
 			</style>
 		</head>
 		<body class={ ReloadBody(requestConfig.ImageFit, queries) }>
-			{{ data := ReloadData{Queries: queries, Refresh: requestConfig.Refresh} }}
+			{{ data := ReloadData{Queries: queries, Duration: requestConfig.Duration} }}
 			@templ.JSONScript("kiosk-data", data)
 			<script>
 
 				var kioskData;
-				var refresh = 60;
+				var duration = 60;
 				var queries = '';
 
 				var rawData = document.getElementById('kiosk-data').textContent;
 
 				try {
 				    kioskData = JSON.parse(rawData);
-					if (kioskData.refresh && kioskData.refresh > 5) refresh = kioskData.refresh;
+					if (kioskData.duration && kioskData.duration > 5) duration = kioskData.duration;
 					if (kioskData.queries) queries = kioskData.queries;
 				} catch (e) {
-				    console.error("Error parsing refresh interval:", e);
-					refresh = 60;
+				    console.error("Error parsing duration interval:", e);
+					duration = 60;
 				}
 
 				var bodyElement = document.body;
@@ -78,7 +78,7 @@ templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string)
 
 			    }
 
-				setInterval(refreshImage, refresh * 1000);
+				setInterval(refreshImage, duration * 1000);
 			</script>
 		</body>
 	</html>

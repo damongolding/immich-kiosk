@@ -24,8 +24,24 @@
     width: 50%;
     height: 50%;
 
+    &.has-custom-navigation {
+        height: 30%;
+    }
+
     &.navigation-interaction-area--menu-bottom {
         bottom: 0;
+    }
+}
+
+#navigation-interaction-area--custom-navigation {
+    position: absolute;
+    width: 50%;
+    height: 70%;
+    bottom: 0;
+
+    &.navigation-interaction-area--custom-navigation-bottom {
+        top: 0;
+        bottom: unset;
     }
 }
 

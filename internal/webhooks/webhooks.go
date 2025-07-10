@@ -18,6 +18,10 @@ import (
 
 type WebhookEvent string
 
+func (e WebhookEvent) String() string {
+	return string(e)
+}
+
 const (
 	NewAsset                      WebhookEvent = "asset.new"
 	NextHistoryAsset              WebhookEvent = "asset.history.next"
@@ -30,6 +34,7 @@ const (
 	UserUnlikeInfoOverlay         WebhookEvent = "user.unlike.info_overlay"
 	UserHideInfoOverlay           WebhookEvent = "user.hide.info_overlay"
 	UserUnhideInfoOverlay         WebhookEvent = "user.unhide.info_overlay"
+	UserNavigationCustom          WebhookEvent = "user.navigation.custom"
 )
 
 type Meta struct {

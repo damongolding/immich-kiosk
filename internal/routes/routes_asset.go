@@ -73,7 +73,7 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		viewData, err := generateViewData(requestConfig, requestCtx, requestID, deviceID, false)
 		if err != nil {
-			return RenderError(c, err, "retrieving asset", requestConfig.Refresh)
+			return RenderError(c, err, "retrieving asset", requestConfig.Duration)
 		}
 
 		if requestConfig.Kiosk.PreFetch {
@@ -82,7 +82,7 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NewAsset, viewData)
 
-		if len(viewData.Assets) > 0 && requestConfig.ExperimentalAlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+		if len(viewData.Assets) > 0 && requestConfig.AlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
 			return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret()))
 		}
 

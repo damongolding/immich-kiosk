@@ -1,12 +1,53 @@
 package partials
 
 import (
-	"github.com/damongolding/immich-kiosk/internal/config"
+	"encoding/json"
+	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/webhooks"
 	"net/url"
+	"time"
 )
 
-templ Menu(menuPosition string, showModeInfo bool, redirects []config.Redirect, queries url.Values, experimentalAlbumVideo bool) {
-	<nav id="navigation-interaction-area">
+func webhookAttributes(viewData common.ViewData, event, secret string) templ.Attributes {
+
+	validEvent := viewData.Webhooks.ContainsEvent(event)
+
+	headers := map[string]interface{}{
+		"kiosk-version":   viewData.KioskVersion,
+		"kiosk-device-id": viewData.DeviceID,
+		"X-Timestamp":     time.Now().Unix(),
+		"X-Signature":     WebhookSignature(secret),
+	}
+
+	if validEvent {
+		headers["kiosk-webhook-event"] = event
+	}
+
+	headerBytes, err := json.Marshal(headers)
+	if err != nil {
+		log.Error("Failed to marshal webhookAttributes headers")
+	}
+
+	headerStr := string(headerBytes)
+
+	attr := templ.Attributes{
+		"hx-headers": headerStr,
+		"hx-include": ".kiosk-history--entry",
+		"hx-vals":    "js:{...kiosk.clientData()}",
+	}
+
+	if validEvent {
+		attr["hx-post"] = "/webhooks"
+		attr["hx-trigger"] = "click throttle:0.5s"
+	}
+
+	return attr
+}
+
+templ Menu(viewData common.ViewData, queries url.Values, secret string) {
+	{{ hasCustomNavigation := viewData.Webhooks.ContainsEvent(webhooks.UserNavigationCustom.String()) }}
+	<nav id={ "navigation-interaction-area" }>
 		<div
 			id="navigation-interaction-area--previous-asset"
 			hx-post="/asset/previous"
@@ -22,14 +63,21 @@ templ Menu(menuPosition string, showModeInfo bool, redirects []config.Redirect, 
 			hx-on::after-request="kiosk.startPolling()"
 			hx-on::after-swap="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
 		></div>
-		<div id="navigation-interaction-area--menu" class={ "navigation-interaction-area--menu-" + menuPosition }></div>
+		<div id="navigation-interaction-area--menu" class={ "navigation-interaction-area--menu-" + viewData.MenuPosition, templ.KV("has-custom-navigation", hasCustomNavigation) }></div>
+		if hasCustomNavigation {
+			<div
+				id="navigation-interaction-area--custom-navigation"
+				{ webhookAttributes(viewData, webhooks.UserNavigationCustom.String(), secret)... }
+				class={ "navigation-interaction-area--custom-navigation-" + viewData.MenuPosition }
+			></div>
+		}
 		<div id="navigation-interaction-area--next-asset"></div>
 	</nav>
 	<div id="more-info" hx-swap-oob="true"></div>
-	if len(redirects) > 0 {
-		@Redirects(redirects, queries)
+	if len(viewData.Kiosk.Redirects) > 0 {
+		@Redirects(viewData.Kiosk.Redirects, queries)
 	}
-	<nav class={ "navigation navigation-hidden", "navigation-"+menuPosition }>
+	<nav class={ "navigation navigation-hidden", "navigation-"+viewData.MenuPosition }>
 		<div class="navigation--media-buttons rounded">
 			<div class="navigation--item navigation--prev-asset" title="Previous Asset">
 				<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
@@ -54,7 +102,7 @@ templ Menu(menuPosition string, showModeInfo bool, redirects []config.Redirect, 
 				</svg>
 			</div>
 		</div>
-		if experimentalAlbumVideo {
+		if viewData.AlbumVideo {
 			<div class="navigation--item navigation--mute rounded is-muted" title="Mute/Unmute">
 				<svg class="icon-muted" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
 					<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
@@ -65,7 +113,7 @@ templ Menu(menuPosition string, showModeInfo bool, redirects []config.Redirect, 
 				</svg>
 			</div>
 		}
-		if showModeInfo {
+		if viewData.ShowMoreInfo {
 			<div class="navigation--item navigation--more-info rounded" title="More information">
 				<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512">
 					<!--!Font Awesome Free 6.7.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
@@ -73,7 +121,7 @@ templ Menu(menuPosition string, showModeInfo bool, redirects []config.Redirect, 
 				</svg>
 			</div>
 		}
-		if len(redirects) > 0 {
+		if len(viewData.Kiosk.Redirects) > 0 {
 			<div
 				class="navigation--item navigation--links rounded"
 				role="navigation"

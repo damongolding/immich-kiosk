@@ -78,11 +78,11 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 	}}
 	switch viewData.ImageEffect {
 		case "zoom":
-			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
+			@frameWithZoom(viewData.Duration, viewData.ImageEffect, imageData.ImmichAsset) {
 				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation)
 			}
 		case "smart-zoom":
-			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
+			@frameWithZoom(viewData.Duration, viewData.ImageEffect, imageData.ImmichAsset) {
 				@RenderImageWithCoverFit(imageData.ImageData, imageOrientation)
 			}
 		default:
@@ -92,6 +92,15 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 	}
 }
 
+templ renderLivePhoto(viewData common.ViewData, imageData common.ViewImageData) {
+	<div
+		style="display: none"
+		hx-get={ "/live/" + imageData.ImmichAsset.LivePhotoVideoID }
+		hx-swap="outerHTML"
+		hx-trigger="load, every 1s"
+	></div>
+}
+
 // renderSingleImage renders a single image with its background and metadata.
 //
 // Parameters:
@@ -99,8 +108,20 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 //   - imageData: ImageData for the image to be rendered.
 //   - imageIndex: The index of the image in the viewData.Images slice.
 templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData, imageIndex int) {
+	{{
+		livePhotos := viewData.LivePhotos && imageData.ImmichAsset.LivePhotoVideoID != ""
+
+		if livePhotos {
+			viewData.ImageEffect = "none"
+			viewData.ImageFit = "contain"
+			viewData.BackgroundBlur = true
+		}
+	}}
 	@renderImageBackground(viewData, imageData)
 	@renderImage(viewData, imageData)
+	if livePhotos {
+		@renderLivePhoto(viewData, imageData)
+	}
 	if !viewData.DisableUI {
 		<div class="asset-metadata-container">
 			@partials.AssetMetadata(viewData, imageIndex)

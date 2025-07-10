@@ -4,6 +4,7 @@ package common
 import (
 	"context"
 	"fmt"
+	"image/color"
 	"net/http"
 	"net/url"
 	"os"
@@ -83,11 +84,12 @@ type RouteRequestData struct {
 
 // ViewImageData contains the image data and metadata for displaying an image in the view
 type ViewImageData struct {
-	ImmichAsset   immich.Asset // ImmichAsset contains immich asset data
-	ImageData     string       // ImageData contains the image as base64 data
-	ImageBlurData string       // ImageBlurData contains the blurred image as base64 data
-	ImageDate     string       // ImageDate contains the date of the image
-	User          string       // User the user api key used
+	ImmichAsset        immich.Asset // ImmichAsset contains immich asset data
+	ImageData          string       // ImageData contains the image as base64 data
+	ImageBlurData      string       // ImageBlurData contains the blurred image as base64 data
+	ImageDominantColor color.RGBA   // ImageDominantColor contains the dominant color of the image
+	ImageDate          string       // ImageDate contains the date of the image
+	User               string       // User the user api key used
 }
 
 // ViewData contains all the data needed to render a view in the application

@@ -52,8 +52,8 @@ templ Home(viewData common.ViewData, secret string) {
 					frameborder="0"
 				></iframe>
 			}
-			if viewData.ShowProgress {
-				@partials.ProgressBar(viewData.ProgressPosition)
+			if viewData.ShowProgressBar {
+				@partials.ProgressBar(viewData.ProgressBarPosition)
 			}
 			if !viewData.DisableUI {
 				<section id="clock-weather-container">
@@ -70,7 +70,7 @@ templ Home(viewData common.ViewData, secret string) {
 				</section>
 			}
 			if !viewData.DisableNavigation {
-				@partials.Menu(viewData.MenuPosition, viewData.ShowMoreInfo, viewData.Kiosk.Redirects, viewData.Queries, viewData.Config.ExperimentalAlbumVideo)
+				@partials.Menu(viewData, viewData.Queries, secret)
 			}
 			@partials.Params(viewData.Queries)
 			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd, viewData.DisableSleep)
@@ -83,7 +83,7 @@ templ Home(viewData common.ViewData, secret string) {
 				"langCode":           viewData.SystemLang,
 				"version":            viewData.KioskVersion,
 				"params":             queriesToJson(viewData.Queries),
-				"refresh":            viewData.Refresh,
+				"duration":           viewData.Duration,
 				"disableNavigation":  viewData.DisableNavigation,
 				"disableScreensaver": viewData.DisableScreensaver,
 				"showDate":           viewData.ShowDate,
@@ -94,6 +94,8 @@ templ Home(viewData common.ViewData, secret string) {
 				"transition":         viewData.Transition,
 				"showMoreInfo":       viewData.ShowMoreInfo,
 				"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
+				"livePhotos":         viewData.LivePhotos,
+				"LivePhotoLoopDelay": viewData.LivePhotoLoopDelay * 1000,
 				"httpTimeout":        viewData.Kiosk.HTTPTimeout,
 			})
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>

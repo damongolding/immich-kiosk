@@ -1,0 +1,14 @@
+.live-photo {
+    position: absolute;
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    transition: opacity 0.5s linear;
+    will-change: opacity;
+}
+
+.live-photo-fade {
+    opacity: 0;
+}
