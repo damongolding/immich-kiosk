@@ -274,7 +274,8 @@
         "additionalProperties": false,
         "properties": {
           "url": {
-            "type": "string"
+            "type": "string",
+            "format": "uri"
           },
           "event": {
             "type": "string"
