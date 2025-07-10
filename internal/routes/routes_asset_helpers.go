@@ -42,7 +42,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	assets := []utils.AssetWithWeighting{}
 
-	for _, person := range requestConfig.Person {
+	for _, person := range requestConfig.People {
 		if person == "" || strings.EqualFold(person, "none") {
 			continue
 		}
@@ -66,7 +66,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
-	for _, album := range requestConfig.Album {
+	for _, album := range requestConfig.Albums {
 		if album == "" || strings.EqualFold(album, "none") {
 			continue
 		}
@@ -90,7 +90,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
-	for _, tag := range requestConfig.Tag {
+	for _, tag := range requestConfig.Tags {
 		if tag == "" || strings.EqualFold(tag, "none") {
 			continue
 		}
@@ -126,7 +126,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
-	for _, date := range requestConfig.Date {
+	for _, date := range requestConfig.Dates {
 		if date == "" || strings.EqualFold(date, "none") {
 			continue
 		}
@@ -291,7 +291,7 @@ func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetTyp
 		}
 
 		//  At this point immichAsset could be a video or an image
-		if requestConfig.ExperimentalAlbumVideo && immichAsset.Type == immich.VideoType {
+		if requestConfig.AlbumVideo && immichAsset.Type == immich.VideoType {
 			return processVideo(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
 		}
 
@@ -527,7 +527,7 @@ func setupImmichAsset(config config.Config, orientation immich.ImageOrientation)
 // Returns AllAssetTypes if experimental video is enabled and isPrefetch is true,
 // otherwise returns ImageOnlyAssetTypes
 func determineAllowedAssetTypes(config config.Config, isPrefetch bool) []immich.AssetType {
-	if config.ExperimentalAlbumVideo && isPrefetch {
+	if config.AlbumVideo && isPrefetch {
 		return immich.AllAssetTypes
 	}
 	return immich.ImageOnlyAssetTypes
@@ -541,13 +541,13 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 
 	switch options.RelativeAssetBucket {
 	case kiosk.SourceAlbum:
-		config.Album = append(config.Album, options.RelativeAssetBucketID)
+		config.Albums = append(config.Albums, options.RelativeAssetBucketID)
 	case kiosk.SourcePerson:
-		config.Person = append(config.Person, options.RelativeAssetBucketID)
+		config.People = append(config.People, options.RelativeAssetBucketID)
 	case kiosk.SourceDateRange:
-		config.Date = append(config.Date, options.RelativeAssetBucketID)
+		config.Dates = append(config.Dates, options.RelativeAssetBucketID)
 	case kiosk.SourceTag:
-		config.Tag = append(config.Tag, options.RelativeAssetBucketID)
+		config.Tags = append(config.Tags, options.RelativeAssetBucketID)
 	case kiosk.SourceMemories:
 		config.Memories = true
 	case kiosk.SourceRandom:
@@ -662,7 +662,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 	utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
 	viewDataToRender.History = requestConfig.History
 
-	if requestConfig.ExperimentalAlbumVideo && viewDataToRender.Assets[0].ImmichAsset.Type == immich.VideoType {
+	if requestConfig.AlbumVideo && viewDataToRender.Assets[0].ImmichAsset.Type == immich.VideoType {
 		return Render(c, http.StatusOK, videoComponent.Video(viewDataToRender, secret))
 	}
 

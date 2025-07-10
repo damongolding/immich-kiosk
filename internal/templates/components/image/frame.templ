@@ -53,16 +53,16 @@ func smartZoom(image immich.Asset) templ.CSSClass {
 }
 
 // frameWithZoom is a template function that renders a frame with zoom effect for an image.
-// It takes the refresh interval, image effect type, and the image asset as parameters.
+// It takes the duration interval, image effect type, and the image asset as parameters.
 // Depending on the image effect, it applies different CSS classes for zooming.
-templ frameWithZoom(refresh int, imageEffect string, img immich.Asset) {
+templ frameWithZoom(duration int, imageEffect string, img immich.Asset) {
 	switch imageEffect {
 		case "smart-zoom":
-			<div class={ "frame--image", "frame--image-zoom" , animationDuration(float32(refresh)), zoomInOrOut(imageEffect), smartZoom(img) }>
+			<div class={ "frame--image", "frame--image-zoom" , animationDuration(float32(duration)), zoomInOrOut(imageEffect), smartZoom(img) }>
 				{ children... }
 			</div>
 		default:
-			<div class={ "frame--image", "frame--image-zoom" , animationDuration(float32(refresh)), zoomInOrOut(imageEffect) }>
+			<div class={ "frame--image", "frame--image-zoom" , animationDuration(float32(duration)), zoomInOrOut(imageEffect) }>
 				{ children... }
 			</div>
 	}

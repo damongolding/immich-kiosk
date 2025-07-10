@@ -243,8 +243,8 @@ type Config struct {
 	// ClockSource source of clock time
 	ClockSource string `json:"clockSource" yaml:"clock_source" mapstructure:"clock_source" query:"clock_source" form:"clock_source" default:"client"`
 
-	// Refresh time between fetching new image
-	Refresh int `json:"refresh" yaml:"refresh" mapstructure:"refresh" query:"refresh" form:"refresh" default:"60"`
+	// Duration in seconds to display assets
+	Duration int `json:"duration" yaml:"duration" mapstructure:"duration" query:"duration" form:"duration" default:"60"`
 	// DisableScreensaver asks browser to disable screensaver
 	DisableScreensaver bool `json:"disableScreensaver" yaml:"disable_screensaver" mapstructure:"disable_screensaver" query:"disable_screensaver" form:"disable_screensaver" default:"false"`
 	// HideCursor hide cursor via CSS
@@ -269,30 +269,30 @@ type Config struct {
 
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `json:"showArchived" yaml:"show_archived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
-	// Person ID of person to display
-	Person           []string `json:"person" yaml:"person" mapstructure:"person" query:"person" form:"person" default:"[]" redact:"true"`
+
+	// IDs of people to display
+	People           []string `json:"people" yaml:"people" mapstructure:"people" query:"person" form:"person" default:"[]" redact:"true"`
 	RequireAllPeople bool     `json:"requireAllPeople" yaml:"require_all_people" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
 	ExcludedPeople   []string `json:"excludedPeople" yaml:"excluded_people" mapstructure:"excluded_people" query:"exclude_person" form:"exclude_person" default:"[]" redact:"true"`
 
-	// Album ID of album(s) to display
-	Album []string `json:"album" yaml:"album" mapstructure:"album" query:"album" form:"album" default:"[]" redact:"true"`
+	// IDs of album(s) to display
+	Albums []string `json:"albums" yaml:"albums" mapstructure:"albums" query:"album" form:"album" default:"[]" redact:"true"`
+	// AlbumVideo whether to display videos
+	AlbumVideo bool `json:"albumVideo" yaml:"album_video" mapstructure:"album_video" query:"album_video" form:"album_video" default:"false"`
 	// AlbumOrder specifies the order in which album assets are displayed.
 	AlbumOrder     string   `json:"album_order" yaml:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
 	ExcludedAlbums []string `json:"excluded_albums" yaml:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]" redact:"true"`
-	// Tag Name of tag to display
-	Tag []string `json:"tag" yaml:"tag" mapstructure:"tag" query:"tag" form:"tag" default:"[]" lowercase:"true" redact:"true"`
-	// Date date filter
-	Date []string `json:"date" yaml:"date" mapstructure:"date" query:"date" form:"date" default:"[]"`
+	// Tags Name of tag to display
+	Tags []string `json:"tags" yaml:"tags" mapstructure:"tags" query:"tag" form:"tag" default:"[]" lowercase:"true" redact:"true"`
+	// Dates date filter
+	Dates []string `json:"dates" yaml:"dates" mapstructure:"dates" query:"date" form:"date" default:"[]"`
 	// Memories show memories
 	Memories bool `json:"memories" yaml:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
 
 	// DateFilter filter certain asset bucket assets by date
 	DateFilter string `json:"dateFilter" yaml:"date_filter" mapstructure:"date_filter" query:"date_filter" form:"date_filter" default:""`
 
-	// ExperimentalAlbumVideo whether to display videos
-	// Currently limited to albums
-	ExperimentalAlbumVideo bool `json:"experimentalAlbumVideo" yaml:"experimental_album_video" mapstructure:"experimental_album_video" query:"experimental_album_video" form:"experimental_album_video" default:"false"`
-
+	// LivePhotos show live photos
 	LivePhotos         bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
 	LivePhotoLoopDelay int  `json:"livePhotoLoopDelay" yaml:"live_photo_loop_delay" mapstructure:"live_photo_loop_delay" query:"live_photo_loop_delay" form:"live_photo_loop_delay" default:"0"`
 
@@ -315,10 +315,10 @@ type Config struct {
 	// CrossFadeTransitionDuration sets the length of the cross-fade transition
 	CrossFadeTransitionDuration float32 `json:"crossFadeTransitionDuration" yaml:"cross_fade_transition_duration" mapstructure:"cross_fade_transition_duration" query:"cross_fade_transition_duration" form:"cross_fade_transition_duration" default:"1"`
 
-	// ShowProgress display a progress bar
-	ShowProgress bool `json:"showProgress" yaml:"show_progress" mapstructure:"show_progress" query:"show_progress" form:"show_progress" default:"false"`
-	// ProgressPosition
-	ProgressPosition string `json:"progressPosition" yaml:"progress_position" mapstructure:"progress_position" query:"progress_position" form:"progress_position" default:"top"`
+	// ShowProgressBar display a progress bar
+	ShowProgressBar bool `json:"showProgressBar" yaml:"show_progress_bar" mapstructure:"show_progress_bar" query:"show_progress_bar" form:"show_progress_bar" default:"false"`
+	// ProgressBarPosition
+	ProgressBarPosition string `json:"progressBarPosition" yaml:"progress_bar_position" mapstructure:"progress_bar_position" query:"progress_bar_position" form:"progress_bar_position" default:"top"`
 	// CustomCSS use custom css file
 	CustomCSS bool `json:"customCSS" yaml:"custom_css" mapstructure:"custom_css" query:"custom_css" form:"custom_css" default:"true"`
 	// CustomCSSClass add a class to the body tag
@@ -326,10 +326,10 @@ type Config struct {
 
 	// ShowAlbumName whether to display the album name
 	ShowAlbumName bool `json:"showAlbumName" yaml:"show_album_name" mapstructure:"show_album_name" query:"show_album_name" form:"show_album_name" default:"false"`
-	// ShowPersonName whether to display the person name
-	ShowPersonName bool `json:"showPersonName" yaml:"show_person_name" mapstructure:"show_person_name" query:"show_person_name" form:"show_person_name" default:"false"`
-	// ShowPersonAge whether to display the person age
-	ShowPersonAge bool `json:"showPersonAge" yaml:"show_person_age" mapstructure:"show_person_age" query:"show_person_age" form:"show_person_age" default:"false"`
+	// ShowNames whether to display the person name
+	ShowNames bool `json:"ShowNames" yaml:"show_names" mapstructure:"show_names" query:"show_names" form:"show_names" default:"false"`
+	// ShowAges whether to display the person age
+	ShowAges bool `json:"ShowAges" yaml:"show_ages" mapstructure:"show_ages" query:"show_ages" form:"show_ages" default:"false"`
 	// AgeSwitchToYearsAfter when to switch from months to years
 	AgeSwitchToYearsAfter int `json:"ageSwitchToYearsAfter" yaml:"age_switch_to_years_after" mapstructure:"age_switch_to_years_after" query:"age_switch_to_years_after" form:"age_switch_to_years_after" default:"1"`
 
@@ -537,10 +537,10 @@ func (c *Config) Load() error {
 // to ensure old values don't persist. When querying specific buckets, the previous
 // values need to be cleared to avoid mixing unintended assets.
 func (c *Config) ResetBuckets() {
-	c.Person = []string{}
-	c.Album = []string{}
-	c.Date = []string{}
-	c.Tag = []string{}
+	c.People = []string{}
+	c.Albums = []string{}
+	c.Dates = []string{}
+	c.Tags = []string{}
 }
 
 func getHistory(queries url.Values) []string {
@@ -581,7 +581,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	// Disabled features in demo mode
 	if c.Kiosk.DemoMode {
-		c.ExperimentalAlbumVideo = false
+		c.AlbumVideo = false
 		c.UseOriginalImage = false
 		c.OptimizeImages = false
 		c.Memories = false

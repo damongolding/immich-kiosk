@@ -9,7 +9,7 @@ date_format: MM/DD/YYYY
 clock_source: client
 
 # Kiosk behaviour
-refresh: 30 # in seconds
+duration: 30 # in seconds
 
 layout: splitview # which layout to use. single, splitview or splitview-landscape
 
@@ -17,11 +17,11 @@ layout: splitview # which layout to use. single, splitview or splitview-landscap
 transition: cross-fade # cross-fade, fade or none
 
 # Image display settings
-show_progress: true # display a progress bar
+show_progress_bar: true # display a progress bar
 image_fit: cover # how the image fits the screen. Options are none, contain and cover
 image_effect: smart-zoom
 
-album: 75c4860f-d31c-4dac-9831-0e67c7ab7668
+albums: 75c4860f-d31c-4dac-9831-0e67c7ab7668
 
 ## Image METADATA
 show_album_name: true

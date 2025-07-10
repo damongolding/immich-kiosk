@@ -133,7 +133,7 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			// Wait for all goroutines to complete and check for errors
 			errGroupWait := g.Wait()
 			if errGroupWait != nil {
-				return RenderError(c, errGroupWait, "retrieving image data", requestConfig.Refresh)
+				return RenderError(c, errGroupWait, "retrieving image data", requestConfig.Duration)
 			}
 
 			go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.WebhookEvent(kioskWebhookEvent), viewData)

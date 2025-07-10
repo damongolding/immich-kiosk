@@ -78,22 +78,22 @@ This section is used to generate the UnRaid template.
 | show_date                         | KIOSK_SHOW_DATE         | bool                       | false       | Display the date.                                                                          |
 | date_format                       | KIOSK_DATE_FORMAT       | string                     | DD/MM/YYYY  | The format of the date. default is day/month/year.                                         |
 | clock_source                      | KIOSK_CLOCK_SOURCE      | client \| server           | client      | The source of the clock. Either client or server.                                          |
-| refresh                           | KIOSK_REFRESH           | int                        | 60          | The duration in seconds an image will be displayed for.                                      |
-| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking.        |
-| optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions                 |
-| use_gpu                           | KIOSK_USE_GPU           | bool                       | true        | Enable GPU acceleration for improved performance (e.g., CSS transforms)                    |
+| duration                          | KIOSK_DURATION          | int                        | 60          | The amount in seconds an image will be displayed for.                                       |
+| disable_screensaver               | KIOSK_DISABLE_SCREENSAVER | bool                     | false       | Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work constantly on IOS. |
+| optimize_images                   | KIOSK_OPTIMIZE_IMAGES   | bool                       | false       | Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low-powered device, this may help. |
+| use_gpu                           | KIOSK_USE_GPU           | bool                       | true        | Enable GPU acceleration for improved performance (e.g., CSS transforms) |
 | show_archived                     | KIOSK_SHOW_ARCHIVED     | bool                       | false       | Allow assets marked as archived to be displayed.                                           |
-| album                             | KIOSK_ALBUM             | []string                   | []          | The ID(s) of one or more albums to display. |
+| albums                            | KIOSK_ALBUMS            | []string                   | []          | The ID(s) of one or more albums to display. |
 | album_order                       | KIOSK_ALBUM_ORDER       | random \| newest \| oldest | random      | The order an album's assets will be displayed. |
 | excluded_albums                   | KIOSK_EXCLUDED_ALBUMS   | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. |
-| experimental_album_video          | KIOSK_EXPERIMENTAL_ALBUM_VIDEO  | bool | false | Enable experimental video playback for albums. |
-| live_photos                       | KIOSK_LIVE_PHOTOS       | bool | false | Enable live photos playback for albums. |
+| album_video                       | KIOSK_ALBUM_VIDEO       | bool                       | false       | Enable video playback for albums. |
+| live_photos                       | KIOSK_LIVE_PHOTOS       | bool                       | false       | Enable live photos playback for albums. |
 | live_photo_loop_delay             | KIOSK_LIVE_PHOTO_LOOP_DELAY       | int | 0 | Delay in milliseconds before looping live photos. |
-| person                            | KIOSK_PERSON            | []string                   | []          | The ID(s) of a specific person or people you want to display. |
+| people                            | KIOSK_PEOPLE            | []string                   | []          | The ID(s) of a specific person or people you want to display. |
 | require_all_people                | KIOSK_REQUIRE_ALL_PEOPLE | bool                      | false       | Require all people to be present in an asset. |
 | excluded_people                   | KIOSK_EXCLUDED_PEOPLE   | []string                   | []          | The ID(s) of a specific person or people you want to exclude. |
-| date                              | KIOSK_DATE              | []string                   | []          | A date range or ranges. |
-| tag                               | KIOSK_TAG               | []string                   | []          | Tag or tags you want to display. |
+| dates                             | KIOSK_DATES             | []string                   | []          | A date range or ranges. |
+| tags                              | KIOSK_TAGS              | []string                   | []          | Tag or tags you want to display. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memories. |
 | blacklist                         | KIOSK_BLACKLIST         | []string                   | []          | The ID(s) of any specific assets you want Kiosk to skip/exclude from displaying. |
 | date_filter                       | KIOSK_DATE_FILTER       | string                     | ""          | Filter person and random assets by date. |
@@ -117,16 +117,16 @@ This section is used to generate the UnRaid template.
 | transition                        | KIOSK_TRANSITION        | none \| fade \| cross-fade | none        | Which transition to use when changing images.                                              |
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
-| show_progress                     | KIOSK_SHOW_PROGRESS     | bool                       | false       | Display a progress bar for when image will refresh.                                        |
-| progress_position                 | KIOSK_PROGRESS_POSITION | top \| bottom              | top         | Sets the position of the progress bar.                                                      |
+| show_progress_bar                 | KIOSK_SHOW_PROGRESS_BAR  | bool                      | false       | Display a progress bar for when image will refresh.                                        |
+| progress_bar_position             | KIOSK_PROGRESS_BAR_POSITION | top \| bottom          | top         | Sets the position of the progress bar.                                                      |
 | image_fit                         | KIOSK_IMAGE_FIT         | contain \| cover \| none   | contain     | How the image should fit on the screen. Default is "contain". |
 | image_effect                      | KIOSK_IMAGE_EFFECT      | none \| zoom \| smart-zoom | none        | Add an effect to images.                                                                   |
 | image_effect_amount               | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fall back to using the preview. |
 | show_owner                        | KIOSK_SHOW_OWNER        | bool                       | false       | Display the asset owner. Useful for shared albums.                                         |
-| show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display album name(s) that the asset appears in.                                           |
-| show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display person name(s).                                                                    |
-| show_person_age                   | KIOSK_SHOW_PERSON_AGE   | bool                       | false       | Display person age.                                                                        |
+| show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display album names that the asset appears in.                                           |
+| show_names                        | KIOSK_SHOW_NAMES        | bool                       | false       | Display people's names.                                                                    |
+| show_ages                         | KIOSK_SHOW_AGES         | bool                       | false       | Display people's ages.                                                                        |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12-hour or 24-hour format. This can either be 12 or 24.       |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
@@ -174,7 +174,7 @@ kiosk:
 | http_timeout        | KIOSK_HTTP_TIMEOUT      | int          | 20          | The number of seconds before an http request will time out. |
 | password            | KIOSK_PASSWORD          | string       | ""          | Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters, e.g. `http://192.168.0.123:3000?password=PASSWORD`. |
 | cache               | KIOSK_CACHE             | bool         | true        | Cache selective Immich api calls to reduce unnecessary calls.                              |
-| prefetch            | KIOSK_PREFETCH          | bool         | true        | Pre-fetch assets in the background, so images load much quicker when refresh timer ends.    |
+| prefetch            | KIOSK_PREFETCH          | bool         | true        | Pre-fetch assets in the background, so images load much quicker when duration timer ends.    |
 | asset_weighting     | KIOSK_ASSET_WEIGHTING   | bool         | true        | Balances asset selection when multiple sources are used, e.g. multiple people and albums. When enabled, sources with fewer assets will show less often. |
 
 
