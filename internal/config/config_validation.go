@@ -11,8 +11,6 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/xeipuuv/gojsonschema"
-
-	_ "embed"
 )
 
 var (
