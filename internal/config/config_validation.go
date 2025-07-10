@@ -358,29 +358,30 @@ func (c *Config) checkOffline() {
 }
 
 func checkSchema(config map[string]any) bool {
+    jsonData, err := json.Marshal(config)
+    if err != nil {
+        log.Errorf("Failed to marshal config to JSON: %v", err)
+        return false
+    }
 
-	jsonData, err := json.Marshal(config)
-	if err != nil {
-		log.Fatalf("Failed to marshal config to JSON: %v", err)
-	}
+    // Load JSON Schema from file
+    schemaLoader := gojsonschema.NewStringLoader(SchemaJSON)
+    docLoader := gojsonschema.NewBytesLoader(jsonData)
 
-	// Load JSON Schema from file
-	schemaLoader := gojsonschema.NewStringLoader(SchemaJSON)
-	docLoader := gojsonschema.NewBytesLoader(jsonData)
+    // Validate
+    result, err := gojsonschema.Validate(schemaLoader, docLoader)
+    if err != nil {
+        log.Errorf("Schema validation setup failed: %v", err)
+        return false
+    }
 
-	// Validate
-	result, err := gojsonschema.Validate(schemaLoader, docLoader)
-	if err != nil {
-		log.Fatalf("Validation failed: %v", err)
-	}
+    if !result.Valid() {
+        log.Error("Config validation failed:")
+        for _, desc := range result.Errors() {
+            log.Errorf("- %s", desc)
+        }
+        return false
+    }
 
-	if !result.Valid() {
-		log.Warn("Config is invalid:")
-		for _, desc := range result.Errors() {
-			log.Warnf("- %s", desc)
-		}
-		return false
-	}
-
-	return true
+    return true
 }
