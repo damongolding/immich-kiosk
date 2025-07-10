@@ -118,7 +118,7 @@ This section is used to generate the UnRaid template.
 | fade_transition_duration          | KIOSK_FADE_TRANSITION_DURATION | float               | 1           | The duration of the fade (in seconds) transition.                                          |
 | cross_fade_transition_duration    | KIOSK_CROSS_FADE_TRANSITION_DURATION | float         | 1           | The duration of the cross-fade (in seconds) transition.                                    |
 | show_progress_bar                 | KIOSK_SHOW_PROGRESS_BAR  | bool                      | false       | Display a progress bar for when image will refresh.                                        |
-| progress_bar position             | KIOSK_PROGRESS_BAR_POSITION | top \| bottom          | top         | Sets the position of the progress bar.                                                      |
+| progress_bar_position             | KIOSK_PROGRESS_BAR_POSITION | top \| bottom          | top         | Sets the position of the progress bar.                                                      |
 | image_fit                         | KIOSK_IMAGE_FIT         | contain \| cover \| none   | contain     | How the image should fit on the screen. Default is "contain". |
 | image_effect                      | KIOSK_IMAGE_EFFECT      | none \| zoom \| smart-zoom | none        | Add an effect to images.                                                                   |
 | image_effect_amount               | KIOSK_IMAGE_EFFECT_AMOUNT | int                  | 120         | Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol. |
