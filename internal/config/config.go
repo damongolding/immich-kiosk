@@ -508,6 +508,8 @@ func (c *Config) Load() error {
 		} else if !isValidYAML(c.V.ConfigFileUsed()) {
 			log.Fatal(err)
 		}
+	} else {
+		checkSchema(c.V.AllSettings())
 	}
 
 	err = c.V.Unmarshal(&c)
