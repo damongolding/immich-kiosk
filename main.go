@@ -39,8 +39,12 @@ var version string
 //go:embed frontend/public
 var public embed.FS
 
+//go:embed config.schema.json
+var SchemaJSON string
+
 func init() {
 	routes.KioskVersion = version
+	config.SchemaJSON = SchemaJSON
 }
 
 // main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.

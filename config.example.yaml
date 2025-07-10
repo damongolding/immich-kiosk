@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/damongolding/immich-kiosk/main/config.schema.json
+
 ## Required settings - move these to ENV if you want to check in this file
 immich_api_key: ""
 immich_url: ""
@@ -80,8 +82,8 @@ use_original_image: false # use the original file.
 ## Image METADATA
 show_owner: false # show the owner of the image
 show_album_name: false
-show_person_name: false
-show_person_age: false
+show_names: false
+show_ages: false
 show_image_time: false
 image_time_format: 24 # 12 or 24
 show_image_date: false

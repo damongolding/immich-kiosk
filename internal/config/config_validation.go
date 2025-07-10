@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -9,6 +10,11 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/xeipuuv/gojsonschema"
+)
+
+var (
+	SchemaJSON string
 )
 
 // validateConfigFile checks if the given file path is valid and not a directory.
@@ -349,4 +355,33 @@ func (c *Config) checkOffline() {
 			c.OfflineMode.ExpirationHours = 72
 		}
 	}
+}
+
+func checkSchema(config map[string]any) bool {
+    jsonData, err := json.Marshal(config)
+    if err != nil {
+        log.Errorf("Failed to marshal config to JSON: %v", err)
+        return false
+    }
+
+    // Load JSON Schema from file
+    schemaLoader := gojsonschema.NewStringLoader(SchemaJSON)
+    docLoader := gojsonschema.NewBytesLoader(jsonData)
+
+    // Validate
+    result, err := gojsonschema.Validate(schemaLoader, docLoader)
+    if err != nil {
+        log.Errorf("Schema validation setup failed: %v", err)
+        return false
+    }
+
+    if !result.Valid() {
+        log.Error("Config validation failed:")
+        for _, desc := range result.Errors() {
+            log.Errorf("- %s", desc)
+        }
+        return false
+    }
+
+    return true
 }
