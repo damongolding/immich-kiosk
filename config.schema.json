@@ -7,10 +7,12 @@
       "type": "string"
     },
     "immich_url": {
-      "type": "string"
+      "type": "string",
+      "format": "uri"
     },
     "immich_external_url": {
-      "type": "string"
+      "type": "string",
+      "format": "uri"
     },
     "show_time": {
       "type": "boolean"
