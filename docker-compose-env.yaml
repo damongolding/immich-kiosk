@@ -64,8 +64,8 @@ services:
       # Image metadata
       KIOSK_SHOW_OWNER: false
       KIOSK_SHOW_ALBUM_NAME: false
-      KIOSK_SHOW_NAMES: false
-      KIOSK_SHOW_AGES: false
+      KIOSK_SHOW_PERSON_NAME: false
+      KIOSK_SHOW_PERSON_AGE: false
       KIOSK_SHOW_IMAGE_TIME: false
       KIOSK_IMAGE_TIME_FORMAT: 24
       KIOSK_SHOW_IMAGE_DATE: false

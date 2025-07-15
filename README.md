@@ -125,8 +125,8 @@ This section is used to generate the UnRaid template.
 | use_original_image                | KIOSK_USE_ORIGINAL_IMAGE | bool                      | false       | Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fall back to using the preview. |
 | show_owner                        | KIOSK_SHOW_OWNER        | bool                       | false       | Display the asset owner. Useful for shared albums.                                         |
 | show_album_name                   | KIOSK_SHOW_ALBUM_NAME   | bool                       | false       | Display album names that the asset appears in.                                           |
-| show_names                        | KIOSK_SHOW_NAMES        | bool                       | false       | Display people's names.                                                                    |
-| show_ages                         | KIOSK_SHOW_AGES         | bool                       | false       | Display people's ages.                                                                        |
+| show_person_name                  | KIOSK_SHOW_PERSON_NAME  | bool                       | false       | Display people's names.                                                                    |
+| show_person_age                   | KIOSK_SHOW_PERSON_AGE   | bool                       | false       | Display people's ages.                                                                        |
 | show_image_time                   | KIOSK_SHOW_IMAGE_TIME   | bool                       | false       | Display image time from METADATA (if available).                                           |
 | image_time_format                 | KIOSK_IMAGE_TIME_FORMAT | 12 \| 24                   | 24          | Display image time in either 12-hour or 24-hour format. This can either be 12 or 24.       |
 | show_image_date                   | KIOSK_SHOW_IMAGE_DATE   | bool                       | false       | Display the image date from METADATA (if available).                                       |
