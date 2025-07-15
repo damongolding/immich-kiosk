@@ -296,8 +296,7 @@ func (c *Config) checkRedirects() {
 			visited[current] = true
 
 			// Check if the URL points to another internal redirect
-			if strings.HasPrefix(targetURL.URL, "/") {
-				nextRedirect := strings.TrimPrefix(targetURL.URL, "/")
+			if nextRedirect, ok := strings.CutPrefix(targetURL.URL, "/"); ok {
 				nextURL, exists := redirects[nextRedirect]
 				if !exists {
 					break

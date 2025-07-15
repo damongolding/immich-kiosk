@@ -173,10 +173,10 @@
     "show_album_name": {
       "type": "boolean"
     },
-    "show_names": {
+    "show_person_name": {
       "type": "boolean"
     },
-    "show_ages": {
+    "show_person_age": {
       "type": "boolean"
     },
     "age_switch_to_years_after": {
