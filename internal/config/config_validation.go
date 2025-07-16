@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -9,7 +10,17 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/xeipuuv/gojsonschema"
 )
+
+var (
+	SchemaJSON string
+)
+
+// IsSchemaLoaded returns true if the schema has been initialized
+func IsSchemaLoaded() bool {
+	return SchemaJSON != ""
+}
 
 // validateConfigFile checks if the given file path is valid and not a directory.
 // It returns an error if the file is a directory, and nil if the file doesn't exist.
@@ -100,15 +111,15 @@ func (c *Config) cleanupSlice(slice []string, placeholder string) []string {
 // The cleaned lists are then stored back in their respective Config fields.
 func (c *Config) checkAssetBuckets() {
 
-	c.Album = c.cleanupSlice(c.Album, "ALBUM_ID")
+	c.Albums = c.cleanupSlice(c.Albums, "ALBUM_ID")
 
 	c.ExcludedAlbums = c.cleanupSlice(c.ExcludedAlbums, "ALBUM_ID")
 
-	c.Person = c.cleanupSlice(c.Person, "PERSON_ID")
+	c.People = c.cleanupSlice(c.People, "PERSON_ID")
 
-	c.Tag = c.cleanupSlice(c.Tag, "TAG_VALUE")
+	c.Tags = c.cleanupSlice(c.Tags, "TAG_VALUE")
 
-	c.Date = c.cleanupSlice(c.cleanupSlice(c.Date, "DATE_RANGE"), "YYYY-MM-DD_to_YYYY-MM-DD")
+	c.Dates = c.cleanupSlice(c.cleanupSlice(c.Dates, "DATE_RANGE"), "YYYY-MM-DD_to_YYYY-MM-DD")
 }
 
 // checkExcludedAlbums filters out any albums from c.Album that are present in
@@ -120,7 +131,7 @@ func (c *Config) checkExcludedAlbums() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if len(c.ExcludedAlbums) == 0 || len(c.Album) == 0 {
+	if len(c.ExcludedAlbums) == 0 || len(c.Albums) == 0 {
 		return
 	}
 
@@ -129,17 +140,17 @@ func (c *Config) checkExcludedAlbums() {
 		excludeMap[id] = struct{}{}
 	}
 
-	filtered := c.Album[:0]
-	for _, album := range c.Album {
+	filtered := c.Albums[:0]
+	for _, album := range c.Albums {
 		if _, excluded := excludeMap[album]; !excluded {
 			filtered = append(filtered, album)
 		}
 	}
 
-	c.Album = filtered
+	c.Albums = filtered
 
-	if excess := cap(c.Album) - len(c.Album); excess > len(c.Album) {
-		c.Album = append(make([]string, 0, len(c.Album)), c.Album...)
+	if excess := cap(c.Albums) - len(c.Albums); excess > len(c.Albums) {
+		c.Albums = append(make([]string, 0, len(c.Albums)), c.Albums...)
 	}
 }
 
@@ -285,8 +296,7 @@ func (c *Config) checkRedirects() {
 			visited[current] = true
 
 			// Check if the URL points to another internal redirect
-			if strings.HasPrefix(targetURL.URL, "/") {
-				nextRedirect := strings.TrimPrefix(targetURL.URL, "/")
+			if nextRedirect, ok := strings.CutPrefix(targetURL.URL, "/"); ok {
 				nextURL, exists := redirects[nextRedirect]
 				if !exists {
 					break
@@ -349,4 +359,39 @@ func (c *Config) checkOffline() {
 			c.OfflineMode.ExpirationHours = 72
 		}
 	}
+}
+
+func checkSchema(config map[string]any) bool {
+
+	if !IsSchemaLoaded() {
+		log.Warn("Schema not loaded, skipping validation")
+		return true
+	}
+
+	jsonData, err := json.Marshal(config)
+	if err != nil {
+		log.Error("Failed to marshal config to JSON", "err", err)
+		return false
+	}
+
+	// Load JSON Schema from file
+	schemaLoader := gojsonschema.NewStringLoader(SchemaJSON)
+	docLoader := gojsonschema.NewBytesLoader(jsonData)
+
+	// Validate
+	result, err := gojsonschema.Validate(schemaLoader, docLoader)
+	if err != nil {
+		log.Error("Schema validation setup failed", "err", err)
+		return false
+	}
+
+	if !result.Valid() {
+		log.Warn("Config validation failed:")
+		for _, desc := range result.Errors() {
+			log.Warnf("- %s", desc)
+		}
+		return false
+	}
+
+	return true
 }

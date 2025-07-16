@@ -3,7 +3,6 @@ package partials
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
-	"time"
 )
 
 // crossFadeDurationCSS generates CSS for the cross-fade animation
@@ -28,24 +27,6 @@ func fadeDurationCSS(fadeDuration float32) string {
 	`, fadeDuration)
 }
 
-func BodyAttributes(viewData common.ViewData, secret string) templ.Attributes {
-	headerStr := fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s", "X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.interaction.click"}`, viewData.KioskVersion, viewData.DeviceID, time.Now().Unix(), WebhookSignature(secret))
-
-	attr := templ.Attributes{
-		"hx-headers": headerStr,
-		"hx-trigger": "click throttle:1s",
-		"hx-include": ".kiosk-history--entry",
-		"hx-vals":    "js:{...kiosk.clientData()}",
-	}
-
-	if len(viewData.Webhooks) > 0 {
-		attr["hx-post"] = "/webhooks"
-		attr["hx-trigger"] = "click throttle:0.5s"
-	}
-
-	return attr
-}
-
 // Body renders the <body> content
 templ Body(viewData common.ViewData, secret string) {
 	switch viewData.Transition {
@@ -53,7 +34,7 @@ templ Body(viewData common.ViewData, secret string) {
 			<body
 				hx-swap="beforeend"
 				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
-				{ BodyAttributes(viewData, secret)... }
+				{ webhookAttributes(viewData, "", secret)... }
 			>
 				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
 				{ children... }
@@ -62,7 +43,7 @@ templ Body(viewData common.ViewData, secret string) {
 			<body
 				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration) }
 				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
-				{ BodyAttributes(viewData, secret)... }
+				{ webhookAttributes(viewData, "", secret)... }
 			>
 				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
 				{ children... }
@@ -71,7 +52,7 @@ templ Body(viewData common.ViewData, secret string) {
 			<body
 				hx-swap="beforeend"
 				class={ "transition-none", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
-				{ BodyAttributes(viewData, secret)... }
+				{ webhookAttributes(viewData, "", secret)... }
 			>
 				{ children... }
 			</body>

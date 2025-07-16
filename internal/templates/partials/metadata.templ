@@ -3,6 +3,7 @@ package partials
 import (
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -14,6 +15,20 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
+
+func bubbleBackground(c string, asset common.ViewImageData) string {
+	r := max(0, min(255, asset.ImageDominantColor.R))
+	g := max(0, min(255, asset.ImageDominantColor.G))
+	b := max(0, min(255, asset.ImageDominantColor.B))
+
+	return fmt.Sprintf(`
+	<style>
+		.%s .asset--metadata--has-icon {
+			background-color: rgba(%d, %d, %d, 0.6);
+		}
+	</style>
+	`, c, r, g, b)
+}
 
 // AssetMetadata renders metadata for an asset as an HTML component.
 // Displays configurable metadata including people, albums, date/time,
@@ -30,9 +45,13 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
 	{{ rightAlignIcons := len(viewData.Assets) > 1 && assetIndex == 1 }}
-	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowNames, viewData.ShowAges, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
 	{{ showUser := viewData.ShowUser }}
-	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
+	{{ className := "frame-" + utils.GenerateUUID() }}
+	if viewData.Theme == "bubble" {
+		@templ.Raw(bubbleBackground(className, viewData.Assets[assetIndex]))
+	}
+	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons), className }>
 		if showUser && viewData.Assets[assetIndex].User != "" {
 			@userIcon(cases.Title(language.English).String(viewData.Assets[assetIndex].User))
 		}
@@ -42,7 +61,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 		if viewData.Assets[assetIndex].ImmichAsset.MemoryTitle != "" {
 			@memoryIcon(viewData.Assets[assetIndex].ImmichAsset.MemoryTitle)
 		}
-		if (viewData.ShowPersonName || viewData.ShowPersonAge) && names != "" {
+		if (viewData.ShowNames || viewData.ShowAges) && names != "" {
 			@templ.Raw(AssetPeople(names))
 		}
 		if viewData.ShowAlbumName && len(viewData.Assets[assetIndex].ImmichAsset.AppearsIn) != 0 {
@@ -244,12 +263,14 @@ func calculateAge(assetDate, birthDate time.Time, switchToYears int) string {
 	// Choose appropriate format based on the age
 	switch {
 	case years > 0 && years < switchToYears:
-		totalMonths := months + (years * 12)
-		return pluralize(totalMonths, "month")
+		if months == 0 {
+			return strconv.Itoa(years)
+		}
+		return fmt.Sprintf("%dy %dm", years, months)
 	case years > 0:
-		return pluralize(years, "year")
+		return strconv.Itoa(years)
 	case months > 0:
-		return pluralize(months, "month")
+		return fmt.Sprintf("%dm", months)
 	default:
 		return pluralize(totalDays, "day")
 	}

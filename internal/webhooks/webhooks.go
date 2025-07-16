@@ -18,18 +18,23 @@ import (
 
 type WebhookEvent string
 
+func (e WebhookEvent) String() string {
+	return string(e)
+}
+
 const (
-	NewAsset                      WebhookEvent = "asset.new"
-	NextHistoryAsset              WebhookEvent = "asset.history.next"
-	PreviousHistoryAsset          WebhookEvent = "asset.history.previous"
-	PrefetchAsset                 WebhookEvent = "asset.prefetch"
-	CacheFlush                    WebhookEvent = "cache.flush"
-	UserInteractionClick          WebhookEvent = "user.interaction.click"
+	NewAsset             WebhookEvent = "asset.new"
+	NextHistoryAsset     WebhookEvent = "asset.history.next"
+	PreviousHistoryAsset WebhookEvent = "asset.history.previous"
+	PrefetchAsset        WebhookEvent = "asset.prefetch"
+	CacheFlush           WebhookEvent = "cache.flush"
+	// UserInteractionClick          WebhookEvent = "user.interaction.click"
 	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"
 	UserLikeInfoOverlay           WebhookEvent = "user.like.info_overlay"
 	UserUnlikeInfoOverlay         WebhookEvent = "user.unlike.info_overlay"
 	UserHideInfoOverlay           WebhookEvent = "user.hide.info_overlay"
 	UserUnhideInfoOverlay         WebhookEvent = "user.unhide.info_overlay"
+	UserNavigationCustom          WebhookEvent = "user.navigation.custom"
 )
 
 type Meta struct {

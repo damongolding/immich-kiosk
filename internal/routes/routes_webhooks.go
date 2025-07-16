@@ -65,11 +65,6 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return c.NoContent(http.StatusBadRequest)
 		}
 
-		// 5-minute tolerance
-		if !utils.IsValidTimestamp(receivedTimestamp, 300) {
-			return c.NoContent(http.StatusBadRequest)
-		}
-
 		calculatedSignature := utils.CalculateSignature(com.Secret(), receivedTimestamp)
 
 		// Compare the received signature with the calculated signature
@@ -79,12 +74,12 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		switch webhooks.WebhookEvent(kioskWebhookEvent) {
 		case
-			webhooks.UserInteractionClick,
 			webhooks.UserWebhookTriggerInfoOverlay,
 			webhooks.UserLikeInfoOverlay,
 			webhooks.UserUnlikeInfoOverlay,
 			webhooks.UserHideInfoOverlay,
-			webhooks.UserUnhideInfoOverlay:
+			webhooks.UserUnhideInfoOverlay,
+			webhooks.UserNavigationCustom:
 
 			historyLen := len(requestConfig.History)
 
@@ -137,14 +132,17 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			// Wait for all goroutines to complete and check for errors
 			errGroupWait := g.Wait()
 			if errGroupWait != nil {
-				return RenderError(c, errGroupWait, "retrieving image data", requestConfig.Refresh)
+				return RenderError(c, errGroupWait, "retrieving image data", requestConfig.Duration)
 			}
 
 			go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.WebhookEvent(kioskWebhookEvent), viewData)
 
-			return c.String(http.StatusOK, "Triggered")
-		case webhooks.NewAsset, webhooks.NextHistoryAsset, webhooks.PreviousHistoryAsset, webhooks.PrefetchAsset, webhooks.CacheFlush:
-			// to stop lint moaning
+			if kioskWebhookEvent == webhooks.UserWebhookTriggerInfoOverlay.String() {
+				return c.String(http.StatusOK, "Triggered")
+			}
+
+			return c.NoContent(http.StatusNoContent)
+
 		}
 
 		return c.NoContent(http.StatusNoContent)

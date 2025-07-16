@@ -39,8 +39,12 @@ var version string
 //go:embed frontend/public
 var public embed.FS
 
+//go:embed config.schema.json
+var SchemaJSON string
+
 func init() {
 	routes.KioskVersion = version
+	config.SchemaJSON = SchemaJSON
 }
 
 // main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
@@ -141,10 +145,10 @@ func main() {
 	}
 
 	// CSS cache busting
-	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public, StaticCacheMiddleware)
+	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public, StaticCacheMiddlewareWithConfig(baseConfig))
 
 	// JS cache busting
-	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public, StaticCacheMiddleware)
+	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public, StaticCacheMiddlewareWithConfig(baseConfig))
 
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
@@ -164,7 +168,7 @@ func main() {
 	e.GET("/image", routes.Image(baseConfig, c))
 	e.GET("/image/reload", routes.ImageWithReload(baseConfig))
 
-	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c))
+	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c), StaticCacheMiddlewareWithConfig(baseConfig))
 
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 
@@ -193,7 +197,9 @@ func main() {
 
 	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
-	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode))
+	e.GET("/live/:liveID", routes.LivePhoto(baseConfig.Kiosk.DemoMode))
+
+	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode), StaticCacheMiddlewareWithConfig(baseConfig))
 
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 
@@ -234,10 +240,17 @@ func NoCacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-// Middleware for static routes
-func StaticCacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		c.Response().Header().Set("Cache-Control", "public, max-age=86400, immutable")
-		return next(c)
+// Middleware for static routes with access to baseConfig
+func StaticCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+
+		if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
+			return NoCacheMiddleware(next)
+		}
+
+		return func(c echo.Context) error {
+			c.Response().Header().Set("Cache-Control", "public, max-age=86400, immutable")
+			return next(c)
+		}
 	}
 }
