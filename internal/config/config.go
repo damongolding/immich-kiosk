@@ -326,10 +326,10 @@ type Config struct {
 
 	// ShowAlbumName whether to display the album name
 	ShowAlbumName bool `json:"showAlbumName" yaml:"show_album_name" mapstructure:"show_album_name" query:"show_album_name" form:"show_album_name" default:"false"`
-	// ShowNames whether to display the person name
-	ShowNames bool `json:"ShowNames" yaml:"show_names" mapstructure:"show_names" query:"show_names" form:"show_names" default:"false"`
-	// ShowAges whether to display the person age
-	ShowAges bool `json:"ShowAges" yaml:"show_ages" mapstructure:"show_ages" query:"show_ages" form:"show_ages" default:"false"`
+	// ShowPersonName whether to display the person name
+	ShowPersonName bool `json:"showPersonName" yaml:"show_person_name" mapstructure:"show_person_name" query:"show_person_name" form:"show_person_name" default:"false"`
+	// ShowPersonAge whether to display the person age
+	ShowPersonAge bool `json:"showPersonAge" yaml:"show_person_age" mapstructure:"show_person_age" query:"show_person_age" form:"show_person_age" default:"false"`
 	// AgeSwitchToYearsAfter when to switch from months to years
 	AgeSwitchToYearsAfter int `json:"ageSwitchToYearsAfter" yaml:"age_switch_to_years_after" mapstructure:"age_switch_to_years_after" query:"age_switch_to_years_after" form:"age_switch_to_years_after" default:"1"`
 
