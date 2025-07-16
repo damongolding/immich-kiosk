@@ -45,7 +45,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
 	{{ rightAlignIcons := len(viewData.Assets) > 1 && assetIndex == 1 }}
-	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowNames, viewData.ShowAges, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
 	{{ showUser := viewData.ShowUser }}
 	{{ className := "frame-" + utils.GenerateUUID() }}
 	if viewData.Theme == "bubble" {
@@ -61,7 +61,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 		if viewData.Assets[assetIndex].ImmichAsset.MemoryTitle != "" {
 			@memoryIcon(viewData.Assets[assetIndex].ImmichAsset.MemoryTitle)
 		}
-		if (viewData.ShowNames || viewData.ShowAges) && names != "" {
+		if (viewData.ShowPersonName || viewData.ShowPersonAge) && names != "" {
 			@templ.Raw(AssetPeople(names))
 		}
 		if viewData.ShowAlbumName && len(viewData.Assets[assetIndex].ImmichAsset.AppearsIn) != 0 {
