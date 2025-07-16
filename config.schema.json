@@ -7,8 +7,7 @@
       "type": "string"
     },
     "immich_url": {
-      "type": "string",
-      "format": "uri"
+      "type": "string"
     },
     "immich_external_url": {
       "type": "string",
@@ -129,10 +128,10 @@
       "type": "string"
     },
     "sleep_start": {
-      "type": "integer"
+      "type": "string"
     },
     "sleep_end": {
-      "type": "integer"
+      "type": "string"
     },
     "sleep_dim_screen": {
       "type": "boolean"
