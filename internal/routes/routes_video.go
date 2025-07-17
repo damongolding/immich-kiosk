@@ -74,7 +74,7 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 			}
 		}
 
-		c.Response().Header().Set("Content-Type", vid.ImmichAsset.OriginalMimeType)
+		c.Response().Header().Set("Content-Type", vid.ContentType)
 		c.Response().Header().Set("Accept-Ranges", "bytes")
 
 		// Initialize start and end
