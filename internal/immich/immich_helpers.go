@@ -39,11 +39,13 @@ func immichAPIFail[T APIResponse](value T, err error, body []byte, apiURL string
 
 // withImmichAPICache Decorator to implement cache for the immichAPICall func
 func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) apiCall {
-	return func(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, error) {
+	return func(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, error) {
 
 		if !requestConfig.Kiosk.Cache {
 			return immichAPICall(ctx, method, apiURL, body, headers...)
 		}
+
+		var contentType string
 
 		apiCacheKey := cache.APICacheKey(apiURL, deviceID, requestConfig.SelectedUser)
 
@@ -51,33 +53,33 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 			log.Debug(requestID+" Cache hit", "url", apiURL)
 			data, ok := apiData.([]byte)
 			if !ok {
-				return nil, errors.New("cache data type assertion failed")
+				return nil, contentType, errors.New("cache data type assertion failed")
 			}
-			return data, nil
+			return data, contentType, nil
 		}
 
 		if requestConfig.Kiosk.DebugVerbose {
 			log.Debug(requestID+" Cache miss", "url", apiURL)
 		}
 
-		apiBody, err := immichAPICall(ctx, method, apiURL, body)
+		apiBody, contentType, err := immichAPICall(ctx, method, apiURL, body)
 		if err != nil {
 			log.Error(err)
-			return nil, err
+			return nil, contentType, err
 		}
 
 		// Unpack api json into struct which discards data we don't use (for smaller cache size)
 		err = json.Unmarshal(apiBody, &jsonShape)
 		if err != nil {
 			log.Error(err)
-			return nil, err
+			return nil, contentType, err
 		}
 
 		// get bytes and store in cache
 		jsonBytes, err := json.Marshal(jsonShape)
 		if err != nil {
 			log.Error(err)
-			return nil, err
+			return nil, contentType, err
 		}
 
 		cache.Set(apiCacheKey, jsonBytes)
@@ -85,20 +87,21 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 			log.Debug(requestID+" Cache saved", "url", apiURL)
 		}
 
-		return jsonBytes, nil
+		return jsonBytes, contentType, nil
 	}
 }
 
 // immichAPICall bootstrap for immich api call
-func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, error) {
+func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, error) {
 
 	var responseBody []byte
 	var lastErr error
+	var contentType string
 
 	_, err := url.Parse(apiURL)
 	if err != nil {
 		log.Error("Invalid URL", "url", apiURL, "err", err)
-		return responseBody, err
+		return responseBody, contentType, err
 	}
 
 	for attempts := range 3 {
@@ -111,7 +114,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		req, reqErr := http.NewRequestWithContext(ctx, method, apiURL, bodyReader)
 		if reqErr != nil {
 			log.Error(reqErr)
-			return responseBody, reqErr
+			return responseBody, contentType, reqErr
 		}
 
 		req.Header.Set("Accept", "application/json")
@@ -121,7 +124,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			token, demoLoginErr := demo.Login(a.ctx, false)
 			if demoLoginErr != nil {
 				log.Error(demoLoginErr)
-				return responseBody, demoLoginErr
+				return responseBody, contentType, demoLoginErr
 			}
 			req.Header.Set("Authorization", "Bearer "+token)
 
@@ -131,7 +134,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 				if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
 					apiKey = key
 				} else {
-					return responseBody, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
+					return responseBody, contentType, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
 				}
 			}
 
@@ -177,13 +180,15 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 		defer res.Body.Close()
 
+		contentType = res.Header.Get("Content-Type")
+
 		// in demo mode and unauthorized, attempt to login again
 		if res.StatusCode == http.StatusUnauthorized && a.requestConfig.Kiosk.DemoMode {
 			_, _ = io.Copy(io.Discard, res.Body)
 			if !demo.ValidateToken(a.ctx, demo.DemoToken) {
 				_, err = demo.Login(a.ctx, true)
 				if err != nil {
-					return responseBody, err
+					return responseBody, contentType, err
 				}
 				continue
 			}
@@ -193,26 +198,26 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			responseBody, err = io.ReadAll(res.Body)
 			if err != nil {
 				log.Error("reading unexpected response body", "method", method, "url", apiURL, "err", err)
-				return responseBody, err
+				return responseBody, contentType, err
 			}
 
 			if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusForbidden {
-				return responseBody, fmt.Errorf("received %d (unauthorised) code from Immich. Please check your Immich API is correct", res.StatusCode)
+				return responseBody, contentType, fmt.Errorf("received %d (unauthorised) code from Immich. Please check your Immich API is correct", res.StatusCode)
 			}
 
-			return responseBody, fmt.Errorf("HTTP %d: unexpected status code", res.StatusCode)
+			return responseBody, contentType, fmt.Errorf("HTTP %d: unexpected status code", res.StatusCode)
 		}
 
 		responseBody, err = io.ReadAll(res.Body)
 		if err != nil {
 			log.Error("reading response body", "method", method, "url", apiURL, "err", err)
-			return responseBody, err
+			return responseBody, contentType, err
 		}
 
-		return responseBody, nil
+		return responseBody, contentType, nil
 	}
 
-	return responseBody, fmt.Errorf("request failed: max retries exceeded. last err=%w", lastErr)
+	return responseBody, contentType, fmt.Errorf("request failed: max retries exceeded. last err=%w", lastErr)
 }
 
 // ratioCheck checks if an image's orientation matches a desired ratio.
@@ -338,7 +343,7 @@ func (a *Asset) AssetInfo(requestID, deviceID string) error {
 	}
 
 	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAsset)
-	body, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
 		return fmt.Errorf("fetching asset info: err %w", err)
@@ -354,14 +359,14 @@ func (a *Asset) AssetInfo(requestID, deviceID string) error {
 }
 
 // ImagePreview fetches the raw image data from Immich
-func (a *Asset) ImagePreview() ([]byte, error) {
+func (a *Asset) ImagePreview() ([]byte, string, error) {
 
 	var bytes []byte
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		log.Error(err)
-		return bytes, err
+		return bytes, "", err
 	}
 
 	assetSize := AssetSizeThumbnail
@@ -700,7 +705,7 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 		}
 
 		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, response)
-		apiBody, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
 			return totalCount, err
@@ -747,7 +752,7 @@ func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error 
 		return fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	apiBody, err := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
+	apiBody, _, err := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, err = immichAPIFail(res, err, apiBody, apiURL.String())
 		return err

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 
@@ -225,15 +226,18 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 	defer v.removeFromQueue(videoID)
 
 	// Get the video data
-	videoBytes, _, videoBytesErr := immichAsset.Video()
+	videoBytes, contentType, videoBytesErr := immichAsset.Video()
 	if videoBytesErr != nil {
 		log.Error("getting video", "err", videoBytesErr)
 		return
 	}
 
-	ext := filepath.Ext(immichAsset.OriginalFileName)
-
 	// Get the video filename
+	ext := filepath.Ext(immichAsset.OriginalFileName)
+	if strings.Contains(contentType, "video/") {
+		ext = "." + strings.Split(contentType, "/")[1]
+	}
+
 	filename := videoID + ext
 	filePath := filepath.Join(customTempVideoDir, filename)
 
@@ -259,7 +263,7 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestURL, immichAsset, imageData, imageBlurData)
 	}()
 
-	imgBytes, imgBytesErr := immichAsset.ImagePreview()
+	imgBytes, _, imgBytesErr := immichAsset.ImagePreview()
 	if imgBytesErr != nil {
 		log.Debug("getting image preview for video", "id", videoID, "err", imgBytesErr)
 		return

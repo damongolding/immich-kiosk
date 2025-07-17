@@ -178,7 +178,7 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 
 				// Image processing isn't required for video, audio, or other types
 				// So if this fails, we can still proceed with the asset view
-				imgBytes, previewErr := asset.ImagePreview()
+				imgBytes, _, previewErr := asset.ImagePreview()
 				if previewErr != nil {
 					switch asset.Type {
 					case immich.ImageType:

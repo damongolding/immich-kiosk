@@ -49,7 +49,7 @@ func (a *Asset) AboutInfo() (ServerAboutResponse, error) {
 		Path:   "api/server/about",
 	}
 
-	apiBody, err := a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	apiBody, _, err := a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return serverAboutResponse, err
 	}

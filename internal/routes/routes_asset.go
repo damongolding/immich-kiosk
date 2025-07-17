@@ -196,7 +196,7 @@ func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			}
 		}
 
-		imgBytes, previewErr := immichAsset.ImagePreview()
+		imgBytes, _, previewErr := immichAsset.ImagePreview()
 		if previewErr != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
 		}
