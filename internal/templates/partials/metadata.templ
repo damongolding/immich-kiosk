@@ -299,7 +299,7 @@ func pluralize(count int, unit string) string {
 //
 // Returns:
 //   - string: Comma-separated list of formatted person names with optional ages
-func peopleNames(people []immich.Person, showName, showAge, addyearUnit bool, switchToYears int, assetDate time.Time) string {
+func peopleNames(people []immich.Person, showName, showAge, addYearUnit bool, switchToYears int, assetDate time.Time) string {
 	var names []string
 
 	for _, person := range people {
@@ -307,7 +307,7 @@ func peopleNames(people []immich.Person, showName, showAge, addyearUnit bool, sw
 			continue
 		}
 
-		name := formatPersonName(person, showName, showAge, addyearUnit, switchToYears, assetDate)
+		name := formatPersonName(person, showName, showAge, addYearUnit, switchToYears, assetDate)
 		if name != "" {
 			names = append(names, name)
 		}
@@ -328,7 +328,7 @@ func peopleNames(people []immich.Person, showName, showAge, addyearUnit bool, sw
 //
 // Returns:
 //   - string: Formatted name with optional age in parentheses
-func formatPersonName(person immich.Person, showName, showAge, addyearUnit bool, switchToYears int, assetDate time.Time) string {
+func formatPersonName(person immich.Person, showName, showAge, addYearUnit bool, switchToYears int, assetDate time.Time) string {
 	if !showName && !showAge {
 		return ""
 	}
@@ -340,7 +340,7 @@ func formatPersonName(person immich.Person, showName, showAge, addyearUnit bool,
 	name := person.Name
 
 	if showAge && person.BirthDate != "" {
-		if age := getPersonAge(person, addyearUnit, switchToYears, assetDate); age != "" {
+		if age := getPersonAge(person, addYearUnit, switchToYears, assetDate); age != "" {
 			name = fmt.Sprintf("%s (%s)", name, age)
 		}
 	}
