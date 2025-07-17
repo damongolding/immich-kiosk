@@ -37,7 +37,10 @@ func immichAPIFail[T APIResponse](value T, err error, body []byte, apiURL string
 	return value, apiURL, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 }
 
-// withImmichAPICache Decorator to implement cache for the immichAPICall func
+// withImmichAPICache wraps an Immich API call with caching logic, returning cached responses when available.
+// If caching is enabled and a cache hit occurs, returns the cached response data and an empty Content-Type.
+// On a cache miss, performs the API call, unmarshals and re-marshals the response into a provided JSON shape for efficient storage, caches the result, and returns the data along with the Content-Type.
+// Returns an error if unmarshaling, marshaling, or cache operations fail.
 func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) apiCall {
 	return func(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, error) {
 

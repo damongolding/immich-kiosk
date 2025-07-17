@@ -243,7 +243,8 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 //
 // Returns:
 //   - The processed image preview
-//   - Any error that occurred during retrieval or processing
+// fetchImagePreview retrieves and decodes an image preview from the given Immich asset, optionally applying EXIF orientation correction.
+// Returns the processed image or an error if retrieval or decoding fails.
 func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, deviceID string, isPrefetch bool) (image.Image, error) {
 	imageGet := time.Now()
 
