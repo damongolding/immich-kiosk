@@ -181,6 +181,9 @@
     "age_switch_to_years_after": {
       "type": "integer"
     },
+    "show_age_year_unit": {
+      "type": "boolean"
+    },
     "show_image_time": {
       "type": "boolean"
     },
