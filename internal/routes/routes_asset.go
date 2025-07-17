@@ -161,7 +161,6 @@ func ImageWithReload(baseConfig *config.Config) echo.HandlerFunc {
 	}
 }
 
-// ImageWithID returns an echo.HandlerFunc that handles requests for images by ID.
 // ImageWithID handles HTTP requests to retrieve an image preview by its image ID and returns the image as a blob with the correct MIME type.
 // Returns HTTP 400 if the image ID is missing or if the image cannot be retrieved.
 func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
