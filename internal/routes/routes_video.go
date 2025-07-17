@@ -129,7 +129,7 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 
 		// Use io.Copy instead of buffered reader for large chunks
 		if chunkSize > bufferSize {
-			return c.Stream(statusCode, vid.ImmichAsset.OriginalMimeType,
+			return c.Stream(statusCode, vid.ContentType,
 				io.NewSectionReader(video, start, chunkSize))
 		}
 
@@ -139,7 +139,7 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 			bufferSize,
 		)
 
-		return c.Stream(statusCode, vid.ImmichAsset.OriginalMimeType, bufferedReader)
+		return c.Stream(statusCode, vid.ContentType, bufferedReader)
 	}
 }
 
