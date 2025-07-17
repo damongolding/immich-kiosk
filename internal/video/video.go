@@ -237,7 +237,10 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 	// Get the video filename
 	ext := filepath.Ext(immichAsset.OriginalFileName)
 	if strings.Contains(contentType, "video/") {
-		ext = "." + strings.Split(contentType, "/")[1]
+		parts := strings.Split(contentType, "/")
+		if len(parts) >= 2 {
+			ext = "." + parts[1]
+		}
 	}
 
 	filename := videoID + ext
