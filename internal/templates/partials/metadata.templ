@@ -45,7 +45,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
 	{{ rightAlignIcons := len(viewData.Assets) > 1 && assetIndex == 1 }}
-	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.ShowAgeYearUnit, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
 	{{ showUser := viewData.ShowUser }}
 	{{ className := "frame-" + utils.GenerateUUID() }}
 	if viewData.Theme == "bubble" {
@@ -236,7 +236,7 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 // Returns:
 //   - string: Age formatted as "X days", "X months" or "X years"
 //     with appropriate pluralization. Returns empty string if assetDate is before birthDate.
-func calculateAge(assetDate, birthDate time.Time, switchToYears int) string {
+func calculateAge(assetDate, birthDate time.Time, addYearUnit bool, switchToYears int) string {
 	if assetDate.Before(birthDate) {
 		return ""
 	}
@@ -264,10 +264,16 @@ func calculateAge(assetDate, birthDate time.Time, switchToYears int) string {
 	switch {
 	case years > 0 && years < switchToYears:
 		if months == 0 {
+			if addYearUnit {
+				return fmt.Sprintf("%dy", years)
+			}
 			return strconv.Itoa(years)
 		}
 		return fmt.Sprintf("%dy %dm", years, months)
 	case years > 0:
+		if addYearUnit {
+			return fmt.Sprintf("%dy", years)
+		}
 		return strconv.Itoa(years)
 	case months > 0:
 		return fmt.Sprintf("%dm", months)
@@ -293,7 +299,7 @@ func pluralize(count int, unit string) string {
 //
 // Returns:
 //   - string: Comma-separated list of formatted person names with optional ages
-func peopleNames(people []immich.Person, showName, showAge bool, switchToYears int, assetDate time.Time) string {
+func peopleNames(people []immich.Person, showName, showAge, addyearUnit bool, switchToYears int, assetDate time.Time) string {
 	var names []string
 
 	for _, person := range people {
@@ -301,11 +307,13 @@ func peopleNames(people []immich.Person, showName, showAge bool, switchToYears i
 			continue
 		}
 
-		name := formatPersonName(person, showName, showAge, switchToYears, assetDate)
+		name := formatPersonName(person, showName, showAge, addyearUnit, switchToYears, assetDate)
 		if name != "" {
 			names = append(names, name)
 		}
 	}
+
+	slices.Sort(names)
 
 	return strings.Join(names, ", ")
 }
@@ -320,7 +328,7 @@ func peopleNames(people []immich.Person, showName, showAge bool, switchToYears i
 //
 // Returns:
 //   - string: Formatted name with optional age in parentheses
-func formatPersonName(person immich.Person, showName, showAge bool, switchToYears int, assetDate time.Time) string {
+func formatPersonName(person immich.Person, showName, showAge, addyearUnit bool, switchToYears int, assetDate time.Time) string {
 	if !showName && !showAge {
 		return ""
 	}
@@ -332,7 +340,7 @@ func formatPersonName(person immich.Person, showName, showAge bool, switchToYear
 	name := person.Name
 
 	if showAge && person.BirthDate != "" {
-		if age := getPersonAge(person, switchToYears, assetDate); age != "" {
+		if age := getPersonAge(person, addyearUnit, switchToYears, assetDate); age != "" {
 			name = fmt.Sprintf("%s (%s)", name, age)
 		}
 	}
@@ -348,13 +356,13 @@ func formatPersonName(person immich.Person, showName, showAge bool, switchToYear
 //
 // Returns:
 //   - string: Formatted age string or empty string if birth date is invalid
-func getPersonAge(person immich.Person, switchToYears int, assetDate time.Time) string {
+func getPersonAge(person immich.Person, addYearUnit bool, switchToYears int, assetDate time.Time) string {
 	birthDate, err := person.BirthDate.Time()
 	if err != nil {
 		return ""
 	}
 
-	return calculateAge(assetDate, birthDate, switchToYears)
+	return calculateAge(assetDate, birthDate, addYearUnit, switchToYears)
 }
 
 // joinAlbumNames joins album names into a comma-separated string.
