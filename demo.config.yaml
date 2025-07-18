@@ -27,7 +27,7 @@ albums: 75c4860f-d31c-4dac-9831-0e67c7ab7668
 
 ## Image METADATA
 show_album_name: true
-show_names: true
+show_person_name: true
 show_image_time: true
 image_time_format: 24
 show_image_date: true

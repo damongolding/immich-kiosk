@@ -17,6 +17,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// NewVideo returns an HTTP handler for serving video files with support for HTTP range requests, caching headers, and partial content delivery.
+// If demoMode is enabled, the handler responds with a plain text message indicating demo mode.
+// Otherwise, it streams the requested video file, handling range requests for efficient streaming, and sets appropriate HTTP headers for caching and content negotiation.
+// Returns 400 if the video ID is missing, 404 if the video is not found, 416 for invalid range requests, and 500 for internal errors.
 func NewVideo(demoMode bool) echo.HandlerFunc {
 	if demoMode {
 		return func(c echo.Context) error {
@@ -74,7 +78,7 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 			}
 		}
 
-		c.Response().Header().Set("Content-Type", vid.ImmichAsset.OriginalMimeType)
+		c.Response().Header().Set("Content-Type", vid.ContentType)
 		c.Response().Header().Set("Accept-Ranges", "bytes")
 
 		// Initialize start and end
@@ -129,7 +133,7 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 
 		// Use io.Copy instead of buffered reader for large chunks
 		if chunkSize > bufferSize {
-			return c.Stream(statusCode, vid.ImmichAsset.OriginalMimeType,
+			return c.Stream(statusCode, vid.ContentType,
 				io.NewSectionReader(video, start, chunkSize))
 		}
 
@@ -139,7 +143,7 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 			bufferSize,
 		)
 
-		return c.Stream(statusCode, vid.ImmichAsset.OriginalMimeType, bufferedReader)
+		return c.Stream(statusCode, vid.ContentType, bufferedReader)
 	}
 }
 

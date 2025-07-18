@@ -53,17 +53,9 @@ func NextHistoryAsset(baseConfig *config.Config, com *common.Common, c echo.Cont
 	return historyAsset(baseConfig, com, c, true)
 }
 
-// historyAsset handles the core logic for showing previous/next assets from navigation history.
-// It retrieves the requested asset(s), processes images and metadata in parallel, and renders
-// the appropriate view component.
-//
-// Parameters:
-// - baseConfig: Application configuration
-// - com: Common functionality and context
-// - c: Echo context for the HTTP request
-// - useNextImage: If true, shows next asset, if false shows previous
-//
-// Returns error if asset processing fails.
+// historyAsset processes and displays either the previous or next asset(s) from the navigation history, handling both online and offline modes.
+// It retrieves the relevant history entry, fetches asset metadata and image previews concurrently, and prepares view data for rendering. If offline mode is enabled, it loads cached asset data instead. The function triggers a webhook event corresponding to the navigation direction and renders either an image or video component based on the asset type.
+// Returns an error if asset retrieval, image processing, or view rendering fails.
 func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context, useNextImage bool) error {
 	requestData, err := InitializeRequestData(c, baseConfig)
 	if err != nil {
@@ -178,7 +170,7 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 
 				// Image processing isn't required for video, audio, or other types
 				// So if this fails, we can still proceed with the asset view
-				imgBytes, previewErr := asset.ImagePreview()
+				imgBytes, _, previewErr := asset.ImagePreview()
 				if previewErr != nil {
 					switch asset.Type {
 					case immich.ImageType:
