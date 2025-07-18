@@ -61,6 +61,8 @@ services:
       KIOSK_IMAGE_EFFECT: smart-zoom
       KIOSK_IMAGE_EFFECT_AMOUNT: 120
       KIOSK_USE_ORIGINAL_IMAGE: false
+      KIOSK_LIVE_PHOTOS: false
+      KIOSK_LIVE_PHOTO_LOOP_DELAY: 0
       # Image metadata
       KIOSK_SHOW_OWNER: false
       KIOSK_SHOW_ALBUM_NAME: false
@@ -85,6 +87,8 @@ services:
       # Kiosk settings
       KIOSK_PORT: 3000
       KIOSK_BEHIND_PROXY: false
+      KIOSK_DISABLE_URL_QUERIES: false
+      KIOSK_DISABLE_CONFIG_ENDPOINT: false
       KIOSK_WATCH_CONFIG: false
       KIOSK_FETCHED_ASSETS_SIZE: 1000
       KIOSK_HTTP_TIMEOUT: 20
