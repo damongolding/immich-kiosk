@@ -332,6 +332,8 @@ type Config struct {
 	ShowPersonAge bool `json:"showPersonAge" yaml:"show_person_age" mapstructure:"show_person_age" query:"show_person_age" form:"show_person_age" default:"false"`
 	// AgeSwitchToYearsAfter when to switch from months to years
 	AgeSwitchToYearsAfter int `json:"ageSwitchToYearsAfter" yaml:"age_switch_to_years_after" mapstructure:"age_switch_to_years_after" query:"age_switch_to_years_after" form:"age_switch_to_years_after" default:"1"`
+	// ShowAgeYearUnit whether to show year unit
+	ShowAgeYearUnit bool `json:"showAgeYearUnit" yaml:"show_age_year_unit" mapstructure:"show_age_year_unit" query:"show_age_year_unit" form:"show_age_year_unit" default:"false"`
 
 	// ShowImageTime whether to display image time
 	ShowImageTime bool `json:"showImageTime" yaml:"show_image_time" mapstructure:"show_image_time" query:"show_image_time" form:"show_image_time" default:"false"`
