@@ -341,7 +341,7 @@ func formatPersonName(person immich.Person, showName, showAge, addYearUnit bool,
 
 	if showAge && person.BirthDate != "" {
 		if age := getPersonAge(person, addYearUnit, switchToYears, assetDate); age != "" {
-			name = fmt.Sprintf("%s (%s)", name, age)
+			name = fmt.Sprintf("%s <span class=\"metadata-age-bracket\">(</span>%s<span class=\"metadata-age-bracket\">)</span>", name, age)
 		}
 	}
 

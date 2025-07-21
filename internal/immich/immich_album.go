@@ -72,13 +72,13 @@ func (a *Asset) albums(requestID, deviceID string, shared bool, contains string,
 	var body []byte
 
 	if bypassCache {
-		body, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+		body, _, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 		if err != nil {
 			return immichAPIFail(albums, err, body, apiURL.String())
 		}
 	} else {
 		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, albums)
-		body, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+		body, _, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 		if err != nil {
 			return immichAPIFail(albums, err, body, apiURL.String())
 		}
@@ -147,7 +147,7 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string) (Album, string,
 	}
 
 	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, album)
-	body, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(album, err, body, apiURL.String())
 	}
@@ -467,7 +467,7 @@ func (a *Asset) createKioskLikedAlbum() (string, error) {
 		return "", fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	body, err := a.immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+	body, _, err := a.immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, resErr := immichAPIFail(res, err, body, apiURL.String())
 		return "", resErr
@@ -552,7 +552,7 @@ func (a *Asset) modifyAssetInAlbum(albumID string, method string) error {
 		return fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	body, err := a.immichAPICall(a.ctx, method, apiURL.String(), jsonBody)
+	body, _, err := a.immichAPICall(a.ctx, method, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, err = immichAPIFail(res, err, body, apiURL.String())
 		return err
