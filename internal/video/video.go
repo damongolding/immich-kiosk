@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 
@@ -27,6 +28,7 @@ type Video struct {
 	LastAccessed time.Time
 	FileName     string
 	FilePath     string
+	ContentType  string
 	ImmichAsset  immich.Asset
 }
 
@@ -166,15 +168,16 @@ func (v *Manager) GetVideo(id string) (Video, error) {
 }
 
 // AddVideoToViewCache adds a downloaded video to the cache
-func (v *Manager) AddVideoToViewCache(id, fileName, filePath string, requestConfig *config.Config, deviceID, requestURL string, immichAsset immich.Asset, imageData, imageBlurData string) {
+func (v *Manager) AddVideoToViewCache(id, fileName, filePath, contentType string, requestConfig *config.Config, deviceID, requestURL string, immichAsset immich.Asset, imageData, imageBlurData string) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
 	v.Videos = append(v.Videos, Video{
 		ID:           id,
+		LastAccessed: time.Now(),
 		FileName:     fileName,
 		FilePath:     filePath,
-		LastAccessed: time.Now(),
+		ContentType:  contentType,
 		ImmichAsset:  immichAsset,
 	})
 
@@ -225,15 +228,21 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 	defer v.removeFromQueue(videoID)
 
 	// Get the video data
-	videoBytes, _, videoBytesErr := immichAsset.Video()
+	videoBytes, contentType, videoBytesErr := immichAsset.Video()
 	if videoBytesErr != nil {
 		log.Error("getting video", "err", videoBytesErr)
 		return
 	}
 
 	ext := filepath.Ext(immichAsset.OriginalFileName)
+	if strings.HasPrefix(contentType, "video/") {
+		mediaType := strings.Split(contentType, ";")[0]
+		parts := strings.Split(mediaType, "/")
+		if len(parts) == 2 && parts[1] != "" {
+			ext = "." + parts[1]
+		}
+	}
 
-	// Get the video filename
 	filename := videoID + ext
 	filePath := filepath.Join(customTempVideoDir, filename)
 
@@ -256,10 +265,10 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 
 	defer func() {
 		log.Debug("downloaded video", "path", filePath)
-		v.AddVideoToViewCache(videoID, filename, filePath, &requestConfig, deviceID, requestURL, immichAsset, imageData, imageBlurData)
+		v.AddVideoToViewCache(videoID, filename, filePath, contentType, &requestConfig, deviceID, requestURL, immichAsset, imageData, imageBlurData)
 	}()
 
-	imgBytes, imgBytesErr := immichAsset.ImagePreview()
+	imgBytes, _, imgBytesErr := immichAsset.ImagePreview()
 	if imgBytesErr != nil {
 		log.Debug("getting image preview for video", "id", videoID, "err", imgBytesErr)
 		return

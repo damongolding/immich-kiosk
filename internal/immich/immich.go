@@ -370,7 +370,7 @@ type AllPeopleResponse struct {
 	Total       int      `json:"total"`
 }
 
-type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, error)
+type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, string, error)
 
 type APIResponse interface {
 	Asset |
