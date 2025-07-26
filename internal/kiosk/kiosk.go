@@ -4,6 +4,7 @@ type Source string
 
 const (
 	AlbumKeywordAll        string = "all"
+	AlbumKeywordOwned      string = "owned"
 	AlbumKeywordShared     string = "shared"
 	AlbumKeywordFavourites string = "favourites"
 	AlbumKeywordFavorites  string = "favorites"
@@ -22,6 +23,10 @@ const (
 	LayoutSplitview          string = "splitview"
 	LayoutSplitviewLandscape string = "splitview-landscape"
 
+	PortraitOrientation  string = LayoutPortrait
+	LandscapeOrientation string = LayoutLandscape
+	SquareOrientation    string = "square"
+
 	RedirectExternal string = "EXTERNAL"
 	RedirectInternal string = "INTERNAL"
 
@@ -36,4 +41,9 @@ const (
 
 	HistoryIndicator string = "*"
 	HistoryLimit     int    = 20
+
+	ThemeFade   string = "fade"
+	ThemeSolid  string = "solid"
+	ThemeBubble string = "bubble"
+	ThemeBlur   string = "blur"
 )

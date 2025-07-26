@@ -3,6 +3,7 @@
     --light-grey: #f7f9f8;
     --cool-grey: #333460;
     --mint-green: #1ed2bb;
+    --mint-green-rgb: 30, 210, 187;
     --yellow: #e7e65f;
     --pink: #de475a;
     --vibrant-pink: #ff6578;
@@ -11,6 +12,7 @@
     /* Z-index hierarchy */
     --z-below: -1;
     --z-base: 0;
+    --z-iframe: 50;
     --z-clock: 100;
     --z-progress: 150;
     --z-sleep: 200;
@@ -30,4 +32,6 @@
         hsla(0, 0%, 0%, 0.153) 65.4%, hsla(0, 0%, 0%, 0.103) 72.6%,
         hsla(0, 0%, 0%, 0.061) 79.7%, hsla(0, 0%, 0%, 0.029) 86.7%,
         hsla(0, 0%, 0%, 0.008) 93.5%, hsla(0, 0%, 0%, 0) 100%;
+
+    --bubble-background: rgba(0, 0, 0, 0.2);
 }

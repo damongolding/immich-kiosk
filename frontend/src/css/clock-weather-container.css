@@ -1,18 +1,9 @@
-.polling-paused.more-info,
-.polling-paused.redirects-open {
-    #clock-weather-container {
-        opacity: 0.2;
-    }
-}
-
 #clock-weather-container {
     position: absolute;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    width: 100%;
     width: 100vw;
-    min-width: 100%;
     min-width: 100vw;
     height: auto;
     min-height: auto;
@@ -20,6 +11,13 @@
     left: 0;
 
     z-index: var(--z-clock);
+}
+
+.polling-paused.more-info,
+.polling-paused.redirects-open {
+    #clock-weather-container {
+        opacity: 0.2;
+    }
 }
 
 /* Splitview */

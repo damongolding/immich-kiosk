@@ -7,6 +7,7 @@ package routes
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
@@ -32,6 +33,8 @@ var (
 	drawFacesOnImages string
 
 	VideoManager *video.Manager
+
+	mu sync.Mutex
 )
 
 type PersonOrAlbum struct {
@@ -102,24 +105,40 @@ func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.R
 	}, nil
 }
 
-func RenderError(c echo.Context, err error, message string) error {
+func RenderError(c echo.Context, err error, message string, refresh int) error {
 	log.Error(message, "err", err)
+
+	retry := refresh > 5
+
 	return Render(c, http.StatusOK, partials.Error(partials.ErrorData{
 		Title:   "Error " + message,
 		Message: err.Error(),
+		Retry:   retry,
+	}))
+}
+
+func RenderUnauthorized(c echo.Context) error {
+	return Render(c, http.StatusUnauthorized, partials.Unauthorized())
+}
+
+func RenderMessage(c echo.Context, title, message string) error {
+	return Render(c, http.StatusOK, partials.Message(partials.MessageData{
+		Title:   title,
+		Message: message,
 	}))
 }
 
 // This custom Render replaces Echo's echo.Context.Render() with templ's templ.Component.Render().
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
+	// Set content type manually
+	ctx.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTMLCharsetUTF8)
+	ctx.Response().WriteHeader(statusCode)
 
-	buf := templ.GetBuffer()
-	defer templ.ReleaseBuffer(buf)
-
-	if err := t.Render(ctx.Request().Context(), buf); err != nil {
-		log.Error("rendering view", "err", err)
+	// Stream the rendered HTML directly
+	if err := t.Render(ctx.Request().Context(), ctx.Response().Writer); err != nil {
+		log.Warn("rendering view", "err", err)
 		return err
 	}
 
-	return ctx.HTML(statusCode, buf.String())
+	return nil
 }

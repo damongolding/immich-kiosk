@@ -59,8 +59,9 @@ const (
 
 // Defines values for AssetMediaSize.
 const (
-	AssetMediaSizePreview   AssetMediaSize = "preview"
-	AssetMediaSizeThumbnail AssetMediaSize = "thumbnail"
+	Fullsize  AssetMediaSize = "fullsize"
+	Preview   AssetMediaSize = "preview"
+	Thumbnail AssetMediaSize = "thumbnail"
 )
 
 // Defines values for AssetMediaStatus.
@@ -82,6 +83,14 @@ const (
 	IMAGE AssetTypeEnum = "IMAGE"
 	OTHER AssetTypeEnum = "OTHER"
 	VIDEO AssetTypeEnum = "VIDEO"
+)
+
+// Defines values for AssetVisibility.
+const (
+	Archive  AssetVisibility = "archive"
+	Hidden   AssetVisibility = "hidden"
+	Locked   AssetVisibility = "locked"
+	Timeline AssetVisibility = "timeline"
 )
 
 // Defines values for AudioCodec.
@@ -113,12 +122,6 @@ const (
 	Srgb Colorspace = "srgb"
 )
 
-// Defines values for EntityType.
-const (
-	EntityTypeALBUM EntityType = "ALBUM"
-	EntityTypeASSET EntityType = "ASSET"
-)
-
 // Defines values for ImageFormat.
 const (
 	Jpeg ImageFormat = "jpeg"
@@ -136,38 +139,41 @@ const (
 
 // Defines values for JobName.
 const (
-	BackgroundTask           JobName = "backgroundTask"
-	BackupDatabase           JobName = "backupDatabase"
-	DuplicateDetection       JobName = "duplicateDetection"
-	FaceDetection            JobName = "faceDetection"
-	FacialRecognition        JobName = "facialRecognition"
-	Library                  JobName = "library"
-	MetadataExtraction       JobName = "metadataExtraction"
-	Migration                JobName = "migration"
-	Notifications            JobName = "notifications"
-	Search                   JobName = "search"
-	Sidecar                  JobName = "sidecar"
-	SmartSearch              JobName = "smartSearch"
-	StorageTemplateMigration JobName = "storageTemplateMigration"
-	ThumbnailGeneration      JobName = "thumbnailGeneration"
-	VideoConversion          JobName = "videoConversion"
+	JobNameBackgroundTask           JobName = "backgroundTask"
+	JobNameBackupDatabase           JobName = "backupDatabase"
+	JobNameDuplicateDetection       JobName = "duplicateDetection"
+	JobNameFaceDetection            JobName = "faceDetection"
+	JobNameFacialRecognition        JobName = "facialRecognition"
+	JobNameLibrary                  JobName = "library"
+	JobNameMetadataExtraction       JobName = "metadataExtraction"
+	JobNameMigration                JobName = "migration"
+	JobNameNotifications            JobName = "notifications"
+	JobNameSearch                   JobName = "search"
+	JobNameSidecar                  JobName = "sidecar"
+	JobNameSmartSearch              JobName = "smartSearch"
+	JobNameStorageTemplateMigration JobName = "storageTemplateMigration"
+	JobNameThumbnailGeneration      JobName = "thumbnailGeneration"
+	JobNameVideoConversion          JobName = "videoConversion"
 )
 
 // Defines values for LogLevel.
 const (
-	Debug   LogLevel = "debug"
-	Error   LogLevel = "error"
-	Fatal   LogLevel = "fatal"
-	Log     LogLevel = "log"
-	Verbose LogLevel = "verbose"
-	Warn    LogLevel = "warn"
+	LogLevelDebug   LogLevel = "debug"
+	LogLevelError   LogLevel = "error"
+	LogLevelFatal   LogLevel = "fatal"
+	LogLevelLog     LogLevel = "log"
+	LogLevelVerbose LogLevel = "verbose"
+	LogLevelWarn    LogLevel = "warn"
 )
 
 // Defines values for ManualJobName.
 const (
-	PersonCleanup ManualJobName = "person-cleanup"
-	TagCleanup    ManualJobName = "tag-cleanup"
-	UserCleanup   ManualJobName = "user-cleanup"
+	ManualJobNameBackupDatabase ManualJobName = "backup-database"
+	ManualJobNameMemoryCleanup  ManualJobName = "memory-cleanup"
+	ManualJobNameMemoryCreate   ManualJobName = "memory-create"
+	ManualJobNamePersonCleanup  ManualJobName = "person-cleanup"
+	ManualJobNameTagCleanup     ManualJobName = "tag-cleanup"
+	ManualJobNameUserCleanup    ManualJobName = "user-cleanup"
 )
 
 // Defines values for MemoryType.
@@ -175,28 +181,32 @@ const (
 	OnThisDay MemoryType = "on_this_day"
 )
 
+// Defines values for NotificationLevel.
+const (
+	NotificationLevelError   NotificationLevel = "error"
+	NotificationLevelInfo    NotificationLevel = "info"
+	NotificationLevelSuccess NotificationLevel = "success"
+	NotificationLevelWarning NotificationLevel = "warning"
+)
+
+// Defines values for NotificationType.
+const (
+	BackupFailed  NotificationType = "BackupFailed"
+	Custom        NotificationType = "Custom"
+	JobFailed     NotificationType = "JobFailed"
+	SystemMessage NotificationType = "SystemMessage"
+)
+
+// Defines values for OAuthTokenEndpointAuthMethod.
+const (
+	ClientSecretBasic OAuthTokenEndpointAuthMethod = "client_secret_basic"
+	ClientSecretPost  OAuthTokenEndpointAuthMethod = "client_secret_post"
+)
+
 // Defines values for PartnerDirection.
 const (
 	SharedBy   PartnerDirection = "shared-by"
 	SharedWith PartnerDirection = "shared-with"
-)
-
-// Defines values for PathEntityType.
-const (
-	PathEntityTypeAsset  PathEntityType = "asset"
-	PathEntityTypePerson PathEntityType = "person"
-	PathEntityTypeUser   PathEntityType = "user"
-)
-
-// Defines values for PathType.
-const (
-	PathTypeEncodedVideo PathType = "encoded_video"
-	PathTypeFace         PathType = "face"
-	PathTypeOriginal     PathType = "original"
-	PathTypePreview      PathType = "preview"
-	PathTypeProfile      PathType = "profile"
-	PathTypeSidecar      PathType = "sidecar"
-	PathTypeThumbnail    PathType = "thumbnail"
 )
 
 // Defines values for Permission.
@@ -246,6 +256,10 @@ const (
 	PermissionMemoryDelete         Permission = "memory.delete"
 	PermissionMemoryRead           Permission = "memory.read"
 	PermissionMemoryUpdate         Permission = "memory.update"
+	PermissionNotificationCreate   Permission = "notification.create"
+	PermissionNotificationDelete   Permission = "notification.delete"
+	PermissionNotificationRead     Permission = "notification.read"
+	PermissionNotificationUpdate   Permission = "notification.update"
 	PermissionPartnerCreate        Permission = "partner.create"
 	PermissionPartnerDelete        Permission = "partner.delete"
 	PermissionPartnerRead          Permission = "partner.read"
@@ -257,7 +271,9 @@ const (
 	PermissionPersonReassign       Permission = "person.reassign"
 	PermissionPersonStatistics     Permission = "person.statistics"
 	PermissionPersonUpdate         Permission = "person.update"
+	PermissionSessionCreate        Permission = "session.create"
 	PermissionSessionDelete        Permission = "session.delete"
+	PermissionSessionLock          Permission = "session.lock"
 	PermissionSessionRead          Permission = "session.read"
 	PermissionSessionUpdate        Permission = "session.update"
 	PermissionSharedLinkCreate     Permission = "sharedLink.create"
@@ -283,8 +299,8 @@ const (
 
 // Defines values for ReactionLevel.
 const (
-	ReactionLevelAlbum ReactionLevel = "album"
-	ReactionLevelAsset ReactionLevel = "asset"
+	Album ReactionLevel = "album"
+	Asset ReactionLevel = "asset"
 )
 
 // Defines values for ReactionType.
@@ -304,20 +320,45 @@ const (
 
 // Defines values for SharedLinkType.
 const (
-	SharedLinkTypeALBUM      SharedLinkType = "ALBUM"
-	SharedLinkTypeINDIVIDUAL SharedLinkType = "INDIVIDUAL"
+	ALBUM      SharedLinkType = "ALBUM"
+	INDIVIDUAL SharedLinkType = "INDIVIDUAL"
 )
 
 // Defines values for SourceType.
 const (
 	Exif            SourceType = "exif"
 	MachineLearning SourceType = "machine-learning"
+	Manual          SourceType = "manual"
 )
 
-// Defines values for TimeBucketSize.
+// Defines values for SyncEntityType.
 const (
-	DAY   TimeBucketSize = "DAY"
-	MONTH TimeBucketSize = "MONTH"
+	AlbumDeleteV1        SyncEntityType = "AlbumDeleteV1"
+	AlbumUserDeleteV1    SyncEntityType = "AlbumUserDeleteV1"
+	AlbumUserV1          SyncEntityType = "AlbumUserV1"
+	AlbumV1              SyncEntityType = "AlbumV1"
+	AssetDeleteV1        SyncEntityType = "AssetDeleteV1"
+	AssetExifV1          SyncEntityType = "AssetExifV1"
+	AssetV1              SyncEntityType = "AssetV1"
+	PartnerAssetDeleteV1 SyncEntityType = "PartnerAssetDeleteV1"
+	PartnerAssetExifV1   SyncEntityType = "PartnerAssetExifV1"
+	PartnerAssetV1       SyncEntityType = "PartnerAssetV1"
+	PartnerDeleteV1      SyncEntityType = "PartnerDeleteV1"
+	PartnerV1            SyncEntityType = "PartnerV1"
+	UserDeleteV1         SyncEntityType = "UserDeleteV1"
+	UserV1               SyncEntityType = "UserV1"
+)
+
+// Defines values for SyncRequestType.
+const (
+	AlbumUsersV1        SyncRequestType = "AlbumUsersV1"
+	AlbumsV1            SyncRequestType = "AlbumsV1"
+	AssetExifsV1        SyncRequestType = "AssetExifsV1"
+	AssetsV1            SyncRequestType = "AssetsV1"
+	PartnerAssetExifsV1 SyncRequestType = "PartnerAssetExifsV1"
+	PartnerAssetsV1     SyncRequestType = "PartnerAssetsV1"
+	PartnersV1          SyncRequestType = "PartnersV1"
+	UsersV1             SyncRequestType = "UsersV1"
 )
 
 // Defines values for ToneMapping.
@@ -520,13 +561,14 @@ type AssetBulkDeleteDto struct {
 // AssetBulkUpdateDto defines model for AssetBulkUpdateDto.
 type AssetBulkUpdateDto struct {
 	DateTimeOriginal *string              `json:"dateTimeOriginal,omitempty"`
+	Description      *string              `json:"description,omitempty"`
 	DuplicateId      *string              `json:"duplicateId"`
 	Ids              []openapi_types.UUID `json:"ids"`
-	IsArchived       *bool                `json:"isArchived,omitempty"`
 	IsFavorite       *bool                `json:"isFavorite,omitempty"`
 	Latitude         *float32             `json:"latitude,omitempty"`
 	Longitude        *float32             `json:"longitude,omitempty"`
 	Rating           *float32             `json:"rating,omitempty"`
+	Visibility       *AssetVisibility     `json:"visibility,omitempty"`
 }
 
 // AssetBulkUploadCheckDto defines model for AssetBulkUploadCheckDto.
@@ -572,6 +614,23 @@ type AssetDeltaSyncResponseDto struct {
 	Deleted       []string           `json:"deleted"`
 	NeedsFullSync bool               `json:"needsFullSync"`
 	Upserted      []AssetResponseDto `json:"upserted"`
+}
+
+// AssetFaceCreateDto defines model for AssetFaceCreateDto.
+type AssetFaceCreateDto struct {
+	AssetId     openapi_types.UUID `json:"assetId"`
+	Height      int                `json:"height"`
+	ImageHeight int                `json:"imageHeight"`
+	ImageWidth  int                `json:"imageWidth"`
+	PersonId    openapi_types.UUID `json:"personId"`
+	Width       int                `json:"width"`
+	X           int                `json:"x"`
+	Y           int                `json:"y"`
+}
+
+// AssetFaceDeleteDto defines model for AssetFaceDeleteDto.
+type AssetFaceDeleteDto struct {
+	Force bool `json:"force"`
 }
 
 // AssetFaceResponseDto defines model for AssetFaceResponseDto.
@@ -650,11 +709,10 @@ type AssetMediaCreateDto struct {
 	Duration         *string             `json:"duration,omitempty"`
 	FileCreatedAt    time.Time           `json:"fileCreatedAt"`
 	FileModifiedAt   time.Time           `json:"fileModifiedAt"`
-	IsArchived       *bool               `json:"isArchived,omitempty"`
 	IsFavorite       *bool               `json:"isFavorite,omitempty"`
-	IsVisible        *bool               `json:"isVisible,omitempty"`
 	LivePhotoVideoId *openapi_types.UUID `json:"livePhotoVideoId,omitempty"`
 	SidecarData      *openapi_types.File `json:"sidecarData,omitempty"`
+	Visibility       *AssetVisibility    `json:"visibility,omitempty"`
 }
 
 // AssetMediaReplaceDto defines model for AssetMediaReplaceDto.
@@ -721,6 +779,7 @@ type AssetResponseDto struct {
 	Type            AssetTypeEnum                        `json:"type"`
 	UnassignedFaces *[]AssetFaceWithoutPersonResponseDto `json:"unassignedFaces,omitempty"`
 	UpdatedAt       time.Time                            `json:"updatedAt"`
+	Visibility      AssetVisibility                      `json:"visibility"`
 }
 
 // AssetStackResponseDto defines model for AssetStackResponseDto.
@@ -740,18 +799,19 @@ type AssetStatsResponseDto struct {
 // AssetTypeEnum defines model for AssetTypeEnum.
 type AssetTypeEnum string
 
+// AssetVisibility defines model for AssetVisibility.
+type AssetVisibility string
+
 // AudioCodec defines model for AudioCodec.
 type AudioCodec string
 
-// AuditDeletesResponseDto defines model for AuditDeletesResponseDto.
-type AuditDeletesResponseDto struct {
-	Ids           []string `json:"ids"`
-	NeedsFullSync bool     `json:"needsFullSync"`
-}
-
-// AvatarResponse defines model for AvatarResponse.
-type AvatarResponse struct {
-	Color UserAvatarColor `json:"color"`
+// AuthStatusResponseDto defines model for AuthStatusResponseDto.
+type AuthStatusResponseDto struct {
+	ExpiresAt    *string `json:"expiresAt,omitempty"`
+	IsElevated   bool    `json:"isElevated"`
+	Password     bool    `json:"password"`
+	PinCode      bool    `json:"pinCode"`
+	PinExpiresAt *string `json:"pinExpiresAt,omitempty"`
 }
 
 // AvatarUpdate defines model for AvatarUpdate.
@@ -896,9 +956,6 @@ type EmailNotificationsUpdate struct {
 	Enabled     *bool `json:"enabled,omitempty"`
 }
 
-// EntityType defines model for EntityType.
-type EntityType string
-
 // ExifResponseDto defines model for ExifResponseDto.
 type ExifResponseDto struct {
 	City             *string    `json:"city"`
@@ -937,37 +994,6 @@ type FacialRecognitionConfig struct {
 	MinFaces    int     `json:"minFaces"`
 	MinScore    float64 `json:"minScore"`
 	ModelName   string  `json:"modelName"`
-}
-
-// FileChecksumDto defines model for FileChecksumDto.
-type FileChecksumDto struct {
-	Filenames []string `json:"filenames"`
-}
-
-// FileChecksumResponseDto defines model for FileChecksumResponseDto.
-type FileChecksumResponseDto struct {
-	Checksum string `json:"checksum"`
-	Filename string `json:"filename"`
-}
-
-// FileReportDto defines model for FileReportDto.
-type FileReportDto struct {
-	Extras  []string            `json:"extras"`
-	Orphans []FileReportItemDto `json:"orphans"`
-}
-
-// FileReportFixDto defines model for FileReportFixDto.
-type FileReportFixDto struct {
-	Items []FileReportItemDto `json:"items"`
-}
-
-// FileReportItemDto defines model for FileReportItemDto.
-type FileReportItemDto struct {
-	Checksum   *string            `json:"checksum,omitempty"`
-	EntityId   openapi_types.UUID `json:"entityId"`
-	EntityType PathEntityType     `json:"entityType"`
-	PathType   PathType           `json:"pathType"`
-	PathValue  string             `json:"pathValue"`
 }
 
 // FoldersResponse defines model for FoldersResponse.
@@ -1062,8 +1088,8 @@ type LogLevel string
 
 // LoginCredentialDto defines model for LoginCredentialDto.
 type LoginCredentialDto struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    openapi_types.Email `json:"email"`
+	Password string              `json:"password"`
 }
 
 // LoginResponseDto defines model for LoginResponseDto.
@@ -1123,23 +1149,19 @@ type MemoryCreateDto struct {
 	Type     MemoryType            `json:"type"`
 }
 
-// MemoryLaneResponseDto defines model for MemoryLaneResponseDto.
-type MemoryLaneResponseDto struct {
-	Assets   []AssetResponseDto `json:"assets"`
-	YearsAgo int                `json:"yearsAgo"`
-}
-
 // MemoryResponseDto defines model for MemoryResponseDto.
 type MemoryResponseDto struct {
 	Assets    []AssetResponseDto `json:"assets"`
 	CreatedAt time.Time          `json:"createdAt"`
 	Data      OnThisDayDto       `json:"data"`
 	DeletedAt *time.Time         `json:"deletedAt,omitempty"`
+	HideAt    *time.Time         `json:"hideAt,omitempty"`
 	Id        string             `json:"id"`
 	IsSaved   bool               `json:"isSaved"`
 	MemoryAt  time.Time          `json:"memoryAt"`
 	OwnerId   string             `json:"ownerId"`
 	SeenAt    *time.Time         `json:"seenAt,omitempty"`
+	ShowAt    *time.Time         `json:"showAt,omitempty"`
 	Type      MemoryType         `json:"type"`
 	UpdatedAt time.Time          `json:"updatedAt"`
 }
@@ -1166,17 +1188,16 @@ type MetadataSearchDto struct {
 	Country          *string               `json:"country"`
 	CreatedAfter     *time.Time            `json:"createdAfter,omitempty"`
 	CreatedBefore    *time.Time            `json:"createdBefore,omitempty"`
+	Description      *string               `json:"description,omitempty"`
 	DeviceAssetId    *string               `json:"deviceAssetId,omitempty"`
 	DeviceId         *string               `json:"deviceId,omitempty"`
 	EncodedVideoPath *string               `json:"encodedVideoPath,omitempty"`
 	Id               *openapi_types.UUID   `json:"id,omitempty"`
-	IsArchived       *bool                 `json:"isArchived,omitempty"`
 	IsEncoded        *bool                 `json:"isEncoded,omitempty"`
 	IsFavorite       *bool                 `json:"isFavorite,omitempty"`
 	IsMotion         *bool                 `json:"isMotion,omitempty"`
 	IsNotInAlbum     *bool                 `json:"isNotInAlbum,omitempty"`
 	IsOffline        *bool                 `json:"isOffline,omitempty"`
-	IsVisible        *bool                 `json:"isVisible,omitempty"`
 	LensModel        *string               `json:"lensModel"`
 	LibraryId        *openapi_types.UUID   `json:"libraryId"`
 	Make             *string               `json:"make,omitempty"`
@@ -1187,8 +1208,10 @@ type MetadataSearchDto struct {
 	Page             *float32              `json:"page,omitempty"`
 	PersonIds        *[]openapi_types.UUID `json:"personIds,omitempty"`
 	PreviewPath      *string               `json:"previewPath,omitempty"`
+	Rating           *float32              `json:"rating,omitempty"`
 	Size             *float32              `json:"size,omitempty"`
 	State            *string               `json:"state"`
+	TagIds           *[]openapi_types.UUID `json:"tagIds,omitempty"`
 	TakenAfter       *time.Time            `json:"takenAfter,omitempty"`
 	TakenBefore      *time.Time            `json:"takenBefore,omitempty"`
 	ThumbnailPath    *string               `json:"thumbnailPath,omitempty"`
@@ -1197,11 +1220,56 @@ type MetadataSearchDto struct {
 	Type             *AssetTypeEnum        `json:"type,omitempty"`
 	UpdatedAfter     *time.Time            `json:"updatedAfter,omitempty"`
 	UpdatedBefore    *time.Time            `json:"updatedBefore,omitempty"`
-	WithArchived     *bool                 `json:"withArchived,omitempty"`
+	Visibility       *AssetVisibility      `json:"visibility,omitempty"`
 	WithDeleted      *bool                 `json:"withDeleted,omitempty"`
 	WithExif         *bool                 `json:"withExif,omitempty"`
 	WithPeople       *bool                 `json:"withPeople,omitempty"`
 	WithStacked      *bool                 `json:"withStacked,omitempty"`
+}
+
+// NotificationCreateDto defines model for NotificationCreateDto.
+type NotificationCreateDto struct {
+	Data        *map[string]interface{} `json:"data,omitempty"`
+	Description *string                 `json:"description"`
+	Level       *NotificationLevel      `json:"level,omitempty"`
+	ReadAt      *time.Time              `json:"readAt"`
+	Title       string                  `json:"title"`
+	Type        *NotificationType       `json:"type,omitempty"`
+	UserId      openapi_types.UUID      `json:"userId"`
+}
+
+// NotificationDeleteAllDto defines model for NotificationDeleteAllDto.
+type NotificationDeleteAllDto struct {
+	Ids []openapi_types.UUID `json:"ids"`
+}
+
+// NotificationDto defines model for NotificationDto.
+type NotificationDto struct {
+	CreatedAt   time.Time               `json:"createdAt"`
+	Data        *map[string]interface{} `json:"data,omitempty"`
+	Description *string                 `json:"description,omitempty"`
+	Id          string                  `json:"id"`
+	Level       NotificationLevel       `json:"level"`
+	ReadAt      *time.Time              `json:"readAt,omitempty"`
+	Title       string                  `json:"title"`
+	Type        NotificationType        `json:"type"`
+}
+
+// NotificationLevel defines model for NotificationLevel.
+type NotificationLevel string
+
+// NotificationType defines model for NotificationType.
+type NotificationType string
+
+// NotificationUpdateAllDto defines model for NotificationUpdateAllDto.
+type NotificationUpdateAllDto struct {
+	Ids    []openapi_types.UUID `json:"ids"`
+	ReadAt *time.Time           `json:"readAt"`
+}
+
+// NotificationUpdateDto defines model for NotificationUpdateDto.
+type NotificationUpdateDto struct {
+	ReadAt *time.Time `json:"readAt"`
 }
 
 // OAuthAuthorizeResponseDto defines model for OAuthAuthorizeResponseDto.
@@ -1211,13 +1279,20 @@ type OAuthAuthorizeResponseDto struct {
 
 // OAuthCallbackDto defines model for OAuthCallbackDto.
 type OAuthCallbackDto struct {
-	Url string `json:"url"`
+	CodeVerifier *string `json:"codeVerifier,omitempty"`
+	State        *string `json:"state,omitempty"`
+	Url          string  `json:"url"`
 }
 
 // OAuthConfigDto defines model for OAuthConfigDto.
 type OAuthConfigDto struct {
-	RedirectUri string `json:"redirectUri"`
+	CodeChallenge *string `json:"codeChallenge,omitempty"`
+	RedirectUri   string  `json:"redirectUri"`
+	State         *string `json:"state,omitempty"`
 }
+
+// OAuthTokenEndpointAuthMethod defines model for OAuthTokenEndpointAuthMethod.
+type OAuthTokenEndpointAuthMethod string
 
 // OnThisDayDto defines model for OnThisDayDto.
 type OnThisDayDto struct {
@@ -1237,12 +1312,6 @@ type PartnerResponseDto struct {
 	ProfileChangedAt time.Time       `json:"profileChangedAt"`
 	ProfileImagePath string          `json:"profileImagePath"`
 }
-
-// PathEntityType defines model for PathEntityType.
-type PathEntityType string
-
-// PathType defines model for PathType.
-type PathType string
 
 // PeopleResponse defines model for PeopleResponse.
 type PeopleResponse struct {
@@ -1275,12 +1344,14 @@ type PeopleUpdateItem struct {
 	// BirthDate Person date of birth.
 	// Note: the mobile app cannot currently set the birth date to null.
 	BirthDate *openapi_types.Date `json:"birthDate"`
+	Color     *string             `json:"color"`
 
 	// FeatureFaceAssetId Asset is used to get the feature face thumbnail.
-	FeatureFaceAssetId *string `json:"featureFaceAssetId,omitempty"`
+	FeatureFaceAssetId *openapi_types.UUID `json:"featureFaceAssetId,omitempty"`
 
 	// Id Person id.
-	Id string `json:"id"`
+	Id         string `json:"id"`
+	IsFavorite *bool  `json:"isFavorite,omitempty"`
 
 	// IsHidden Person visibility
 	IsHidden *bool `json:"isHidden,omitempty"`
@@ -1296,7 +1367,9 @@ type Permission string
 type PersonCreateDto struct {
 	// BirthDate Person date of birth.
 	// Note: the mobile app cannot currently set the birth date to null.
-	BirthDate *openapi_types.Date `json:"birthDate"`
+	BirthDate  *openapi_types.Date `json:"birthDate"`
+	Color      *string             `json:"color"`
+	IsFavorite *bool               `json:"isFavorite,omitempty"`
 
 	// IsHidden Person visibility
 	IsHidden *bool `json:"isHidden,omitempty"`
@@ -1307,11 +1380,17 @@ type PersonCreateDto struct {
 
 // PersonResponseDto defines model for PersonResponseDto.
 type PersonResponseDto struct {
-	BirthDate     *openapi_types.Date `json:"birthDate"`
-	Id            string              `json:"id"`
-	IsHidden      bool                `json:"isHidden"`
-	Name          string              `json:"name"`
-	ThumbnailPath string              `json:"thumbnailPath"`
+	BirthDate *openapi_types.Date `json:"birthDate"`
+
+	// Color This property was added in v1.126.0
+	Color *string `json:"color,omitempty"`
+	Id    string  `json:"id"`
+
+	// IsFavorite This property was added in v1.126.0
+	IsFavorite    *bool  `json:"isFavorite,omitempty"`
+	IsHidden      bool   `json:"isHidden"`
+	Name          string `json:"name"`
+	ThumbnailPath string `json:"thumbnailPath"`
 
 	// UpdatedAt This property was added in v1.107.0
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
@@ -1327,9 +1406,11 @@ type PersonUpdateDto struct {
 	// BirthDate Person date of birth.
 	// Note: the mobile app cannot currently set the birth date to null.
 	BirthDate *openapi_types.Date `json:"birthDate"`
+	Color     *string             `json:"color"`
 
 	// FeatureFaceAssetId Asset is used to get the feature face thumbnail.
-	FeatureFaceAssetId *string `json:"featureFaceAssetId,omitempty"`
+	FeatureFaceAssetId *openapi_types.UUID `json:"featureFaceAssetId,omitempty"`
+	IsFavorite         *bool               `json:"isFavorite,omitempty"`
 
 	// IsHidden Person visibility
 	IsHidden *bool `json:"isHidden,omitempty"`
@@ -1340,15 +1421,39 @@ type PersonUpdateDto struct {
 
 // PersonWithFacesResponseDto defines model for PersonWithFacesResponseDto.
 type PersonWithFacesResponseDto struct {
-	BirthDate     *openapi_types.Date                 `json:"birthDate"`
-	Faces         []AssetFaceWithoutPersonResponseDto `json:"faces"`
-	Id            string                              `json:"id"`
-	IsHidden      bool                                `json:"isHidden"`
-	Name          string                              `json:"name"`
-	ThumbnailPath string                              `json:"thumbnailPath"`
+	BirthDate *openapi_types.Date `json:"birthDate"`
+
+	// Color This property was added in v1.126.0
+	Color *string                             `json:"color,omitempty"`
+	Faces []AssetFaceWithoutPersonResponseDto `json:"faces"`
+	Id    string                              `json:"id"`
+
+	// IsFavorite This property was added in v1.126.0
+	IsFavorite    *bool  `json:"isFavorite,omitempty"`
+	IsHidden      bool   `json:"isHidden"`
+	Name          string `json:"name"`
+	ThumbnailPath string `json:"thumbnailPath"`
 
 	// UpdatedAt This property was added in v1.107.0
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// PinCodeChangeDto defines model for PinCodeChangeDto.
+type PinCodeChangeDto struct {
+	NewPinCode string  `json:"newPinCode"`
+	Password   *string `json:"password,omitempty"`
+	PinCode    *string `json:"pinCode,omitempty"`
+}
+
+// PinCodeResetDto defines model for PinCodeResetDto.
+type PinCodeResetDto struct {
+	Password *string `json:"password,omitempty"`
+	PinCode  *string `json:"pinCode,omitempty"`
+}
+
+// PinCodeSetupDto defines model for PinCodeSetupDto.
+type PinCodeSetupDto struct {
+	PinCode string `json:"pinCode"`
 }
 
 // PlacesResponseDto defines model for PlacesResponseDto.
@@ -1385,20 +1490,20 @@ type RandomSearchDto struct {
 	CreatedAfter  *time.Time            `json:"createdAfter,omitempty"`
 	CreatedBefore *time.Time            `json:"createdBefore,omitempty"`
 	DeviceId      *string               `json:"deviceId,omitempty"`
-	IsArchived    *bool                 `json:"isArchived,omitempty"`
 	IsEncoded     *bool                 `json:"isEncoded,omitempty"`
 	IsFavorite    *bool                 `json:"isFavorite,omitempty"`
 	IsMotion      *bool                 `json:"isMotion,omitempty"`
 	IsNotInAlbum  *bool                 `json:"isNotInAlbum,omitempty"`
 	IsOffline     *bool                 `json:"isOffline,omitempty"`
-	IsVisible     *bool                 `json:"isVisible,omitempty"`
 	LensModel     *string               `json:"lensModel"`
 	LibraryId     *openapi_types.UUID   `json:"libraryId"`
 	Make          *string               `json:"make,omitempty"`
 	Model         *string               `json:"model"`
 	PersonIds     *[]openapi_types.UUID `json:"personIds,omitempty"`
+	Rating        *float32              `json:"rating,omitempty"`
 	Size          *float32              `json:"size,omitempty"`
 	State         *string               `json:"state"`
+	TagIds        *[]openapi_types.UUID `json:"tagIds,omitempty"`
 	TakenAfter    *time.Time            `json:"takenAfter,omitempty"`
 	TakenBefore   *time.Time            `json:"takenBefore,omitempty"`
 	TrashedAfter  *time.Time            `json:"trashedAfter,omitempty"`
@@ -1406,7 +1511,7 @@ type RandomSearchDto struct {
 	Type          *AssetTypeEnum        `json:"type,omitempty"`
 	UpdatedAfter  *time.Time            `json:"updatedAfter,omitempty"`
 	UpdatedBefore *time.Time            `json:"updatedBefore,omitempty"`
-	WithArchived  *bool                 `json:"withArchived,omitempty"`
+	Visibility    *AssetVisibility      `json:"visibility,omitempty"`
 	WithDeleted   *bool                 `json:"withDeleted,omitempty"`
 	WithExif      *bool                 `json:"withExif,omitempty"`
 	WithPeople    *bool                 `json:"withPeople,omitempty"`
@@ -1594,14 +1699,42 @@ type ServerVersionResponseDto struct {
 	Patch int `json:"patch"`
 }
 
+// SessionCreateDto defines model for SessionCreateDto.
+type SessionCreateDto struct {
+	DeviceOS   *string `json:"deviceOS,omitempty"`
+	DeviceType *string `json:"deviceType,omitempty"`
+
+	// Duration session duration, in seconds
+	Duration *float32 `json:"duration,omitempty"`
+}
+
+// SessionCreateResponseDto defines model for SessionCreateResponseDto.
+type SessionCreateResponseDto struct {
+	CreatedAt  string  `json:"createdAt"`
+	Current    bool    `json:"current"`
+	DeviceOS   string  `json:"deviceOS"`
+	DeviceType string  `json:"deviceType"`
+	ExpiresAt  *string `json:"expiresAt,omitempty"`
+	Id         string  `json:"id"`
+	Token      string  `json:"token"`
+	UpdatedAt  string  `json:"updatedAt"`
+}
+
 // SessionResponseDto defines model for SessionResponseDto.
 type SessionResponseDto struct {
-	CreatedAt  string `json:"createdAt"`
-	Current    bool   `json:"current"`
-	DeviceOS   string `json:"deviceOS"`
-	DeviceType string `json:"deviceType"`
-	Id         string `json:"id"`
-	UpdatedAt  string `json:"updatedAt"`
+	CreatedAt  string  `json:"createdAt"`
+	Current    bool    `json:"current"`
+	DeviceOS   string  `json:"deviceOS"`
+	DeviceType string  `json:"deviceType"`
+	ExpiresAt  *string `json:"expiresAt,omitempty"`
+	Id         string  `json:"id"`
+	UpdatedAt  string  `json:"updatedAt"`
+}
+
+// SessionUnlockDto defines model for SessionUnlockDto.
+type SessionUnlockDto struct {
+	Password *string `json:"password,omitempty"`
+	PinCode  *string `json:"pinCode,omitempty"`
 }
 
 // SharedLinkCreateDto defines model for SharedLinkCreateDto.
@@ -1653,11 +1786,23 @@ type SharedLinkResponseDto struct {
 // SharedLinkType defines model for SharedLinkType.
 type SharedLinkType string
 
+// SharedLinksResponse defines model for SharedLinksResponse.
+type SharedLinksResponse struct {
+	Enabled    bool `json:"enabled"`
+	SidebarWeb bool `json:"sidebarWeb"`
+}
+
+// SharedLinksUpdate defines model for SharedLinksUpdate.
+type SharedLinksUpdate struct {
+	Enabled    *bool `json:"enabled,omitempty"`
+	SidebarWeb *bool `json:"sidebarWeb,omitempty"`
+}
+
 // SignUpDto defines model for SignUpDto.
 type SignUpDto struct {
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
+	Email    openapi_types.Email `json:"email"`
+	Name     string              `json:"name"`
+	Password string              `json:"password"`
 }
 
 // SmartSearchDto defines model for SmartSearchDto.
@@ -1667,13 +1812,12 @@ type SmartSearchDto struct {
 	CreatedAfter  *time.Time            `json:"createdAfter,omitempty"`
 	CreatedBefore *time.Time            `json:"createdBefore,omitempty"`
 	DeviceId      *string               `json:"deviceId,omitempty"`
-	IsArchived    *bool                 `json:"isArchived,omitempty"`
 	IsEncoded     *bool                 `json:"isEncoded,omitempty"`
 	IsFavorite    *bool                 `json:"isFavorite,omitempty"`
 	IsMotion      *bool                 `json:"isMotion,omitempty"`
 	IsNotInAlbum  *bool                 `json:"isNotInAlbum,omitempty"`
 	IsOffline     *bool                 `json:"isOffline,omitempty"`
-	IsVisible     *bool                 `json:"isVisible,omitempty"`
+	Language      *string               `json:"language,omitempty"`
 	LensModel     *string               `json:"lensModel"`
 	LibraryId     *openapi_types.UUID   `json:"libraryId"`
 	Make          *string               `json:"make,omitempty"`
@@ -1681,8 +1825,10 @@ type SmartSearchDto struct {
 	Page          *float32              `json:"page,omitempty"`
 	PersonIds     *[]openapi_types.UUID `json:"personIds,omitempty"`
 	Query         string                `json:"query"`
+	Rating        *float32              `json:"rating,omitempty"`
 	Size          *float32              `json:"size,omitempty"`
 	State         *string               `json:"state"`
+	TagIds        *[]openapi_types.UUID `json:"tagIds,omitempty"`
 	TakenAfter    *time.Time            `json:"takenAfter,omitempty"`
 	TakenBefore   *time.Time            `json:"takenBefore,omitempty"`
 	TrashedAfter  *time.Time            `json:"trashedAfter,omitempty"`
@@ -1690,7 +1836,7 @@ type SmartSearchDto struct {
 	Type          *AssetTypeEnum        `json:"type,omitempty"`
 	UpdatedAfter  *time.Time            `json:"updatedAfter,omitempty"`
 	UpdatedBefore *time.Time            `json:"updatedBefore,omitempty"`
-	WithArchived  *bool                 `json:"withArchived,omitempty"`
+	Visibility    *AssetVisibility      `json:"visibility,omitempty"`
 	WithDeleted   *bool                 `json:"withDeleted,omitempty"`
 	WithExif      *bool                 `json:"withExif,omitempty"`
 }
@@ -1714,6 +1860,33 @@ type StackResponseDto struct {
 // StackUpdateDto defines model for StackUpdateDto.
 type StackUpdateDto struct {
 	PrimaryAssetId *openapi_types.UUID `json:"primaryAssetId,omitempty"`
+}
+
+// SyncAckDeleteDto defines model for SyncAckDeleteDto.
+type SyncAckDeleteDto struct {
+	Types *[]SyncEntityType `json:"types,omitempty"`
+}
+
+// SyncAckDto defines model for SyncAckDto.
+type SyncAckDto struct {
+	Ack  string         `json:"ack"`
+	Type SyncEntityType `json:"type"`
+}
+
+// SyncAckSetDto defines model for SyncAckSetDto.
+type SyncAckSetDto struct {
+	Acks []string `json:"acks"`
+}
+
+// SyncEntityType defines model for SyncEntityType.
+type SyncEntityType string
+
+// SyncRequestType defines model for SyncRequestType.
+type SyncRequestType string
+
+// SyncStreamDto defines model for SyncStreamDto.
+type SyncStreamDto struct {
+	Types []SyncRequestType `json:"types"`
 }
 
 // SystemConfigBackupsDto defines model for SystemConfigBackupsDto.
@@ -1775,6 +1948,13 @@ type SystemConfigFacesDto struct {
 	Import bool `json:"import"`
 }
 
+// SystemConfigGeneratedFullsizeImageDto defines model for SystemConfigGeneratedFullsizeImageDto.
+type SystemConfigGeneratedFullsizeImageDto struct {
+	Enabled bool        `json:"enabled"`
+	Format  ImageFormat `json:"format"`
+	Quality int         `json:"quality"`
+}
+
 // SystemConfigGeneratedImageDto defines model for SystemConfigGeneratedImageDto.
 type SystemConfigGeneratedImageDto struct {
 	Format  ImageFormat `json:"format"`
@@ -1784,10 +1964,11 @@ type SystemConfigGeneratedImageDto struct {
 
 // SystemConfigImageDto defines model for SystemConfigImageDto.
 type SystemConfigImageDto struct {
-	Colorspace      Colorspace                    `json:"colorspace"`
-	ExtractEmbedded bool                          `json:"extractEmbedded"`
-	Preview         SystemConfigGeneratedImageDto `json:"preview"`
-	Thumbnail       SystemConfigGeneratedImageDto `json:"thumbnail"`
+	Colorspace      Colorspace                            `json:"colorspace"`
+	ExtractEmbedded bool                                  `json:"extractEmbedded"`
+	Fullsize        SystemConfigGeneratedFullsizeImageDto `json:"fullsize"`
+	Preview         SystemConfigGeneratedImageDto         `json:"preview"`
+	Thumbnail       SystemConfigGeneratedImageDto         `json:"thumbnail"`
 }
 
 // SystemConfigJobDto defines model for SystemConfigJobDto.
@@ -1865,21 +2046,23 @@ type SystemConfigNotificationsDto struct {
 
 // SystemConfigOAuthDto defines model for SystemConfigOAuthDto.
 type SystemConfigOAuthDto struct {
-	AutoLaunch              bool    `json:"autoLaunch"`
-	AutoRegister            bool    `json:"autoRegister"`
-	ButtonText              string  `json:"buttonText"`
-	ClientId                string  `json:"clientId"`
-	ClientSecret            string  `json:"clientSecret"`
-	DefaultStorageQuota     float32 `json:"defaultStorageQuota"`
-	Enabled                 bool    `json:"enabled"`
-	IssuerUrl               string  `json:"issuerUrl"`
-	MobileOverrideEnabled   bool    `json:"mobileOverrideEnabled"`
-	MobileRedirectUri       string  `json:"mobileRedirectUri"`
-	ProfileSigningAlgorithm string  `json:"profileSigningAlgorithm"`
-	Scope                   string  `json:"scope"`
-	SigningAlgorithm        string  `json:"signingAlgorithm"`
-	StorageLabelClaim       string  `json:"storageLabelClaim"`
-	StorageQuotaClaim       string  `json:"storageQuotaClaim"`
+	AutoLaunch              bool                         `json:"autoLaunch"`
+	AutoRegister            bool                         `json:"autoRegister"`
+	ButtonText              string                       `json:"buttonText"`
+	ClientId                string                       `json:"clientId"`
+	ClientSecret            string                       `json:"clientSecret"`
+	DefaultStorageQuota     float32                      `json:"defaultStorageQuota"`
+	Enabled                 bool                         `json:"enabled"`
+	IssuerUrl               string                       `json:"issuerUrl"`
+	MobileOverrideEnabled   bool                         `json:"mobileOverrideEnabled"`
+	MobileRedirectUri       string                       `json:"mobileRedirectUri"`
+	ProfileSigningAlgorithm string                       `json:"profileSigningAlgorithm"`
+	Scope                   string                       `json:"scope"`
+	SigningAlgorithm        string                       `json:"signingAlgorithm"`
+	StorageLabelClaim       string                       `json:"storageLabelClaim"`
+	StorageQuotaClaim       string                       `json:"storageQuotaClaim"`
+	Timeout                 int                          `json:"timeout"`
+	TokenEndpointAuthMethod OAuthTokenEndpointAuthMethod `json:"tokenEndpointAuthMethod"`
 }
 
 // SystemConfigPasswordLoginDto defines model for SystemConfigPasswordLoginDto.
@@ -2030,14 +2213,32 @@ type TestEmailResponseDto struct {
 	MessageId string `json:"messageId"`
 }
 
-// TimeBucketResponseDto defines model for TimeBucketResponseDto.
-type TimeBucketResponseDto struct {
+// TimeBucketAssetResponseDto defines model for TimeBucketAssetResponseDto.
+type TimeBucketAssetResponseDto struct {
+	City             []string  `json:"city"`
+	Country          []string  `json:"country"`
+	Duration         []string  `json:"duration"`
+	Id               []string  `json:"id"`
+	IsFavorite       []bool    `json:"isFavorite"`
+	IsImage          []bool    `json:"isImage"`
+	IsTrashed        []bool    `json:"isTrashed"`
+	LivePhotoVideoId []string  `json:"livePhotoVideoId"`
+	LocalDateTime    []string  `json:"localDateTime"`
+	OwnerId          []string  `json:"ownerId"`
+	ProjectionType   []string  `json:"projectionType"`
+	Ratio            []float32 `json:"ratio"`
+
+	// Stack (stack ID, stack asset count) tuple
+	Stack      *[][]string       `json:"stack,omitempty"`
+	Thumbhash  []string          `json:"thumbhash"`
+	Visibility []AssetVisibility `json:"visibility"`
+}
+
+// TimeBucketsResponseDto defines model for TimeBucketsResponseDto.
+type TimeBucketsResponseDto struct {
 	Count      int    `json:"count"`
 	TimeBucket string `json:"timeBucket"`
 }
-
-// TimeBucketSize defines model for TimeBucketSize.
-type TimeBucketSize string
 
 // ToneMapping defines model for ToneMapping.
 type ToneMapping string
@@ -2071,12 +2272,12 @@ type UpdateAlbumUserDto struct {
 type UpdateAssetDto struct {
 	DateTimeOriginal *string             `json:"dateTimeOriginal,omitempty"`
 	Description      *string             `json:"description,omitempty"`
-	IsArchived       *bool               `json:"isArchived,omitempty"`
 	IsFavorite       *bool               `json:"isFavorite,omitempty"`
 	Latitude         *float32            `json:"latitude,omitempty"`
 	LivePhotoVideoId *openapi_types.UUID `json:"livePhotoVideoId"`
 	Longitude        *float32            `json:"longitude,omitempty"`
 	Rating           *float32            `json:"rating,omitempty"`
+	Visibility       *AssetVisibility    `json:"visibility,omitempty"`
 }
 
 // UpdateLibraryDto defines model for UpdateLibraryDto.
@@ -2105,13 +2306,14 @@ type UsageByUserDto struct {
 
 // UserAdminCreateDto defines model for UserAdminCreateDto.
 type UserAdminCreateDto struct {
-	Email                string  `json:"email"`
-	Name                 string  `json:"name"`
-	Notify               *bool   `json:"notify,omitempty"`
-	Password             string  `json:"password"`
-	QuotaSizeInBytes     *int64  `json:"quotaSizeInBytes"`
-	ShouldChangePassword *bool   `json:"shouldChangePassword,omitempty"`
-	StorageLabel         *string `json:"storageLabel"`
+	AvatarColor          *UserAvatarColor    `json:"avatarColor"`
+	Email                openapi_types.Email `json:"email"`
+	Name                 string              `json:"name"`
+	Notify               *bool               `json:"notify,omitempty"`
+	Password             string              `json:"password"`
+	QuotaSizeInBytes     *int64              `json:"quotaSizeInBytes"`
+	ShouldChangePassword *bool               `json:"shouldChangePassword,omitempty"`
+	StorageLabel         *string             `json:"storageLabel"`
 }
 
 // UserAdminDeleteDto defines model for UserAdminDeleteDto.
@@ -2142,12 +2344,14 @@ type UserAdminResponseDto struct {
 
 // UserAdminUpdateDto defines model for UserAdminUpdateDto.
 type UserAdminUpdateDto struct {
-	Email                *string `json:"email,omitempty"`
-	Name                 *string `json:"name,omitempty"`
-	Password             *string `json:"password,omitempty"`
-	QuotaSizeInBytes     *int64  `json:"quotaSizeInBytes"`
-	ShouldChangePassword *bool   `json:"shouldChangePassword,omitempty"`
-	StorageLabel         *string `json:"storageLabel"`
+	AvatarColor          *UserAvatarColor     `json:"avatarColor"`
+	Email                *openapi_types.Email `json:"email,omitempty"`
+	Name                 *string              `json:"name,omitempty"`
+	Password             *string              `json:"password,omitempty"`
+	PinCode              *string              `json:"pinCode"`
+	QuotaSizeInBytes     *int64               `json:"quotaSizeInBytes"`
+	ShouldChangePassword *bool                `json:"shouldChangePassword,omitempty"`
+	StorageLabel         *string              `json:"storageLabel"`
 }
 
 // UserAvatarColor defines model for UserAvatarColor.
@@ -2162,7 +2366,6 @@ type UserLicense struct {
 
 // UserPreferencesResponseDto defines model for UserPreferencesResponseDto.
 type UserPreferencesResponseDto struct {
-	Avatar             AvatarResponse             `json:"avatar"`
 	Download           DownloadResponse           `json:"download"`
 	EmailNotifications EmailNotificationsResponse `json:"emailNotifications"`
 	Folders            FoldersResponse            `json:"folders"`
@@ -2170,6 +2373,7 @@ type UserPreferencesResponseDto struct {
 	People             PeopleResponse             `json:"people"`
 	Purchase           PurchaseResponse           `json:"purchase"`
 	Ratings            RatingsResponse            `json:"ratings"`
+	SharedLinks        SharedLinksResponse        `json:"sharedLinks"`
 	Tags               TagsResponse               `json:"tags"`
 }
 
@@ -2183,6 +2387,7 @@ type UserPreferencesUpdateDto struct {
 	People             *PeopleUpdate             `json:"people,omitempty"`
 	Purchase           *PurchaseUpdate           `json:"purchase,omitempty"`
 	Ratings            *RatingsUpdate            `json:"ratings,omitempty"`
+	SharedLinks        *SharedLinksUpdate        `json:"sharedLinks,omitempty"`
 	Tags               *TagsUpdate               `json:"tags,omitempty"`
 }
 
@@ -2201,9 +2406,10 @@ type UserStatus string
 
 // UserUpdateMeDto defines model for UserUpdateMeDto.
 type UserUpdateMeDto struct {
-	Email    *string `json:"email,omitempty"`
-	Name     *string `json:"name,omitempty"`
-	Password *string `json:"password,omitempty"`
+	AvatarColor *UserAvatarColor     `json:"avatarColor"`
+	Email       *openapi_types.Email `json:"email,omitempty"`
+	Name        *string              `json:"name,omitempty"`
+	Password    *string              `json:"password,omitempty"`
 }
 
 // ValidateAccessTokenResponseDto defines model for ValidateAccessTokenResponseDto.
@@ -2252,7 +2458,15 @@ type GetActivityStatisticsParams struct {
 
 // SearchUsersAdminParams defines parameters for SearchUsersAdmin.
 type SearchUsersAdminParams struct {
-	WithDeleted *bool `form:"withDeleted,omitempty" json:"withDeleted,omitempty"`
+	Id          *openapi_types.UUID `form:"id,omitempty" json:"id,omitempty"`
+	WithDeleted *bool               `form:"withDeleted,omitempty" json:"withDeleted,omitempty"`
+}
+
+// GetUserStatisticsAdminParams defines parameters for GetUserStatisticsAdmin.
+type GetUserStatisticsAdminParams struct {
+	IsFavorite *bool            `form:"isFavorite,omitempty" json:"isFavorite,omitempty"`
+	IsTrashed  *bool            `form:"isTrashed,omitempty" json:"isTrashed,omitempty"`
+	Visibility *AssetVisibility `form:"visibility,omitempty" json:"visibility,omitempty"`
 }
 
 // GetAllAlbumsParams defines parameters for GetAllAlbums.
@@ -2283,12 +2497,6 @@ type UploadAssetParams struct {
 	XImmichChecksum *string `json:"x-immich-checksum,omitempty"`
 }
 
-// GetMemoryLaneParams defines parameters for GetMemoryLane.
-type GetMemoryLaneParams struct {
-	Day   int `form:"day" json:"day"`
-	Month int `form:"month" json:"month"`
-}
-
 // GetRandomParams defines parameters for GetRandom.
 type GetRandomParams struct {
 	Count *float32 `form:"count,omitempty" json:"count,omitempty"`
@@ -2296,9 +2504,9 @@ type GetRandomParams struct {
 
 // GetAssetStatisticsParams defines parameters for GetAssetStatistics.
 type GetAssetStatisticsParams struct {
-	IsArchived *bool `form:"isArchived,omitempty" json:"isArchived,omitempty"`
-	IsFavorite *bool `form:"isFavorite,omitempty" json:"isFavorite,omitempty"`
-	IsTrashed  *bool `form:"isTrashed,omitempty" json:"isTrashed,omitempty"`
+	IsFavorite *bool            `form:"isFavorite,omitempty" json:"isFavorite,omitempty"`
+	IsTrashed  *bool            `form:"isTrashed,omitempty" json:"isTrashed,omitempty"`
+	Visibility *AssetVisibility `form:"visibility,omitempty" json:"visibility,omitempty"`
 }
 
 // GetAssetInfoParams defines parameters for GetAssetInfo.
@@ -2325,13 +2533,6 @@ type ViewAssetParams struct {
 // PlayAssetVideoParams defines parameters for PlayAssetVideo.
 type PlayAssetVideoParams struct {
 	Key *string `form:"key,omitempty" json:"key,omitempty"`
-}
-
-// GetAuditDeletesParams defines parameters for GetAuditDeletes.
-type GetAuditDeletesParams struct {
-	After      time.Time           `form:"after" json:"after"`
-	EntityType EntityType          `form:"entityType" json:"entityType"`
-	UserId     *openapi_types.UUID `form:"userId,omitempty" json:"userId,omitempty"`
 }
 
 // DownloadArchiveParams defines parameters for DownloadArchive.
@@ -2365,6 +2566,22 @@ type ReverseGeocodeParams struct {
 	Lon float64 `form:"lon" json:"lon"`
 }
 
+// SearchMemoriesParams defines parameters for SearchMemories.
+type SearchMemoriesParams struct {
+	For       *time.Time  `form:"for,omitempty" json:"for,omitempty"`
+	IsSaved   *bool       `form:"isSaved,omitempty" json:"isSaved,omitempty"`
+	IsTrashed *bool       `form:"isTrashed,omitempty" json:"isTrashed,omitempty"`
+	Type      *MemoryType `form:"type,omitempty" json:"type,omitempty"`
+}
+
+// GetNotificationsParams defines parameters for GetNotifications.
+type GetNotificationsParams struct {
+	Id     *openapi_types.UUID `form:"id,omitempty" json:"id,omitempty"`
+	Level  *NotificationLevel  `form:"level,omitempty" json:"level,omitempty"`
+	Type   *NotificationType   `form:"type,omitempty" json:"type,omitempty"`
+	Unread *bool               `form:"unread,omitempty" json:"unread,omitempty"`
+}
+
 // GetPartnersParams defines parameters for GetPartners.
 type GetPartnersParams struct {
 	Direction PartnerDirection `form:"direction" json:"direction"`
@@ -2372,6 +2589,9 @@ type GetPartnersParams struct {
 
 // GetAllPeopleParams defines parameters for GetAllPeople.
 type GetAllPeopleParams struct {
+	ClosestAssetId  *openapi_types.UUID `form:"closestAssetId,omitempty" json:"closestAssetId,omitempty"`
+	ClosestPersonId *openapi_types.UUID `form:"closestPersonId,omitempty" json:"closestPersonId,omitempty"`
+
 	// Page Page number for pagination
 	Page *float32 `form:"page,omitempty" json:"page,omitempty"`
 
@@ -2403,6 +2623,11 @@ type GetSearchSuggestionsParams struct {
 	Type        SearchSuggestionType `form:"type" json:"type"`
 }
 
+// GetAllSharedLinksParams defines parameters for GetAllSharedLinks.
+type GetAllSharedLinksParams struct {
+	AlbumId *openapi_types.UUID `form:"albumId,omitempty" json:"albumId,omitempty"`
+}
+
 // GetMySharedLinkParams defines parameters for GetMySharedLink.
 type GetMySharedLinkParams struct {
 	Key      *string `form:"key,omitempty" json:"key,omitempty"`
@@ -2422,22 +2647,23 @@ type AddSharedLinkAssetsParams struct {
 
 // SearchStacksParams defines parameters for SearchStacks.
 type SearchStacksParams struct {
-	PrimaryAssetId *string `form:"primaryAssetId,omitempty" json:"primaryAssetId,omitempty"`
+	PrimaryAssetId *openapi_types.UUID `form:"primaryAssetId,omitempty" json:"primaryAssetId,omitempty"`
 }
 
 // GetTimeBucketParams defines parameters for GetTimeBucket.
 type GetTimeBucketParams struct {
 	AlbumId      *openapi_types.UUID `form:"albumId,omitempty" json:"albumId,omitempty"`
-	IsArchived   *bool               `form:"isArchived,omitempty" json:"isArchived,omitempty"`
 	IsFavorite   *bool               `form:"isFavorite,omitempty" json:"isFavorite,omitempty"`
 	IsTrashed    *bool               `form:"isTrashed,omitempty" json:"isTrashed,omitempty"`
 	Key          *string             `form:"key,omitempty" json:"key,omitempty"`
 	Order        *AssetOrder         `form:"order,omitempty" json:"order,omitempty"`
+	Page         *float32            `form:"page,omitempty" json:"page,omitempty"`
+	PageSize     *float32            `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 	PersonId     *openapi_types.UUID `form:"personId,omitempty" json:"personId,omitempty"`
-	Size         TimeBucketSize      `form:"size" json:"size"`
 	TagId        *openapi_types.UUID `form:"tagId,omitempty" json:"tagId,omitempty"`
 	TimeBucket   string              `form:"timeBucket" json:"timeBucket"`
 	UserId       *openapi_types.UUID `form:"userId,omitempty" json:"userId,omitempty"`
+	Visibility   *AssetVisibility    `form:"visibility,omitempty" json:"visibility,omitempty"`
 	WithPartners *bool               `form:"withPartners,omitempty" json:"withPartners,omitempty"`
 	WithStacked  *bool               `form:"withStacked,omitempty" json:"withStacked,omitempty"`
 }
@@ -2445,15 +2671,14 @@ type GetTimeBucketParams struct {
 // GetTimeBucketsParams defines parameters for GetTimeBuckets.
 type GetTimeBucketsParams struct {
 	AlbumId      *openapi_types.UUID `form:"albumId,omitempty" json:"albumId,omitempty"`
-	IsArchived   *bool               `form:"isArchived,omitempty" json:"isArchived,omitempty"`
 	IsFavorite   *bool               `form:"isFavorite,omitempty" json:"isFavorite,omitempty"`
 	IsTrashed    *bool               `form:"isTrashed,omitempty" json:"isTrashed,omitempty"`
 	Key          *string             `form:"key,omitempty" json:"key,omitempty"`
 	Order        *AssetOrder         `form:"order,omitempty" json:"order,omitempty"`
 	PersonId     *openapi_types.UUID `form:"personId,omitempty" json:"personId,omitempty"`
-	Size         TimeBucketSize      `form:"size" json:"size"`
 	TagId        *openapi_types.UUID `form:"tagId,omitempty" json:"tagId,omitempty"`
 	UserId       *openapi_types.UUID `form:"userId,omitempty" json:"userId,omitempty"`
+	Visibility   *AssetVisibility    `form:"visibility,omitempty" json:"visibility,omitempty"`
 	WithPartners *bool               `form:"withPartners,omitempty" json:"withPartners,omitempty"`
 	WithStacked  *bool               `form:"withStacked,omitempty" json:"withStacked,omitempty"`
 }
@@ -2465,6 +2690,15 @@ type GetAssetsByOriginalPathParams struct {
 
 // CreateActivityJSONRequestBody defines body for CreateActivity for application/json ContentType.
 type CreateActivityJSONRequestBody = ActivityCreateDto
+
+// CreateNotificationJSONRequestBody defines body for CreateNotification for application/json ContentType.
+type CreateNotificationJSONRequestBody = NotificationCreateDto
+
+// GetNotificationTemplateAdminJSONRequestBody defines body for GetNotificationTemplateAdmin for application/json ContentType.
+type GetNotificationTemplateAdminJSONRequestBody = TemplateDto
+
+// SendTestEmailAdminJSONRequestBody defines body for SendTestEmailAdmin for application/json ContentType.
+type SendTestEmailAdminJSONRequestBody = SystemConfigSmtpDto
 
 // CreateUserAdminJSONRequestBody defines body for CreateUserAdmin for application/json ContentType.
 type CreateUserAdminJSONRequestBody = UserAdminCreateDto
@@ -2535,11 +2769,29 @@ type ChangePasswordJSONRequestBody = ChangePasswordDto
 // LoginJSONRequestBody defines body for Login for application/json ContentType.
 type LoginJSONRequestBody = LoginCredentialDto
 
+// ResetPinCodeJSONRequestBody defines body for ResetPinCode for application/json ContentType.
+type ResetPinCodeJSONRequestBody = PinCodeResetDto
+
+// SetupPinCodeJSONRequestBody defines body for SetupPinCode for application/json ContentType.
+type SetupPinCodeJSONRequestBody = PinCodeSetupDto
+
+// ChangePinCodeJSONRequestBody defines body for ChangePinCode for application/json ContentType.
+type ChangePinCodeJSONRequestBody = PinCodeChangeDto
+
+// UnlockAuthSessionJSONRequestBody defines body for UnlockAuthSession for application/json ContentType.
+type UnlockAuthSessionJSONRequestBody = SessionUnlockDto
+
 // DownloadArchiveJSONRequestBody defines body for DownloadArchive for application/json ContentType.
 type DownloadArchiveJSONRequestBody = AssetIdsDto
 
 // GetDownloadInfoJSONRequestBody defines body for GetDownloadInfo for application/json ContentType.
 type GetDownloadInfoJSONRequestBody = DownloadInfoDto
+
+// CreateFaceJSONRequestBody defines body for CreateFace for application/json ContentType.
+type CreateFaceJSONRequestBody = AssetFaceCreateDto
+
+// DeleteFaceJSONRequestBody defines body for DeleteFace for application/json ContentType.
+type DeleteFaceJSONRequestBody = AssetFaceDeleteDto
 
 // ReassignFacesByIdJSONRequestBody defines body for ReassignFacesById for application/json ContentType.
 type ReassignFacesByIdJSONRequestBody = FaceDto
@@ -2571,11 +2823,14 @@ type RemoveMemoryAssetsJSONRequestBody = BulkIdsDto
 // AddMemoryAssetsJSONRequestBody defines body for AddMemoryAssets for application/json ContentType.
 type AddMemoryAssetsJSONRequestBody = BulkIdsDto
 
-// GetNotificationTemplateJSONRequestBody defines body for GetNotificationTemplate for application/json ContentType.
-type GetNotificationTemplateJSONRequestBody = TemplateDto
+// DeleteNotificationsJSONRequestBody defines body for DeleteNotifications for application/json ContentType.
+type DeleteNotificationsJSONRequestBody = NotificationDeleteAllDto
 
-// SendTestEmailJSONRequestBody defines body for SendTestEmail for application/json ContentType.
-type SendTestEmailJSONRequestBody = SystemConfigSmtpDto
+// UpdateNotificationsJSONRequestBody defines body for UpdateNotifications for application/json ContentType.
+type UpdateNotificationsJSONRequestBody = NotificationUpdateAllDto
+
+// UpdateNotificationJSONRequestBody defines body for UpdateNotification for application/json ContentType.
+type UpdateNotificationJSONRequestBody = NotificationUpdateDto
 
 // StartOAuthJSONRequestBody defines body for StartOAuth for application/json ContentType.
 type StartOAuthJSONRequestBody = OAuthConfigDto
@@ -2604,12 +2859,6 @@ type MergePersonJSONRequestBody = MergePersonDto
 // ReassignFacesJSONRequestBody defines body for ReassignFaces for application/json ContentType.
 type ReassignFacesJSONRequestBody = AssetFaceUpdateDto
 
-// GetFileChecksumsJSONRequestBody defines body for GetFileChecksums for application/json ContentType.
-type GetFileChecksumsJSONRequestBody = FileChecksumDto
-
-// FixAuditFilesJSONRequestBody defines body for FixAuditFiles for application/json ContentType.
-type FixAuditFilesJSONRequestBody = FileReportFixDto
-
 // SearchAssetsJSONRequestBody defines body for SearchAssets for application/json ContentType.
 type SearchAssetsJSONRequestBody = MetadataSearchDto
 
@@ -2621,6 +2870,9 @@ type SearchSmartJSONRequestBody = SmartSearchDto
 
 // SetServerLicenseJSONRequestBody defines body for SetServerLicense for application/json ContentType.
 type SetServerLicenseJSONRequestBody = LicenseKeyDto
+
+// CreateSessionJSONRequestBody defines body for CreateSession for application/json ContentType.
+type CreateSessionJSONRequestBody = SessionCreateDto
 
 // CreateSharedLinkJSONRequestBody defines body for CreateSharedLink for application/json ContentType.
 type CreateSharedLinkJSONRequestBody = SharedLinkCreateDto
@@ -2643,11 +2895,20 @@ type CreateStackJSONRequestBody = StackCreateDto
 // UpdateStackJSONRequestBody defines body for UpdateStack for application/json ContentType.
 type UpdateStackJSONRequestBody = StackUpdateDto
 
+// DeleteSyncAckJSONRequestBody defines body for DeleteSyncAck for application/json ContentType.
+type DeleteSyncAckJSONRequestBody = SyncAckDeleteDto
+
+// SendSyncAckJSONRequestBody defines body for SendSyncAck for application/json ContentType.
+type SendSyncAckJSONRequestBody = SyncAckSetDto
+
 // GetDeltaSyncJSONRequestBody defines body for GetDeltaSync for application/json ContentType.
 type GetDeltaSyncJSONRequestBody = AssetDeltaSyncDto
 
 // GetFullSyncForUserJSONRequestBody defines body for GetFullSyncForUser for application/json ContentType.
 type GetFullSyncForUserJSONRequestBody = AssetFullSyncDto
+
+// GetSyncStreamJSONRequestBody defines body for GetSyncStream for application/json ContentType.
+type GetSyncStreamJSONRequestBody = SyncStreamDto
 
 // UpdateConfigJSONRequestBody defines body for UpdateConfig for application/json ContentType.
 type UpdateConfigJSONRequestBody = SystemConfigDto
@@ -2775,6 +3036,21 @@ type ClientInterface interface {
 	// DeleteActivity request
 	DeleteActivity(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateNotificationWithBody request with any body
+	CreateNotificationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateNotification(ctx context.Context, body CreateNotificationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetNotificationTemplateAdminWithBody request with any body
+	GetNotificationTemplateAdminWithBody(ctx context.Context, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	GetNotificationTemplateAdmin(ctx context.Context, name string, body GetNotificationTemplateAdminJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendTestEmailAdminWithBody request with any body
+	SendTestEmailAdminWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendTestEmailAdmin(ctx context.Context, body SendTestEmailAdminJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SearchUsersAdmin request
 	SearchUsersAdmin(ctx context.Context, params *SearchUsersAdminParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2806,6 +3082,9 @@ type ClientInterface interface {
 
 	// RestoreUserAdmin request
 	RestoreUserAdmin(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetUserStatisticsAdmin request
+	GetUserStatisticsAdmin(ctx context.Context, id openapi_types.UUID, params *GetUserStatisticsAdminParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetAllAlbums request
 	GetAllAlbums(ctx context.Context, params *GetAllAlbumsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2902,9 +3181,6 @@ type ClientInterface interface {
 
 	RunAssetJobs(ctx context.Context, body RunAssetJobsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetMemoryLane request
-	GetMemoryLane(ctx context.Context, params *GetMemoryLaneParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// GetRandom request
 	GetRandom(ctx context.Context, params *GetRandomParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2931,9 +3207,6 @@ type ClientInterface interface {
 	// PlayAssetVideo request
 	PlayAssetVideo(ctx context.Context, id openapi_types.UUID, params *PlayAssetVideoParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetAuditDeletes request
-	GetAuditDeletes(ctx context.Context, params *GetAuditDeletesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// SignUpAdminWithBody request with any body
 	SignUpAdminWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2951,6 +3224,32 @@ type ClientInterface interface {
 
 	// Logout request
 	Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ResetPinCodeWithBody request with any body
+	ResetPinCodeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ResetPinCode(ctx context.Context, body ResetPinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetupPinCodeWithBody request with any body
+	SetupPinCodeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetupPinCode(ctx context.Context, body SetupPinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ChangePinCodeWithBody request with any body
+	ChangePinCodeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ChangePinCode(ctx context.Context, body ChangePinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// LockAuthSession request
+	LockAuthSession(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UnlockAuthSessionWithBody request with any body
+	UnlockAuthSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UnlockAuthSession(ctx context.Context, body UnlockAuthSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAuthStatus request
+	GetAuthStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ValidateAccessToken request
 	ValidateAccessToken(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2970,6 +3269,16 @@ type ClientInterface interface {
 
 	// GetFaces request
 	GetFaces(ctx context.Context, params *GetFacesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateFaceWithBody request with any body
+	CreateFaceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateFace(ctx context.Context, body CreateFaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteFaceWithBody request with any body
+	DeleteFaceWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DeleteFace(ctx context.Context, id openapi_types.UUID, body DeleteFaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ReassignFacesByIdWithBody request with any body
 	ReassignFacesByIdWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3026,7 +3335,7 @@ type ClientInterface interface {
 	ReverseGeocode(ctx context.Context, params *ReverseGeocodeParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SearchMemories request
-	SearchMemories(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchMemories(ctx context.Context, params *SearchMemoriesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateMemoryWithBody request with any body
 	CreateMemoryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3054,15 +3363,29 @@ type ClientInterface interface {
 
 	AddMemoryAssets(ctx context.Context, id openapi_types.UUID, body AddMemoryAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetNotificationTemplateWithBody request with any body
-	GetNotificationTemplateWithBody(ctx context.Context, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DeleteNotificationsWithBody request with any body
+	DeleteNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	GetNotificationTemplate(ctx context.Context, name string, body GetNotificationTemplateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteNotifications(ctx context.Context, body DeleteNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SendTestEmailWithBody request with any body
-	SendTestEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetNotifications request
+	GetNotifications(ctx context.Context, params *GetNotificationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SendTestEmail(ctx context.Context, body SendTestEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// UpdateNotificationsWithBody request with any body
+	UpdateNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateNotifications(ctx context.Context, body UpdateNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteNotification request
+	DeleteNotification(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetNotification request
+	GetNotification(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateNotificationWithBody request with any body
+	UpdateNotificationWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateNotification(ctx context.Context, id openapi_types.UUID, body UpdateNotificationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// StartOAuthWithBody request with any body
 	StartOAuthWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3135,19 +3458,6 @@ type ClientInterface interface {
 
 	// GetPersonThumbnail request
 	GetPersonThumbnail(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetAuditFiles request
-	GetAuditFiles(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetFileChecksumsWithBody request with any body
-	GetFileChecksumsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	GetFileChecksums(ctx context.Context, body GetFileChecksumsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// FixAuditFilesWithBody request with any body
-	FixAuditFilesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	FixAuditFiles(ctx context.Context, body FixAuditFilesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetAssetsByCity request
 	GetAssetsByCity(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3226,11 +3536,19 @@ type ClientInterface interface {
 	// GetSessions request
 	GetSessions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateSessionWithBody request with any body
+	CreateSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateSession(ctx context.Context, body CreateSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteSession request
 	DeleteSession(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// LockSession request
+	LockSession(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAllSharedLinks request
-	GetAllSharedLinks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetAllSharedLinks(ctx context.Context, params *GetAllSharedLinksParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateSharedLinkWithBody request with any body
 	CreateSharedLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3285,6 +3603,19 @@ type ClientInterface interface {
 
 	UpdateStack(ctx context.Context, id openapi_types.UUID, body UpdateStackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeleteSyncAckWithBody request with any body
+	DeleteSyncAckWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DeleteSyncAck(ctx context.Context, body DeleteSyncAckJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetSyncAck request
+	GetSyncAck(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendSyncAckWithBody request with any body
+	SendSyncAckWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendSyncAck(ctx context.Context, body SendSyncAckJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetDeltaSyncWithBody request with any body
 	GetDeltaSyncWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -3294,6 +3625,11 @@ type ClientInterface interface {
 	GetFullSyncForUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	GetFullSyncForUser(ctx context.Context, body GetFullSyncForUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetSyncStreamWithBody request with any body
+	GetSyncStreamWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	GetSyncStream(ctx context.Context, body GetSyncStreamJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetConfig request
 	GetConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3485,6 +3821,78 @@ func (c *Client) DeleteActivity(ctx context.Context, id openapi_types.UUID, reqE
 	return c.Client.Do(req)
 }
 
+func (c *Client) CreateNotificationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateNotificationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateNotification(ctx context.Context, body CreateNotificationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateNotificationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetNotificationTemplateAdminWithBody(ctx context.Context, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNotificationTemplateAdminRequestWithBody(c.Server, name, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetNotificationTemplateAdmin(ctx context.Context, name string, body GetNotificationTemplateAdminJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNotificationTemplateAdminRequest(c.Server, name, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendTestEmailAdminWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendTestEmailAdminRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendTestEmailAdmin(ctx context.Context, body SendTestEmailAdminJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendTestEmailAdminRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) SearchUsersAdmin(ctx context.Context, params *SearchUsersAdminParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSearchUsersAdminRequest(c.Server, params)
 	if err != nil {
@@ -3619,6 +4027,18 @@ func (c *Client) UpdateUserPreferencesAdmin(ctx context.Context, id openapi_type
 
 func (c *Client) RestoreUserAdmin(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRestoreUserAdminRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetUserStatisticsAdmin(ctx context.Context, id openapi_types.UUID, params *GetUserStatisticsAdminParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetUserStatisticsAdminRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -4061,18 +4481,6 @@ func (c *Client) RunAssetJobs(ctx context.Context, body RunAssetJobsJSONRequestB
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetMemoryLane(ctx context.Context, params *GetMemoryLaneParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetMemoryLaneRequest(c.Server, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) GetRandom(ctx context.Context, params *GetRandomParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetRandomRequest(c.Server, params)
 	if err != nil {
@@ -4181,18 +4589,6 @@ func (c *Client) PlayAssetVideo(ctx context.Context, id openapi_types.UUID, para
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetAuditDeletes(ctx context.Context, params *GetAuditDeletesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetAuditDeletesRequest(c.Server, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) SignUpAdminWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSignUpAdminRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -4277,6 +4673,126 @@ func (c *Client) Logout(ctx context.Context, reqEditors ...RequestEditorFn) (*ht
 	return c.Client.Do(req)
 }
 
+func (c *Client) ResetPinCodeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewResetPinCodeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ResetPinCode(ctx context.Context, body ResetPinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewResetPinCodeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetupPinCodeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetupPinCodeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetupPinCode(ctx context.Context, body SetupPinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetupPinCodeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ChangePinCodeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewChangePinCodeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ChangePinCode(ctx context.Context, body ChangePinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewChangePinCodeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) LockAuthSession(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLockAuthSessionRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UnlockAuthSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUnlockAuthSessionRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UnlockAuthSession(ctx context.Context, body UnlockAuthSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUnlockAuthSessionRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAuthStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAuthStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ValidateAccessToken(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewValidateAccessTokenRequest(c.Server)
 	if err != nil {
@@ -4351,6 +4867,54 @@ func (c *Client) GetAssetDuplicates(ctx context.Context, reqEditors ...RequestEd
 
 func (c *Client) GetFaces(ctx context.Context, params *GetFacesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetFacesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateFaceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFaceRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateFace(ctx context.Context, body CreateFaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFaceRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteFaceWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteFaceRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteFace(ctx context.Context, id openapi_types.UUID, body DeleteFaceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteFaceRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4601,8 +5165,8 @@ func (c *Client) ReverseGeocode(ctx context.Context, params *ReverseGeocodeParam
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchMemories(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchMemoriesRequest(c.Server)
+func (c *Client) SearchMemories(ctx context.Context, params *SearchMemoriesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchMemoriesRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -4733,8 +5297,8 @@ func (c *Client) AddMemoryAssets(ctx context.Context, id openapi_types.UUID, bod
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetNotificationTemplateWithBody(ctx context.Context, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetNotificationTemplateRequestWithBody(c.Server, name, contentType, body)
+func (c *Client) DeleteNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteNotificationsRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4745,8 +5309,8 @@ func (c *Client) GetNotificationTemplateWithBody(ctx context.Context, name strin
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetNotificationTemplate(ctx context.Context, name string, body GetNotificationTemplateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetNotificationTemplateRequest(c.Server, name, body)
+func (c *Client) DeleteNotifications(ctx context.Context, body DeleteNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteNotificationsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4757,8 +5321,8 @@ func (c *Client) GetNotificationTemplate(ctx context.Context, name string, body 
 	return c.Client.Do(req)
 }
 
-func (c *Client) SendTestEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSendTestEmailRequestWithBody(c.Server, contentType, body)
+func (c *Client) GetNotifications(ctx context.Context, params *GetNotificationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNotificationsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -4769,8 +5333,68 @@ func (c *Client) SendTestEmailWithBody(ctx context.Context, contentType string, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) SendTestEmail(ctx context.Context, body SendTestEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSendTestEmailRequest(c.Server, body)
+func (c *Client) UpdateNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateNotificationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateNotifications(ctx context.Context, body UpdateNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateNotificationsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteNotification(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteNotificationRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetNotification(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNotificationRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateNotificationWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateNotificationRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateNotification(ctx context.Context, id openapi_types.UUID, body UpdateNotificationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateNotificationRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5105,66 +5729,6 @@ func (c *Client) GetPersonThumbnail(ctx context.Context, id openapi_types.UUID, 
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetAuditFiles(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetAuditFilesRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetFileChecksumsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetFileChecksumsRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetFileChecksums(ctx context.Context, body GetFileChecksumsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetFileChecksumsRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) FixAuditFilesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewFixAuditFilesRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) FixAuditFiles(ctx context.Context, body FixAuditFilesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewFixAuditFilesRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) GetAssetsByCity(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAssetsByCityRequest(c.Server)
 	if err != nil {
@@ -5489,6 +6053,30 @@ func (c *Client) GetSessions(ctx context.Context, reqEditors ...RequestEditorFn)
 	return c.Client.Do(req)
 }
 
+func (c *Client) CreateSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateSessionRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateSession(ctx context.Context, body CreateSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateSessionRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) DeleteSession(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteSessionRequest(c.Server, id)
 	if err != nil {
@@ -5501,8 +6089,20 @@ func (c *Client) DeleteSession(ctx context.Context, id openapi_types.UUID, reqEd
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetAllSharedLinks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetAllSharedLinksRequest(c.Server)
+func (c *Client) LockSession(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLockSessionRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAllSharedLinks(ctx context.Context, params *GetAllSharedLinksParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAllSharedLinksRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5753,6 +6353,66 @@ func (c *Client) UpdateStack(ctx context.Context, id openapi_types.UUID, body Up
 	return c.Client.Do(req)
 }
 
+func (c *Client) DeleteSyncAckWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteSyncAckRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteSyncAck(ctx context.Context, body DeleteSyncAckJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteSyncAckRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetSyncAck(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSyncAckRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendSyncAckWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendSyncAckRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendSyncAck(ctx context.Context, body SendSyncAckJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendSyncAckRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetDeltaSyncWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDeltaSyncRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -5791,6 +6451,30 @@ func (c *Client) GetFullSyncForUserWithBody(ctx context.Context, contentType str
 
 func (c *Client) GetFullSyncForUser(ctx context.Context, body GetFullSyncForUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetFullSyncForUserRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetSyncStreamWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSyncStreamRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetSyncStream(ctx context.Context, body GetSyncStreamJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSyncStreamRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6466,7 +7150,7 @@ func NewGetActivitiesRequest(server string, params *GetActivitiesParams) (*http.
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -6504,7 +7188,7 @@ func NewCreateActivityRequestWithBody(server string, contentType string, body io
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -6567,7 +7251,7 @@ func NewGetActivityStatisticsRequest(server string, params *GetActivityStatistic
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -6609,6 +7293,133 @@ func NewDeleteActivityRequest(server string, id openapi_types.UUID) (*http.Reque
 	return req, nil
 }
 
+// NewCreateNotificationRequest calls the generic CreateNotification builder with application/json body
+func NewCreateNotificationRequest(server string, body CreateNotificationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateNotificationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateNotificationRequestWithBody generates requests for CreateNotification with any type of body
+func NewCreateNotificationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/notifications")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetNotificationTemplateAdminRequest calls the generic GetNotificationTemplateAdmin builder with application/json body
+func NewGetNotificationTemplateAdminRequest(server string, name string, body GetNotificationTemplateAdminJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewGetNotificationTemplateAdminRequestWithBody(server, name, "application/json", bodyReader)
+}
+
+// NewGetNotificationTemplateAdminRequestWithBody generates requests for GetNotificationTemplateAdmin with any type of body
+func NewGetNotificationTemplateAdminRequestWithBody(server string, name string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "name", runtime.ParamLocationPath, name)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/notifications/templates/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSendTestEmailAdminRequest calls the generic SendTestEmailAdmin builder with application/json body
+func NewSendTestEmailAdminRequest(server string, body SendTestEmailAdminJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendTestEmailAdminRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSendTestEmailAdminRequestWithBody generates requests for SendTestEmailAdmin with any type of body
+func NewSendTestEmailAdminRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/notifications/test-email")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewSearchUsersAdminRequest generates requests for SearchUsersAdmin
 func NewSearchUsersAdminRequest(server string, params *SearchUsersAdminParams) (*http.Request, error) {
 	var err error
@@ -6631,6 +7442,22 @@ func NewSearchUsersAdminRequest(server string, params *SearchUsersAdminParams) (
 	if params != nil {
 		queryValues := queryURL.Query()
 
+		if params.Id != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "id", runtime.ParamLocationQuery, *params.Id); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.WithDeleted != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "withDeleted", runtime.ParamLocationQuery, *params.WithDeleted); err != nil {
@@ -6650,7 +7477,7 @@ func NewSearchUsersAdminRequest(server string, params *SearchUsersAdminParams) (
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -6688,7 +7515,7 @@ func NewCreateUserAdminRequestWithBody(server string, contentType string, body i
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -6771,7 +7598,7 @@ func NewGetUserAdminRequest(server string, id openapi_types.UUID) (*http.Request
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -6852,7 +7679,7 @@ func NewGetUserPreferencesAdminRequest(server string, id openapi_types.UUID) (*h
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -6933,7 +7760,95 @@ func NewRestoreUserAdminRequest(server string, id openapi_types.UUID) (*http.Req
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetUserStatisticsAdminRequest generates requests for GetUserStatisticsAdmin
+func NewGetUserStatisticsAdminRequest(server string, id openapi_types.UUID, params *GetUserStatisticsAdminParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/users/%s/statistics", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.IsFavorite != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isFavorite", runtime.ParamLocationQuery, *params.IsFavorite); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.IsTrashed != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isTrashed", runtime.ParamLocationQuery, *params.IsTrashed); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Visibility != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "visibility", runtime.ParamLocationQuery, *params.Visibility); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -6998,7 +7913,7 @@ func NewGetAllAlbumsRequest(server string, params *GetAllAlbumsParams) (*http.Re
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -7036,7 +7951,7 @@ func NewCreateAlbumRequestWithBody(server string, contentType string, body io.Re
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -7065,7 +7980,7 @@ func NewGetAlbumStatisticsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -7171,7 +8086,7 @@ func NewGetAlbumInfoRequest(server string, id openapi_types.UUID, params *GetAlb
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -7503,7 +8418,7 @@ func NewGetApiKeysRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -7541,7 +8456,7 @@ func NewCreateApiKeyRequestWithBody(server string, contentType string, body io.R
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -7611,7 +8526,7 @@ func NewGetApiKeyRequest(server string, id openapi_types.UUID) (*http.Request, e
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -7747,7 +8662,7 @@ func NewUploadAssetRequestWithBody(server string, params *UploadAssetParams, con
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -7842,7 +8757,7 @@ func NewCheckBulkUploadRequestWithBody(server string, contentType string, body i
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -7878,7 +8793,7 @@ func NewGetAllUserAssetsByDeviceIdRequest(server string, deviceId string) (*http
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -7916,7 +8831,7 @@ func NewCheckExistingAssetsRequestWithBody(server string, contentType string, bo
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -7956,69 +8871,12 @@ func NewRunAssetJobsRequestWithBody(server string, contentType string, body io.R
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewGetMemoryLaneRequest generates requests for GetMemoryLane
-func NewGetMemoryLaneRequest(server string, params *GetMemoryLaneParams) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/assets/memory-lane")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "day", runtime.ParamLocationQuery, params.Day); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "month", runtime.ParamLocationQuery, params.Month); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
 
 	return req, nil
 }
@@ -8064,7 +8922,7 @@ func NewGetRandomRequest(server string, params *GetRandomParams) (*http.Request,
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -8093,22 +8951,6 @@ func NewGetAssetStatisticsRequest(server string, params *GetAssetStatisticsParam
 
 	if params != nil {
 		queryValues := queryURL.Query()
-
-		if params.IsArchived != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isArchived", runtime.ParamLocationQuery, *params.IsArchived); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
 
 		if params.IsFavorite != nil {
 
@@ -8142,10 +8984,26 @@ func NewGetAssetStatisticsRequest(server string, params *GetAssetStatisticsParam
 
 		}
 
+		if params.Visibility != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "visibility", runtime.ParamLocationQuery, *params.Visibility); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -8201,7 +9059,7 @@ func NewGetAssetInfoRequest(server string, id openapi_types.UUID, params *GetAss
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -8304,7 +9162,7 @@ func NewDownloadAssetRequest(server string, id openapi_types.UUID, params *Downl
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -8434,7 +9292,7 @@ func NewViewAssetRequest(server string, id openapi_types.UUID, params *ViewAsset
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -8490,80 +9348,7 @@ func NewPlayAssetVideoRequest(server string, id openapi_types.UUID, params *Play
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetAuditDeletesRequest generates requests for GetAuditDeletes
-func NewGetAuditDeletesRequest(server string, params *GetAuditDeletesParams) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/audit/deletes")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "after", runtime.ParamLocationQuery, params.After); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "entityType", runtime.ParamLocationQuery, params.EntityType); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-		if params.UserId != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "userId", runtime.ParamLocationQuery, *params.UserId); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -8601,7 +9386,7 @@ func NewSignUpAdminRequestWithBody(server string, contentType string, body io.Re
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -8641,7 +9426,7 @@ func NewChangePasswordRequestWithBody(server string, contentType string, body io
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -8681,7 +9466,7 @@ func NewLoginRequestWithBody(server string, contentType string, body io.Reader) 
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -8710,7 +9495,221 @@ func NewLogoutRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewResetPinCodeRequest calls the generic ResetPinCode builder with application/json body
+func NewResetPinCodeRequest(server string, body ResetPinCodeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewResetPinCodeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewResetPinCodeRequestWithBody generates requests for ResetPinCode with any type of body
+func NewResetPinCodeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/auth/pin-code")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSetupPinCodeRequest calls the generic SetupPinCode builder with application/json body
+func NewSetupPinCodeRequest(server string, body SetupPinCodeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetupPinCodeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSetupPinCodeRequestWithBody generates requests for SetupPinCode with any type of body
+func NewSetupPinCodeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/auth/pin-code")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewChangePinCodeRequest calls the generic ChangePinCode builder with application/json body
+func NewChangePinCodeRequest(server string, body ChangePinCodeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewChangePinCodeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewChangePinCodeRequestWithBody generates requests for ChangePinCode with any type of body
+func NewChangePinCodeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/auth/pin-code")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewLockAuthSessionRequest generates requests for LockAuthSession
+func NewLockAuthSessionRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/auth/session/lock")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUnlockAuthSessionRequest calls the generic UnlockAuthSession builder with application/json body
+func NewUnlockAuthSessionRequest(server string, body UnlockAuthSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUnlockAuthSessionRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUnlockAuthSessionRequestWithBody generates requests for UnlockAuthSession with any type of body
+func NewUnlockAuthSessionRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/auth/session/unlock")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAuthStatusRequest generates requests for GetAuthStatus
+func NewGetAuthStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/auth/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -8737,7 +9736,7 @@ func NewValidateAccessTokenRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -8797,7 +9796,7 @@ func NewDownloadArchiveRequestWithBody(server string, params *DownloadArchivePar
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -8859,7 +9858,7 @@ func NewGetDownloadInfoRequestWithBody(server string, params *GetDownloadInfoPar
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -8888,7 +9887,7 @@ func NewGetAssetDuplicatesRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -8933,10 +9932,97 @@ func NewGetFacesRequest(server string, params *GetFacesParams) (*http.Request, e
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewCreateFaceRequest calls the generic CreateFace builder with application/json body
+func NewCreateFaceRequest(server string, body CreateFaceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateFaceRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateFaceRequestWithBody generates requests for CreateFace with any type of body
+func NewCreateFaceRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/faces")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteFaceRequest calls the generic DeleteFace builder with application/json body
+func NewDeleteFaceRequest(server string, id openapi_types.UUID, body DeleteFaceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDeleteFaceRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewDeleteFaceRequestWithBody generates requests for DeleteFace with any type of body
+func NewDeleteFaceRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/faces/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -9007,7 +10093,7 @@ func NewGetAllJobsStatusRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -9045,7 +10131,7 @@ func NewCreateJobRequestWithBody(server string, contentType string, body io.Read
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -9121,7 +10207,7 @@ func NewGetAllLibrariesRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -9159,7 +10245,7 @@ func NewCreateLibraryRequestWithBody(server string, contentType string, body io.
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -9229,7 +10315,7 @@ func NewGetLibraryRequest(server string, id openapi_types.UUID) (*http.Request, 
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -9310,7 +10396,7 @@ func NewScanLibraryRequest(server string, id openapi_types.UUID) (*http.Request,
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -9344,7 +10430,7 @@ func NewGetLibraryStatisticsRequest(server string, id openapi_types.UUID) (*http
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -9389,7 +10475,7 @@ func NewValidateRequestWithBody(server string, id openapi_types.UUID, contentTyp
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -9520,7 +10606,7 @@ func NewGetMapMarkersRequest(server string, params *GetMapMarkersParams) (*http.
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -9577,7 +10663,7 @@ func NewReverseGeocodeRequest(server string, params *ReverseGeocodeParams) (*htt
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -9586,7 +10672,7 @@ func NewReverseGeocodeRequest(server string, params *ReverseGeocodeParams) (*htt
 }
 
 // NewSearchMemoriesRequest generates requests for SearchMemories
-func NewSearchMemoriesRequest(server string) (*http.Request, error) {
+func NewSearchMemoriesRequest(server string, params *SearchMemoriesParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9604,7 +10690,77 @@ func NewSearchMemoriesRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.For != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "for", runtime.ParamLocationQuery, *params.For); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.IsSaved != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isSaved", runtime.ParamLocationQuery, *params.IsSaved); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.IsTrashed != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isTrashed", runtime.ParamLocationQuery, *params.IsTrashed); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Type != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type", runtime.ParamLocationQuery, *params.Type); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -9642,7 +10798,7 @@ func NewCreateMemoryRequestWithBody(server string, contentType string, body io.R
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -9712,7 +10868,7 @@ func NewGetMemoryRequest(server string, id openapi_types.UUID) (*http.Request, e
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -9861,34 +11017,27 @@ func NewAddMemoryAssetsRequestWithBody(server string, id openapi_types.UUID, con
 	return req, nil
 }
 
-// NewGetNotificationTemplateRequest calls the generic GetNotificationTemplate builder with application/json body
-func NewGetNotificationTemplateRequest(server string, name string, body GetNotificationTemplateJSONRequestBody) (*http.Request, error) {
+// NewDeleteNotificationsRequest calls the generic DeleteNotifications builder with application/json body
+func NewDeleteNotificationsRequest(server string, body DeleteNotificationsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewGetNotificationTemplateRequestWithBody(server, name, "application/json", bodyReader)
+	return NewDeleteNotificationsRequestWithBody(server, "application/json", bodyReader)
 }
 
-// NewGetNotificationTemplateRequestWithBody generates requests for GetNotificationTemplate with any type of body
-func NewGetNotificationTemplateRequestWithBody(server string, name string, contentType string, body io.Reader) (*http.Request, error) {
+// NewDeleteNotificationsRequestWithBody generates requests for DeleteNotifications with any type of body
+func NewDeleteNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "name", runtime.ParamLocationPath, name)
-	if err != nil {
-		return nil, err
-	}
 
 	serverURL, err := url.Parse(server)
 	if err != nil {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/notifications/templates/%s", pathParam0)
+	operationPath := fmt.Sprintf("/notifications")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -9898,7 +11047,7 @@ func NewGetNotificationTemplateRequestWithBody(server string, name string, conte
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("DELETE", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -9908,19 +11057,8 @@ func NewGetNotificationTemplateRequestWithBody(server string, name string, conte
 	return req, nil
 }
 
-// NewSendTestEmailRequest calls the generic SendTestEmail builder with application/json body
-func NewSendTestEmailRequest(server string, body SendTestEmailJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewSendTestEmailRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewSendTestEmailRequestWithBody generates requests for SendTestEmail with any type of body
-func NewSendTestEmailRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewGetNotificationsRequest generates requests for GetNotifications
+func NewGetNotificationsRequest(server string, params *GetNotificationsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -9928,7 +11066,7 @@ func NewSendTestEmailRequestWithBody(server string, contentType string, body io.
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/notifications/test-email")
+	operationPath := fmt.Sprintf("/notifications")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -9938,7 +11076,230 @@ func NewSendTestEmailRequestWithBody(server string, contentType string, body io.
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Id != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "id", runtime.ParamLocationQuery, *params.Id); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Level != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "level", runtime.ParamLocationQuery, *params.Level); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Type != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type", runtime.ParamLocationQuery, *params.Type); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Unread != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "unread", runtime.ParamLocationQuery, *params.Unread); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateNotificationsRequest calls the generic UpdateNotifications builder with application/json body
+func NewUpdateNotificationsRequest(server string, body UpdateNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateNotificationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateNotificationsRequestWithBody generates requests for UpdateNotifications with any type of body
+func NewUpdateNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteNotificationRequest generates requests for DeleteNotification
+func NewDeleteNotificationRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetNotificationRequest generates requests for GetNotification
+func NewGetNotificationRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateNotificationRequest calls the generic UpdateNotification builder with application/json body
+func NewUpdateNotificationRequest(server string, id openapi_types.UUID, body UpdateNotificationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateNotificationRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewUpdateNotificationRequestWithBody generates requests for UpdateNotification with any type of body
+func NewUpdateNotificationRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -9978,7 +11339,7 @@ func NewStartOAuthRequestWithBody(server string, contentType string, body io.Rea
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -10018,7 +11379,7 @@ func NewFinishOAuthRequestWithBody(server string, contentType string, body io.Re
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -10058,7 +11419,7 @@ func NewLinkOAuthAccountRequestWithBody(server string, contentType string, body 
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -10087,7 +11448,7 @@ func NewRedirectOAuthToMobileRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10114,7 +11475,7 @@ func NewUnlinkOAuthAccountRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10159,7 +11520,7 @@ func NewGetPartnersRequest(server string, params *GetPartnersParams) (*http.Requ
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10227,7 +11588,7 @@ func NewCreatePartnerRequest(server string, id openapi_types.UUID) (*http.Reques
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10304,6 +11665,38 @@ func NewGetAllPeopleRequest(server string, params *GetAllPeopleParams) (*http.Re
 	if params != nil {
 		queryValues := queryURL.Query()
 
+		if params.ClosestAssetId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "closestAssetId", runtime.ParamLocationQuery, *params.ClosestAssetId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.ClosestPersonId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "closestPersonId", runtime.ParamLocationQuery, *params.ClosestPersonId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.Page != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "page", runtime.ParamLocationQuery, *params.Page); err != nil {
@@ -10355,7 +11748,7 @@ func NewGetAllPeopleRequest(server string, params *GetAllPeopleParams) (*http.Re
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10393,7 +11786,7 @@ func NewCreatePersonRequestWithBody(server string, contentType string, body io.R
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -10469,7 +11862,7 @@ func NewGetPersonRequest(server string, id openapi_types.UUID) (*http.Request, e
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10561,7 +11954,7 @@ func NewMergePersonRequestWithBody(server string, id openapi_types.UUID, content
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -10644,7 +12037,7 @@ func NewGetPersonStatisticsRequest(server string, id openapi_types.UUID) (*http.
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10678,117 +12071,10 @@ func NewGetPersonThumbnailRequest(server string, id openapi_types.UUID) (*http.R
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
-
-	return req, nil
-}
-
-// NewGetAuditFilesRequest generates requests for GetAuditFiles
-func NewGetAuditFilesRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/reports")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetFileChecksumsRequest calls the generic GetFileChecksums builder with application/json body
-func NewGetFileChecksumsRequest(server string, body GetFileChecksumsJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewGetFileChecksumsRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewGetFileChecksumsRequestWithBody generates requests for GetFileChecksums with any type of body
-func NewGetFileChecksumsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/reports/checksum")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewFixAuditFilesRequest calls the generic FixAuditFiles builder with application/json body
-func NewFixAuditFilesRequest(server string, body FixAuditFilesJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewFixAuditFilesRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewFixAuditFilesRequestWithBody generates requests for FixAuditFiles with any type of body
-func NewFixAuditFilesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/reports/fix")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -10812,7 +12098,7 @@ func NewGetAssetsByCityRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10839,7 +12125,7 @@ func NewGetExploreDataRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10877,7 +12163,7 @@ func NewSearchAssetsRequestWithBody(server string, contentType string, body io.R
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -10940,7 +12226,7 @@ func NewSearchPersonRequest(server string, params *SearchPersonParams) (*http.Re
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10985,7 +12271,7 @@ func NewSearchPlacesRequest(server string, params *SearchPlacesParams) (*http.Re
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11023,7 +12309,7 @@ func NewSearchRandomRequestWithBody(server string, contentType string, body io.R
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -11063,7 +12349,7 @@ func NewSearchSmartRequestWithBody(server string, contentType string, body io.Re
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -11190,7 +12476,7 @@ func NewGetSearchSuggestionsRequest(server string, params *GetSearchSuggestionsP
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11217,7 +12503,7 @@ func NewGetAboutInfoRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11244,7 +12530,7 @@ func NewGetServerConfigRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11271,7 +12557,7 @@ func NewGetServerFeaturesRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11325,7 +12611,7 @@ func NewGetServerLicenseRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11392,7 +12678,7 @@ func NewGetSupportedMediaTypesRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11419,7 +12705,7 @@ func NewPingServerRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11446,7 +12732,7 @@ func NewGetServerStatisticsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11473,7 +12759,7 @@ func NewGetStorageRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11500,7 +12786,7 @@ func NewGetThemeRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11527,7 +12813,7 @@ func NewGetServerVersionRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11554,7 +12840,7 @@ func NewGetVersionHistoryRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11608,10 +12894,50 @@ func NewGetSessionsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewCreateSessionRequest calls the generic CreateSession builder with application/json body
+func NewCreateSessionRequest(server string, body CreateSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateSessionRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateSessionRequestWithBody generates requests for CreateSession with any type of body
+func NewCreateSessionRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -11650,8 +12976,42 @@ func NewDeleteSessionRequest(server string, id openapi_types.UUID) (*http.Reques
 	return req, nil
 }
 
+// NewLockSessionRequest generates requests for LockSession
+func NewLockSessionRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/sessions/%s/lock", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetAllSharedLinksRequest generates requests for GetAllSharedLinks
-func NewGetAllSharedLinksRequest(server string) (*http.Request, error) {
+func NewGetAllSharedLinksRequest(server string, params *GetAllSharedLinksParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -11669,7 +13029,29 @@ func NewGetAllSharedLinksRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.AlbumId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "albumId", runtime.ParamLocationQuery, *params.AlbumId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11707,7 +13089,7 @@ func NewCreateSharedLinkRequestWithBody(server string, contentType string, body 
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -11790,7 +13172,7 @@ func NewGetMySharedLinkRequest(server string, params *GetMySharedLinkParams) (*h
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -11858,7 +13240,7 @@ func NewGetSharedLinkByIdRequest(server string, id openapi_types.UUID) (*http.Re
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12132,7 +13514,7 @@ func NewSearchStacksRequest(server string, params *SearchStacksParams) (*http.Re
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12170,7 +13552,7 @@ func NewCreateStackRequestWithBody(server string, contentType string, body io.Re
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -12240,7 +13622,7 @@ func NewGetStackRequest(server string, id openapi_types.UUID) (*http.Request, er
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12295,6 +13677,113 @@ func NewUpdateStackRequestWithBody(server string, id openapi_types.UUID, content
 	return req, nil
 }
 
+// NewDeleteSyncAckRequest calls the generic DeleteSyncAck builder with application/json body
+func NewDeleteSyncAckRequest(server string, body DeleteSyncAckJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDeleteSyncAckRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewDeleteSyncAckRequestWithBody generates requests for DeleteSyncAck with any type of body
+func NewDeleteSyncAckRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/sync/ack")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetSyncAckRequest generates requests for GetSyncAck
+func NewGetSyncAckRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/sync/ack")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSendSyncAckRequest calls the generic SendSyncAck builder with application/json body
+func NewSendSyncAckRequest(server string, body SendSyncAckJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendSyncAckRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSendSyncAckRequestWithBody generates requests for SendSyncAck with any type of body
+func NewSendSyncAckRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/sync/ack")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetDeltaSyncRequest calls the generic GetDeltaSync builder with application/json body
 func NewGetDeltaSyncRequest(server string, body GetDeltaSyncJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -12325,7 +13814,7 @@ func NewGetDeltaSyncRequestWithBody(server string, contentType string, body io.R
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -12365,7 +13854,47 @@ func NewGetFullSyncForUserRequestWithBody(server string, contentType string, bod
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetSyncStreamRequest calls the generic GetSyncStream builder with application/json body
+func NewGetSyncStreamRequest(server string, body GetSyncStreamJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewGetSyncStreamRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewGetSyncStreamRequestWithBody generates requests for GetSyncStream with any type of body
+func NewGetSyncStreamRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/sync/stream")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -12394,7 +13923,7 @@ func NewGetConfigRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12461,7 +13990,7 @@ func NewGetConfigDefaultsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12488,7 +14017,7 @@ func NewGetStorageTemplateOptionsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12515,7 +14044,7 @@ func NewGetAdminOnboardingRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12553,7 +14082,7 @@ func NewUpdateAdminOnboardingRequestWithBody(server string, contentType string, 
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -12582,7 +14111,7 @@ func NewGetReverseGeocodingStateRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12609,7 +14138,7 @@ func NewGetAllTagsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12647,7 +14176,7 @@ func NewCreateTagRequestWithBody(server string, contentType string, body io.Read
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -12797,7 +14326,7 @@ func NewGetTagByIdRequest(server string, id openapi_types.UUID) (*http.Request, 
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12984,22 +14513,6 @@ func NewGetTimeBucketRequest(server string, params *GetTimeBucketParams) (*http.
 
 		}
 
-		if params.IsArchived != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isArchived", runtime.ParamLocationQuery, *params.IsArchived); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
 		if params.IsFavorite != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isFavorite", runtime.ParamLocationQuery, *params.IsFavorite); err != nil {
@@ -13064,6 +14577,38 @@ func NewGetTimeBucketRequest(server string, params *GetTimeBucketParams) (*http.
 
 		}
 
+		if params.Page != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "page", runtime.ParamLocationQuery, *params.Page); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.PersonId != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "personId", runtime.ParamLocationQuery, *params.PersonId); err != nil {
@@ -13078,18 +14623,6 @@ func NewGetTimeBucketRequest(server string, params *GetTimeBucketParams) (*http.
 				}
 			}
 
-		}
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "size", runtime.ParamLocationQuery, params.Size); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
 		}
 
 		if params.TagId != nil {
@@ -13136,6 +14669,22 @@ func NewGetTimeBucketRequest(server string, params *GetTimeBucketParams) (*http.
 
 		}
 
+		if params.Visibility != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "visibility", runtime.ParamLocationQuery, *params.Visibility); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.WithPartners != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "withPartners", runtime.ParamLocationQuery, *params.WithPartners); err != nil {
@@ -13171,7 +14720,7 @@ func NewGetTimeBucketRequest(server string, params *GetTimeBucketParams) (*http.
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13204,22 +14753,6 @@ func NewGetTimeBucketsRequest(server string, params *GetTimeBucketsParams) (*htt
 		if params.AlbumId != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "albumId", runtime.ParamLocationQuery, *params.AlbumId); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		if params.IsArchived != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isArchived", runtime.ParamLocationQuery, *params.IsArchived); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -13313,18 +14846,6 @@ func NewGetTimeBucketsRequest(server string, params *GetTimeBucketsParams) (*htt
 
 		}
 
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "size", runtime.ParamLocationQuery, params.Size); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
 		if params.TagId != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "tagId", runtime.ParamLocationQuery, *params.TagId); err != nil {
@@ -13344,6 +14865,22 @@ func NewGetTimeBucketsRequest(server string, params *GetTimeBucketsParams) (*htt
 		if params.UserId != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "userId", runtime.ParamLocationQuery, *params.UserId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Visibility != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "visibility", runtime.ParamLocationQuery, *params.Visibility); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -13392,7 +14929,7 @@ func NewGetTimeBucketsRequest(server string, params *GetTimeBucketsParams) (*htt
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13419,7 +14956,7 @@ func NewEmptyTrashRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13446,7 +14983,7 @@ func NewRestoreTrashRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13484,7 +15021,7 @@ func NewRestoreAssetsRequestWithBody(server string, contentType string, body io.
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -13513,7 +15050,7 @@ func NewSearchUsersRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13540,7 +15077,7 @@ func NewGetMyUserRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13634,7 +15171,7 @@ func NewGetUserLicenseRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13701,7 +15238,7 @@ func NewGetMyPreferencesRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13795,7 +15332,7 @@ func NewCreateProfileImageRequestWithBody(server string, contentType string, bod
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -13831,7 +15368,7 @@ func NewGetUserRequest(server string, id openapi_types.UUID) (*http.Request, err
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13865,7 +15402,7 @@ func NewGetProfileImageRequest(server string, id openapi_types.UUID) (*http.Requ
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13910,7 +15447,7 @@ func NewGetAssetsByOriginalPathRequest(server string, params *GetAssetsByOrigina
 		queryURL.RawQuery = queryValues.Encode()
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13937,7 +15474,7 @@ func NewGetUniqueOriginalPathsRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -14002,6 +15539,21 @@ type ClientWithResponsesInterface interface {
 	// DeleteActivityWithResponse request
 	DeleteActivityWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteActivityResponse, error)
 
+	// CreateNotificationWithBodyWithResponse request with any body
+	CreateNotificationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNotificationResponse, error)
+
+	CreateNotificationWithResponse(ctx context.Context, body CreateNotificationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateNotificationResponse, error)
+
+	// GetNotificationTemplateAdminWithBodyWithResponse request with any body
+	GetNotificationTemplateAdminWithBodyWithResponse(ctx context.Context, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetNotificationTemplateAdminResponse, error)
+
+	GetNotificationTemplateAdminWithResponse(ctx context.Context, name string, body GetNotificationTemplateAdminJSONRequestBody, reqEditors ...RequestEditorFn) (*GetNotificationTemplateAdminResponse, error)
+
+	// SendTestEmailAdminWithBodyWithResponse request with any body
+	SendTestEmailAdminWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendTestEmailAdminResponse, error)
+
+	SendTestEmailAdminWithResponse(ctx context.Context, body SendTestEmailAdminJSONRequestBody, reqEditors ...RequestEditorFn) (*SendTestEmailAdminResponse, error)
+
 	// SearchUsersAdminWithResponse request
 	SearchUsersAdminWithResponse(ctx context.Context, params *SearchUsersAdminParams, reqEditors ...RequestEditorFn) (*SearchUsersAdminResponse, error)
 
@@ -14033,6 +15585,9 @@ type ClientWithResponsesInterface interface {
 
 	// RestoreUserAdminWithResponse request
 	RestoreUserAdminWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RestoreUserAdminResponse, error)
+
+	// GetUserStatisticsAdminWithResponse request
+	GetUserStatisticsAdminWithResponse(ctx context.Context, id openapi_types.UUID, params *GetUserStatisticsAdminParams, reqEditors ...RequestEditorFn) (*GetUserStatisticsAdminResponse, error)
 
 	// GetAllAlbumsWithResponse request
 	GetAllAlbumsWithResponse(ctx context.Context, params *GetAllAlbumsParams, reqEditors ...RequestEditorFn) (*GetAllAlbumsResponse, error)
@@ -14129,9 +15684,6 @@ type ClientWithResponsesInterface interface {
 
 	RunAssetJobsWithResponse(ctx context.Context, body RunAssetJobsJSONRequestBody, reqEditors ...RequestEditorFn) (*RunAssetJobsResponse, error)
 
-	// GetMemoryLaneWithResponse request
-	GetMemoryLaneWithResponse(ctx context.Context, params *GetMemoryLaneParams, reqEditors ...RequestEditorFn) (*GetMemoryLaneResponse, error)
-
 	// GetRandomWithResponse request
 	GetRandomWithResponse(ctx context.Context, params *GetRandomParams, reqEditors ...RequestEditorFn) (*GetRandomResponse, error)
 
@@ -14158,9 +15710,6 @@ type ClientWithResponsesInterface interface {
 	// PlayAssetVideoWithResponse request
 	PlayAssetVideoWithResponse(ctx context.Context, id openapi_types.UUID, params *PlayAssetVideoParams, reqEditors ...RequestEditorFn) (*PlayAssetVideoResponse, error)
 
-	// GetAuditDeletesWithResponse request
-	GetAuditDeletesWithResponse(ctx context.Context, params *GetAuditDeletesParams, reqEditors ...RequestEditorFn) (*GetAuditDeletesResponse, error)
-
 	// SignUpAdminWithBodyWithResponse request with any body
 	SignUpAdminWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignUpAdminResponse, error)
 
@@ -14178,6 +15727,32 @@ type ClientWithResponsesInterface interface {
 
 	// LogoutWithResponse request
 	LogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LogoutResponse, error)
+
+	// ResetPinCodeWithBodyWithResponse request with any body
+	ResetPinCodeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ResetPinCodeResponse, error)
+
+	ResetPinCodeWithResponse(ctx context.Context, body ResetPinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*ResetPinCodeResponse, error)
+
+	// SetupPinCodeWithBodyWithResponse request with any body
+	SetupPinCodeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetupPinCodeResponse, error)
+
+	SetupPinCodeWithResponse(ctx context.Context, body SetupPinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*SetupPinCodeResponse, error)
+
+	// ChangePinCodeWithBodyWithResponse request with any body
+	ChangePinCodeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ChangePinCodeResponse, error)
+
+	ChangePinCodeWithResponse(ctx context.Context, body ChangePinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*ChangePinCodeResponse, error)
+
+	// LockAuthSessionWithResponse request
+	LockAuthSessionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LockAuthSessionResponse, error)
+
+	// UnlockAuthSessionWithBodyWithResponse request with any body
+	UnlockAuthSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UnlockAuthSessionResponse, error)
+
+	UnlockAuthSessionWithResponse(ctx context.Context, body UnlockAuthSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*UnlockAuthSessionResponse, error)
+
+	// GetAuthStatusWithResponse request
+	GetAuthStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAuthStatusResponse, error)
 
 	// ValidateAccessTokenWithResponse request
 	ValidateAccessTokenWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ValidateAccessTokenResponse, error)
@@ -14197,6 +15772,16 @@ type ClientWithResponsesInterface interface {
 
 	// GetFacesWithResponse request
 	GetFacesWithResponse(ctx context.Context, params *GetFacesParams, reqEditors ...RequestEditorFn) (*GetFacesResponse, error)
+
+	// CreateFaceWithBodyWithResponse request with any body
+	CreateFaceWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFaceResponse, error)
+
+	CreateFaceWithResponse(ctx context.Context, body CreateFaceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFaceResponse, error)
+
+	// DeleteFaceWithBodyWithResponse request with any body
+	DeleteFaceWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteFaceResponse, error)
+
+	DeleteFaceWithResponse(ctx context.Context, id openapi_types.UUID, body DeleteFaceJSONRequestBody, reqEditors ...RequestEditorFn) (*DeleteFaceResponse, error)
 
 	// ReassignFacesByIdWithBodyWithResponse request with any body
 	ReassignFacesByIdWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ReassignFacesByIdResponse, error)
@@ -14253,7 +15838,7 @@ type ClientWithResponsesInterface interface {
 	ReverseGeocodeWithResponse(ctx context.Context, params *ReverseGeocodeParams, reqEditors ...RequestEditorFn) (*ReverseGeocodeResponse, error)
 
 	// SearchMemoriesWithResponse request
-	SearchMemoriesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SearchMemoriesResponse, error)
+	SearchMemoriesWithResponse(ctx context.Context, params *SearchMemoriesParams, reqEditors ...RequestEditorFn) (*SearchMemoriesResponse, error)
 
 	// CreateMemoryWithBodyWithResponse request with any body
 	CreateMemoryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateMemoryResponse, error)
@@ -14281,15 +15866,29 @@ type ClientWithResponsesInterface interface {
 
 	AddMemoryAssetsWithResponse(ctx context.Context, id openapi_types.UUID, body AddMemoryAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*AddMemoryAssetsResponse, error)
 
-	// GetNotificationTemplateWithBodyWithResponse request with any body
-	GetNotificationTemplateWithBodyWithResponse(ctx context.Context, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetNotificationTemplateResponse, error)
+	// DeleteNotificationsWithBodyWithResponse request with any body
+	DeleteNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteNotificationsResponse, error)
 
-	GetNotificationTemplateWithResponse(ctx context.Context, name string, body GetNotificationTemplateJSONRequestBody, reqEditors ...RequestEditorFn) (*GetNotificationTemplateResponse, error)
+	DeleteNotificationsWithResponse(ctx context.Context, body DeleteNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*DeleteNotificationsResponse, error)
 
-	// SendTestEmailWithBodyWithResponse request with any body
-	SendTestEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendTestEmailResponse, error)
+	// GetNotificationsWithResponse request
+	GetNotificationsWithResponse(ctx context.Context, params *GetNotificationsParams, reqEditors ...RequestEditorFn) (*GetNotificationsResponse, error)
 
-	SendTestEmailWithResponse(ctx context.Context, body SendTestEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*SendTestEmailResponse, error)
+	// UpdateNotificationsWithBodyWithResponse request with any body
+	UpdateNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateNotificationsResponse, error)
+
+	UpdateNotificationsWithResponse(ctx context.Context, body UpdateNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateNotificationsResponse, error)
+
+	// DeleteNotificationWithResponse request
+	DeleteNotificationWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteNotificationResponse, error)
+
+	// GetNotificationWithResponse request
+	GetNotificationWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetNotificationResponse, error)
+
+	// UpdateNotificationWithBodyWithResponse request with any body
+	UpdateNotificationWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateNotificationResponse, error)
+
+	UpdateNotificationWithResponse(ctx context.Context, id openapi_types.UUID, body UpdateNotificationJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateNotificationResponse, error)
 
 	// StartOAuthWithBodyWithResponse request with any body
 	StartOAuthWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*StartOAuthResponse, error)
@@ -14362,19 +15961,6 @@ type ClientWithResponsesInterface interface {
 
 	// GetPersonThumbnailWithResponse request
 	GetPersonThumbnailWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetPersonThumbnailResponse, error)
-
-	// GetAuditFilesWithResponse request
-	GetAuditFilesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAuditFilesResponse, error)
-
-	// GetFileChecksumsWithBodyWithResponse request with any body
-	GetFileChecksumsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetFileChecksumsResponse, error)
-
-	GetFileChecksumsWithResponse(ctx context.Context, body GetFileChecksumsJSONRequestBody, reqEditors ...RequestEditorFn) (*GetFileChecksumsResponse, error)
-
-	// FixAuditFilesWithBodyWithResponse request with any body
-	FixAuditFilesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FixAuditFilesResponse, error)
-
-	FixAuditFilesWithResponse(ctx context.Context, body FixAuditFilesJSONRequestBody, reqEditors ...RequestEditorFn) (*FixAuditFilesResponse, error)
 
 	// GetAssetsByCityWithResponse request
 	GetAssetsByCityWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAssetsByCityResponse, error)
@@ -14453,11 +16039,19 @@ type ClientWithResponsesInterface interface {
 	// GetSessionsWithResponse request
 	GetSessionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSessionsResponse, error)
 
+	// CreateSessionWithBodyWithResponse request with any body
+	CreateSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateSessionResponse, error)
+
+	CreateSessionWithResponse(ctx context.Context, body CreateSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateSessionResponse, error)
+
 	// DeleteSessionWithResponse request
 	DeleteSessionWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteSessionResponse, error)
 
+	// LockSessionWithResponse request
+	LockSessionWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*LockSessionResponse, error)
+
 	// GetAllSharedLinksWithResponse request
-	GetAllSharedLinksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllSharedLinksResponse, error)
+	GetAllSharedLinksWithResponse(ctx context.Context, params *GetAllSharedLinksParams, reqEditors ...RequestEditorFn) (*GetAllSharedLinksResponse, error)
 
 	// CreateSharedLinkWithBodyWithResponse request with any body
 	CreateSharedLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateSharedLinkResponse, error)
@@ -14512,6 +16106,19 @@ type ClientWithResponsesInterface interface {
 
 	UpdateStackWithResponse(ctx context.Context, id openapi_types.UUID, body UpdateStackJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateStackResponse, error)
 
+	// DeleteSyncAckWithBodyWithResponse request with any body
+	DeleteSyncAckWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteSyncAckResponse, error)
+
+	DeleteSyncAckWithResponse(ctx context.Context, body DeleteSyncAckJSONRequestBody, reqEditors ...RequestEditorFn) (*DeleteSyncAckResponse, error)
+
+	// GetSyncAckWithResponse request
+	GetSyncAckWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSyncAckResponse, error)
+
+	// SendSyncAckWithBodyWithResponse request with any body
+	SendSyncAckWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSyncAckResponse, error)
+
+	SendSyncAckWithResponse(ctx context.Context, body SendSyncAckJSONRequestBody, reqEditors ...RequestEditorFn) (*SendSyncAckResponse, error)
+
 	// GetDeltaSyncWithBodyWithResponse request with any body
 	GetDeltaSyncWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetDeltaSyncResponse, error)
 
@@ -14521,6 +16128,11 @@ type ClientWithResponsesInterface interface {
 	GetFullSyncForUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetFullSyncForUserResponse, error)
 
 	GetFullSyncForUserWithResponse(ctx context.Context, body GetFullSyncForUserJSONRequestBody, reqEditors ...RequestEditorFn) (*GetFullSyncForUserResponse, error)
+
+	// GetSyncStreamWithBodyWithResponse request with any body
+	GetSyncStreamWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetSyncStreamResponse, error)
+
+	GetSyncStreamWithResponse(ctx context.Context, body GetSyncStreamJSONRequestBody, reqEditors ...RequestEditorFn) (*GetSyncStreamResponse, error)
 
 	// GetConfigWithResponse request
 	GetConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetConfigResponse, error)
@@ -14739,6 +16351,72 @@ func (r DeleteActivityResponse) StatusCode() int {
 	return 0
 }
 
+type CreateNotificationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *NotificationDto
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateNotificationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateNotificationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetNotificationTemplateAdminResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *TemplateResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetNotificationTemplateAdminResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetNotificationTemplateAdminResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SendTestEmailAdminResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *TestEmailResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r SendTestEmailAdminResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendTestEmailAdminResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type SearchUsersAdminResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -14896,7 +16574,7 @@ func (r UpdateUserPreferencesAdminResponse) StatusCode() int {
 type RestoreUserAdminResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON201      *UserAdminResponseDto
+	JSON200      *UserAdminResponseDto
 }
 
 // Status returns HTTPResponse.Status
@@ -14909,6 +16587,28 @@ func (r RestoreUserAdminResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r RestoreUserAdminResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetUserStatisticsAdminResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AssetStatsResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetUserStatisticsAdminResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetUserStatisticsAdminResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -15414,28 +17114,6 @@ func (r RunAssetJobsResponse) StatusCode() int {
 	return 0
 }
 
-type GetMemoryLaneResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]MemoryLaneResponseDto
-}
-
-// Status returns HTTPResponse.Status
-func (r GetMemoryLaneResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetMemoryLaneResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type GetRandomResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -15609,28 +17287,6 @@ func (r PlayAssetVideoResponse) StatusCode() int {
 	return 0
 }
 
-type GetAuditDeletesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *AuditDeletesResponseDto
-}
-
-// Status returns HTTPResponse.Status
-func (r GetAuditDeletesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetAuditDeletesResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type SignUpAdminResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -15713,6 +17369,133 @@ func (r LogoutResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r LogoutResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ResetPinCodeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ResetPinCodeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ResetPinCodeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SetupPinCodeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SetupPinCodeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetupPinCodeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ChangePinCodeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ChangePinCodeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ChangePinCodeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type LockAuthSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r LockAuthSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LockAuthSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UnlockAuthSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UnlockAuthSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UnlockAuthSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAuthStatusResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AuthStatusResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAuthStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAuthStatusResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -15822,6 +17605,48 @@ func (r GetFacesResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetFacesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateFaceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateFaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateFaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteFaceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteFaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteFaceResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -16286,14 +18111,13 @@ func (r AddMemoryAssetsResponse) StatusCode() int {
 	return 0
 }
 
-type GetNotificationTemplateResponse struct {
+type DeleteNotificationsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *TemplateResponseDto
 }
 
 // Status returns HTTPResponse.Status
-func (r GetNotificationTemplateResponse) Status() string {
+func (r DeleteNotificationsResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -16301,21 +18125,21 @@ func (r GetNotificationTemplateResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetNotificationTemplateResponse) StatusCode() int {
+func (r DeleteNotificationsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type SendTestEmailResponse struct {
+type GetNotificationsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *TestEmailResponseDto
+	JSON200      *[]NotificationDto
 }
 
 // Status returns HTTPResponse.Status
-func (r SendTestEmailResponse) Status() string {
+func (r GetNotificationsResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -16323,7 +18147,93 @@ func (r SendTestEmailResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r SendTestEmailResponse) StatusCode() int {
+func (r GetNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteNotificationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteNotificationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteNotificationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetNotificationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *NotificationDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetNotificationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetNotificationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateNotificationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *NotificationDto
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateNotificationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateNotificationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -16717,71 +18627,6 @@ func (r GetPersonThumbnailResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetPersonThumbnailResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetAuditFilesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *FileReportDto
-}
-
-// Status returns HTTPResponse.Status
-func (r GetAuditFilesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetAuditFilesResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetFileChecksumsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON201      *[]FileChecksumResponseDto
-}
-
-// Status returns HTTPResponse.Status
-func (r GetFileChecksumsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetFileChecksumsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type FixAuditFilesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r FixAuditFilesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r FixAuditFilesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -17292,6 +19137,28 @@ func (r GetSessionsResponse) StatusCode() int {
 	return 0
 }
 
+type CreateSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *SessionCreateResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type DeleteSessionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -17307,6 +19174,27 @@ func (r DeleteSessionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r DeleteSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type LockSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r LockSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LockSessionResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -17618,6 +19506,70 @@ func (r UpdateStackResponse) StatusCode() int {
 	return 0
 }
 
+type DeleteSyncAckResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteSyncAckResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteSyncAckResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetSyncAckResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]SyncAckDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSyncAckResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSyncAckResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SendSyncAckResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SendSyncAckResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendSyncAckResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetDeltaSyncResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -17656,6 +19608,27 @@ func (r GetFullSyncForUserResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetFullSyncForUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetSyncStreamResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSyncStreamResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSyncStreamResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -18015,7 +19988,7 @@ func (r TagAssetsResponse) StatusCode() int {
 type GetTimeBucketResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]AssetResponseDto
+	JSON200      *TimeBucketAssetResponseDto
 }
 
 // Status returns HTTPResponse.Status
@@ -18037,7 +20010,7 @@ func (r GetTimeBucketResponse) StatusCode() int {
 type GetTimeBucketsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]TimeBucketResponseDto
+	JSON200      *[]TimeBucketsResponseDto
 }
 
 // Status returns HTTPResponse.Status
@@ -18471,6 +20444,57 @@ func (c *ClientWithResponses) DeleteActivityWithResponse(ctx context.Context, id
 	return ParseDeleteActivityResponse(rsp)
 }
 
+// CreateNotificationWithBodyWithResponse request with arbitrary body returning *CreateNotificationResponse
+func (c *ClientWithResponses) CreateNotificationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateNotificationResponse, error) {
+	rsp, err := c.CreateNotificationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateNotificationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateNotificationWithResponse(ctx context.Context, body CreateNotificationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateNotificationResponse, error) {
+	rsp, err := c.CreateNotification(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateNotificationResponse(rsp)
+}
+
+// GetNotificationTemplateAdminWithBodyWithResponse request with arbitrary body returning *GetNotificationTemplateAdminResponse
+func (c *ClientWithResponses) GetNotificationTemplateAdminWithBodyWithResponse(ctx context.Context, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetNotificationTemplateAdminResponse, error) {
+	rsp, err := c.GetNotificationTemplateAdminWithBody(ctx, name, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNotificationTemplateAdminResponse(rsp)
+}
+
+func (c *ClientWithResponses) GetNotificationTemplateAdminWithResponse(ctx context.Context, name string, body GetNotificationTemplateAdminJSONRequestBody, reqEditors ...RequestEditorFn) (*GetNotificationTemplateAdminResponse, error) {
+	rsp, err := c.GetNotificationTemplateAdmin(ctx, name, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNotificationTemplateAdminResponse(rsp)
+}
+
+// SendTestEmailAdminWithBodyWithResponse request with arbitrary body returning *SendTestEmailAdminResponse
+func (c *ClientWithResponses) SendTestEmailAdminWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendTestEmailAdminResponse, error) {
+	rsp, err := c.SendTestEmailAdminWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendTestEmailAdminResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendTestEmailAdminWithResponse(ctx context.Context, body SendTestEmailAdminJSONRequestBody, reqEditors ...RequestEditorFn) (*SendTestEmailAdminResponse, error) {
+	rsp, err := c.SendTestEmailAdmin(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendTestEmailAdminResponse(rsp)
+}
+
 // SearchUsersAdminWithResponse request returning *SearchUsersAdminResponse
 func (c *ClientWithResponses) SearchUsersAdminWithResponse(ctx context.Context, params *SearchUsersAdminParams, reqEditors ...RequestEditorFn) (*SearchUsersAdminResponse, error) {
 	rsp, err := c.SearchUsersAdmin(ctx, params, reqEditors...)
@@ -18573,6 +20597,15 @@ func (c *ClientWithResponses) RestoreUserAdminWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseRestoreUserAdminResponse(rsp)
+}
+
+// GetUserStatisticsAdminWithResponse request returning *GetUserStatisticsAdminResponse
+func (c *ClientWithResponses) GetUserStatisticsAdminWithResponse(ctx context.Context, id openapi_types.UUID, params *GetUserStatisticsAdminParams, reqEditors ...RequestEditorFn) (*GetUserStatisticsAdminResponse, error) {
+	rsp, err := c.GetUserStatisticsAdmin(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetUserStatisticsAdminResponse(rsp)
 }
 
 // GetAllAlbumsWithResponse request returning *GetAllAlbumsResponse
@@ -18886,15 +20919,6 @@ func (c *ClientWithResponses) RunAssetJobsWithResponse(ctx context.Context, body
 	return ParseRunAssetJobsResponse(rsp)
 }
 
-// GetMemoryLaneWithResponse request returning *GetMemoryLaneResponse
-func (c *ClientWithResponses) GetMemoryLaneWithResponse(ctx context.Context, params *GetMemoryLaneParams, reqEditors ...RequestEditorFn) (*GetMemoryLaneResponse, error) {
-	rsp, err := c.GetMemoryLane(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetMemoryLaneResponse(rsp)
-}
-
 // GetRandomWithResponse request returning *GetRandomResponse
 func (c *ClientWithResponses) GetRandomWithResponse(ctx context.Context, params *GetRandomParams, reqEditors ...RequestEditorFn) (*GetRandomResponse, error) {
 	rsp, err := c.GetRandom(ctx, params, reqEditors...)
@@ -18975,15 +20999,6 @@ func (c *ClientWithResponses) PlayAssetVideoWithResponse(ctx context.Context, id
 	return ParsePlayAssetVideoResponse(rsp)
 }
 
-// GetAuditDeletesWithResponse request returning *GetAuditDeletesResponse
-func (c *ClientWithResponses) GetAuditDeletesWithResponse(ctx context.Context, params *GetAuditDeletesParams, reqEditors ...RequestEditorFn) (*GetAuditDeletesResponse, error) {
-	rsp, err := c.GetAuditDeletes(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetAuditDeletesResponse(rsp)
-}
-
 // SignUpAdminWithBodyWithResponse request with arbitrary body returning *SignUpAdminResponse
 func (c *ClientWithResponses) SignUpAdminWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignUpAdminResponse, error) {
 	rsp, err := c.SignUpAdminWithBody(ctx, contentType, body, reqEditors...)
@@ -19042,6 +21057,92 @@ func (c *ClientWithResponses) LogoutWithResponse(ctx context.Context, reqEditors
 		return nil, err
 	}
 	return ParseLogoutResponse(rsp)
+}
+
+// ResetPinCodeWithBodyWithResponse request with arbitrary body returning *ResetPinCodeResponse
+func (c *ClientWithResponses) ResetPinCodeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ResetPinCodeResponse, error) {
+	rsp, err := c.ResetPinCodeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseResetPinCodeResponse(rsp)
+}
+
+func (c *ClientWithResponses) ResetPinCodeWithResponse(ctx context.Context, body ResetPinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*ResetPinCodeResponse, error) {
+	rsp, err := c.ResetPinCode(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseResetPinCodeResponse(rsp)
+}
+
+// SetupPinCodeWithBodyWithResponse request with arbitrary body returning *SetupPinCodeResponse
+func (c *ClientWithResponses) SetupPinCodeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetupPinCodeResponse, error) {
+	rsp, err := c.SetupPinCodeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetupPinCodeResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetupPinCodeWithResponse(ctx context.Context, body SetupPinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*SetupPinCodeResponse, error) {
+	rsp, err := c.SetupPinCode(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetupPinCodeResponse(rsp)
+}
+
+// ChangePinCodeWithBodyWithResponse request with arbitrary body returning *ChangePinCodeResponse
+func (c *ClientWithResponses) ChangePinCodeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ChangePinCodeResponse, error) {
+	rsp, err := c.ChangePinCodeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseChangePinCodeResponse(rsp)
+}
+
+func (c *ClientWithResponses) ChangePinCodeWithResponse(ctx context.Context, body ChangePinCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*ChangePinCodeResponse, error) {
+	rsp, err := c.ChangePinCode(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseChangePinCodeResponse(rsp)
+}
+
+// LockAuthSessionWithResponse request returning *LockAuthSessionResponse
+func (c *ClientWithResponses) LockAuthSessionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*LockAuthSessionResponse, error) {
+	rsp, err := c.LockAuthSession(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLockAuthSessionResponse(rsp)
+}
+
+// UnlockAuthSessionWithBodyWithResponse request with arbitrary body returning *UnlockAuthSessionResponse
+func (c *ClientWithResponses) UnlockAuthSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UnlockAuthSessionResponse, error) {
+	rsp, err := c.UnlockAuthSessionWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUnlockAuthSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) UnlockAuthSessionWithResponse(ctx context.Context, body UnlockAuthSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*UnlockAuthSessionResponse, error) {
+	rsp, err := c.UnlockAuthSession(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUnlockAuthSessionResponse(rsp)
+}
+
+// GetAuthStatusWithResponse request returning *GetAuthStatusResponse
+func (c *ClientWithResponses) GetAuthStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAuthStatusResponse, error) {
+	rsp, err := c.GetAuthStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAuthStatusResponse(rsp)
 }
 
 // ValidateAccessTokenWithResponse request returning *ValidateAccessTokenResponse
@@ -19103,6 +21204,40 @@ func (c *ClientWithResponses) GetFacesWithResponse(ctx context.Context, params *
 		return nil, err
 	}
 	return ParseGetFacesResponse(rsp)
+}
+
+// CreateFaceWithBodyWithResponse request with arbitrary body returning *CreateFaceResponse
+func (c *ClientWithResponses) CreateFaceWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFaceResponse, error) {
+	rsp, err := c.CreateFaceWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateFaceResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateFaceWithResponse(ctx context.Context, body CreateFaceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFaceResponse, error) {
+	rsp, err := c.CreateFace(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateFaceResponse(rsp)
+}
+
+// DeleteFaceWithBodyWithResponse request with arbitrary body returning *DeleteFaceResponse
+func (c *ClientWithResponses) DeleteFaceWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteFaceResponse, error) {
+	rsp, err := c.DeleteFaceWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteFaceResponse(rsp)
+}
+
+func (c *ClientWithResponses) DeleteFaceWithResponse(ctx context.Context, id openapi_types.UUID, body DeleteFaceJSONRequestBody, reqEditors ...RequestEditorFn) (*DeleteFaceResponse, error) {
+	rsp, err := c.DeleteFace(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteFaceResponse(rsp)
 }
 
 // ReassignFacesByIdWithBodyWithResponse request with arbitrary body returning *ReassignFacesByIdResponse
@@ -19280,8 +21415,8 @@ func (c *ClientWithResponses) ReverseGeocodeWithResponse(ctx context.Context, pa
 }
 
 // SearchMemoriesWithResponse request returning *SearchMemoriesResponse
-func (c *ClientWithResponses) SearchMemoriesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SearchMemoriesResponse, error) {
-	rsp, err := c.SearchMemories(ctx, reqEditors...)
+func (c *ClientWithResponses) SearchMemoriesWithResponse(ctx context.Context, params *SearchMemoriesParams, reqEditors ...RequestEditorFn) (*SearchMemoriesResponse, error) {
+	rsp, err := c.SearchMemories(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -19374,38 +21509,82 @@ func (c *ClientWithResponses) AddMemoryAssetsWithResponse(ctx context.Context, i
 	return ParseAddMemoryAssetsResponse(rsp)
 }
 
-// GetNotificationTemplateWithBodyWithResponse request with arbitrary body returning *GetNotificationTemplateResponse
-func (c *ClientWithResponses) GetNotificationTemplateWithBodyWithResponse(ctx context.Context, name string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetNotificationTemplateResponse, error) {
-	rsp, err := c.GetNotificationTemplateWithBody(ctx, name, contentType, body, reqEditors...)
+// DeleteNotificationsWithBodyWithResponse request with arbitrary body returning *DeleteNotificationsResponse
+func (c *ClientWithResponses) DeleteNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteNotificationsResponse, error) {
+	rsp, err := c.DeleteNotificationsWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetNotificationTemplateResponse(rsp)
+	return ParseDeleteNotificationsResponse(rsp)
 }
 
-func (c *ClientWithResponses) GetNotificationTemplateWithResponse(ctx context.Context, name string, body GetNotificationTemplateJSONRequestBody, reqEditors ...RequestEditorFn) (*GetNotificationTemplateResponse, error) {
-	rsp, err := c.GetNotificationTemplate(ctx, name, body, reqEditors...)
+func (c *ClientWithResponses) DeleteNotificationsWithResponse(ctx context.Context, body DeleteNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*DeleteNotificationsResponse, error) {
+	rsp, err := c.DeleteNotifications(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetNotificationTemplateResponse(rsp)
+	return ParseDeleteNotificationsResponse(rsp)
 }
 
-// SendTestEmailWithBodyWithResponse request with arbitrary body returning *SendTestEmailResponse
-func (c *ClientWithResponses) SendTestEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendTestEmailResponse, error) {
-	rsp, err := c.SendTestEmailWithBody(ctx, contentType, body, reqEditors...)
+// GetNotificationsWithResponse request returning *GetNotificationsResponse
+func (c *ClientWithResponses) GetNotificationsWithResponse(ctx context.Context, params *GetNotificationsParams, reqEditors ...RequestEditorFn) (*GetNotificationsResponse, error) {
+	rsp, err := c.GetNotifications(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseSendTestEmailResponse(rsp)
+	return ParseGetNotificationsResponse(rsp)
 }
 
-func (c *ClientWithResponses) SendTestEmailWithResponse(ctx context.Context, body SendTestEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*SendTestEmailResponse, error) {
-	rsp, err := c.SendTestEmail(ctx, body, reqEditors...)
+// UpdateNotificationsWithBodyWithResponse request with arbitrary body returning *UpdateNotificationsResponse
+func (c *ClientWithResponses) UpdateNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateNotificationsResponse, error) {
+	rsp, err := c.UpdateNotificationsWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseSendTestEmailResponse(rsp)
+	return ParseUpdateNotificationsResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateNotificationsWithResponse(ctx context.Context, body UpdateNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateNotificationsResponse, error) {
+	rsp, err := c.UpdateNotifications(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateNotificationsResponse(rsp)
+}
+
+// DeleteNotificationWithResponse request returning *DeleteNotificationResponse
+func (c *ClientWithResponses) DeleteNotificationWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteNotificationResponse, error) {
+	rsp, err := c.DeleteNotification(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteNotificationResponse(rsp)
+}
+
+// GetNotificationWithResponse request returning *GetNotificationResponse
+func (c *ClientWithResponses) GetNotificationWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetNotificationResponse, error) {
+	rsp, err := c.GetNotification(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNotificationResponse(rsp)
+}
+
+// UpdateNotificationWithBodyWithResponse request with arbitrary body returning *UpdateNotificationResponse
+func (c *ClientWithResponses) UpdateNotificationWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateNotificationResponse, error) {
+	rsp, err := c.UpdateNotificationWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateNotificationResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateNotificationWithResponse(ctx context.Context, id openapi_types.UUID, body UpdateNotificationJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateNotificationResponse, error) {
+	rsp, err := c.UpdateNotification(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateNotificationResponse(rsp)
 }
 
 // StartOAuthWithBodyWithResponse request with arbitrary body returning *StartOAuthResponse
@@ -19640,49 +21819,6 @@ func (c *ClientWithResponses) GetPersonThumbnailWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseGetPersonThumbnailResponse(rsp)
-}
-
-// GetAuditFilesWithResponse request returning *GetAuditFilesResponse
-func (c *ClientWithResponses) GetAuditFilesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAuditFilesResponse, error) {
-	rsp, err := c.GetAuditFiles(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetAuditFilesResponse(rsp)
-}
-
-// GetFileChecksumsWithBodyWithResponse request with arbitrary body returning *GetFileChecksumsResponse
-func (c *ClientWithResponses) GetFileChecksumsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetFileChecksumsResponse, error) {
-	rsp, err := c.GetFileChecksumsWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetFileChecksumsResponse(rsp)
-}
-
-func (c *ClientWithResponses) GetFileChecksumsWithResponse(ctx context.Context, body GetFileChecksumsJSONRequestBody, reqEditors ...RequestEditorFn) (*GetFileChecksumsResponse, error) {
-	rsp, err := c.GetFileChecksums(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetFileChecksumsResponse(rsp)
-}
-
-// FixAuditFilesWithBodyWithResponse request with arbitrary body returning *FixAuditFilesResponse
-func (c *ClientWithResponses) FixAuditFilesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FixAuditFilesResponse, error) {
-	rsp, err := c.FixAuditFilesWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseFixAuditFilesResponse(rsp)
-}
-
-func (c *ClientWithResponses) FixAuditFilesWithResponse(ctx context.Context, body FixAuditFilesJSONRequestBody, reqEditors ...RequestEditorFn) (*FixAuditFilesResponse, error) {
-	rsp, err := c.FixAuditFiles(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseFixAuditFilesResponse(rsp)
 }
 
 // GetAssetsByCityWithResponse request returning *GetAssetsByCityResponse
@@ -19924,6 +22060,23 @@ func (c *ClientWithResponses) GetSessionsWithResponse(ctx context.Context, reqEd
 	return ParseGetSessionsResponse(rsp)
 }
 
+// CreateSessionWithBodyWithResponse request with arbitrary body returning *CreateSessionResponse
+func (c *ClientWithResponses) CreateSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateSessionResponse, error) {
+	rsp, err := c.CreateSessionWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateSessionWithResponse(ctx context.Context, body CreateSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateSessionResponse, error) {
+	rsp, err := c.CreateSession(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateSessionResponse(rsp)
+}
+
 // DeleteSessionWithResponse request returning *DeleteSessionResponse
 func (c *ClientWithResponses) DeleteSessionWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteSessionResponse, error) {
 	rsp, err := c.DeleteSession(ctx, id, reqEditors...)
@@ -19933,9 +22086,18 @@ func (c *ClientWithResponses) DeleteSessionWithResponse(ctx context.Context, id 
 	return ParseDeleteSessionResponse(rsp)
 }
 
+// LockSessionWithResponse request returning *LockSessionResponse
+func (c *ClientWithResponses) LockSessionWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*LockSessionResponse, error) {
+	rsp, err := c.LockSession(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLockSessionResponse(rsp)
+}
+
 // GetAllSharedLinksWithResponse request returning *GetAllSharedLinksResponse
-func (c *ClientWithResponses) GetAllSharedLinksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAllSharedLinksResponse, error) {
-	rsp, err := c.GetAllSharedLinks(ctx, reqEditors...)
+func (c *ClientWithResponses) GetAllSharedLinksWithResponse(ctx context.Context, params *GetAllSharedLinksParams, reqEditors ...RequestEditorFn) (*GetAllSharedLinksResponse, error) {
+	rsp, err := c.GetAllSharedLinks(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -20115,6 +22277,49 @@ func (c *ClientWithResponses) UpdateStackWithResponse(ctx context.Context, id op
 	return ParseUpdateStackResponse(rsp)
 }
 
+// DeleteSyncAckWithBodyWithResponse request with arbitrary body returning *DeleteSyncAckResponse
+func (c *ClientWithResponses) DeleteSyncAckWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteSyncAckResponse, error) {
+	rsp, err := c.DeleteSyncAckWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteSyncAckResponse(rsp)
+}
+
+func (c *ClientWithResponses) DeleteSyncAckWithResponse(ctx context.Context, body DeleteSyncAckJSONRequestBody, reqEditors ...RequestEditorFn) (*DeleteSyncAckResponse, error) {
+	rsp, err := c.DeleteSyncAck(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteSyncAckResponse(rsp)
+}
+
+// GetSyncAckWithResponse request returning *GetSyncAckResponse
+func (c *ClientWithResponses) GetSyncAckWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSyncAckResponse, error) {
+	rsp, err := c.GetSyncAck(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSyncAckResponse(rsp)
+}
+
+// SendSyncAckWithBodyWithResponse request with arbitrary body returning *SendSyncAckResponse
+func (c *ClientWithResponses) SendSyncAckWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSyncAckResponse, error) {
+	rsp, err := c.SendSyncAckWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendSyncAckResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendSyncAckWithResponse(ctx context.Context, body SendSyncAckJSONRequestBody, reqEditors ...RequestEditorFn) (*SendSyncAckResponse, error) {
+	rsp, err := c.SendSyncAck(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendSyncAckResponse(rsp)
+}
+
 // GetDeltaSyncWithBodyWithResponse request with arbitrary body returning *GetDeltaSyncResponse
 func (c *ClientWithResponses) GetDeltaSyncWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetDeltaSyncResponse, error) {
 	rsp, err := c.GetDeltaSyncWithBody(ctx, contentType, body, reqEditors...)
@@ -20147,6 +22352,23 @@ func (c *ClientWithResponses) GetFullSyncForUserWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseGetFullSyncForUserResponse(rsp)
+}
+
+// GetSyncStreamWithBodyWithResponse request with arbitrary body returning *GetSyncStreamResponse
+func (c *ClientWithResponses) GetSyncStreamWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetSyncStreamResponse, error) {
+	rsp, err := c.GetSyncStreamWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSyncStreamResponse(rsp)
+}
+
+func (c *ClientWithResponses) GetSyncStreamWithResponse(ctx context.Context, body GetSyncStreamJSONRequestBody, reqEditors ...RequestEditorFn) (*GetSyncStreamResponse, error) {
+	rsp, err := c.GetSyncStream(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSyncStreamResponse(rsp)
 }
 
 // GetConfigWithResponse request returning *GetConfigResponse
@@ -20654,6 +22876,84 @@ func ParseDeleteActivityResponse(rsp *http.Response) (*DeleteActivityResponse, e
 	return response, nil
 }
 
+// ParseCreateNotificationResponse parses an HTTP response from a CreateNotificationWithResponse call
+func ParseCreateNotificationResponse(rsp *http.Response) (*CreateNotificationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateNotificationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest NotificationDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetNotificationTemplateAdminResponse parses an HTTP response from a GetNotificationTemplateAdminWithResponse call
+func ParseGetNotificationTemplateAdminResponse(rsp *http.Response) (*GetNotificationTemplateAdminResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNotificationTemplateAdminResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TemplateResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendTestEmailAdminResponse parses an HTTP response from a SendTestEmailAdminWithResponse call
+func ParseSendTestEmailAdminResponse(rsp *http.Response) (*SendTestEmailAdminResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendTestEmailAdminResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TestEmailResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseSearchUsersAdminResponse parses an HTTP response from a SearchUsersAdminWithResponse call
 func ParseSearchUsersAdminResponse(rsp *http.Response) (*SearchUsersAdminResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -20850,12 +23150,38 @@ func ParseRestoreUserAdminResponse(rsp *http.Response) (*RestoreUserAdminRespons
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest UserAdminResponseDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSON201 = &dest
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetUserStatisticsAdminResponse parses an HTTP response from a GetUserStatisticsAdminWithResponse call
+func ParseGetUserStatisticsAdminResponse(rsp *http.Response) (*GetUserStatisticsAdminResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetUserStatisticsAdminResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AssetStatsResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	}
 
@@ -21390,32 +23716,6 @@ func ParseRunAssetJobsResponse(rsp *http.Response) (*RunAssetJobsResponse, error
 	return response, nil
 }
 
-// ParseGetMemoryLaneResponse parses an HTTP response from a GetMemoryLaneWithResponse call
-func ParseGetMemoryLaneResponse(rsp *http.Response) (*GetMemoryLaneResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetMemoryLaneResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []MemoryLaneResponseDto
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
 // ParseGetRandomResponse parses an HTTP response from a GetRandomWithResponse call
 func ParseGetRandomResponse(rsp *http.Response) (*GetRandomResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -21594,32 +23894,6 @@ func ParsePlayAssetVideoResponse(rsp *http.Response) (*PlayAssetVideoResponse, e
 	return response, nil
 }
 
-// ParseGetAuditDeletesResponse parses an HTTP response from a GetAuditDeletesWithResponse call
-func ParseGetAuditDeletesResponse(rsp *http.Response) (*GetAuditDeletesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetAuditDeletesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest AuditDeletesResponseDto
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
 // ParseSignUpAdminResponse parses an HTTP response from a SignUpAdminWithResponse call
 func ParseSignUpAdminResponse(rsp *http.Response) (*SignUpAdminResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -21714,6 +23988,112 @@ func ParseLogoutResponse(rsp *http.Response) (*LogoutResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest LogoutResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseResetPinCodeResponse parses an HTTP response from a ResetPinCodeWithResponse call
+func ParseResetPinCodeResponse(rsp *http.Response) (*ResetPinCodeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ResetPinCodeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSetupPinCodeResponse parses an HTTP response from a SetupPinCodeWithResponse call
+func ParseSetupPinCodeResponse(rsp *http.Response) (*SetupPinCodeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetupPinCodeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseChangePinCodeResponse parses an HTTP response from a ChangePinCodeWithResponse call
+func ParseChangePinCodeResponse(rsp *http.Response) (*ChangePinCodeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ChangePinCodeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseLockAuthSessionResponse parses an HTTP response from a LockAuthSessionWithResponse call
+func ParseLockAuthSessionResponse(rsp *http.Response) (*LockAuthSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LockAuthSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseUnlockAuthSessionResponse parses an HTTP response from a UnlockAuthSessionWithResponse call
+func ParseUnlockAuthSessionResponse(rsp *http.Response) (*UnlockAuthSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UnlockAuthSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetAuthStatusResponse parses an HTTP response from a GetAuthStatusWithResponse call
+func ParseGetAuthStatusResponse(rsp *http.Response) (*GetAuthStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAuthStatusResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AuthStatusResponseDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -21839,6 +24219,38 @@ func ParseGetFacesResponse(rsp *http.Response) (*GetFacesResponse, error) {
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseCreateFaceResponse parses an HTTP response from a CreateFaceWithResponse call
+func ParseCreateFaceResponse(rsp *http.Response) (*CreateFaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateFaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDeleteFaceResponse parses an HTTP response from a DeleteFaceWithResponse call
+func ParseDeleteFaceResponse(rsp *http.Response) (*DeleteFaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteFaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -22350,22 +24762,38 @@ func ParseAddMemoryAssetsResponse(rsp *http.Response) (*AddMemoryAssetsResponse,
 	return response, nil
 }
 
-// ParseGetNotificationTemplateResponse parses an HTTP response from a GetNotificationTemplateWithResponse call
-func ParseGetNotificationTemplateResponse(rsp *http.Response) (*GetNotificationTemplateResponse, error) {
+// ParseDeleteNotificationsResponse parses an HTTP response from a DeleteNotificationsWithResponse call
+func ParseDeleteNotificationsResponse(rsp *http.Response) (*DeleteNotificationsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetNotificationTemplateResponse{
+	response := &DeleteNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetNotificationsResponse parses an HTTP response from a GetNotificationsWithResponse call
+func ParseGetNotificationsResponse(rsp *http.Response) (*GetNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNotificationsResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest TemplateResponseDto
+		var dest []NotificationDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -22376,22 +24804,80 @@ func ParseGetNotificationTemplateResponse(rsp *http.Response) (*GetNotificationT
 	return response, nil
 }
 
-// ParseSendTestEmailResponse parses an HTTP response from a SendTestEmailWithResponse call
-func ParseSendTestEmailResponse(rsp *http.Response) (*SendTestEmailResponse, error) {
+// ParseUpdateNotificationsResponse parses an HTTP response from a UpdateNotificationsWithResponse call
+func ParseUpdateNotificationsResponse(rsp *http.Response) (*UpdateNotificationsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &SendTestEmailResponse{
+	response := &UpdateNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseDeleteNotificationResponse parses an HTTP response from a DeleteNotificationWithResponse call
+func ParseDeleteNotificationResponse(rsp *http.Response) (*DeleteNotificationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteNotificationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetNotificationResponse parses an HTTP response from a GetNotificationWithResponse call
+func ParseGetNotificationResponse(rsp *http.Response) (*GetNotificationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNotificationResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest TestEmailResponseDto
+		var dest NotificationDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateNotificationResponse parses an HTTP response from a UpdateNotificationWithResponse call
+func ParseUpdateNotificationResponse(rsp *http.Response) (*UpdateNotificationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateNotificationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest NotificationDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -22833,74 +25319,6 @@ func ParseGetPersonThumbnailResponse(rsp *http.Response) (*GetPersonThumbnailRes
 	}
 
 	response := &GetPersonThumbnailResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseGetAuditFilesResponse parses an HTTP response from a GetAuditFilesWithResponse call
-func ParseGetAuditFilesResponse(rsp *http.Response) (*GetAuditFilesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetAuditFilesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest FileReportDto
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetFileChecksumsResponse parses an HTTP response from a GetFileChecksumsWithResponse call
-func ParseGetFileChecksumsResponse(rsp *http.Response) (*GetFileChecksumsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetFileChecksumsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest []FileChecksumResponseDto
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON201 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseFixAuditFilesResponse parses an HTTP response from a FixAuditFilesWithResponse call
-func ParseFixAuditFilesResponse(rsp *http.Response) (*FixAuditFilesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &FixAuditFilesResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -23486,6 +25904,32 @@ func ParseGetSessionsResponse(rsp *http.Response) (*GetSessionsResponse, error) 
 	return response, nil
 }
 
+// ParseCreateSessionResponse parses an HTTP response from a CreateSessionWithResponse call
+func ParseCreateSessionResponse(rsp *http.Response) (*CreateSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest SessionCreateResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseDeleteSessionResponse parses an HTTP response from a DeleteSessionWithResponse call
 func ParseDeleteSessionResponse(rsp *http.Response) (*DeleteSessionResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -23495,6 +25939,22 @@ func ParseDeleteSessionResponse(rsp *http.Response) (*DeleteSessionResponse, err
 	}
 
 	response := &DeleteSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseLockSessionResponse parses an HTTP response from a LockSessionWithResponse call
+func ParseLockSessionResponse(rsp *http.Response) (*LockSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LockSessionResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -23836,6 +26296,64 @@ func ParseUpdateStackResponse(rsp *http.Response) (*UpdateStackResponse, error) 
 	return response, nil
 }
 
+// ParseDeleteSyncAckResponse parses an HTTP response from a DeleteSyncAckWithResponse call
+func ParseDeleteSyncAckResponse(rsp *http.Response) (*DeleteSyncAckResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteSyncAckResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetSyncAckResponse parses an HTTP response from a GetSyncAckWithResponse call
+func ParseGetSyncAckResponse(rsp *http.Response) (*GetSyncAckResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSyncAckResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []SyncAckDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendSyncAckResponse parses an HTTP response from a SendSyncAckWithResponse call
+func ParseSendSyncAckResponse(rsp *http.Response) (*SendSyncAckResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendSyncAckResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseGetDeltaSyncResponse parses an HTTP response from a GetDeltaSyncWithResponse call
 func ParseGetDeltaSyncResponse(rsp *http.Response) (*GetDeltaSyncResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -23883,6 +26401,22 @@ func ParseGetFullSyncForUserResponse(rsp *http.Response) (*GetFullSyncForUserRes
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseGetSyncStreamResponse parses an HTTP response from a GetSyncStreamWithResponse call
+func ParseGetSyncStreamResponse(rsp *http.Response) (*GetSyncStreamResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSyncStreamResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
@@ -24299,7 +26833,7 @@ func ParseGetTimeBucketResponse(rsp *http.Response) (*GetTimeBucketResponse, err
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []AssetResponseDto
+		var dest TimeBucketAssetResponseDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -24325,7 +26859,7 @@ func ParseGetTimeBucketsResponse(rsp *http.Response) (*GetTimeBucketsResponse, e
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []TimeBucketResponseDto
+		var dest []TimeBucketsResponseDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

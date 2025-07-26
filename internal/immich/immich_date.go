@@ -88,7 +88,7 @@ func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 		}
 
 		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
-		apiBody, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
@@ -257,9 +257,7 @@ func extractDays(s string) (int, error) {
 // Returns an error if the number of days cannot be extracted from the string.
 func processLastDays(dateRange string) (time.Time, time.Time, error) {
 
-	now := time.Now().Local()
-	dateStart := now
-	dateEnd := now
+	dateStart, dateEnd := processTodayDateRange()
 
 	days, err := extractDays(dateRange)
 	if err != nil {

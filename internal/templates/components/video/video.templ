@@ -3,7 +3,9 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/google/uuid"
 )
 
@@ -14,27 +16,42 @@ script videoHandler(id string) {
 
 templ Video(viewData common.ViewData, secret string) {
 	{{ ID := uuid.New().String() }}
+	{{ video := viewData.Assets[0] }}
+	{{
+		videoOrientation := kiosk.LandscapeOrientation
+		if video.ImmichAsset.IsPortrait {
+			videoOrientation = kiosk.PortraitOrientation
+		}
+	}}
 	<div class="frame" hx-on::load={ videoHandler(ID) }>
 		<div class="frame--background">
-			<img src={ viewData.Assets[0].ImageBlurData } alt="Blurred image background"/>
+			<img src={ video.ImageBlurData } alt="Blurred image background"/>
 		</div>
 		<div class="frame--video">
 			<video
 				id={ ID }
+				class={ "frame--video--" + videoOrientation }
 				autoplay
 				muted
 				playsinline
 				webkit-playsinline
 				x-webkit-airplay="allow"
-				poster={ viewData.Assets[0].ImageData }
+				poster={ video.ImageData }
 			>
 				<source
-					src={ fmt.Sprintf("/video/%s", viewData.Assets[0].ImmichAsset.ID) }
+					src={ fmt.Sprintf("/video/%s", video.ImmichAsset.ID) }
 				/>
 			</video>
 		</div>
 		if !viewData.DisableUI {
-			@partials.AssetMetadata(viewData, 0)
+			<div class="asset-metadata-container">
+				@partials.AssetMetadata(viewData, 0)
+				<div class="asset-metadata-qr">
+					if (viewData.ShowImageQR) {
+						<img src={ utils.CreateQrCode(partials.ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, video.ImmichAsset.ID)) }/>
+					}
+				</div>
+			</div>
 		}
 	</div>
 	@partials.RenderHistory(viewData)

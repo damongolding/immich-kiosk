@@ -23,6 +23,26 @@
     position: absolute;
     width: 50%;
     height: 50%;
+
+    &.has-custom-navigation {
+        height: 30%;
+    }
+
+    &.navigation-interaction-area--menu-bottom {
+        bottom: 0;
+    }
+}
+
+#navigation-interaction-area--custom-navigation {
+    position: absolute;
+    width: 50%;
+    height: 70%;
+    bottom: 0;
+
+    &.navigation-interaction-area--custom-navigation-bottom {
+        top: 0;
+        bottom: unset;
+    }
 }
 
 /* --- menu --- */
@@ -44,6 +64,11 @@
         rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem,
         rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
     z-index: var(--z-navigation);
+
+    &.navigation-bottom {
+        bottom: 1rem;
+        top: unset;
+    }
 }
 
 .navigation--item {
@@ -171,4 +196,29 @@
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
+}
+
+.navigation--mute {
+    /* Show muted icon by default */
+    &.is-muted {
+        .icon-muted {
+            display: inline;
+            visibility: visible;
+        }
+
+        .icon-unmuted {
+            display: none;
+            visibility: hidden;
+        }
+    }
+
+    .icon-muted {
+        display: none;
+        visibility: hidden;
+    }
+
+    .icon-unmuted {
+        display: inline;
+        visibility: visible;
+    }
 }

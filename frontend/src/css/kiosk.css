@@ -7,8 +7,9 @@
 @import url("./image.css");
 @import url("./more-info.css");
 @import url("./error.css");
+@import url("./message.css");
 @import url("./progress.css");
-@import url("./offline.css");
+@import url("./status.css");
 @import url("./clock-weather-container.css");
 @import url("./clock.css");
 @import url("./weather.css");
@@ -16,4 +17,11 @@
 @import url("./sleep.css");
 @import url("./video.css");
 @import url("./redirects.css");
-@import url("./utis.css");
+@import url("./utils.css");
+@import url("./iframe.css");
+@import url("./about.css");
+@import url("./live-photo.css");
+@import url("./theme-fade.css");
+@import url("./theme-solid.css");
+@import url("./theme-bubble.css");
+@import url("./theme-blur.css");

@@ -3,7 +3,9 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	"strings"
 )
 
@@ -68,20 +70,35 @@ templ renderImageBackground(viewData common.ViewData, imageData common.ViewImage
 // The function uses frameWithZoom for zoom effects and frame for default rendering.
 // It delegates to RenderImageWithCoverFit or renderImageFit based on the image effect.
 templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
+	{{
+		imageOrientation := kiosk.LandscapeOrientation
+		if imageData.ImmichAsset.IsPortrait {
+			imageOrientation = kiosk.PortraitOrientation
+		}
+	}}
 	switch viewData.ImageEffect {
 		case "zoom":
-			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
-				@renderImageFit(imageData.ImageData, viewData.ImageFit)
+			@frameWithZoom(viewData.Duration, viewData.ImageEffect, imageData.ImmichAsset) {
+				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation)
 			}
 		case "smart-zoom":
-			@frameWithZoom(viewData.Refresh, viewData.ImageEffect, imageData.ImmichAsset) {
-				@RenderImageWithCoverFit(imageData.ImageData, viewData.ImageFit)
+			@frameWithZoom(viewData.Duration, viewData.ImageEffect, imageData.ImmichAsset) {
+				@RenderImageWithCoverFit(imageData.ImageData, imageOrientation)
 			}
 		default:
 			@frame() {
-				@renderImageFit(imageData.ImageData, viewData.ImageFit)
+				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation)
 			}
 	}
+}
+
+templ renderLivePhoto(viewData common.ViewData, imageData common.ViewImageData) {
+	<div
+		style="display: none"
+		hx-get={ "/live/" + imageData.ImmichAsset.LivePhotoVideoID }
+		hx-swap="outerHTML"
+		hx-trigger="load, every 1s"
+	></div>
 }
 
 // renderSingleImage renders a single image with its background and metadata.
@@ -91,10 +108,29 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 //   - imageData: ImageData for the image to be rendered.
 //   - imageIndex: The index of the image in the viewData.Images slice.
 templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData, imageIndex int) {
+	{{
+		livePhotos := viewData.LivePhotos && imageData.ImmichAsset.LivePhotoVideoID != ""
+
+		if livePhotos {
+			viewData.ImageEffect = "none"
+			viewData.ImageFit = "contain"
+			viewData.BackgroundBlur = true
+		}
+	}}
 	@renderImageBackground(viewData, imageData)
 	@renderImage(viewData, imageData)
+	if livePhotos {
+		@renderLivePhoto(viewData, imageData)
+	}
 	if !viewData.DisableUI {
-		@partials.AssetMetadata(viewData, imageIndex)
+		<div class="asset-metadata-container">
+			@partials.AssetMetadata(viewData, imageIndex)
+			<div class="asset-metadata-qr">
+				if (viewData.ShowImageQR) {
+					<img src={ utils.CreateQrCode(partials.ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, imageData.ImmichAsset.ID)) }/>
+				}
+			</div>
+		</div>
 	}
 }
 
@@ -103,19 +139,20 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 // Parameters:
 //   - imageData: A string containing the image data (typically a URL or base64-encoded image).
 //   - imageFit: A string specifying the desired image fit style ("cover", "none", or any other value for "contain").
+//   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
 //
 // The function uses a switch statement to determine which template to use:
 //   - "cover": Uses RenderImageWithCoverFit
 //   - "none": Uses RenderImageWithoutFit
 //   - Any other value: Uses RenderImageWithContainFit (default behavior)
-templ renderImageFit(imageData string, imageFit string) {
+templ renderImageFit(imageData, imageFit, imageOrientation string) {
 	switch imageFit {
 		case "cover":
-			@RenderImageWithCoverFit(imageData, imageFit)
+			@RenderImageWithCoverFit(imageData, imageOrientation)
 		case "none":
-			@RenderImageWithoutFit(imageData, imageFit)
+			@RenderImageWithoutFit(imageData, imageOrientation)
 		default:
-			@RenderImageWithContainFit(imageData, imageFit)
+			@RenderImageWithContainFit(imageData, imageOrientation)
 	}
 }
 
@@ -123,10 +160,10 @@ templ renderImageFit(imageData string, imageFit string) {
 //
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
-//   - imageFit: A string specifying the image fit style (unused in this function).
-templ RenderImageWithCoverFit(ImageData, imageFit string) {
+//   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
+templ RenderImageWithCoverFit(ImageData, imageOrientation string) {
 	<img
-		class="frame--image-fit-cover"
+		class={ "frame--image-fit-cover", "frame--image--"+imageOrientation }
 		src={ ImageData }
 		alt="Main image"
 	/>
@@ -136,9 +173,10 @@ templ RenderImageWithCoverFit(ImageData, imageFit string) {
 //
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
-//   - imageFit: A string specifying the image fit style (unused in this function).
-templ RenderImageWithoutFit(ImageData, imageFit string) {
+//   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
+templ RenderImageWithoutFit(ImageData, imageOrientation string) {
 	<img
+		class={ "frame--image--" + imageOrientation }
 		src={ ImageData }
 		alt="Main image"
 	/>
@@ -148,10 +186,10 @@ templ RenderImageWithoutFit(ImageData, imageFit string) {
 //
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
-//   - imageFit: A string specifying the image fit style (unused in this function).
-templ RenderImageWithContainFit(ImageData, imageFit string) {
+//   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
+templ RenderImageWithContainFit(ImageData, imageOrientation string) {
 	<img
-		class="frame--image-fit-contain"
+		class={ "frame--image-fit-contain", "frame--image--"+imageOrientation }
 		src={ ImageData }
 		alt="Main image"
 	/>

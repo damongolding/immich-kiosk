@@ -87,6 +87,12 @@ type Error struct {
 	StatusCode int      `json:"statusCode"`
 }
 
+type Owner struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+	Name  string `json:"name"`
+}
+
 type ExifInfo struct {
 	Make             string    `json:"make"`
 	Model            string    `json:"model"`
@@ -148,19 +154,20 @@ type Face struct {
 	BoundingBoxX2 int    `json:"boundingBoxX2"`
 	BoundingBoxY1 int    `json:"boundingBoxY1"`
 	BoundingBoxY2 int    `json:"boundingBoxY2"`
+	SourceType    string `json:"sourceType"`
 }
 
 type Asset struct {
 	ID               string    `json:"id"`
 	DeviceAssetID    string    `json:"-"` // `json:"deviceAssetId"`
 	OwnerID          string    `json:"ownerId"`
+	Owner            Owner     `json:"owner"`
 	DeviceID         string    `json:"-"` // `json:"deviceId"`
 	LibraryID        string    `json:"-"` // `json:"libraryId"`
 	Type             AssetType `json:"type"`
 	OriginalPath     string    `json:"-"` // `json:"originalPath"`
 	OriginalFileName string    `json:"originalFileName"`
 	OriginalMimeType string    `json:"originalMimeType"`
-	Resized          bool      `json:"-"` // `json:"resized"`
 	Thumbhash        string    `json:"-"` // `json:"thumbhash"`
 	FileCreatedAt    time.Time `json:"-"` // `json:"fileCreatedAt"`
 	FileModifiedAt   time.Time `json:"-"` // `json:"fileModifiedAt"`
@@ -171,7 +178,7 @@ type Asset struct {
 	IsTrashed        bool      `json:"isTrashed"`
 	Duration         string    `json:"-"` // `json:"duration"`
 	ExifInfo         ExifInfo  `json:"exifInfo"`
-	LivePhotoVideoID any       `json:"-"` // `json:"livePhotoVideoId"`
+	LivePhotoVideoID string    `json:"livePhotoVideoId"`
 	People           []Person  `json:"people"`
 	Tags             Tags      `json:"tags"`
 	UnassignedFaces  []Face    `json:"unassignedFaces"`
@@ -180,6 +187,7 @@ type Asset struct {
 	IsOffline        bool      `json:"-"` // `json:"isOffline"`
 	HasMetadata      bool      `json:"-"` // `json:"hasMetadata"`
 	DuplicateID      any       `json:"-"` // `json:"duplicateId"`
+	Visibility       string    `json:"-"` // `json:"visibility"`
 
 	// Data added and used by Kiosk
 	mu          *sync.Mutex
@@ -319,6 +327,7 @@ type UpdateAssetBody struct {
 	LivePhotoVideoID string  `json:"livePhotoVideoId,omitempty"`
 	Longitude        float64 `json:"longitude,omitempty"`
 	Rating           int     `json:"rating,omitempty"`
+	Visibility       string  `json:"visibility,omitempty"`
 }
 
 // UserAvatarColor defines model for UserAvatarColor.
@@ -361,7 +370,7 @@ type AllPeopleResponse struct {
 	Total       int      `json:"total"`
 }
 
-type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, error)
+type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, string, error)
 
 type APIResponse interface {
 	Asset |
@@ -381,7 +390,8 @@ type APIResponse interface {
 		AlbumCreateResponse |
 		UpsertTagResponse |
 		UserResponse |
-		AllPeopleResponse
+		AllPeopleResponse |
+		[]byte
 }
 
 // New returns a new asset instance

@@ -18,17 +18,23 @@ import (
 
 type WebhookEvent string
 
+func (e WebhookEvent) String() string {
+	return string(e)
+}
+
 const (
-	NewAsset                      WebhookEvent = "asset.new"
-	NextHistoryAsset              WebhookEvent = "asset.history.next"
-	PreviousHistoryAsset          WebhookEvent = "asset.history.previous"
-	PrefetchAsset                 WebhookEvent = "asset.prefetch"
-	CacheFlush                    WebhookEvent = "cache.flush"
+	NewAsset             WebhookEvent = "asset.new"
+	NextHistoryAsset     WebhookEvent = "asset.history.next"
+	PreviousHistoryAsset WebhookEvent = "asset.history.previous"
+	PrefetchAsset        WebhookEvent = "asset.prefetch"
+	CacheFlush           WebhookEvent = "cache.flush"
+	// UserInteractionClick          WebhookEvent = "user.interaction.click"
 	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"
 	UserLikeInfoOverlay           WebhookEvent = "user.like.info_overlay"
 	UserUnlikeInfoOverlay         WebhookEvent = "user.unlike.info_overlay"
 	UserHideInfoOverlay           WebhookEvent = "user.hide.info_overlay"
 	UserUnhideInfoOverlay         WebhookEvent = "user.unhide.info_overlay"
+	UserNavigationCustom          WebhookEvent = "user.navigation.custom"
 )
 
 type Meta struct {
@@ -65,6 +71,10 @@ func newHTTPClient(timeout time.Duration) *http.Client {
 // event specifies which webhook event (NewAsset, PreviousAsset, etc) triggered this webhook.
 // viewData contains the images and other view context for the current request.
 func Trigger(ctx context.Context, requestData *common.RouteRequestData, kioskVersion string, event WebhookEvent, viewData common.ViewData) {
+
+	if viewData.Kiosk.DemoMode {
+		return
+	}
 
 	if requestData == nil {
 		log.Error("invalid request data")

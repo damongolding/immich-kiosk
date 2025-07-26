@@ -1,0 +1,85 @@
+package views
+
+import "fmt"
+import "github.com/damongolding/immich-kiosk/internal/config"
+
+type ReloadData struct {
+	Queries  string `json:"queries"`
+	Duration int    `json:"duration"`
+}
+
+css ReloadBody(imageFit, queries string) {
+	background-size: { imageFit };
+	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url(/image?%s)", queries)) };
+}
+
+templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta name="version" content={ kioskVersion }/>
+			<meta name="description" content="Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses Immich as a data source."/>
+			<meta name="mobile-web-app-capable" content="yes"/>
+			<meta name="apple-mobile-web-app-capable" content="yes"/>
+			<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+			<meta name="apple-mobile-web-app-status-bar" content="black-translucent"/>
+			<meta name="theme-color" content="black"/>
+			<title>Immich Kiosk</title>
+			<link rel="manifest" href="/assets/manifest.json"/>
+			<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png"/>
+			<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png"/>
+			<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png"/>
+			<style>
+				html, body {
+                    width: 100%;
+                    height: 100%;
+                    min-width: 100%;
+                    min-height: 100%;
+                    padding: 0;
+                    margin: 0;
+                    overflow: hidden;
+                    background-color: #000;
+				}
+
+			    body {
+					background-position: center;
+					background-repeat: no-repeat;
+				}
+			</style>
+		</head>
+		<body class={ ReloadBody(requestConfig.ImageFit, queries) }>
+			{{ data := ReloadData{Queries: queries, Duration: requestConfig.Duration} }}
+			@templ.JSONScript("kiosk-data", data)
+			<script>
+
+				var kioskData;
+				var duration = 60;
+				var queries = '';
+
+				var rawData = document.getElementById('kiosk-data').textContent;
+
+				try {
+				    kioskData = JSON.parse(rawData);
+					if (kioskData.duration && kioskData.duration > 5) duration = kioskData.duration;
+					if (kioskData.queries) queries = kioskData.queries;
+				} catch (e) {
+				    console.error("Error parsing duration interval:", e);
+					duration = 60;
+				}
+
+				var bodyElement = document.body;
+
+			    function refreshImage() {
+                  var date = new Date();
+                  var separator = queries ? "&" : "";
+                  bodyElement.style.backgroundImage = "url(/image?" + queries + separator + "timestamp=" + date.getTime() + ")";
+
+			    }
+
+				setInterval(refreshImage, duration * 1000);
+			</script>
+		</body>
+	</html>
+}

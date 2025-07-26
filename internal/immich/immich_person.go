@@ -48,14 +48,14 @@ func (a *Asset) people(requestID, deviceID string, knowPeopleOnly bool, bypassCa
 		var body []byte
 
 		if bypassCache {
-			body, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+			body, _, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 			if err != nil {
 				_, _, err = immichAPIFail(allPeople, err, body, apiURL.String())
 				return people, err
 			}
 		} else {
 			immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, allPeople)
-			body, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+			body, _, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 			if err != nil {
 				_, _, err = immichAPIFail(allPeople, err, body, apiURL.String())
 				return people, err
@@ -155,7 +155,7 @@ func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, err
 	}
 
 	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, personStatistics)
-	body, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(personStatistics, err, body, apiURL.String())
 		return 0, err
@@ -211,6 +211,11 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
+		if a.requestConfig.RequireAllPeople {
+			requestBody.PersonIDs = make([]string, len(a.requestConfig.People))
+			copy(requestBody.PersonIDs, a.requestConfig.People)
+		}
+
 		if a.requestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
@@ -234,7 +239,7 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 		}
 
 		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
-		apiBody, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err

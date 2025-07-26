@@ -1,0 +1,183 @@
+package views
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"net/http"
+	"strings"
+	"time"
+)
+
+templ About(viewData common.ViewData) {
+	{{
+		immichStats, immichStatsErr := getImmichStats(viewData.ImmichURL, viewData.ImmichAPIKey)
+		immichOnline := immichStatsErr == nil
+	}}
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			@partials.Head(viewData)
+		</head>
+		<body id="about">
+			<div class="about-container">
+				@Stats("kiosk", viewData.KioskVersion, true, viewData.Config)
+				@Stats("immich", immichStats.Version, immichOnline, viewData.Config)
+			</div>
+		</body>
+	</html>
+}
+
+css background(service string) {
+	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url('/assets/images/%s-logo.svg');", service)) };
+}
+
+templ Stats(service, version string, online bool, c config.Config) {
+	{{ tag, link := getLatestRelease(service, service) }}
+	<section class={ fmt.Sprintf("about-container--%s", service) }>
+		<div class={ fmt.Sprintf("about-container--%s--content", service) }>
+			<div class={ "background", background(service) }></div>
+			<div class="logo">
+				<img src={ fmt.Sprintf("/assets/images/%s-logo.svg", service) } alt="Immich Logo"/>
+			</div>
+			<div class="content">
+				<h1>{ cases.Title(language.Und).String(service) }</h1>
+				<div class="stats">
+					<div>
+						<div class="label">
+							Current Version
+						</div>
+						<div class="value">
+							if version == "" {
+								Unknown
+							} else if strings.HasPrefix(version, "v") {
+								{ version }
+							} else {
+								v{ version }
+							}
+						</div>
+					</div>
+					<div>
+						<div class="label">
+							Latest Version
+						</div>
+						<div class="value">
+							<a href={ templ.SafeURL(link) }>
+								if tag == "" {
+									Unknown
+								} else if strings.HasPrefix(tag, "v") {
+									{ tag }
+								} else {
+									v{ tag }
+								}
+							</a>
+						</div>
+					</div>
+					<div>
+						<div class="label">
+							Status
+						</div>
+						<div class="value">
+							if online {
+								<span class="service-online">Online</span>
+							} else {
+								<span class="service-offline">Offline</span>
+							}
+						</div>
+					</div>
+					if service == "kiosk" && (c.Kiosk.Debug || c.Kiosk.DebugVerbose) {
+						<div>
+							<div class="label">
+								Configuration
+							</div>
+							<div class="value config">
+								<a href="/config" class="btn btn-primary">
+									View Configuration
+								</a>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</section>
+}
+
+func getImmichStats(immichUrl, immichApiKey string) (immich.ServerAboutResponse, error) {
+	c := config.Config{
+		ImmichAPIKey: immichApiKey,
+		ImmichURL:    immichUrl,
+	}
+
+	a := immich.New(context.Background(), c)
+	return a.AboutInfo()
+}
+
+type GitHubRelease struct {
+	TagName string `json:"tag_name"`
+}
+
+func getLatestRelease(owner, repo string) (string, string) {
+
+	switch repo {
+	case "immich":
+		owner = "immich-app"
+		repo = "immich"
+	case "kiosk":
+		owner = "damongolding"
+		repo = "immich-kiosk"
+	}
+
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", owner, repo)
+	link := fmt.Sprintf("https://github.com/%s/%s/releases/latest", owner, repo)
+
+	if tagData, found := cache.Get(url); found {
+		log.Debug("Github release cache hit", "url", url)
+		tag, ok := tagData.(GitHubRelease)
+		if ok {
+			return tag.TagName, link
+		}
+		log.Debug("Github release cache data type assertion failed", "url", url)
+	}
+
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Error(err)
+		return "Unknown", link
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error(err)
+		return "Unknown", link
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		log.Errorf("GitHub API returned status code %d for %s", resp.StatusCode, url)
+		return "Unknown", link
+	}
+
+	var release GitHubRelease
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		log.Error(err)
+		return "Unknown", link
+	}
+
+	link = fmt.Sprintf("https://github.com/%s/%s/releases/tag/%s", owner, repo, release.TagName)
+
+	cache.Set(url, release)
+
+	return release.TagName, link
+}

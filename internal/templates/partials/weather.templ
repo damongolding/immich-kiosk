@@ -36,6 +36,9 @@ templ WeatherLocation(weatherData weather.Location) {
 			</div>
 		</div>
 		<div class="weather--description">
+			<div class="weather--description--value">
+				{ weatherData.Data[0].Description }
+			</div>
 			<div class="weather--description--icon">
 				switch weatherData.Data[0].ID {
 					case 801, 802, 803, 804:
@@ -93,9 +96,6 @@ templ WeatherLocation(weatherData weather.Location) {
 						</svg>
 				}
 			</div>
-			<div class="weather--description--value">
-				{ weatherData.Data[0].Description }
-			</div>
 		</div>
 	</div>
 }
@@ -103,7 +103,7 @@ templ WeatherLocation(weatherData weather.Location) {
 // WeatherContainer renders a weather component with HTMX updates
 templ Weather(theme string) {
 	<div
-		id="weather"
+		id="weather-container"
 		class={ fmt.Sprintf("weather--theme-%s", theme) }
 		hx-post="/weather"
 		hx-trigger="load, every 61s"

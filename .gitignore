@@ -29,6 +29,7 @@ dist
 
 config.yaml
 *.config.yaml
+!demo.config.yaml
 
 *.pprof
 
@@ -39,3 +40,10 @@ node_modules/
 custom.css
 
 *_templ.go
+
+demo-assets/
+
+offline-assets/
+
+frontend/public/assets/css
+frontend/public/assets/js/kiosk.js

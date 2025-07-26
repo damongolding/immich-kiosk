@@ -79,7 +79,7 @@ func (a *Asset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
 		}
 
 		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
-		apiBody, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err

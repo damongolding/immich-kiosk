@@ -1,6 +1,6 @@
 package partials
 
-templ SleepController(sleepMode bool, sleepIcon bool) {
+templ SleepController(sleepMode, sleepIcon, sleepScreensaver, runningInImmichFrame bool) {
 	if sleepMode {
 		if sleepIcon {
 			<figure id="sleep-icon">
@@ -13,9 +13,9 @@ templ SleepController(sleepMode bool, sleepIcon bool) {
 				</span>
 			</figure>
 		}
-		<div hx-on::load="document.body.classList.add('sleep')" hidden></div>
+		<div hx-on::load={ templ.JSFuncCall("kiosk.sleepMode", true, sleepScreensaver, runningInImmichFrame) } hidden></div>
 	} else {
-		<div hx-on::load="document.body.classList.remove('sleep')" hidden></div>
+		<div hx-on::load={ templ.JSFuncCall("kiosk.sleepMode", false, sleepScreensaver, runningInImmichFrame) } hidden></div>
 	}
 }
 

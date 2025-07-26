@@ -1,22 +1,36 @@
 package partials
 
 import (
+	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"net/url"
+	"strings"
 )
 
+func checkAuthParam(queries url.Values) (bool, string, string) {
+	if queries.Has("password") {
+		return true, queries.Get("password"), "password"
+	}
+	if queries.Has("authsecret") {
+		return true, queries.Get("authsecret"), "authsecret"
+	}
+	return false, "", ""
+}
+
 templ Redirects(redirects []config.Redirect, queries url.Values) {
+	{{ hasPassword, password, paramType := checkAuthParam(queries) }}
 	<div id="redirects-container">
 		<div class="redirects">
 			<div class="redirects--shadow">
-				if queries.Has("password") {
-					<a href={ templ.SafeURL("/?password=" + queries.Get("password")) }>Home</a>
+				if hasPassword {
+					<a href={ templ.SafeURL("/?" + paramType + "=" + password) }>Home</a>
 				}
 				for _ , redirect := range redirects {
-					if queries.Has("password") {
-						<a href={ templ.SafeURL(redirect.Name + "?password=" + queries.Get("password")) }>{ redirect.Name }</a>
+					{{ redirectName, _ := strings.CutPrefix(redirect.Name, "/") }}
+					if hasPassword {
+						<a href={ templ.SafeURL(fmt.Sprintf("/%s?%s=%s", redirectName, paramType, password)) }>{ redirectName }</a>
 					} else {
-						<a href={ templ.SafeURL(redirect.Name) }>{ redirect.Name }</a>
+						<a href={ templ.SafeURL(fmt.Sprintf("/%s", redirectName)) }>{ redirectName }</a>
 					}
 				}
 			</div>

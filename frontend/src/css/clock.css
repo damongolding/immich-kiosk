@@ -16,25 +16,6 @@
     }
 }
 
-/* fade theme */
-.clock--theme-fade::before {
-    content: "";
-    position: absolute;
-    bottom: unset;
-    top: 0;
-    left: 0;
-    width: 150%;
-    height: 200%;
-    background-image: radial-gradient(100% 100% at 0% 0%, var(--fade-gradient));
-    z-index: var(--z-base);
-}
-
-/* solid theme */
-.clock--theme-solid {
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 0 0 2rem 0;
-}
-
 .clock--date {
     position: relative;
     font-size: 1.5rem;

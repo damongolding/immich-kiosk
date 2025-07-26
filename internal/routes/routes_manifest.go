@@ -52,7 +52,7 @@ func Manifest(c echo.Context) error {
 		Scope:           "/",
 		Display:         "fullscreen",
 		BackgroundColor: "#000000",
-		ThemeColor:      "#000000",
+		ThemeColor:      "#1f262f",
 		Icons: []ManifestIcons{
 			{
 				Src:   "/assets/images/android-chrome-192x192.png",

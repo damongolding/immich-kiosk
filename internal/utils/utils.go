@@ -16,6 +16,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image/color"
 	"io"
 	"math"
 	"math/rand/v2"
@@ -23,6 +24,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
@@ -31,6 +33,7 @@ import (
 
 	"golang.org/x/image/webp"
 
+	"github.com/EdlinOrg/prominentcolor"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
@@ -140,8 +143,8 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 	return img, nil
 }
 
-// ApplyExifOrientation adjusts an image's orientation based on EXIF data and desired landscape/portrait mode.
-// It takes an image, a boolean indicating if landscape orientation is desired, and an EXIF orientation string.
+// ApplyExifOrientation adjusts an image's orientation based on EXIF data.
+// It takes an image and an EXIF orientation string.
 // The EXIF orientation values follow the standard specification:
 //
 //	1 = Normal
@@ -154,40 +157,33 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 //	8 = Rotated 90° CW
 //
 // Returns the properly oriented image.
-func ApplyExifOrientation(img image.Image, isLandscape bool, exifOrientation string) image.Image {
+func ApplyExifOrientation(img image.Image, exifOrientation string) image.Image {
 
 	if img == nil {
 		return nil
 	}
 
-	bounds := img.Bounds()
-	width := bounds.Dx()
-	height := bounds.Dy()
-
-	if width == height {
+	o, err := strconv.Atoi(exifOrientation)
+	if err != nil {
 		return img
 	}
 
-	// return if image is already in the correct orientation
-	isCurrentlyLandscape := width > height
-	if isCurrentlyLandscape == isLandscape {
+	switch o {
+	case 1:
 		return img
-	}
-
-	switch exifOrientation {
-	case "2":
+	case 2:
 		return imaging.FlipH(img)
-	case "3":
+	case 3:
 		return imaging.Rotate180(img)
-	case "4":
+	case 4:
 		return imaging.FlipV(img)
-	case "5":
+	case 5:
 		return imaging.Transpose(img)
-	case "6":
+	case 6:
 		return imaging.Rotate270(img)
-	case "7":
+	case 7:
 		return imaging.Transverse(img)
-	case "8":
+	case 8:
 		return imaging.Rotate90(img)
 	default:
 		return img
@@ -431,6 +427,12 @@ func ColorizeRequestID(requestID string) string {
 		textColor = lipgloss.Color("#ffffff")
 	}
 
+	requestID = strings.ToUpper(requestID)
+
+	if len(requestID) > 4 {
+		return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestID[len(requestID)-4:])
+	}
+
 	return lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(textColor).Background(lipgloss.Color(c.Hex)).Render(requestID)
 }
 
@@ -602,7 +604,7 @@ func CreateQrCode(link string) string {
 		return ""
 	}
 
-	png, err := qrcode.Encode(link, qrcode.Medium, 128)
+	png, err := qrcode.Encode(link, qrcode.Low, 128)
 	if err != nil {
 		log.Error("QR code generation failed", "link", link, "err", err)
 		return ""
@@ -743,4 +745,186 @@ func IsTimeBetween(checkTime, startTime, endTime time.Time) bool {
 // Helper function to get days in a month
 func DaysInMonth(date time.Time) int {
 	return time.Date(date.Year(), date.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
+}
+
+// ParseSize converts a human-readable size string (e.g., "10MB", "1GB") to bytes
+// using binary prefixes (1KB = 1024B, 1MB = 1024KB, etc.)
+func ParseSize(sizeStr string) (int64, error) {
+
+	if sizeStr == "0" {
+		return 0, nil
+	}
+
+	re := regexp.MustCompile(`^(\d+)\s*([BKMGbkmg][Bb]?)$`)
+	matches := re.FindStringSubmatch(sizeStr)
+
+	if matches == nil {
+		return 0, fmt.Errorf("invalid size format: %s", sizeStr)
+	}
+
+	bytes, err := strconv.ParseInt(matches[1], 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid number: %w", err)
+	}
+
+	unit := strings.ToUpper(matches[2])
+	switch unit {
+	case "B":
+		return bytes, nil
+	case "KB", "K":
+		return bytes * 1024, nil
+	case "MB", "M":
+		return bytes * 1024 * 1024, nil
+	case "GB", "G":
+		return bytes * 1024 * 1024 * 1024, nil
+	default:
+		return 0, fmt.Errorf("unsupported unit: %s", unit)
+	}
+}
+
+// CleanDirectory removes all files and directories within the specified directory path.
+// It reads the directory contents and recursively removes each entry using os.RemoveAll.
+// Returns an error if the directory cannot be read or if any removal operation fails.
+func CleanDirectory(dirPath string) error {
+	if dirPath == "" || dirPath == "/" {
+		return fmt.Errorf("refusing to clean unsafe directory %q", dirPath)
+	}
+
+	dir, err := os.ReadDir(dirPath)
+	if err != nil {
+		return err
+	}
+
+	for _, d := range dir {
+		err = os.RemoveAll(filepath.Join(dirPath, d.Name()))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// RemoveDuplicatesInPlace modifies the first slice by removing any strings that are present in the second slice.
+// It uses a map for O(1) lookups of strings in the second slice and performs the removal in-place.
+// The operation preserves the relative order of remaining elements in the first slice.
+// The first slice is modified directly and truncated to the new length containing only unique elements.
+func RemoveDuplicatesInPlace(slice1 *[]string, slice2 []string) {
+	lookup := make(map[string]struct{})
+	for _, s := range slice2 {
+		lookup[s] = struct{}{}
+	}
+
+	j := 0
+	for i := range *slice1 {
+		if _, exists := lookup[(*slice1)[i]]; !exists {
+			(*slice1)[j] = (*slice1)[i]
+			j++
+		}
+	}
+	*slice1 = (*slice1)[:j]
+}
+
+// Converts RGB (0–255) to HSL
+func rgbToHsl(r, g, b uint8) (float64, float64, float64) {
+	rf, gf, bf := float64(r)/255, float64(g)/255, float64(b)/255
+	maximum := math.Max(rf, math.Max(gf, bf))
+	minimum := math.Min(rf, math.Min(gf, bf))
+
+	var h, s, l float64
+
+	l = (maximum + minimum) / 2
+
+	if maximum == minimum {
+		h, s = 0, 0 // achromatic
+	} else {
+		d := maximum - minimum
+		if l > 0.5 {
+			s = d / (2.0 - maximum - minimum)
+		} else {
+			s = d / (maximum + minimum)
+		}
+		switch maximum {
+		case rf:
+			h = (gf - bf) / d
+			if gf < bf {
+				h += 6
+			}
+		case gf:
+			h = (bf-rf)/d + 2
+		case bf:
+			h = (rf-gf)/d + 4
+		}
+		h /= 6
+	}
+	return h, s, l
+}
+
+// Converts HSL to RGB (0–255)
+func hslToRgb(h, s, l float64) (uint8, uint8, uint8) {
+	var rF, gF, bF float64
+
+	if s == 0 {
+		return uint8(l * 255), uint8(l * 255), uint8(l * 255)
+	}
+
+	var hueToRgb = func(p, q, t float64) float64 {
+		if t < 0 {
+			t += 1
+		}
+		if t > 1 {
+			t -= 1
+		}
+		if t < 1.0/6 {
+			return p + (q-p)*6*t
+		}
+		if t < 1.0/2 {
+			return q
+		}
+		if t < 2.0/3 {
+			return p + (q-p)*(2.0/3-t)*6
+		}
+		return p
+	}
+
+	q := l * (1 + s)
+	if l >= 0.5 {
+		q = l + s - l*s
+	}
+	p := 2*l - q
+	rF = hueToRgb(p, q, h+1.0/3)
+	gF = hueToRgb(p, q, h)
+	bF = hueToRgb(p, q, h-1.0/3)
+
+	return uint8(rF * 255), uint8(gF * 255), uint8(bF * 255)
+}
+
+// Adjust lightness toward dark
+func darkenColor(c color.Color, minL float64) color.RGBA {
+	r, g, b, a := c.RGBA()
+	h, s, l := rgbToHsl(uint8(r>>8), uint8(g>>8), uint8(b>>8))
+
+	if l > minL {
+		l = minL // Clamp to darker value (e.g., 0.3)
+	}
+
+	r8, g8, b8 := hslToRgb(h, s, l)
+	return color.RGBA{r8, g8, b8, uint8(a >> 8)}
+}
+
+func ExtractDominantColor(img image.Image) (color.RGBA, error) {
+	colours, err := prominentcolor.KmeansWithArgs(prominentcolor.ArgumentNoCropping, img)
+	if err != nil {
+		return color.RGBA{}, err
+	}
+
+	if len(colours) == 0 {
+		return color.RGBA{}, errors.New("no prominent colors found")
+	}
+
+	return darkenColor(color.RGBA{
+		R: uint8(colours[0].Color.R),
+		G: uint8(colours[0].Color.G),
+		B: uint8(colours[0].Color.B),
+		A: 255,
+	}, 0.3), nil
 }

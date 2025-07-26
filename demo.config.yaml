@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/damongolding/immich-kiosk/main/config.schema.json
+
+immich_api_key: demo
+immich_url: https://demo.immich.app
+
+# Clock
+show_time: true
+time_format: 12 # 12 or 24
+show_date: true # true or false
+date_format: MM/DD/YYYY
+clock_source: client
+
+# Kiosk behaviour
+duration: 30 # in seconds
+
+layout: splitview # which layout to use. single, splitview or splitview-landscape
+
+# Transition options
+transition: cross-fade # cross-fade, fade or none
+
+# Image display settings
+show_progress_bar: true # display a progress bar
+image_fit: cover # how the image fits the screen. Options are none, contain and cover
+image_effect: smart-zoom
+
+albums: 75c4860f-d31c-4dac-9831-0e67c7ab7668
+
+## Image METADATA
+show_album_name: true
+show_person_name: true
+show_image_time: true
+image_time_format: 24
+show_image_date: true
+image_date_format: YYYY-DD-MM
+show_image_description: true
+show_image_exif: true
+show_image_location: true
+show_image_id: false
+show_more_info: true
+show_more_info_image_link: true
+show_more_info_qr_code: true
+
+weather:
+  - name: London
+    lat: 51.5285262
+    lon: -0.2663999
+    api: ""
+    unit: metric
+    lang: en
+    default: true
+
+use_offline_mode: true
+
+offline_mode:
+  enabled: true
+  number_of_assets: 40
+  max_size: 1gb
+  expiration_hours: 0
+
+kiosk:
+  port: 3000
+
+  http_timeout: -1
+
+  redirects:
+    - name: curated
+      url: /
+
+    - name: all
+      url: /?album=none&use_offline_mode=false
+
+    - name: simple
+      url: /?image_effect=none&layout=single&image_fit=contain&transition=none&disable_ui=true&show_more_info=false&use_offline_mode=false
+
+    - name: solid-theme
+      url: /?theme=solid&use_offline_mode=false

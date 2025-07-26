@@ -1,0 +1,45 @@
+/* --- message --- */
+.message-container {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
+
+.message {
+    background-color: rgba(var(--mint-green-rgb), 0.4);
+    border: 0.125rem solid var(--mint-green);
+    max-width: 35rem;
+    width: 100%;
+    color: #fff;
+    padding: 2rem;
+    border-radius: 0.75rem;
+
+    svg {
+        max-width: 2rem;
+        fill: #fff;
+    }
+
+    ul {
+        padding: 0;
+        list-style-position: inside;
+        font-size: 1.3rem;
+        li {
+            padding-bottom: 0.5rem;
+        }
+    }
+}
+
+.message--title {
+    font-size: 2.5rem;
+    margin: 1rem 0;
+}
+
+.message--message {
+    font-size: 1.2rem;
+    line-height: 1.3;
+    margin-bottom: 0;
+}

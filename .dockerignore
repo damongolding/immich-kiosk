@@ -7,3 +7,9 @@ dist/
 config.yaml
 
 *_templ.go
+
+node_modules/
+frontend/node_modules/
+
+frontend/public/assets/css
+frontend/public/assets/js/kiosk.js

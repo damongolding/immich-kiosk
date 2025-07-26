@@ -1,0 +1,43 @@
+package partials
+
+type MessageData struct {
+	Title         string
+	Message       string
+	IsDownloading bool
+}
+
+templ Message(message MessageData) {
+	<div
+		class="frame frame-message"
+		if message.IsDownloading {
+			hx-on:htmx:load="setTimeout(function() { kiosk.triggerNewAsset(); }, 5000);"
+		}
+	>
+		<div class="message-container">
+			<div class="message">
+				if message.IsDownloading {
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+						<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+						<path d="M256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM244.7 395.3l-112-112c-4.6-4.6-5.9-11.5-3.5-17.4s8.3-9.9 14.8-9.9l64 0 0-96c0-17.7 14.3-32 32-32l32 0c17.7 0 32 14.3 32 32l0 96 64 0c6.5 0 12.3 3.9 14.8 9.9s1.1 12.9-3.5 17.4l-112 112c-6.2 6.2-16.4 6.2-22.6 0z"></path>
+					</svg>
+				} else {
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+						<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+						<path
+							d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24V264c0 13.3-10.7 24-24 24s-24-10.7-24-24V152c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"
+						></path>
+					</svg>
+				}
+				if message.Title != "" {
+					<h2 class="message--title">{ message.Title }</h2>
+				}
+				<p class="message--message">
+					@templ.Raw(message.Message)
+				</p>
+			</div>
+		</div>
+	</div>
+	if message.IsDownloading {
+		@DownloadingStatus(true)
+	}
+}

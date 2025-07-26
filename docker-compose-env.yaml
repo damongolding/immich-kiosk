@@ -1,0 +1,101 @@
+services:
+  immich-kiosk:
+    image: ghcr.io/damongolding/immich-kiosk:latest
+    container_name: immich-kiosk
+    environment:
+      LANG: "en_GB"
+      TZ: "Europe/London"
+      # Required settings
+      KIOSK_IMMICH_API_KEY: "****"
+      KIOSK_IMMICH_URL: "****"
+      # External url for image links/QR codes
+      KIOSK_IMMICH_EXTERNAL_URL: ""
+      # Clock
+      KIOSK_SHOW_TIME: false
+      KIOSK_TIME_FORMAT: 24
+      KIOSK_SHOW_DATE: false
+      KIOSK_DATE_FORMAT: YYYY/MM/DD
+      KIOSK_CLOCK_SOURCE: client
+      # Kiosk behaviour
+      KIOSK_DURATION: 60
+      KIOSK_DISABLE_SCREENSAVER: false
+      KIOSK_OPTIMIZE_IMAGES: false
+      KIOSK_USE_GPU: true
+      # Asset sources
+      KIOSK_SHOW_ARCHIVED: false
+      KIOSK_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
+      KIOSK_ALBUM_ORDER: random
+      KIOSK_EXCLUDED_ALBUMS: "ALBUM_ID,ALBUM_ID,ALBUM_ID"
+      KIOSK_ALBUM_VIDEO: false
+      KIOSK_PEOPLE: "PERSON_ID,PERSON_ID,PERSON_ID"
+      KIOSK_REQUIRE_ALL_PEOPLE: false
+      KIOSK_EXCLUDED_PEOPLE: "PERSON_ID,PERSON_ID,PERSON_ID"
+      KIOSK_DATES: "DATE_RANGE,DATE_RANGE,DATE_RANGE"
+      KIOSK_TAGS: "TAG_VALUE,TAG_VALUE,TAG_VALUE"
+      KIOSK_MEMORIES: false
+      KIOSK_BLACKLIST: "ASSET_ID,ASSET_ID,ASSET_ID"
+      # FILTER
+      KIOSK_DATE_FILTER: ""
+      # UI
+      KIOSK_DISABLE_NAVIGATION: false
+      KIOSK_DISABLE_UI: false
+      KIOSK_FRAMELESS: false
+      KIOSK_HIDE_CURSOR: false
+      KIOSK_FONT_SIZE: 100
+      KIOSK_BACKGROUND_BLUR: true
+      KIOSK_BACKGROUND_BLUR_AMOUNT: 10
+      KIOSK_THEME: fade
+      KIOSK_LAYOUT: single
+      KIOSK_SHOW_USER: false
+      # Sleep mode
+      # KIOSK_SLEEP_START: 22
+      # KIOSK_SLEEP_END: 7
+      # KIOSK_SLEEP_DIM_SCREEN: false
+      # Transistion options
+      KIOSK_TRANSITION: none
+      KIOSK_FADE_TRANSITION_DURATION: 1
+      KIOSK_CROSS_FADE_TRANSITION_DURATION: 1
+      # Image display settings
+      KIOSK_SHOW_PROGRESS_BAR: false
+      KIOSK_IMAGE_FIT: contain
+      KIOSK_IMAGE_EFFECT: smart-zoom
+      KIOSK_IMAGE_EFFECT_AMOUNT: 120
+      KIOSK_USE_ORIGINAL_IMAGE: false
+      KIOSK_LIVE_PHOTOS: false
+      KIOSK_LIVE_PHOTO_LOOP_DELAY: 0
+      # Image metadata
+      KIOSK_SHOW_OWNER: false
+      KIOSK_SHOW_ALBUM_NAME: false
+      KIOSK_SHOW_PERSON_NAME: false
+      KIOSK_SHOW_PERSON_AGE: false
+      KIOSK_SHOW_IMAGE_TIME: false
+      KIOSK_IMAGE_TIME_FORMAT: 24
+      KIOSK_SHOW_IMAGE_DATE: false
+      KIOSK_IMAGE_DATE_FORMAT: YYYY-MM-DD
+      KIOSK_SHOW_IMAGE_DESCRIPTION: false
+      KIOSK_SHOW_IMAGE_EXIF: false
+      KIOSK_SHOW_IMAGE_LOCATION: false
+      KIOSK_HIDE_COUNTRIES: "HIDDEN_COUNTRY,HIDDEN_COUNTRY"
+      KIOSK_SHOW_IMAGE_ID: false
+      KIOSK_SHOW_IMAGE_QR: false
+      KIOSK_SHOW_MORE_INFO: true
+      KIOSK_SHOW_MORE_INFO_IMAGE_LINK: true
+      KIOSK_SHOW_MORE_INFO_QR_CODE: true
+      # More info actions
+      KIOSK_LIKE_BUTTON_ACTION: favorite
+      KIOSK_HIDE_BUTTON_ACTION: tag
+      # Kiosk settings
+      KIOSK_PORT: 3000
+      KIOSK_BEHIND_PROXY: false
+      KIOSK_DISABLE_URL_QUERIES: false
+      KIOSK_DISABLE_CONFIG_ENDPOINT: false
+      KIOSK_WATCH_CONFIG: false
+      KIOSK_FETCHED_ASSETS_SIZE: 1000
+      KIOSK_HTTP_TIMEOUT: 20
+      KIOSK_PASSWORD: ""
+      KIOSK_CACHE: true
+      KIOSK_PREFETCH: true
+      KIOSK_ASSET_WEIGHTING: true
+    ports:
+      - 3000:3000
+    restart: always

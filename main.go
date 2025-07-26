@@ -23,6 +23,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/time/rate"
 
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
@@ -38,10 +39,15 @@ var version string
 //go:embed frontend/public
 var public embed.FS
 
+//go:embed config.schema.json
+var SchemaJSON string
+
 func init() {
 	routes.KioskVersion = version
+	config.SchemaJSON = SchemaJSON
 }
 
+// main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
 func main() {
 
 	fmt.Println(kioskBanner)
@@ -53,6 +59,7 @@ func main() {
 	c := common.New()
 
 	baseConfig := config.New()
+	baseConfig.Kiosk.Version = version
 
 	systemLang := monday.Locale(utils.SystemLanguage())
 	baseConfig.SystemLang = systemLang
@@ -62,6 +69,13 @@ func main() {
 	if configErr != nil {
 		log.Error("Failed to load config", "err", configErr)
 	}
+
+	if baseConfig.Kiosk.DemoMode {
+		log.Info("Demo mode enabled")
+		cache.DemoMode = true
+	}
+
+	cache.Initialize()
 
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
 
@@ -95,8 +109,15 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
+	if baseConfig.Kiosk.BehindProxy {
+		e.IPExtractor = echo.ExtractIPFromXFFHeader()
+	} else {
+		e.IPExtractor = echo.ExtractIPDirect()
+	}
 
 	// Middleware
+	e.Pre(middleware.RemoveTrailingSlash())
+	e.Pre(NoCacheMiddleware)
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
 
@@ -113,35 +134,46 @@ func main() {
 				// skip auth for assets
 				return strings.HasPrefix(c.Request().URL.String(), "/assets")
 			},
-			KeyLookup: "query:password,form:password",
+			KeyLookup: "header:Authorization,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
 			Validator: func(queryPassword string, _ echo.Context) (bool, error) {
 				return queryPassword == baseConfig.Kiosk.Password, nil
 			},
 			ErrorHandler: func(_ error, c echo.Context) error {
-				return c.String(http.StatusUnauthorized, "Unauthorized")
+				return routes.RenderUnauthorized(c)
 			},
 		}))
 	}
 
 	// CSS cache busting
-	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public)
+	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public, StaticCacheMiddlewareWithConfig(baseConfig))
 
 	// JS cache busting
-	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public)
+	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public, StaticCacheMiddlewareWithConfig(baseConfig))
 
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
 
-	e.GET("/", routes.Home(baseConfig))
+	if !baseConfig.Kiosk.DisableConfigEndpoint {
+		e.GET("/config", func(c echo.Context) error {
+			return c.String(http.StatusOK, baseConfig.SanitizedYaml())
+		})
+	}
+
+	e.GET("/", routes.Home(baseConfig, c))
+
+	e.GET("/about", routes.About(baseConfig))
 
 	e.GET("/assets/manifest.json", routes.Manifest)
 
-	e.GET("/image", routes.NewRawImage(baseConfig, c))
+	e.GET("/image", routes.Image(baseConfig, c))
+	e.GET("/image/reload", routes.ImageWithReload(baseConfig))
 
-	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c))
-	e.GET("/image/:imageID/:clientWidth/:clientHeight", routes.ImageWithID(baseConfig, c))
+	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c), StaticCacheMiddlewareWithConfig(baseConfig))
 
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
+
+	e.POST("/asset/offline", routes.OfflineMode(baseConfig, c))
+	e.POST("/asset/downloading", routes.IsDownloading)
 
 	e.POST("/asset/previous", routes.PreviousHistoryAsset(baseConfig, c))
 
@@ -167,9 +199,11 @@ func main() {
 
 	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
-	e.GET("/video/:videoID", routes.NewVideo())
+	e.GET("/live/:liveID", routes.LivePhoto(baseConfig.Kiosk.DemoMode))
 
-	e.GET("/:redirect", routes.Redirect(baseConfig))
+	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode), StaticCacheMiddlewareWithConfig(baseConfig))
+
+	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 
 	for _, w := range baseConfig.WeatherLocations {
 		go weather.AddWeatherLocation(c.Context(), w)
@@ -198,5 +232,27 @@ func main() {
 	if shutdownErr := e.Shutdown(ctx); shutdownErr != nil {
 		log.Error(shutdownErr)
 	}
+}
 
+// Middleware to set no-store for dynamic endpoints
+func NoCacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set("Cache-Control", "no-store")
+		return next(c)
+	}
+}
+
+// Middleware for static routes with access to baseConfig
+func StaticCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+
+		if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
+			return NoCacheMiddleware(next)
+		}
+
+		return func(c echo.Context) error {
+			c.Response().Header().Set("Cache-Control", "public, max-age=86400, immutable")
+			return next(c)
+		}
+	}
 }
