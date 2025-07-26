@@ -256,6 +256,8 @@ type Config struct {
 	// Layout which layout to use
 	Layout string `json:"layout" yaml:"layout" mapstructure:"layout" query:"layout" form:"layout" default:"single" lowercase:"true"`
 
+	UseImgTag bool `json:"useImgTag" yaml:"use_img_tag" mapstructure:"use_img_tag" query:"use_img_tag" form:"use_img_tag" default:"false"`
+
 	// SleepStart when to start sleep mode
 	SleepStart string `json:"sleepStart" yaml:"sleep_start" mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
 	// SleepEnd when to exit sleep mode

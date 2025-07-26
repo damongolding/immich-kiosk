@@ -484,6 +484,11 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		return common.ViewImageData{}, err
 	}
 
+	if requestConfig.UseImgTag {
+		log.Info("using tag")
+		imgString = "/image/" + immichAsset.ID
+	}
+
 	return common.ViewImageData{
 		ImmichAsset:        immichAsset,
 		ImageData:          imgString,
