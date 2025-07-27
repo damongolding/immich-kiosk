@@ -552,7 +552,7 @@ function imagesLoaded(frameEl: HTMLElement): void {
         resolve();
       } else {
         img.addEventListener('load', () => resolve(), { once: true });
-        img.addEventListener('error', () => resolve(), { once: true }); // Optional
+        img.addEventListener('error', () => resolve(), { once: true });
       }
     });
   });
