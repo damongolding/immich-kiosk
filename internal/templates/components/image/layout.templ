@@ -32,7 +32,10 @@ templ layoutSplitView(viewData common.ViewData) {
 //   - viewData: ViewData containing all necessary information for rendering the images.
 //   - isSingle: A boolean indicating whether this is a single image layout.
 templ layoutView(viewData common.ViewData, isSingle bool) {
-	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }>
+	<div
+		class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur) }
+		hx-on::load="kiosk.imagesLoaded(this)"
+	>
 		if isSingle {
 			if len(viewData.Assets) > 0 {
 				@renderSingleImage(viewData, viewData.Assets[0], 0)

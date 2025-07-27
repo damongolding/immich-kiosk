@@ -180,11 +180,15 @@
 }
 
 .transition-cross-fade .frame {
-    animation-name: fade-in;
     animation-fill-mode: forwards;
     opacity: 0;
     will-change: opacity;
 }
+
+.transition-cross-fade .frame.images-loaded {
+    animation-name: fade-in;
+}
+
 /* END Cross fade transtion */
 
 @media (orientation: portrait) {

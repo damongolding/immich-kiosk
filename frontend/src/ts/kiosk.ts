@@ -538,6 +538,31 @@ document.addEventListener("DOMContentLoaded", () => {
     init();
 });
 
+function imagesLoaded(frameEl: HTMLElement): void {
+  const imgs = frameEl.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
+
+  if (imgs.length === 0) {
+    frameEl.classList.add('images-loaded');
+    return;
+  }
+
+  const loadPromises: Promise<void>[] = Array.from(imgs).map(img => {
+    return new Promise<void>(resolve => {
+      if (img.complete && img.naturalWidth !== 0) {
+        resolve();
+      } else {
+        img.addEventListener('load', () => resolve(), { once: true });
+        img.addEventListener('error', () => resolve(), { once: true }); // Optional
+      }
+    });
+  });
+
+  Promise.all(loadPromises).then(() => {
+    frameEl.classList.add('images-loaded');
+  });
+}
+
+
 export {
     triggerNewAsset,
     cleanupFrames,
@@ -549,4 +574,5 @@ export {
     clientData,
     videoHandler,
     sleepMode,
+    imagesLoaded
 };
