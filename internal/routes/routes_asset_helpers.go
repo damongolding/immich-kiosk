@@ -485,8 +485,8 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	}
 
 	if requestConfig.UseImgTag {
-		log.Info("using tag")
 		imgString = "/image/" + immichAsset.ID
+		imgBlurString = fmt.Sprintf("/image/%s/blur/%d", immichAsset.ID, requestConfig.BackgroundBlurAmount)
 	}
 
 	return common.ViewImageData{

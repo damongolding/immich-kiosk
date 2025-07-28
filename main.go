@@ -168,7 +168,8 @@ func main() {
 	e.GET("/image", routes.Image(baseConfig, c))
 	e.GET("/image/reload", routes.ImageWithReload(baseConfig))
 
-	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c), AssetCacheMiddlewareWithConfig(baseConfig))
+	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c, false), AssetCacheMiddlewareWithConfig(baseConfig))
+	e.GET("/image/:imageID/blur/:blurSigma", routes.ImageWithID(baseConfig, c, true), AssetCacheMiddlewareWithConfig(baseConfig))
 
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 

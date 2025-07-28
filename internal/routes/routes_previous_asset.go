@@ -166,6 +166,13 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 						ImageDominantColor: dominantColor,
 						User:               selectedUser,
 					}
+
+					if requestConfig.UseImgTag {
+						viewData.Assets[prevAssetsID].ImageData = "/image/" + asset.ID
+						viewData.Assets[prevAssetsID].ImageBlurData = fmt.Sprintf("/image/%s/blur/%d", asset.ID, requestConfig.BackgroundBlurAmount)
+
+					}
+
 				}()
 
 				// Image processing isn't required for video, audio, or other types

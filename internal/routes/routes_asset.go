@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -163,7 +164,7 @@ func ImageWithReload(baseConfig *config.Config) echo.HandlerFunc {
 
 // ImageWithID handles HTTP requests to retrieve an image preview by its image ID and returns the image as a blob with the correct MIME type.
 // Returns HTTP 400 if the image ID is missing or if the image cannot be retrieved.
-func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+func ImageWithID(baseConfig *config.Config, com *common.Common, blur bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -196,9 +197,35 @@ func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			}
 		}
 
-		imgBytes, _, previewErr := immichAsset.ImagePreview()
-		if previewErr != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
+		var imgBytes []byte
+
+		if blur {
+			blurSigmaStr := c.Param("blurSigma")
+			blurSigma, _ := strconv.Atoi(blurSigmaStr)
+			if blurSigma <= 0 {
+				blurSigma = requestConfig.BackgroundBlurAmount
+			}
+
+			img, imgFecthErr := fetchImagePreview(&immichAsset, requestConfig.UseOriginalImage, requestID, requestData.DeviceID, false)
+			if imgFecthErr != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
+			}
+
+			img, imgBlurErr := utils.BlurImage(img, blurSigma, requestConfig.OptimizeImages, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
+			if imgBlurErr != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, "unable to blur image")
+			}
+
+			imgBytes, imgBlurErr = utils.ImageToBytes(img)
+			if imgBlurErr != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, "unable to convert image to bytes")
+			}
+
+		} else {
+			imgBytes, _, err = immichAsset.ImagePreview()
+			if err != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
+			}
 		}
 
 		imageMime := utils.ImageMimeType(bytes.NewReader(imgBytes))
