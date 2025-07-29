@@ -37,11 +37,11 @@ func immichAPIFail[T APIResponse](value T, err error, body []byte, apiURL string
 	return value, apiURL, fmt.Errorf("%s : %v", immichError.Error, immichError.Message)
 }
 
-// withImmichAPICache wraps an Immich API call with caching logic, returning cached responses when available.
+// immichAPICachedCall wraps an Immich API call with caching logic, returning cached responses when available.
 // If caching is enabled and a cache hit occurs, returns the cached response data and an empty Content-Type.
 // On a cache miss, performs the API call, unmarshals and re-marshals the response into a provided JSON shape for efficient storage, caches the result, and returns the data along with the Content-Type.
 // Returns an error if unmarshaling, marshaling, or cache operations fail.
-func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) apiCall {
+func immichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T, expiration time.Duration) apiCall {
 	return func(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, error) {
 
 		if !requestConfig.Kiosk.Cache {
@@ -71,27 +71,38 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 			return nil, contentType, err
 		}
 
-		// Unpack api json into struct which discards data we don't use (for smaller cache size)
-		err = json.Unmarshal(apiBody, &jsonShape)
-		if err != nil {
-			log.Error(err)
-			return nil, contentType, err
+		jsonBytes := apiBody
+		// if wanted shape not is []byte then marshal apiBody
+		if _, ok := any(jsonShape).([]byte); !ok {
+			// Unpack api json into struct which discards data we don't use (for smaller cache size)
+			err = json.Unmarshal(apiBody, &jsonShape)
+			if err != nil {
+				log.Error("withImmichAPICache: unmarshal", "err", err)
+				return nil, contentType, err
+			}
+
+			jsonBytes, err = json.Marshal(jsonShape)
+			if err != nil {
+				log.Error(err)
+				return nil, contentType, err
+			}
 		}
 
-		// get bytes and store in cache
-		jsonBytes, err := json.Marshal(jsonShape)
-		if err != nil {
-			log.Error(err)
-			return nil, contentType, err
-		}
-
-		cache.Set(apiCacheKey, jsonBytes)
+		cache.SetWithExpiration(apiCacheKey, jsonBytes, expiration)
 		if requestConfig.Kiosk.DebugVerbose {
 			log.Debug(requestID+" Cache saved", "url", apiURL)
 		}
 
 		return jsonBytes, contentType, nil
 	}
+}
+
+func immichAPICachedCall[T APIResponse](immichAPICall apiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) apiCall {
+	return immichAPICache(immichAPICall, requestID, deviceID, requestConfig, jsonShape, time.Minute*5)
+}
+
+func immichAPICachedCallWithExpiration[T APIResponse](immichAPICall apiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T, expiration time.Duration) apiCall {
+	return immichAPICache(immichAPICall, requestID, deviceID, requestConfig, jsonShape, expiration)
 }
 
 // immichAPICall bootstrap for immich api call
@@ -345,7 +356,7 @@ func (a *Asset) AssetInfo(requestID, deviceID string) error {
 		Path:   path.Join("api", "assets", a.ID),
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAsset)
+	immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAsset)
 	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
@@ -707,7 +718,7 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 			return totalCount, err
 		}
 
-		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, response)
+		immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, response)
 		apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())

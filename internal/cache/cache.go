@@ -24,7 +24,7 @@ var (
 	kioskCache *gocache.Cache
 
 	defaultExpiration = 5 * time.Minute
-	cleanupInterval   = 10 * time.Minute
+	cleanupInterval   = time.Minute
 
 	DemoMode = false
 )

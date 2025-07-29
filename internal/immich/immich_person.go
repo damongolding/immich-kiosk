@@ -54,7 +54,7 @@ func (a *Asset) people(requestID, deviceID string, knowPeopleOnly bool, bypassCa
 				return people, err
 			}
 		} else {
-			immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, allPeople)
+			immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, allPeople)
 			body, _, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 			if err != nil {
 				_, _, err = immichAPIFail(allPeople, err, body, apiURL.String())
@@ -154,7 +154,7 @@ func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, err
 		Path:   path.Join("api", "people", personID, "statistics"),
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, personStatistics)
+	immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, personStatistics)
 	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(personStatistics, err, body, apiURL.String())
@@ -238,7 +238,7 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			return bodyMarshalErr
 		}
 
-		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
+		immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
 		apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())

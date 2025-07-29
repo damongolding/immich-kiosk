@@ -78,7 +78,7 @@ func (a *Asset) CheckForFaces(requestID, deviceID string) {
 		RawQuery: "id=" + a.ID,
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, faceResponse)
+	immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, faceResponse)
 	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(faceResponse, err, body, apiURL.String())

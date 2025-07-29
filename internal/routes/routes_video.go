@@ -36,7 +36,7 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Video ID is required")
 		}
 
-		vid, err := VideoManager.GetVideo(videoID)
+		vid, err := AssetManager.GetVideo(videoID)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusNotFound, "Video not found")
 		}
@@ -223,7 +223,7 @@ func LivePhoto(demoMode bool) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Live photo ID is required")
 		}
 
-		video, err := VideoManager.GetVideo(liveID)
+		video, err := AssetManager.GetVideo(liveID)
 		if err != nil {
 			return c.NoContent(http.StatusNoContent)
 		}

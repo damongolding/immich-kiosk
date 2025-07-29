@@ -170,9 +170,7 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 					if requestConfig.UseImgTag {
 						viewData.Assets[prevAssetsID].ImageData = "/image/" + asset.ID
 						viewData.Assets[prevAssetsID].ImageBlurData = fmt.Sprintf("/image/%s/blur/%d", asset.ID, requestConfig.BackgroundBlurAmount)
-
 					}
-
 				}()
 
 				// Image processing isn't required for video, audio, or other types
@@ -194,20 +192,23 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 					return byteErr
 				}
 
-				imgString, base64Err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
-				if base64Err != nil {
-					return fmt.Errorf("converting image to base64: %w", base64Err)
-				}
-
-				imgBlurString, blurErr := processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
-				if blurErr != nil {
-					return fmt.Errorf("converting blurred image to base64: %w", blurErr)
-				}
-
 				if requestConfig.Theme == kiosk.ThemeBubble {
 					dominantColor, err = utils.ExtractDominantColor(img)
 					if err != nil {
 						return fmt.Errorf("extracting dominant colour: %w", err)
+					}
+				}
+
+				if !requestConfig.UseImgTag {
+
+					imgString, err = imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
+					if err != nil {
+						return fmt.Errorf("converting image to base64: %w", err)
+					}
+
+					imgBlurString, err = processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
+					if err != nil {
+						return fmt.Errorf("converting blurred image to base64: %w", err)
 					}
 				}
 

@@ -543,6 +543,7 @@ function imagesLoaded(frameEl: HTMLElement): void {
 
   if (imgs.length === 0) {
     frameEl.classList.add('images-loaded');
+    startPolling();
     return;
   }
 
@@ -559,6 +560,7 @@ function imagesLoaded(frameEl: HTMLElement): void {
 
   Promise.all(loadPromises).then(() => {
     frameEl.classList.add('images-loaded');
+    startPolling();
   });
 }
 

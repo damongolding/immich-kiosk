@@ -50,7 +50,7 @@ func (a *Asset) memories(requestID, deviceID string, assetCount bool) (MemoriesR
 		apiURL.RawQuery += "&count=true"
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, memories)
+	immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, memories)
 	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(memories, err, body, apiURL.String())

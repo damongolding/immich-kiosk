@@ -1,11 +1,9 @@
 package routes
 
 import (
-	"bytes"
 	"errors"
 	"net/http"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -174,6 +172,7 @@ func ImageWithID(baseConfig *config.Config, com *common.Common, blur bool) echo.
 
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
+		deviceID := requestData.DeviceID
 
 		log.Debug(
 			requestID,
@@ -197,40 +196,26 @@ func ImageWithID(baseConfig *config.Config, com *common.Common, blur bool) echo.
 			}
 		}
 
-		var imgBytes []byte
-
-		if blur {
-			blurSigmaStr := c.Param("blurSigma")
-			blurSigma, _ := strconv.Atoi(blurSigmaStr)
-			if blurSigma <= 0 {
-				blurSigma = requestConfig.BackgroundBlurAmount
-			}
-
-			img, imgFecthErr := fetchImagePreview(&immichAsset, requestConfig.UseOriginalImage, requestID, requestData.DeviceID, false)
-			if imgFecthErr != nil {
-				return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
-			}
-
-			img, imgBlurErr := utils.BlurImage(img, blurSigma, requestConfig.OptimizeImages, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
-			if imgBlurErr != nil {
-				return echo.NewHTTPError(http.StatusBadRequest, "unable to blur image")
-			}
-
-			imgBytes, imgBlurErr = utils.ImageToBytes(img)
-			if imgBlurErr != nil {
-				return echo.NewHTTPError(http.StatusBadRequest, "unable to convert image to bytes")
-			}
-
-		} else {
-			imgBytes, _, err = immichAsset.ImagePreview()
-			if err != nil {
-				return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
+		img, imgErr := AssetManager.GetImage(imageID)
+		if imgErr != nil {
+			log.Info("Getting image", "imgErr", imgErr)
+			AssetManager.DownloadImage(immichAsset, requestConfig, deviceID)
+			img, imgErr = AssetManager.GetImage(imageID)
+			if imgErr != nil {
+				log.Error(requestID, "error getting image", "imageID", imageID, "error", imgErr)
+				return imgErr
 			}
 		}
 
-		imageMime := utils.ImageMimeType(bytes.NewReader(imgBytes))
+		filePath := img.FilePath
+		if blur {
+			filePath = img.GetBlurredPath()
+		}
 
-		return c.Blob(http.StatusOK, imageMime, imgBytes)
+		// imageMime := utils.ImageMimeType(bytes.NewReader(imgBytes))
+
+		return c.File(filePath)
+		// return c.Blob(http.StatusOK, imageMime, imgBytes)
 	}
 }
 

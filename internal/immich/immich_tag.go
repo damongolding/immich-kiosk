@@ -55,7 +55,7 @@ func (a *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
 		Path:   path.Join("api", "tags"),
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, tags)
+	immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, tags)
 	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(tags, err, body, apiURL.String())
@@ -143,7 +143,7 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
+	immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
 	apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 	if err != nil {
 		return immichAPIFail(immichAssets, err, nil, apiURL.String())

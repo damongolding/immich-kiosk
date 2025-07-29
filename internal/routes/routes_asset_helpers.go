@@ -301,13 +301,13 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 	// if it hasn't been downloaded, download it and return a image
 
 	// Video is available
-	if VideoManager.IsDownloaded(immichAsset.ID) {
+	if AssetManager.IsDownloaded(immichAsset.ID) {
 		return fetchImagePreview(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 	}
 
 	//  video is not available, is video downloading?
-	if !VideoManager.IsDownloading(immichAsset.ID) {
-		go VideoManager.DownloadVideo(*immichAsset, requestConfig, deviceID, requestURL)
+	if !AssetManager.IsDownloading(immichAsset.ID) {
+		go AssetManager.DownloadVideo(*immichAsset, requestConfig, deviceID, requestURL)
 	}
 
 	// if the video is not available, run processAsset again to get a new asset
@@ -319,8 +319,8 @@ func processImage(immichAsset *immich.Asset, requestConfig config.Config, reques
 
 	if requestConfig.LivePhotos && immichAsset.LivePhotoVideoID != "" {
 
-		isDownloaded := VideoManager.IsDownloaded(immichAsset.LivePhotoVideoID)
-		isDownloading := VideoManager.IsDownloading(immichAsset.LivePhotoVideoID)
+		isDownloaded := AssetManager.IsDownloaded(immichAsset.LivePhotoVideoID)
+		isDownloading := AssetManager.IsDownloading(immichAsset.LivePhotoVideoID)
 
 		if !isDownloaded && !isDownloading {
 
@@ -331,7 +331,7 @@ func processImage(immichAsset *immich.Asset, requestConfig config.Config, reques
 				return nil, err
 			}
 
-			go VideoManager.DownloadVideo(livePhoto, requestConfig, deviceID, "")
+			go AssetManager.DownloadVideo(livePhoto, requestConfig, deviceID, "")
 		}
 	}
 
@@ -485,6 +485,9 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	}
 
 	if requestConfig.UseImgTag {
+		if isPrefetch {
+			AssetManager.DownloadImage(immichAsset, requestConfig, metadata.deviceID)
+		}
 		imgString = "/image/" + immichAsset.ID
 		imgBlurString = fmt.Sprintf("/image/%s/blur/%d", immichAsset.ID, requestConfig.BackgroundBlurAmount)
 	}

@@ -13,11 +13,11 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
 
+	"github.com/damongolding/immich-kiosk/internal/asset"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
-	"github.com/damongolding/immich-kiosk/internal/video"
 )
 
 const (
@@ -32,7 +32,7 @@ var (
 
 	drawFacesOnImages string
 
-	VideoManager *video.Manager
+	AssetManager *asset.Manager
 
 	mu sync.Mutex
 )

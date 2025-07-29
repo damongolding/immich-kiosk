@@ -77,7 +77,7 @@ func (a *Asset) albums(requestID, deviceID string, shared bool, contains string,
 			return immichAPIFail(albums, err, body, apiURL.String())
 		}
 	} else {
-		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, albums)
+		immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, albums)
 		body, _, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 		if err != nil {
 			return immichAPIFail(albums, err, body, apiURL.String())
@@ -146,7 +146,7 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string) (Album, string,
 		Path:   path.Join("api", "albums", albumID),
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, album)
+	immichAPICall := immichAPICachedCall(a.immichAPICall, requestID, deviceID, a.requestConfig, album)
 	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(album, err, body, apiURL.String())

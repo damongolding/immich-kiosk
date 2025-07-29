@@ -23,13 +23,13 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/time/rate"
 
+	"github.com/damongolding/immich-kiosk/internal/asset"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/routes"
 	"github.com/damongolding/immich-kiosk/internal/utils"
-	"github.com/damongolding/immich-kiosk/internal/video"
 	"github.com/damongolding/immich-kiosk/internal/weather"
 )
 
@@ -79,14 +79,14 @@ func main() {
 
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
 
-	videoManager, videoManagerErr := video.New(c.Context())
-	if videoManagerErr != nil {
-		log.Error("Failed to initialize video manager", "err", videoManagerErr)
+	assetManager, asssetManagerErr := asset.New(c.Context())
+	if asssetManagerErr != nil {
+		log.Error("Failed to initialize asset manager", "err", asssetManagerErr)
 	}
 
-	videoManager.MaxAge = time.Duration(10) * time.Minute
+	assetManager.MaxAge = time.Duration(10) * time.Minute
 
-	routes.VideoManager = videoManager
+	routes.AssetManager = assetManager
 
 	if baseConfig.Kiosk.WatchConfig {
 		log.Infof("Watching %s for changes", baseConfig.V.ConfigFileUsed())
@@ -219,7 +219,7 @@ func main() {
 
 	<-c.Context().Done()
 
-	video.Delete()
+	asset.Delete()
 
 	fmt.Println("")
 	log.Info("Kiosk shutting down")
