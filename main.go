@@ -131,8 +131,9 @@ func main() {
 	if baseConfig.Kiosk.Password != "" {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 			Skipper: func(c echo.Context) bool {
-				// skip auth for assets
-				return strings.HasPrefix(c.Request().URL.String(), "/assets")
+				// skip auth for assets and /health endpoint
+				url := c.Request().URL.String()
+				return strings.HasPrefix(url, "/assets") || url == "/health"
 			},
 			KeyLookup: "header:Authorization,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
 			Validator: func(queryPassword string, _ echo.Context) (bool, error) {
@@ -160,6 +161,10 @@ func main() {
 	}
 
 	e.GET("/", routes.Home(baseConfig, c))
+
+	e.GET("/health", func(c echo.Context) error {
+		return c.String(http.StatusOK, "OK")
+	})
 
 	e.GET("/about", routes.About(baseConfig))
 
