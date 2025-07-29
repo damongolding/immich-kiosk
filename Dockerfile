@@ -43,7 +43,7 @@ ENV TERM=xterm-256color
 ENV DEBUG_COLORS=true
 ENV COLORTERM=truecolor
 
-RUN apk update && apk add --no-cache tzdata ca-certificates curl && update-ca-certificates
+RUN apk add --no-cache tzdata ca-certificates curl && update-ca-certificates
 
 WORKDIR /
 
