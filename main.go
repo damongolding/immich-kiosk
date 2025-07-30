@@ -131,8 +131,9 @@ func main() {
 	if baseConfig.Kiosk.Password != "" {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 			Skipper: func(c echo.Context) bool {
-				// skip auth for assets
-				return strings.HasPrefix(c.Request().URL.String(), "/assets")
+				// skip auth for assets and /health endpoint
+				url := c.Request().URL.String()
+				return strings.HasPrefix(url, "/assets") || url == "/health"
 			},
 			KeyLookup: "header:Authorization,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
 			Validator: func(queryPassword string, _ echo.Context) (bool, error) {
@@ -161,6 +162,10 @@ func main() {
 
 	e.GET("/", routes.Home(baseConfig, c))
 
+	e.GET("/health", func(c echo.Context) error {
+		return c.String(http.StatusOK, "OK")
+	})
+
 	e.GET("/about", routes.About(baseConfig))
 
 	e.GET("/assets/manifest.json", routes.Manifest)
@@ -168,7 +173,7 @@ func main() {
 	e.GET("/image", routes.Image(baseConfig, c))
 	e.GET("/image/reload", routes.ImageWithReload(baseConfig))
 
-	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c), StaticCacheMiddlewareWithConfig(baseConfig))
+	e.GET("/image/:imageID", routes.ImageWithID(baseConfig, c), AssetCacheMiddlewareWithConfig(baseConfig))
 
 	e.POST("/asset/new", routes.NewAsset(baseConfig, c))
 
@@ -199,7 +204,7 @@ func main() {
 
 	e.GET("/live/:liveID", routes.LivePhoto(baseConfig.Kiosk.DemoMode))
 
-	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode), StaticCacheMiddlewareWithConfig(baseConfig))
+	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode), AssetCacheMiddlewareWithConfig(baseConfig))
 
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 
@@ -249,7 +254,22 @@ func StaticCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareF
 		}
 
 		return func(c echo.Context) error {
-			c.Response().Header().Set("Cache-Control", "public, max-age=86400, immutable")
+			c.Response().Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+			return next(c)
+		}
+	}
+}
+
+// Middleware for asset(s) routes with access to baseConfig
+func AssetCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+
+		if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
+			return NoCacheMiddleware(next)
+		}
+
+		return func(c echo.Context) error {
+			c.Response().Header().Set("Cache-Control", "private, max-age=86400, no-transform")
 			return next(c)
 		}
 	}

@@ -128,10 +128,10 @@
       "type": "string"
     },
     "sleep_start": {
-      "type": "string"
+      "type": ["string", "integer"]
     },
     "sleep_end": {
-      "type": "string"
+      "type": ["string", "integer"]
     },
     "sleep_dim_screen": {
       "type": "boolean"
