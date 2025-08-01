@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 env:
   VERSION: 0.22.2
 
@@ -17,13 +17,17 @@ tasks:
     desc: Run kiosk in debug mode
     deps: [build]
     cmds:
-      - KIOSK_DEBUG=true ./dist/kiosk
+      - ./dist/kiosk
+
+  dev:
+    desc: Run kiosk in development mode
+    cmds:
+      - go tool air
 
   verbose:
     desc: Run kiosk in verbose debug mode
-    deps: [build-verbose]
     cmds:
-      - KIOSK_DEBUG_VERBOSE=true ./dist/kiosk
+      - go tool air -build.cmd="task build-verbose" -build.full_bin="KIOSK_DEBUG_VERBOSE=true ./dist/kiosk"
 
   # Backend tasks
   templ:
