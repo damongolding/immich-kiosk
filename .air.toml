@@ -8,7 +8,14 @@ bin = "./dist/kiosk"
 full_bin = "KIOSK_DEBUG=true ./dist/kiosk"
 cmd = "task build"
 delay = 1000
-exclude_dir = ["assets", "tmp", "vendor", "testdata", "offline-assets"]
+exclude_dir = [
+    "assets",
+    "tmp",
+    "vendor",
+    "testdata",
+    "offline-assets",
+    "node_modules",
+]
 exclude_file = []
 exclude_regex = ["_test.go", "internal/templates/.*\\.go$"]
 exclude_unchanged = false
