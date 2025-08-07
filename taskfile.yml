@@ -72,7 +72,7 @@ tasks:
         go mod edit -go=$GO_VERSION_FULL
 
         echo "🛠️  Updating Dockerfile to use Go $GO_VERSION_FULL"
-        sed -i.bak -E "s|(golang:)[0-9]+\.[0-9]+(\.[0-9]+)?(-alpine)|\1${GO_VERSION_FULL}\3|g" Dockerfile
+        sed -i.bak -E "s|golang:[0-9]+\.[0-9]+(\.[0-9]+)?-[[:alnum:]-]+|golang:${GO_VERSION_FULL}-alpine|g" Dockerfile
 
         echo "--- Dockerfile diff ---"
         diff Dockerfile.bak Dockerfile || true
