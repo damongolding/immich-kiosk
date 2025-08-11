@@ -108,6 +108,5 @@ require (
 tool (
 	github.com/a-h/templ/cmd/templ
 	github.com/air-verse/air
-	github.com/damongolding/immich-kiosk
 	github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
 )
