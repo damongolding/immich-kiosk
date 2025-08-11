@@ -63,6 +63,21 @@ tasks:
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5
       - go mod tidy
 
+  update-go:
+    desc: Sync local Go version with go.mod and Dockerfile
+    cmds:
+      - |
+        GO_VERSION_FULL=$(go version | awk '{print $3}' | sed 's/go//')
+        echo "📦 Updating go.mod to use Go $GO_VERSION_FULL"
+        go mod edit -go=$GO_VERSION_FULL
+
+        echo "🛠️  Updating Dockerfile to use Go $GO_VERSION_FULL"
+        sed -i.bak -E "s|golang:[0-9]+\.[0-9]+(\.[0-9]+)?-[[:alnum:]-]+|golang:${GO_VERSION_FULL}-alpine|g" Dockerfile
+
+        echo "--- Dockerfile diff ---"
+        diff Dockerfile.bak Dockerfile || true
+        rm Dockerfile.bak
+
   outdated-go:
     desc: Check for outdated Go dependencies
     cmds:
