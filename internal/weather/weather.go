@@ -35,6 +35,7 @@ type Location struct {
 	Unit string
 	Lang string
 	Weather
+	Forecast
 }
 
 type Weather struct {
@@ -51,6 +52,23 @@ type Weather struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
 	Cod        int    `json:"cod"`
+}
+
+type ForecastItem struct {
+	DT   int    `json:"dt"`
+	Data []Data `json:"weather"`
+	Temp struct {
+		Day   float64 `json:"day"`
+		Min   float64 `json:"min"`
+		Max   float64 `json:"max"`
+		Night float64 `json:"night"`
+		Eve   float64 `json:"eve"`
+		Morn  float64 `json:"morn"`
+	} `json:"temp"`
+}
+
+type Forecast struct {
+	List []ForecastItem `json:"list"`
 }
 
 type Coord struct {
@@ -139,6 +157,16 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 	} else {
 		weatherDataStore.Store(strings.ToLower(w.Name), newWeatherInit)
 		log.Debug("Retrieved initial weather for", "name", w.Name)
+	}
+
+	// Run once immediately
+	log.Debug("Getting initial forecast for", "name", w.Name)
+	newForecastInit, newForecastInitErr := w.updateForecast(ctx)
+	if newForecastInitErr != nil {
+		log.Error("Failed to update initial forecast", "name", w.Name, "error", newForecastInitErr)
+	} else {
+		weatherDataStore.Store(strings.ToLower(w.Name), newForecastInit)
+		log.Debug("Retrieved initial forecast for", "name", w.Name)
 	}
 
 	for {
@@ -232,6 +260,67 @@ func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 	}
 
 	w.Weather = newWeather
+
+	return *w, nil
+}
+
+func (w *Location) updateForecast(ctx context.Context) (Location, error) {
+
+	apiURL := url.URL{
+		Scheme:   "https",
+		Host:     "api.openweathermap.org",
+		Path:     "data/2.5/forecast/daily",
+		RawQuery: fmt.Sprintf("appid=%s&lat=%s&lon=%s&units=%s&lang=%s&cnt=4", w.API, w.Lat, w.Lon, w.Unit, w.Lang),
+	}
+
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL.String(), nil)
+	if err != nil {
+		log.Error(err)
+		return *w, err
+	}
+
+	req.Header.Add("Accept", "application/json")
+
+	var res *http.Response
+	for attempts := range 3 {
+		res, err = client.Do(req)
+		if err == nil {
+			break
+		}
+		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiURL, "err", err)
+		time.Sleep(time.Duration(1<<attempts) * time.Second)
+
+	}
+	if err != nil {
+		log.Error("Request failed after retries", "err", err)
+		return *w, err
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
+		log.Error(err)
+		return *w, err
+	}
+
+	responseBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Error("reading response body", "url", apiURL, "err", err)
+		return *w, err
+	}
+
+	var newForecast Forecast
+
+	unmarshalErr := json.Unmarshal(responseBody, &newForecast)
+	if unmarshalErr != nil {
+		log.Error("updateWeather", "err", unmarshalErr)
+	}
+
+	w.Forecast = newForecast
 
 	return *w, nil
 }
