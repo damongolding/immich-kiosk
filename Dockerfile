@@ -17,7 +17,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm css && pnpm js
 
 # Go Builder
-FROM --platform=$BUILDPLATFORM golang:1.24.4-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.24.6-alpine AS build
 
 ARG VERSION=demo
 ARG TARGETOS
