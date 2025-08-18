@@ -80,7 +80,7 @@ templ weatherIcon(ID int) {
 }
 
 templ WeatherLocation(weatherData weather.Location) {
-	<div class="weather">
+	<div class="weather" hx-on::load={ templ.JSFuncCall("updateWeatherMode", "forecast") }>
 		<div class="weather--location">
 			if strings.HasSuffix(weatherData.Name, weather.APINameKeyword) {
 				{ weatherData.Weather.Name }
@@ -102,6 +102,11 @@ templ WeatherLocation(weatherData weather.Location) {
 				@weatherIcon(weatherData.Data[0].ID)
 			</div>
 		</div>
+	</div>
+}
+
+templ WeatherLocationForecast(weatherData weather.Location) {
+	<div class="weather" hx-on::load={ templ.JSFuncCall("updateWeatherMode", "current") }>
 		<div class="weather--forecast">
 			for _, f := range weatherData.Forecast.List {
 				{{
@@ -117,7 +122,9 @@ templ WeatherLocation(weatherData weather.Location) {
 				}}
 				<div class="weather--forecast--item">
 					<div>{ str }</div>
-					<div class="weather--description--icon"> @weatherIcon(f.Data[0].ID) </div>
+					<div class="weather--description--icon">
+						@weatherIcon(f.Data[0].ID)
+					</div>
 					<div>{ formatTemp(f.Temp.Max, weatherData.Unit) }°</div>
 				</div>
 			}
@@ -131,7 +138,14 @@ templ Weather(theme string) {
 		id="weather-container"
 		class={ fmt.Sprintf("weather--theme-%s", theme) }
 		hx-post="/weather"
-		hx-trigger="load, every 61s"
-		hx-swap="innerHTML"
+		hx-trigger="load, every 30s"
+		hx-swap="innerHTML swap:1s"
+		hx-vals="js:{ 'mode': weatherMode }"
 	></div>
+	<script>
+	  var weatherMode = "current";
+		function updateWeatherMode(mode) {
+			weatherMode = mode;
+		}
+	</script>
 }

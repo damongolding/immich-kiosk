@@ -135,8 +135,11 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 		log.Info("Set default weather location", "name", location.Name)
 	}
 
-	ticker := time.NewTicker(time.Minute * 10)
-	defer ticker.Stop()
+	weatherTicker := time.NewTicker(time.Minute * 10)
+	defer weatherTicker.Stop()
+
+	forecastTicker := time.NewTicker(time.Hour)
+	defer forecastTicker.Stop()
 
 	w := &Location{
 		Name: location.Name,
@@ -174,7 +177,7 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 		case <-ctx.Done():
 			log.Debug("Stopping weather updates for", "name", w.Name)
 			return
-		case <-ticker.C:
+		case <-weatherTicker.C:
 			log.Debug("Getting weather for", "name", w.Name)
 			newWeather, newWeatherErr := w.updateWeather(ctx)
 			if newWeatherErr != nil {
@@ -183,6 +186,15 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 			}
 			weatherDataStore.Store(strings.ToLower(w.Name), newWeather)
 			log.Debug("Retrieved weather for", "name", w.Name)
+		case <-forecastTicker.C:
+			log.Debug("Getting forecast for", "name", w.Name)
+			newForecast, newForecastErr := w.updateForecast(ctx)
+			if newForecastErr != nil {
+				log.Error("Failed to update forecast", "name", w.Name, "error", newForecastErr)
+				continue
+			}
+			weatherDataStore.Store(strings.ToLower(w.Name), newForecast)
+			log.Debug("Retrieved forecast	 for", "name", w.Name)
 		}
 	}
 }

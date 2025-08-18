@@ -28,12 +28,14 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 		requestID := requestData.RequestID
 
 		locationName := c.FormValue("weather")
+		weatherMode := c.FormValue("mode")
 
 		log.Debug(
 			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
 			"location", locationName,
+			"mode", weatherMode,
 		)
 
 		if locationName == "" {
@@ -61,7 +63,11 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 				time.Sleep(time.Duration(1<<attempts) * time.Second)
 				continue
 			}
-			return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation))
+			if weatherMode != "forecast" {
+				return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation))
+			} else {
+				return Render(c, http.StatusOK, partials.WeatherLocationForecast(weatherLocation))
+			}
 		}
 
 		log.Error("failed to fetch weather data after all attempts",

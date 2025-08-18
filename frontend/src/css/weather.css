@@ -81,3 +81,11 @@
     align-items: center;
     gap: 0.2rem;
 }
+
+#weather-container {
+    transition: opacity 1s ease-in-out;
+    opacity: 1;
+    &.htmx-swapping {
+        opacity: 0;
+    }
+}
