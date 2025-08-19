@@ -385,7 +385,9 @@ function addEventListeners(): void {
 async function cleanupFrames(): Promise<void> {
     const kioskScripts = htmx.findAll(kiosk as HTMLElement, "script");
     if (kioskScripts?.length) {
-        kioskScripts.forEach((s) => htmx.remove(s, 1000));
+        kioskScripts.forEach((s) => {
+            htmx.remove(s, 1000);
+        });
     }
 
     const frames = htmx.findAll(".frame");

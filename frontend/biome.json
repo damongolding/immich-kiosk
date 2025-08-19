@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -13,10 +13,10 @@
       "**/*.tsx",
       "**/*.jsx",
       "*.json",
-      "!public/**/*",
-      "!node_modules/**/*",
-      "!dist/**/*",
-      "!build/**/*"
+      "!public",
+      "!node_modules",
+      "!dist",
+      "!build"
     ]
   },
   "linter": {

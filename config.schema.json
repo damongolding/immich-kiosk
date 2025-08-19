@@ -339,6 +339,10 @@
         "debug_verbose": {
           "type": "boolean"
         },
+        "config_validation_level": {
+          "type": "string",
+          "enum": ["warning", "error"]
+        },
         "port": {
           "type": "integer"
         },

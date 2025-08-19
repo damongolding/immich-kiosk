@@ -88,6 +88,8 @@ type KioskSettings struct {
 	// RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
 	RedirectsMap map[string]Redirect `json:"-" yaml:"-"`
 
+	ConfigValidationLevel string `yaml:"configValidationLevel" mapstructure:"config_validation_level" default:"error"`
+
 	// Port which port to use
 	Port int `json:"port" yaml:"port" mapstructure:"port" default:"3000"`
 
@@ -511,7 +513,11 @@ func (c *Config) Load() error {
 			log.Fatal(err)
 		}
 	} else {
-		checkSchema(c.V.AllSettings())
+		level := c.V.GetString("kiosk.config_validation_level")
+		valid := checkSchema(c.V.AllSettings(), level)
+		if !valid && level != "warning" {
+			log.Fatal("Invalid configuration")
+		}
 	}
 
 	err = c.V.Unmarshal(&c)

@@ -361,7 +361,7 @@ func (c *Config) checkOffline() {
 	}
 }
 
-func checkSchema(config map[string]any) bool {
+func checkSchema(config map[string]any, level string) bool {
 
 	if !IsSchemaLoaded() {
 		log.Warn("Schema not loaded, skipping validation")
@@ -386,9 +386,16 @@ func checkSchema(config map[string]any) bool {
 	}
 
 	if !result.Valid() {
-		log.Warn("Config validation failed:")
-		for _, desc := range result.Errors() {
-			log.Warnf("- %s", desc)
+		if level != "warning" {
+			log.Error("Config validation failed:")
+			for _, desc := range result.Errors() {
+				log.Errorf("- %s", desc)
+			}
+		} else {
+			log.Warn("Config validation failed:")
+			for _, desc := range result.Errors() {
+				log.Warnf("- %s", desc)
+			}
 		}
 		return false
 	}
