@@ -386,15 +386,16 @@ func checkSchema(config map[string]any, level string) bool {
 	}
 
 	if !result.Valid() {
-		if level != "warning" {
-			log.Error("Config validation failed:")
-			for _, desc := range result.Errors() {
-				log.Errorf("- %s", desc)
-			}
-		} else {
+		switch strings.ToLower(level) {
+		case "warning":
 			log.Warn("Config validation failed:")
 			for _, desc := range result.Errors() {
 				log.Warnf("- %s", desc)
+			}
+		default:
+			log.Error("Config validation failed:")
+			for _, desc := range result.Errors() {
+				log.Errorf("- %s", desc)
 			}
 		}
 		return false

@@ -88,7 +88,7 @@ type KioskSettings struct {
 	// RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
 	RedirectsMap map[string]Redirect `json:"-" yaml:"-"`
 
-	ConfigValidationLevel string `yaml:"configValidationLevel" mapstructure:"config_validation_level" default:"error"`
+	ConfigValidationLevel string `json:"configValidationLevel" yaml:"config_validation_level" mapstructure:"config_validation_level" default:"error"`
 
 	// Port which port to use
 	Port int `json:"port" yaml:"port" mapstructure:"port" default:"3000"`
@@ -448,6 +448,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.debug", "KIOSK_DEBUG"},
 		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
 		{"kiosk.demo_mode", "KIOSK_DEMO_MODE"},
+		{"kiosk.config_validation_level", "KIOSK_CONFIG_VALIDATION_LEVEL"},
 	}
 
 	for _, bv := range bindVars {
