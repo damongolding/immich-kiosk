@@ -1,12 +1,10 @@
 package partials
 
 import (
-	"context"
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/weather"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
-	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -81,32 +79,16 @@ templ weatherIcon(ID int) {
 	}
 }
 
-func forecast() templ.Component {
-
-	t := time.Unix(int64(f.DT), 0)
+func forecastItemData(datetime int) (bool, string) {
+	t := time.Unix(int64(datetime), 0)
 	now := time.Now().In(t.Location())
 	isToday := t.Year() == now.Year() &&
 		t.Month() == now.Month() &&
 		t.Day() == now.Day()
 	if isToday {
-		return nil
+		return true, ""
 	}
-	str := t.Weekday().String()[:3]
-
-	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
-
-		return templ.Raw(`
-				<div class="weather--forecast--item">
-					<div>`+str+`</div>
-					<div class="weather--description--icon">
-						@weatherIcon(f.Data[0].ID)
-					</div>
-					<div>
-						<strong>{ formatTemp(f.Temp.Max, weatherData.Unit) }°</strong>
-					</div>
-				</div>`).Render(ctx, w)
-	})
-
+	return false, t.Weekday().String()[:3]
 }
 
 templ WeatherLocation(weatherData weather.Location) {
@@ -136,18 +118,13 @@ templ WeatherLocation(weatherData weather.Location) {
 			<div class="weather--forecast">
 				for _, f := range weatherData.Forecast.List {
 					{{
-					t := time.Unix(int64(f.DT), 0)
-					now := time.Now().In(t.Location())
-					isToday := t.Year() == now.Year() &&
-						t.Month() == now.Month() &&
-						t.Day() == now.Day()
-					if isToday {
-						continue
-					}
-					str := t.Weekday().String()[:3]
+						isToday, forecastDay := forecastItemData(f.DT)
+						if isToday {
+							continue
+						}
 					}}
 					<div class="weather--forecast--item">
-						<div>{ str }</div>
+						<div>{ forecastDay }</div>
 						<div class="weather--description--icon">
 							@weatherIcon(f.Data[0].ID)
 						</div>
