@@ -88,7 +88,7 @@ type KioskSettings struct {
 	// RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
 	RedirectsMap map[string]Redirect `json:"-" yaml:"-"`
 
-	ConfigValidationLevel string `json:"configValidationLevel" yaml:"config_validation_level" mapstructure:"config_validation_level" default:"error"`
+	ConfigValidationLevel string `json:"configValidationLevel" yaml:"config_validation_level" mapstructure:"config_validation_level" default:"error" lowercase:"true"`
 
 	// Port which port to use
 	Port int `json:"port" yaml:"port" mapstructure:"port" default:"3000"`
