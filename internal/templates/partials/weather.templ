@@ -79,9 +79,10 @@ templ weatherIcon(ID int) {
 	}
 }
 
-func forecastItemData(datetime int) (bool, string) {
-	t := time.Unix(int64(datetime), 0)
-	now := time.Now().In(t.Location())
+func forecastItemData(datetime, tzOffset int) (bool, string) {
+	loc := time.FixedZone("owm", tzOffset)
+	t := time.Unix(int64(datetime), 0).In(loc)
+	now := time.Now().In(loc)
 	isToday := t.Year() == now.Year() &&
 		t.Month() == now.Month() &&
 		t.Day() == now.Day()
@@ -118,7 +119,11 @@ templ WeatherLocation(weatherData weather.Location) {
 			<div class="weather--forecast">
 				for _, f := range weatherData.Forecast.List {
 					{{
-						isToday, forecastDay := forecastItemData(f.DT)
+						if len(f.Data) == 0 {
+							continue
+						}
+
+						isToday, forecastDay := forecastItemData(f.DT, weatherData.Timezone)
 						if isToday {
 							continue
 						}
