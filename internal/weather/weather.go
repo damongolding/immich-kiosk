@@ -128,8 +128,7 @@ func SetDefaultLocation(location string) {
 // It takes a context.Context for cancellation and a config.WeatherLocation struct to configure the monitoring.
 // The weather data is fetched immediately and then updated every 10 minutes until the context is cancelled.
 // If the location is marked as default and no default exists yet, it will be set as the default location.
-func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
-
+func addWeatherLocation(ctx context.Context, location config.WeatherLocation, withForecast bool) {
 	if location.Default && DefaultLocation() == "" {
 		SetDefaultLocation(location.Name)
 		log.Info("Set default weather location", "name", location.Name)
@@ -138,8 +137,11 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 	weatherTicker := time.NewTicker(time.Minute * 10)
 	defer weatherTicker.Stop()
 
-	forecastTicker := time.NewTicker(time.Hour)
-	defer forecastTicker.Stop()
+	var forecastTicker *time.Ticker
+	if withForecast {
+		forecastTicker = time.NewTicker(time.Hour)
+		defer forecastTicker.Stop()
+	}
 
 	w := &Location{
 		Name: location.Name,
@@ -162,14 +164,16 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 		log.Debug("Retrieved initial weather for", "name", w.Name)
 	}
 
-	// Run once immediately
-	log.Debug("Getting initial forecast for", "name", w.Name)
-	newForecastInit, newForecastInitErr := w.updateForecast(ctx)
-	if newForecastInitErr != nil {
-		log.Error("Failed to update initial forecast", "name", w.Name, "error", newForecastInitErr)
-	} else {
-		weatherDataStore.Store(strings.ToLower(w.Name), newForecastInit)
-		log.Debug("Retrieved initial forecast for", "name", w.Name)
+	if withForecast {
+		// Run once immediately
+		log.Debug("Getting initial forecast for", "name", w.Name)
+		newForecastInit, newForecastInitErr := w.updateForecast(ctx)
+		if newForecastInitErr != nil {
+			log.Error("Failed to update initial forecast", "name", w.Name, "error", newForecastInitErr)
+		} else {
+			weatherDataStore.Store(strings.ToLower(w.Name), newForecastInit)
+			log.Debug("Retrieved initial forecast for", "name", w.Name)
+		}
 	}
 
 	for {
@@ -186,17 +190,35 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 			}
 			weatherDataStore.Store(strings.ToLower(w.Name), newWeather)
 			log.Debug("Retrieved weather for", "name", w.Name)
-		case <-forecastTicker.C:
-			log.Debug("Getting forecast for", "name", w.Name)
-			newForecast, newForecastErr := w.updateForecast(ctx)
-			if newForecastErr != nil {
-				log.Error("Failed to update forecast", "name", w.Name, "error", newForecastErr)
-				continue
+		default:
+			if withForecast && forecastTicker != nil {
+				select {
+				case <-forecastTicker.C:
+					log.Debug("Getting forecast for", "name", w.Name)
+					newForecast, newForecastErr := w.updateForecast(ctx)
+					if newForecastErr != nil {
+						log.Error("Failed to update forecast", "name", w.Name, "error", newForecastErr)
+						continue
+					}
+					weatherDataStore.Store(strings.ToLower(w.Name), newForecast)
+					log.Debug("Retrieved forecast for", "name", w.Name)
+				default:
+					time.Sleep(100 * time.Millisecond)
+				}
+			} else {
+				time.Sleep(100 * time.Millisecond)
 			}
-			weatherDataStore.Store(strings.ToLower(w.Name), newForecast)
-			log.Debug("Retrieved forecast	 for", "name", w.Name)
 		}
 	}
+}
+
+// For backward compatibility, you can provide wrapper functions:
+func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
+	addWeatherLocation(ctx, location, false)
+}
+
+func AddWeatherLocationWithForecast(ctx context.Context, location config.WeatherLocation) {
+	addWeatherLocation(ctx, location, true)
 }
 
 // CurrentWeather retrieves the current weather data for a given location name.
@@ -213,16 +235,27 @@ func CurrentWeather(name string) Location {
 	return loc
 }
 
-// updateWeather fetches new weather data from the OpenWeatherMap API for this location.
-// Returns the updated WeatherLocation and any error that occurred.
-func (w *Location) updateWeather(ctx context.Context) (Location, error) {
-
+// fetchWeatherData is a generic function to fetch weather or forecast data from the OpenWeatherMap API.
+// The 'endpoint' argument should be either "weather" or "forecast/daily".
+// The 'result' argument should be a pointer to the struct to unmarshal into (Weather or Forecast).
+func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, queryParams map[string]string, result any) error {
 	apiURL := url.URL{
-		Scheme:   "https",
-		Host:     "api.openweathermap.org",
-		Path:     "data/2.5/weather",
-		RawQuery: fmt.Sprintf("appid=%s&lat=%s&lon=%s&units=%s&lang=%s", w.API, w.Lat, w.Lon, w.Unit, w.Lang),
+		Scheme: "https",
+		Host:   "api.openweathermap.org",
+		Path:   fmt.Sprintf("data/2.5/%s", endpoint),
 	}
+
+	// Build query string
+	q := url.Values{}
+	q.Set("appid", w.API)
+	q.Set("lat", w.Lat)
+	q.Set("lon", w.Lon)
+	q.Set("units", w.Unit)
+	q.Set("lang", w.Lang)
+	for k, v := range queryParams {
+		q.Set(k, v)
+	}
+	apiURL.RawQuery = q.Encode()
 
 	client := &http.Client{
 		Timeout: time.Second * 10,
@@ -230,7 +263,7 @@ func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		log.Error(err)
-		return *w, err
+		return err
 	}
 
 	req.Header.Add("Accept", "application/json")
@@ -241,13 +274,12 @@ func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 		if err == nil {
 			break
 		}
-		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiURL, "err", err)
+		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiURL.String(), "err", err)
 		time.Sleep(time.Duration(1<<attempts) * time.Second)
-
 	}
 	if err != nil {
 		log.Error("Request failed after retries", "err", err)
-		return *w, err
+		return err
 	}
 
 	defer res.Body.Close()
@@ -255,84 +287,44 @@ func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
 		log.Error(err)
-		return *w, err
+		return err
 	}
 
 	responseBody, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Error("reading response body", "url", apiURL, "err", err)
+		log.Error("reading response body", "url", apiURL.String(), "err", err)
+		return err
+	}
+
+	unmarshalErr := json.Unmarshal(responseBody, result)
+	if unmarshalErr != nil {
+		log.Error("fetchWeatherData", "err", unmarshalErr)
+		return unmarshalErr
+	}
+
+	return nil
+}
+
+// updateWeather fetches new weather data from the OpenWeatherMap API for this location.
+// Returns the updated Location and any error that occurred.
+func (w *Location) updateWeather(ctx context.Context) (Location, error) {
+	var newWeather Weather
+	err := w.fetchWeatherData(ctx, "weather", map[string]string{}, &newWeather)
+	if err != nil {
 		return *w, err
 	}
-
-	var newWeather Weather
-
-	unmarshalErr := json.Unmarshal(responseBody, &newWeather)
-	if unmarshalErr != nil {
-		log.Error("updateWeather", "err", unmarshalErr)
-	}
-
 	w.Weather = newWeather
-
 	return *w, nil
 }
 
+// updateForecast fetches new forecast data from the OpenWeatherMap API for this location.
+// Returns the updated Location and any error that occurred.
 func (w *Location) updateForecast(ctx context.Context) (Location, error) {
-
-	apiURL := url.URL{
-		Scheme:   "https",
-		Host:     "api.openweathermap.org",
-		Path:     "data/2.5/forecast/daily",
-		RawQuery: fmt.Sprintf("appid=%s&lat=%s&lon=%s&units=%s&lang=%s&cnt=4", w.API, w.Lat, w.Lon, w.Unit, w.Lang),
-	}
-
-	client := &http.Client{
-		Timeout: time.Second * 10,
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL.String(), nil)
-	if err != nil {
-		log.Error(err)
-		return *w, err
-	}
-
-	req.Header.Add("Accept", "application/json")
-
-	var res *http.Response
-	for attempts := range 3 {
-		res, err = client.Do(req)
-		if err == nil {
-			break
-		}
-		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiURL, "err", err)
-		time.Sleep(time.Duration(1<<attempts) * time.Second)
-
-	}
-	if err != nil {
-		log.Error("Request failed after retries", "err", err)
-		return *w, err
-	}
-
-	defer res.Body.Close()
-
-	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
-		log.Error(err)
-		return *w, err
-	}
-
-	responseBody, err := io.ReadAll(res.Body)
-	if err != nil {
-		log.Error("reading response body", "url", apiURL, "err", err)
-		return *w, err
-	}
-
 	var newForecast Forecast
-
-	unmarshalErr := json.Unmarshal(responseBody, &newForecast)
-	if unmarshalErr != nil {
-		log.Error("updateWeather", "err", unmarshalErr)
+	err := w.fetchWeatherData(ctx, "forecast/daily", map[string]string{"cnt": "4"}, &newForecast)
+	if err != nil {
+		return *w, err
 	}
-
 	w.Forecast = newForecast
-
 	return *w, nil
 }

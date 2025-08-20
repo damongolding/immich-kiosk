@@ -1,10 +1,12 @@
 package partials
 
 import (
+	"context"
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/weather"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -79,8 +81,36 @@ templ weatherIcon(ID int) {
 	}
 }
 
+func forecast() templ.Component {
+
+	t := time.Unix(int64(f.DT), 0)
+	now := time.Now().In(t.Location())
+	isToday := t.Year() == now.Year() &&
+		t.Month() == now.Month() &&
+		t.Day() == now.Day()
+	if isToday {
+		return nil
+	}
+	str := t.Weekday().String()[:3]
+
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+
+		return templ.Raw(`
+				<div class="weather--forecast--item">
+					<div>`+str+`</div>
+					<div class="weather--description--icon">
+						@weatherIcon(f.Data[0].ID)
+					</div>
+					<div>
+						<strong>{ formatTemp(f.Temp.Max, weatherData.Unit) }°</strong>
+					</div>
+				</div>`).Render(ctx, w)
+	})
+
+}
+
 templ WeatherLocation(weatherData weather.Location) {
-	<div class="weather" hx-on::load={ templ.JSFuncCall("updateWeatherMode", "forecast") }>
+	<div class="weather">
 		<div class="weather--location">
 			if strings.HasSuffix(weatherData.Name, weather.APINameKeyword) {
 				{ weatherData.Weather.Name }
@@ -102,14 +132,10 @@ templ WeatherLocation(weatherData weather.Location) {
 				@weatherIcon(weatherData.Data[0].ID)
 			</div>
 		</div>
-	</div>
-}
-
-templ WeatherLocationForecast(weatherData weather.Location) {
-	<div class="weather" hx-on::load={ templ.JSFuncCall("updateWeatherMode", "current") }>
-		<div class="weather--forecast">
-			for _, f := range weatherData.Forecast.List {
-				{{
+		if len(weatherData.Forecast.List) > 0 {
+			<div class="weather--forecast">
+				for _, f := range weatherData.Forecast.List {
+					{{
 					t := time.Unix(int64(f.DT), 0)
 					now := time.Now().In(t.Location())
 					isToday := t.Year() == now.Year() &&
@@ -119,16 +145,19 @@ templ WeatherLocationForecast(weatherData weather.Location) {
 						continue
 					}
 					str := t.Weekday().String()[:3]
-				}}
-				<div class="weather--forecast--item">
-					<div>{ str }</div>
-					<div class="weather--description--icon">
-						@weatherIcon(f.Data[0].ID)
+					}}
+					<div class="weather--forecast--item">
+						<div>{ str }</div>
+						<div class="weather--description--icon">
+							@weatherIcon(f.Data[0].ID)
+						</div>
+						<div>
+							<strong>{ formatTemp(f.Temp.Max, weatherData.Unit) }°</strong>
+						</div>
 					</div>
-					<div>{ formatTemp(f.Temp.Max, weatherData.Unit) }°</div>
-				</div>
-			}
-		</div>
+				}
+			</div>
+		}
 	</div>
 }
 
@@ -138,14 +167,7 @@ templ Weather(theme string) {
 		id="weather-container"
 		class={ fmt.Sprintf("weather--theme-%s", theme) }
 		hx-post="/weather"
-		hx-trigger="load, every 30s"
-		hx-swap="innerHTML swap:1s"
-		hx-vals="js:{ 'mode': weatherMode }"
+		hx-trigger="load, every 60s"
+		hx-swap="innerHTML"
 	></div>
-	<script>
-	  var weatherMode = "current";
-		function updateWeatherMode(mode) {
-			weatherMode = mode;
-		}
-	</script>
 }
