@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/EdlinOrg/prominentcolor v1.0.0
-	github.com/a-h/templ v0.3.937
+	github.com/a-h/templ v0.3.943
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/disintegration/imaging v1.6.2
