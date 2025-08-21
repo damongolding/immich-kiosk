@@ -8,7 +8,6 @@ import (
 	"golang.org/x/text/language"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // formatTemp formats a temperature value based on the measurement system
@@ -80,20 +79,6 @@ templ weatherIcon(ID int) {
 	}
 }
 
-func forecastItemData(datetime int64, tzOffset int, systemLang monday.Locale) (bool, string) {
-	loc := time.FixedZone("owm", tzOffset)
-	t := time.Unix(datetime, 0).In(loc)
-	now := time.Now().In(loc)
-	isToday := t.Year() == now.Year() &&
-		t.Month() == now.Month() &&
-		t.Day() == now.Day()
-	isPast := t.Before(now)
-	if isToday || isPast {
-		return true, ""
-	}
-	return false, monday.Format(t, "Mon", systemLang)
-}
-
 templ WeatherLocation(weatherData weather.Location, systemLang monday.Locale) {
 	<div class="weather">
 		<div class="weather--location">
@@ -119,26 +104,19 @@ templ WeatherLocation(weatherData weather.Location, systemLang monday.Locale) {
 				</div>
 			}
 		</div>
-		if len(weatherData.Forecast.List) > 0 {
+		if len(weatherData.Forecast) > 0 {
 			<div class="weather--forecast">
-				for _, f := range weatherData.Forecast.List {
+				for _, f := range weatherData.Forecast {
 					{{
-						if len(f.Data) == 0 {
-							continue
-						}
-
-						isToday, forecastDay := forecastItemData(f.DT, weatherData.Timezone, systemLang)
-						if isToday {
-							continue
-						}
+						forecastDay := cases.Title(language.Und).String(monday.Format(f.Date, "Mon", systemLang))
 					}}
 					<div class="weather--forecast--item">
 						<div>{ forecastDay }</div>
 						<div class="weather--description--icon">
-							@weatherIcon(f.Data[0].ID)
+							@weatherIcon(f.WeatherIcon)
 						</div>
 						<div>
-							<strong>{ formatTemp(f.Temp.Max, weatherData.Unit) }°</strong>
+							<strong>{ formatTemp(f.MaxTemp, weatherData.Unit) }°</strong>
 						</div>
 					</div>
 				}
