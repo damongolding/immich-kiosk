@@ -26,6 +26,9 @@ var (
 	weatherDataStore  sync.Map
 	defaultLocationMu sync.RWMutex
 	defaultLocation   string
+	httpClient        = &http.Client{
+		Timeout: 10 * time.Second,
+	}
 )
 
 type Location struct {
@@ -248,9 +251,7 @@ func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, result
 	qLog.Set("appid", "REDACTED")
 	apiURLForLog.RawQuery = qLog.Encode()
 
-	client := &http.Client{
-		Timeout: time.Second * 10,
-	}
+	client := httpClient
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		log.Error(err)
@@ -277,8 +278,13 @@ func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, result
 	defer res.Body.Close()
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		err = fmt.Errorf("unexpected status code: %d", res.StatusCode)
-		log.Error(err)
+		bodyPreview, _ := io.ReadAll(io.LimitReader(res.Body, 1024))
+		err = fmt.Errorf("unexpected status code: %d, body: %s",
+			res.StatusCode, strings.TrimSpace(string(bodyPreview)))
+		log.Error("OpenWeatherMap API error",
+			"url", apiURLForLog.String(),
+			"status", res.StatusCode,
+			"body", string(bodyPreview))
 		return err
 	}
 
@@ -317,7 +323,7 @@ func (w *Location) updateForecast(ctx context.Context) (Location, error) {
 	if err != nil {
 		return *w, err
 	}
-	w.Forecast = processForecast(newForecast, w.Weather.Timezone)
+	w.Forecast = processForecast(newForecast, w.Timezone)
 	return *w, nil
 }
 
