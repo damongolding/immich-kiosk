@@ -55,7 +55,7 @@ type Weather struct {
 }
 
 type ForecastItem struct {
-	DT   int    `json:"dt"`
+	DT   int64  `json:"dt"`
 	Data []Data `json:"weather"`
 	Temp struct {
 		Day   float64 `json:"day"`
@@ -124,10 +124,8 @@ func SetDefaultLocation(location string) {
 	defaultLocation = location
 }
 
-// AddWeatherLocation adds a new weather location to be monitored.
-// It takes a context.Context for cancellation and a config.WeatherLocation struct to configure the monitoring.
-// The weather data is fetched immediately and then updated every 10 minutes until the context is cancelled.
-// If the location is marked as default and no default exists yet, it will be set as the default location.
+// addWeatherLocation is the internal worker that manages a single location.
+// It fetches initial data, then updates weather every 10 minutes and, if enabled, forecast on its own ticker.
 func addWeatherLocation(ctx context.Context, location config.WeatherLocation, withForecast bool) {
 	if location.Default && DefaultLocation() == "" {
 		SetDefaultLocation(location.Name)
@@ -139,7 +137,7 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 
 	var forecastTicker *time.Ticker
 	if withForecast {
-		forecastTicker = time.NewTicker(time.Hour)
+		forecastTicker = time.NewTicker(time.Hour * 3)
 		defer forecastTicker.Stop()
 	}
 
@@ -205,11 +203,12 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 	}
 }
 
-// For backward compatibility, you can provide wrapper functions:
+// AddWeatherLocation adds a new weather-only location (no forecast).
 func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 	addWeatherLocation(ctx, location, false)
 }
 
+// AddWeatherLocationWithForecast adds a new location and enables periodic forecast updates.
 func AddWeatherLocationWithForecast(ctx context.Context, location config.WeatherLocation) {
 	addWeatherLocation(ctx, location, true)
 }
@@ -250,6 +249,12 @@ func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, queryP
 	}
 	apiURL.RawQuery = q.Encode()
 
+	// Prepare a redacted URL for logging (avoid leaking API key)
+	apiURLForLog := apiURL
+	qLog := apiURLForLog.Query()
+	qLog.Set("appid", "REDACTED")
+	apiURLForLog.RawQuery = qLog.Encode()
+
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
@@ -267,7 +272,8 @@ func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, queryP
 		if err == nil {
 			break
 		}
-		log.Error("Request failed, retrying", "attempt", attempts, "URL", apiURL.String(), "err", err)
+		log.Error("Request failed, retrying", "attempt", attempts, "url", apiURLForLog.String(), "err", err)
+
 		time.Sleep(time.Duration(1<<attempts) * time.Second)
 	}
 	if err != nil {
@@ -285,7 +291,7 @@ func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, queryP
 
 	responseBody, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Error("reading response body", "url", apiURL.String(), "err", err)
+		log.Error("reading response body", "url", apiURLForLog.String(), "err", err)
 		return err
 	}
 

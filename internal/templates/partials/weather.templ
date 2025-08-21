@@ -3,6 +3,7 @@ package partials
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/weather"
+	"github.com/goodsign/monday"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"strconv"
@@ -79,20 +80,21 @@ templ weatherIcon(ID int) {
 	}
 }
 
-func forecastItemData(datetime, tzOffset int) (bool, string) {
+func forecastItemData(datetime int64, tzOffset int, systemLang monday.Locale) (bool, string) {
 	loc := time.FixedZone("owm", tzOffset)
-	t := time.Unix(int64(datetime), 0).In(loc)
+	t := time.Unix(datetime, 0).In(loc)
 	now := time.Now().In(loc)
 	isToday := t.Year() == now.Year() &&
 		t.Month() == now.Month() &&
 		t.Day() == now.Day()
-	if isToday {
+	isPast := t.Before(now)
+	if isToday || isPast {
 		return true, ""
 	}
-	return false, t.Weekday().String()[:3]
+	return false, monday.Format(t, "Mon", systemLang)
 }
 
-templ WeatherLocation(weatherData weather.Location) {
+templ WeatherLocation(weatherData weather.Location, systemLang monday.Locale) {
 	<div class="weather">
 		<div class="weather--location">
 			if strings.HasSuffix(weatherData.Name, weather.APINameKeyword) {
@@ -108,12 +110,14 @@ templ WeatherLocation(weatherData weather.Location) {
 			</div>
 		</div>
 		<div class="weather--description">
-			<div class="weather--description--value">
-				{ weatherData.Data[0].Description }
-			</div>
-			<div class="weather--description--icon">
-				@weatherIcon(weatherData.Data[0].ID)
-			</div>
+			if len(weatherData.Data) > 0 {
+				<div class="weather--description--value">
+					{ weatherData.Data[0].Description }
+				</div>
+				<div class="weather--description--icon">
+					@weatherIcon(weatherData.Data[0].ID)
+				</div>
+			}
 		</div>
 		if len(weatherData.Forecast.List) > 0 {
 			<div class="weather--forecast">
@@ -123,7 +127,7 @@ templ WeatherLocation(weatherData weather.Location) {
 							continue
 						}
 
-						isToday, forecastDay := forecastItemData(f.DT, weatherData.Timezone)
+						isToday, forecastDay := forecastItemData(f.DT, weatherData.Timezone, systemLang)
 						if isToday {
 							continue
 						}
