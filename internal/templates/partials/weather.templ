@@ -108,7 +108,7 @@ templ WeatherLocation(weatherData weather.Location, systemLang monday.Locale) {
 			<div class="weather--forecast">
 				for _, f := range weatherData.Forecast {
 					{{
-						forecastDay := cases.Title(language.Und).String(monday.Format(f.Date, "Mon", systemLang))
+						forecastDay := monday.Format(f.Date, "Mon", systemLang)
 					}}
 					<div class="weather--forecast--item">
 						<div>{ forecastDay }</div>

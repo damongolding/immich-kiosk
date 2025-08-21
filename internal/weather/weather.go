@@ -317,21 +317,22 @@ func (w *Location) updateForecast(ctx context.Context) (Location, error) {
 	if err != nil {
 		return *w, err
 	}
-	w.Forecast = processForecast(newForecast)
+	w.Forecast = processForecast(newForecast, w.Weather.Timezone)
 	return *w, nil
 }
 
-func processForecast(forecast Forecast) []DailySummary {
-	// Today’s date at midnight UTC
-	now := time.Now().UTC()
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+func processForecast(forecast Forecast, tzOffsetSeconds int) []DailySummary {
+	loc := time.FixedZone("owm", tzOffsetSeconds)
+	// Today’s date at midnight in location zone
+	now := time.Now().In(loc)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
 
 	daily := make(map[string]*DailySummary)
 	weatherCounts := make(map[string]map[int]int)
 
 	for _, item := range forecast.List {
-		itemTime := time.Unix(item.DT, 0).UTC()
-		itemDate := time.Date(itemTime.Year(), itemTime.Month(), itemTime.Day(), 0, 0, 0, 0, time.UTC)
+		itemTime := time.Unix(item.DT, 0).In(loc)
+		itemDate := time.Date(itemTime.Year(), itemTime.Month(), itemTime.Day(), 0, 0, 0, 0, loc)
 
 		// Skip today and past
 		if !itemDate.After(today) {
@@ -342,11 +343,16 @@ func processForecast(forecast Forecast) []DailySummary {
 
 		// Init if not exists
 		if _, ok := daily[dateStr]; !ok {
+			// Default to clear sky (800) if no descriptors
+			iconID := 800
+			if len(item.Data) > 0 {
+				iconID = item.Data[0].ID
+			}
 			daily[dateStr] = &DailySummary{
 				Date:        itemDate,
 				DateStr:     dateStr,
 				MaxTemp:     item.Main.TempMax,
-				WeatherIcon: item.Data[0].ID,
+				WeatherIcon: iconID,
 			}
 			weatherCounts[dateStr] = make(map[int]int)
 		}
@@ -357,7 +363,10 @@ func processForecast(forecast Forecast) []DailySummary {
 		}
 
 		// Count weather.id
-		weatherID := item.Data[0].ID
+		weatherID := daily[dateStr].WeatherIcon
+		if len(item.Data) > 0 {
+			weatherID = item.Data[0].ID
+		}
 		weatherCounts[dateStr][weatherID]++
 
 		// Update most common
@@ -381,6 +390,7 @@ func processForecast(forecast Forecast) []DailySummary {
 		return summaries[i].DateStr < summaries[j].DateStr
 	})
 
-	return summaries[:3]
+	n := min(3, len(summaries))
+	return summaries[:n]
 
 }
