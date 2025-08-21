@@ -209,7 +209,11 @@ func main() {
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 
 	for _, w := range baseConfig.WeatherLocations {
-		go weather.AddWeatherLocation(c.Context(), w)
+		if w.Forecast {
+			go weather.AddWeatherLocationWithForecast(c.Context(), w)
+		} else {
+			go weather.AddWeatherLocation(c.Context(), w)
+		}
 	}
 
 	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))

@@ -61,7 +61,8 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 				time.Sleep(time.Duration(1<<attempts) * time.Second)
 				continue
 			}
-			return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation))
+			return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation, baseConfig.SystemLang))
+
 		}
 
 		log.Error("failed to fetch weather data after all attempts",
