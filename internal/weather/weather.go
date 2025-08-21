@@ -176,6 +176,10 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 		}
 	}
 
+	var forecastCh <-chan time.Time
+	if withForecast && forecastTicker != nil {
+		forecastCh = forecastTicker.C
+	}
 	for {
 		select {
 		case <-ctx.Done():
@@ -183,30 +187,19 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 			return
 		case <-weatherTicker.C:
 			log.Debug("Getting weather for", "name", w.Name)
-			newWeather, newWeatherErr := w.updateWeather(ctx)
-			if newWeatherErr != nil {
-				log.Error("Failed to update weather", "name", w.Name, "error", newWeatherErr)
-				continue
-			}
-			weatherDataStore.Store(strings.ToLower(w.Name), newWeather)
-			log.Debug("Retrieved weather for", "name", w.Name)
-		default:
-			if withForecast && forecastTicker != nil {
-				select {
-				case <-forecastTicker.C:
-					log.Debug("Getting forecast for", "name", w.Name)
-					newForecast, newForecastErr := w.updateForecast(ctx)
-					if newForecastErr != nil {
-						log.Error("Failed to update forecast", "name", w.Name, "error", newForecastErr)
-						continue
-					}
-					weatherDataStore.Store(strings.ToLower(w.Name), newForecast)
-					log.Debug("Retrieved forecast for", "name", w.Name)
-				default:
-					time.Sleep(100 * time.Millisecond)
-				}
+			if newWeather, err := w.updateWeather(ctx); err != nil {
+				log.Error("Failed to update weather", "name", w.Name, "error", err)
 			} else {
-				time.Sleep(100 * time.Millisecond)
+				weatherDataStore.Store(strings.ToLower(w.Name), newWeather)
+				log.Debug("Retrieved weather for", "name", w.Name)
+			}
+		case <-forecastCh:
+			log.Debug("Getting forecast for", "name", w.Name)
+			if newForecast, err := w.updateForecast(ctx); err != nil {
+				log.Error("Failed to update forecast", "name", w.Name, "error", err)
+			} else {
+				weatherDataStore.Store(strings.ToLower(w.Name), newForecast)
+				log.Debug("Retrieved forecast for", "name", w.Name)
 			}
 		}
 	}
