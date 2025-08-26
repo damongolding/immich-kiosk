@@ -261,17 +261,24 @@ func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, result
 	req.Header.Add("Accept", "application/json")
 
 	var res *http.Response
-	for attempts := range 3 {
+	for attempt := range 3 {
 		res, err = client.Do(req)
 		if err == nil {
 			break
 		}
-		log.Error("Request failed, retrying", "attempt", attempts, "url", apiURLForLog.String(), "err", err)
+		// Log attempts as 1-based for clarity
+		log.Error("Request failed, retrying", "attempt", attempt+1, "url", apiURLForLog.String(), "err", err)
 
-		time.Sleep(time.Duration(1<<attempts) * time.Second)
+		backoff := time.Duration(1<<attempt) * time.Second
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(backoff):
+		}
 	}
+
 	if err != nil {
-		log.Error("Request failed after retries", "err", err)
+		log.Error("Request failed after retries", "url", apiURLForLog.String(), "err", err)
 		return err
 	}
 
@@ -288,16 +295,10 @@ func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, result
 		return err
 	}
 
-	responseBody, err := io.ReadAll(res.Body)
-	if err != nil {
-		log.Error("reading response body", "url", apiURLForLog.String(), "err", err)
-		return err
-	}
-
-	unmarshalErr := json.Unmarshal(responseBody, result)
-	if unmarshalErr != nil {
-		log.Error("fetchWeatherData", "err", unmarshalErr)
-		return unmarshalErr
+	decErr := json.NewDecoder(res.Body).Decode(result)
+	if decErr != nil {
+		log.Error("fetchWeatherData", "err", decErr)
+		return decErr
 	}
 
 	return nil
