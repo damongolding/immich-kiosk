@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"sort"
@@ -26,8 +27,22 @@ var (
 	weatherDataStore  sync.Map
 	defaultLocationMu sync.RWMutex
 	defaultLocation   string
-	httpClient        = &http.Client{
-		Timeout: 10 * time.Second,
+	httpTransport     = &http.Transport{
+		MaxIdleConns:        100,
+		IdleConnTimeout:     90 * time.Second,
+		DisableKeepAlives:   false,
+		MaxIdleConnsPerHost: 100,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ResponseHeaderTimeout: 30 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+	httpClient = &http.Client{
+		Transport: httpTransport,
+		Timeout:   10 * time.Second,
 	}
 )
 
@@ -226,7 +241,7 @@ func CurrentWeather(name string) Location {
 }
 
 // fetchWeatherData is a generic function to fetch weather or forecast data from the OpenWeatherMap API.
-// The 'endpoint' argument should be either "weather" or "forecast/daily".
+// The 'endpoint' argument should be either "weather" or "forecast".
 // The 'result' argument should be a pointer to the struct to unmarshal into (Weather or Forecast).
 func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, result any) error {
 	apiURL := url.URL{
