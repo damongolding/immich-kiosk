@@ -42,7 +42,7 @@ var (
 	}
 	httpClient = &http.Client{
 		Transport: httpTransport,
-		Timeout:   10 * time.Second,
+		Timeout:   30 * time.Second,
 	}
 )
 
@@ -409,7 +409,7 @@ func processForecast(forecast Forecast, tzOffsetSeconds int) []DailySummary {
 		summaries = append(summaries, *v)
 	}
 	sort.Slice(summaries, func(i, j int) bool {
-		return summaries[i].DateStr < summaries[j].DateStr
+		return summaries[i].Date.Before(summaries[j].Date)
 	})
 
 	n := min(3, len(summaries))
