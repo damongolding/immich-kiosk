@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 	"unsafe"
@@ -515,7 +516,10 @@ func (c *Config) Load() error {
 			log.Fatal(err)
 		}
 	} else {
-		level := c.V.GetString("kiosk.config_validation_level")
+		level := strings.ToLower(strings.TrimSpace(c.V.GetString("kiosk.config_validation_level")))
+		if level != "warning" && level != "error" {
+			level = "error"
+		}
 		valid := checkSchema(c.V.AllSettings(), level)
 		if !valid && level != "warning" {
 			log.Fatal("Invalid configuration")
