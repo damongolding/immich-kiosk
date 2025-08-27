@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.23.0-beta.2
+  VERSION: 0.23.1
 
 includes:
   frontend:
