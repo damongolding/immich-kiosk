@@ -517,12 +517,12 @@ func (c *Config) Load() error {
 		case !isValidYAML(c.V.ConfigFileUsed()):
 			log.Fatal(err)
 		}
-
 	} else {
 		level := strings.ToLower(strings.TrimSpace(c.V.GetString("kiosk.config_validation_level")))
 		if level != kiosk.ConfigValidationWarning && level != kiosk.ConfigValidationError {
 			level = kiosk.ConfigValidationError
 		}
+
 		valid := checkSchema(c.V.AllSettings(), level)
 		if !valid && level != kiosk.ConfigValidationWarning {
 			log.Fatal("Invalid configuration")
