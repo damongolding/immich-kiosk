@@ -262,6 +262,11 @@
           "lang": {
             "type": "string"
           },
+          "forecast": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to include 3 day forecast data"
+          },
           "default": {
             "type": "boolean"
           }

@@ -130,13 +130,14 @@ type KioskSettings struct {
 }
 
 type WeatherLocation struct {
-	Name    string `yaml:"name" mapstructure:"name" redact:"true"`
-	Lat     string `yaml:"lat" mapstructure:"lat" redact:"true"`
-	Lon     string `yaml:"lon" mapstructure:"lon" redact:"true"`
-	API     string `yaml:"api" mapstructure:"api" redact:"true"`
-	Unit    string `yaml:"unit" mapstructure:"unit" redact:"true"`
-	Lang    string `yaml:"lang" mapstructure:"lang" redact:"true"`
-	Default bool   `yaml:"default" mapstructure:"default"`
+	Name     string `yaml:"name" mapstructure:"name" redact:"true"`
+	Lat      string `yaml:"lat" mapstructure:"lat" redact:"true"`
+	Lon      string `yaml:"lon" mapstructure:"lon" redact:"true"`
+	API      string `yaml:"api" mapstructure:"api" redact:"true"`
+	Unit     string `yaml:"unit" mapstructure:"unit" redact:"true"`
+	Lang     string `yaml:"lang" mapstructure:"lang" redact:"true"`
+	Forecast bool   `yaml:"forecast" mapstructure:"forecast" default:"false"`
+	Default  bool   `yaml:"default" mapstructure:"default"`
 }
 
 type Webhook struct {

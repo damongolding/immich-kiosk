@@ -67,3 +67,17 @@
 .sleep #weather-container {
     display: none;
 }
+
+.weather--forecast {
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.weather--forecast--item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+}
