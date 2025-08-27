@@ -262,6 +262,11 @@
           "lang": {
             "type": "string"
           },
+          "forecast": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to include 3 day forecast data"
+          },
           "default": {
             "type": "boolean"
           }
@@ -338,6 +343,12 @@
         },
         "debug_verbose": {
           "type": "boolean"
+        },
+        "config_validation_level": {
+          "type": "string",
+          "enum": ["warning", "error"],
+          "default": "error",
+          "description": "Controls how invalid configuration is handled. 'warning' logs a warning and continues; 'error' treats invalid configuration as fatal."
         },
         "port": {
           "type": "integer"

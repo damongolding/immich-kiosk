@@ -27,11 +27,13 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 	"unsafe"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/goodsign/monday"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
@@ -88,6 +90,8 @@ type KioskSettings struct {
 	// RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
 	RedirectsMap map[string]Redirect `json:"-" yaml:"-"`
 
+	ConfigValidationLevel string `json:"configValidationLevel" yaml:"config_validation_level" mapstructure:"config_validation_level" default:"error" lowercase:"true"`
+
 	// Port which port to use
 	Port int `json:"port" yaml:"port" mapstructure:"port" default:"3000"`
 
@@ -128,13 +132,14 @@ type KioskSettings struct {
 }
 
 type WeatherLocation struct {
-	Name    string `yaml:"name" mapstructure:"name" redact:"true"`
-	Lat     string `yaml:"lat" mapstructure:"lat" redact:"true"`
-	Lon     string `yaml:"lon" mapstructure:"lon" redact:"true"`
-	API     string `yaml:"api" mapstructure:"api" redact:"true"`
-	Unit    string `yaml:"unit" mapstructure:"unit" redact:"true"`
-	Lang    string `yaml:"lang" mapstructure:"lang" redact:"true"`
-	Default bool   `yaml:"default" mapstructure:"default"`
+	Name     string `yaml:"name" mapstructure:"name" redact:"true"`
+	Lat      string `yaml:"lat" mapstructure:"lat" redact:"true"`
+	Lon      string `yaml:"lon" mapstructure:"lon" redact:"true"`
+	API      string `yaml:"api" mapstructure:"api" redact:"true"`
+	Unit     string `yaml:"unit" mapstructure:"unit" redact:"true"`
+	Lang     string `yaml:"lang" mapstructure:"lang" redact:"true"`
+	Forecast bool   `yaml:"forecast" mapstructure:"forecast" default:"false"`
+	Default  bool   `yaml:"default" mapstructure:"default"`
 }
 
 type Webhook struct {
@@ -446,6 +451,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.debug", "KIOSK_DEBUG"},
 		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
 		{"kiosk.demo_mode", "KIOSK_DEMO_MODE"},
+		{"kiosk.config_validation_level", "KIOSK_CONFIG_VALIDATION_LEVEL"},
 	}
 
 	for _, bv := range bindVars {
@@ -505,13 +511,22 @@ func (c *Config) Load() error {
 	err := c.V.ReadInConfig()
 	if err != nil {
 		var configFileNotFoundErr viper.ConfigFileNotFoundError
-		if errors.As(err, &configFileNotFoundErr) {
+		switch {
+		case errors.As(err, &configFileNotFoundErr):
 			log.Info("Not using config.yaml")
-		} else if !isValidYAML(c.V.ConfigFileUsed()) {
+		case !isValidYAML(c.V.ConfigFileUsed()):
 			log.Fatal(err)
 		}
+
 	} else {
-		checkSchema(c.V.AllSettings())
+		level := strings.ToLower(strings.TrimSpace(c.V.GetString("kiosk.config_validation_level")))
+		if level != kiosk.ConfigValidationWarning && level != kiosk.ConfigValidationError {
+			level = kiosk.ConfigValidationError
+		}
+		valid := checkSchema(c.V.AllSettings(), level)
+		if !valid && level != kiosk.ConfigValidationWarning {
+			log.Fatal("Invalid configuration")
+		}
 	}
 
 	err = c.V.Unmarshal(&c)
