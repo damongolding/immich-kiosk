@@ -3,6 +3,9 @@ package kiosk
 type Source string
 
 const (
+	ConfigValidationWarning string = "warning"
+	ConfigValidationError   string = "error"
+
 	AlbumKeywordAll        string = "all"
 	AlbumKeywordOwned      string = "owned"
 	AlbumKeywordShared     string = "shared"

@@ -47,6 +47,7 @@ var (
 	// httpTransport defines the transport layer configuration for HTTP requests to the Immich API.
 	// It manages connection pooling, keepalive settings, and connection timeouts.
 	httpTransport = &http.Transport{
+		Proxy:               http.ProxyFromEnvironment,
 		MaxIdleConns:        100,
 		IdleConnTimeout:     90 * time.Second,
 		DisableKeepAlives:   false,

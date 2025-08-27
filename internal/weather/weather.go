@@ -28,6 +28,7 @@ var (
 	defaultLocationMu sync.RWMutex
 	defaultLocation   string
 	httpTransport     = &http.Transport{
+		Proxy:               http.ProxyFromEnvironment,
 		MaxIdleConns:        100,
 		IdleConnTimeout:     90 * time.Second,
 		DisableKeepAlives:   false,

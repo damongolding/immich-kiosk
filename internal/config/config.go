@@ -33,6 +33,7 @@ import (
 	"unsafe"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/goodsign/monday"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
@@ -510,18 +511,20 @@ func (c *Config) Load() error {
 	err := c.V.ReadInConfig()
 	if err != nil {
 		var configFileNotFoundErr viper.ConfigFileNotFoundError
-		if errors.As(err, &configFileNotFoundErr) {
+		switch {
+		case errors.As(err, &configFileNotFoundErr):
 			log.Info("Not using config.yaml")
-		} else if !isValidYAML(c.V.ConfigFileUsed()) {
+		case !isValidYAML(c.V.ConfigFileUsed()):
 			log.Fatal(err)
 		}
+
 	} else {
 		level := strings.ToLower(strings.TrimSpace(c.V.GetString("kiosk.config_validation_level")))
-		if level != "warning" && level != "error" {
-			level = "error"
+		if level != kiosk.ConfigValidationWarning && level != kiosk.ConfigValidationError {
+			level = kiosk.ConfigValidationError
 		}
 		valid := checkSchema(c.V.AllSettings(), level)
-		if !valid && level != "warning" {
+		if !valid && level != kiosk.ConfigValidationWarning {
 			log.Fatal("Invalid configuration")
 		}
 	}
