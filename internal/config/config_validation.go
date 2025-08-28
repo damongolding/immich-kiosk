@@ -1,15 +1,16 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
 	"reflect"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -362,35 +363,31 @@ func (c *Config) checkOffline() {
 }
 
 func checkSchema(config map[string]any, level string) bool {
+	if strings.EqualFold(level, kiosk.ConfigValidationOff) {
+		log.Info("Config validation disabled")
+		return true
+	}
 
 	if !IsSchemaLoaded() {
 		log.Warn("Schema not loaded, skipping validation")
 		return true
 	}
 
-	// if we are using a config.yaml file but supplying immich_api_key || immich_url via ENVs get them
-	if v, ok := config["immich_api_key"]; !ok || v == "" {
-		config["immich_api_key"] = os.Getenv("KIOSK_IMMICH_API_KEY")
-	}
-
-	if v, ok := config["immich_url"]; !ok || v == "" {
-		config["immich_url"] = os.Getenv("KIOSK_IMMICH_URL")
-	}
-
-	jsonData, err := json.Marshal(config)
-	if err != nil {
-		log.Error("Failed to marshal config to JSON", "err", err)
-		return false
+	typed := ConfigTypes(config, Config{})
+	for k, v := range config {
+		if _, ok := typed[k]; !ok {
+			typed[k] = v
+		}
 	}
 
 	// Load JSON Schema from file
 	schemaLoader := gojsonschema.NewStringLoader(SchemaJSON)
-	docLoader := gojsonschema.NewBytesLoader(jsonData)
+	docLoader := gojsonschema.NewGoLoader(typed)
 
 	// Validate
 	result, err := gojsonschema.Validate(schemaLoader, docLoader)
 	if err != nil {
-		log.Error("Schema validation setup failed", "err", err)
+		log.Error("Schema validation setup failed: validate", "err", err)
 		return false
 	}
 
@@ -411,4 +408,84 @@ func checkSchema(config map[string]any, level string) bool {
 	}
 
 	return true
+}
+
+func ConfigTypes(settings map[string]any, cfgStruct any) map[string]any {
+	return convertConfigTypes(reflect.TypeOf(cfgStruct), settings)
+}
+
+func convertConfigTypes(typ reflect.Type, settings map[string]any) map[string]any {
+	result := make(map[string]any)
+
+	// If pointer, get the element
+	if typ.Kind() == reflect.Pointer {
+		typ = typ.Elem()
+	}
+
+	for i := range typ.NumField() {
+		field := typ.Field(i)
+		tag := field.Tag.Get("mapstructure")
+		if tag == "" {
+			tag = field.Name
+		}
+
+		raw, rawFound := settings[tag]
+		if !rawFound {
+			continue
+		}
+
+		switch field.Type.Kind() {
+		case reflect.Struct:
+			if nestedMap, ok := raw.(map[string]any); ok {
+				result[tag] = convertConfigTypes(field.Type, nestedMap)
+			}
+		case reflect.Int:
+			switch v := raw.(type) {
+			case string:
+				if n, err := strconv.Atoi(v); err == nil {
+					result[tag] = n
+				}
+			default:
+				result[tag] = v
+			}
+		case reflect.Bool:
+			switch v := raw.(type) {
+			case string:
+				if b, err := strconv.ParseBool(v); err == nil {
+					result[tag] = b
+				}
+			case float64:
+				result[tag] = v != 0
+			default:
+				result[tag] = v
+			}
+		case reflect.Float32, reflect.Float64:
+			switch v := raw.(type) {
+			case string:
+				if f, err := strconv.ParseFloat(strings.TrimSpace(v), 64); err == nil {
+					if field.Type.Kind() == reflect.Float32 {
+						result[tag] = float32(f)
+					} else {
+						result[tag] = f
+					}
+				}
+			case float64:
+				if field.Type.Kind() == reflect.Float32 {
+					result[tag] = float32(v)
+				} else {
+					result[tag] = v
+				}
+			default:
+				result[tag] = v
+			}
+		case reflect.String:
+			if s, ok := raw.(string); ok {
+				result[tag] = s
+			}
+		default:
+			result[tag] = raw
+		}
+	}
+
+	return result
 }

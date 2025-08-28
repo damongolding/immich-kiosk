@@ -43,14 +43,14 @@ type Meta struct {
 }
 
 type Payload struct {
+	Meta       Meta           `json:"meta"`
 	Event      string         `json:"event"`
 	Timestamp  string         `json:"timestamp"`
 	DeviceID   string         `json:"deviceID"`
 	ClientName string         `json:"clientName"`
-	AssetCount int            `json:"assetCount"`
 	Assets     []immich.Asset `json:"assets"`
 	Config     config.Config  `json:"config"`
-	Meta       Meta           `json:"meta"`
+	AssetCount int            `json:"assetCount"`
 }
 
 // newHTTPClient creates a new HTTP client with the specified timeout duration.
