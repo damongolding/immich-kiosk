@@ -283,7 +283,7 @@
             "type": ["number", "string"]
           },
           "api": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "unit": {
             "type": "string"
@@ -450,6 +450,9 @@
             },
             "required": ["name", "url"]
           }
+        },
+        "demo_mode": {
+          "type": "boolean"
         }
       },
       "required": []
