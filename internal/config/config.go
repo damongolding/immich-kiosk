@@ -253,7 +253,7 @@ type Config struct {
 	ImageFit string `json:"imageFit" yaml:"image_fit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
 	// ImageEffect which effect to apply to image (if any)
 	ImageEffect string `json:"imageEffect" yaml:"image_effect" mapstructure:"image_effect" query:"image_effect" form:"image_effect" default:"" lowercase:"true"`
-	// BackgroundBlur which transition to use none|fade|cross-fade
+	// Transition which transition to use none|fade|cross-fade
 	Transition string `json:"transition" yaml:"transition" mapstructure:"transition" query:"transition" form:"transition" default:"" lowercase:"true"`
 	// ProgressBarPosition
 	ProgressBarPosition string `json:"progressBarPosition" yaml:"progress_bar_position" mapstructure:"progress_bar_position" query:"progress_bar_position" form:"progress_bar_position" default:"top"`

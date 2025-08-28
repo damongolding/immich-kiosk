@@ -407,7 +407,9 @@
           "type": "boolean"
         },
         "fetched_assets_size": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
         },
         "http_timeout": {
           "type": "integer"
