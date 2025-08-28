@@ -480,21 +480,18 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 }
 
 // isValidYAML checks if the given file is a valid YAML file.
-func isValidYAML(filename string) bool {
+func isValidYAML(filename string) error {
 	content, err := os.ReadFile(filename)
 	if err != nil {
-		log.Error("Error reading file", "err", err)
-		return false
+		return fmt.Errorf("error reading file: %w", err)
 	}
 
 	var data any
-	err = yaml.Unmarshal(content, &data)
-	if err != nil {
-		log.Fatal(err)
-		return false
+	if err = yaml.Unmarshal(content, &data); err != nil {
+		return fmt.Errorf("invalid YAML: %w", err)
 	}
 
-	return true
+	return nil
 }
 
 // load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
@@ -526,7 +523,7 @@ func (c *Config) Load() error {
 		switch {
 		case errors.As(readInConfigErr, &configFileNotFoundErr):
 			log.Info("Not using config.yaml")
-		case !isValidYAML(c.V.ConfigFileUsed()):
+		case isValidYAML(c.V.ConfigFileUsed()) != nil:
 			log.Fatal(readInConfigErr)
 		}
 	} else {
