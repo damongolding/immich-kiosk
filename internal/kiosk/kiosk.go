@@ -5,6 +5,7 @@ type Source string
 const (
 	ConfigValidationWarning string = "warning"
 	ConfigValidationError   string = "error"
+	ConfigValidationOff     string = "off"
 
 	AlbumKeywordAll        string = "all"
 	AlbumKeywordOwned      string = "owned"

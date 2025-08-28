@@ -83,8 +83,8 @@ type PersonStatistics struct {
 }
 
 type Error struct {
-	Message    []string `json:"message"`
 	Error      string   `json:"error"`
+	Message    []string `json:"message"`
 	StatusCode int      `json:"statusCode"`
 }
 
@@ -95,28 +95,28 @@ type Owner struct {
 }
 
 type ExifInfo struct {
-	Make             string    `json:"make"`
-	Model            string    `json:"model"`
-	ExifImageWidth   int       `json:"exifImageWidth"`
-	ExifImageHeight  int       `json:"exifImageHeight"`
-	FileSizeInByte   int       `json:"fileSizeInByte"`
-	Orientation      string    `json:"orientation"`
 	DateTimeOriginal time.Time `json:"dateTimeOriginal"`
 	ModifyDate       time.Time `json:"modifyDate"`
+	ProjectionType   any       `json:"-"` // `json:"projectionType"`
+	Make             string    `json:"make"`
+	Model            string    `json:"model"`
+	Orientation      string    `json:"orientation"`
 	TimeZone         string    `json:"timeZone"`
 	LensModel        string    `json:"lensModel"`
-	FNumber          float64   `json:"fNumber"`
-	FocalLength      float64   `json:"focalLength"`
-	Iso              int       `json:"iso"`
 	ExposureTime     string    `json:"exposureTime"`
-	Latitude         float64   `json:"latitude"`
-	Longitude        float64   `json:"longitude"`
 	City             string    `json:"city"`
 	State            string    `json:"state"`
 	Country          string    `json:"country"`
 	Description      string    `json:"description"`
-	ProjectionType   any       `json:"-"` // `json:"projectionType"`
 	ImageOrientation ImageOrientation
+	ExifImageWidth   int     `json:"exifImageWidth"`
+	ExifImageHeight  int     `json:"exifImageHeight"`
+	FileSizeInByte   int     `json:"fileSizeInByte"`
+	FNumber          float64 `json:"fNumber"`
+	FocalLength      float64 `json:"focalLength"`
+	Iso              int     `json:"iso"`
+	Latitude         float64 `json:"latitude"`
+	Longitude        float64 `json:"longitude"`
 }
 
 type BirthDate string
@@ -129,13 +129,13 @@ func (bd BirthDate) Time() (time.Time, error) {
 }
 
 type Person struct {
+	UpdatedAt     time.Time `json:"-"` // `json:"updatedAt"`
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
 	BirthDate     BirthDate `json:"birthDate"`
 	ThumbnailPath string    `json:"-"` // `json:"thumbnailPath"`
-	IsHidden      bool      `json:"-"` // `json:"isHidden"`
-	UpdatedAt     time.Time `json:"-"` // `json:"updatedAt"`
 	Faces         []Face    `json:"faces"`
+	IsHidden      bool      `json:"-"` // `json:"isHidden"`
 }
 
 type Tag struct {
@@ -149,20 +149,31 @@ type Tag struct {
 
 type Face struct {
 	ID            string `json:"id"`
+	SourceType    string `json:"sourceType"`
 	ImageHeight   int    `json:"imageHeight"`
 	ImageWidth    int    `json:"imageWidth"`
 	BoundingBoxX1 int    `json:"boundingBoxX1"`
 	BoundingBoxX2 int    `json:"boundingBoxX2"`
 	BoundingBoxY1 int    `json:"boundingBoxY1"`
 	BoundingBoxY2 int    `json:"boundingBoxY2"`
-	SourceType    string `json:"sourceType"`
 }
 
 type Asset struct {
+	FileCreatedAt  time.Time `json:"-"` // `json:"fileCreatedAt"`
+	FileModifiedAt time.Time `json:"-"` // `json:"fileModifiedAt"`
+	LocalDateTime  time.Time `json:"localDateTime"`
+	UpdatedAt      time.Time `json:"-"` // `json:"updatedAt"`
+	StackCount     any       `json:"-"` // `json:"stackCount"`
+	DuplicateID    any       `json:"-"` // `json:"duplicateId"`
+
+	ctx context.Context `json:"-"`
+
+	// Data added and used by Kiosk
+	mu               *sync.Mutex
+	Owner            Owner     `json:"owner"`
 	ID               string    `json:"id"`
 	DeviceAssetID    string    `json:"-"` // `json:"deviceAssetId"`
 	OwnerID          string    `json:"ownerId"`
-	Owner            Owner     `json:"owner"`
 	DeviceID         string    `json:"-"` // `json:"deviceId"`
 	LibraryID        string    `json:"-"` // `json:"libraryId"`
 	Type             AssetType `json:"type"`
@@ -170,38 +181,30 @@ type Asset struct {
 	OriginalFileName string    `json:"originalFileName"`
 	OriginalMimeType string    `json:"originalMimeType"`
 	Thumbhash        string    `json:"-"` // `json:"thumbhash"`
-	FileCreatedAt    time.Time `json:"-"` // `json:"fileCreatedAt"`
-	FileModifiedAt   time.Time `json:"-"` // `json:"fileModifiedAt"`
-	LocalDateTime    time.Time `json:"localDateTime"`
-	UpdatedAt        time.Time `json:"-"` // `json:"updatedAt"`
-	IsFavorite       bool      `json:"isFavorite"`
-	IsArchived       bool      `json:"isArchived"`
-	IsTrashed        bool      `json:"isTrashed"`
 	Duration         string    `json:"-"` // `json:"duration"`
-	ExifInfo         ExifInfo  `json:"exifInfo"`
 	LivePhotoVideoID string    `json:"livePhotoVideoId"`
-	People           []Person  `json:"people"`
-	Tags             Tags      `json:"tags"`
-	UnassignedFaces  []Face    `json:"unassignedFaces"`
 	Checksum         string    `json:"checksum"`
-	StackCount       any       `json:"-"` // `json:"stackCount"`
-	IsOffline        bool      `json:"-"` // `json:"isOffline"`
-	HasMetadata      bool      `json:"-"` // `json:"hasMetadata"`
-	DuplicateID      any       `json:"-"` // `json:"duplicateId"`
 	Visibility       string    `json:"-"` // `json:"visibility"`
 
-	// Data added and used by Kiosk
-	mu          *sync.Mutex
 	RatioWanted ImageOrientation `json:"-"`
-	IsPortrait  bool             `json:"isPortrait"`
-	IsLandscape bool             `json:"isLandscape"`
 	MemoryTitle string           `json:"-"`
-	AppearsIn   Albums           `json:"kioskAppearsIn"`
 	Bucket      kiosk.Source     `json:"kioskBucket"`
 	BucketID    string           `json:"kioskBucketId"`
 
-	ctx           context.Context `json:"-"`
-	requestConfig config.Config   `json:"-"`
+	People          []Person `json:"people"`
+	Tags            Tags     `json:"tags"`
+	UnassignedFaces []Face   `json:"unassignedFaces"`
+	AppearsIn       Albums   `json:"kioskAppearsIn"`
+	ExifInfo        ExifInfo `json:"exifInfo"`
+
+	requestConfig config.Config `json:"-"`
+	IsFavorite    bool          `json:"isFavorite"`
+	IsArchived    bool          `json:"isArchived"`
+	IsTrashed     bool          `json:"isTrashed"`
+	IsOffline     bool          `json:"-"` // `json:"isOffline"`
+	HasMetadata   bool          `json:"-"` // `json:"hasMetadata"`
+	IsPortrait    bool          `json:"isPortrait"`
+	IsLandscape   bool          `json:"isLandscape"`
 }
 
 type Album struct {
@@ -220,21 +223,11 @@ type SearchRandomBody struct {
 	CreatedAfter  string   `url:"createdAfter,omitempty" json:"createdAfter,omitempty"`
 	CreatedBefore string   `url:"createdBefore,omitempty" json:"createdBefore,omitempty"`
 	DeviceID      string   `url:"deviceId,omitempty" json:"deviceId,omitempty"`
-	IsArchived    bool     `url:"isArchived,omitempty" json:"isArchived,omitempty"`
-	IsEncoded     bool     `url:"isEncoded,omitempty" json:"isEncoded,omitempty"`
-	IsFavorite    bool     `url:"isFavorite,omitempty" json:"isFavorite,omitempty"`
-	IsMotion      bool     `url:"isMotion,omitempty" json:"isMotion,omitempty"`
-	IsNotInAlbum  bool     `url:"isNotInAlbum,omitempty" json:"isNotInAlbum,omitempty"`
-	IsOffline     bool     `url:"isOffline,omitempty" json:"isOffline,omitempty"`
-	IsVisible     bool     `url:"isVisible,omitempty" json:"isVisible,omitempty"`
 	LensModel     string   `url:"lensModel,omitempty" json:"lensModel,omitempty"`
 	LibraryID     string   `url:"libraryId,omitempty" json:"libraryId,omitempty"`
 	Make          string   `url:"make,omitempty" json:"make,omitempty"`
 	Model         string   `url:"model,omitempty" json:"model,omitempty"`
-	PersonIDs     []string `url:"personIds,omitempty" json:"personIds,omitempty"`
-	Size          int      `url:"size,omitempty" json:"size,omitempty"`
 	State         string   `url:"state,omitempty" json:"state,omitempty"`
-	TagIDs        []string `url:"tagIds,omitempty" json:"tagIds,omitempty"`
 	TakenAfter    string   `url:"takenAfter,omitempty" json:"takenAfter,omitempty"`
 	TakenBefore   string   `url:"takenBefore,omitempty" json:"takenBefore,omitempty"`
 	TrashedAfter  string   `url:"trashedAfter,omitempty" json:"trashedAfter,omitempty"`
@@ -242,12 +235,22 @@ type SearchRandomBody struct {
 	Type          string   `url:"type,omitempty" json:"type,omitempty"`
 	UpdatedAfter  string   `url:"updatedAfter,omitempty" json:"updatedAfter,omitempty"`
 	UpdatedBefore string   `url:"updatedBefore,omitempty" json:"updatedBefore,omitempty"`
+	PersonIDs     []string `url:"personIds,omitempty" json:"personIds,omitempty"`
+	TagIDs        []string `url:"tagIds,omitempty" json:"tagIds,omitempty"`
+	Size          int      `url:"size,omitempty" json:"size,omitempty"`
+	Page          int      `url:"page,omitempty" json:"page,omitempty"`
+	IsArchived    bool     `url:"isArchived,omitempty" json:"isArchived,omitempty"`
+	IsEncoded     bool     `url:"isEncoded,omitempty" json:"isEncoded,omitempty"`
+	IsFavorite    bool     `url:"isFavorite,omitempty" json:"isFavorite,omitempty"`
+	IsMotion      bool     `url:"isMotion,omitempty" json:"isMotion,omitempty"`
+	IsNotInAlbum  bool     `url:"isNotInAlbum,omitempty" json:"isNotInAlbum,omitempty"`
+	IsOffline     bool     `url:"isOffline,omitempty" json:"isOffline,omitempty"`
+	IsVisible     bool     `url:"isVisible,omitempty" json:"isVisible,omitempty"`
 	WithArchived  bool     `url:"withArchived,omitempty" json:"withArchived,omitempty"`
 	WithDeleted   bool     `url:"withDeleted,omitempty" json:"withDeleted,omitempty"`
 	WithExif      bool     `url:"withExif,omitempty" json:"withExif,omitempty"`
 	WithPeople    bool     `url:"withPeople,omitempty" json:"withPeople,omitempty"`
 	WithStacked   bool     `url:"withStacked,omitempty" json:"withStacked,omitempty"`
-	Page          int      `url:"page,omitempty" json:"page,omitempty"`
 }
 
 type TagAssetsBody struct {
@@ -272,38 +275,38 @@ type UpsertTagResponse []struct {
 
 type SearchMetadataResponse struct {
 	Assets struct {
-		Total    int    `json:"total"`
 		NextPage string `json:"nextPage"`
+		Total    int    `json:"total"`
 	} `json:"assets"`
 }
 
 type Memory struct {
-	ID        string                     `json:"id"`
 	CreatedAt time.Time                  `json:"createdAt"`
 	UpdatedAt time.Time                  `json:"updatedAt"`
 	MemoryAt  time.Time                  `json:"memoryAt"`
 	ShowAt    time.Time                  `json:"showAt"`
 	HideAt    time.Time                  `json:"hideAt"`
+	ID        string                     `json:"id"`
 	OwnerID   string                     `json:"ownerId"`
 	Type      immich_open_api.MemoryType `json:"type"`
+	Assets    []Asset                    `json:"assets"`
 	Data      struct {
 		Year int `json:"year"`
 	} `json:"data"`
-	IsSaved bool    `json:"isSaved"`
-	Assets  []Asset `json:"assets"`
+	IsSaved bool `json:"isSaved"`
 }
 
 type MemoriesResponse []Memory
 
 type AssetFaceResponse struct {
+	ID            string `json:"id"`
+	Person        Person `json:"person"`
 	BoundingBoxX1 int    `json:"boundingBoxX1"`
 	BoundingBoxX2 int    `json:"boundingBoxX2"`
 	BoundingBoxY1 int    `json:"boundingBoxY1"`
 	BoundingBoxY2 int    `json:"boundingBoxY2"`
-	ID            string `json:"id"`
 	ImageHeight   int    `json:"imageHeight"`
 	ImageWidth    int    `json:"imageWidth"`
-	Person        Person `json:"person"`
 }
 
 type TagAssetsResponse []struct {
@@ -322,13 +325,13 @@ type AlbumCreateBody struct {
 type UpdateAssetBody struct {
 	DateTimeOriginal string  `json:"dateTimeOriginal,omitempty"`
 	Description      string  `json:"description,omitempty"`
-	IsArchived       bool    `json:"isArchived"`
-	IsFavorite       bool    `json:"isFavorite"`
-	Latitude         float64 `json:"latitude,omitempty"`
 	LivePhotoVideoID string  `json:"livePhotoVideoId,omitempty"`
+	Visibility       string  `json:"visibility,omitempty"`
+	Latitude         float64 `json:"latitude,omitempty"`
 	Longitude        float64 `json:"longitude,omitempty"`
 	Rating           int     `json:"rating,omitempty"`
-	Visibility       string  `json:"visibility,omitempty"`
+	IsArchived       bool    `json:"isArchived"`
+	IsFavorite       bool    `json:"isFavorite"`
 }
 
 // UserAvatarColor defines model for UserAvatarColor.
@@ -345,30 +348,30 @@ type UserLicense struct {
 type UserStatus string
 
 type UserResponse struct {
-	AvatarColor          UserAvatarColor `json:"avatarColor"`
 	CreatedAt            time.Time       `json:"createdAt"`
-	DeletedAt            *time.Time      `json:"deletedAt"`
-	Email                string          `json:"email"`
-	ID                   string          `json:"id"`
-	IsAdmin              bool            `json:"isAdmin"`
-	License              *UserLicense    `json:"license"`
-	Name                 string          `json:"name"`
-	OauthID              string          `json:"oauthId"`
 	ProfileChangedAt     time.Time       `json:"profileChangedAt"`
-	ProfileImagePath     string          `json:"profileImagePath"`
+	UpdatedAt            time.Time       `json:"updatedAt"`
+	DeletedAt            *time.Time      `json:"deletedAt"`
+	License              *UserLicense    `json:"license"`
 	QuotaSizeInBytes     *int64          `json:"quotaSizeInBytes"`
 	QuotaUsageInBytes    *int64          `json:"quotaUsageInBytes"`
-	ShouldChangePassword bool            `json:"shouldChangePassword"`
-	Status               UserStatus      `json:"status"`
 	StorageLabel         *string         `json:"storageLabel"`
-	UpdatedAt            time.Time       `json:"updatedAt"`
+	AvatarColor          UserAvatarColor `json:"avatarColor"`
+	Email                string          `json:"email"`
+	ID                   string          `json:"id"`
+	Name                 string          `json:"name"`
+	OauthID              string          `json:"oauthId"`
+	ProfileImagePath     string          `json:"profileImagePath"`
+	Status               UserStatus      `json:"status"`
+	IsAdmin              bool            `json:"isAdmin"`
+	ShouldChangePassword bool            `json:"shouldChangePassword"`
 }
 
 type AllPeopleResponse struct {
-	HasNextPage bool     `json:"hasNextPage"`
-	Hidden      int      `json:"hidden"`
 	People      []Person `json:"people"`
+	Hidden      int      `json:"hidden"`
 	Total       int      `json:"total"`
+	HasNextPage bool     `json:"hasNextPage"`
 }
 
 type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, string, error)

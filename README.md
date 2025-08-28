@@ -167,7 +167,7 @@ kiosk:
 
 | **yaml**            | **ENV**                 | **Value**    | **Default** | **Description**                                                                            |
 |---------------------|-------------------------|--------------|-------------|--------------------------------------------------------------------------------------------|
-| config_validation_level | KIOSK_CONFIG_VALIDATION_LEVEL      | error \| warning | error | The level of validation to perform on the config.yaml file. |
+| config_validation_level | KIOSK_CONFIG_VALIDATION_LEVEL      | error \| warning \| off | error | The level of validation to perform on the config.yaml file. |
 | port                | KIOSK_PORT              | int          | 3000        | Which port Kiosk should use. NOTE: This is only typically needed when running Kiosk outside of a container. If you are running inside a container the port will need to be reflected in your compose file, e.g. `HOST_PORT:KIOSK_PORT` |
 | behind_proxy        | KIOSK_BEHIND_PROXY      | bool         | false       | Is Kiosk running behind a proxy? |
 | watch_config        | KIOSK_WATCH_CONFIG      | bool         | false       | Should Kiosk watch config.yaml file for changes. Reloads all connect clients if a change is detected. |
