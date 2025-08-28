@@ -19,8 +19,8 @@ type LoginResponse struct {
 	UserID               string `json:"userId"`
 	UserEmail            string `json:"userEmail"`
 	Name                 string `json:"name"`
-	IsAdmin              bool   `json:"isAdmin"`
 	ProfileImagePath     string `json:"profileImagePath"`
+	IsAdmin              bool   `json:"isAdmin"`
 	ShouldChangePassword bool   `json:"shouldChangePassword"`
 }
 

@@ -19,7 +19,6 @@ type ServerAboutResponse struct {
 	Ffmpeg                     *string `json:"ffmpeg,omitempty"`
 	Imagemagick                *string `json:"imagemagick,omitempty"`
 	Libvips                    *string `json:"libvips,omitempty"`
-	Licensed                   bool    `json:"licensed"`
 	Nodejs                     *string `json:"nodejs,omitempty"`
 	Repository                 *string `json:"repository,omitempty"`
 	RepositoryURL              *string `json:"repositoryUrl,omitempty"`
@@ -32,6 +31,7 @@ type ServerAboutResponse struct {
 	ThirdPartySupportURL       *string `json:"thirdPartySupportUrl,omitempty"`
 	Version                    string  `json:"version"`
 	VersionURL                 string  `json:"versionUrl"`
+	Licensed                   bool    `json:"licensed"`
 }
 
 func (a *Asset) AboutInfo() (ServerAboutResponse, error) {

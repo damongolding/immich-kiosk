@@ -34,12 +34,11 @@ type Video struct {
 
 // Manager handles downloading and managing video files
 type Manager struct {
-	mu sync.RWMutex
-
 	DownloadQueue []string
 
 	Videos []Video
 	MaxAge time.Duration
+	mu     sync.RWMutex
 }
 
 // New creates a new VideoManager instance
