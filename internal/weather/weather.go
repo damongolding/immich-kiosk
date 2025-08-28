@@ -48,29 +48,29 @@ var (
 )
 
 type Location struct {
-	Name string
-	Lat  string
-	Lon  string
-	API  string
-	Unit string
-	Lang string
-	Weather
+	Name     string
+	Lat      string
+	Lon      string
+	API      string
+	Unit     string
+	Lang     string
 	Forecast []DailySummary
+	Weather
 }
 
 type Weather struct {
-	Coord      Coord  `json:"coord"`
-	Data       []Data `json:"weather"`
 	Base       string `json:"base"`
+	Name       string `json:"name"`
+	Data       []Data `json:"weather"`
+	Sys        Sys    `json:"sys"`
 	Main       Main   `json:"main"`
-	Visibility int    `json:"visibility"`
 	Wind       Wind   `json:"wind"`
+	Coord      Coord  `json:"coord"`
+	Visibility int    `json:"visibility"`
 	Clouds     Clouds `json:"clouds"`
 	DT         int64  `json:"dt"`
-	Sys        Sys    `json:"sys"`
 	Timezone   int    `json:"timezone"`
 	ID         int    `json:"id"`
-	Name       string `json:"name"`
 	Cod        int    `json:"cod"`
 }
 
@@ -91,10 +91,10 @@ type Coord struct {
 }
 
 type Data struct {
-	ID          int    `json:"id"`
 	Main        string `json:"main"`
 	Description string `json:"description"`
 	Icon        string `json:"icon"`
+	ID          int    `json:"id"`
 }
 
 type Main struct {
@@ -119,9 +119,9 @@ type Clouds struct {
 }
 
 type Sys struct {
+	Country string `json:"country"`
 	Type    int    `json:"type"`
 	ID      int    `json:"id"`
-	Country string `json:"country"`
 	Sunrise int    `json:"sunrise"`
 	Sunset  int    `json:"sunset"`
 }

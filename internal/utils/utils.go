@@ -382,11 +382,11 @@ func WeightedRandomItem(assets []AssetWithWeighting) WeightedAsset {
 
 // Color represents an RGB color with string representations
 type Color struct {
+	RGB string
+	Hex string
 	R   int
 	G   int
 	B   int
-	RGB string
-	Hex string
 }
 
 // StringToColor takes any string and returns a Color struct with deterministic RGB values.

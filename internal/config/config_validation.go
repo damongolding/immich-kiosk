@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -363,6 +363,10 @@ func (c *Config) checkOffline() {
 }
 
 func checkSchema(config map[string]any, level string) bool {
+	if strings.EqualFold(level, kiosk.ConfigValidationOff) {
+		log.Info("Config validation disabled")
+		return true
+	}
 
 	if !IsSchemaLoaded() {
 		log.Warn("Schema not loaded, skipping validation")
@@ -376,15 +380,9 @@ func checkSchema(config map[string]any, level string) bool {
 		}
 	}
 
-	jsonData, err := json.Marshal(typed)
-	if err != nil {
-		log.Error("Schema validation setup failed: marshal", "err", err)
-		return false
-	}
-
 	// Load JSON Schema from file
 	schemaLoader := gojsonschema.NewStringLoader(SchemaJSON)
-	docLoader := gojsonschema.NewBytesLoader(jsonData)
+	docLoader := gojsonschema.NewGoLoader(typed)
 
 	// Validate
 	result, err := gojsonschema.Validate(schemaLoader, docLoader)
