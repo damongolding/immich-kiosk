@@ -65,7 +65,7 @@ func ValidateToken(ctx context.Context, token string) bool {
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		log.Error("ValidateToken: sendingrequest", "err", err)
+		log.Error("ValidateToken: sending request", "err", err)
 		return false
 	}
 	defer resp.Body.Close()
@@ -150,7 +150,7 @@ func Login(ctx context.Context, refresh bool) (string, error) {
 	// Read response
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Error("DemoLogin: reading request", "err", err)
+		log.Error("DemoLogin: reading response", "err", err)
 		return "", err
 	}
 

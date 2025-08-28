@@ -290,7 +290,7 @@ type Config struct {
 	// WeatherLocations A list of locations to fetch and display weather data from. Each location
 	WeatherLocations []WeatherLocation `json:"weather" yaml:"weather" mapstructure:"weather" default:"[]"`
 
-	Iframe []string `json:"iframe" yaml:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:""`
+	Iframe []string `json:"iframe" yaml:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:"[]"`
 
 	// Webhooks defines a list of webhook endpoints and their associated events that should trigger notifications.
 	Webhooks Webhooks `json:"webhooks" yaml:"webhooks" mapstructure:"webhooks" default:"[]"`
@@ -531,7 +531,7 @@ func (c *Config) Load() error {
 		}
 	} else {
 		level := strings.ToLower(strings.TrimSpace(c.V.GetString("kiosk.config_validation_level")))
-		if level != kiosk.ConfigValidationWarning && level != kiosk.ConfigValidationError {
+		if level != kiosk.ConfigValidationWarning && level != kiosk.ConfigValidationError && level != kiosk.ConfigValidationOff {
 			level = kiosk.ConfigValidationError
 		}
 
