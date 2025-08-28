@@ -508,14 +508,14 @@ func (c *Config) Load() error {
 
 	c.V.AutomaticEnv()
 
-	err := c.V.ReadInConfig()
-	if err != nil {
+	readInConfigErr := c.V.ReadInConfig()
+	if readInConfigErr != nil {
 		var configFileNotFoundErr viper.ConfigFileNotFoundError
 		switch {
-		case errors.As(err, &configFileNotFoundErr):
+		case errors.As(readInConfigErr, &configFileNotFoundErr):
 			log.Info("Not using config.yaml")
 		case !isValidYAML(c.V.ConfigFileUsed()):
-			log.Fatal(err)
+			log.Fatal(readInConfigErr)
 		}
 	} else {
 		level := strings.ToLower(strings.TrimSpace(c.V.GetString("kiosk.config_validation_level")))
@@ -529,7 +529,7 @@ func (c *Config) Load() error {
 		}
 	}
 
-	err = c.V.Unmarshal(&c)
+	err := c.V.Unmarshal(&c)
 	if err != nil {
 		log.Error("Environment can't be loaded", "err", err)
 		return err
