@@ -373,6 +373,15 @@ func checkSchema(config map[string]any, level string) bool {
 		return true
 	}
 
+	// if we are using a config.yaml file but supplying immich_api_key || immich_url via ENVs get them
+	if v, ok := config["immich_api_key"]; !ok || v == "" {
+		config["immich_api_key"] = os.Getenv("KIOSK_IMMICH_API_KEY")
+	}
+
+	if v, ok := config["immich_url"]; !ok || v == "" {
+		config["immich_url"] = os.Getenv("KIOSK_IMMICH_URL")
+	}
+
 	typed := ConfigTypes(config, Config{})
 	for k, v := range config {
 		if _, ok := typed[k]; !ok {
