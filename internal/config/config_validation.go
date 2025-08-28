@@ -456,6 +456,27 @@ func convertConfigTypes(typ reflect.Type, settings map[string]any) map[string]an
 				if b, err := strconv.ParseBool(v); err == nil {
 					result[tag] = b
 				}
+			case float64:
+				result[tag] = v != 0
+			default:
+				result[tag] = v
+			}
+		case reflect.Float32, reflect.Float64:
+			switch v := raw.(type) {
+			case string:
+				if f, err := strconv.ParseFloat(strings.TrimSpace(v), 64); err == nil {
+					if field.Type.Kind() == reflect.Float32 {
+						result[tag] = float32(f)
+					} else {
+						result[tag] = f
+					}
+				}
+			case float64:
+				if field.Type.Kind() == reflect.Float32 {
+					result[tag] = float32(v)
+				} else {
+					result[tag] = v
+				}
 			default:
 				result[tag] = v
 			}

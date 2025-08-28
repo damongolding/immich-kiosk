@@ -529,8 +529,7 @@ func (c *Config) Load() error {
 		}
 	}
 
-	err := c.V.Unmarshal(&c)
-	if err != nil {
+	if err := c.V.Unmarshal(c); err != nil {
 		log.Error("Environment can't be loaded", "err", err)
 		return err
 	}
