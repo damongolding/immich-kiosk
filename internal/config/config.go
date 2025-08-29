@@ -408,7 +408,7 @@ type Config struct {
 	// HasWeatherDefault indicates whether any weather location has been set as the default.
 	HasWeatherDefault bool `json:"-" yaml:"-" default:"false"`
 
-	// OptimizeImages tells Kiosk to optimize imahes
+	// OptimizeImages tells Kiosk to optimize images
 	OptimizeImages bool `json:"optimize_images" yaml:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
 	// UseGpu tells Kiosk to use GPU where possible
 	UseGpu bool `json:"use_gpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
