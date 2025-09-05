@@ -1,0 +1,36 @@
+body#url {
+    overflow: auto;
+}
+
+.url-container {
+    display: flex;
+    align-items: stretch;
+    min-height: 100vh;
+    width: 100vw;
+}
+
+.content {
+    position: relative;
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    z-index: var(--z-base);
+}
+
+.url-container--form {
+    position: relative;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    min-height: 100vh;
+    z-index: var(--z-base);
+}
+
+.url-container--form--content {
+    max-width: 31.25rem;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem;
+}

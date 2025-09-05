@@ -27,6 +27,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
 	"github.com/damongolding/immich-kiosk/internal/routes"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/video"
@@ -165,6 +166,13 @@ func main() {
 	e.GET("/health", func(c echo.Context) error {
 		return c.String(http.StatusOK, "OK")
 	})
+
+	im, _ := immich_open_api.NewClientWithResponses(baseConfig.ImmichURL+"/api", immich_open_api.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+		req.Header.Set("x-api-key", baseConfig.ImmichAPIKey)
+		return nil
+	}))
+	e.GET("/url", routes.Url(baseConfig, im))
+	e.POST("/buildUrl", routes.BuildUrl())
 
 	e.GET("/about", routes.About(baseConfig))
 
