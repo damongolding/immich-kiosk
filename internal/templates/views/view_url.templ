@@ -299,7 +299,7 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
                             }
                             </select>
                         </div>
-                        @DefaultRadio("Require all people", "require_all_people", "true", "true",  "false", "false")
+                        @DefaultSelect("Require all people", "require_all_people", "true", "true",  "false", "false")
                         
                         <div class="form-group">
                             <select name="album" id="album" multiple>
@@ -309,8 +309,8 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
                             </select>
                         </div>
 
-                        @DefaultRadio("Show date", "show_date", "true", "true",  "false", "false")
-                        @DefaultRadio("Show time", "show_time", "true", "true",  "false", "false")
+                        @DefaultSelect("Show date", "show_date", "true", "true",  "false", "false")
+                        @DefaultSelect("Show time", "show_time", "true", "true",  "false", "false")
                 </form>
                 <div id="url-result"></div>
 			</div>
@@ -330,5 +330,21 @@ templ DefaultRadio(displayName string, formName string, keyvals ...string) {
             <input type="radio" id={formName + "_" + kvs[i+1]} name={formName} value={kvs[i+1]}>
             <label for={formName + "_" + kvs[i+1]}>{kvs[i]}</label><br>  
         }
+    </div>
+}
+
+templ DefaultSelect(displayName string, formName string, keyvals ...string) {
+    <div class="form-group">
+        <label for={formName}>{displayName}</label>
+        {{ 
+            kvs := make([]string, 0, len(keyvals)+2)
+            kvs = append(kvs, "default", "")
+            kvs = append(kvs, keyvals...)
+        }}
+        <select name={formName}>
+        for i:=0; i<len(kvs); i+=2 {
+            <option value={kvs[i+1]} if i==0 {selected="selected"}>{kvs[i]}</option>
+        }
+        </select>
     </div>
 }
