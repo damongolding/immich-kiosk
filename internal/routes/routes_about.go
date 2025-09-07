@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -58,23 +59,43 @@ func BuildUrl() echo.HandlerFunc {
 			return err
 		}
 
-		if err := c.Request().ParseForm(); err != nil {
+		// HACK: remove empty form values so optional fields parse as nil
+		// and we can ignore them from the URL parameters to default to the servers configured defaults
+		c.Request().ParseForm()
+		newValues := make(url.Values)
+		for k, v := range c.Request().Form {
+			if len(v) == 1 && (v[0] == "") {
+				continue
+			}
+			newValues[k] = v
+		}
+		c.Request().Form = newValues
+
+		var req common.UrlBuilderRequest
+		if err := c.Bind(&req); err != nil {
 			return err
 		}
 
-		people := c.Request().Form["people"]
 		q := url.Values{}
-		for _, person := range people {
+		for _, person := range req.People {
 			q.Add("person", person)
 		}
 
-		albums := c.Request().Form["album"]
-		for _, album := range albums {
+		for _, album := range req.Albums {
 			q.Add("album", album)
+		}
+
+		if req.ShowDate != nil {
+			q.Add("show_date", strconv.FormatBool(*req.ShowDate))
+		}
+
+		if req.ShowTime != nil {
+			q.Add("show_time", strconv.FormatBool(*req.ShowTime))
 		}
 
 		kioskUrl.RawQuery = q.Encode()
 
+		// TODO(jj): htmx component to render
 		return c.String(200, fmt.Sprintf(`<div id="url-result"><a href="%s">%s</a></div>`, kioskUrl.String(), kioskUrl.String()))
 	}
 }

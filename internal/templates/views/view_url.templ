@@ -308,13 +308,26 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label for="show_date">Show date</label>
-                            <input type="checkbox" id="show_date" name="show_date" value="true">
-                        </div>
+                        @DefaultRadio("Show date", "show_date", "true", "true",  "false", "false")
+                        @DefaultRadio("Show time", "show_time", "true", "true",  "false", "false")
                 </form>
                 <div id="url-result"></div>
 			</div>
 		</div>
 	</section>
+}
+
+templ DefaultRadio(displayName string, formName string, keyvals ...string) {
+    <div class="form-group">
+        <label for={formName}>{displayName}</label><br/>
+        {{ 
+            kvs := make([]string, 0, len(keyvals)+2)
+            kvs = append(kvs, "default", "")
+            kvs = append(kvs, keyvals...)
+        }}
+        for i:=0; i<len(kvs); i+=2 {
+            <input type="radio" id={formName + "_" + kvs[i+1]} name={formName} value={kvs[i+1]}>
+            <label for={formName + "_" + kvs[i+1]}>{kvs[i]}</label><br>  
+        }
+    </div>
 }
