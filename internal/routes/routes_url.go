@@ -49,12 +49,16 @@ func BuildUrl() echo.HandlerFunc {
 			q.Add("album", album)
 		}
 
-		if req.ShowDate != nil {
-			q.Add("show_date", strconv.FormatBool(*req.ShowDate))
+		if sd := req.ShowDate; sd != nil {
+			q.Add("show_date", strconv.FormatBool(*sd))
 		}
 
-		if req.ShowTime != nil {
-			q.Add("show_time", strconv.FormatBool(*req.ShowTime))
+		if st := req.ShowTime; st != nil {
+			q.Add("show_time", strconv.FormatBool(*st))
+		}
+
+		if rap := req.RequireAllPeople; rap != nil {
+			q.Add("require_all_people", strconv.FormatBool(*rap))
 		}
 
 		kioskUrl.RawQuery = q.Encode()

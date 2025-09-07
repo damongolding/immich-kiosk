@@ -4,7 +4,8 @@ body#url {
 
 .url-container {
     display: flex;
-    align-items: stretch;
+    /* align-items: stretch; */
+    justify-content: center;
     min-height: 100vh;
     width: 100vw;
 }
@@ -23,13 +24,14 @@ body#url {
     align-content: center;
     justify-content: center;
     align-items: center;
-    width: 50%;
+    width: 80%;
     min-height: 100vh;
     z-index: var(--z-base);
 }
 
 .url-container--form--content {
-    max-width: 31.25rem;
+    /* max-width: 31.25rem; */
+    /* max-width: 60rem; */
     width: 100%;
     margin: 0 auto;
     padding: 1.5rem;

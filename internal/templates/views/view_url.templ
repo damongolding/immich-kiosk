@@ -291,7 +291,7 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 			<div class="content">
 				<h1>URL Builder</h1>
 
-                <form hx-post="/buildUrl" hx-trigger="change" hx-target="#url-result" style="display: inline !important;">
+                <form hx-post="/buildUrl" hx-trigger="load,change" hx-target="#url-result" style="display: inline !important;">
                         <div class="form-group">
                             <select name="people" id="people" multiple>
                             for _, p := range d.People {
@@ -299,6 +299,7 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
                             }
                             </select>
                         </div>
+                        @DefaultRadio("Require all people", "require_all_people", "true", "true",  "false", "false")
                         
                         <div class="form-group">
                             <select name="album" id="album" multiple>
