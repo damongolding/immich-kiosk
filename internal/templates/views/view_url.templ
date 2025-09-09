@@ -280,7 +280,12 @@ class MultiSelect {
     }
 
 }
-document.querySelectorAll('[data-multi-select]').forEach(select => new MultiSelect(select));
+document.querySelectorAll('[data-multi-select]').forEach(select => new MultiSelect(select, {
+    onChange: function(value, text, element) {
+        // https://flaviocopes.com/htmx-trigger-request-via-js-event/
+	    document.querySelector('body').dispatchEvent(new Event('multiselect-change'));
+    }
+}));
 		</script>
 	</html>
 }
@@ -291,9 +296,9 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 			<div class="content">
 				<h1>URL Builder</h1>
 
-                <form hx-post="/buildUrl" hx-trigger="load,change" hx-target="#url-result" style="display: inline !important;">
+                <form id="url-form" hx-post="/buildUrl" hx-trigger="load,change,multiselect-change from:body" hx-target="#url-result" style="display: inline !important;">
                         <div class="form-group">
-                            <select name="people" id="people" multiple>
+                            <select name="people" id="people" multiple data-placeholder="Select people" data-multi-select>
                             for _, p := range d.People {
                                 <option value={p.Id}>{p.Name}</option>
                             }
@@ -302,7 +307,7 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
                         @DefaultSelect("Require all people", "require_all_people", "true", "true",  "false", "false")
                         
                         <div class="form-group">
-                            <select name="album" id="album" multiple>
+                            <select name="album" id="album" multiple data-placeholder="Select album" data-multi-select>
                             for _, a := range d.Albums {
                                 <option value={a.Id}>{a.AlbumName}</option>
                             }
