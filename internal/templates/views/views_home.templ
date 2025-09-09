@@ -15,6 +15,94 @@ import (
 	"strings"
 )
 
+// Home renders the Home layout template
+templ Home(viewData common.ViewData, secret string) {
+	<!DOCTYPE html>
+	<html lang="en" hx-request={ fmt.Sprintf("{\"timeout\":%d}", formatTimeout(viewData.Kiosk.HTTPTimeout)) }>
+		<head>
+			@partials.Head(viewData)
+		</head>
+		@partials.Body(viewData, secret) {
+			<main
+				id="kiosk"
+				if viewData.UseOfflineMode && viewData.OfflineMode.Enabled {
+					hx-post="/asset/offline"
+				} else {
+					hx-post="/asset/new"
+				}
+				hx-include=".kiosk-history--entry"
+				hx-trigger={ triggers(viewData.DisableNavigation) }
+				hx-on::before-send="kiosk.setRequestLock(event)"
+				hx-on::after-request="kiosk.startPolling()"
+				hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames()"
+			>
+				@partials.Spinner()
+			</main>
+			for _, iframe := range viewData.Iframe {
+				{{ isUrl, html := isIframeUrl(iframe) }}
+				<iframe
+					if isUrl {
+						src={ iframe }
+						title={ "External content from " + iframe }
+					} else {
+						srcdoc={ html }
+						title="Embedded local content"
+					}
+					allowtransparency="true"
+					frameborder="0"
+				></iframe>
+			}
+			if viewData.ShowProgressBar {
+				@partials.ProgressBar(viewData.ProgressBarPosition)
+			}
+			if !viewData.DisableUI {
+				<section id="clock-weather-container">
+					<div>
+						if (viewData.ShowTime || viewData.ShowDate) {
+							@partials.ClockContainer(viewData.ClockSource, viewData.Theme)
+						}
+					</div>
+					<div>
+						if viewData.Queries.Has("weather") || viewData.HasWeatherDefault {
+							@partials.Weather(viewData.Theme)
+						}
+					</div>
+				</section>
+			}
+			if !viewData.DisableNavigation {
+				@partials.Menu(viewData, viewData.Queries, secret)
+			}
+			@partials.Params(viewData.Queries)
+			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd, viewData.DisableSleep)
+			@partials.History()
+			@partials.RefreshCheck(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
+			@partials.Status()
+			@kioskData(map[string]any{
+				"debug":              viewData.Kiosk.Debug,
+				"debugVerbose":       viewData.Kiosk.DebugVerbose,
+				"langCode":           viewData.SystemLang,
+				"version":            viewData.KioskVersion,
+				"params":             queriesToJson(viewData.Queries),
+				"duration":           viewData.Duration,
+				"disableNavigation":  viewData.DisableNavigation,
+				"disableScreensaver": viewData.DisableScreensaver,
+				"showDate":           viewData.ShowDate,
+				"dateFormat":         utils.DateToJavascriptLayout(viewData.DateFormat),
+				"showTime":           viewData.ShowTime,
+				"timeFormat":         viewData.TimeFormat,
+				"clockSource":        viewData.ClockSource,
+				"transition":         viewData.Transition,
+				"showMoreInfo":       viewData.ShowMoreInfo,
+				"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
+				"livePhotos":         viewData.LivePhotos,
+				"LivePhotoLoopDelay": viewData.LivePhotoLoopDelay * 1000,
+				"httpTimeout":        viewData.Kiosk.HTTPTimeout,
+			})
+			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
+		}
+	</html>
+}
+
 func formatTimeout(timeout int) int {
 
 	if timeout <= 0 {
@@ -76,92 +164,6 @@ func isIframeUrl(iframeURL string) (bool, string) {
 	}
 
 	return false, string(content)
-}
-
-// Home renders the Home layout template
-templ Home(viewData common.ViewData) {
-	<!DOCTYPE html>
-	<html lang="en" hx-request={ fmt.Sprintf("{\"timeout\":%d}", formatTimeout(viewData.Kiosk.HTTPTimeout)) }>
-		<head>
-			@partials.Head(viewData)
-		</head>
-		@partials.Body(viewData) {
-			<main
-				id="kiosk"
-				if viewData.UseOfflineMode && viewData.OfflineMode.Enabled {
-					hx-post="/asset/offline"
-				} else {
-					hx-post="/asset/new"
-				}
-				hx-include=".kiosk-history--entry"
-				hx-trigger={ triggers(viewData.DisableNavigation) }
-				hx-on::before-send="kiosk.setRequestLock(event)"
-				hx-on::after-request="kiosk.startPolling()"
-				hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames()"
-			>
-				@partials.Spinner()
-			</main>
-			for _, iframe := range viewData.Iframe {
-				{{ isUrl, html := isIframeUrl(iframe) }}
-				<iframe
-					if isUrl {
-						src={ iframe }
-						title={ "External content from " + iframe }
-					} else {
-						srcdoc={ html }
-						title="Embedded local content"
-					}
-					allowtransparency="true"
-					frameborder="0"
-				></iframe>
-			}
-			if viewData.ShowProgress {
-				@partials.ProgressBar()
-			}
-			if !viewData.DisableUI {
-				<section id="clock-weather-container">
-					<div>
-						if (viewData.ShowTime || viewData.ShowDate) {
-							@partials.ClockContainer(viewData.ClockSource, viewData.Theme)
-						}
-					</div>
-					<div>
-						if viewData.Queries.Has("weather") || viewData.HasWeatherDefault {
-							@partials.Weather(viewData.Theme)
-						}
-					</div>
-				</section>
-			}
-			if !viewData.DisableNavigation {
-				@partials.Menu(viewData.ShowMoreInfo, viewData.Kiosk.Redirects, viewData.Queries, viewData.Config.ExperimentalAlbumVideo)
-			}
-			@partials.Params(viewData.Queries)
-			@partials.Sleep(viewData.SleepStart, viewData.SleepEnd, viewData.DisableSleep)
-			@partials.History()
-			@partials.RefreshCheck(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
-			@partials.Status()
-			@kioskData(map[string]any{
-				"debug":              viewData.Kiosk.Debug,
-				"debugVerbose":       viewData.Kiosk.DebugVerbose,
-				"langCode":           viewData.SystemLang,
-				"version":            viewData.KioskVersion,
-				"params":             queriesToJson(viewData.Queries),
-				"refresh":            viewData.Refresh,
-				"disableNavigation":  viewData.DisableNavigation,
-				"disableScreensaver": viewData.DisableScreensaver,
-				"showDate":           viewData.ShowDate,
-				"dateFormat":         utils.DateToJavascriptLayout(viewData.DateFormat),
-				"showTime":           viewData.ShowTime,
-				"timeFormat":         viewData.TimeFormat,
-				"clockSource":        viewData.ClockSource,
-				"transition":         viewData.Transition,
-				"showMoreInfo":       viewData.ShowMoreInfo,
-				"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
-				"httpTimeout":        viewData.Kiosk.HTTPTimeout,
-			})
-			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
-		}
-	</html>
 }
 
 // triggers returns a string of HTMX trigger events for the kiosk.

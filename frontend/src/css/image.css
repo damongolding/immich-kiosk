@@ -43,49 +43,6 @@
     text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 }
 
-/* fade theme */
-.asset--metadata--theme-fade::before {
-    content: "";
-    position: absolute;
-    bottom: -1rem;
-    left: -1rem;
-    width: 150%;
-    height: 200%;
-    background-image: radial-gradient(
-        100% 100% at 0% 100%,
-        var(--fade-gradient)
-    );
-    z-index: var(--z-base);
-}
-
-.frame--layout-splitview:nth-child(2) .asset--metadata--theme-fade::before {
-    content: "";
-    position: absolute;
-    bottom: -1rem;
-    right: -1rem;
-    left: unset;
-    width: 150%;
-    height: 200%;
-    background-image: radial-gradient(
-        100% 100% at 100% 100%,
-        var(--fade-gradient)
-    );
-    z-index: var(--z-base);
-}
-
-/* solid theme */
-.asset--metadata--theme-solid {
-    padding: 1rem;
-    margin: -1rem;
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 0 2rem 0 0;
-}
-
-.frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 2rem 0 0 0;
-}
-
 .asset--metadata .responsive-break {
     display: none;
 }
@@ -106,10 +63,6 @@
     gap: 0.5rem;
 }
 
-.right-align-icons .asset--metadata--icon {
-    order: 2;
-}
-
 .asset--metadata--icon {
     display: flex;
     justify-content: center;
@@ -120,6 +73,10 @@
         width: 0.9rem;
         fill: white;
     }
+}
+
+.right-align-icons .asset--metadata--icon {
+    order: 2;
 }
 
 .asset--metadata--datetime {
@@ -246,25 +203,5 @@
 
     .asset--metadata--icon {
         order: 0 !important;
-    }
-
-    .frame--layout-splitview:nth-child(2) .asset--metadata--theme-fade::before {
-        content: "";
-        position: absolute;
-        bottom: -1rem;
-        right: unset;
-        left: -1rem;
-        width: 150%;
-        height: 200%;
-        background-image: radial-gradient(
-            100% 100% at 0% 100%,
-            var(--fade-gradient)
-        );
-        z-index: var(--z-base);
-    }
-
-    .frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 0 2rem 0 0;
     }
 }

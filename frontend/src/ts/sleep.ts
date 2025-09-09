@@ -13,20 +13,20 @@ import immichFrame from "./immichframe";
  * @param runningInImmichFrame - Whether the app is running inside Immich Frame and should update its screensaver state.
  */
 function sleepMode(
-  turnOn: boolean,
-  screensaver: boolean,
-  runningInImmichFrame: boolean,
+    turnOn: boolean,
+    screensaver: boolean,
+    runningInImmichFrame: boolean,
 ): void {
-  if (turnOn) {
-    document.body.classList.add("sleep");
-  } else {
-    document.body.classList.remove("sleep");
-  }
+    if (turnOn) {
+        document.body.classList.add("sleep");
+    } else {
+        document.body.classList.remove("sleep");
+    }
 
-  if (screensaver) {
-    fullyKiosk.setScreensaverState(turnOn);
-    if (runningInImmichFrame) immichFrame.setScreensaverState(turnOn);
-  }
+    if (screensaver) {
+        fullyKiosk.setScreensaverState(turnOn);
+        if (runningInImmichFrame) immichFrame.setScreensaverState(turnOn);
+    }
 }
 
 export { sleepMode };

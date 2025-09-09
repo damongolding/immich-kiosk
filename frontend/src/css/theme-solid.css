@@ -1,0 +1,32 @@
+/* solid theme */
+.asset--metadata--theme-solid {
+    padding: 1rem;
+    margin: -1rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 0 2rem 0 0;
+}
+
+.frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 2rem 0 0 0;
+}
+
+@media (orientation: portrait) {
+    .frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 0 2rem 0 0;
+    }
+}
+
+/* clock */
+.clock--theme-solid {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 0 0 2rem 0;
+}
+
+/* weather */
+.weather--theme-solid {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 0 0 0 2rem;
+    align-self: start;
+}

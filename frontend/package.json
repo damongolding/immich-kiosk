@@ -1,10 +1,10 @@
 {
   "name": "immich-kiosk",
-  "version": "0.15.1",
+  "version": "0.22.0",
   "description": "",
   "main": "src/kiosk.ts",
   "scripts": {
-    "lint": "pnpm exec eslint ./public/assets/js/kiosk.js",
+    "lint": "pnpm exec biome lint --write",
     "js": "pnpm exec esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --minify --target=es6 --outfile=./public/assets/js/kiosk.js",
     "css": "pnpm exec esbuild --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css && pnpm css:postcss",
     "css:postcss": "postcss ./public/assets/css/kiosk.css --no-map -o ./public/assets/css/kiosk.css",
@@ -15,21 +15,19 @@
   "author": "Damon Golding",
   "license": "AGPL-3.0-only",
   "engine": {
-    "node": "22.16.0"
+    "node": "22.17.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.2.0",
     "autoprefixer": "^10.4.21",
-    "browserslist": "4.24.5",
     "date-fns": "^4.1.0",
-    "esbuild": "^0.25.5",
-    "eslint": "^9.28.0",
-    "eslint-plugin-compat": "^6.0.2",
-    "globals": "^16.2.0",
-    "htmx.org": "^2.0.4",
-    "postcss": "^8.5.4",
+    "dompurify": "^3.2.6",
+    "esbuild": "^0.25.9",
+    "htmx.org": "^2.0.6",
+    "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
     "postcss-nested": "^7.0.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "browserslist": [
     "> 0.2%",
@@ -38,5 +36,5 @@
     "not op_mini all",
     "not IE 11"
   ],
-  "packageManager": "pnpm@10.11.0"
+  "packageManager": "pnpm@10.15.0"
 }

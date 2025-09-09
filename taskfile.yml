@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.21.2
+  VERSION: 0.23.3
 
 includes:
   frontend:
@@ -17,13 +17,17 @@ tasks:
     desc: Run kiosk in debug mode
     deps: [build]
     cmds:
-      - KIOSK_DEBUG=true ./dist/kiosk
+      - ./dist/kiosk
+
+  dev:
+    desc: Run kiosk in development mode
+    cmds:
+      - go tool air
 
   verbose:
     desc: Run kiosk in verbose debug mode
-    deps: [build-verbose]
     cmds:
-      - KIOSK_DEBUG_VERBOSE=true ./dist/kiosk
+      - go tool air -build.cmd="task build-verbose" -build.full_bin="KIOSK_DEBUG_VERBOSE=true ./dist/kiosk"
 
   # Backend tasks
   templ:
@@ -37,9 +41,10 @@ tasks:
       - go test ./...
 
   lint:
-    desc: Run linter
+    desc: Run linters
     cmds:
       - golangci-lint run
+      - cd frontend && pnpm lint
 
   # Build tasks
   build:
@@ -62,11 +67,29 @@ tasks:
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5
       - go mod tidy
 
-  outdated:
-    desc: Check for outdated dependencies
+  update-go:
+    desc: Sync local Go version with go.mod and Dockerfile
     cmds:
-      - go list -u -m -json all | go tool go-mod-outdated -direct -update
-      - cd frontend && pnpm outdated
+      - |
+        GO_VERSION_FULL=$(go version | awk '{print $3}' | sed 's/go//')
+        echo "📦 Updating go.mod to use Go $GO_VERSION_FULL"
+        go mod edit -go=$GO_VERSION_FULL
+
+        echo "🛠️  Updating Dockerfile to use Go $GO_VERSION_FULL"
+        sed -i.bak -E "s|golang:[0-9]+\.[0-9]+(\.[0-9]+)?-[[:alnum:]-]+|golang:${GO_VERSION_FULL}-alpine|g" Dockerfile
+
+        echo "--- Dockerfile diff ---"
+        diff Dockerfile.bak Dockerfile || true
+        rm Dockerfile.bak
+
+  outdated-go:
+    desc: Check for outdated Go dependencies
+    cmds:
+      - (printf "Module\tCurrent\tLatest\n" && go list -u -m -json all | jq -r 'select(.Main or .Indirect | not) | select(.Update) | [.Path, .Version, .Update.Version] | @tsv') | column -t -s $'\t'
+
+  outdated:
+    desc: Check for outdated Go and frontend dependencies
+    deps: [outdated-go, frontend-outdated]
 
   openapi:
     desc: Generate OpenAPI specification

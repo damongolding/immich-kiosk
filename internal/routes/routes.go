@@ -108,16 +108,17 @@ func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.R
 func RenderError(c echo.Context, err error, message string, refresh int) error {
 	log.Error(message, "err", err)
 
-	retry := false
-	if refresh > 5 {
-		retry = true
-	}
+	retry := refresh > 5
 
 	return Render(c, http.StatusOK, partials.Error(partials.ErrorData{
 		Title:   "Error " + message,
 		Message: err.Error(),
 		Retry:   retry,
 	}))
+}
+
+func RenderUnauthorized(c echo.Context) error {
+	return Render(c, http.StatusUnauthorized, partials.Unauthorized())
 }
 
 func RenderMessage(c echo.Context, title, message string) error {
@@ -135,7 +136,7 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 
 	// Stream the rendered HTML directly
 	if err := t.Render(ctx.Request().Context(), ctx.Response().Writer); err != nil {
-		log.Error("rendering view", "err", err)
+		log.Warn("rendering view", "err", err)
 		return err
 	}
 

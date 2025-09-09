@@ -5,6 +5,11 @@
     width: 100%;
     height: 0.18rem;
     z-index: var(--z-progress);
+
+    &.progress-bottom {
+        bottom: 0;
+        top: unset;
+    }
 }
 
 .progress--bar {

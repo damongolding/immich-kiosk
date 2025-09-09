@@ -1,0 +1,462 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "immich_api_key": {
+      "type": "string"
+    },
+    "immich_url": {
+      "type": "string"
+    },
+    "immich_external_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "show_time": {
+      "type": "boolean"
+    },
+    "time_format": {
+      "oneOf": [
+        { "type": "string", "enum": ["12", "24"] },
+        { "type": "integer", "enum": [12, 24] }
+      ],
+      "examples": ["12", "24"]
+    },
+    "show_date": {
+      "type": "boolean"
+    },
+    "date_format": {
+      "type": "string"
+    },
+    "clock_source": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "integer"
+    },
+    "disable_screensaver": {
+      "type": "boolean"
+    },
+    "optimize_images": {
+      "type": "boolean"
+    },
+    "use_gpu": {
+      "type": "boolean"
+    },
+    "show_archived": {
+      "type": "boolean"
+    },
+    "people": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "require_all_people": {
+      "type": "boolean"
+    },
+    "excluded_people": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "albums": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "album_video": {
+      "type": "boolean"
+    },
+    "album_order": {
+      "type": "string"
+    },
+    "excluded_albums": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "dates": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "tags": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "memories": {
+      "type": "boolean"
+    },
+    "date_filter": {
+      "type": "string"
+    },
+    "live_photos": {
+      "type": "boolean"
+    },
+    "live_photo_loop_delay": {
+      "type": "integer"
+    },
+    "menu_position": {
+      "type": "string"
+    },
+    "disable_navigation": {
+      "type": "boolean"
+    },
+    "disable_ui": {
+      "type": "boolean"
+    },
+    "frameless": {
+      "type": "boolean"
+    },
+    "hide_cursor": {
+      "type": "boolean"
+    },
+    "font_size": {
+      "type": "integer"
+    },
+    "background_blur": {
+      "type": "boolean"
+    },
+    "background_blur_amount": {
+      "type": "integer"
+    },
+    "theme": {
+      "type": "string"
+    },
+    "layout": {
+      "type": "string"
+    },
+    "sleep_start": {
+      "type": ["string", "integer"]
+    },
+    "sleep_end": {
+      "type": ["string", "integer"]
+    },
+    "sleep_dim_screen": {
+      "type": "boolean"
+    },
+    "sleep_icon": {
+      "type": "boolean"
+    },
+    "disable_sleep": {
+      "type": "boolean"
+    },
+    "transition": {
+      "type": "string"
+    },
+    "fade_transition_duration": {
+      "type": "integer"
+    },
+    "cross_fade_transition_duration": {
+      "type": "integer"
+    },
+    "show_progress_bar": {
+      "type": "boolean"
+    },
+    "progress_bar_position": {
+      "type": "string"
+    },
+    "custom_css": {
+      "type": "boolean"
+    },
+    "custom_css_class": {
+      "type": "string"
+    },
+    "image_fit": {
+      "type": "string"
+    },
+    "image_effect": {
+      "type": "string"
+    },
+    "image_effect_amount": {
+      "type": "integer"
+    },
+    "use_original_image": {
+      "type": "boolean"
+    },
+    "show_owner": {
+      "type": "boolean"
+    },
+    "show_album_name": {
+      "type": "boolean"
+    },
+    "show_person_name": {
+      "type": "boolean"
+    },
+    "show_person_age": {
+      "type": "boolean"
+    },
+    "age_switch_to_years_after": {
+      "type": "integer"
+    },
+    "show_age_year_unit": {
+      "type": "boolean"
+    },
+    "show_image_time": {
+      "type": "boolean"
+    },
+    "image_time_format": {
+      "oneOf": [
+        { "type": "string", "enum": ["12", "24"] },
+        { "type": "integer", "enum": [12, 24] }
+      ],
+      "examples": ["12", "24"]
+    },
+    "show_image_date": {
+      "type": "boolean"
+    },
+    "image_date_format": {
+      "type": "string"
+    },
+    "show_image_description": {
+      "type": "boolean"
+    },
+    "show_image_exif": {
+      "type": "boolean"
+    },
+    "show_image_location": {
+      "type": "boolean"
+    },
+    "show_image_qr": {
+      "type": "boolean"
+    },
+    "hide_countries": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "show_image_id": {
+      "type": "boolean"
+    },
+    "show_more_info": {
+      "type": "boolean"
+    },
+    "show_more_info_image_link": {
+      "type": "boolean"
+    },
+    "show_more_info_qr_code": {
+      "type": "boolean"
+    },
+    "like_button_action": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "hide_button_action": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "weather": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "lat": {
+            "type": ["number", "string"]
+          },
+          "lon": {
+            "type": ["number", "string"]
+          },
+          "api": {
+            "type": ["string", "null"]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "lang": {
+            "type": "string"
+          },
+          "forecast": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to include 3 day forecast data"
+          },
+          "default": {
+            "type": "boolean"
+          }
+        },
+        "required": ["name", "lat", "lon", "api"]
+      }
+    },
+    "webhooks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "event": {
+            "type": "string"
+          }
+        },
+        "required": ["url", "event"]
+      }
+    },
+    "blacklist": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "iframe": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "immich_users_api_keys": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "user1": {
+          "type": "string"
+        }
+      },
+      "required": []
+    },
+    "user": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "show_user": {
+      "type": "boolean"
+    },
+    "offline_mode": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "number_of_assets": {
+          "type": "integer"
+        },
+        "max_size": {
+          "type": "string"
+        },
+        "parallel_downloads": {
+          "type": "integer"
+        },
+        "expiration_hours": {
+          "type": "integer"
+        }
+      }
+    },
+    "use_offline_mode": {
+      "type": "boolean"
+    },
+    "kiosk": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "debug": {
+          "type": "boolean"
+        },
+        "debug_verbose": {
+          "type": "boolean"
+        },
+        "config_validation_level": {
+          "type": "string",
+          "enum": ["warning", "error", "off"],
+          "default": "error",
+          "description": "Controls how invalid configuration is handled. 'warning' logs a warning and continues; 'error' treats invalid configuration as fatal; 'off' disables validation checks."
+        },
+        "port": {
+          "type": "integer"
+        },
+        "behind_proxy": {
+          "type": "boolean"
+        },
+        "watch_config": {
+          "type": "boolean"
+        },
+        "fetched_assets_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "http_timeout": {
+          "type": "integer"
+        },
+        "password": {
+          "type": "string"
+        },
+        "cache": {
+          "type": "boolean"
+        },
+        "prefetch": {
+          "type": "boolean"
+        },
+        "asset_weighting": {
+          "type": "boolean"
+        },
+        "disable_url_queries": {
+          "type": "boolean"
+        },
+        "disable_config_endpoint": {
+          "type": "boolean"
+        },
+        "redirects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "url"]
+          }
+        },
+        "demo_mode": {
+          "type": "boolean"
+        }
+      },
+      "required": []
+    }
+  },
+  "required": ["immich_api_key", "immich_url"]
+}

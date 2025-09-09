@@ -3,7 +3,12 @@ package kiosk
 type Source string
 
 const (
+	ConfigValidationWarning string = "warning"
+	ConfigValidationError   string = "error"
+	ConfigValidationOff     string = "off"
+
 	AlbumKeywordAll        string = "all"
+	AlbumKeywordOwned      string = "owned"
 	AlbumKeywordShared     string = "shared"
 	AlbumKeywordFavourites string = "favourites"
 	AlbumKeywordFavorites  string = "favorites"
@@ -40,4 +45,9 @@ const (
 
 	HistoryIndicator string = "*"
 	HistoryLimit     int    = 20
+
+	ThemeFade   string = "fade"
+	ThemeSolid  string = "solid"
+	ThemeBubble string = "bubble"
+	ThemeBlur   string = "blur"
 )

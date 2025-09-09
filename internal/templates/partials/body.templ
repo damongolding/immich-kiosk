@@ -28,35 +28,31 @@ func fadeDurationCSS(fadeDuration float32) string {
 }
 
 // Body renders the <body> content
-templ Body(viewData common.ViewData) {
-	{{ headerStr := fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-device-id": "%s"}`, viewData.KioskVersion, viewData.DeviceID) }}
+templ Body(viewData common.ViewData, secret string) {
 	switch viewData.Transition {
 		case "cross-fade":
 			<body
-				hx-headers={ headerStr }
 				hx-swap="beforeend"
 				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
-				hx-vals="js:{...kiosk.clientData()}"
+				{ webhookAttributes(viewData, "", secret)... }
 			>
 				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
 				{ children... }
 			</body>
 		case "fade":
 			<body
-				hx-headers={ headerStr }
 				hx-swap={ fmt.Sprintf("innerHTML swap:%.1fs", viewData.FadeTransitionDuration) }
 				class={ fmt.Sprintf("transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
-				hx-vals="js:{...kiosk.clientData()}"
+				{ webhookAttributes(viewData, "", secret)... }
 			>
 				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
 				{ children... }
 			</body>
 		default:
 			<body
-				hx-headers={ headerStr }
 				hx-swap="beforeend"
 				class={ "transition-none", fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
-				hx-vals="js:{...kiosk.clientData()}"
+				{ webhookAttributes(viewData, "", secret)... }
 			>
 				{ children... }
 			</body>

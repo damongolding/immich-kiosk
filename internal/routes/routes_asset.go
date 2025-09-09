@@ -73,7 +73,7 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		viewData, err := generateViewData(requestConfig, requestCtx, requestID, deviceID, false)
 		if err != nil {
-			return RenderError(c, err, "retrieving asset", requestConfig.Refresh)
+			return RenderError(c, err, "retrieving asset", requestConfig.Duration)
 		}
 
 		if requestConfig.Kiosk.PreFetch {
@@ -82,7 +82,7 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NewAsset, viewData)
 
-		if len(viewData.Assets) > 0 && requestConfig.ExperimentalAlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+		if len(viewData.Assets) > 0 && requestConfig.AlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
 			return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret()))
 		}
 
@@ -161,8 +161,8 @@ func ImageWithReload(baseConfig *config.Config) echo.HandlerFunc {
 	}
 }
 
-// ImageWithID returns an echo.HandlerFunc that handles requests for images by ID.
-// It retrieves the image preview based on the provided imageID and returns it as a blob with the appropriate MIME type.
+// ImageWithID handles HTTP requests to retrieve an image preview by its image ID and returns the image as a blob with the correct MIME type.
+// Returns HTTP 400 if the image ID is missing or if the image cannot be retrieved.
 func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -196,7 +196,7 @@ func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			}
 		}
 
-		imgBytes, previewErr := immichAsset.ImagePreview()
+		imgBytes, _, previewErr := immichAsset.ImagePreview()
 		if previewErr != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
 		}
@@ -398,7 +398,7 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		if baseConfig.Kiosk.DemoMode {
-			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, com.Secret()))
+			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, true, com.Secret()))
 		}
 
 		immichAsset := immich.New(com.Context(), requestConfig)
@@ -441,9 +441,9 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		if eg != nil {
-			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, com.Secret()))
+			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, true, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, partials.HideButton(assetID, hideAsset, com.Secret()))
+		return Render(c, http.StatusOK, partials.HideButton(assetID, hideAsset, true, com.Secret()))
 	}
 }

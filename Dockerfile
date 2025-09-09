@@ -17,7 +17,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm css && pnpm js
 
 # Go Builder
-FROM --platform=$BUILDPLATFORM golang:1.24.3-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.25.0-alpine AS build
 
 ARG VERSION=demo
 ARG TARGETOS
@@ -43,7 +43,7 @@ ENV TERM=xterm-256color
 ENV DEBUG_COLORS=true
 ENV COLORTERM=truecolor
 
-RUN apk update && apk add --no-cache tzdata ca-certificates && update-ca-certificates
+RUN apk add --no-cache tzdata ca-certificates curl && update-ca-certificates
 
 WORKDIR /
 

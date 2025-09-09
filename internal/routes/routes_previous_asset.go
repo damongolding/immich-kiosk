@@ -2,6 +2,7 @@ package routes
 
 import (
 	"fmt"
+	"image/color"
 	"net/http"
 	"path"
 	"strings"
@@ -52,17 +53,9 @@ func NextHistoryAsset(baseConfig *config.Config, com *common.Common, c echo.Cont
 	return historyAsset(baseConfig, com, c, true)
 }
 
-// historyAsset handles the core logic for showing previous/next assets from navigation history.
-// It retrieves the requested asset(s), processes images and metadata in parallel, and renders
-// the appropriate view component.
-//
-// Parameters:
-// - baseConfig: Application configuration
-// - com: Common functionality and context
-// - c: Echo context for the HTTP request
-// - useNextImage: If true, shows next asset, if false shows previous
-//
-// Returns error if asset processing fails.
+// historyAsset processes and displays either the previous or next asset(s) from the navigation history, handling both online and offline modes.
+// It retrieves the relevant history entry, fetches asset metadata and image previews concurrently, and prepares view data for rendering. If offline mode is enabled, it loads cached asset data instead. The function triggers a webhook event corresponding to the navigation direction and renders either an image or video component based on the asset type.
+// Returns an error if asset retrieval, image processing, or view rendering fails.
 func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context, useNextImage bool) error {
 	requestData, err := InitializeRequestData(c, baseConfig)
 	if err != nil {
@@ -112,7 +105,7 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	requestConfig.History[entryIndex] = kiosk.HistoryIndicator + requestConfig.History[entryIndex]
 
 	if requestConfig.UseOfflineMode && requestConfig.OfflineMode.Enabled {
-		return historyAssetOffline(c, requestID, deviceID, wantedAssets, requestConfig.History, com.Secret())
+		return historyAssetOffline(c, requestID, deviceID, wantedAssets, requestConfig, com.Secret())
 	}
 
 	viewData := common.ViewData{
@@ -163,19 +156,21 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 				}(&asset, requestID, &wg)
 
 				var imgString, imgBlurString string
+				var dominantColor color.RGBA
 
 				defer func() {
 					viewData.Assets[prevAssetsID] = common.ViewImageData{
-						ImmichAsset:   asset,
-						ImageData:     imgString,
-						ImageBlurData: imgBlurString,
-						User:          selectedUser,
+						ImmichAsset:        asset,
+						ImageData:          imgString,
+						ImageBlurData:      imgBlurString,
+						ImageDominantColor: dominantColor,
+						User:               selectedUser,
 					}
 				}()
 
 				// Image processing isn't required for video, audio, or other types
 				// So if this fails, we can still proceed with the asset view
-				imgBytes, previewErr := asset.ImagePreview()
+				imgBytes, _, previewErr := asset.ImagePreview()
 				if previewErr != nil {
 					switch asset.Type {
 					case immich.ImageType:
@@ -202,6 +197,13 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 					return fmt.Errorf("converting blurred image to base64: %w", blurErr)
 				}
 
+				if requestConfig.Theme == kiosk.ThemeBubble {
+					dominantColor, err = utils.ExtractDominantColor(img)
+					if err != nil {
+						return fmt.Errorf("extracting dominant colour: %w", err)
+					}
+				}
+
 				wg.Wait()
 
 				return nil
@@ -212,7 +214,7 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	// Wait for all goroutines to complete and check for errors
 	errGroupWait := g.Wait()
 	if errGroupWait != nil {
-		return RenderError(c, errGroupWait, "processing images", requestConfig.Refresh)
+		return RenderError(c, errGroupWait, "processing images", requestConfig.Duration)
 	}
 
 	webhookEvent := webhooks.PreviousHistoryAsset
@@ -281,7 +283,7 @@ func findHistoryEntry(history []string, useNextImage bool) (string, int) {
 //
 // Returns:
 // - error if loading or rendering cached data fails
-func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAssets, history []string, secret string) error {
+func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAssets []string, requestConfig config.Config, secret string) error {
 	replacer := strings.NewReplacer(
 		kiosk.HistoryIndicator, "",
 		":", "",
@@ -306,7 +308,8 @@ func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAsset
 	viewData.KioskVersion = KioskVersion
 	viewData.RequestID = requestID
 	viewData.DeviceID = deviceID
-	viewData.History = history
+	viewData.History = requestConfig.History
+	viewData.Theme = requestConfig.Theme
 
 	return Render(c, http.StatusOK, imageComponent.Image(viewData, secret))
 }

@@ -48,11 +48,7 @@ func TestArchiveLogic(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run("", func(t *testing.T) {
-			simulatedContinueTriggered := false
-
-			if test.Type != "IMAGE" || test.IsTrashed || (test.IsArchived && !test.ArchivedWantedByUser) {
-				simulatedContinueTriggered = true
-			}
+			simulatedContinueTriggered := test.Type != "IMAGE" || test.IsTrashed || (test.IsArchived && !test.ArchivedWantedByUser)
 
 			assert.Equal(t, test.WantSimulatedContinue, simulatedContinueTriggered, "Unexpected simulatedContinueTriggered value")
 		})

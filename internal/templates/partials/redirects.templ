@@ -1,8 +1,10 @@
 package partials
 
 import (
+	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"net/url"
+	"strings"
 )
 
 func checkAuthParam(queries url.Values) (bool, string, string) {
@@ -24,10 +26,11 @@ templ Redirects(redirects []config.Redirect, queries url.Values) {
 					<a href={ templ.SafeURL("/?" + paramType + "=" + password) }>Home</a>
 				}
 				for _ , redirect := range redirects {
+					{{ redirectName, _ := strings.CutPrefix(redirect.Name, "/") }}
 					if hasPassword {
-						<a href={ templ.SafeURL(redirect.Name + "?" + paramType + "=" + password) }>{ redirect.Name }</a>
+						<a href={ templ.SafeURL(fmt.Sprintf("/%s?%s=%s", redirectName, paramType, password)) }>{ redirectName }</a>
 					} else {
-						<a href={ templ.SafeURL(redirect.Name) }>{ redirect.Name }</a>
+						<a href={ templ.SafeURL(fmt.Sprintf("/%s", redirectName)) }>{ redirectName }</a>
 					}
 				}
 			</div>

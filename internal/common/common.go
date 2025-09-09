@@ -4,6 +4,7 @@ package common
 import (
 	"context"
 	"fmt"
+	"image/color"
 	"net/http"
 	"net/url"
 	"os"
@@ -75,19 +76,20 @@ func (c *Common) Secret() string {
 
 // RouteRequestData contains request metadata and configuration used across routes
 type RouteRequestData struct {
-	RequestConfig config.Config // Configuration for the current request
 	DeviceID      string        // Unique identifier for the device making the request
 	RequestID     string        // Unique identifier for this specific request
 	ClientName    string        // Name of the client making the request
+	RequestConfig config.Config // Configuration for the current request
 }
 
 // ViewImageData contains the image data and metadata for displaying an image in the view
 type ViewImageData struct {
-	ImmichAsset   immich.Asset // ImmichAsset contains immich asset data
-	ImageData     string       // ImageData contains the image as base64 data
-	ImageBlurData string       // ImageBlurData contains the blurred image as base64 data
-	ImageDate     string       // ImageDate contains the date of the image
-	User          string       // User the user api key used
+	ImageData          string       // ImageData contains the image as base64 data
+	ImageBlurData      string       // ImageBlurData contains the blurred image as base64 data
+	ImageDate          string       // ImageDate contains the date of the image
+	User               string       // User the user api key used
+	ImmichAsset        immich.Asset // ImmichAsset contains immich asset data
+	ImageDominantColor color.RGBA   // ImageDominantColor contains the dominant color of the image
 }
 
 // ViewData contains all the data needed to render a view in the application
@@ -102,17 +104,17 @@ type ViewData struct {
 }
 
 type ViewImageDataOptions struct {
-	RelativeAssetWanted   bool
 	RelativeAssetBucket   kiosk.Source
 	RelativeAssetBucketID string
 	ImageOrientation      immich.ImageOrientation
+	RelativeAssetWanted   bool
 }
 
 // ContextCopy stores a copy of key HTTP context information including URL and headers
 type ContextCopy struct {
-	URL            url.URL     // The request URL
 	RequestHeader  http.Header // Headers from the incoming request
 	ResponseHeader http.Header // Headers for the outgoing response
+	URL            url.URL     // The request URL
 }
 
 // CopyContext creates a copy of essential context data from an echo.Context

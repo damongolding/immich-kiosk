@@ -3,6 +3,7 @@ package partials
 import (
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -14,6 +15,20 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
+
+func bubbleBackground(c string, asset common.ViewImageData) string {
+	r := max(0, min(255, asset.ImageDominantColor.R))
+	g := max(0, min(255, asset.ImageDominantColor.G))
+	b := max(0, min(255, asset.ImageDominantColor.B))
+
+	return fmt.Sprintf(`
+	<style>
+		.%s .asset--metadata--has-icon {
+			background-color: rgba(%d, %d, %d, 0.6);
+		}
+	</style>
+	`, c, r, g, b)
+}
 
 // AssetMetadata renders metadata for an asset as an HTML component.
 // Displays configurable metadata including people, albums, date/time,
@@ -30,9 +45,13 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 	{{ showDateTime := viewData.ShowImageDate || viewData.ShowImageTime }}
 	{{ showDescription := viewData.ShowImageDescription && viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description != "" }}
 	{{ rightAlignIcons := len(viewData.Assets) > 1 && assetIndex == 1 }}
-	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
+	{{ names := peopleNames(viewData.Assets[assetIndex].ImmichAsset.People, viewData.ShowPersonName, viewData.ShowPersonAge, viewData.ShowAgeYearUnit, viewData.AgeSwitchToYearsAfter, viewData.Assets[assetIndex].ImmichAsset.LocalDateTime) }}
 	{{ showUser := viewData.ShowUser }}
-	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons) }>
+	{{ className := "frame-" + utils.GenerateUUID() }}
+	if viewData.Theme == "bubble" {
+		@templ.Raw(bubbleBackground(className, viewData.Assets[assetIndex]))
+	}
+	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons), className }>
 		if showUser && viewData.Assets[assetIndex].User != "" {
 			@userIcon(cases.Title(language.English).String(viewData.Assets[assetIndex].User))
 		}
@@ -217,7 +236,7 @@ func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) stri
 // Returns:
 //   - string: Age formatted as "X days", "X months" or "X years"
 //     with appropriate pluralization. Returns empty string if assetDate is before birthDate.
-func calculateAge(assetDate, birthDate time.Time, switchToYears int) string {
+func calculateAge(assetDate, birthDate time.Time, addYearUnit bool, switchToYears int) string {
 	if assetDate.Before(birthDate) {
 		return ""
 	}
@@ -244,12 +263,20 @@ func calculateAge(assetDate, birthDate time.Time, switchToYears int) string {
 	// Choose appropriate format based on the age
 	switch {
 	case years > 0 && years < switchToYears:
-		totalMonths := months + (years * 12)
-		return pluralize(totalMonths, "month")
+		if months == 0 {
+			if addYearUnit {
+				return fmt.Sprintf("%dy", years)
+			}
+			return strconv.Itoa(years)
+		}
+		return fmt.Sprintf("%dy %dm", years, months)
 	case years > 0:
-		return pluralize(years, "year")
+		if addYearUnit {
+			return fmt.Sprintf("%dy", years)
+		}
+		return strconv.Itoa(years)
 	case months > 0:
-		return pluralize(months, "month")
+		return fmt.Sprintf("%dm", months)
 	default:
 		return pluralize(totalDays, "day")
 	}
@@ -272,7 +299,7 @@ func pluralize(count int, unit string) string {
 //
 // Returns:
 //   - string: Comma-separated list of formatted person names with optional ages
-func peopleNames(people []immich.Person, showName, showAge bool, switchToYears int, assetDate time.Time) string {
+func peopleNames(people []immich.Person, showName, showAge, addYearUnit bool, switchToYears int, assetDate time.Time) string {
 	var names []string
 
 	for _, person := range people {
@@ -280,11 +307,13 @@ func peopleNames(people []immich.Person, showName, showAge bool, switchToYears i
 			continue
 		}
 
-		name := formatPersonName(person, showName, showAge, switchToYears, assetDate)
+		name := formatPersonName(person, showName, showAge, addYearUnit, switchToYears, assetDate)
 		if name != "" {
 			names = append(names, name)
 		}
 	}
+
+	slices.Sort(names)
 
 	return strings.Join(names, ", ")
 }
@@ -299,7 +328,7 @@ func peopleNames(people []immich.Person, showName, showAge bool, switchToYears i
 //
 // Returns:
 //   - string: Formatted name with optional age in parentheses
-func formatPersonName(person immich.Person, showName, showAge bool, switchToYears int, assetDate time.Time) string {
+func formatPersonName(person immich.Person, showName, showAge, addYearUnit bool, switchToYears int, assetDate time.Time) string {
 	if !showName && !showAge {
 		return ""
 	}
@@ -311,8 +340,8 @@ func formatPersonName(person immich.Person, showName, showAge bool, switchToYear
 	name := person.Name
 
 	if showAge && person.BirthDate != "" {
-		if age := getPersonAge(person, switchToYears, assetDate); age != "" {
-			name = fmt.Sprintf("%s (%s)", name, age)
+		if age := getPersonAge(person, addYearUnit, switchToYears, assetDate); age != "" {
+			name = fmt.Sprintf("%s <span class=\"metadata-age-bracket\">(</span>%s<span class=\"metadata-age-bracket\">)</span>", name, age)
 		}
 	}
 
@@ -327,13 +356,13 @@ func formatPersonName(person immich.Person, showName, showAge bool, switchToYear
 //
 // Returns:
 //   - string: Formatted age string or empty string if birth date is invalid
-func getPersonAge(person immich.Person, switchToYears int, assetDate time.Time) string {
+func getPersonAge(person immich.Person, addYearUnit bool, switchToYears int, assetDate time.Time) string {
 	birthDate, err := person.BirthDate.Time()
 	if err != nil {
 		return ""
 	}
 
-	return calculateAge(assetDate, birthDate, switchToYears)
+	return calculateAge(assetDate, birthDate, addYearUnit, switchToYears)
 }
 
 // joinAlbumNames joins album names into a comma-separated string.

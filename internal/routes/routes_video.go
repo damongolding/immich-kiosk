@@ -11,10 +11,16 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v4"
 )
 
+// NewVideo returns an HTTP handler for serving video files with support for HTTP range requests, caching headers, and partial content delivery.
+// If demoMode is enabled, the handler responds with a plain text message indicating demo mode.
+// Otherwise, it streams the requested video file, handling range requests for efficient streaming, and sets appropriate HTTP headers for caching and content negotiation.
+// Returns 400 if the video ID is missing, 404 if the video is not found, 416 for invalid range requests, and 500 for internal errors.
 func NewVideo(demoMode bool) echo.HandlerFunc {
 	if demoMode {
 		return func(c echo.Context) error {
@@ -72,7 +78,7 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 			}
 		}
 
-		c.Response().Header().Set("Content-Type", vid.ImmichAsset.OriginalMimeType)
+		c.Response().Header().Set("Content-Type", vid.ContentType)
 		c.Response().Header().Set("Accept-Ranges", "bytes")
 
 		// Initialize start and end
@@ -127,7 +133,7 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 
 		// Use io.Copy instead of buffered reader for large chunks
 		if chunkSize > bufferSize {
-			return c.Stream(statusCode, vid.ImmichAsset.OriginalMimeType,
+			return c.Stream(statusCode, vid.ContentType,
 				io.NewSectionReader(video, start, chunkSize))
 		}
 
@@ -137,7 +143,7 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 			bufferSize,
 		)
 
-		return c.Stream(statusCode, vid.ImmichAsset.OriginalMimeType, bufferedReader)
+		return c.Stream(statusCode, vid.ContentType, bufferedReader)
 	}
 }
 
@@ -166,10 +172,7 @@ func parseRangeHeader(rangeHeader string, fileSize int64) (int64, int64, int, er
 		if err != nil {
 			return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range end")
 		}
-		start = fileSize - end
-		if start < 0 {
-			start = 0
-		}
+		start = max(0, fileSize-end)
 		end = fileSize - 1
 		return start, end, statusCode, nil
 	}
@@ -204,4 +207,33 @@ func parseRangeHeader(rangeHeader string, fileSize int64) (int64, int64, int, er
 	}
 
 	return start, end, statusCode, nil
+}
+
+func LivePhoto(demoMode bool) echo.HandlerFunc {
+	if demoMode {
+		return func(c echo.Context) error {
+			return c.NoContent(http.StatusNoContent)
+		}
+	}
+
+	return func(c echo.Context) error {
+
+		liveID := c.Param("liveID")
+		if liveID == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "Live photo ID is required")
+		}
+
+		video, err := VideoManager.GetVideo(liveID)
+		if err != nil {
+			return c.NoContent(http.StatusNoContent)
+		}
+
+		videoOrientation := kiosk.LandscapeOrientation
+		if video.ImmichAsset.IsPortrait {
+			videoOrientation = kiosk.PortraitOrientation
+		}
+
+		return Render(c, http.StatusOK, partials.LivePhoto(video.ID, videoOrientation))
+	}
+
 }
