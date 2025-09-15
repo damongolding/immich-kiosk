@@ -676,7 +676,13 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 	// AssetInfo overrides IsPortrait and IsLandscape so lets add them back
 	a.AddRatio()
 
-	return !a.containsTag(kiosk.TagSkip)
+	if a.containsTag(kiosk.TagSkip) {
+		return false
+	}
+
+	return !slices.ContainsFunc(a.Tags, func(excludedTag Tag) bool {
+		return slices.Contains(a.requestConfig.ExcludedTags, excludedTag.Name)
+	})
 }
 
 func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string) (int, error) {
