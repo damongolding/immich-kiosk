@@ -1,6 +1,9 @@
 package partials
 
-import "fmt"
+import (
+	"fmt"
+	"net/url"
+)
 
 templ LivePhoto(videoID, videoOrientation, password string) {
 	<video
@@ -14,7 +17,11 @@ templ LivePhoto(videoID, videoOrientation, password string) {
 		x-webkit-airplay="allow"
 	>
 		<source
-			src={ fmt.Sprintf("/video/%s?password=%s", videoID, password) }
+			if password != "" {
+				src={ fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password)) }
+			} else {
+				src={ fmt.Sprintf("/video/%s", videoID) }
+			}
 		/>
 	</video>
 	<video
@@ -28,8 +35,10 @@ templ LivePhoto(videoID, videoOrientation, password string) {
 		webkit-playsinline
 		x-webkit-airplay="allow"
 	>
-		<source
-			src={ fmt.Sprintf("/video/%s?password=%s", videoID, password) }
-		/>
+		if password != "" {
+			src={ fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password)) }
+		} else {
+			src={ fmt.Sprintf("/video/%s", videoID) }
+		}
 	</video>
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/google/uuid"
+	"net/url"
 )
 
 script videoHandler(id string) {
@@ -39,7 +40,11 @@ templ Video(viewData common.ViewData, secret string) {
 				poster={ video.ImageData }
 			>
 				<source
-					src={ fmt.Sprintf("/video/%s?password=%s", video.ImmichAsset.ID, viewData.Kiosk.Password) }
+					if viewData.Kiosk.Password != "" {
+						src={ fmt.Sprintf("/video/%s?password=%s", video.ImmichAsset.ID, url.QueryEscape(viewData.Kiosk.Password)) }
+					} else {
+						src={ fmt.Sprintf("/video/%s", video.ImmichAsset.ID) }
+					}
 				/>
 			</video>
 		</div>
