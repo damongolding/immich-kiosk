@@ -39,7 +39,7 @@ templ Video(viewData common.ViewData, secret string) {
 				poster={ video.ImageData }
 			>
 				<source
-					src={ fmt.Sprintf("/video/%s", video.ImmichAsset.ID) }
+					src={ fmt.Sprintf("/video/%s?password=%s", video.ImmichAsset.ID, viewData.Kiosk.Password) }
 				/>
 			</video>
 		</div>

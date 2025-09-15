@@ -209,7 +209,7 @@ func parseRangeHeader(rangeHeader string, fileSize int64) (int64, int64, int, er
 	return start, end, statusCode, nil
 }
 
-func LivePhoto(demoMode bool) echo.HandlerFunc {
+func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
 	if demoMode {
 		return func(c echo.Context) error {
 			return c.NoContent(http.StatusNoContent)
@@ -233,7 +233,7 @@ func LivePhoto(demoMode bool) echo.HandlerFunc {
 			videoOrientation = kiosk.PortraitOrientation
 		}
 
-		return Render(c, http.StatusOK, partials.LivePhoto(video.ID, videoOrientation))
+		return Render(c, http.StatusOK, partials.LivePhoto(video.ID, videoOrientation, password))
 	}
 
 }
