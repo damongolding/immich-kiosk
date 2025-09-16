@@ -161,7 +161,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 			// Type assert to get more details about the error
 			var urlErr *url.Error
-			if errors.As(err, &urlErr) {
+			if errors.As(resErr, &urlErr) {
 				log.Error("Request failed",
 					"attempt", attempts,
 					"URL", apiURL,
