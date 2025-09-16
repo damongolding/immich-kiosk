@@ -94,6 +94,7 @@ This section is used to generate the UnRaid template.
 | excluded_people                   | KIOSK_EXCLUDED_PEOPLE   | []string                   | []          | The ID(s) of a specific person or people you want to exclude. |
 | dates                             | KIOSK_DATES             | []string                   | []          | A date range or ranges. |
 | tags                              | KIOSK_TAGS              | []string                   | []          | Tag or tags you want to display. |
+| excluded_tags                     | KIOSK_EXCLUDED_TAGS     | []string                   | []          | The tag or tags you want to exclude. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memories. |
 | blacklist                         | KIOSK_BLACKLIST         | []string                   | []          | The ID(s) of any specific assets you want Kiosk to skip/exclude from displaying. |
 | date_filter                       | KIOSK_DATE_FILTER       | string                     | ""          | Filter person and random assets by date. |

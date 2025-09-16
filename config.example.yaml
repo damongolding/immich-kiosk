@@ -45,6 +45,8 @@ dates:
 ## Value(s) of tag(s) to display
 tags:
   - "TAG_VALUE"
+excluded_tags:
+  - "TAG_VALUE"
 
 memories: false # show memories
 
