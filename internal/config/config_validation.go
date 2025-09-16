@@ -126,12 +126,13 @@ func (c *Config) cleanupSlice(slice []string, placeholder string) []string {
 func (c *Config) checkAssetBuckets() {
 
 	c.Albums = c.cleanupSlice(c.Albums, "ALBUM_ID")
-
 	c.ExcludedAlbums = c.cleanupSlice(c.ExcludedAlbums, "ALBUM_ID")
 
 	c.People = c.cleanupSlice(c.People, "PERSON_ID")
+	c.ExcludedPeople = c.cleanupSlice(c.ExcludedPeople, "PERSON_ID")
 
 	c.Tags = c.cleanupSlice(c.Tags, "TAG_VALUE")
+	c.ExcludedTags = c.cleanupSlice(c.ExcludedTags, "TAG_VALUE")
 
 	c.Dates = c.cleanupSlice(c.cleanupSlice(c.Dates, "DATE_RANGE"), "YYYY-MM-DD_to_YYYY-MM-DD")
 }
