@@ -35,10 +35,12 @@ templ LivePhoto(videoID, videoOrientation, password string) {
 		webkit-playsinline
 		x-webkit-airplay="allow"
 	>
-		if password != "" {
-			src={ fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password)) }
-		} else {
-			src={ fmt.Sprintf("/video/%s", videoID) }
-		}
+		<source
+			if password != "" {
+				src={ fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password)) }
+			} else {
+				src={ fmt.Sprintf("/video/%s", videoID) }
+			}
+		/>
 	</video>
 }
