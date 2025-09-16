@@ -680,8 +680,8 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 		return false
 	}
 
-	return !slices.ContainsFunc(a.Tags, func(excludedTag Tag) bool {
-		return slices.Contains(a.requestConfig.ExcludedTags, excludedTag.Name)
+	return !slices.ContainsFunc(a.Tags, func(assetTag Tag) bool {
+		return slices.Contains(a.requestConfig.ExcludedTags, strings.ToLower(assetTag.Name))
 	})
 }
 

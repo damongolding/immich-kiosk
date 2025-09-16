@@ -64,8 +64,21 @@ func (c *Config) checkLowercaseTaggedFields() {
 		fieldType := typ.Field(i)
 
 		// Check if the field has the `lowercase` tag set to "true"
-		if fieldType.Tag.Get("lowercase") == "true" && field.Kind() == reflect.String && field.CanSet() {
-			field.SetString(strings.ToLower(field.String()))
+		if fieldType.Tag.Get("lowercase") == "true" && field.CanSet() {
+			switch field.Kind() {
+			case reflect.String:
+				field.SetString(strings.ToLower(field.String()))
+
+			case reflect.Slice:
+				if field.Type().Elem().Kind() == reflect.String {
+					sliceLen := field.Len()
+					newSlice := reflect.MakeSlice(field.Type(), sliceLen, sliceLen)
+					for j := range sliceLen {
+						newSlice.Index(j).SetString(strings.ToLower(field.Index(j).String()))
+					}
+					field.Set(newSlice)
+				}
+			}
 		}
 	}
 }
