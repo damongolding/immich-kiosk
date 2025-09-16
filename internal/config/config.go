@@ -37,7 +37,7 @@ import (
 	"github.com/goodsign/monday"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 
 	"github.com/labstack/echo/v4"
 )

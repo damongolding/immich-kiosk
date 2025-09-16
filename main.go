@@ -132,14 +132,21 @@ func main() {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 			Skipper: func(c echo.Context) bool {
 				// skip auth for assets and /health endpoint
-				url := c.Request().URL.String()
-				return strings.HasPrefix(url, "/assets") || url == "/health"
+				path := c.Request().URL.Path
+				return strings.HasPrefix(path, "/assets/") || path == "/health" || path == "/favicon.ico"
 			},
 			KeyLookup: "header:Authorization,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
 			Validator: func(queryPassword string, _ echo.Context) (bool, error) {
 				return queryPassword == baseConfig.Kiosk.Password, nil
 			},
-			ErrorHandler: func(_ error, c echo.Context) error {
+			ErrorHandler: func(err error, c echo.Context) error {
+				if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
+					log.Warn("unauthorized request",
+						"IP", c.RealIP(),
+						"method", c.Request().Method,
+						"URL", c.Request().URL.String(),
+						"error", err)
+				}
 				return routes.RenderUnauthorized(c)
 			},
 		}))
