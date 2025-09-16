@@ -108,8 +108,9 @@ func (c *Config) checkDebuging() {
 func (c *Config) cleanupSlice(slice []string, placeholder string) []string {
 	cleaned := make([]string, 0, len(slice))
 	for _, item := range slice {
-		if item != "" && item != placeholder {
-			cleaned = append(cleaned, strings.TrimSpace(item))
+		trimmed := strings.TrimSpace(item)
+		if trimmed != "" && trimmed != placeholder {
+			cleaned = append(cleaned, trimmed)
 		}
 	}
 	return cleaned
