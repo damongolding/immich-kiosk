@@ -202,7 +202,7 @@ func main() {
 
 	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
 
-	e.GET("/live/:liveID", routes.LivePhoto(baseConfig.Kiosk.DemoMode))
+	e.GET("/live/:liveID", routes.LivePhoto(baseConfig.Kiosk.DemoMode, baseConfig.Kiosk.Password))
 
 	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode), AssetCacheMiddlewareWithConfig(baseConfig))
 

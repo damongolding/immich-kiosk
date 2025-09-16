@@ -2,29 +2,33 @@ package partials
 
 import (
 	"fmt"
+	"net/url"
 )
 
-templ LivePhoto(videoID, videoOrientation string) {
+templ LivePhoto(videoID, videoOrientation, password string) {
 	<video
 		data-live-photo
 		data-group={ fmt.Sprintf("live-photo-%s", videoID) }
 		data-live-photo-role="bottom"
-		class={ "frame--video--"+videoOrientation, "live-photo", "live-photo-bottom"}
+		class={ "frame--video--"+videoOrientation, "live-photo", "live-photo-bottom" }
 		muted
 		playsinline
 		webkit-playsinline
 		x-webkit-airplay="allow"
 	>
 		<source
-			src={ fmt.Sprintf("/video/%s", videoID) }
+			if password != "" {
+				src={ fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password)) }
+			} else {
+				src={ fmt.Sprintf("/video/%s", videoID) }
+			}
 		/>
 	</video>
-
 	<video
 		data-live-photo
 		data-group={ fmt.Sprintf("live-photo-%s", videoID) }
 		data-live-photo-role="top"
-		class={ "frame--video--"+videoOrientation, "live-photo", "live-photo-top"}
+		class={ "frame--video--"+videoOrientation, "live-photo", "live-photo-top" }
 		autoplay
 		muted
 		playsinline
@@ -32,7 +36,11 @@ templ LivePhoto(videoID, videoOrientation string) {
 		x-webkit-airplay="allow"
 	>
 		<source
-			src={ fmt.Sprintf("/video/%s", videoID) }
+			if password != "" {
+				src={ fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password)) }
+			} else {
+				src={ fmt.Sprintf("/video/%s", videoID) }
+			}
 		/>
 	</video>
 }
