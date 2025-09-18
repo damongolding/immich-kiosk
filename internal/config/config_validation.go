@@ -105,11 +105,21 @@ func (c *Config) checkDebuging() {
 
 // cleanupSlice removes empty strings and placeholder values from a slice,
 // and trims whitespace from remaining values.
-func (c *Config) cleanupSlice(slice []string, placeholder string) []string {
+func (c *Config) cleanupSlice(slice []string, placeholders ...string) []string {
 	cleaned := make([]string, 0, len(slice))
 	for _, item := range slice {
 		trimmed := strings.TrimSpace(item)
-		if trimmed != "" && trimmed != placeholder {
+		if trimmed == "" {
+			continue
+		}
+		isPlaceholder := false
+		for _, placeholder := range placeholders {
+			if strings.EqualFold(trimmed, placeholder) {
+				isPlaceholder = true
+				break
+			}
+		}
+		if !isPlaceholder {
 			cleaned = append(cleaned, trimmed)
 		}
 	}
@@ -133,7 +143,7 @@ func (c *Config) checkAssetBuckets() {
 	c.Tags = c.cleanupSlice(c.Tags, "TAG_VALUE")
 	c.ExcludedTags = c.cleanupSlice(c.ExcludedTags, "TAG_VALUE")
 
-	c.Dates = c.cleanupSlice(c.cleanupSlice(c.Dates, "DATE_RANGE"), "YYYY-MM-DD_to_YYYY-MM-DD")
+	c.Dates = c.cleanupSlice(c.Dates, "DATE_RANGE", "YYYY-MM-DD_to_YYYY-MM-DD")
 }
 
 // checkExcludedAlbums filters out any albums from c.Album that are present in
