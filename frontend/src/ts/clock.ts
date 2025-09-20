@@ -2,11 +2,11 @@ import { format } from "date-fns/format";
 import type { Locale } from "date-fns/locale";
 import { locales } from "./locales";
 
-const CLOCK_UPDATE_INTERVAL = 5000;
+const CLOCK_UPDATE_INTERVAL = 1000;
 
 const TIME_FORMATS = {
-    TWELVE_HOUR: "h:mma" as const,
-    TWENTY_FOUR_HOUR: "HH:mm" as const,
+    TWELVE_HOUR: "h:mm:ssa" as const,
+    TWENTY_FOUR_HOUR: "HH:mm:ss" as const,
 } as const;
 
 type TimeFormat = "12" | "24";
