@@ -91,6 +91,8 @@ type KioskSettings struct {
 
 	ConfigValidationLevel string `json:"configValidationLevel" yaml:"config_validation_level" mapstructure:"config_validation_level" default:"error" lowercase:"true"`
 
+	Padding int `yaml:"padding" mapstructure:"padding" default:"0"`
+
 	// Password the password used to add authentication to the frontend
 	Password string `json:"-" yaml:"password" mapstructure:"password" default:"" redact:"true"`
 
