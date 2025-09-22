@@ -91,8 +91,6 @@ type KioskSettings struct {
 
 	ConfigValidationLevel string `json:"configValidationLevel" yaml:"config_validation_level" mapstructure:"config_validation_level" default:"error" lowercase:"true"`
 
-	Padding int `yaml:"padding" mapstructure:"padding" default:"0"`
-
 	// Password the password used to add authentication to the frontend
 	Password string `json:"-" yaml:"password" mapstructure:"password" default:"" redact:"true"`
 
@@ -342,6 +340,8 @@ type Config struct {
 	DisableUI bool `json:"disableUi" yaml:"disable_ui" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames
 	Frameless bool `json:"frameless" yaml:"frameless" mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
+	// FramePadding add padding to Kiosk
+	FramePadding []int `json:"framePadding" yaml:"frame_padding" mapstructure:"frame_padding" query:"frame_padding" form:"frame_padding" default:"[]"`
 
 	// ShowTime whether to display clock
 	ShowTime bool `json:"showTime" yaml:"show_time" mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`
