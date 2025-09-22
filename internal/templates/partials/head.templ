@@ -49,8 +49,10 @@ templ Head(viewData common.ViewData) {
 
 // framepadding generates CSS for kiosk padding
 func framepadding(padding []int) string {
+	if len(padding) > 4 {
+		padding = padding[:4]
+	}
 	switch len(padding) {
-
 	case 2:
 		return fmt.Sprintf(`
 		<style>
