@@ -349,13 +349,13 @@ func (a *Asset) AssetInfo(requestID, deviceID string) error {
 	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
-		return fmt.Errorf("fetching asset info: err %w", err)
+		return fmt.Errorf("fetching asset info, err=%w", err)
 	}
 
 	err = json.Unmarshal(body, &immichAsset)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
-		return fmt.Errorf("fetching asset info: err %w", err)
+		return fmt.Errorf("unmarshal asset info, err=%w", err)
 	}
 
 	return a.mergeAssetInfo(immichAsset)
