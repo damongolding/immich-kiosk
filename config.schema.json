@@ -129,6 +129,12 @@
     "frameless": {
       "type": "boolean"
     },
+    "frame_padding": {
+      "type": ["integer", "array"],
+      "items": {
+        "type": "integer"
+      }
+    },
     "hide_cursor": {
       "type": "boolean"
     },
