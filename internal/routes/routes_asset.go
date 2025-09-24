@@ -109,7 +109,7 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 
-		layout := c.QueryParam("layout")
+		layout := strings.ToLower(strings.TrimSpace(c.QueryParam("layout")))
 
 		log.Debug(
 			requestID,
@@ -121,10 +121,11 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		immichAsset := immich.New(com.Context(), requestConfig)
 
 		switch layout {
-		case "portrait":
+		case kiosk.PortraitOrientation:
 			immichAsset.RatioWanted = immich.PortraitOrientation
-		case "landscape":
+		case kiosk.LandscapeOrientation:
 			immichAsset.RatioWanted = immich.LandscapeOrientation
+		default:
 		}
 
 		img, err := processAsset(&immichAsset, immich.ImageOnlyAssetTypes, requestConfig, requestID, "", "", false)
