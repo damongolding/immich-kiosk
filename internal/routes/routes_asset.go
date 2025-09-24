@@ -109,6 +109,8 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 
+		layout := c.QueryParam("layout")
+
 		log.Debug(
 			requestID,
 			"method", c.Request().Method,
@@ -117,6 +119,13 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		)
 
 		immichAsset := immich.New(com.Context(), requestConfig)
+
+		switch layout {
+		case "portrait":
+			immichAsset.RatioWanted = immich.PortraitOrientation
+		case "landscape":
+			immichAsset.RatioWanted = immich.LandscapeOrientation
+		}
 
 		img, err := processAsset(&immichAsset, immich.ImageOnlyAssetTypes, requestConfig, requestID, "", "", false)
 		if err != nil {
