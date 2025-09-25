@@ -308,7 +308,9 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 		)
 
 		assetID := c.FormValue("assetID")
-		requestConfig.SelectedUser = c.FormValue("user")
+		if u := strings.TrimSpace(c.FormValue("user")); u != "" {
+			requestConfig.SelectedUser = u
+		}
 
 		if assetID == "" {
 			log.Error("Asset ID is required")
@@ -397,7 +399,9 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 
 		assetID := c.FormValue("assetID")
 		tagName := c.FormValue("tagName")
-		requestConfig.SelectedUser = c.FormValue("user")
+		if u := strings.TrimSpace(c.FormValue("user")); u != "" {
+			requestConfig.SelectedUser = u
+		}
 
 		if assetID == "" {
 			log.Error("Asset ID is required")
