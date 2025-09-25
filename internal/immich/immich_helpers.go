@@ -565,10 +565,10 @@ func (a *Asset) containsTag(tagName string) bool {
 func (a *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
 	return a.hasValidBasicProperties(allowedTypes, wantedRatio) &&
 		a.hasValidDateFilter() &&
+		a.hasValidPartners() &&
 		a.hasValidAlbums(requestID, deviceID) &&
 		a.hasValidPeople(requestID, deviceID) &&
-		a.hasValidTags(requestID, deviceID) &&
-		a.hasValidPartners()
+		a.hasValidTags(requestID, deviceID)
 }
 
 // hasValidBasicProperties checks basic asset properties including type,
