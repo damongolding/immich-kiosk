@@ -607,8 +607,16 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 		c.ResetBuckets()
 	}
 
+	if queries.Get("excluded_person") == "none" || queries.Get("excluded_people") == "none" {
+		c.ExcludedPeople = []string{}
+	}
+
 	if queries.Get("excluded_album") == "none" || queries.Get("excluded_albums") == "none" {
 		c.ExcludedAlbums = []string{}
+	}
+
+	if queries.Get("excluded_partner") == "none" || queries.Get("excluded_partners") == "none" {
+		c.ExcludedPartners = []string{}
 	}
 
 	err := e.Bind(c)
