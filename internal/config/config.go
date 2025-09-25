@@ -280,6 +280,9 @@ type Config struct {
 	Tags         []string `json:"tags" yaml:"tags" mapstructure:"tags" query:"tag" form:"tag" default:"[]" lowercase:"true" redact:"true"`
 	ExcludedTags []string `json:"excluded_tags" yaml:"excluded_tags" mapstructure:"excluded_tags" query:"exclude_tag" form:"exclude_tag" default:"[]" lowercase:"true" redact:"true"`
 
+	// ExcludedPartners ID(s) of partner to exclude
+	ExcludedPartners []string `json:"excluded_partners" yaml:"excluded_partners" mapstructure:"excluded_partners" query:"exclude_partner" form:"exclude_partner" default:"[]" lowercase:"true" redact:"true"`
+
 	// Dates date filter
 	Dates []string `json:"dates" yaml:"dates" mapstructure:"dates" query:"date" form:"date" default:"[]"`
 	// HideCountries hide country names in location information

@@ -567,7 +567,8 @@ func (a *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetTyp
 		a.hasValidDateFilter() &&
 		a.hasValidAlbums(requestID, deviceID) &&
 		a.hasValidPeople(requestID, deviceID) &&
-		a.hasValidTags(requestID, deviceID)
+		a.hasValidTags(requestID, deviceID) &&
+		a.hasValidPartners()
 }
 
 // hasValidBasicProperties checks basic asset properties including type,
@@ -653,6 +654,10 @@ func (a *Asset) hasValidPeople(requestID, deviceID string) bool {
 	return !slices.ContainsFunc(a.People, func(person Person) bool {
 		return slices.Contains(a.requestConfig.ExcludedPeople, person.ID)
 	})
+}
+
+func (a *Asset) hasValidPartners() bool {
+	return !slices.Contains(a.requestConfig.ExcludedPartners, a.Owner.ID)
 }
 
 // hasValidTags checks if the asset has any tags that would exclude it from processing.
