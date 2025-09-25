@@ -39,9 +39,45 @@ templ Head(viewData common.ViewData) {
 			@templ.Raw(imageSmartZoomKeyframes(viewData.ImageEffectAmount, viewData.UseGpu))
 	}
 	@templ.Raw(baseFontSize(viewData.FontSize))
+	if len(viewData.FramePadding) > 0 {
+		@templ.Raw(framepadding(viewData.FramePadding))
+	}
 	if len(viewData.CustomCSS) > 0 && viewData.Config.CustomCSS {
 		@templ.Raw(customCss(viewData.CustomCSS))
 	}
+}
+
+// framepadding generates CSS for kiosk padding
+func framepadding(padding []int) string {
+	if len(padding) == 0 {
+		return ""
+	}
+	if len(padding) > 4 {
+		padding = padding[:4]
+	}
+	// clamp negatives to zero
+	for i, v := range padding {
+		if v < 0 {
+			padding[i] = 0
+		}
+	}
+	var shorthand string
+	switch len(padding) {
+	case 1:
+		shorthand = fmt.Sprintf("%dpx", padding[0])
+	case 2:
+		shorthand = fmt.Sprintf("%dpx %dpx", padding[0], padding[1])
+	case 3:
+		shorthand = fmt.Sprintf("%dpx %dpx %dpx", padding[0], padding[1], padding[2])
+	default: // 4
+		shorthand = fmt.Sprintf("%dpx %dpx %dpx %dpx", padding[0], padding[1], padding[2], padding[3])
+	}
+	return fmt.Sprintf(`
+		<style>
+			body{
+				padding: %s;
+			}
+		</style>`, shorthand)
 }
 
 // baseFontSize generates CSS for font sizing
@@ -396,6 +432,6 @@ func imageZoomKeyframes(zoomAmount int, useGpu bool) string {
 
 // customCss wraps CSS content in style tags and removes null bytes
 func customCss(css []byte) string {
-	css = bytes.Replace(css, []byte{0}, []byte{}, -1)
+	css = bytes.ReplaceAll(css, []byte{0}, []byte{})
 	return fmt.Sprintf("<style>%s</style>", css)
 }

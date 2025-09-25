@@ -109,6 +109,8 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 
+		layout := strings.ToLower(strings.TrimSpace(c.QueryParam("layout")))
+
 		log.Debug(
 			requestID,
 			"method", c.Request().Method,
@@ -117,6 +119,14 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		)
 
 		immichAsset := immich.New(com.Context(), requestConfig)
+
+		switch layout {
+		case kiosk.PortraitOrientation:
+			immichAsset.RatioWanted = immich.PortraitOrientation
+		case kiosk.LandscapeOrientation:
+			immichAsset.RatioWanted = immich.LandscapeOrientation
+		default:
+		}
 
 		img, err := processAsset(&immichAsset, immich.ImageOnlyAssetTypes, requestConfig, requestID, "", "", false)
 		if err != nil {
@@ -298,6 +308,9 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 		)
 
 		assetID := c.FormValue("assetID")
+		if u := strings.TrimSpace(c.FormValue("user")); u != "" {
+			requestConfig.SelectedUser = u
+		}
 
 		if assetID == "" {
 			log.Error("Asset ID is required")
@@ -386,6 +399,9 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 
 		assetID := c.FormValue("assetID")
 		tagName := c.FormValue("tagName")
+		if u := strings.TrimSpace(c.FormValue("user")); u != "" {
+			requestConfig.SelectedUser = u
+		}
 
 		if assetID == "" {
 			log.Error("Asset ID is required")

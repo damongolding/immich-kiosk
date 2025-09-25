@@ -3,8 +3,8 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    width: 100vw;
-    min-width: 100vw;
+    width: 100%;
+    min-width: 100%;
     height: auto;
     min-height: auto;
     top: 0;

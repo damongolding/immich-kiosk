@@ -1,5 +1,6 @@
 body#about {
     overflow: auto;
+    max-height: none;
 }
 
 .about-container {
