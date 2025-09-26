@@ -48,6 +48,9 @@ tags:
 excluded_tags:
   - "TAG_VALUE"
 
+excluded_partners:
+  - "PARTNER_ID"
+
 memories: false # show memories
 
 ## Filters

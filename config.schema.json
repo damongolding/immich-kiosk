@@ -105,6 +105,13 @@
       },
       "uniqueItems": true
     },
+    "excluded_partners": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
     "memories": {
       "type": "boolean"
     },
