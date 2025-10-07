@@ -228,9 +228,9 @@ type Config struct {
 	// MenuPosition position of menu
 	MenuPosition string `json:"menuPosition" yaml:"menu_position" mapstructure:"menu_position" query:"menu_position" form:"menu_position" default:"top"`
 	// TimeFormat whether to use 12 of 24 hour format for clock
-	TimeFormat string `json:"timeFormat" yaml:"time_format" mapstructure:"time_format" query:"time_format" form:"time_format" default:""`
+	TimeFormat string `json:"timeFormat" yaml:"time_format" mapstructure:"time_format" query:"time_format" form:"time_format" default:"24"`
 	//  DateFormat format for date
-	DateFormat string `json:"dateFormat" yaml:"date_format" mapstructure:"date_format" query:"date_format" form:"date_format" default:""`
+	DateFormat string `json:"dateFormat" yaml:"date_format" mapstructure:"date_format" query:"date_format" form:"date_format" default:"DD/MM/YYYY"`
 	// ClockSource source of clock time
 	ClockSource string `json:"clockSource" yaml:"clock_source" mapstructure:"clock_source" query:"clock_source" form:"clock_source" default:"client"`
 
@@ -279,6 +279,9 @@ type Config struct {
 	// Tags Name of tag to display
 	Tags         []string `json:"tags" yaml:"tags" mapstructure:"tags" query:"tag" form:"tag" default:"[]" lowercase:"true" redact:"true"`
 	ExcludedTags []string `json:"excluded_tags" yaml:"excluded_tags" mapstructure:"excluded_tags" query:"exclude_tag" form:"exclude_tag" default:"[]" lowercase:"true" redact:"true"`
+
+	// ExcludedPartners ID(s) of partner to exclude
+	ExcludedPartners []string `json:"excluded_partners" yaml:"excluded_partners" mapstructure:"excluded_partners" query:"exclude_partner" form:"exclude_partner" default:"[]" redact:"true"`
 
 	// Dates date filter
 	Dates []string `json:"dates" yaml:"dates" mapstructure:"dates" query:"date" form:"date" default:"[]"`
@@ -340,6 +343,8 @@ type Config struct {
 	DisableUI bool `json:"disableUi" yaml:"disable_ui" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames
 	Frameless bool `json:"frameless" yaml:"frameless" mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
+	// FramePadding add padding to Kiosk
+	FramePadding []int `json:"framePadding" yaml:"frame_padding" mapstructure:"frame_padding" query:"frame_padding" form:"frame_padding" default:"[]"`
 
 	// ShowTime whether to display clock
 	ShowTime bool `json:"showTime" yaml:"show_time" mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`
@@ -602,8 +607,18 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 		c.ResetBuckets()
 	}
 
-	if queries.Get("excluded_album") == "none" || queries.Get("excluded_albums") == "none" {
+	const none = "none"
+
+	if queries.Get("excluded_person") == none || queries.Get("excluded_people") == none {
+		c.ExcludedPeople = []string{}
+	}
+
+	if queries.Get("excluded_album") == none || queries.Get("excluded_albums") == none {
 		c.ExcludedAlbums = []string{}
+	}
+
+	if queries.Get("excluded_partner") == none || queries.Get("excluded_partners") == none {
+		c.ExcludedPartners = []string{}
 	}
 
 	err := e.Bind(c)

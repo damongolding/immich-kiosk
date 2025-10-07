@@ -41,6 +41,10 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		requestID := requestData.RequestID
 		deviceID := requestData.DeviceID
 
+		if u := strings.TrimSpace(c.FormValue("user")); u != "" {
+			requestConfig.SelectedUser = u
+		}
+
 		receivedSignature := c.Request().Header.Get("X-Signature")
 		receivedTimestamp := c.Request().Header.Get("X-Timestamp")
 		kioskWebhookEvent := c.Request().Header.Get("kiosk-webhook-event")
