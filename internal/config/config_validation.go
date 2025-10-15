@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"path"
+	"path/filepath"
 	"reflect"
 	"slices"
 	"strconv"
@@ -87,11 +87,11 @@ func (c *Config) checkSecrets() {
 		return
 	}
 
-	dockerSecretFile := path.Join(dockerSecretLocation, apiKeyFile)
+	dockerSecretFile := filepath.Join(dockerSecretLocation, apiKeyFile)
 	if _, err := os.Stat(dockerSecretFile); err == nil {
-		data, readRrr := os.ReadFile(dockerSecretFile)
-		if readRrr != nil {
-			log.Error("Failed to read secret file", "file", dockerSecretFile, "error", readRrr)
+		data, readErr := os.ReadFile(dockerSecretFile)
+		if readErr != nil {
+			log.Error("Failed to read secret file", "file", dockerSecretFile, "error", readErr)
 		} else {
 			c.ImmichAPIKey = strings.TrimSpace(string(data))
 			log.Info("Loaded Immich API key from docker secret")
@@ -99,11 +99,11 @@ func (c *Config) checkSecrets() {
 		}
 	}
 
-	systemdCredFile := path.Join(systemdCredLocation, apiKeyFile)
+	systemdCredFile := filepath.Join(systemdCredLocation, apiKeyFile)
 	if _, err := os.Stat(systemdCredFile); err == nil {
-		data, readRrr := os.ReadFile(systemdCredFile)
-		if readRrr != nil {
-			log.Error("Failed to read secret file", "file", systemdCredFile, "error", readRrr)
+		data, readErr := os.ReadFile(systemdCredFile)
+		if readErr != nil {
+			log.Error("Failed to read secret file", "file", systemdCredFile, "error", readErr)
 		} else {
 			c.ImmichAPIKey = strings.TrimSpace(string(data))
 			log.Info("Loaded Immich API key from systemd credential")
