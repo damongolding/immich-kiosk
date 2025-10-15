@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path"
 	"reflect"
 	"slices"
 	"strconv"
@@ -79,6 +80,37 @@ func (c *Config) checkLowercaseTaggedFields() {
 			}
 		}
 	}
+}
+
+func (c *Config) checkSecrets() {
+	if c.ImmichAPIKey != "" {
+		return
+	}
+
+	dockerSecretFile := path.Join(dockerSecretLocation, apiKeyFile)
+	if _, err := os.Stat(dockerSecretFile); err == nil {
+		data, readRrr := os.ReadFile(dockerSecretFile)
+		if readRrr != nil {
+			log.Error("Failed to read secret file", "file", dockerSecretFile, "error", readRrr)
+		} else {
+			c.ImmichAPIKey = strings.TrimSpace(string(data))
+			log.Info("Loaded Immich API key from docker secret")
+			return
+		}
+	}
+
+	systemdCredFile := path.Join(systemdCredLocation, apiKeyFile)
+	if _, err := os.Stat(systemdCredFile); err == nil {
+		data, readRrr := os.ReadFile(systemdCredFile)
+		if readRrr != nil {
+			log.Error("Failed to read secret file", "file", systemdCredFile, "error", readRrr)
+		} else {
+			c.ImmichAPIKey = strings.TrimSpace(string(data))
+			log.Info("Loaded Immich API key from systemd credential")
+			return
+		}
+	}
+
 }
 
 // checkRequiredFields verifies that all required configuration fields are set.

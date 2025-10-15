@@ -43,10 +43,8 @@ import (
 )
 
 const (
-	defaultImmichPort = "2283"
 	defaultScheme     = "http://"
 	DefaultDateLayout = "02/01/2006"
-	defaultConfigFile = "config.yaml"
 
 	AlbumOrderRandom     = "random"
 	AlbumOrderAscending  = "ascending"
@@ -57,6 +55,11 @@ const (
 	AlbumOrderNewest     = "newest"
 
 	redactedMarker = "REDACTED"
+
+	dockerSecretLocation = "/run/secrets"
+	systemdCredLocation  = "/run/credentials"
+
+	apiKeyFile = "KIOSK_IMMICH_API_KEY_FILE"
 )
 
 type OfflineMode struct {
@@ -555,6 +558,7 @@ func (c *Config) Load() error {
 		return err
 	}
 
+	c.checkSecrets()
 	c.checkRequiredFields()
 	c.checkLowercaseTaggedFields()
 	c.checkAssetBuckets()
