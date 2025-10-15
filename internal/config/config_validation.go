@@ -93,9 +93,13 @@ func (c *Config) checkSecrets() {
 		if readErr != nil {
 			log.Error("Failed to read secret file", "file", dockerSecretFile, "error", readErr)
 		} else {
-			c.ImmichAPIKey = strings.TrimSpace(string(data))
-			log.Info("Loaded Immich API key from docker secret")
-			return
+			apiKey := strings.TrimSpace(string(data))
+			if apiKey != "" {
+				c.ImmichAPIKey = apiKey
+				log.Info("Loaded Immich API key from docker secret")
+				return
+			}
+			log.Error("Docker secret file is empty")
 		}
 	}
 
@@ -105,9 +109,13 @@ func (c *Config) checkSecrets() {
 		if readErr != nil {
 			log.Error("Failed to read secret file", "file", systemdCredFile, "error", readErr)
 		} else {
-			c.ImmichAPIKey = strings.TrimSpace(string(data))
-			log.Info("Loaded Immich API key from systemd credential")
-			return
+			apiKey := strings.TrimSpace(string(data))
+			if apiKey != "" {
+				c.ImmichAPIKey = apiKey
+				log.Info("Loaded Immich API key from systemd credential")
+				return
+			}
+			log.Error("Systemd credential file is empty")
 		}
 	}
 
