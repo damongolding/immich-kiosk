@@ -82,44 +82,47 @@ func (c *Config) checkLowercaseTaggedFields() {
 	}
 }
 
+// loadSecretFromFile attempts to read and return an API key from the specified file
+func loadSecretFromFile(filePath, source string) (string, bool) {
+	if _, err := os.Stat(filePath); err != nil {
+		return "", false
+	}
+
+	data, readErr := os.ReadFile(filePath)
+	if readErr != nil {
+		log.Error("Failed to read secret file", "file", filePath, "error", readErr)
+		return "", false
+	}
+
+	apiKey := strings.TrimSpace(string(data))
+	if apiKey == "" {
+		log.Warn("Secret file is empty", "file", filePath)
+		return "", false
+	}
+
+	log.Info("Loaded Immich API key", "source", source)
+	return apiKey, true
+}
+
 func (c *Config) checkSecrets() {
 	if c.ImmichAPIKey != "" {
 		return
 	}
 
 	dockerSecretFile := filepath.Join(dockerSecretLocation, apiKeyFile)
-	if _, err := os.Stat(dockerSecretFile); err == nil {
-		data, readErr := os.ReadFile(dockerSecretFile)
-		if readErr != nil {
-			log.Error("Failed to read secret file", "file", dockerSecretFile, "error", readErr)
-		} else {
-			apiKey := strings.TrimSpace(string(data))
-			if apiKey != "" {
-				c.ImmichAPIKey = apiKey
-				log.Info("Loaded Immich API key from docker secret")
-				return
-			}
-			log.Error("Docker secret file is empty")
-		}
+	if apiKey, ok := loadSecretFromFile(dockerSecretFile, "docker secret"); ok {
+		c.ImmichAPIKey = apiKey
+		return
 	}
 
 	credsDir := os.Getenv(systemdCredDirEnv)
 	if credsDir != "" {
 		systemdCredFile := filepath.Join(credsDir, apiKeyFile)
-		data, readErr := os.ReadFile(systemdCredFile)
-		if readErr != nil {
-			log.Error("Failed to read secret file", "file", systemdCredFile, "error", readErr)
-		} else {
-			apiKey := strings.TrimSpace(string(data))
-			if apiKey != "" {
-				c.ImmichAPIKey = apiKey
-				log.Info("Loaded Immich API key from systemd credential")
-				return
-			}
-			log.Error("Systemd credential file is empty")
+		if apiKey, ok := loadSecretFromFile(systemdCredFile, "systemd credential"); ok {
+			c.ImmichAPIKey = apiKey
+			return
 		}
 	}
-
 }
 
 // checkRequiredFields verifies that all required configuration fields are set.
