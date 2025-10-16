@@ -57,7 +57,7 @@ const (
 	redactedMarker = "REDACTED"
 
 	dockerSecretLocation = "/run/secrets"
-	systemdCredLocation  = "/run/credentials"
+	systemdCredDirEnv    = "CREDENTIALS_DIRECTORY"
 
 	apiKeyFile = "KIOSK_IMMICH_API_KEY_FILE"
 )

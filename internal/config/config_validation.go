@@ -103,8 +103,9 @@ func (c *Config) checkSecrets() {
 		}
 	}
 
-	systemdCredFile := filepath.Join(systemdCredLocation, apiKeyFile)
-	if _, err := os.Stat(systemdCredFile); err == nil {
+	credsDir := os.Getenv(systemdCredDirEnv)
+	if credsDir != "" {
+		systemdCredFile := filepath.Join(credsDir, apiKeyFile)
 		data, readErr := os.ReadFile(systemdCredFile)
 		if readErr != nil {
 			log.Error("Failed to read secret file", "file", systemdCredFile, "error", readErr)
