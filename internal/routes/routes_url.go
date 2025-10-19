@@ -136,6 +136,10 @@ func Url(baseConfig *config.Config, im immich_open_api.ClientWithResponsesInterf
 			return errors.New("bad request: " + ppl.Status() + string(ppl.Body))
 		}
 
+		if ppl.JSON200 == nil {
+			return errors.New("unexpected empty response from GetAllPeopleWithResponse")
+		}
+
 		peopleWithNames := make([]immich_open_api.PersonResponseDto, 0)
 		for _, p := range ppl.JSON200.People {
 			if p.Name != "" {
@@ -149,6 +153,9 @@ func Url(baseConfig *config.Config, im immich_open_api.ClientWithResponsesInterf
 		}
 		if alb.StatusCode() != 200 {
 			return errors.New("bad request: " + alb.Status() + string(alb.Body))
+		}
+		if ppl.JSON200 == nil {
+			return errors.New("unexpected empty response from GetAllAlbumsWithResponse")
 		}
 
 		urlData := common.UrlViewData{

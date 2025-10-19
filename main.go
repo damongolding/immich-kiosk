@@ -174,10 +174,13 @@ func main() {
 		return c.String(http.StatusOK, "OK")
 	})
 
-	im, _ := immich_open_api.NewClientWithResponses(baseConfig.ImmichURL+"/api", immich_open_api.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+	im, err := immich_open_api.NewClientWithResponses(baseConfig.ImmichURL+"/api", immich_open_api.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
 		req.Header.Set("x-api-key", baseConfig.ImmichAPIKey)
 		return nil
 	}))
+	if err != nil {
+		log.Fatal("failed to initialise Immich API client", "err", err)
+	}
 	e.GET("/url", routes.Url(baseConfig, im))
 	e.POST("/buildUrl", routes.BuildUrl())
 

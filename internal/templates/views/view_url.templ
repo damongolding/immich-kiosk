@@ -296,7 +296,7 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 			<div class="content">
 				<h1>URL Builder</h1>
 
-                <form id="url-form" hx-post="/buildUrl" hx-trigger="load,change,multiselect-change from:body" hx-target="#url-result" style="display: inline !important;">
+                <form id="url-form" hx-post="/buildUrl" hx-trigger="load,change,multiselect-change from:body" hx-target="#url-result" hx-swap="outerHTML" style="display: inline !important;">
                         <div class="form-group">
                             <select name="people" id="people" multiple data-placeholder="Select people" data-multi-select>
                             for _, p := range d.People {
@@ -334,7 +334,7 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 
 templ DefaultRadio(displayName string, formName string, keyvals ...string) {
     <div class="form-group">
-        <label for={formName}>{displayName}</label><br/>
+        <label id={formName} for={formName}>{displayName}</label><br/>
         {{ 
             kvs := make([]string, 0, len(keyvals)+2)
             kvs = append(kvs, "default", "")
@@ -349,7 +349,7 @@ templ DefaultRadio(displayName string, formName string, keyvals ...string) {
 
 templ DefaultSelect(displayName string, formName string, keyvals ...string) {
     <div class="form-group">
-        <label for={formName}>{displayName}: </label>
+        <label id={formName} for={formName}>{displayName}: </label>
         {{ 
             kvs := make([]string, 0, len(keyvals)+2)
             kvs = append(kvs, "default", "")
