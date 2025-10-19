@@ -147,5 +147,5 @@ type UrlBuilderRequest struct {
 	ProgressBarPosition *string  `form:"progress_bar_position"`
 	Transition          *string  `form:"transition"`
 	Layout              *string  `form:"layout"`
-	Duration            *int64   `form:"duration"`
+	Duration            *uint64  `form:"duration"`
 }

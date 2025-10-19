@@ -19,18 +19,20 @@ import (
 func BuildUrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		kioskHost := c.Request().Host
-		scheme := "http"
-		if c.Request().TLS != nil {
-			scheme += "s"
+		scheme := c.Scheme()
+		if xf := c.Request().Header.Get("X-Forwarded-Proto"); xf != "" {
+			scheme = xf
 		}
 		kioskUrl, err := url.Parse(fmt.Sprintf("%s://%s", scheme, kioskHost))
 		if err != nil {
-			return err
+			return echo.NewHTTPError(http.StatusInternalServerError, "parsing url from request")
 		}
 
 		// HACK: remove empty form values so optional fields parse as nil
 		// and we can ignore them from the URL parameters to default to the servers configured defaults
-		c.Request().ParseForm()
+		if err := c.Request().ParseForm(); err != nil {
+			return echo.NewHTTPError(http.StatusUnprocessableEntity, "invalid form")
+		}
 		newValues := make(url.Values)
 		for k, v := range c.Request().Form {
 			if len(v) == 1 && (v[0] == "") {
@@ -42,7 +44,7 @@ func BuildUrl() echo.HandlerFunc {
 
 		var req common.UrlBuilderRequest
 		if err := c.Bind(&req); err != nil {
-			return err
+			return echo.NewHTTPError(http.StatusUnprocessableEntity, "parsing form")
 		}
 
 		q := url.Values{}
@@ -84,7 +86,7 @@ func BuildUrl() echo.HandlerFunc {
 
 		if dur := req.Duration; dur != nil {
 			if *dur > 0 {
-				q.Add("duration", strconv.FormatInt(*dur, 10))
+				q.Add("duration", strconv.FormatUint(*dur, 10))
 			}
 		}
 
