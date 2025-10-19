@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -18,10 +19,20 @@ import (
 
 func BuildUrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		kioskHost := c.Request().Host
+		kioskHost := c.Request().Header.Get("X-Forwarded-Host")
+		if kioskHost == "" {
+			kioskHost = c.Request().Host
+		}
 		scheme := c.Scheme()
 		if xf := c.Request().Header.Get("X-Forwarded-Proto"); xf != "" {
-			scheme = xf
+			s := strings.ToLower(xf)
+			if s == "http" || s == "https" {
+				scheme = s
+			}
+		}
+		prefix := c.Request().Header.Get("X-Forwarded-Prefix")
+		if prefix != "" && !strings.HasPrefix(prefix, "/") {
+			prefix = "/" + prefix
 		}
 		kioskUrl, err := url.Parse(fmt.Sprintf("%s://%s", scheme, kioskHost))
 		if err != nil {
