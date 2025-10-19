@@ -316,6 +316,14 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 
                         @DefaultSelect("Show date", "show_date", "true", "true",  "false", "false")
                         @DefaultSelect("Show time", "show_time", "true", "true",  "false", "false")
+                        @DefaultSelect("Transition", "transition", "none", "none", "fade", "fade", "cross-fade", "cross-fade")
+                        @DefaultSelect("Layout", "layout", "single", "single", "portrait", "portrait", "landscape", "landscape", "splitview", "splitview", "splitview-landscape", "splitview-landscape")
+                        @DefaultSelect("Show Progress Bar", "show_progress_bar", "true", "true", "false", "false")
+
+                        <div class="form-group">
+                            <label for="duration">Duration (0 for default):</label>
+                            <input type="range" id="duration" name="duration" min="0" max="120" value="0">
+                        </div>
                 </form>
                 <div id="url-result"></div>
 			</div>

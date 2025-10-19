@@ -143,4 +143,8 @@ type UrlBuilderRequest struct {
 	ShowDate         *bool    `form:"show_date"`
 	ShowTime         *bool    `form:"show_time"`
 	RequireAllPeople *bool    `form:"require_all_people"`
+	ShowProgressBar  *bool    `form:"show_progress_bar"`
+	Transition       *string  `form:"transition"`
+	Layout           *string  `form:"layout"`
+	Duration         *int64   `form:"duration"`
 }

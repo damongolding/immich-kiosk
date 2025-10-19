@@ -61,6 +61,24 @@ func BuildUrl() echo.HandlerFunc {
 			q.Add("require_all_people", strconv.FormatBool(*rap))
 		}
 
+		if spb := req.ShowProgressBar; spb != nil {
+			q.Add("show_progress_bar", strconv.FormatBool(*spb))
+		}
+
+		if tr := req.Transition; tr != nil {
+			q.Add("transition", *tr)
+		}
+
+		if lyt := req.Layout; lyt != nil {
+			q.Add("layout", *lyt)
+		}
+
+		if dur := req.Duration; dur != nil {
+			if *dur > 0 {
+				q.Add("duration", strconv.FormatInt(*dur, 10))
+			}
+		}
+
 		kioskUrl.RawQuery = q.Encode()
 
 		return Render(c, http.StatusOK, partials.UrlResult(kioskUrl.String()))
