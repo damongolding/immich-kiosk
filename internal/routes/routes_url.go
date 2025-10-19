@@ -156,7 +156,7 @@ func Url(baseConfig *config.Config, im immich_open_api.ClientWithResponsesInterf
 		if alb.StatusCode() != 200 {
 			return errors.New("bad request: " + alb.Status() + string(alb.Body))
 		}
-		if ppl.JSON200 == nil {
+		if alb.JSON200 == nil {
 			return errors.New("unexpected empty response from GetAllAlbumsWithResponse")
 		}
 
