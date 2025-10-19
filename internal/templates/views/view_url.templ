@@ -340,7 +340,7 @@ templ DefaultRadio(displayName string, formName string, keyvals ...string) {
 
 templ DefaultSelect(displayName string, formName string, keyvals ...string) {
     <div class="form-group">
-        <label for={formName}>{displayName}</label>
+        <label for={formName}>{displayName}: </label>
         {{ 
             kvs := make([]string, 0, len(keyvals)+2)
             kvs = append(kvs, "default", "")

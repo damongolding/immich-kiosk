@@ -2,7 +2,6 @@ package routes
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -11,6 +10,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/templates/views"
 	"github.com/labstack/echo/v4"
 )
@@ -63,8 +63,7 @@ func BuildUrl() echo.HandlerFunc {
 
 		kioskUrl.RawQuery = q.Encode()
 
-		// TODO(jj): htmx component to render
-		return c.String(200, fmt.Sprintf(`<div id="url-result"><a href="%s">%s</a></div>`, kioskUrl.String(), kioskUrl.String()))
+		return Render(c, http.StatusOK, partials.UrlResult(kioskUrl.String()))
 	}
 }
 

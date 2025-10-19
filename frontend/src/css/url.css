@@ -36,3 +36,11 @@ body#url {
     margin: 0 auto;
     padding: 1.5rem;
 }
+
+.url-container--form--content .form-group {
+    margin-top: .5rem;
+}
+
+.url-container--form--content #url-result {
+    margin-top: .5rem;
+}
