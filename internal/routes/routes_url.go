@@ -2,6 +2,7 @@ package routes
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -18,7 +19,11 @@ import (
 func BuildUrl() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		kioskHost := c.Request().Host
-		kioskUrl, err := url.Parse(kioskHost)
+		scheme := "http"
+		if c.Request().TLS != nil {
+			scheme += "s"
+		}
+		kioskUrl, err := url.Parse(fmt.Sprintf("%s://%s", scheme, kioskHost))
 		if err != nil {
 			return err
 		}
