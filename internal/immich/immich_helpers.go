@@ -161,7 +161,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 			// Type assert to get more details about the error
 			var urlErr *url.Error
-			if errors.As(err, &urlErr) {
+			if errors.As(resErr, &urlErr) {
 				log.Error("Request failed",
 					"attempt", attempts,
 					"URL", apiURL,
@@ -349,13 +349,13 @@ func (a *Asset) AssetInfo(requestID, deviceID string) error {
 	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
-		return fmt.Errorf("fetching asset info: err %w", err)
+		return fmt.Errorf("fetching asset info, err=%w", err)
 	}
 
 	err = json.Unmarshal(body, &immichAsset)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
-		return fmt.Errorf("fetching asset info: err %w", err)
+		return fmt.Errorf("unmarshal asset info, err=%w", err)
 	}
 
 	return a.mergeAssetInfo(immichAsset)
@@ -565,6 +565,7 @@ func (a *Asset) containsTag(tagName string) bool {
 func (a *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
 	return a.hasValidBasicProperties(allowedTypes, wantedRatio) &&
 		a.hasValidDateFilter() &&
+		a.hasValidPartners() &&
 		a.hasValidAlbums(requestID, deviceID) &&
 		a.hasValidPeople(requestID, deviceID) &&
 		a.hasValidTags(requestID, deviceID)
@@ -655,6 +656,10 @@ func (a *Asset) hasValidPeople(requestID, deviceID string) bool {
 	})
 }
 
+func (a *Asset) hasValidPartners() bool {
+	return !slices.Contains(a.requestConfig.ExcludedPartners, a.Owner.ID)
+}
+
 // hasValidTags checks if the asset has any tags that would exclude it from processing.
 // It first fetches additional asset metadata via AssetInfo if needed. After getting
 // the metadata, it restores the asset's orientation ratio since AssetInfo can override
@@ -676,7 +681,13 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 	// AssetInfo overrides IsPortrait and IsLandscape so lets add them back
 	a.AddRatio()
 
-	return !a.containsTag(kiosk.TagSkip)
+	if a.containsTag(kiosk.TagSkip) {
+		return false
+	}
+
+	return !slices.ContainsFunc(a.Tags, func(assetTag Tag) bool {
+		return slices.Contains(a.requestConfig.ExcludedTags, strings.ToLower(assetTag.Name))
+	})
 }
 
 func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string) (int, error) {

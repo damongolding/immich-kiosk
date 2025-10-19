@@ -98,6 +98,20 @@
       },
       "uniqueItems": true
     },
+    "excluded_tags": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "excluded_partners": {
+      "type": ["string", "array"],
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
     "memories": {
       "type": "boolean"
     },
@@ -121,6 +135,12 @@
     },
     "frameless": {
       "type": "boolean"
+    },
+    "frame_padding": {
+      "type": ["integer", "array"],
+      "items": {
+        "type": "integer"
+      }
     },
     "hide_cursor": {
       "type": "boolean"
@@ -283,7 +303,7 @@
             "type": ["number", "string"]
           },
           "api": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "unit": {
             "type": "string"
@@ -450,6 +470,9 @@
             },
             "required": ["name", "url"]
           }
+        },
+        "demo_mode": {
+          "type": "boolean"
         }
       },
       "required": []

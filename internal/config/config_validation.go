@@ -64,8 +64,19 @@ func (c *Config) checkLowercaseTaggedFields() {
 		fieldType := typ.Field(i)
 
 		// Check if the field has the `lowercase` tag set to "true"
-		if fieldType.Tag.Get("lowercase") == "true" && field.Kind() == reflect.String && field.CanSet() {
-			field.SetString(strings.ToLower(field.String()))
+		if fieldType.Tag.Get("lowercase") == "true" && field.CanSet() {
+			switch field.Kind() {
+			case reflect.String:
+				field.SetString(strings.ToLower(field.String()))
+
+			case reflect.Slice:
+				if field.Type().Elem().Kind() == reflect.String {
+					sliceLen := field.Len()
+					for j := range sliceLen {
+						field.Index(j).SetString(strings.ToLower(field.Index(j).String()))
+					}
+				}
+			}
 		}
 	}
 }
@@ -94,11 +105,22 @@ func (c *Config) checkDebuging() {
 
 // cleanupSlice removes empty strings and placeholder values from a slice,
 // and trims whitespace from remaining values.
-func (c *Config) cleanupSlice(slice []string, placeholder string) []string {
+func (c *Config) cleanupSlice(slice []string, placeholders ...string) []string {
 	cleaned := make([]string, 0, len(slice))
 	for _, item := range slice {
-		if item != "" && item != placeholder {
-			cleaned = append(cleaned, strings.TrimSpace(item))
+		trimmed := strings.TrimSpace(item)
+		if trimmed == "" {
+			continue
+		}
+		isPlaceholder := false
+		for _, placeholder := range placeholders {
+			if strings.EqualFold(trimmed, placeholder) {
+				isPlaceholder = true
+				break
+			}
+		}
+		if !isPlaceholder {
+			cleaned = append(cleaned, trimmed)
 		}
 	}
 	return cleaned
@@ -113,14 +135,17 @@ func (c *Config) cleanupSlice(slice []string, placeholder string) []string {
 func (c *Config) checkAssetBuckets() {
 
 	c.Albums = c.cleanupSlice(c.Albums, "ALBUM_ID")
-
 	c.ExcludedAlbums = c.cleanupSlice(c.ExcludedAlbums, "ALBUM_ID")
 
 	c.People = c.cleanupSlice(c.People, "PERSON_ID")
+	c.ExcludedPeople = c.cleanupSlice(c.ExcludedPeople, "PERSON_ID")
 
 	c.Tags = c.cleanupSlice(c.Tags, "TAG_VALUE")
+	c.ExcludedTags = c.cleanupSlice(c.ExcludedTags, "TAG_VALUE")
 
-	c.Dates = c.cleanupSlice(c.cleanupSlice(c.Dates, "DATE_RANGE"), "YYYY-MM-DD_to_YYYY-MM-DD")
+	c.Dates = c.cleanupSlice(c.Dates, "DATE_RANGE", "YYYY-MM-DD_to_YYYY-MM-DD")
+
+	c.ExcludedPartners = c.cleanupSlice(c.ExcludedPartners, "PARTNER_ID")
 }
 
 // checkExcludedAlbums filters out any albums from c.Album that are present in

@@ -37,7 +37,7 @@ import (
 	"github.com/goodsign/monday"
 	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 
 	"github.com/labstack/echo/v4"
 )
@@ -228,9 +228,9 @@ type Config struct {
 	// MenuPosition position of menu
 	MenuPosition string `json:"menuPosition" yaml:"menu_position" mapstructure:"menu_position" query:"menu_position" form:"menu_position" default:"top"`
 	// TimeFormat whether to use 12 of 24 hour format for clock
-	TimeFormat string `json:"timeFormat" yaml:"time_format" mapstructure:"time_format" query:"time_format" form:"time_format" default:""`
+	TimeFormat string `json:"timeFormat" yaml:"time_format" mapstructure:"time_format" query:"time_format" form:"time_format" default:"24"`
 	//  DateFormat format for date
-	DateFormat string `json:"dateFormat" yaml:"date_format" mapstructure:"date_format" query:"date_format" form:"date_format" default:""`
+	DateFormat string `json:"dateFormat" yaml:"date_format" mapstructure:"date_format" query:"date_format" form:"date_format" default:"DD/MM/YYYY"`
 	// ClockSource source of clock time
 	ClockSource string `json:"clockSource" yaml:"clock_source" mapstructure:"clock_source" query:"clock_source" form:"clock_source" default:"client"`
 
@@ -275,8 +275,14 @@ type Config struct {
 	// IDs of album(s) to display
 	Albums         []string `json:"albums" yaml:"albums" mapstructure:"albums" query:"album" form:"album" default:"[]" redact:"true"`
 	ExcludedAlbums []string `json:"excluded_albums" yaml:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]" redact:"true"`
+
 	// Tags Name of tag to display
-	Tags []string `json:"tags" yaml:"tags" mapstructure:"tags" query:"tag" form:"tag" default:"[]" lowercase:"true" redact:"true"`
+	Tags         []string `json:"tags" yaml:"tags" mapstructure:"tags" query:"tag" form:"tag" default:"[]" lowercase:"true" redact:"true"`
+	ExcludedTags []string `json:"excluded_tags" yaml:"excluded_tags" mapstructure:"excluded_tags" query:"exclude_tag" form:"exclude_tag" default:"[]" lowercase:"true" redact:"true"`
+
+	// ExcludedPartners ID(s) of partner to exclude
+	ExcludedPartners []string `json:"excluded_partners" yaml:"excluded_partners" mapstructure:"excluded_partners" query:"exclude_partner" form:"exclude_partner" default:"[]" redact:"true"`
+
 	// Dates date filter
 	Dates []string `json:"dates" yaml:"dates" mapstructure:"dates" query:"date" form:"date" default:"[]"`
 	// HideCountries hide country names in location information
@@ -337,6 +343,8 @@ type Config struct {
 	DisableUI bool `json:"disableUi" yaml:"disable_ui" mapstructure:"disable_ui" query:"disable_ui" form:"disable_ui" default:"false"`
 	// Frameless remove border on frames
 	Frameless bool `json:"frameless" yaml:"frameless" mapstructure:"frameless" query:"frameless" form:"frameless" default:"false"`
+	// FramePadding add padding to Kiosk
+	FramePadding []int `json:"framePadding" yaml:"frame_padding" mapstructure:"frame_padding" query:"frame_padding" form:"frame_padding" default:"[]"`
 
 	// ShowTime whether to display clock
 	ShowTime bool `json:"showTime" yaml:"show_time" mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`
@@ -408,7 +416,7 @@ type Config struct {
 	// HasWeatherDefault indicates whether any weather location has been set as the default.
 	HasWeatherDefault bool `json:"-" yaml:"-" default:"false"`
 
-	// OptimizeImages tells Kiosk to optimize imahes
+	// OptimizeImages tells Kiosk to optimize images
 	OptimizeImages bool `json:"optimize_images" yaml:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
 	// UseGpu tells Kiosk to use GPU where possible
 	UseGpu bool `json:"use_gpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
@@ -464,6 +472,10 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
 		{"kiosk.demo_mode", "KIOSK_DEMO_MODE"},
 		{"kiosk.config_validation_level", "KIOSK_CONFIG_VALIDATION_LEVEL"},
+		{"offline_mode.enabled", "KIOSK_OFFLINE_MODE_ENABLED"},
+		{"offline_mode.number_of_assets", "KIOSK_OFFLINE_MODE_NUMBER_OF_ASSETS"},
+		{"offline_mode.max_size", "KIOSK_OFFLINE_MODE_MAX_SIZE"},
+		{"offline_mode.expiration_hours", "KIOSK_OFFLINE_MODE_EXPIRATION_HOURS"},
 	}
 
 	for _, bv := range bindVars {
@@ -595,8 +607,18 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 		c.ResetBuckets()
 	}
 
-	if queries.Get("excluded_album") == "none" || queries.Get("excluded_albums") == "none" {
+	const none = "none"
+
+	if queries.Get("excluded_person") == none || queries.Get("excluded_people") == none {
+		c.ExcludedPeople = []string{}
+	}
+
+	if queries.Get("excluded_album") == none || queries.Get("excluded_albums") == none {
 		c.ExcludedAlbums = []string{}
+	}
+
+	if queries.Get("excluded_partner") == none || queries.Get("excluded_partners") == none {
+		c.ExcludedPartners = []string{}
 	}
 
 	err := e.Bind(c)
