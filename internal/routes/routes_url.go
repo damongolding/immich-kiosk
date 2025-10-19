@@ -65,6 +65,10 @@ func BuildUrl() echo.HandlerFunc {
 			q.Add("show_progress_bar", strconv.FormatBool(*spb))
 		}
 
+		if pbp := req.ProgressBarPosition; pbp != nil {
+			q.Add("progress_bar_position", *pbp)
+		}
+
 		if tr := req.Transition; tr != nil {
 			q.Add("transition", *tr)
 		}
