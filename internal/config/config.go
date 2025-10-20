@@ -56,10 +56,10 @@ const (
 
 	redactedMarker = "REDACTED"
 
-	dockerSecretLocation = "/run/secrets"
-	systemdCredDirEnv    = "CREDENTIALS_DIRECTORY"
+	systemdCredDirEnv        = "CREDENTIALS_DIRECTORY"
+	systemdCredApiKeyFileEnv = "immich_api_key"
 
-	apiKeyFile = "KIOSK_IMMICH_API_KEY_FILE"
+	apiKeyFileEnv = "KIOSK_IMMICH_API_KEY_FILE"
 )
 
 type OfflineMode struct {
@@ -217,7 +217,8 @@ type Config struct {
 	SystemLang monday.Locale `json:"-" yaml:"-" default:"en_GB"`
 
 	// ImmichAPIKey Immich key to access assets
-	ImmichAPIKey string `json:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:"" redact:"true"`
+	ImmichAPIKey     string `json:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:"" redact:"true"`
+	ImmichAPIKeyFile string `json:"-" yaml:"-"`
 	// ImmichURL Immuch base url
 	ImmichURL string `json:"-" yaml:"immich_url" mapstructure:"immich_url" default:"" redact:"true"`
 

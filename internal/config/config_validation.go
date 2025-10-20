@@ -82,9 +82,10 @@ func (c *Config) checkLowercaseTaggedFields() {
 	}
 }
 
-// loadSecretFromFile attempts to read and return an API key from the specified file
-func loadSecretFromFile(filePath, source string) (string, bool) {
+// loadSecretFromFile attempts to read and return a secret from the specified file
+func loadSecretFromFile(filePath string) (string, bool) {
 	if _, err := os.Stat(filePath); err != nil {
+		log.Warn("Failed to find secret file", "file", filePath, "warn", err)
 		return "", false
 	}
 
@@ -94,14 +95,13 @@ func loadSecretFromFile(filePath, source string) (string, bool) {
 		return "", false
 	}
 
-	apiKey := strings.TrimSpace(string(data))
-	if apiKey == "" {
+	value := strings.TrimSpace(string(data))
+	if value == "" {
 		log.Warn("Secret file is empty", "file", filePath)
 		return "", false
 	}
 
-	log.Info("Loaded Immich API key", "source", source)
-	return apiKey, true
+	return value, true
 }
 
 func (c *Config) checkSecrets() {
@@ -109,16 +109,20 @@ func (c *Config) checkSecrets() {
 		return
 	}
 
-	dockerSecretFile := filepath.Join(dockerSecretLocation, apiKeyFile)
-	if apiKey, ok := loadSecretFromFile(dockerSecretFile, "docker secret"); ok {
-		c.ImmichAPIKey = apiKey
-		return
+	apiKeyFile := os.Getenv(apiKeyFileEnv)
+	if apiKeyFile != "" {
+		if apiKey, ok := loadSecretFromFile(apiKeyFile); ok {
+			log.Info("Loaded Immich API key", "source", apiKeyFile)
+			c.ImmichAPIKey = apiKey
+			return
+		}
 	}
 
 	credsDir := os.Getenv(systemdCredDirEnv)
 	if credsDir != "" {
-		systemdCredFile := filepath.Join(credsDir, apiKeyFile)
-		if apiKey, ok := loadSecretFromFile(systemdCredFile, "systemd credential"); ok {
+		systemdCredFile := filepath.Join(credsDir, systemdCredApiKeyFileEnv)
+		if apiKey, ok := loadSecretFromFile(systemdCredFile); ok {
+			log.Info("Loaded Immich API key", "source", "systemd credential")
 			c.ImmichAPIKey = apiKey
 			return
 		}
