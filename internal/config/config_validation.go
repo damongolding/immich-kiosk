@@ -112,7 +112,7 @@ func (c *Config) checkSecrets() {
 	apiKeyFile := os.Getenv(apiKeyFileEnv)
 	if apiKeyFile != "" {
 		if apiKey, ok := loadSecretFromFile(apiKeyFile); ok {
-			log.Info("Loaded Immich API key", "source", apiKeyFile)
+			log.Info("Loaded Immich API key", "source", "docker secret")
 			c.ImmichAPIKey = apiKey
 			return
 		}
