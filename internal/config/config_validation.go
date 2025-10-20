@@ -121,7 +121,7 @@ func (c *Config) checkSecrets() {
 
 	credsDir := os.Getenv(systemdCredDirEnv)
 	if credsDir != "" {
-		systemdCredFile := filepath.Clean(filepath.Join(credsDir, systemdCredApiKeyFileEnv))
+		systemdCredFile := filepath.Clean(filepath.Join(credsDir, systemdCredAPIKeyFileEnv))
 		if apiKey, ok := loadSecretFromFile(systemdCredFile); ok {
 			log.Info("Loaded Immich API key", "source", "systemd credential")
 			c.ImmichAPIKey = apiKey

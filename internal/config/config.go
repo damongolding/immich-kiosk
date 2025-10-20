@@ -57,7 +57,7 @@ const (
 	redactedMarker = "REDACTED"
 
 	systemdCredDirEnv        = "CREDENTIALS_DIRECTORY"
-	systemdCredApiKeyFileEnv = "immich_api_key"
+	systemdCredAPIKeyFileEnv = "immich_api_key"
 
 	apiKeyFileEnv = "KIOSK_IMMICH_API_KEY_FILE"
 )
