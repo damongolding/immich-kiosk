@@ -111,6 +111,7 @@ func (c *Config) checkSecrets() {
 
 	apiKeyFile := os.Getenv(apiKeyFileEnv)
 	if apiKeyFile != "" {
+		apiKeyFile = filepath.Clean(apiKeyFile)
 		if apiKey, ok := loadSecretFromFile(apiKeyFile); ok {
 			log.Info("Loaded Immich API key", "source", "docker secret")
 			c.ImmichAPIKey = apiKey
@@ -120,7 +121,7 @@ func (c *Config) checkSecrets() {
 
 	credsDir := os.Getenv(systemdCredDirEnv)
 	if credsDir != "" {
-		systemdCredFile := filepath.Join(credsDir, systemdCredApiKeyFileEnv)
+		systemdCredFile := filepath.Clean(filepath.Join(credsDir, systemdCredApiKeyFileEnv))
 		if apiKey, ok := loadSecretFromFile(systemdCredFile); ok {
 			log.Info("Loaded Immich API key", "source", "systemd credential")
 			c.ImmichAPIKey = apiKey
