@@ -9,6 +9,8 @@ github.com/a-h/parse v0.0.0-20250122154542-74294addb73e h1:HjVbSQHy+dnlS6C3XajZ6
 github.com/a-h/parse v0.0.0-20250122154542-74294addb73e/go.mod h1:3mnrkvGpurZ4ZrTDbYU84xhwXW2TjTKShSwjRi2ihfQ=
 github.com/a-h/templ v0.3.943 h1:o+mT/4yqhZ33F3ootBiHwaY4HM5EVaOJfIshvd5UNTY=
 github.com/a-h/templ v0.3.943/go.mod h1:oCZcnKRf5jjsGpf2yELzQfodLphd2mwecwG4Crk5HBo=
+github.com/a-h/templ v0.3.960 h1:trshEpGa8clF5cdI39iY4ZrZG8Z/QixyzEyUnA7feTM=
+github.com/a-h/templ v0.3.960/go.mod h1:oCZcnKRf5jjsGpf2yELzQfodLphd2mwecwG4Crk5HBo=
 github.com/air-verse/air v1.63.0 h1:fwcdHpwaUe4/+q349PxptzAIn8gVE6Yke8TgW0LsDxQ=
 github.com/air-verse/air v1.63.0/go.mod h1:RyCQVx2+3Zz2BzoqkukYiGmWkWXNKMf0x5ubIFcUB8Q=
 github.com/alecthomas/chroma/v2 v2.20.0 h1:sfIHpxPyR07/Oylvmcai3X/exDlE8+FA820NTz+9sGw=
@@ -179,6 +181,8 @@ github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFF
 github.com/juju/gnuflag v0.0.0-20171113085948-2ce1bb71843d/go.mod h1:2PavIy+JPciBPrBUjwbNvtwB6RQlve+hkpll6QSNmOE=
 github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
 github.com/klauspost/compress v1.18.0/go.mod h1:2Pp+KzxcywXVXMr50+X0Q/Lsb43OQHYWRCY2AiWywWQ=
+github.com/klauspost/compress v1.18.1 h1:bcSGx7UbpBqMChDtsF28Lw6v/G94LPrrbMbdC3JH2co=
+github.com/klauspost/compress v1.18.1/go.mod h1:ZQFFVG+MdnR0P+l6wpXgIL4NTtwiKIdBnrBd8Nrxr+0=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
