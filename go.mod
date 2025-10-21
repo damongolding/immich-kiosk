@@ -1,10 +1,10 @@
 module github.com/damongolding/immich-kiosk
 
-go 1.25.2
+go 1.25.3
 
 require (
 	github.com/EdlinOrg/prominentcolor v1.0.0
-	github.com/a-h/templ v0.3.943
+	github.com/a-h/templ v0.3.960
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/disintegration/imaging v1.6.2
@@ -13,7 +13,7 @@ require (
 	github.com/goodsign/monday v1.0.2
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
-	github.com/klauspost/compress v1.18.0
+	github.com/klauspost/compress v1.18.1
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/oapi-codegen/runtime v1.1.2

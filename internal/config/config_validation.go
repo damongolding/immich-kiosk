@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path/filepath"
 	"reflect"
 	"slices"
 	"strconv"
@@ -77,6 +78,54 @@ func (c *Config) checkLowercaseTaggedFields() {
 					}
 				}
 			}
+		}
+	}
+}
+
+// loadSecretFromFile attempts to read and return a secret from the specified file
+func loadSecretFromFile(filePath string) (string, bool) {
+	if _, err := os.Stat(filePath); err != nil {
+		log.Warn("Failed to find secret file", "file", filePath, "warn", err)
+		return "", false
+	}
+
+	data, readErr := os.ReadFile(filePath)
+	if readErr != nil {
+		log.Error("Failed to read secret file", "file", filePath, "error", readErr)
+		return "", false
+	}
+
+	value := strings.TrimSpace(string(data))
+	if value == "" {
+		log.Warn("Secret file is empty", "file", filePath)
+		return "", false
+	}
+
+	return value, true
+}
+
+func (c *Config) checkSecrets() {
+	if c.ImmichAPIKey != "" {
+		return
+	}
+
+	apiKeyFile := os.Getenv(apiKeyFileEnv)
+	if apiKeyFile != "" {
+		apiKeyFile = filepath.Clean(apiKeyFile)
+		if apiKey, ok := loadSecretFromFile(apiKeyFile); ok {
+			log.Info("Loaded Immich API key", "source", "docker secret")
+			c.ImmichAPIKey = apiKey
+			return
+		}
+	}
+
+	credsDir := os.Getenv(systemdCredDirEnv)
+	if credsDir != "" {
+		systemdCredFile := filepath.Clean(filepath.Join(credsDir, systemdCredAPIKeyFileEnv))
+		if apiKey, ok := loadSecretFromFile(systemdCredFile); ok {
+			log.Info("Loaded Immich API key", "source", "systemd credential")
+			c.ImmichAPIKey = apiKey
+			return
 		}
 	}
 }
