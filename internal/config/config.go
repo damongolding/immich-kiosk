@@ -217,8 +217,7 @@ type Config struct {
 	SystemLang monday.Locale `json:"-" yaml:"-" default:"en_GB"`
 
 	// ImmichAPIKey Immich key to access assets
-	ImmichAPIKey     string `json:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:"" redact:"true"`
-	ImmichAPIKeyFile string `json:"-" yaml:"-"`
+	ImmichAPIKey string `json:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:"" redact:"true"`
 	// ImmichURL Immuch base url
 	ImmichURL string `json:"-" yaml:"immich_url" mapstructure:"immich_url" default:"" redact:"true"`
 
