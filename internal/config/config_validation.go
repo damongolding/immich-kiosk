@@ -84,14 +84,13 @@ func (c *Config) checkLowercaseTaggedFields() {
 
 // loadSecretFromFile attempts to read and return a secret from the specified file
 func loadSecretFromFile(filePath string) (string, bool) {
-	if _, err := os.Stat(filePath); err != nil {
-		log.Warn("Failed to find secret file", "file", filePath, "warn", err)
-		return "", false
-	}
-
 	data, readErr := os.ReadFile(filePath)
 	if readErr != nil {
-		log.Error("Failed to read secret file", "file", filePath, "error", readErr)
+		if os.IsNotExist(readErr) {
+			log.Warn("Secret file not found", "file", filePath)
+		} else {
+			log.Error("Failed to read secret file", "file", filePath, "error", readErr)
+		}
 		return "", false
 	}
 
