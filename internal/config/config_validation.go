@@ -114,17 +114,31 @@ func (c *Config) checkSecrets() {
 		if apiKey, ok := loadSecretFromFile(apiKeyFile); ok {
 			log.Info("Loaded Immich API key", "source", "docker secret")
 			c.ImmichAPIKey = apiKey
-			return
+		}
+	}
+
+	passwordFile := os.Getenv(passwordFileEnv)
+	if passwordFile != "" {
+		passwordFile = filepath.Clean(passwordFile)
+		if password, ok := loadSecretFromFile(passwordFile); ok {
+			log.Info("Loaded password", "source", "docker secret")
+			c.Kiosk.Password = password
 		}
 	}
 
 	credsDir := os.Getenv(systemdCredDirEnv)
 	if credsDir != "" {
-		systemdCredFile := filepath.Clean(filepath.Join(credsDir, systemdCredAPIKeyFileEnv))
-		if apiKey, ok := loadSecretFromFile(systemdCredFile); ok {
+		systemdAPIFile := filepath.Clean(filepath.Join(credsDir, systemdCredAPIKeyFileEnv))
+		if apiKey, ok := loadSecretFromFile(systemdAPIFile); ok {
 			log.Info("Loaded Immich API key", "source", "systemd credential")
 			c.ImmichAPIKey = apiKey
 			return
+		}
+
+		systemdPasswordFile := filepath.Clean(filepath.Join(credsDir, systemdCredPasswordFileEnv))
+		if password, ok := loadSecretFromFile(systemdPasswordFile); ok {
+			log.Info("Loaded password", "source", "systemd credential")
+			c.Kiosk.Password = password
 		}
 	}
 }

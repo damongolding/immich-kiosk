@@ -56,10 +56,12 @@ const (
 
 	redactedMarker = "REDACTED"
 
-	systemdCredDirEnv        = "CREDENTIALS_DIRECTORY"
-	systemdCredAPIKeyFileEnv = "immich_api_key"
+	systemdCredDirEnv          = "CREDENTIALS_DIRECTORY"
+	systemdCredAPIKeyFileEnv   = "kiosk_immich_api_key"
+	systemdCredPasswordFileEnv = "kiosk_password_file"
 
-	apiKeyFileEnv = "KIOSK_IMMICH_API_KEY_FILE"
+	apiKeyFileEnv   = "KIOSK_IMMICH_API_KEY_FILE"
+	passwordFileEnv = "KIOSK_PASSWORD_FILE"
 )
 
 type OfflineMode struct {
