@@ -56,6 +56,7 @@ const (
 
 	redactedMarker = "REDACTED"
 
+	// Secrets
 	systemdCredDirEnv          = "CREDENTIALS_DIRECTORY"
 	systemdCredAPIKeyFileEnv   = "kiosk_immich_api_key"
 	systemdCredPasswordFileEnv = "kiosk_password_file"
