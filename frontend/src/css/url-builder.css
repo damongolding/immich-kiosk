@@ -1,0 +1,19 @@
+@import url("../../node_modules/choices.js/public/assets/styles/choices.min.css");
+
+/*Overrides*/
+#url-builder {
+    background-color: #f0f0f0;
+    overflow: auto;
+    color: #333;
+}
+
+#url-builder-form {
+    display: block;
+    max-width: 50rem;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+#url-builder form {
+    display: block;
+}

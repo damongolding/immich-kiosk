@@ -1,0 +1,33 @@
+package views
+
+import (
+	"fmt"
+	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+)
+
+templ URLBuilder(viewData common.ViewData) {
+	<html lang="en">
+		<head>
+			@partials.Head(viewData)
+		</head>
+		<body id="url-builder">
+			<form id="url-builder-form">
+				<div>
+					<label for="url-builder-people">People</label>
+					<select name="people" id="url-builder-people" multiple>
+						<option value="">People to include</option>
+						<option value="1">Anna</option>
+						<option value="2">Jo</option>
+						<option value="3">Adam</option>
+						<option value="4">Lewis</option>
+						<option value="5">Will</option>
+						<option value="6">Sarah</option>
+					</select>
+				</div>
+				<button type="submit">Build URL</button>
+			</form>
+			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/url-builder.%s.js", viewData.KioskVersion))) }></script>
+		</body>
+	</html>
+}
