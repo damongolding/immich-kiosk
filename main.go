@@ -174,15 +174,17 @@ func main() {
 		return c.String(http.StatusOK, "OK")
 	})
 
-	im, err := immich_open_api.NewClientWithResponses(baseConfig.ImmichURL+"/api", immich_open_api.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-		req.Header.Set("x-api-key", baseConfig.ImmichAPIKey)
-		return nil
-	}))
-	if err != nil {
-		log.Fatal("failed to initialise Immich API client", "err", err)
+	if baseConfig.Kiosk.EnableURLBuilder {
+		im, err := immich_open_api.NewClientWithResponses(baseConfig.ImmichURL+"/api", immich_open_api.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+			req.Header.Set("x-api-key", baseConfig.ImmichAPIKey)
+			return nil
+		}))
+		if err != nil {
+			log.Fatal("failed to initialise Immich API client", "err", err)
+		}
+		e.GET("/urlBuilder", routes.UrlBuilderPage(baseConfig, im))
+		e.POST("/buildUrl", routes.BuildUrl())
 	}
-	e.GET("/urlBuilder", routes.UrlBuilderPage(baseConfig, im))
-	e.POST("/buildUrl", routes.BuildUrl())
 
 	e.GET("/about", routes.About(baseConfig))
 
