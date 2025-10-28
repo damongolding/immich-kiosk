@@ -43,10 +43,8 @@ import (
 )
 
 const (
-	defaultImmichPort = "2283"
 	defaultScheme     = "http://"
 	DefaultDateLayout = "02/01/2006"
-	defaultConfigFile = "config.yaml"
 
 	AlbumOrderRandom     = "random"
 	AlbumOrderAscending  = "ascending"
@@ -57,6 +55,14 @@ const (
 	AlbumOrderNewest     = "newest"
 
 	redactedMarker = "REDACTED"
+
+	// Secrets
+	systemdCredDirEnv          = "CREDENTIALS_DIRECTORY"
+	systemdCredAPIKeyFileEnv   = "kiosk_immich_api_key"
+	systemdCredPasswordFileEnv = "kiosk_password_file"
+
+	apiKeyFileEnv   = "KIOSK_IMMICH_API_KEY_FILE"
+	passwordFileEnv = "KIOSK_PASSWORD_FILE"
 )
 
 type OfflineMode struct {
@@ -559,6 +565,7 @@ func (c *Config) Load() error {
 		return err
 	}
 
+	c.checkSecrets()
 	c.checkRequiredFields()
 	c.checkLowercaseTaggedFields()
 	c.checkAssetBuckets()
