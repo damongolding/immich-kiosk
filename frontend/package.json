@@ -9,6 +9,7 @@
     "css": "pnpm exec esbuild --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css && pnpm css:postcss",
     "css:postcss": "postcss ./public/assets/css/kiosk.css --no-map -o ./public/assets/css/kiosk.css",
     "build": "pnpm test && pnpm css && pnpm js ",
+    "url-builder": "pnpm exec esbuild 'src/ts/url-builder.ts' --format=iife --global-name=urlBuilder --bundle --minify --target=es6 --outfile=./public/assets/js/url-builder.js",
     "test": "tsc --noEmit"
   },
   "keywords": [],
@@ -36,5 +37,8 @@
     "not op_mini all",
     "not IE 11"
   ],
-  "packageManager": "pnpm@10.17.1"
+  "packageManager": "pnpm@10.17.1",
+  "dependencies": {
+    "choices.js": "^11.1.0"
+  }
 }

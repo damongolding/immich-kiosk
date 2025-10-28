@@ -1,3 +1,5 @@
+@import url("../../node_modules/choices.js/public/assets/styles/choices.min.css");
+
 body#url {
     overflow: auto;
 }

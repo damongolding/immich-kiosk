@@ -138,8 +138,8 @@ func CopyContext(c echo.Context) ContextCopy {
 }
 
 type UrlBuilderRequest struct {
-	People              []string `form:"people[]"`
-	Albums              []string `form:"album[]"`
+	People              []string `form:"people"`
+	Albums              []string `form:"album"`
 	ShowDate            *bool    `form:"show_date"`
 	ShowTime            *bool    `form:"show_time"`
 	RequireAllPeople    *bool    `form:"require_all_people"`
