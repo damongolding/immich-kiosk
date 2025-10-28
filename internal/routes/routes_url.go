@@ -107,7 +107,7 @@ func BuildUrl() echo.HandlerFunc {
 	}
 }
 
-func Url(baseConfig *config.Config, im immich_open_api.ClientWithResponsesInterface) echo.HandlerFunc {
+func UrlBuilderPage(baseConfig *config.Config, im immich_open_api.ClientWithResponsesInterface) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
