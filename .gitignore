@@ -47,6 +47,7 @@ offline-assets/
 
 frontend/public/assets/css
 frontend/public/assets/js/kiosk.js
+frontend/public/assets/js/url-builder.js
 
 /tmp/
 
