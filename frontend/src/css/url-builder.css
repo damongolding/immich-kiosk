@@ -31,15 +31,94 @@ body#url {
 }
 
 .url-container--form--content {
-    /* max-width: 31.25rem; */
-    /* max-width: 60rem; */
     width: 100%;
     margin: 0 auto;
     padding: 1.5rem;
+}
 
-    #url-builder-form {
+.url-container--form--content #url-builder-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+        font-weight: 600;
+        font-size: 1.125rem;
+        color: var(--dark-grey);
+    }
+
+    .form-group--description {
+        font-size: 0.9375rem;
+        color: var(--dark-grey);
+    }
+
+    .choices__inner {
+        background-color: #fff;
+        border: var(--mid-grey) 0.0625rem solid;
+        font-size: 0.9375rem;
+        color: var(--mid-grey);
+        cursor: pointer;
+        border-radius: 0.25rem;
+    }
+
+    input {
+        color: var(--mid-grey);
+        background-color: #fff;
+    }
+
+    .choices__list--multiple .choices__item {
+        background-color: var(--blue);
+        border-radius: 0.4rem;
+        border: none;
+        font-size: 1rem;
+    }
+    .choices[data-type*="select-multiple"] .choices__button,
+    .choices[data-type*="text"] .choices__button {
+        border-left: none;
+        background-size: 12px;
+    }
+
+    .choices__list--multiple .choices__item[data-deletable] {
+        padding: 8px;
+    }
+
+    /* Radio Group */
+    .form-group--radio-group {
         display: flex;
-        flex-direction: column;
         gap: 1.5rem;
+        label {
+            font-weight: 400;
+            cursor: pointer;
+        }
+        input {
+            width: 1.5rem;
+            height: 1.5rem;
+            cursor: pointer;
+        }
+    }
+
+    .form-group--radio {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        cursor: pointer;
+    }
+
+    /* Select */
+    select {
+        background-color: #fff;
+        border: var(--mid-grey) 0.0625rem solid;
+        outline: none;
+        font-size: 0.9375rem;
+        color: var(--mid-grey);
+        cursor: pointer;
+        border-radius: 0.25rem;
+        padding: 0.5rem;
     }
 }

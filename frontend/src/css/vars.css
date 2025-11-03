@@ -1,6 +1,8 @@
 :root {
     /* colours */
     --light-grey: #f7f9f8;
+    --mid-grey: #6d727a;
+    --dark-grey: #333333;
     --cool-grey: #333460;
     --mint-green: #1ed2bb;
     --mint-green-rgb: 30, 210, 187;
@@ -8,6 +10,7 @@
     --pink: #de475a;
     --vibrant-pink: #ff6578;
     --red: #da2038;
+    --blue: #1e83f7;
 
     /* Z-index hierarchy */
     --z-below: -1;
