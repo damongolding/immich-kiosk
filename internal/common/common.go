@@ -14,7 +14,6 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
-	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v4"
@@ -112,8 +111,8 @@ type ViewImageDataOptions struct {
 }
 
 type UrlViewData struct {
-	People []immich_open_api.PersonResponseDto
-	Albums []immich_open_api.AlbumResponseDto
+	People []immich.Person
+	Albums []immich.Album
 }
 
 // ContextCopy stores a copy of key HTTP context information including URL and headers

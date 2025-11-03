@@ -34,7 +34,7 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 						<span class="form-group--description">Help text</span>
 						<select name="people" id="url-builder-people" multiple>
 							for _, p := range d.People {
-								<option value={ p.Id }>{ p.Name }</option>
+								<option value={ p.ID }>{ p.Name }</option>
 							}
 						</select>
 					</div>
@@ -44,7 +44,7 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 						<span class="form-group--description">Help text</span>
 						<select name="album" id="url-builder-albums" multiple>
 							for _, a := range d.Albums {
-								<option value={ a.Id }>{ a.AlbumName }</option>
+								<option value={ a.ID }>{ a.AlbumName }</option>
 							}
 						</select>
 					</div>

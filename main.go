@@ -27,7 +27,6 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
-	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
 	"github.com/damongolding/immich-kiosk/internal/routes"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/video"
@@ -176,14 +175,7 @@ func main() {
 	})
 
 	if baseConfig.Kiosk.EnableURLBuilder {
-		im, err := immich_open_api.NewClientWithResponses(baseConfig.ImmichURL+"/api", immich_open_api.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-			req.Header.Set("x-api-key", baseConfig.ImmichAPIKey)
-			return nil
-		}))
-		if err != nil {
-			log.Fatal("failed to initialise Immich API client", "err", err)
-		}
-		e.GET("/url-builder", routes.UrlBuilderPage(baseConfig, im))
+		e.GET("/url-builder", routes.UrlBuilderPage(baseConfig, c))
 		e.POST("/url-builder/build", routes.BuildUrl())
 	}
 
