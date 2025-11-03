@@ -13,9 +13,35 @@ body#url {
 .content {
     position: relative;
     background-color: white;
-    border-radius: 1rem;
     padding: 1.5rem;
     z-index: var(--z-base);
+}
+
+.content:nth-child(1) {
+    border-radius: 0.5rem 0.5rem 0.25rem 0.25rem;
+}
+
+.content:nth-child(2) {
+    margin-top: 0.25rem;
+    border-radius: 0.25rem 0.25rem 0.5rem 0.5rem;
+}
+
+#url-result {
+    padding: 0.75rem;
+
+    background: rgba(51, 51, 51, 0.05);
+    border: 1px solid var(--mid-grey);
+    border-radius: 0.375rem;
+
+    font-weight: 700;
+    font-size: 1rem;
+
+    color: var(--dark-grey);
+
+    a {
+        word-wrap: break-word;
+        color: var(--blue);
+    }
 }
 
 .url-container--form {
@@ -116,9 +142,26 @@ body#url {
         border: var(--mid-grey) 0.0625rem solid;
         outline: none;
         font-size: 0.9375rem;
-        color: var(--mid-grey);
+        color: var(--dark-grey);
         cursor: pointer;
         border-radius: 0.25rem;
         padding: 0.5rem;
+        appearance: none;
+        background-image: url('data:image/svg+xml,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="mask0_193_151" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32"><rect y="32" width="32" height="32" transform="rotate(-90 0 32)" fill="%23D9D9D9"/></mask><g mask="url(%23mask0_193_151)"><path d="M24.2119 13.3109L15.9769 21.5459L7.74219 13.3109L9.53252 11.5206L15.9769 17.9652L22.4215 11.5206L24.2119 13.3109Z" fill="%231E83F7"/></g></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 20px;
     }
-}
+
+    select::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid var(--dark-grey);
+    }

@@ -31,7 +31,7 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 				<form id="url-builder-form" hx-post="/url-builder/build" hx-trigger="load,change,multiselect-change from:body" hx-target="#url-result" hx-swap="outerHTML">
 					<div class="form-group">
 						<label for="url-builder-people">People</label>
-						<span class="form-group--description">Select people to include in the URL</span>
+						<span class="form-group--description">Help text</span>
 						<select name="people" id="url-builder-people" multiple>
 							for _, p := range d.People {
 								<option value={ p.Id }>{ p.Name }</option>
@@ -41,6 +41,7 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 					@DefaultRadio("Require all people", "require_all_people", "Help text", "true", "true", "false", "false")
 					<div class="form-group">
 						<label for="url-builder-albums">Albums</label>
+						<span class="form-group--description">Help text</span>
 						<select name="album" id="url-builder-albums" multiple>
 							for _, a := range d.Albums {
 								<option value={ a.Id }>{ a.AlbumName }</option>
@@ -58,6 +59,8 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 						<input type="range" id="duration" name="duration" min="0" max="120" value="0"/>
 					</div>
 				</form>
+			</div>
+			<div class="content">
 				<div id="url-result"></div>
 			</div>
 		</div>

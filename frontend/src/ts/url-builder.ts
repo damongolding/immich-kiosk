@@ -1,6 +1,8 @@
 import Choices from "choices.js";
+import "htmx.org";
 
 function initUrlBuilder(): void {
+
     const form = document.getElementById("url-builder-form");
 
     if (!form) return;
