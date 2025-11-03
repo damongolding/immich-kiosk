@@ -130,13 +130,13 @@ func UrlBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerF
 			"requestConfig", requestConfig.String(),
 		)
 
-		imm := immich.New(com.Context(), requestConfig)
-		ppl, err := imm.AllNamedPeople(requestID, deviceID)
+		im := immich.New(com.Context(), requestConfig)
+		ppl, err := im.AllNamedPeople(requestID, deviceID)
 		if err != nil {
 			return err
 		}
 
-		albs, err := imm.AllAlbums(requestID, deviceID)
+		albs, err := im.AllAlbums(requestID, deviceID)
 		if err != nil {
 			return err
 		}
