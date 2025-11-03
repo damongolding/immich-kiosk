@@ -27,7 +27,7 @@ WORKDIR /app
 
 COPY . .
 COPY --from=frontend-build /app/frontend/public/assets/css /app/frontend/public/assets/css
-COPY --from=frontend-build /app/frontend/public/assets/js/kiosk.js /app/frontend/public/assets/js/kiosk.js
+COPY --from=frontend-build /app/frontend/public/assets/js/ /app/frontend/public/assets/js/
 
 RUN go mod download
 RUN go tool templ generate
