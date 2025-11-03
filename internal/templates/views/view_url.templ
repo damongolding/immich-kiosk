@@ -19,8 +19,7 @@ templ Url(viewData common.ViewData, urlData common.UrlViewData) {
 				@UrlBuilder(viewData.Config, urlData)
 			</div>
 		</body>
-		<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
-        <script src={ string(templ.URL(fmt.Sprintf("/assets/js/url-builder.%s.js", viewData.KioskVersion))) }></script>
+		<script src={ string(templ.URL(fmt.Sprintf("/assets/js/url-builder.%s.js", viewData.KioskVersion))) }></script>
 	</html>
 }
 
@@ -29,70 +28,73 @@ templ UrlBuilder(c config.Config, d common.UrlViewData) {
 		<div class="url-container--form--content">
 			<div class="content">
 				<h1>URL Builder</h1>
-
-                <form id="url-builder-form" hx-post="/buildUrl" hx-trigger="load,change,multiselect-change from:body" hx-target="#url-result" hx-swap="outerHTML" style="display: inline !important;">
-                        <div class="form-group">
-                            <select name="people" id="url-builder-people" multiple>
-                            for _, p := range d.People {
-                                <option value={p.Id}>{p.Name}</option>
-                            }
-                            </select>
-                        </div>
-                        @DefaultSelect("Require all people", "require_all_people", "true", "true",  "false", "false")
-                        
-                        <div class="form-group">
-                            <select name="album" id="url-builder-albums" multiple>
-                            for _, a := range d.Albums {
-                                <option value={a.Id}>{a.AlbumName}</option>
-                            }
-                            </select>
-                        </div>
-
-                        @DefaultSelect("Show date", "show_date", "true", "true",  "false", "false")
-                        @DefaultSelect("Show time", "show_time", "true", "true",  "false", "false")
-                        @DefaultSelect("Transition", "transition", "none", "none", "fade", "fade", "cross-fade", "cross-fade")
-                        @DefaultSelect("Layout", "layout", "single", "single", "portrait", "portrait", "landscape", "landscape", "splitview", "splitview", "splitview-landscape", "splitview-landscape")
-                        @DefaultSelect("Show Progress Bar", "show_progress_bar", "true", "true", "false", "false")
-                        @DefaultSelect("Progress Bar Position", "progress_bar_position", "top", "top", "bottom", "bottom")
-
-                        <div class="form-group">
-                            <label for="duration">Duration (0 for default):</label>
-                            <input type="range" id="duration" name="duration" min="0" max="120" value="0">
-                        </div>
-                </form>
-                <div id="url-result"></div>
+				<form id="url-builder-form" hx-post="/url-builder/build" hx-trigger="load,change,multiselect-change from:body" hx-target="#url-result" hx-swap="outerHTML">
+					<div class="form-group">
+						<select name="people" id="url-builder-people" multiple>
+							for _, p := range d.People {
+								<option value={ p.Id }>{ p.Name }</option>
+							}
+						</select>
+					</div>
+					@DefaultSelect("Require all people", "require_all_people", "true", "true", "false", "false")
+					<div class="form-group">
+						<select name="album" id="url-builder-albums" multiple>
+							for _, a := range d.Albums {
+								<option value={ a.Id }>{ a.AlbumName }</option>
+							}
+						</select>
+					</div>
+					@DefaultSelect("Show date", "show_date", "true", "true", "false", "false")
+					@DefaultSelect("Show time", "show_time", "true", "true", "false", "false")
+					@DefaultSelect("Transition", "transition", "none", "none", "fade", "fade", "cross-fade", "cross-fade")
+					@DefaultSelect("Layout", "layout", "single", "single", "portrait", "portrait", "landscape", "landscape", "splitview", "splitview", "splitview-landscape", "splitview-landscape")
+					@DefaultSelect("Show Progress Bar", "show_progress_bar", "true", "true", "false", "false")
+					@DefaultSelect("Progress Bar Position", "progress_bar_position", "top", "top", "bottom", "bottom")
+					<div class="form-group">
+						<label for="duration">Duration (0 for default):</label>
+						<input type="range" id="duration" name="duration" min="0" max="120" value="0"/>
+					</div>
+				</form>
+				<div id="url-result"></div>
 			</div>
 		</div>
 	</section>
 }
 
 templ DefaultRadio(displayName string, formName string, keyvals ...string) {
-    <div class="form-group">
-        <label id={formName} for={formName}>{displayName}</label><br/>
-        {{ 
-            kvs := make([]string, 0, len(keyvals)+2)
-            kvs = append(kvs, "default", "")
-            kvs = append(kvs, keyvals...)
-        }}
-        for i:=0; i<len(kvs); i+=2 {
-            <input type="radio" id={formName + "_" + kvs[i+1]} name={formName} value={kvs[i+1]}>
-            <label for={formName + "_" + kvs[i+1]}>{kvs[i]}</label><br>  
-        }
-    </div>
+	<div class="form-group">
+		<label id={ formName } for={ formName }>{ displayName }</label>
+		<br/>
+		{{
+			kvs := make([]string, 0, len(keyvals)+2)
+			kvs = append(kvs, "default", "")
+			kvs = append(kvs, keyvals...)
+		}}
+		for i:=0; i<len(kvs); i+=2 {
+			<input type="radio" id={ formName + "_" + kvs[i+1] } name={ formName } value={ kvs[i+1] }/>
+			<label for={ formName + "_" + kvs[i+1] }>{ kvs[i] }</label>
+			<br/>
+		}
+	</div>
 }
 
 templ DefaultSelect(displayName string, formName string, keyvals ...string) {
-    <div class="form-group">
-        <label id={formName} for={formName}>{displayName}: </label>
-        {{ 
-            kvs := make([]string, 0, len(keyvals)+2)
-            kvs = append(kvs, "default", "")
-            kvs = append(kvs, keyvals...)
-        }}
-        <select name={formName}>
-        for i:=0; i<len(kvs); i+=2 {
-            <option value={kvs[i+1]} if i==0 {selected="selected"}>{kvs[i]}</option>
-        }
-        </select>
-    </div>
+	<div class="form-group">
+		<label id={ formName } for={ formName }>{ displayName }: </label>
+		{{
+			kvs := make([]string, 0, len(keyvals)+2)
+			kvs = append(kvs, "default", "")
+			kvs = append(kvs, keyvals...)
+		}}
+		<select name={ formName }>
+			for i:=0; i<len(kvs); i+=2 {
+				<option
+					value={ kvs[i+1] }
+					if i==0 {
+						selected="selected"
+					}
+				>{ kvs[i] }</option>
+			}
+		</select>
+	</div>
 }

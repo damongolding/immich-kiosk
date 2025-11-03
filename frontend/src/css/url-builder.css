@@ -2,14 +2,12 @@
 
 body#url {
     overflow: auto;
+    background-color: var(--cool-grey);
 }
 
 .url-container {
     display: flex;
-    /* align-items: stretch; */
     justify-content: center;
-    min-height: 100vh;
-    width: 100vw;
 }
 
 .content {
@@ -26,7 +24,8 @@ body#url {
     align-content: center;
     justify-content: center;
     align-items: center;
-    width: 80%;
+    width: 100%;
+    max-width: 45.25rem;
     min-height: 100vh;
     z-index: var(--z-base);
 }
@@ -37,12 +36,10 @@ body#url {
     width: 100%;
     margin: 0 auto;
     padding: 1.5rem;
-}
 
-.url-container--form--content .form-group {
-    margin-top: .5rem;
-}
-
-.url-container--form--content #url-result {
-    margin-top: .5rem;
+    #url-builder-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
 }

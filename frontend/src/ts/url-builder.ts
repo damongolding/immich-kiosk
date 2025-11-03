@@ -16,7 +16,7 @@ function initUrlBuilder(): void {
         });
         peopleMultiSelect.addEventListener(
             'change',
-            (_event) => {
+            () => {
                 document.querySelector('body')?.dispatchEvent(new Event('multiselect-change'));
             },
             false,
@@ -28,11 +28,11 @@ function initUrlBuilder(): void {
     if (albumMultiSelect) {
         const _albumMultiSelectChoices = new Choices(albumMultiSelect, {
             placeholderValue: "Select albums",
-            removeItemButton: true,           
+            removeItemButton: true,
         });
         albumMultiSelect.addEventListener(
             'change',
-            (_event) => {
+            () => {
                 document.querySelector('body')?.dispatchEvent(new Event('multiselect-change'));
             },
             false,

@@ -183,8 +183,8 @@ func main() {
 		if err != nil {
 			log.Fatal("failed to initialise Immich API client", "err", err)
 		}
-		e.GET("/urlBuilder", routes.UrlBuilderPage(baseConfig, im))
-		e.POST("/buildUrl", routes.BuildUrl())
+		e.GET("/url-builder", routes.UrlBuilderPage(baseConfig, im))
+		e.POST("/url-builder/build", routes.BuildUrl())
 	}
 
 	e.GET("/about", routes.About(baseConfig))
