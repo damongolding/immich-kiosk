@@ -16,7 +16,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func BuildUrl() echo.HandlerFunc {
+func BuildURL() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		kioskHost := c.Request().Header.Get("X-Forwarded-Host")
 		if kioskHost == "" {
@@ -29,18 +29,14 @@ func BuildUrl() echo.HandlerFunc {
 				scheme = s
 			}
 		}
-		prefix := c.Request().Header.Get("X-Forwarded-Prefix")
-		if prefix != "" && !strings.HasPrefix(prefix, "/") {
-			prefix = "/" + prefix
-		}
-		kioskUrl, err := url.Parse(fmt.Sprintf("%s://%s", scheme, kioskHost))
+		kioskURL, err := url.Parse(fmt.Sprintf("%s://%s", scheme, kioskHost))
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "parsing url from request")
 		}
 
 		// HACK: remove empty form values so optional fields parse as nil
 		// and we can ignore them from the URL parameters to default to the servers configured defaults
-		if err := c.Request().ParseForm(); err != nil {
+		if err = c.Request().ParseForm(); err != nil {
 			return echo.NewHTTPError(http.StatusUnprocessableEntity, "invalid form")
 		}
 		newValues := make(url.Values)
@@ -52,8 +48,8 @@ func BuildUrl() echo.HandlerFunc {
 		}
 		c.Request().Form = newValues
 
-		var req common.UrlBuilderRequest
-		if err := c.Bind(&req); err != nil {
+		var req common.URLBuilderRequest
+		if err = c.Bind(&req); err != nil {
 			return echo.NewHTTPError(http.StatusUnprocessableEntity, "parsing form")
 		}
 
@@ -100,13 +96,13 @@ func BuildUrl() echo.HandlerFunc {
 			}
 		}
 
-		kioskUrl.RawQuery = q.Encode()
+		kioskURL.RawQuery = q.Encode()
 
-		return Render(c, http.StatusOK, partials.UrlResult(kioskUrl.String()))
+		return Render(c, http.StatusOK, partials.UrlResult(kioskURL.String()))
 	}
 }
 
-func UrlBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+func URLBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -131,14 +127,15 @@ func UrlBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerF
 		)
 
 		im := immich.New(com.Context(), requestConfig)
-		ppl, err := im.AllNamedPeople(requestID, deviceID)
-		if err != nil {
-			return err
+
+		ppl, pplErr := im.AllNamedPeople(requestID, deviceID)
+		if pplErr != nil {
+			return pplErr
 		}
 
-		albs, err := im.AllAlbums(requestID, deviceID)
-		if err != nil {
-			return err
+		albs, albErr := im.AllAlbums(requestID, deviceID)
+		if albErr != nil {
+			return albErr
 		}
 
 		viewData := common.ViewData{
@@ -148,7 +145,7 @@ func UrlBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerF
 			Config:       requestConfig,
 		}
 
-		urlData := common.UrlViewData{
+		urlData := common.URLViewData{
 			People: ppl,
 			Albums: albs,
 		}

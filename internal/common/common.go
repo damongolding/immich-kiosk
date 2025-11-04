@@ -110,7 +110,7 @@ type ViewImageDataOptions struct {
 	RelativeAssetWanted   bool
 }
 
-type UrlViewData struct {
+type URLViewData struct {
 	People []immich.Person
 	Albums []immich.Album
 }
@@ -136,7 +136,7 @@ func CopyContext(c echo.Context) ContextCopy {
 	return ctxCopy
 }
 
-type UrlBuilderRequest struct {
+type URLBuilderRequest struct {
 	People              []string `form:"people"`
 	Albums              []string `form:"album"`
 	ShowDate            *bool    `form:"show_date"`
