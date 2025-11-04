@@ -150,6 +150,6 @@ func URLBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerF
 			Albums: albs,
 		}
 
-		return Render(c, http.StatusOK, views.Url(viewData, urlData))
+		return Render(c, http.StatusOK, views.URLBuilder(viewData, urlData))
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 )
 
-templ Url(viewData common.ViewData, urlData common.URLViewData) {
+templ URLBuilder(viewData common.ViewData, urlData common.URLViewData) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -16,14 +16,14 @@ templ Url(viewData common.ViewData, urlData common.URLViewData) {
 		</head>
 		<body id="url">
 			<div class="url-container">
-				@UrlBuilder(viewData.Config, urlData)
+				@URLBuilderForm(viewData.Config, urlData)
 			</div>
 		</body>
 		<script src={ string(templ.URL(fmt.Sprintf("/assets/js/url-builder.%s.js", viewData.KioskVersion))) }></script>
 	</html>
 }
 
-templ UrlBuilder(c config.Config, d common.URLViewData) {
+templ URLBuilderForm(c config.Config, d common.URLViewData) {
 	<section class="url-container--form">
 		<div class="url-container--form--content">
 			<div class="content">
