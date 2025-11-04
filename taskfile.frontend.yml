@@ -40,7 +40,7 @@ tasks:
 
   frontend-url-builder:
     dir: ./frontend
-    desc: Build form builder assets
+    desc: Build URL builder assets
     cmds:
       - pnpm url-builder
 

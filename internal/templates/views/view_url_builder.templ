@@ -61,7 +61,7 @@ templ URLBuilderForm(c config.Config, d common.URLViewData) {
 templ URLBuilderNumber(displayName, formName, helpText string, min int, max int, placeholder string) {
 	<div class="form-group">
 		<label for={ "url-builder-" + formName }>{ displayName }</label>
-		@URLBuilderHelpText("The amount of time in seconds an asset will be displayed for")
+		@URLBuilderHelpText(helpText)
 		<input
 			type="number"
 			id={ "url-builder-" + formName }
