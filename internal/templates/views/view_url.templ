@@ -8,7 +8,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 )
 
-templ Url(viewData common.ViewData, urlData common.UrlViewData) {
+templ Url(viewData common.ViewData, urlData common.URLViewData) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -23,7 +23,7 @@ templ Url(viewData common.ViewData, urlData common.UrlViewData) {
 	</html>
 }
 
-templ UrlBuilder(c config.Config, d common.UrlViewData) {
+templ UrlBuilder(c config.Config, d common.URLViewData) {
 	<section class="url-container--form">
 		<div class="url-container--form--content">
 			<div class="content">

@@ -290,10 +290,12 @@ func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAsset
 		",", "",
 	)
 
-	var filename string
+	var sb strings.Builder
 	for _, wa := range wantedAssets {
-		filename += replacer.Replace(wa)
+		sb.WriteString(replacer.Replace(wa))
 	}
+
+	filename := sb.String()
 
 	filename = generateCacheFilename(filename)
 
