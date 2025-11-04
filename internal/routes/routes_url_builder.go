@@ -57,7 +57,10 @@ func BuildURL() echo.HandlerFunc {
 			req.Duration = nil
 		}
 
-		queries, _ := query.Values(req)
+		queries, err := query.Values(req)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("encoding query parameters: %v", err))
+		}
 		kioskURL.RawQuery = queries.Encode()
 
 		return Render(c, http.StatusOK, partials.UrlResult(kioskURL.String()))
