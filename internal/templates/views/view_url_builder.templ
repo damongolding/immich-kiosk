@@ -6,6 +6,8 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"strconv"
+	"strings"
 )
 
 templ URLBuilder(viewData common.ViewData, urlData common.URLViewData) {
@@ -29,35 +31,24 @@ templ URLBuilderForm(c config.Config, d common.URLViewData) {
 			<div class="content">
 				<h1>URL Builder</h1>
 				<form id="url-builder-form" hx-post="/url-builder/build" hx-trigger="load,change,multiselect-change from:body" hx-target="#url-result" hx-swap="outerHTML">
-					<div class="form-group">
-						<label for="url-builder-people">People</label>
-						<span class="form-group--description">Help text</span>
-						<select name="people" id="url-builder-people" multiple>
-							for _, p := range d.People {
-								<option value={ p.ID }>{ p.Name }</option>
-							}
-						</select>
-					</div>
-					@DefaultRadio("Require all people", "require_all_people", "Help text", "true", "true", "false", "false")
-					<div class="form-group">
-						<label for="url-builder-albums">Albums</label>
-						<span class="form-group--description">Help text</span>
-						<select name="album" id="url-builder-albums" multiple>
-							for _, a := range d.Albums {
-								<option value={ a.ID }>{ a.AlbumName }</option>
-							}
-						</select>
-					</div>
-					@DefaultRadio("Show date", "show_date", "Help text", "true", "true", "false", "false")
-					@DefaultRadio("Show time", "show_time", "Help text", "true", "true", "false", "false")
-					@DefaultSelect("Transition", "transition", "Help text", "none", "none", "fade", "fade", "cross-fade", "cross-fade")
-					@DefaultSelect("Layout", "layout", "Help text", "single", "single", "portrait", "portrait", "landscape", "landscape", "splitview", "splitview", "splitview-landscape", "splitview-landscape")
-					@DefaultRadio("Show Progress Bar", "show_progress_bar", "Help text", "true", "true", "false", "false")
-					@DefaultRadio("Progress Bar Position", "progress_bar_position", "Help text", "top", "top", "bottom", "bottom")
-					<div class="form-group">
-						<label for="duration">Duration (0 for default):</label>
-						<input type="range" id="duration" name="duration" min="0" max="120" value="0"/>
-					</div>
+					@URLBuilderMultiSelect("People", "people", "Person or people you want to display.") {
+						for _, p := range d.People {
+							<option value={ p.ID }>{ p.Name }</option>
+						}
+					}
+					@URLBuilderRadio("Require all people", "require_all_people", "Only show images where all selected people appear together.", "true", "true", "false", "false")
+					@URLBuilderMultiSelect("Albums", "album", "Album or albums you want to display") {
+						for _, a := range d.Albums {
+							<option value={ a.ID }>{ a.AlbumName }</option>
+						}
+					}
+					@URLBuilderRadio("Show date", "show_date", "", "true", "true", "false", "false")
+					@URLBuilderRadio("Show time", "show_time", "", "true", "true", "false", "false")
+					@URLBuilderSelect("Transition", "transition", "Transition to use when changing images", "none", "none", "fade", "fade", "cross-fade", "cross-fade")
+					@URLBuilderSelect("Layout", "layout", "How images are arranged on the screen", "single", "single", "portrait", "portrait", "landscape", "landscape", "splitview", "splitview", "splitview-landscape", "splitview-landscape")
+					@URLBuilderRadio("Show Progress Bar", "show_progress_bar", "Show a progress bar indicating how much time is left for the current image(s).", "true", "true", "false", "false")
+					@URLBuilderRadio("Progress Bar Position", "progress_bar_position", "", "top", "top", "bottom", "bottom")
+					@URLBuilderNumber("Duration", "duration", "The amount of time in seconds an asset will be displayed for", 0, 0, strconv.FormatInt(int64(c.Duration), 10))
 				</form>
 			</div>
 			<div class="content">
@@ -67,12 +58,47 @@ templ URLBuilderForm(c config.Config, d common.URLViewData) {
 	</section>
 }
 
-templ DefaultRadio(displayName string, formName string, helpText string, keyvals ...string) {
+templ URLBuilderNumber(displayName, formName, helpText string, min int, max int, placeholder string) {
+	<div class="form-group">
+		<label for={ "url-builder-" + formName }>{ displayName }</label>
+		@URLBuilderHelpText("The amount of time in seconds an asset will be displayed for")
+		<input
+			type="number"
+			id={ "url-builder-" + formName }
+			name={ formName }
+			min={ min }
+			if max != 0 {
+				max={ max }
+			}
+			placeholder={ placeholder }
+		/>
+	</div>
+}
+
+templ URLBuilderHelpText(text string) {
+	<div class="form-group--description">
+		if text != "" && !strings.HasSuffix(text, ".") {
+			{ text }.
+		} else {
+			{ text }
+		}
+	</div>
+}
+
+templ URLBuilderMultiSelect(displayName, formName, helpText string) {
+	<div class="form-group">
+		<label for={ "url-builder-" + formName }>{ displayName }</label>
+		@URLBuilderHelpText(helpText)
+		<select name={ formName } id={ "url-builder-" + formName } multiple>
+			{ children... }
+		</select>
+	</div>
+}
+
+templ URLBuilderRadio(displayName string, formName string, helpText string, keyvals ...string) {
 	<div class="form-group">
 		<label id={ formName } for={ formName }>{ displayName }</label>
-		if helpText != "" {
-			<div class="form-group--description">{ helpText }</div>
-		}
+		@URLBuilderHelpText(helpText)
 		{{
 			kvs := make([]string, 0, len(keyvals)+2)
 			kvs = append(kvs, "default", "")
@@ -97,12 +123,10 @@ templ DefaultRadio(displayName string, formName string, helpText string, keyvals
 	</div>
 }
 
-templ DefaultSelect(displayName string, formName string, helpText string, keyvals ...string) {
+templ URLBuilderSelect(displayName string, formName string, helpText string, keyvals ...string) {
 	<div class="form-group">
 		<label id={ formName } for={ formName }>{ displayName }</label>
-		if helpText != "" {
-			<div class="form-group--description">{ helpText }</div>
-		}
+		@URLBuilderHelpText(helpText)
 		{{
 			kvs := make([]string, 0, len(keyvals)+2)
 			kvs = append(kvs, "default", "")

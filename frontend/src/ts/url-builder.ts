@@ -26,7 +26,7 @@ function initUrlBuilder(): void {
     }
 
     // Album
-    const albumMultiSelect = document.getElementById("url-builder-albums");
+    const albumMultiSelect = document.getElementById("url-builder-album");
     if (albumMultiSelect) {
         const _albumMultiSelectChoices = new Choices(albumMultiSelect, {
             placeholderValue: "Select albums",

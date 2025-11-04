@@ -84,6 +84,10 @@ body#url {
         color: var(--dark-grey);
     }
 
+    .form-group--description:empty {
+        display: none;
+    }
+
     .choices__inner {
         background-color: #fff;
         border: var(--mid-grey) 0.0625rem solid;
@@ -151,5 +155,17 @@ body#url {
         background-repeat: no-repeat;
         background-position: right 10px center;
         background-size: 20px;
+    }
+
+    /* Number */
+    input[type="number"] {
+        align-self: flex-start;
+        background-color: #fff;
+        border: var(--mid-grey) 0.0625rem solid;
+        outline: none;
+        font-size: 0.9375rem;
+        color: var(--dark-grey);
+        border-radius: 0.25rem;
+        padding: 0.5rem;
     }
 }
