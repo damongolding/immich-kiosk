@@ -1,6 +1,6 @@
 @import url("../../node_modules/choices.js/public/assets/styles/choices.min.css");
 
-body#url {
+body#url-builder {
     overflow: auto;
     background-color: var(--cool-grey);
 }
