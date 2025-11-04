@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -13,6 +12,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/templates/views"
+	"github.com/google/go-querystring/query"
 	"github.com/labstack/echo/v4"
 )
 
@@ -53,50 +53,12 @@ func BuildURL() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnprocessableEntity, "parsing form")
 		}
 
-		q := url.Values{}
-		for _, person := range req.People {
-			q.Add("person", person)
+		if req.Duration != nil && *req.Duration <= 0 {
+			req.Duration = nil
 		}
 
-		for _, album := range req.Albums {
-			q.Add("album", album)
-		}
-
-		if sd := req.ShowDate; sd != nil {
-			q.Add("show_date", strconv.FormatBool(*sd))
-		}
-
-		if st := req.ShowTime; st != nil {
-			q.Add("show_time", strconv.FormatBool(*st))
-		}
-
-		if rap := req.RequireAllPeople; rap != nil {
-			q.Add("require_all_people", strconv.FormatBool(*rap))
-		}
-
-		if spb := req.ShowProgressBar; spb != nil {
-			q.Add("show_progress_bar", strconv.FormatBool(*spb))
-		}
-
-		if pbp := req.ProgressBarPosition; pbp != nil {
-			q.Add("progress_bar_position", *pbp)
-		}
-
-		if tr := req.Transition; tr != nil {
-			q.Add("transition", *tr)
-		}
-
-		if lyt := req.Layout; lyt != nil {
-			q.Add("layout", *lyt)
-		}
-
-		if dur := req.Duration; dur != nil {
-			if *dur > 0 {
-				q.Add("duration", strconv.FormatUint(*dur, 10))
-			}
-		}
-
-		kioskURL.RawQuery = q.Encode()
+		queries, _ := query.Values(req)
+		kioskURL.RawQuery = queries.Encode()
 
 		return Render(c, http.StatusOK, partials.UrlResult(kioskURL.String()))
 	}

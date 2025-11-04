@@ -137,14 +137,14 @@ func CopyContext(c echo.Context) ContextCopy {
 }
 
 type URLBuilderRequest struct {
-	People              []string `form:"people"`
-	Albums              []string `form:"album"`
-	ShowDate            *bool    `form:"show_date"`
-	ShowTime            *bool    `form:"show_time"`
-	RequireAllPeople    *bool    `form:"require_all_people"`
-	ShowProgressBar     *bool    `form:"show_progress_bar"`
-	ProgressBarPosition *string  `form:"progress_bar_position"`
-	Transition          *string  `form:"transition"`
-	Layout              *string  `form:"layout"`
-	Duration            *uint64  `form:"duration"`
+	People              []string `form:"people" url:"people,omitempty"`
+	Albums              []string `form:"album" url:"album,omitempty"`
+	ShowDate            *bool    `form:"show_date" url:"show_date,omitempty"`
+	ShowTime            *bool    `form:"show_time" url:"show_time,omitempty"`
+	RequireAllPeople    *bool    `form:"require_all_people" url:"require_all_people,omitempty"`
+	ShowProgressBar     *bool    `form:"show_progress_bar" url:"show_progress_bar,omitempty"`
+	ProgressBarPosition *string  `form:"progress_bar_position" url:"progress_bar_position,omitempty"`
+	Transition          *string  `form:"transition" url:"transition,omitempty"`
+	Layout              *string  `form:"layout" url:"layout,omitempty"`
+	Duration            *uint64  `form:"duration" url:"duration,omitempty"`
 }
