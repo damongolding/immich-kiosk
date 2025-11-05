@@ -111,11 +111,11 @@ body#url-builder {
     .choices[data-type*="select-multiple"] .choices__button,
     .choices[data-type*="text"] .choices__button {
         border-left: none;
-        background-size: 12px;
+        background-size: 0.75rem;
     }
 
     .choices__list--multiple .choices__item[data-deletable] {
-        padding: 8px;
+        padding: 0.5625rem 0.75rem 0.75rem 0.75rem;
     }
 
     /* Radio Group */

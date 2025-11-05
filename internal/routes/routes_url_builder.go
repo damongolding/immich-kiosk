@@ -38,7 +38,7 @@ func BuildURL() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnprocessableEntity, "invalid form")
 		}
 
-		// remove empty form values so optional fields parse as nil a.k.a config default
+		// remove empty form values so optional fields parse as nil a.k.a config defaults
 		for k, v := range c.Request().Form {
 			if len(v) == 1 && v[0] == "" {
 				delete(c.Request().Form, k)
@@ -50,7 +50,7 @@ func BuildURL() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnprocessableEntity, "parsing form")
 		}
 
-		// 0 = default for duration
+		// Treat invalid durations (zero or negative) as unset to preserve config defaults
 		if req.Duration != nil && *req.Duration <= 0 {
 			req.Duration = nil
 		}
