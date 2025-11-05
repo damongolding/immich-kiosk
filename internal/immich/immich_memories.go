@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"path"
 	"slices"
+	"strconv"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -209,15 +211,11 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 	return fmt.Errorf("no assets found for memories after %d retries", MaxRetries)
 }
 
-func (a *Asset) IsMemory(requestID, deviceID string) (bool, Memory, int) {
-	// temporary disable cache to get memory info
-	c := a.requestConfig.Kiosk.Cache
-	a.requestConfig.Kiosk.Cache = false
-	defer func() {
-		a.requestConfig.Kiosk.Cache = c
-	}()
+func (a *Asset) IsMemory() (bool, Memory, int) {
 
-	m, _, err := a.memories(requestID, deviceID, false)
+	memLookUp := strconv.FormatInt(time.Now().Unix()/int64(5*60), 10)
+
+	m, _, err := a.memories("kiosk", memLookUp, false)
 	if err != nil {
 		log.Error("failed to get memories", "error", err)
 		return false, Memory{}, 0

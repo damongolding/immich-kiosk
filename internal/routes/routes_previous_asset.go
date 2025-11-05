@@ -136,7 +136,7 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 				asset := immich.New(com.Context(), requestConfig)
 				asset.ID = currentAssetID
 				if requestConfig.Memories {
-					if ok, memory, assetIndex := asset.IsMemory(requestID, deviceID); ok {
+					if ok, memory, assetIndex := asset.IsMemory(); ok {
 						asset.Bucket = kiosk.SourceMemories
 						asset.MemoryTitle = humanize.Time(memory.Assets[assetIndex].LocalDateTime)
 					}
