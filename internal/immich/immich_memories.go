@@ -208,3 +208,28 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 	}
 	return fmt.Errorf("no assets found for memories after %d retries", MaxRetries)
 }
+
+func (a *Asset) IsMemory(requestID, deviceID string) (bool, Memory, int) {
+	// temporary disable cache to get memory info
+	c := a.requestConfig.Kiosk.Cache
+	a.requestConfig.Kiosk.Cache = false
+	defer func() {
+		a.requestConfig.Kiosk.Cache = c
+	}()
+
+	m, _, err := a.memories(requestID, deviceID, false)
+	if err != nil {
+		log.Error("failed to get memories", "error", err)
+		return false, Memory{}, 0
+	}
+
+	for _, memory := range m {
+		for assetIndex, asset := range memory.Assets {
+			if a.ID == asset.ID {
+				return true, memory, assetIndex
+			}
+		}
+	}
+
+	return false, Memory{}, 0
+}
