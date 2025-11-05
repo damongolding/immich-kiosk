@@ -34,25 +34,23 @@ func BuildURL() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError, "parsing url from request")
 		}
 
-		// HACK: remove empty form values so optional fields parse as nil
-		// and we can ignore them from the URL parameters to default to the servers configured defaults
 		if err = c.Request().ParseForm(); err != nil {
 			return echo.NewHTTPError(http.StatusUnprocessableEntity, "invalid form")
 		}
-		newValues := make(url.Values)
+
+		// remove empty form values so optional fields parse as nil a.k.a config default
 		for k, v := range c.Request().Form {
-			if len(v) == 1 && (v[0] == "") {
-				continue
+			if len(v) == 1 && v[0] == "" {
+				delete(c.Request().Form, k)
 			}
-			newValues[k] = v
 		}
-		c.Request().Form = newValues
 
 		var req common.URLBuilderRequest
 		if err = c.Bind(&req); err != nil {
 			return echo.NewHTTPError(http.StatusUnprocessableEntity, "parsing form")
 		}
 
+		// 0 = default for duration
 		if req.Duration != nil && *req.Duration <= 0 {
 			req.Duration = nil
 		}
