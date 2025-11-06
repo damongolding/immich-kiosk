@@ -73,7 +73,8 @@ body#url-builder {
     flex-direction: column;
     gap: 0.5rem;
 
-    label {
+    label,
+    legend {
         font-weight: 600;
         font-size: 1.125rem;
         color: var(--dark-grey);
@@ -122,7 +123,8 @@ body#url-builder {
     .form-group--radio-group {
         display: flex;
         gap: 1.5rem;
-        label {
+        label,
+        legend {
             font-weight: 400;
             cursor: pointer;
         }

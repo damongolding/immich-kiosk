@@ -106,7 +106,7 @@ templ URLBuilderMultiSelect(displayName, formName, helpText string) {
 
 templ URLBuilderRadio(displayName string, formName string, helpText string, keyvals ...string) {
 	<div class="form-group">
-		<label id={ formName } for={ formName }>{ displayName }</label>
+		<legend>{ displayName }</legend>
 		@URLBuilderHelpText(helpText)
 		{{
 			kvs := make([]string, 0, len(keyvals)+2)
@@ -134,7 +134,7 @@ templ URLBuilderRadio(displayName string, formName string, helpText string, keyv
 
 templ URLBuilderSelect(displayName string, formName string, helpText string, keyvals ...string) {
 	<div class="form-group">
-		<label id={ formName } for={ formName }>{ displayName }</label>
+		<label for={ formName }>{ displayName }</label>
 		@URLBuilderHelpText(helpText)
 		{{
 			kvs := make([]string, 0, len(keyvals)+2)
