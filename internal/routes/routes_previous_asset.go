@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/charmbracelet/log"
+	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/sync/errgroup"
 
@@ -134,6 +135,12 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 
 				asset := immich.New(com.Context(), requestConfig)
 				asset.ID = currentAssetID
+				if requestConfig.Memories {
+					if ok, memory, assetIndex := asset.IsMemory(); ok {
+						asset.Bucket = kiosk.SourceMemories
+						asset.MemoryTitle = humanize.Time(memory.Assets[assetIndex].LocalDateTime)
+					}
+				}
 
 				var wg sync.WaitGroup
 				wg.Add(1)
