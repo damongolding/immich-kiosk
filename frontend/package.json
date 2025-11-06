@@ -1,6 +1,6 @@
 {
   "name": "immich-kiosk",
-  "version": "0.22.0",
+  "version": "0.27.0",
   "description": "",
   "main": "src/kiosk.ts",
   "scripts": {
@@ -36,5 +36,5 @@
     "not op_mini all",
     "not IE 11"
   ],
-  "packageManager": "pnpm@10.17.1"
+  "packageManager": "pnpm@10.20.0"
 }
