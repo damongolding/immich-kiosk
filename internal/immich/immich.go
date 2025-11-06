@@ -181,7 +181,7 @@ type Asset struct {
 	OriginalFileName string    `json:"originalFileName"`
 	OriginalMimeType string    `json:"originalMimeType"`
 	Thumbhash        string    `json:"-"` // `json:"thumbhash"`
-	Duration         string    `json:"-"` // `json:"duration"`
+	Duration         string    `json:"duration"`
 	LivePhotoVideoID string    `json:"livePhotoVideoId"`
 	Checksum         string    `json:"checksum"`
 	Visibility       string    `json:"-"` // `json:"visibility"`

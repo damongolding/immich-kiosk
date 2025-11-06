@@ -584,6 +584,9 @@ func (a *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio Im
 	if !slices.Contains(allowedTypes, a.Type) {
 		return false
 	}
+	if a.Type == VideoType && !a.durationCheck() {
+		return false
+	}
 	if a.IsTrashed {
 		return false
 	}

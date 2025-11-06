@@ -3,6 +3,8 @@ package kiosk
 type Source string
 
 const (
+	GlobalCache = "kiosk-cache"
+
 	ConfigValidationWarning string = "warning"
 	ConfigValidationError   string = "error"
 	ConfigValidationOff     string = "off"
