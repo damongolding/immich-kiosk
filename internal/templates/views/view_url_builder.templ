@@ -30,7 +30,16 @@ templ URLBuilderForm(c config.Config, d common.URLViewData) {
 		<div class="url-container--form--content">
 			<div class="content">
 				<h1>URL Builder</h1>
-				<form id="url-builder-form" hx-post="/url-builder/build" hx-trigger="load,change,multiselect-change from:body" hx-target="#url-result" hx-swap="outerHTML">
+				<form
+					id="url-builder-form"
+					hx-post="/url-builder/build"
+					hx-trigger="load,change,multiselect-change from:body"
+					hx-target="#url-result"
+					hx-swap="outerHTML"
+					if c.Kiosk.Password != "" {
+						hx-headers={ fmt.Sprintf("{\"Authorization\": \"Bearer %s\"}", c.Kiosk.Password) }
+					}
+				>
 					@URLBuilderMultiSelect("People", "people", "Person or people you want to display.") {
 						for _, p := range d.People {
 							<option value={ p.ID }>{ p.Name }</option>
