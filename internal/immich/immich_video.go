@@ -1,10 +1,10 @@
 package immich
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"path"
-	"time"
 
 	"github.com/charmbracelet/log"
 )
@@ -46,14 +46,14 @@ func (a *Asset) Video() ([]byte, string, error) {
 // The duration string is expected to be in the format "HH:MM:SS".
 func (a *Asset) durationCheck() bool {
 
-	d, err := time.Parse("15:04:05", a.Duration)
+	// Parse HH:MM:SS format
+	var hours, minutes, seconds int
+	_, err := fmt.Sscanf(a.Duration, "%d:%d:%d", &hours, &minutes, &seconds)
 	if err != nil {
 		log.Error("Failed to parse video duration", "ID", a.ID, "duration", a.Duration)
 		return false
 	}
-	if d.Hour() == 0 && d.Minute() == 0 && d.Second() < 1 {
-		return false
-	}
+	totalSeconds := hours*3600 + minutes*60 + seconds
 
-	return true
+	return totalSeconds >= 1
 }
