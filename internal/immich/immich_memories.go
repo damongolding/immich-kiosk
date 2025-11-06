@@ -215,7 +215,7 @@ func (a *Asset) IsMemory() (bool, Memory, int) {
 
 	memLookUp := strconv.FormatInt(time.Now().Unix()/int64(5*60), 10)
 
-	m, _, err := a.memories("kiosk", memLookUp, false)
+	m, _, err := a.memories(kiosk.GLobalCache, memLookUp, false)
 	if err != nil {
 		log.Error("failed to get memories", "error", err)
 		return false, Memory{}, 0
