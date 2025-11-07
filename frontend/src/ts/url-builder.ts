@@ -5,51 +5,16 @@ function initUrlBuilder(): void {
     const form = document.getElementById("url-builder-form");
 
     if (!form) return;
+}
 
-    // People
-    const peopleMultiSelect = document.getElementById("url-builder-people");
-    if (peopleMultiSelect) {
-        const _peopleMultiSelectChoices = new Choices(peopleMultiSelect, {
-            placeholderValue: "Select people",
+function initMultiselect(elementId: string, displayName: string) {
+    const multiSelect = document.getElementById(elementId);
+    if (multiSelect) {
+        const _multiSelectChoices = new Choices(multiSelect, {
+            placeholderValue: `Select ${displayName}`,
             removeItemButton: true,
         });
-        peopleMultiSelect.addEventListener(
-            "change",
-            () => {
-                document
-                    .querySelector("body")
-                    ?.dispatchEvent(new Event("multiselect-change"));
-            },
-            false,
-        );
-    }
-
-    // Album
-    const albumMultiSelect = document.getElementById("url-builder-album");
-    if (albumMultiSelect) {
-        const _albumMultiSelectChoices = new Choices(albumMultiSelect, {
-            placeholderValue: "Select albums",
-            removeItemButton: true,
-        });
-        albumMultiSelect.addEventListener(
-            "change",
-            () => {
-                document
-                    .querySelector("body")
-                    ?.dispatchEvent(new Event("multiselect-change"));
-            },
-            false,
-        );
-    }
-
-    // Tags
-    const tagsMultiSelect = document.getElementById("url-builder-tag");
-    if (tagsMultiSelect) {
-        const _tagsMultiSelectChoices = new Choices(tagsMultiSelect, {
-            placeholderValue: "Select tags",
-            removeItemButton: true,
-        });
-        tagsMultiSelect.addEventListener(
+        multiSelect.addEventListener(
             "change",
             () => {
                 document
@@ -106,3 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
     initUrlBuilder();
     initCopyToClipboard();
 });
+
+function foo(text: string): void {
+    console.log(text);
+}
+
+export { initMultiselect, foo };

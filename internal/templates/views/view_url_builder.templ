@@ -5,6 +5,7 @@ import (
 
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"strconv"
 	"strings"
@@ -15,13 +16,13 @@ templ URLBuilder(viewData common.ViewData, urlData common.URLViewData) {
 	<html lang="en">
 		<head>
 			@partials.Head(viewData)
+			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/url-builder.%s.js", viewData.KioskVersion))) }></script>
 		</head>
 		<body id="url-builder">
 			<div class="url-container">
 				@URLBuilderForm(viewData.Config, urlData)
 			</div>
 		</body>
-		<script src={ string(templ.URL(fmt.Sprintf("/assets/js/url-builder.%s.js", viewData.KioskVersion))) }></script>
 	</html>
 }
 
@@ -55,6 +56,9 @@ templ URLBuilderForm(c config.Config, d common.URLViewData) {
 					}
 					@URLBuilderMultiSelect("Tags", "tag", "Tag or tags you want to display") {
 						for _, t := range d.Tags {
+							if strings.EqualFold(t.Name, kiosk.TagSkip) || strings.EqualFold(t.Value, kiosk.TagSkip) {
+								{{ continue }}
+							}
 							<option value={ t.ID }>{ t.Name }</option>
 						}
 					}
@@ -107,13 +111,19 @@ templ URLBuilderHelpText(text string) {
 }
 
 templ URLBuilderMultiSelect(displayName, formName, helpText string) {
+	{{ ID := "url-builder-" + formName }}
 	<div class="form-group">
-		<label for={ "url-builder-" + formName }>{ displayName }</label>
+		<label for={ ID }>{ displayName }</label>
 		@URLBuilderHelpText(helpText)
-		<select name={ formName } id={ "url-builder-" + formName } multiple>
+		<select
+			name={ formName }
+			id={ ID }
+			multiple
+		>
 			{ children... }
 		</select>
 	</div>
+	@templ.JSFuncCall("urlBuilder.initMultiselect", ID, displayName)
 }
 
 templ URLBuilderRadio(displayName string, formName string, helpText string, keyvals ...string) {
