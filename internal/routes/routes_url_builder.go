@@ -106,6 +106,11 @@ func URLBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerF
 			return albErr
 		}
 
+		tags, _, tagsErr := im.AllTags(requestID, deviceID)
+		if tagsErr != nil {
+			return tagsErr
+		}
+
 		viewData := common.ViewData{
 			KioskVersion: KioskVersion,
 			RequestID:    requestID,
@@ -116,6 +121,7 @@ func URLBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerF
 		urlData := common.URLViewData{
 			People: ppl,
 			Albums: albs,
+			Tags:   tags,
 		}
 
 		return Render(c, http.StatusOK, views.URLBuilder(viewData, urlData))

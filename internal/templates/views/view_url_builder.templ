@@ -36,11 +36,11 @@ templ URLBuilderForm(c config.Config, d common.URLViewData) {
 					hx-trigger="load,change,multiselect-change from:body"
 					hx-target="#url-result"
 					hx-swap="outerHTML"
-				if c.Kiosk.Password != "" {
-					hx-headers={ templ.JSONString(map[string]string{
+					if c.Kiosk.Password != "" {
+						hx-headers={ templ.JSONString(map[string]string{
 						"Authorization": fmt.Sprintf("Bearer %s", c.Kiosk.Password),
 					}) }
-				}
+					}
 				>
 					@URLBuilderMultiSelect("People", "people", "Person or people you want to display.") {
 						for _, p := range d.People {
@@ -51,6 +51,11 @@ templ URLBuilderForm(c config.Config, d common.URLViewData) {
 					@URLBuilderMultiSelect("Albums", "album", "Album or albums you want to display") {
 						for _, a := range d.Albums {
 							<option value={ a.ID }>{ a.AlbumName }</option>
+						}
+					}
+					@URLBuilderMultiSelect("Tags", "tag", "Tag or tags you want to display") {
+						for _, t := range d.Tags {
+							<option value={ t.ID }>{ t.Name }</option>
 						}
 					}
 					@URLBuilderRadio("Show date", "show_date", "", "true", "true", "false", "false")

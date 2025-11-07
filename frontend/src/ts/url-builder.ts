@@ -41,6 +41,24 @@ function initUrlBuilder(): void {
             false,
         );
     }
+
+    // Tags
+    const tagsMultiSelect = document.getElementById("url-builder-tag");
+    if (tagsMultiSelect) {
+        const _tagsMultiSelectChoices = new Choices(tagsMultiSelect, {
+            placeholderValue: "Select tags",
+            removeItemButton: true,
+        });
+        tagsMultiSelect.addEventListener(
+            "change",
+            () => {
+                document
+                    .querySelector("body")
+                    ?.dispatchEvent(new Event("multiselect-change"));
+            },
+            false,
+        );
+    }
 }
 
 async function copyToClipboard(

@@ -113,6 +113,7 @@ type ViewImageDataOptions struct {
 type URLViewData struct {
 	People []immich.Person
 	Albums []immich.Album
+	Tags   []immich.Tag
 }
 
 // ContextCopy stores a copy of key HTTP context information including URL and headers
@@ -139,6 +140,7 @@ func CopyContext(c echo.Context) ContextCopy {
 type URLBuilderRequest struct {
 	People              []string `form:"people" url:"person,omitempty"`
 	Albums              []string `form:"album" url:"album,omitempty"`
+	Tags                []string `form:"tag" url:"tag,omitempty"`
 	ShowDate            *bool    `form:"show_date" url:"show_date,omitempty"`
 	ShowTime            *bool    `form:"show_time" url:"show_time,omitempty"`
 	RequireAllPeople    *bool    `form:"require_all_people" url:"require_all_people,omitempty"`
