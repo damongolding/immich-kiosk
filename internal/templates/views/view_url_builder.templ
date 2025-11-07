@@ -36,9 +36,11 @@ templ URLBuilderForm(c config.Config, d common.URLViewData) {
 					hx-trigger="load,change,multiselect-change from:body"
 					hx-target="#url-result"
 					hx-swap="outerHTML"
-					if c.Kiosk.Password != "" {
-						hx-headers={ fmt.Sprintf("{\"Authorization\": \"Bearer %s\"}", c.Kiosk.Password) }
-					}
+				if c.Kiosk.Password != "" {
+					hx-headers={ templ.JSONString(map[string]string{
+						"Authorization": fmt.Sprintf("Bearer %s", c.Kiosk.Password),
+					}) }
+				}
 				>
 					@URLBuilderMultiSelect("People", "people", "Person or people you want to display.") {
 						for _, p := range d.People {
