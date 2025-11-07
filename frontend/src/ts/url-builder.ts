@@ -43,7 +43,10 @@ function initUrlBuilder(): void {
     }
 }
 
-async function copyToClipboard(text: string): Promise<void> {
+async function copyToClipboard(
+    btn: HTMLButtonElement,
+    text: string,
+): Promise<void> {
     try {
         if (navigator.clipboard) {
             await navigator.clipboard.writeText(text);
@@ -55,8 +58,16 @@ async function copyToClipboard(text: string): Promise<void> {
             document.execCommand("copy");
             document.body.removeChild(textarea);
         }
+        btn.classList.add("copied");
+        setTimeout(() => {
+            btn.classList.remove("copied");
+        }, 2000);
     } catch (error) {
         console.error("Failed to copy text:", error);
+        btn.classList.add("copy-failed");
+        setTimeout(() => {
+            btn.classList.remove("copy-failed");
+        }, 2000);
     }
 }
 
@@ -68,7 +79,7 @@ function initCopyToClipboard(): void {
         const url = document.getElementById("url-result");
         if (!url) return;
 
-        copyToClipboard(url.innerText);
+        copyToClipboard(copyButton, url.innerText);
     });
 }
 
