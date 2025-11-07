@@ -176,7 +176,7 @@ func main() {
 
 	if baseConfig.Kiosk.EnableURLBuilder {
 		e.GET("/url-builder", routes.URLBuilderPage(baseConfig, c))
-		e.POST("/url-builder/build", routes.BuildURL())
+		e.POST("/url-builder/build", routes.BuildURL(baseConfig))
 	}
 
 	e.GET("/about", routes.About(baseConfig))

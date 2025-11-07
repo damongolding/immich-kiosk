@@ -16,7 +16,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func BuildURL() echo.HandlerFunc {
+func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		kioskHost := c.Request().Header.Get("X-Forwarded-Host")
 		if kioskHost == "" {
@@ -59,6 +59,11 @@ func BuildURL() echo.HandlerFunc {
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("encoding query parameters: %v", err))
 		}
+
+		if baseConfig.Kiosk.Password != "" {
+			queries.Add("password", baseConfig.Kiosk.Password)
+		}
+
 		kioskURL.RawQuery = queries.Encode()
 
 		return Render(c, http.StatusOK, partials.UrlResult(kioskURL.String()))
