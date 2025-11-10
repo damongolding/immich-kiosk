@@ -164,7 +164,13 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 //   - Another download is already in progress
 //   - Max size parsing fails
 //   - File operations fail
-//   - Asset downloads fail
+// downloadOfflineAssets downloads and saves generated offline asset view data to OfflineAssetsPath in parallel.
+// It acquires a mutex so only one download run executes at a time, writes an expiration timestamp file, and
+// spawns up to the configured parallelWorkers to generate and persist assets according to OfflineMode settings.
+// The process respects configured limits for number of assets and total storage size, and will cancel early if the
+// maximum offline storage size is reached or if too many duplicate or generation errors occur. It returns any
+// configuration, I/O, or unexpected worker error encountered (context cancellations produced by internal limits are
+// not treated as errors).
 func downloadOfflineAssets(requestConfig config.Config, requestCtx common.ContextCopy, com *common.Common, requestID, deviceID string) error {
 	if !mu.TryLock() {
 		log.Debug("DownloadOfflineAssets is already running")

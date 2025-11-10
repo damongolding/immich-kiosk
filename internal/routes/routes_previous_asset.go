@@ -56,7 +56,11 @@ func NextHistoryAsset(baseConfig *config.Config, com *common.Common, c echo.Cont
 
 // historyAsset processes and displays either the previous or next asset(s) from the navigation history, handling both online and offline modes.
 // It retrieves the relevant history entry, fetches asset metadata and image previews concurrently, and prepares view data for rendering. If offline mode is enabled, it loads cached asset data instead. The function triggers a webhook event corresponding to the navigation direction and renders either an image or video component based on the asset type.
-// Returns an error if asset retrieval, image processing, or view rendering fails.
+// historyAsset handles serving the previous or next asset from the request history.
+// It prepares view data for the requested history entry, optionally serves from offline cache,
+// triggers the corresponding webhook event, and renders either an image or video response.
+// It returns an error if request initialization, asset retrieval/processing, or rendering fails,
+// and returns nil when no content should be sent.
 func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context, useNextImage bool) error {
 	requestData, err := InitializeRequestData(c, baseConfig)
 	if err != nil {
@@ -154,7 +158,13 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 
 // getHistoryAsset returns a function that processes a single asset from the navigation history.
 // It fetches asset metadata, album details (if configured), and generates regular and blurred preview images.
-// The function is intended to be run as a goroutine (via errgroup) for each asset in the history entry.
+// getHistoryAsset returns a closure that processes a single history asset and populates the corresponding
+// entry in viewData.Assets for concurrent execution.
+// 
+// The returned function loads asset metadata (including optional memories and album information),
+// generates image previews (regular and blurred), optionally extracts a dominant color when the theme
+// is Bubble, and writes the prepared data into viewData.Assets at the provided index.
+// It returns any error encountered during processing; preview failures for non-image types are tolerated.
 func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID, deviceID, selectedUser string, viewData *common.ViewData, prevAssetsID int, currentAssetID string) func() error {
 	return func() error {
 		requestConfig.SelectedUser = selectedUser
@@ -297,7 +307,7 @@ func findHistoryEntry(history []string, useNextImage bool) (string, int) {
 // - secret: Secret key for rendering
 //
 // Returns:
-// - error if loading or rendering cached data fails
+// and renders the image component using the provided secret. Any rendering error is returned.
 func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAssets []string, requestConfig config.Config, secret string) error {
 	replacer := strings.NewReplacer(
 		kiosk.HistoryIndicator, "",

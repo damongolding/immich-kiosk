@@ -3,6 +3,15 @@ import "htmx.org";
 
 type choicesOptions = Record<string, unknown>;
 
+/**
+ * Initializes a Choices.js multiselect on the DOM element with the given id and wires change events.
+ *
+ * If the element exists, creates a multiselect with a placeholder of `Select {displayName}` and a remove-item button, merging any provided `options` into the defaults. When the selection changes, a `multiselect-change` event is dispatched on the document body.
+ *
+ * @param elementId - The id of the target DOM element to convert into a multiselect
+ * @param displayName - A human-readable name used in the placeholder (rendered as `Select {displayName}`)
+ * @param options - Optional Choices.js configuration to merge with the defaults
+ */
 function initMultiselect(
     elementId: string,
     displayName: string,
@@ -28,6 +37,14 @@ function initMultiselect(
     }
 }
 
+/**
+ * Copy the provided text to the clipboard and show temporary visual feedback on the button.
+ *
+ * Attempts to write `text` to the system clipboard; if that fails or is unavailable, falls back to a DOM-based copy method.
+ *
+ * @param btn - The button element to which success or failure classes (`copied`, `copy-failed`) will be applied temporarily
+ * @param text - The text to copy to the clipboard
+ */
 async function copyToClipboard(
     btn: HTMLButtonElement,
     text: string,
@@ -56,6 +73,11 @@ async function copyToClipboard(
     }
 }
 
+/**
+ * Attaches a click handler to the first `.copy` button that copies the text content of `#url-result` to the clipboard and updates the button's UI to reflect success or failure.
+ *
+ * If either the `.copy` button or the `#url-result` element is not present, the function does nothing.
+ */
 function initCopyToClipboard(): void {
     const copyButton = document.querySelector<HTMLButtonElement>(".copy");
     if (!copyButton) return;

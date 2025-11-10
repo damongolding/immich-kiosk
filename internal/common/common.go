@@ -125,7 +125,8 @@ type ContextCopy struct {
 
 // CopyContext creates a copy of essential context data from an echo.Context
 // This allows preserving context information without maintaining a reference to the original context
-// Returns a ContextCopy containing the URL and header information
+// CopyContext copies the request URL and HTTP headers from the provided echo.Context into a ContextCopy.
+// The returned ContextCopy contains independent copies of the request URL, the request headers, and the response headers.
 func CopyContext(c echo.Context) ContextCopy {
 
 	ctxCopy := ContextCopy{

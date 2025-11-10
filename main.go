@@ -47,7 +47,9 @@ func init() {
 	config.SchemaJSON = SchemaJSON
 }
 
-// main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
+// main initializes and starts the Immich Kiosk web server, wiring configuration, middleware, routes, background workers, and graceful shutdown.
+//
+// It loads and applies configuration (including demo, debug, and proxy settings), initializes cache and the video manager, registers middleware and HTTP routes (static assets, API endpoints, weather, live/video, and the optional URL builder), starts the HTTP server, and waits for application context cancellation to perform cleanup and a graceful shutdown.
 func main() {
 
 	fmt.Println(kioskBanner)

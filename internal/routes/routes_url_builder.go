@@ -16,6 +16,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// BuildURL returns an Echo handler that constructs a kiosk URL from the incoming request and renders it.
+// 
+// The handler determines the kiosk host from the X-Forwarded-Host header (falling back to the request Host)
+// and the scheme from the request or the X-Forwarded-Proto header (only "http" or "https" are accepted).
+// It parses and cleans form values (removing single empty values), binds them into a common.URLBuilderRequest,
+// treats zero or negative durations as unset, encodes the request as query parameters, and injects
+// baseConfig.Kiosk.Password as the "password" query parameter when present. The final URL is rendered
+// using the UrlResult partial. The handler responds with appropriate HTTP errors for form parsing, binding,
+// URL parsing, or query encoding failures.
 func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		kioskHost := c.Request().Header.Get("X-Forwarded-Host")
@@ -70,6 +79,8 @@ func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 	}
 }
 
+// URLBuilderPage returns an echo.HandlerFunc that prepares data for the URL builder page and renders the URL builder view.
+// The handler initializes request context, fetches named people, albums, and tags for the current request and device, assembles view data, and renders the URL builder; any errors from initialization or data retrieval are propagated.
 func URLBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c echo.Context) error {
 

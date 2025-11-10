@@ -458,7 +458,8 @@ func New() *Config {
 //   - v: A pointer to a viper.Viper instance to which the environment variables will be bound.
 //
 // Returns:
-//   - An error if any binding operations fail, or nil if all bindings are successful.
+// bindEnvironmentVariables binds a predefined set of environment variables to the given Viper instance's configuration keys.
+// It attempts to bind each mapping via v.BindEnv and returns a combined error if any bindings fail, or nil otherwise.
 func bindEnvironmentVariables(v *viper.Viper) error {
 	var errs []error
 
