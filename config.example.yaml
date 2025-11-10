@@ -148,4 +148,3 @@ kiosk:
   cache: true # cache select api calls
   prefetch: true # fetch assets in the background
   asset_weighting: true # use weighting when picking assets
-  enable_url_builder: true # enable url builder page
