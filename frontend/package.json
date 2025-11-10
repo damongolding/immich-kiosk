@@ -21,15 +21,15 @@
   "devDependencies": {
     "@biomejs/biome": "2.3.4",
     "autoprefixer": "^10.4.21",
+    "choices.js": "^11.1.0",
     "date-fns": "^4.1.0",
     "dompurify": "^3.3.0",
-    "esbuild": "^0.25.12",
+    "esbuild": "^0.27.0",
     "htmx.org": "^2.0.8",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
     "postcss-nested": "^7.0.2",
-    "typescript": "^5.9.3",
-    "choices.js": "^11.1.0"
+    "typescript": "^5.9.3"
   },
   "browserslist": [
     "> 0.2%",
