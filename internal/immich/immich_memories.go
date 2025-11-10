@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"path"
 	"slices"
+	"strconv"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -207,4 +209,32 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 
 	}
 	return fmt.Errorf("no assets found for memories after %d retries", MaxRetries)
+}
+
+// IsMemory checks if the asset is part of recent memories by querying the
+// memories API with a 5-minute cache window.
+//
+// Returns:
+//   - bool: true if the asset is found in memories
+//   - Memory: the memory containing the asset (empty if not found)
+//   - int: the index of the asset within the memory (0 if not found)
+func (a *Asset) IsMemory() (bool, Memory, int) {
+
+	memLookUp := strconv.FormatInt(time.Now().Unix()/int64(5*60), 10)
+
+	m, _, err := a.memories(kiosk.GlobalCache, memLookUp, false)
+	if err != nil {
+		log.Error("failed to get memories", "error", err)
+		return false, Memory{}, 0
+	}
+
+	for _, memory := range m {
+		for assetIndex, asset := range memory.Assets {
+			if a.ID == asset.ID {
+				return true, memory, assetIndex
+			}
+		}
+	}
+
+	return false, Memory{}, 0
 }

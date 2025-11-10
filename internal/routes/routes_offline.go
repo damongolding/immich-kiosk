@@ -238,10 +238,13 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 				viewData.UseOfflineMode = true
 				viewData.History = []string{}
 
-				var filename string
+				var sb strings.Builder
 				for _, asset := range viewData.Assets {
-					filename += asset.ImmichAsset.ID + asset.User
+					sb.WriteString(asset.ImmichAsset.ID)
+					sb.WriteString(asset.User)
 				}
+
+				filename := sb.String()
 				filename = filepath.Join(OfflineAssetsPath, generateCacheFilename(filename))
 
 				if _, exists := createdFiles.Load(filename); exists {

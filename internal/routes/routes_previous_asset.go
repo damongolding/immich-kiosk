@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/charmbracelet/log"
+	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/sync/errgroup"
 
@@ -128,87 +129,7 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 
 		prevAssetsID, currentAssetID, selectedUser := i, parts[0], parts[1]
 
-		g.Go(func(prevAssetsID int, currentAssetID string) func() error {
-			return func() error {
-				requestConfig.SelectedUser = selectedUser
-
-				asset := immich.New(com.Context(), requestConfig)
-				asset.ID = currentAssetID
-
-				var wg sync.WaitGroup
-				wg.Add(1)
-
-				go func(asset *immich.Asset, requestID string, wg *sync.WaitGroup) {
-					defer wg.Done()
-					var processingErr error
-
-					if assetInfoErr := asset.AssetInfo(requestID, deviceID); assetInfoErr != nil {
-						processingErr = fmt.Errorf("failed to get asset info: %w", assetInfoErr)
-						log.Error(processingErr)
-					}
-
-					asset.AddRatio()
-
-					if requestConfig.ShowAlbumName {
-						asset.AlbumsThatContainAsset(requestID, deviceID)
-					}
-
-				}(&asset, requestID, &wg)
-
-				var imgString, imgBlurString string
-				var dominantColor color.RGBA
-
-				defer func() {
-					viewData.Assets[prevAssetsID] = common.ViewImageData{
-						ImmichAsset:        asset,
-						ImageData:          imgString,
-						ImageBlurData:      imgBlurString,
-						ImageDominantColor: dominantColor,
-						User:               selectedUser,
-					}
-				}()
-
-				// Image processing isn't required for video, audio, or other types
-				// So if this fails, we can still proceed with the asset view
-				imgBytes, _, previewErr := asset.ImagePreview()
-				if previewErr != nil {
-					switch asset.Type {
-					case immich.ImageType:
-						return fmt.Errorf("retrieving asset: %w", previewErr)
-
-					case immich.VideoType, immich.AudioType, immich.OtherType:
-						wg.Wait()
-						return nil
-					}
-				}
-
-				img, byteErr := utils.BytesToImage(imgBytes)
-				if byteErr != nil {
-					return byteErr
-				}
-
-				imgString, base64Err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
-				if base64Err != nil {
-					return fmt.Errorf("converting image to base64: %w", base64Err)
-				}
-
-				imgBlurString, blurErr := processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
-				if blurErr != nil {
-					return fmt.Errorf("converting blurred image to base64: %w", blurErr)
-				}
-
-				if requestConfig.Theme == kiosk.ThemeBubble {
-					dominantColor, err = utils.ExtractDominantColor(img)
-					if err != nil {
-						return fmt.Errorf("extracting dominant colour: %w", err)
-					}
-				}
-
-				wg.Wait()
-
-				return nil
-			}
-		}(prevAssetsID, currentAssetID))
+		g.Go(getHistoryAsset(requestConfig, com, requestID, deviceID, selectedUser, &viewData, prevAssetsID, currentAssetID))
 	}
 
 	// Wait for all goroutines to complete and check for errors
@@ -229,6 +150,100 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	}
 
 	return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
+}
+
+// getHistoryAsset returns a function that processes a single asset from the navigation history.
+// It fetches asset metadata, album details (if configured), and generates regular and blurred preview images.
+// The function is intended to be run as a goroutine (via errgroup) for each asset in the history entry.
+func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID, deviceID, selectedUser string, viewData *common.ViewData, prevAssetsID int, currentAssetID string) func() error {
+	return func() error {
+		requestConfig.SelectedUser = selectedUser
+
+		asset := immich.New(com.Context(), requestConfig)
+		asset.ID = currentAssetID
+		if requestConfig.Memories {
+			if ok, memory, assetIndex := asset.IsMemory(); ok {
+				asset.Bucket = kiosk.SourceMemories
+				asset.MemoryTitle = humanize.Time(memory.Assets[assetIndex].LocalDateTime)
+			}
+		}
+
+		var wg sync.WaitGroup
+		wg.Add(1)
+
+		// Fetch asset info and album details in a goroutine.
+		go func(asset *immich.Asset, requestID string, wg *sync.WaitGroup) {
+			defer wg.Done()
+			var processingErr error
+
+			if assetInfoErr := asset.AssetInfo(requestID, deviceID); assetInfoErr != nil {
+				processingErr = fmt.Errorf("failed to get asset info: %w", assetInfoErr)
+				log.Error(processingErr)
+			}
+
+			asset.AddRatio()
+
+			if requestConfig.ShowAlbumName {
+				asset.AlbumsThatContainAsset(requestID, deviceID)
+			}
+
+		}(&asset, requestID, &wg)
+
+		var imgString, imgBlurString string
+		var dominantColor color.RGBA
+		var err error
+
+		// Populate the viewData.Assets entry for this asset after processing.
+		defer func() {
+			viewData.Assets[prevAssetsID] = common.ViewImageData{
+				ImmichAsset:        asset,
+				ImageData:          imgString,
+				ImageBlurData:      imgBlurString,
+				ImageDominantColor: dominantColor,
+				User:               selectedUser,
+			}
+		}()
+
+		// Image processing isn't required for video, audio, or other types.
+		// If preview fails for an image, return error; for other types, proceed.
+		imgBytes, _, previewErr := asset.ImagePreview()
+		if previewErr != nil {
+			switch asset.Type {
+			case immich.ImageType:
+				return fmt.Errorf("retrieving asset: %w", previewErr)
+
+			case immich.VideoType, immich.AudioType, immich.OtherType:
+				wg.Wait()
+				return nil
+			}
+		}
+
+		img, byteErr := utils.BytesToImage(imgBytes)
+		if byteErr != nil {
+			return byteErr
+		}
+
+		imgString, base64Err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
+		if base64Err != nil {
+			return fmt.Errorf("converting image to base64: %w", base64Err)
+		}
+
+		imgBlurString, blurErr := processBlurredImage(img, asset.Type, requestConfig, requestID, deviceID, false)
+		if blurErr != nil {
+			return fmt.Errorf("converting blurred image to base64: %w", blurErr)
+		}
+
+		if requestConfig.Theme == kiosk.ThemeBubble {
+			dominantColor, err = utils.ExtractDominantColor(img)
+			if err != nil {
+				return fmt.Errorf("extracting dominant colour: %w", err)
+			}
+		}
+
+		wg.Wait()
+
+		return nil
+	}
 }
 
 // findHistoryEntry searches through the history slice to find and return the appropriate
@@ -290,10 +305,12 @@ func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAsset
 		",", "",
 	)
 
-	var filename string
+	var sb strings.Builder
 	for _, wa := range wantedAssets {
-		filename += replacer.Replace(wa)
+		sb.WriteString(replacer.Replace(wa))
 	}
+
+	filename := sb.String()
 
 	filename = generateCacheFilename(filename)
 

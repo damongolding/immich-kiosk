@@ -91,6 +91,10 @@ func (a *Asset) people(requestID, deviceID string, knowPeopleOnly bool, bypassCa
 	return people, nil
 }
 
+func (a *Asset) AllNamedPeople(requestID, deviceID string) ([]Person, error) {
+	return a.people(requestID, deviceID, true, false)
+}
+
 // allPeopleAssetCount returns the total count of images across all named people in the system.
 // It performs concurrent queries for each person's image count using a limited number of goroutines.
 //

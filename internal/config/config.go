@@ -120,6 +120,9 @@ type KioskSettings struct {
 	// DisableConfigEndpoint disables the config endpoint
 	DisableConfigEndpoint bool `json:"disableConfigEndpoint"  yaml:"disable_config_endpoint" mapstructure:"disable_config_endpoint" default:"false"`
 
+	// EnableURLBuilder enables the URL builder page and endpoints
+	EnableURLBuilder bool `json:"enableURLBuilder" yaml:"enable_url_builder" mapstructure:"enable_url_builder" default:"false"`
+
 	// WatchConfig if kiosk should watch config file for changes
 	WatchConfig bool `json:"watchConfig" yaml:"watch_config" mapstructure:"watch_config" default:"false"`
 
@@ -468,6 +471,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
 		{"kiosk.disable_url_queries", "KIOSK_DISABLE_URL_QUERIES"},
 		{"kiosk.disable_config_endpoint", "KIOSK_DISABLE_CONFIG_ENDPOINT"},
+		{"kiosk.enable_url_builder", "KIOSK_ENABLE_URL_BUILDER"},
 		{"kiosk.fetched_assets_size", "KIOSK_FETCHED_ASSETS_SIZE"},
 		{"kiosk.http_timeout", "KIOSK_HTTP_TIMEOUT"},
 		{"kiosk.password", "KIOSK_PASSWORD"},

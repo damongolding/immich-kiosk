@@ -1,0 +1,8 @@
+package partials
+
+
+templ UrlResult(url string) {
+    <div id="url-result">
+        <a href={templ.SafeURL(url)}>{url}</a>
+    </div>
+}

@@ -110,6 +110,12 @@ type ViewImageDataOptions struct {
 	RelativeAssetWanted   bool
 }
 
+type URLViewData struct {
+	People []immich.Person
+	Albums []immich.Album
+	Tags   []immich.Tag
+}
+
 // ContextCopy stores a copy of key HTTP context information including URL and headers
 type ContextCopy struct {
 	RequestHeader  http.Header // Headers from the incoming request
@@ -129,4 +135,18 @@ func CopyContext(c echo.Context) ContextCopy {
 	}
 
 	return ctxCopy
+}
+
+type URLBuilderRequest struct {
+	People              []string `form:"people" url:"person,omitempty"`
+	Albums              []string `form:"album" url:"album,omitempty"`
+	Tags                []string `form:"tag" url:"tag,omitempty"`
+	ShowDate            *bool    `form:"show_date" url:"show_date,omitempty"`
+	ShowTime            *bool    `form:"show_time" url:"show_time,omitempty"`
+	RequireAllPeople    *bool    `form:"require_all_people" url:"require_all_people,omitempty"`
+	ShowProgressBar     *bool    `form:"show_progress_bar" url:"show_progress_bar,omitempty"`
+	ProgressBarPosition *string  `form:"progress_bar_position" url:"progress_bar_position,omitempty"`
+	Transition          *string  `form:"transition" url:"transition,omitempty"`
+	Layout              *string  `form:"layout" url:"layout,omitempty"`
+	Duration            *uint64  `form:"duration" url:"duration,omitempty"`
 }
