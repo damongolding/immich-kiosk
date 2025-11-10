@@ -11,6 +11,8 @@ import (
 	"strings"
 )
 
+type ChoicesOptions map[string]any
+
 templ URLBuilder(viewData common.ViewData, urlData common.URLViewData) {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -110,8 +112,7 @@ templ URLBuilderHelpText(text string) {
 	</div>
 }
 
-templ URLBuilderMultiSelect(displayName, formName, helpText string) {
-	{{ ID := "url-builder-" + formName }}
+templ URLBuilderMultiSelectBase(ID, displayName, formName, helpText string) {
 	<div class="form-group">
 		<label for={ ID }>{ displayName }</label>
 		@URLBuilderHelpText(helpText)
@@ -123,7 +124,22 @@ templ URLBuilderMultiSelect(displayName, formName, helpText string) {
 			{ children... }
 		</select>
 	</div>
+}
+
+templ URLBuilderMultiSelect(displayName, formName, helpText string) {
+	{{ ID := "url-builder-" + formName }}
+	@URLBuilderMultiSelectBase(ID, displayName, formName, helpText) {
+		{ children... }
+	}
 	@templ.JSFuncCall("urlBuilder.initMultiselect", ID, displayName)
+}
+
+templ URLBuilderMultiSelectWithOptions(displayName, formName, helpText string, options ChoicesOptions) {
+	{{ ID := "url-builder-" + formName }}
+	@URLBuilderMultiSelectBase(ID, displayName, formName, helpText) {
+		{ children... }
+	}
+	@templ.JSFuncCall("urlBuilder.initMultiselect", ID, displayName, options)
 }
 
 templ URLBuilderRadio(displayName string, formName string, helpText string, keyvals ...string) {

@@ -1,19 +1,21 @@
 import Choices from "choices.js";
 import "htmx.org";
 
-function initUrlBuilder(): void {
-    const form = document.getElementById("url-builder-form");
+type choicesOptions = Record<string, unknown>;
 
-    if (!form) return;
-}
-
-function initMultiselect(elementId: string, displayName: string) {
+function initMultiselect(
+    elementId: string,
+    displayName: string,
+    options?: choicesOptions,
+) {
     const multiSelect = document.getElementById(elementId);
     if (multiSelect) {
-        const _multiSelectChoices = new Choices(multiSelect, {
+        const choicesOptions: choicesOptions = {
             placeholderValue: `Select ${displayName}`,
             removeItemButton: true,
-        });
+            ...(options || {}),
+        };
+        const _multiSelectChoices = new Choices(multiSelect, choicesOptions);
         multiSelect.addEventListener(
             "change",
             () => {
@@ -68,12 +70,7 @@ function initCopyToClipboard(): void {
 
 // Initialize Kiosk when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
-    initUrlBuilder();
     initCopyToClipboard();
 });
 
-function foo(text: string): void {
-    console.log(text);
-}
-
-export { initMultiselect, foo };
+export { initMultiselect };
