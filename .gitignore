@@ -46,7 +46,8 @@ demo-assets/
 offline-assets/
 
 frontend/public/assets/css
-frontend/public/assets/js/kiosk.js
+frontend/public/assets/js/*.js
+!frontend/public/assets/js/sw.js
 
 /tmp/
 

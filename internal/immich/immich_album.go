@@ -117,6 +117,11 @@ func (a *Asset) allAlbums(requestID, deviceID string) (Albums, string, error) {
 	return all, ownedURL + " && " + sharedURL, err
 }
 
+func (a *Asset) AllAlbums(requestID, deviceID string) (Albums, error) {
+	all, _, err := a.allAlbums(requestID, deviceID)
+	return all, err
+}
+
 // allOwnedAlbums retrieves all non-shared albums from Immich.
 func (a *Asset) allOwnedAlbums(requestID, deviceID string) (Albums, string, error) {
 	return a.albums(requestID, deviceID, false, "", false)

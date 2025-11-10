@@ -2,7 +2,7 @@ version: "3"
 tasks:
   # Frontend tasks
   frontend:
-    deps: [frontend-test, frontend-css, frontend-js]
+    deps: [frontend-test, frontend-css, frontend-js, frontend-url-builder]
     dir: ./frontend
     desc: Run frontend linting
     cmds:
@@ -37,6 +37,12 @@ tasks:
     desc: Build JavaScript assets
     cmds:
       - pnpm js
+
+  frontend-url-builder:
+    dir: ./frontend
+    desc: Build URL builder assets
+    cmds:
+      - pnpm url-builder
 
   frontend-outdated:
     dir: ./frontend

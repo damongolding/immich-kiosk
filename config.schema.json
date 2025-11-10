@@ -452,6 +452,9 @@
         "disable_config_endpoint": {
           "type": "boolean"
         },
+        "enable_url_builder": {
+          "type": "boolean"
+        },
         "redirects": {
           "type": "array",
           "items": {

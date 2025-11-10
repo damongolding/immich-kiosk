@@ -157,6 +157,7 @@ func main() {
 
 	// JS cache busting
 	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public, StaticCacheMiddlewareWithConfig(baseConfig))
+	e.FileFS("/assets/js/url-builder.*.js", "frontend/public/assets/js/url-builder.js", public, StaticCacheMiddlewareWithConfig(baseConfig))
 
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
@@ -172,6 +173,11 @@ func main() {
 	e.GET("/health", func(c echo.Context) error {
 		return c.String(http.StatusOK, "OK")
 	})
+
+	if baseConfig.Kiosk.EnableURLBuilder {
+		e.GET("/url-builder", routes.URLBuilderPage(baseConfig, c))
+		e.POST("/url-builder/build", routes.BuildURL(baseConfig))
+	}
 
 	e.GET("/about", routes.About(baseConfig))
 
