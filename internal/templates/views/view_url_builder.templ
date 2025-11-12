@@ -168,13 +168,13 @@ templ URLBuilderHelpText(text string) {
 	</div>
 }
 
-templ URLBuilderMultiSelectBase(ID, displayName, formName, helpText string) {
+templ URLBuilderMultiSelectBase(elementID, displayName, formName, helpText string) {
 	<div class="form-group">
-		<label for={ ID }>{ displayName }</label>
+		<label for={ elementID }>{ displayName }</label>
 		@URLBuilderHelpText(helpText)
 		<select
 			name={ formName }
-			id={ ID }
+			id={ elementID }
 			multiple
 		>
 			{ children... }
@@ -183,19 +183,19 @@ templ URLBuilderMultiSelectBase(ID, displayName, formName, helpText string) {
 }
 
 templ URLBuilderMultiSelect(displayName, formName, helpText string) {
-	{{ ID := "url-builder-" + formName }}
-	@URLBuilderMultiSelectBase(ID, displayName, formName, helpText) {
+	{{ elementID := "url-builder-" + formName }}
+	@URLBuilderMultiSelectBase(elementID, displayName, formName, helpText) {
 		{ children... }
 	}
-	@templ.JSFuncCall("urlBuilder.initMultiselect", ID, displayName)
+	@templ.JSFuncCall("urlBuilder.initMultiselect", elementID, displayName)
 }
 
 templ URLBuilderMultiSelectWithOptions(displayName, formName, helpText string, options ChoicesOptions) {
-	{{ ID := "url-builder-" + formName }}
-	@URLBuilderMultiSelectBase(ID, displayName, formName, helpText) {
+	{{ elementID := "url-builder-" + formName }}
+	@URLBuilderMultiSelectBase(elementID, displayName, formName, helpText) {
 		{ children... }
 	}
-	@templ.JSFuncCall("urlBuilder.initMultiselect", ID, displayName, options)
+	@templ.JSFuncCall("urlBuilder.initMultiselect", elementID, displayName, options)
 }
 
 templ URLBuilderRadio(displayName string, formName string, helpText string, keyvals ...string) {
@@ -228,11 +228,12 @@ templ URLBuilderRadio(displayName string, formName string, helpText string, keyv
 
 templ URLBuilderText(displayName, formName, helpText, defaultValue string) {
 	<div class="form-group">
-		<legend>{ displayName }</legend>
+		{{ elementID := "url-builder-" + formName }}
+		<label for={ elementID }>{ displayName }</label>
 		@URLBuilderHelpText(helpText)
 		<input
 			type="text"
-			id={ formName }
+			id={ elementID }
 			name={ formName }
 			placeholder={ defaultValue }
 			value=""
@@ -242,14 +243,15 @@ templ URLBuilderText(displayName, formName, helpText, defaultValue string) {
 
 templ URLBuilderSelect(displayName string, formName string, helpText string, keyvals ...string) {
 	<div class="form-group">
-		<label for={ formName }>{ displayName }</label>
+		{{ elementID := "url-builder-" + formName }}
+		<label for={ elementID }>{ displayName }</label>
 		@URLBuilderHelpText(helpText)
 		{{
 			kvs := make([]string, 0, len(keyvals)+2)
 			kvs = append(kvs, "default", "")
 			kvs = append(kvs, keyvals...)
 		}}
-		<select id={ formName } name={ formName }>
+		<select id={ elementID } name={ formName }>
 			for i:=0; i<len(kvs); i+=2 {
 				<option
 					value={ kvs[i+1] }
