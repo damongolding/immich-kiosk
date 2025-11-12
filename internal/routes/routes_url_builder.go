@@ -68,13 +68,12 @@ func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 
 		kioskURL.RawQuery = queries.Encode()
 
-		s := kioskURL.String()
-		if len(s) > maxURLLength {
-			s = s[:maxURLLength]
+		renderURL := kioskURL.String()
+		if len(renderURL) > maxURLLength {
+			renderURL = renderURL[:maxURLLength]
 		}
-		s = url.QueryEscape(s)
 
-		return Render(c, http.StatusOK, partials.UrlResult(kioskURL.String()))
+		return Render(c, http.StatusOK, partials.UrlResult(renderURL))
 	}
 }
 
