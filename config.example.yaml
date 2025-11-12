@@ -32,9 +32,9 @@ albums:
   - "ALBUM_ID"
 # display album videos
 album_video: false
+album_order: random # random | newest | oldest
 # Album IDs to exclude from being shown. Albums in this list will be filtered from
 # appearing in the frame even if they are included in the 'album' list.
-album_order: random # random | newest | oldest
 excluded_albums:
   - "ALBUM_ID"
 

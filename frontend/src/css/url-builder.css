@@ -15,15 +15,12 @@ body#url-builder {
     background-color: white;
     padding: 1.5rem;
     z-index: var(--z-base);
-}
+    width: 50%;
+    border-radius: 0.5rem;
 
-.content:nth-child(1) {
-    border-radius: 0.5rem 0.5rem 0.25rem 0.25rem;
-}
-
-.content:nth-child(2) {
-    margin-top: 0.25rem;
-    border-radius: 0.25rem 0.25rem 0.5rem 0.5rem;
+    @media screen and (max-width: 60rem) {
+        width: 100%;
+    }
 }
 
 #url-result {
@@ -51,15 +48,24 @@ body#url-builder {
     justify-content: center;
     align-items: center;
     width: 100%;
-    max-width: 45.25rem;
+    max-width: 87.5rem;
     min-height: 100vh;
     z-index: var(--z-base);
+    @media screen and (max-width: 60rem) {
+        max-width: 45.25rem;
+    }
 }
 
 .url-container--form--content {
     width: 100%;
     margin: 0 auto;
     padding: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+
+    @media screen and (max-width: 60rem) {
+        flex-direction: column;
+    }
 }
 
 .url-container--form--content #url-builder-form {
@@ -159,8 +165,9 @@ body#url-builder {
         background-size: 20px;
     }
 
-    /* Number */
-    input[type="number"] {
+    /* Number and Text */
+    input[type="number"],
+    input[type="text"] {
         align-self: flex-start;
         background-color: #fff;
         border: var(--mid-grey) 0.0625rem solid;
@@ -171,9 +178,29 @@ body#url-builder {
         padding: 0.5rem;
     }
 }
+.result--container {
+    position: relative;
+    width: 50%;
+    padding: 0;
+
+    @media screen and (max-width: 60rem) {
+        width: 100%;
+    }
+}
 
 .result {
-    position: relative;
+    position: sticky;
+    top: 1.5rem;
+    background-color: white;
+    padding: 1.5rem;
+    z-index: var(--z-base);
+    width: 100%;
+    border-radius: 0.5rem;
+
+    @media screen and (max-width: 60rem) {
+        position: static;
+    }
+
     &:hover .copy {
         opacity: 1;
     }
@@ -212,4 +239,11 @@ body#url-builder {
             fill: #fff;
         }
     }
+}
+
+hr {
+    border: none;
+    width: 100%;
+    height: 2px;
+    background-color: var(--light-grey);
 }

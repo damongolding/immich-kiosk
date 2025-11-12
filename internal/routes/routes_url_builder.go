@@ -17,6 +17,8 @@ import (
 )
 
 func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
+	const maxURLLength = 2048
+
 	return func(c echo.Context) error {
 		kioskHost := c.Request().Header.Get("X-Forwarded-Host")
 		if kioskHost == "" {
@@ -66,11 +68,17 @@ func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 
 		kioskURL.RawQuery = queries.Encode()
 
+		s := kioskURL.String()
+		if len(s) > maxURLLength {
+			s = s[:maxURLLength]
+		}
+		s = url.QueryEscape(s)
+
 		return Render(c, http.StatusOK, partials.UrlResult(kioskURL.String()))
 	}
 }
 
-func URLBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+func URLBuilderPage(baseConfig *config.Config, com *common.Common, extended bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -124,6 +132,6 @@ func URLBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerF
 			Tags:   tags,
 		}
 
-		return Render(c, http.StatusOK, views.URLBuilder(viewData, urlData))
+		return Render(c, http.StatusOK, views.URLBuilder(viewData, urlData, extended))
 	}
 }
