@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
 args_bin = []
 bin = "./dist/kiosk"
-full_bin = "KIOSK_DEBUG=true ./dist/kiosk"
+full_bin = "KIOSK_LOG_LEVEL=debug ./dist/kiosk"
 cmd = "task build"
 delay = 1000
 exclude_dir = [

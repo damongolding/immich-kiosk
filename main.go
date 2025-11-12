@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -50,9 +51,23 @@ func init() {
 // main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
 func main() {
 
-	fmt.Println(kioskBanner)
+	var logLevel log.Level
+	setLogLevel(&logLevel)
+	log.SetLevel(logLevel)
+
+	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {
+		fmt.Println(kioskBanner)
+	} else {
+		log.Info(kioskBanner)
+	}
+
 	versionStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#5af78e")).Render
-	fmt.Print("Version ", versionStyle(version), "\n\n")
+	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {
+		fmt.Print("Version ", versionStyle(version), "\n\n")
+	} else {
+		log.Info("Version", "v", version)
+		fmt.Println()
+	}
 
 	log.SetTimeFormat("15:04:05")
 
@@ -63,7 +78,7 @@ func main() {
 
 	systemLang := monday.Locale(utils.SystemLanguage())
 	baseConfig.SystemLang = systemLang
-	log.Infof("System language set as %s", systemLang)
+	log.Info("System language", "lang", systemLang)
 
 	configErr := baseConfig.Load()
 	if configErr != nil {
@@ -89,22 +104,21 @@ func main() {
 	routes.VideoManager = videoManager
 
 	if baseConfig.Kiosk.WatchConfig {
-		log.Infof("Watching %s for changes", baseConfig.V.ConfigFileUsed())
+		log.Info("Watching config for changes", "file", baseConfig.V.ConfigFileUsed())
 		baseConfig.WatchConfig(c.Context())
 	}
 
 	if baseConfig.Kiosk.Debug {
-
 		log.SetLevel(log.DebugLevel)
 		if baseConfig.Kiosk.DebugVerbose {
 			log.Debug("DEBUG VERBOSE mode on")
 		} else {
 			log.Debug("DEBUG mode on")
 		}
-
-		zone, _ := time.Now().Zone()
-		log.Debug("🕐", "current_time", time.Now().Format(time.Kitchen), "current_zone", zone)
 	}
+
+	zone, _ := time.Now().Zone()
+	log.Debug("🕐", "current_time", time.Now().Format(time.Kitchen), "current_zone", zone)
 
 	e := echo.New()
 	e.HideBanner = true
@@ -229,7 +243,13 @@ func main() {
 		}
 	}
 
-	fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))
+	if logLevel != log.InfoLevel {
+		fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))
+	} else {
+		fmt.Println("")
+		log.Infof("Kiosk listening on port %s", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))
+		fmt.Println("")
+	}
 
 	go func() {
 		startErr := e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
@@ -243,14 +263,38 @@ func main() {
 	video.Delete()
 
 	fmt.Println("")
-	log.Info("Kiosk shutting down")
-	fmt.Println("")
+	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {
+		fmt.Println("Kiosk shutting down")
+	} else {
+		log.Info("Kiosk shutting down")
+		fmt.Println("")
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if shutdownErr := e.Shutdown(ctx); shutdownErr != nil {
 		log.Error(shutdownErr)
+	}
+}
+
+func setLogLevel(logLevel *log.Level) {
+	logLevelStr := os.Getenv("KIOSK_LOG_LEVEL")
+	switch logLevelStr {
+	case "debug":
+		*logLevel = log.DebugLevel
+		os.Setenv("KIOSK_DEBUG", "true")
+	case "verbose":
+		*logLevel = log.DebugLevel
+		os.Setenv("KIOSK_DEBUG_VERBOSE", "true")
+	case "info":
+		*logLevel = log.InfoLevel
+	case "warn":
+		*logLevel = log.WarnLevel
+	case "error":
+		*logLevel = log.ErrorLevel
+	default:
+		*logLevel = log.ErrorLevel
 	}
 }
 

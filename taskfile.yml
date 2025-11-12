@@ -14,7 +14,7 @@ includes:
 tasks:
   # Development tasks
   default:
-    desc: Run kiosk in debug mode
+    desc: Run kiosk
     deps: [build]
     cmds:
       - ./dist/kiosk
