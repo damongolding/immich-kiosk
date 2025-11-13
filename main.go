@@ -280,7 +280,7 @@ func main() {
 
 func setLogLevel(logLevel *log.Level) {
 	logLevelStr := os.Getenv("KIOSK_LOG_LEVEL")
-	switch logLevelStr {
+	switch strings.ToLower(logLevelStr) {
 	case "debug":
 		*logLevel = log.DebugLevel
 		os.Setenv("KIOSK_DEBUG", "true")
@@ -289,7 +289,7 @@ func setLogLevel(logLevel *log.Level) {
 		os.Setenv("KIOSK_DEBUG_VERBOSE", "true")
 	case "info":
 		*logLevel = log.InfoLevel
-	case "warn":
+	case "warn", "warning":
 		*logLevel = log.WarnLevel
 	case "error":
 		*logLevel = log.ErrorLevel
