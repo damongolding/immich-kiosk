@@ -57,6 +57,7 @@ memories: false # show memories
 # date_filter: last-30-days # only applies to people and random assets
 
 ## UI
+show_progress_bar: false # display a progress bar
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
 frameless: false # remove border around image and rounded corners.
 frame_padding: 0 # padding (px) around the edge of Kiosk; accepts integer or array [top, right, bottom, left]
@@ -79,7 +80,6 @@ fade_transition_duration: 1 # in seconds
 cross_fade_transition_duration: 1 # in seconds
 
 ## Image display settings
-show_progress_bar: false # display a progress bar
 image_fit: contain # none | contain | cover
 image_effect: none # none | zoom | smart-zoom
 image_effect_amount: 120

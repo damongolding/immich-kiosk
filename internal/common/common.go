@@ -110,12 +110,6 @@ type ViewImageDataOptions struct {
 	RelativeAssetWanted   bool
 }
 
-type URLViewData struct {
-	People []immich.Person
-	Albums []immich.Album
-	Tags   []immich.Tag
-}
-
 // ContextCopy stores a copy of key HTTP context information including URL and headers
 type ContextCopy struct {
 	RequestHeader  http.Header // Headers from the incoming request
@@ -137,9 +131,16 @@ func CopyContext(c echo.Context) ContextCopy {
 	return ctxCopy
 }
 
+type URLViewData struct {
+	People []immich.Person
+	Albums []immich.Album
+	Tags   []immich.Tag
+}
+
 type URLBuilderRequest struct {
 	// Duration
-	Duration *uint64 `form:"duration" url:"duration,omitempty"`
+	Duration       *uint64 `form:"duration" url:"duration,omitempty"`
+	OptimizeImages *bool   `form:"optimize_images" url:"optimize_images,omitempty"`
 
 	// Buckets
 	People           []string `form:"people" url:"person,omitempty"`

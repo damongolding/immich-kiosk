@@ -31,7 +31,7 @@ templ URLBuilder(viewData common.ViewData, urlData common.URLViewData, extended 
 }
 
 templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
-	<section class="url-container--form">
+	<section class={ "url-container--form", templ.KV("extended", extended) }>
 		<div class="url-container--form--content">
 			<div class="content">
 				<h1>URL Builder</h1>
@@ -47,10 +47,12 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					}) }
 					}
 				>
-					// Duration
+					// Behaviour
+					<h2>Behaviour</h2>
 					@URLBuilderNumber("Duration", "duration", "The amount of time in seconds an asset will be displayed for", 0, 0, strconv.FormatInt(int64(c.Duration), 10))
-					<hr/>
+					@URLBuilderRadio("Optimize", "optimize_images", "Scale images to fit the screen.", "true", "true", "false", "false")
 					// Buckets
+					<h2>Buckets</h2>
 					@URLBuilderMultiSelect("People", "people", "Person or people you want to display.") {
 						for _, p := range d.People {
 							<option value={ p.ID }>{ p.Name }</option>
@@ -73,8 +75,8 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						}
 					}
 					@URLBuilderRadio("Show memories", "memories", "", "true", "true", "false", "false")
-					<hr/>
 					// Clock
+					<h2>Clock</h2>
 					@URLBuilderRadio("Show time", "show_time", "", "true", "true", "false", "false")
 					if extended {
 						@URLBuilderRadio("Time format", "time_format", "", "24 hour", "24", "12 hour", "12")
@@ -84,30 +86,28 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						@URLBuilderText("Date format", "date_format", "", c.DateFormat)
 						@URLBuilderRadio("Clock source", "clock_source", "", "Client", "client", "Server", "server")
 					}
-					<hr/>
 					// UI
+					<h2>User Interface</h2>
+					@URLBuilderRadio("Show Progress Bar", "show_progress_bar", "Show a progress bar indicating how much time is left for the current image(s).", "true", "true", "false", "false")
 					if extended {
+						@URLBuilderRadio("Progress Bar Position", "progress_bar_position", "", "top", "top", "bottom", "bottom")
 						@URLBuilderRadio("Hide cursor", "hide_cursor", "", "true", "true", "false", "false")
 						@URLBuilderNumber("Font size", "font_size", "", 100, 0, strconv.FormatInt(int64(c.FontSize), 10))
 					}
 					@URLBuilderSelect("Theme", "theme", "Theme to use for the UI", "fade", "fade", "solid", "solid", "bubble", "bubble")
 					@URLBuilderSelect("Layout", "layout", "How images are arranged on the screen", "single", "single", "portrait", "portrait", "landscape", "landscape", "splitview", "splitview", "splitview-landscape", "splitview-landscape")
-					<hr/>
+					<h2>Transitions</h2>
 					// Transition
 					@URLBuilderSelect("Transition", "transition", "Transition to use when changing images", "none", "none", "fade", "fade", "cross-fade", "cross-fade")
-					<hr/>
-					// UI
-					@URLBuilderRadio("Show Progress Bar", "show_progress_bar", "Show a progress bar indicating how much time is left for the current image(s).", "true", "true", "false", "false")
 					if extended {
-						@URLBuilderRadio("Progress Bar Position", "progress_bar_position", "", "top", "top", "bottom", "bottom")
+						// Image Display
+						<h2>Image Display</h2>
 						@URLBuilderRadio("Image fit", "image_fit", "", "none", "none", "contain", "contain", "cover", "cover")
 						@URLBuilderRadio("Image effect", "image_effect", "", "none", "none", "zoom", "zoom", "smart-zoom", "smart-zoom")
 						@URLBuilderNumber("Image effect amount", "image_effect_amount", "", 100, 0, strconv.FormatInt(int64(c.ImageEffectAmount), 10))
 						@URLBuilderRadio("Use original image", "use_original_image", "", "true", "true", "false", "false")
-					}
-					if extended {
-						<hr/>
 						// Metadata
+						<h2>Metadata</h2>
 						@URLBuilderRadio("Show owner", "show_owner", "Show the owner of the asset.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show album name", "show_album_name", "Display album name(s) that the asset appears in.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show person name", "show_person_name", "Display person name(s).", "true", "true", "false", "false")
@@ -119,11 +119,13 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						@URLBuilderRadio("Show image description", "show_image_description", "Show the description of the image.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show image EXIF", "show_image_exif", "Show EXIF metadata for the image.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show image location", "show_image_location", "Show the location where the image was taken.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show image QR", "show_image_qr", "Show a QR code for the image.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show image ID", "show_image_id", "Display the unique ID of the image.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show more info", "show_more_info", "Display additional information about the image.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show more info image link", "show_more_info_image_link", "Display a link to the image in the more info section.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show more info QR code", "show_more_info_qr_code", "Display a QR code in the more info section.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show image QR", "show_image_qr", "Display a QR code linking to the original image (in Immich).", "true", "true", "false", "false")
+						@URLBuilderRadio("Show image ID", "show_image_id", "Display the Immich ID of the image.", "true", "true", "false", "false")
+						// More information
+						<h2>More Information Overlay</h2>
+						@URLBuilderRadio("Show more info", "show_more_info", "Enable the more information overlay.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show more info image link", "show_more_info_image_link", "Display a link to the image in the more info overlay.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show more info QR code", "show_more_info_qr_code", "Display a QR code in the more info overlay.", "true", "true", "false", "false")
 					}
 				</form>
 			</div>
