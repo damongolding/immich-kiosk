@@ -243,11 +243,11 @@ func main() {
 		}
 	}
 
-	if logLevel != log.InfoLevel {
+	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {
 		fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))
 	} else {
 		fmt.Println("")
-		log.Infof("Kiosk listening on port %s", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))
+		log.Info("Kiosk listening on", "port", baseConfig.Kiosk.Port)
 		fmt.Println("")
 	}
 
