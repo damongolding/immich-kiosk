@@ -294,7 +294,7 @@ func setLogLevel(logLevel *log.Level) {
 	case "error":
 		*logLevel = log.ErrorLevel
 	default:
-		*logLevel = log.ErrorLevel
+		*logLevel = log.WarnLevel
 	}
 }
 
