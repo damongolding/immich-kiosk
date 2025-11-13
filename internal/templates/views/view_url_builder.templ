@@ -74,25 +74,25 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 							<option value={ t.ID }>{ t.Name }</option>
 						}
 					}
-					@URLBuilderRadio("Show memories", "memories", "", "true", "true", "false", "false")
+					@URLBuilderRadio("Memories", "memories", "Display memories.", "true", "true", "false", "false")
 					// Clock
 					<h2>Clock</h2>
-					@URLBuilderRadio("Show time", "show_time", "", "true", "true", "false", "false")
+					@URLBuilderRadio("Show time", "show_time", "Display the current time.", "true", "true", "false", "false")
 					if extended {
-						@URLBuilderRadio("Time format", "time_format", "", "24 hour", "24", "12 hour", "12")
+						@URLBuilderRadio("Time format", "time_format", "The format in which the time will be displayed.", "24 hour", "24", "12 hour", "12")
 					}
-					@URLBuilderRadio("Show date", "show_date", "", "true", "true", "false", "false")
+					@URLBuilderRadio("Show date", "show_date", "Display the current date.", "true", "true", "false", "false")
 					if extended {
-						@URLBuilderText("Date format", "date_format", "", c.DateFormat)
-						@URLBuilderRadio("Clock source", "clock_source", "", "Client", "client", "Server", "server")
+						@URLBuilderText("Date format", "date_format", "The format in which the date will be displayed.", c.DateFormat)
+						@URLBuilderRadio("Clock source", "clock_source", "The source of the clock.", "Client", "client", "Server", "server")
 					}
 					// UI
 					<h2>User Interface</h2>
-					@URLBuilderRadio("Show Progress Bar", "show_progress_bar", "Show a progress bar indicating how much time is left for the current image(s).", "true", "true", "false", "false")
+					@URLBuilderRadio("Show Progress Bar", "show_progress_bar", "Show a progress bar indicating the time remaining for the current asset.", "true", "true", "false", "false")
 					if extended {
-						@URLBuilderRadio("Progress Bar Position", "progress_bar_position", "", "top", "top", "bottom", "bottom")
+						@URLBuilderRadio("Progress Bar Position", "progress_bar_position", "Set the position of the progress bar.", "top", "top", "bottom", "bottom")
 						@URLBuilderRadio("Hide cursor", "hide_cursor", "", "true", "true", "false", "false")
-						@URLBuilderNumber("Font size", "font_size", "", 100, 0, strconv.FormatInt(int64(c.FontSize), 10))
+						@URLBuilderNumber("Font size", "font_size", "The base font size for Kiosk. Default is 100% (16px).", 100, 0, strconv.FormatInt(int64(c.FontSize), 10))
 					}
 					@URLBuilderSelect("Theme", "theme", "Theme to use for the UI", "fade", "fade", "solid", "solid", "bubble", "bubble")
 					@URLBuilderSelect("Layout", "layout", "How images are arranged on the screen", "single", "single", "portrait", "portrait", "landscape", "landscape", "splitview", "splitview", "splitview-landscape", "splitview-landscape")
@@ -100,12 +100,12 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					// Transition
 					@URLBuilderSelect("Transition", "transition", "Transition to use when changing images", "none", "none", "fade", "fade", "cross-fade", "cross-fade")
 					if extended {
-						// Image Display
-						<h2>Image Display</h2>
-						@URLBuilderRadio("Image fit", "image_fit", "", "none", "none", "contain", "contain", "cover", "cover")
-						@URLBuilderRadio("Image effect", "image_effect", "", "none", "none", "zoom", "zoom", "smart-zoom", "smart-zoom")
-						@URLBuilderNumber("Image effect amount", "image_effect_amount", "", 100, 0, strconv.FormatInt(int64(c.ImageEffectAmount), 10))
-						@URLBuilderRadio("Use original image", "use_original_image", "", "true", "true", "false", "false")
+						// Image Display Options
+						<h2>Image Display Options</h2>
+						@URLBuilderRadio("Image fit", "image_fit", "How the image will fit on your screen.", "none", "none", "contain", "contain", "cover", "cover")
+						@URLBuilderRadio("Image effect", "image_effect", "Add an effect to images.", "none", "none", "zoom", "zoom", "smart-zoom", "smart-zoom")
+						@URLBuilderNumber("Image effect amount", "image_effect_amount", "Set the intensity of the image effect.", 100, 0, strconv.FormatInt(int64(c.ImageEffectAmount), 10))
+						@URLBuilderRadio("Use original image", "use_original_image", "Use the original image instead of the Immich optimized version.", "true", "true", "false", "false")
 						// Metadata
 						<h2>Metadata</h2>
 						@URLBuilderRadio("Show owner", "show_owner", "Show the owner of the asset.", "true", "true", "false", "false")
