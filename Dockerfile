@@ -14,7 +14,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-l
 # Frontend Build
 FROM frontend-base AS frontend-build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm css && pnpm js
+RUN pnpm css && pnpm js && pnpm url-builder
 
 # Go Builder
 FROM --platform=$BUILDPLATFORM golang:1.25.4-alpine AS build

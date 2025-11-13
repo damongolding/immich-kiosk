@@ -63,7 +63,7 @@ func initialise() error {
 		return err
 	}
 
-	log.Info("created video tmp dir at", "path", customTempVideoDir)
+	log.Info("created video tmp dir", "path", customTempVideoDir)
 
 	return nil
 }

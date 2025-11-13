@@ -39,7 +39,7 @@
 - [Demo](http://demo.immichkiosk.app)
 
 ## What is Immich Kiosk?
-Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses [Immich][immich-github-url] as a data source.
+Highly configurable slideshows for displaying [Immich][immich-github-url] assets on browsers and devices.
 
 > [!IMPORTANT]
 > **This project is not affiliated with [Immich][immich-github-url]**
