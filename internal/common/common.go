@@ -145,10 +145,13 @@ type URLBuilderRequest struct {
 	// Buckets
 	People           []string `form:"people" url:"person,omitempty"`
 	RequireAllPeople *bool    `form:"require_all_people" url:"require_all_people,omitempty"`
+	ExcludedPeople   []string `form:"excluded_people" url:"excluded_person,omitempty"`
 	Albums           []string `form:"album" url:"album,omitempty"`
 	AlbumVideo       *bool    `form:"album_video" url:"album_video,omitempty"`
 	AlbumOrder       *string  `form:"album_order" url:"album_order,omitempty"`
+	ExcludedAlbums   []string `form:"excluded_albums" url:"excluded_album,omitempty"`
 	Tags             []string `form:"tag" url:"tag,omitempty"`
+	ExcludedTags     []string `form:"excluded_tags" url:"excluded_tag,omitempty"`
 	ShowMemories     *bool    `form:"memories" url:"memories,omitempty"`
 
 	// Clock
@@ -178,20 +181,24 @@ type URLBuilderRequest struct {
 	UseOriginalImage  *bool   `form:"use_original_image" url:"use_original_image,omitempty"`
 
 	// Metadata
-	ShowOwner             *bool   `form:"show_owner" url:"show_owner,omitempty"`
-	ShowAlbumName         *bool   `form:"show_album_name" url:"show_album_name,omitempty"`
-	ShowPersonName        *bool   `form:"show_person_name" url:"show_person_name,omitempty"`
-	ShowPersonAge         *bool   `form:"show_person_age" url:"show_person_age,omitempty"`
-	ShowImageTime         *bool   `form:"show_image_time" url:"show_image_time,omitempty"`
-	ImageTimeFormat       *string `form:"image_time_format" url:"image_time_format,omitempty"`
-	ShowImageDate         *bool   `form:"show_image_date" url:"show_image_date,omitempty"`
-	ImageDateFormat       *string `form:"image_date_format" url:"image_date_format,omitempty"`
-	ShowImageDescription  *bool   `form:"show_image_description" url:"show_image_description,omitempty"`
-	ShowImageEXIF         *bool   `form:"show_image_exif" url:"show_image_exif,omitempty"`
-	ShowImageLocation     *bool   `form:"show_image_location" url:"show_image_location,omitempty"`
-	ShowImageQR           *bool   `form:"show_image_qr" url:"show_image_qr,omitempty"`
-	ShowImageID           *bool   `form:"show_image_id" url:"show_image_id,omitempty"`
-	ShowMoreInfo          *bool   `form:"show_more_info" url:"show_more_info,omitempty"`
-	ShowMoreInfoImageLink *bool   `form:"show_more_info_image_link" url:"show_more_info_image_link,omitempty"`
-	ShowMoreInfoQRCode    *bool   `form:"show_more_info_qr_code" url:"show_more_info_qr_code,omitempty"`
+	ShowOwner            *bool   `form:"show_owner" url:"show_owner,omitempty"`
+	ShowAlbumName        *bool   `form:"show_album_name" url:"show_album_name,omitempty"`
+	ShowPersonName       *bool   `form:"show_person_name" url:"show_person_name,omitempty"`
+	ShowPersonAge        *bool   `form:"show_person_age" url:"show_person_age,omitempty"`
+	ShowImageTime        *bool   `form:"show_image_time" url:"show_image_time,omitempty"`
+	ImageTimeFormat      *string `form:"image_time_format" url:"image_time_format,omitempty"`
+	ShowImageDate        *bool   `form:"show_image_date" url:"show_image_date,omitempty"`
+	ImageDateFormat      *string `form:"image_date_format" url:"image_date_format,omitempty"`
+	ShowImageDescription *bool   `form:"show_image_description" url:"show_image_description,omitempty"`
+	ShowImageEXIF        *bool   `form:"show_image_exif" url:"show_image_exif,omitempty"`
+	ShowImageLocation    *bool   `form:"show_image_location" url:"show_image_location,omitempty"`
+	ShowImageQR          *bool   `form:"show_image_qr" url:"show_image_qr,omitempty"`
+	ShowImageID          *bool   `form:"show_image_id" url:"show_image_id,omitempty"`
+
+	// Show more overlay
+	ShowMoreInfo          *bool    `form:"show_more_info" url:"show_more_info,omitempty"`
+	ShowMoreInfoImageLink *bool    `form:"show_more_info_image_link" url:"show_more_info_image_link,omitempty"`
+	ShowMoreInfoQRCode    *bool    `form:"show_more_info_qr_code" url:"show_more_info_qr_code,omitempty"`
+	LikeButtonAction      []string `form:"like_button_action" url:"like_button_action,omitempty"`
+	HideButtonAction      []string `form:"hide_button_action" url:"hide_button_action,omitempty"`
 }

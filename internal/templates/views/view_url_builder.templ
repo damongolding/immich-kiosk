@@ -59,9 +59,23 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						}
 					}
 					@URLBuilderRadio("Require all people", "require_all_people", "Only show images where all selected people appear together.", "true", "true", "false", "false")
+					if extended {
+						@URLBuilderMultiSelect("Excluded people", "excluded_people", "Person or people you want to exclude.") {
+							for _, p := range d.People {
+								<option value={ p.ID }>{ p.Name }</option>
+							}
+						}
+					}
 					@URLBuilderMultiSelect("Albums", "album", "Album or albums you want to display") {
 						for _, a := range d.Albums {
 							<option value={ a.ID }>{ a.AlbumName }</option>
+						}
+					}
+					if extended {
+						@URLBuilderMultiSelect("Excluded albums", "excluded_albums", "Album or albums you want to exclude") {
+							for _, a := range d.Albums {
+								<option value={ a.ID }>{ a.AlbumName }</option>
+							}
 						}
 					}
 					@URLBuilderRadio("Album video", "album_video", "Display album videos.", "true", "true", "false", "false")
@@ -74,7 +88,20 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 							<option value={ t.ID }>{ t.Name }</option>
 						}
 					}
+					if extended {
+						@URLBuilderMultiSelect("Excluded tags", "excluded_tags", "Tag or tags you want to exclude") {
+							for _, t := range d.Tags {
+								if strings.EqualFold(t.Name, kiosk.TagSkip) || strings.EqualFold(t.Value, kiosk.TagSkip) {
+									{{ continue }}
+								}
+								<option value={ t.ID }>{ t.Name }</option>
+							}
+						}
+					}
 					@URLBuilderRadio("Memories", "memories", "Display memories.", "true", "true", "false", "false")
+					if extended {
+						@URLBuilderRadio("Include Archived", "show_archived", "Allow assets marked as archived to be displayed.", "true", "true", "false", "false")
+					}
 					// Clock
 					<h2>Clock</h2>
 					@URLBuilderRadio("Show time", "show_time", "Display the current time.", "true", "true", "false", "false")
@@ -126,6 +153,14 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						@URLBuilderRadio("Show more info", "show_more_info", "Enable the more information overlay.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show more info image link", "show_more_info_image_link", "Display a link to the image in the more info overlay.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show more info QR code", "show_more_info_qr_code", "Display a QR code in the more info overlay.", "true", "true", "false", "false")
+						@URLBuilderMultiSelect("Like button action", "like_button_action", "Action(s) to perform when the like button is clicked.") {
+							<option value="favorite">Favorite</option>
+							<option value="album">Album</option>
+						}
+						@URLBuilderMultiSelect("Hide button action", "hide_button_action", "Action(s) to perform when the hide button is clicked.") {
+							<option value="tag">Tag</option>
+							<option value="archive">Archive</option>
+						}
 					}
 				</form>
 			</div>
@@ -161,6 +196,7 @@ templ URLBuilderNumber(displayName, formName, helpText string, min int, max int,
 }
 
 templ URLBuilderHelpText(text string) {
+	{{ text = strings.TrimSpace(text) }}
 	<div class="form-group--description">
 		if text != "" && !strings.HasSuffix(text, ".") {
 			{ text }.
