@@ -67,13 +67,15 @@ func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		kioskURL.RawQuery = queries.Encode()
+		formError := ""
 
 		renderURL := kioskURL.String()
 		if len(renderURL) > maxURLLength {
 			renderURL = renderURL[:maxURLLength]
+			formError = "This URL is longer than browsers allow. Kiosk has trimmed it, so some of your selected options may not be applied."
 		}
 
-		return Render(c, http.StatusOK, partials.UrlResult(renderURL))
+		return Render(c, http.StatusOK, partials.UrlResult(renderURL, formError))
 	}
 }
 

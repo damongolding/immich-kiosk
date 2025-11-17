@@ -1,8 +1,12 @@
 package partials
 
-
-templ UrlResult(url string) {
-    <div id="url-result">
-        <a href={templ.SafeURL(url)}>{url}</a>
-    </div>
+templ UrlResult(url string, errMsg string) {
+	<div id="url-result">
+		if errMsg != "" {
+			<div id="url-result--error">{ errMsg }</div>
+		}
+		<div id="url-result--url" class={ templ.KV("with-error", errMsg != "") }>
+			<a href={ templ.SafeURL(url) }>{ url }</a>
+		</div>
+	</div>
 }
