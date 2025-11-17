@@ -88,3 +88,58 @@ func TestTrimHistory(t *testing.T) {
 		})
 	}
 }
+
+func TestTruncateURLQueries(t *testing.T) {
+	tests := []struct {
+		name      string
+		rawURL    string
+		maxLength int
+		want      string
+	}{
+		{
+			name:      "No query string",
+			rawURL:    "https://example.com/path",
+			maxLength: 50,
+			want:      "https://example.com/path",
+		},
+		{
+			name:      "Base exceeds maxLength",
+			rawURL:    "https://example.com/this/is/a/very/long/path",
+			maxLength: 20,
+			want:      "https://example.com/this/is/a/very/long/path",
+		},
+		{
+			name:      "Single query fits",
+			rawURL:    "https://example.com/path?a=1",
+			maxLength: 50,
+			want:      "https://example.com/path?a=1",
+		},
+		{
+			name:      "Truncate after first query",
+			rawURL:    "https://example.com/path?a=1&b=2&c=3",
+			maxLength: len("https://example.com/path?a=1"),
+			want:      "https://example.com/path?a=1",
+		},
+		{
+			name:      "Include first two queries but not third",
+			rawURL:    "https://example.com/path?a=1&b=2&c=3",
+			maxLength: len("https://example.com/path?a=1&b=2"),
+			want:      "https://example.com/path?a=1&b=2",
+		},
+		{
+			name:      "Exactly full length allowed",
+			rawURL:    "https://example.com/path?a=1&b=2",
+			maxLength: len("https://example.com/path?a=1&b=2"),
+			want:      "https://example.com/path?a=1&b=2",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := truncateURLQueries(tt.rawURL, tt.maxLength)
+			if got != tt.want {
+				t.Errorf("truncateURLQueries() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}

@@ -79,21 +79,31 @@ func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 	}
 }
 
-func truncateURLQueries(url string, maxLength int) string {
-	q := strings.Split(url, "&")
-	if len(q) == 0 {
-		return url
+func truncateURLQueries(rawURL string, maxLength int) string {
+	parts := strings.SplitN(rawURL, "?", 2)
+	if len(parts) < 2 {
+		return rawURL
 	}
 
-	t := q[0]
-	for _, q := range q[1:] {
-		if len(t)+len(q)+1 > maxLength {
+	base := parts[0]
+	queryString := parts[1]
+
+	if len(base) >= maxLength {
+		return base
+	}
+
+	params := strings.Split(queryString, "&")
+	result := base + "?" + params[0]
+
+	for _, param := range params[1:] {
+		candidate := result + "&" + param
+		if len(candidate) > maxLength {
 			break
 		}
-		t += "&" + q
+		result = candidate
 	}
 
-	return t
+	return result
 }
 
 func URLBuilderPage(baseConfig *config.Config, com *common.Common, extended bool) echo.HandlerFunc {
