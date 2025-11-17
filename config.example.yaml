@@ -141,6 +141,9 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 kiosk:
   port: 3000
   behind_proxy: false
+  disable_url_queries: false
+  disable_config_endpoint: false
+  enable_url_builder: false
   watch_config: false
   fetched_assets_size: 1000
   http_timeout: 20
