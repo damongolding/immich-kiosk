@@ -260,6 +260,26 @@ body#url-builder {
     }
 }
 
+.extended-link {
+    font-family: "Barlow", Arial, Helvetica, sans-serif;
+    background-color: var(--mint-green);
+    outline: none;
+    border: none;
+    color: var(--cool-grey);
+    font-weight: 600;
+    border-radius: 0.4rem;
+    padding: 0.5rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: filter 0.2s ease;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    &:hover {
+        filter: brightness(85%);
+    }
+}
+
 /*.extended {
     h2 {
         margin-top: 2rem;

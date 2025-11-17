@@ -35,6 +35,11 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 		<div class="url-container--form--content">
 			<div class="content">
 				<h1>URL Builder</h1>
+				if !extended {
+					<a href="/url-builder/extended" class="extended-link">View extended options</a>
+				} else {
+					<a href="/url-builder" class="extended-link">View basic options</a>
+				}
 				<form
 					id="url-builder-form"
 					hx-post="/url-builder/build"
