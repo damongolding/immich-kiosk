@@ -71,12 +71,29 @@ func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 
 		renderURL := kioskURL.String()
 		if len(renderURL) > maxURLLength {
-			renderURL = renderURL[:maxURLLength]
+			renderURL = truncateURLQueries(renderURL, maxURLLength)
 			formError = "This URL is longer than browsers allow. Kiosk has trimmed it, so some of your selected options may not be applied."
 		}
 
 		return Render(c, http.StatusOK, partials.UrlResult(renderURL, formError))
 	}
+}
+
+func truncateURLQueries(url string, maxLength int) string {
+	q := strings.Split(url, "&")
+	if len(q) == 0 {
+		return url
+	}
+
+	t := q[0]
+	for _, q := range q[1:] {
+		if len(t)+len(q)+1 > maxLength {
+			break
+		}
+		t += "&" + q
+	}
+
+	return t
 }
 
 func URLBuilderPage(baseConfig *config.Config, com *common.Common, extended bool) echo.HandlerFunc {
