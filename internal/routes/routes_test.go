@@ -132,6 +132,18 @@ func TestTruncateURLQueries(t *testing.T) {
 			maxLength: len("https://example.com/path?a=1&b=2"),
 			want:      "https://example.com/path?a=1&b=2",
 		},
+		{
+			name:      "URL with trailing question mark",
+			rawURL:    "https://example.com/path?",
+			maxLength: 50,
+			want:      "https://example.com/path?",
+		},
+		{
+			name:      "URL with empty parameter value",
+			rawURL:    "https://example.com/path?a=&b=2",
+			maxLength: 50,
+			want:      "https://example.com/path?a=&b=2",
+		},
 	}
 
 	for _, tt := range tests {
