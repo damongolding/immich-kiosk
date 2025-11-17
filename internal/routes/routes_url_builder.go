@@ -75,7 +75,7 @@ func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 			formError = "This URL is longer than browsers allow. Kiosk has trimmed it, so some of your selected options may not be applied."
 		}
 
-		return Render(c, http.StatusOK, partials.UrlResult(renderURL, formError))
+		return Render(c, http.StatusOK, partials.URLResult(renderURL, formError))
 	}
 }
 
