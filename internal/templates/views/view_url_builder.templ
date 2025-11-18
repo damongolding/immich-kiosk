@@ -73,10 +73,15 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 							}
 						}
 					}
-					@URLBuilderMultiSelect("Albums", "album", "Album or albums you want to display") {
+					@URLBuilderMultiSelect("Albums", "album", "Album or albums you want to display. Albums with ~ special keyword albums") {
 						for _, a := range d.Albums {
 							<option value={ a.ID }>{ a.AlbumName }</option>
 						}
+						// Special album keywords
+						<option value="all">~ All Albums</option>
+						<option value="owned">~ Owned Albums</option>
+						<option value="shared">~ Shared Albums</option>
+						<option value="favorites">~ Favorites</option>
 					}
 					if extended {
 						@URLBuilderMultiSelect("Excluded albums", "excluded_albums", "Album or albums you want to exclude") {
