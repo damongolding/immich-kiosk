@@ -15,7 +15,7 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-// RandomImage fetches a random image from the Immich API while handling caching and retries.
+// RandomAsset fetches a random image from the Immich API while handling caching and retries.
 //
 // This function performs the following:
 // - Makes an API request to get random images based on configured parameters
@@ -31,7 +31,7 @@ import (
 //
 // Returns an error if no suitable image is found after retries or if there
 // are any issues with API calls, caching, or image processing.
-func (a *Asset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
+func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image", true)
@@ -54,6 +54,7 @@ func (a *Asset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+			WithVideo:  a.requestConfig.ShowVideos,
 		}
 
 		if a.requestConfig.ShowArchived {
@@ -91,6 +92,15 @@ func (a *Asset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
 			return err
 		}
 
+		// Add videos is user wants them
+		if a.requestConfig.ShowVideos {
+			err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
+			if err != nil {
+				_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+				return err
+			}
+		}
+
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
@@ -99,13 +109,18 @@ func (a *Asset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
 			continue
 		}
 
+		wantedAssetType := ImageOnlyAssetTypes
+		if a.requestConfig.ShowVideos {
+			wantedAssetType = AllAssetTypes
+		}
+
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourceRandom
 			asset.requestConfig = a.requestConfig
 			asset.ctx = a.ctx
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 

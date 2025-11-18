@@ -118,7 +118,7 @@ func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
 	for _, person := range allPeople {
 		p := person
 		errGroup.Go(func() error {
-			count, err := a.PersonImageCount(p.ID, requestID, deviceID)
+			count, err := a.PersonAssetCount(p.ID, requestID, deviceID)
 			if err != nil {
 				log.Error(requestID+" Failed to count images for person", "personID", p.ID, "error", err)
 				return err
@@ -137,8 +137,8 @@ func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
 	return int(counts.Load()), nil
 }
 
-// PersonImageCount returns the number of images associated with a specific person in Immich.
-func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
+// PersonAssetCount returns the number of assets associated with a specific person in Immich.
+func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, error) {
 
 	if personID == kiosk.PersonKeywordAll {
 		return a.allPeopleAssetCount(requestID, deviceID)
@@ -174,7 +174,7 @@ func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, err
 	return personStatistics.Assets, err
 }
 
-// RandomImageOfPerson retrieves a random image for a given person from the Immich API.
+// RandomAssetOfPerson retrieves a random asset for a given person from the Immich API.
 // It handles retries, caching, and filtering to find suitable images. The function will make
 // multiple attempts to find a valid image that matches the criteria (not trashed, correct type, etc).
 // If caching is enabled, it will maintain a cache of unused images for future requests.
@@ -189,7 +189,7 @@ func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, err
 //     image is found after MaxRetries attempts or if there are API/parsing failures
 //
 // The function mutates the receiver (i *ImmichAsset) to store the selected image if successful.
-func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
+func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image of", personID)

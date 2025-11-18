@@ -47,7 +47,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		personAssetCount, personCountErr := immichAsset.PersonImageCount(person, requestID, deviceID)
+		personAssetCount, personCountErr := immichAsset.PersonAssetCount(person, requestID, deviceID)
 		if personCountErr != nil {
 			if requestConfig.SelectedUser != "" {
 				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", requestConfig.SelectedUser, person, personCountErr)
@@ -216,7 +216,7 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 			pickedAsset.ID = pickedPersonID
 		}
 
-		return immichAsset.RandomImageOfPerson(pickedAsset.ID, requestID, deviceID, isPrefetch)
+		return immichAsset.RandomAssetOfPerson(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourceMemories:
 		return immichAsset.RandomMemoryAsset(requestID, deviceID)
@@ -228,7 +228,7 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 		fallthrough
 
 	default:
-		return immichAsset.RandomImage(requestID, deviceID, isPrefetch)
+		return immichAsset.RandomAsset(requestID, deviceID, isPrefetch)
 	}
 
 }

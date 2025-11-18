@@ -253,6 +253,7 @@ type SearchRandomBody struct {
 	WithStacked   bool     `url:"withStacked,omitempty" json:"withStacked,omitempty"`
 
 	// Add videos. This is not part of the immich API.
+	// It is used by Kiosk for caching
 	WithVideo bool `url:"withVideo,omitempty" json:"withVideo,omitempty"`
 }
 
