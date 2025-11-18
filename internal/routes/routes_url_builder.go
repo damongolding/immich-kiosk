@@ -17,6 +17,8 @@ import (
 )
 
 func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
+	const maxURLLength = 2048
+
 	return func(c echo.Context) error {
 		kioskHost := c.Request().Header.Get("X-Forwarded-Host")
 		if kioskHost == "" {
@@ -65,12 +67,46 @@ func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		kioskURL.RawQuery = queries.Encode()
+		formError := ""
 
-		return Render(c, http.StatusOK, partials.UrlResult(kioskURL.String()))
+		renderURL := kioskURL.String()
+		if len(renderURL) > maxURLLength {
+			renderURL = truncateURLQueries(renderURL, maxURLLength)
+			formError = "This URL is longer than browsers allow. Kiosk has trimmed it, so some of your selected options may not be applied."
+		}
+
+		return Render(c, http.StatusOK, partials.URLResult(renderURL, formError))
 	}
 }
 
-func URLBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
+func truncateURLQueries(rawURL string, maxLength int) string {
+	parts := strings.SplitN(rawURL, "?", 2)
+	if len(parts) < 2 {
+		return rawURL
+	}
+
+	base := parts[0]
+	queryString := parts[1]
+
+	if len(base) >= maxLength {
+		return base
+	}
+
+	params := strings.Split(queryString, "&")
+	result := base + "?" + params[0]
+
+	for _, param := range params[1:] {
+		candidate := result + "&" + param
+		if len(candidate) > maxLength {
+			break
+		}
+		result = candidate
+	}
+
+	return result
+}
+
+func URLBuilderPage(baseConfig *config.Config, com *common.Common, extended bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
@@ -124,6 +160,6 @@ func URLBuilderPage(baseConfig *config.Config, com *common.Common) echo.HandlerF
 			Tags:   tags,
 		}
 
-		return Render(c, http.StatusOK, views.URLBuilder(viewData, urlData))
+		return Render(c, http.StatusOK, views.URLBuilder(viewData, urlData, extended))
 	}
 }

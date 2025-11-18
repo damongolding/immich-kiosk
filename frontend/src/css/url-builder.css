@@ -15,18 +15,15 @@ body#url-builder {
     background-color: white;
     padding: 1.5rem;
     z-index: var(--z-base);
+    width: 50%;
+    border-radius: 0.5rem;
+
+    @media screen and (max-width: 60rem) {
+        width: 100%;
+    }
 }
 
-.content:nth-child(1) {
-    border-radius: 0.5rem 0.5rem 0.25rem 0.25rem;
-}
-
-.content:nth-child(2) {
-    margin-top: 0.25rem;
-    border-radius: 0.25rem 0.25rem 0.5rem 0.5rem;
-}
-
-#url-result {
+#url-result--url {
     padding: 0.75rem;
 
     background: rgba(51, 51, 51, 0.05);
@@ -38,10 +35,22 @@ body#url-builder {
 
     color: var(--dark-grey);
 
+    &.with-error {
+        border: 2px solid var(--red);
+        color: var(--red);
+    }
+
     a {
         word-wrap: break-word;
         color: var(--blue);
     }
+}
+
+#url-result--error {
+    padding: 0 0 1rem 0;
+    font-weight: 800;
+    color: var(--red);
+    font-size: 1.2rem;
 }
 
 .url-container--form {
@@ -51,15 +60,31 @@ body#url-builder {
     justify-content: center;
     align-items: center;
     width: 100%;
-    max-width: 45.25rem;
+    max-width: 87.5rem;
     min-height: 100vh;
     z-index: var(--z-base);
+    @media screen and (max-width: 60rem) {
+        max-width: 45.25rem;
+    }
+
+    h2 {
+        margin: 2rem 0 0 0;
+        &:first-child {
+            margin-top: 0;
+        }
+    }
 }
 
 .url-container--form--content {
     width: 100%;
     margin: 0 auto;
     padding: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+
+    @media screen and (max-width: 60rem) {
+        flex-direction: column;
+    }
 }
 
 .url-container--form--content #url-builder-form {
@@ -159,8 +184,9 @@ body#url-builder {
         background-size: 20px;
     }
 
-    /* Number */
-    input[type="number"] {
+    /* Number and Text */
+    input[type="number"],
+    input[type="text"] {
         align-self: flex-start;
         background-color: #fff;
         border: var(--mid-grey) 0.0625rem solid;
@@ -171,9 +197,29 @@ body#url-builder {
         padding: 0.5rem;
     }
 }
+.result--container {
+    position: relative;
+    width: 50%;
+    padding: 0;
+
+    @media screen and (max-width: 60rem) {
+        width: 100%;
+    }
+}
 
 .result {
-    position: relative;
+    position: sticky;
+    top: 1.5rem;
+    background-color: white;
+    padding: 1.5rem;
+    z-index: var(--z-base);
+    width: 100%;
+    border-radius: 0.5rem;
+
+    @media screen and (max-width: 60rem) {
+        position: static;
+    }
+
     &:hover .copy {
         opacity: 1;
     }
@@ -213,3 +259,29 @@ body#url-builder {
         }
     }
 }
+
+.extended-link {
+    font-family: "Barlow", Arial, Helvetica, sans-serif;
+    background-color: var(--mint-green);
+    outline: none;
+    border: none;
+    color: var(--cool-grey);
+    font-weight: 600;
+    border-radius: 0.4rem;
+    padding: 0.5rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: filter 0.2s ease;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    &:hover {
+        filter: brightness(85%);
+    }
+}
+
+/*.extended {
+    h2 {
+        margin-top: 2rem;
+    }
+}*/

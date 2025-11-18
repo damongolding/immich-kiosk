@@ -1,8 +1,19 @@
 package partials
 
-
-templ UrlResult(url string) {
-    <div id="url-result">
-        <a href={templ.SafeURL(url)}>{url}</a>
-    </div>
+templ URLResult(url string, errMsg string) {
+	{{ hasError := errMsg != "" }}
+	<div id="url-result">
+		if hasError {
+			<div id="url-result--error" role="alert" aria-live="polite">{ errMsg }</div>
+		}
+		<div
+			id="url-result--url"
+			class={ templ.KV("with-error", hasError) }
+			if hasError {
+				aria-describedby="url-result--error"
+			}
+		>
+			<a href={ templ.SafeURL(url) }>{ url }</a>
+		</div>
+	</div>
 }

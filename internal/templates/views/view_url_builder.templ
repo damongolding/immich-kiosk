@@ -7,13 +7,15 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"strconv"
 	"strings"
 )
 
 type ChoicesOptions map[string]any
 
-templ URLBuilder(viewData common.ViewData, urlData common.URLViewData) {
+templ URLBuilder(viewData common.ViewData, urlData common.URLViewData, extended bool) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -22,17 +24,22 @@ templ URLBuilder(viewData common.ViewData, urlData common.URLViewData) {
 		</head>
 		<body id="url-builder">
 			<div class="url-container">
-				@URLBuilderForm(viewData.Config, urlData)
+				@URLBuilderForm(viewData.Config, urlData, extended)
 			</div>
 		</body>
 	</html>
 }
 
-templ URLBuilderForm(c config.Config, d common.URLViewData) {
-	<section class="url-container--form">
+templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
+	<section class={ "url-container--form", templ.KV("extended", extended) }>
 		<div class="url-container--form--content">
 			<div class="content">
 				<h1>URL Builder</h1>
+				if !extended {
+					<a href="/url-builder/extended" class="extended-link">View extended options</a>
+				} else {
+					<a href="/url-builder" class="extended-link">View basic options</a>
+				}
 				<form
 					id="url-builder-form"
 					hx-post="/url-builder/build"
@@ -45,17 +52,41 @@ templ URLBuilderForm(c config.Config, d common.URLViewData) {
 					}) }
 					}
 				>
+					// Behaviour
+					<h2>Behaviour</h2>
+					@URLBuilderNumber("Duration", "duration", "The amount of time in seconds an asset will be displayed for", 0, 0, strconv.FormatInt(int64(c.Duration), 10))
+					if extended {
+						@URLBuilderRadio("Optimize", "optimize_images", "Scale images to fit the screen.", "true", "true", "false", "false")
+					}
+					// Buckets
+					<h2>Buckets</h2>
 					@URLBuilderMultiSelect("People", "people", "Person or people you want to display.") {
 						for _, p := range d.People {
 							<option value={ p.ID }>{ p.Name }</option>
 						}
 					}
 					@URLBuilderRadio("Require all people", "require_all_people", "Only show images where all selected people appear together.", "true", "true", "false", "false")
+					if extended {
+						@URLBuilderMultiSelect("Excluded people", "excluded_people", "Person or people you want to exclude.") {
+							for _, p := range d.People {
+								<option value={ p.ID }>{ p.Name }</option>
+							}
+						}
+					}
 					@URLBuilderMultiSelect("Albums", "album", "Album or albums you want to display") {
 						for _, a := range d.Albums {
 							<option value={ a.ID }>{ a.AlbumName }</option>
 						}
 					}
+					if extended {
+						@URLBuilderMultiSelect("Excluded albums", "excluded_albums", "Album or albums you want to exclude") {
+							for _, a := range d.Albums {
+								<option value={ a.ID }>{ a.AlbumName }</option>
+							}
+						}
+					}
+					@URLBuilderRadio("Album video", "album_video", "Display album videos.", "true", "true", "false", "false")
+					@URLBuilderRadio("Album order", "album_order", "The order in which albums will be displayed.", "random", "random", "newest", "newest", "oldest", "oldest")
 					@URLBuilderMultiSelect("Tags", "tag", "Tag or tags you want to display") {
 						for _, t := range d.Tags {
 							if strings.EqualFold(t.Name, kiosk.TagSkip) || strings.EqualFold(t.Value, kiosk.TagSkip) {
@@ -64,22 +95,91 @@ templ URLBuilderForm(c config.Config, d common.URLViewData) {
 							<option value={ t.ID }>{ t.Name }</option>
 						}
 					}
-					@URLBuilderRadio("Show date", "show_date", "", "true", "true", "false", "false")
-					@URLBuilderRadio("Show time", "show_time", "", "true", "true", "false", "false")
-					@URLBuilderSelect("Transition", "transition", "Transition to use when changing images", "none", "none", "fade", "fade", "cross-fade", "cross-fade")
+					if extended {
+						@URLBuilderMultiSelect("Excluded tags", "excluded_tags", "Tag or tags you want to exclude") {
+							for _, t := range d.Tags {
+								if strings.EqualFold(t.Name, kiosk.TagSkip) || strings.EqualFold(t.Value, kiosk.TagSkip) {
+									{{ continue }}
+								}
+								<option value={ t.ID }>{ t.Name }</option>
+							}
+						}
+					}
+					@URLBuilderRadio("Memories", "memories", "Display memories.", "true", "true", "false", "false")
+					if extended {
+						@URLBuilderRadio("Include archived", "show_archived", "Allow assets marked as archived to be displayed.", "true", "true", "false", "false")
+					}
+					// Clock
+					<h2>Clock</h2>
+					@URLBuilderRadio("Show time", "show_time", "Display the current time.", "true", "true", "false", "false")
+					if extended {
+						@URLBuilderRadio("Time format", "time_format", "The format in which the time will be displayed.", "24 hour", "24", "12 hour", "12")
+					}
+					@URLBuilderRadio("Show date", "show_date", "Display the current date.", "true", "true", "false", "false")
+					if extended {
+						@URLBuilderText("Date format", "date_format", "The format in which the date will be displayed.", c.DateFormat)
+						@URLBuilderRadio("Clock source", "clock_source", "The source of the clock.", "Client", "client", "Server", "server")
+					}
+					// UI
+					<h2>User Interface</h2>
+					@URLBuilderRadio("Show progress bar", "show_progress_bar", "Show a progress bar indicating the time remaining for the current asset.", "true", "true", "false", "false")
+					if extended {
+						@URLBuilderRadio("Progress bar position", "progress_bar_position", "Set the position of the progress bar.", "top", "top", "bottom", "bottom")
+						@URLBuilderRadio("Hide cursor", "hide_cursor", "", "true", "true", "false", "false")
+						@URLBuilderNumber("Font size", "font_size", "The base font size for Kiosk. Default is 100% (16px).", 100, 0, strconv.FormatInt(int64(c.FontSize), 10))
+					}
+					@URLBuilderSelect("Theme", "theme", "Theme to use for the UI", "fade", "fade", "solid", "solid", "bubble", "bubble")
 					@URLBuilderSelect("Layout", "layout", "How images are arranged on the screen", "single", "single", "portrait", "portrait", "landscape", "landscape", "splitview", "splitview", "splitview-landscape", "splitview-landscape")
-					@URLBuilderRadio("Show Progress Bar", "show_progress_bar", "Show a progress bar indicating how much time is left for the current image(s).", "true", "true", "false", "false")
-					@URLBuilderRadio("Progress Bar Position", "progress_bar_position", "", "top", "top", "bottom", "bottom")
-					@URLBuilderNumber("Duration", "duration", "The amount of time in seconds an asset will be displayed for", 0, 0, strconv.FormatInt(int64(c.Duration), 10))
+					<h2>Transitions</h2>
+					// Transition
+					@URLBuilderSelect("Transition", "transition", "Transition to use when changing images", "none", "none", "fade", "fade", "cross-fade", "cross-fade")
+					if extended {
+						// Image Display Options
+						<h2>Image Display Options</h2>
+						@URLBuilderRadio("Image fit", "image_fit", "How the image will fit on your screen.", "none", "none", "contain", "contain", "cover", "cover")
+						@URLBuilderRadio("Image effect", "image_effect", "Add an effect to images.", "none", "none", "zoom", "zoom", "smart-zoom", "smart-zoom")
+						@URLBuilderNumber("Image effect amount", "image_effect_amount", "Set the intensity of the image effect.", 100, 0, strconv.FormatInt(int64(c.ImageEffectAmount), 10))
+						@URLBuilderRadio("Use original image", "use_original_image", "Use the original image instead of the Immich optimized version.", "true", "true", "false", "false")
+						// Metadata
+						<h2>Metadata</h2>
+						@URLBuilderRadio("Show owner", "show_owner", "Show the owner of the asset.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show album name", "show_album_name", "Display album name(s) that the asset appears in.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show person name", "show_person_name", "Display person name(s).", "true", "true", "false", "false")
+						@URLBuilderRadio("Show person age", "show_person_age", "Display person age.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show image time", "show_image_time", "Show the time the image was taken.", "true", "true", "false", "false")
+						@URLBuilderRadio("Image time format", "image_time_format", "Format for displaying image time.", "24 hour", "24", "12 hour", "12")
+						@URLBuilderRadio("Show image date", "show_image_date", "Show the date the image was taken.", "true", "true", "false", "false")
+						@URLBuilderText("Image date format", "image_date_format", "Format for displaying image date.", "YYYY-MM-DD")
+						@URLBuilderRadio("Show image description", "show_image_description", "Show the description of the image.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show image EXIF", "show_image_exif", "Show EXIF metadata for the image.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show image location", "show_image_location", "Show the location where the image was taken.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show image QR", "show_image_qr", "Display a QR code linking to the original image (in Immich).", "true", "true", "false", "false")
+						@URLBuilderRadio("Show image ID", "show_image_id", "Display the Immich ID of the image.", "true", "true", "false", "false")
+						// More information
+						<h2>More Information Overlay</h2>
+						@URLBuilderRadio("Show more info", "show_more_info", "Enable the more information overlay.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show more info image link", "show_more_info_image_link", "Display a link to the image in the more info overlay.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show more info QR code", "show_more_info_qr_code", "Display a QR code in the more info overlay.", "true", "true", "false", "false")
+						@URLBuilderMultiSelect("Like button action", "like_button_action", "Action(s) to perform when the like button is clicked.") {
+							<option value="favorite">Favorite</option>
+							<option value="album">Album</option>
+						}
+						@URLBuilderMultiSelect("Hide button action", "hide_button_action", "Action(s) to perform when the hide button is clicked.") {
+							<option value="tag">Tag</option>
+							<option value="archive">Archive</option>
+						}
+					}
 				</form>
 			</div>
-			<div class="content result">
-				<div id="url-result"></div>
-				<button class="copy">
-					<svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M6.85714 0C5.59643 0 4.57143 1.00898 4.57143 2.25V11.25C4.57143 12.491 5.59643 13.5 6.85714 13.5H13.7143C14.975 13.5 16 12.491 16 11.25V4.19766C16 3.58594 15.7464 2.99883 15.2964 2.57344L13.2357 0.625781C12.8107 0.225 12.2429 0 11.6536 0H6.85714ZM2.28571 4.5C1.025 4.5 0 5.50898 0 6.75V15.75C0 16.991 1.025 18 2.28571 18H9.14286C10.4036 18 11.4286 16.991 11.4286 15.75V15.1875H9.14286V15.75H2.28571V6.75H2.85714V4.5H2.28571Z"></path>
-					</svg>
-				</button>
+			<div class="result--container">
+				<div class="result">
+					<div id="url-result"></div>
+					<button class="copy">
+						<svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M6.85714 0C5.59643 0 4.57143 1.00898 4.57143 2.25V11.25C4.57143 12.491 5.59643 13.5 6.85714 13.5H13.7143C14.975 13.5 16 12.491 16 11.25V4.19766C16 3.58594 15.7464 2.99883 15.2964 2.57344L13.2357 0.625781C12.8107 0.225 12.2429 0 11.6536 0H6.85714ZM2.28571 4.5C1.025 4.5 0 5.50898 0 6.75V15.75C0 16.991 1.025 18 2.28571 18H9.14286C10.4036 18 11.4286 16.991 11.4286 15.75V15.1875H9.14286V15.75H2.28571V6.75H2.85714V4.5H2.28571Z"></path>
+						</svg>
+					</button>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -103,6 +203,7 @@ templ URLBuilderNumber(displayName, formName, helpText string, min int, max int,
 }
 
 templ URLBuilderHelpText(text string) {
+	{{ text = strings.TrimSpace(text) }}
 	<div class="form-group--description">
 		if text != "" && !strings.HasSuffix(text, ".") {
 			{ text }.
@@ -112,13 +213,13 @@ templ URLBuilderHelpText(text string) {
 	</div>
 }
 
-templ URLBuilderMultiSelectBase(ID, displayName, formName, helpText string) {
+templ URLBuilderMultiSelectBase(elementID, displayName, formName, helpText string) {
 	<div class="form-group">
-		<label for={ ID }>{ displayName }</label>
+		<label for={ elementID }>{ displayName }</label>
 		@URLBuilderHelpText(helpText)
 		<select
 			name={ formName }
-			id={ ID }
+			id={ elementID }
 			multiple
 		>
 			{ children... }
@@ -127,19 +228,19 @@ templ URLBuilderMultiSelectBase(ID, displayName, formName, helpText string) {
 }
 
 templ URLBuilderMultiSelect(displayName, formName, helpText string) {
-	{{ ID := "url-builder-" + formName }}
-	@URLBuilderMultiSelectBase(ID, displayName, formName, helpText) {
+	{{ elementID := "url-builder-" + formName }}
+	@URLBuilderMultiSelectBase(elementID, displayName, formName, helpText) {
 		{ children... }
 	}
-	@templ.JSFuncCall("urlBuilder.initMultiselect", ID, displayName)
+	@templ.JSFuncCall("urlBuilder.initMultiselect", elementID, displayName)
 }
 
 templ URLBuilderMultiSelectWithOptions(displayName, formName, helpText string, options ChoicesOptions) {
-	{{ ID := "url-builder-" + formName }}
-	@URLBuilderMultiSelectBase(ID, displayName, formName, helpText) {
+	{{ elementID := "url-builder-" + formName }}
+	@URLBuilderMultiSelectBase(elementID, displayName, formName, helpText) {
 		{ children... }
 	}
-	@templ.JSFuncCall("urlBuilder.initMultiselect", ID, displayName, options)
+	@templ.JSFuncCall("urlBuilder.initMultiselect", elementID, displayName, options)
 }
 
 templ URLBuilderRadio(displayName string, formName string, helpText string, keyvals ...string) {
@@ -163,23 +264,39 @@ templ URLBuilderRadio(displayName string, formName string, helpText string, keyv
 							checked="checked"
 						}
 					/>
-					<label for={ formName + "_" + kvs[i+1] }>{ kvs[i] }</label>
+					<label for={ formName + "_" + kvs[i+1] }>{ cases.Title(language.English).String(kvs[i]) }</label>
 				</div>
 			}
 		</div>
 	</div>
 }
 
+templ URLBuilderText(displayName, formName, helpText, defaultValue string) {
+	<div class="form-group">
+		{{ elementID := "url-builder-" + formName }}
+		<label for={ elementID }>{ displayName }</label>
+		@URLBuilderHelpText(helpText)
+		<input
+			type="text"
+			id={ elementID }
+			name={ formName }
+			placeholder={ defaultValue }
+			value=""
+		/>
+	</div>
+}
+
 templ URLBuilderSelect(displayName string, formName string, helpText string, keyvals ...string) {
 	<div class="form-group">
-		<label for={ formName }>{ displayName }</label>
+		{{ elementID := "url-builder-" + formName }}
+		<label for={ elementID }>{ displayName }</label>
 		@URLBuilderHelpText(helpText)
 		{{
 			kvs := make([]string, 0, len(keyvals)+2)
 			kvs = append(kvs, "default", "")
 			kvs = append(kvs, keyvals...)
 		}}
-		<select id={ formName } name={ formName }>
+		<select id={ elementID } name={ formName }>
 			for i:=0; i<len(kvs); i+=2 {
 				<option
 					value={ kvs[i+1] }
