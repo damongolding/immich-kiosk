@@ -85,7 +85,6 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 							}
 						}
 					}
-					@URLBuilderRadio("Album video", "album_video", "Display album videos.", "true", "true", "false", "false")
 					@URLBuilderRadio("Album order", "album_order", "The order in which albums will be displayed.", "random", "random", "newest", "newest", "oldest", "oldest")
 					@URLBuilderMultiSelect("Tags", "tag", "Tag or tags you want to display") {
 						for _, t := range d.Tags {
@@ -108,6 +107,13 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					@URLBuilderRadio("Memories", "memories", "Display memories.", "true", "true", "false", "false")
 					if extended {
 						@URLBuilderRadio("Include archived", "show_archived", "Allow assets marked as archived to be displayed.", "true", "true", "false", "false")
+					}
+					if extended {
+						// Video
+						<h2>Video</h2>
+						@URLBuilderRadio("Show videos", "show_videos", "Display videos.", "true", "true", "false", "false")
+						@URLBuilderRadio("Live photos", "live_photos", "Display live photos.", "true", "true", "false", "false")
+						@URLBuilderNumber("Live photo loop delay", "live_photo_loop_delay", "The delay (in seconds) between each live photo replay.", 0, 0, strconv.FormatInt(int64(c.LivePhotoLoopDelay), 10))
 					}
 					// Clock
 					<h2>Clock</h2>

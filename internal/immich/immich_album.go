@@ -280,7 +280,7 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 
 		allowedTypes := ImageOnlyAssetTypes
 
-		if a.requestConfig.AlbumVideo {
+		if a.requestConfig.ShowVideos {
 			allowedTypes = AllAssetTypes
 		}
 

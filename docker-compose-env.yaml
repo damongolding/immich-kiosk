@@ -63,6 +63,8 @@ services:
       KIOSK_IMAGE_EFFECT: smart-zoom
       KIOSK_IMAGE_EFFECT_AMOUNT: 120
       KIOSK_USE_ORIGINAL_IMAGE: false
+      # Video
+      KIOSK_SHOW_VIDEO: false
       KIOSK_LIVE_PHOTOS: false
       KIOSK_LIVE_PHOTO_LOOP_DELAY: 0
       # Image metadata
