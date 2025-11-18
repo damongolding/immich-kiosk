@@ -213,6 +213,7 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+			WithVideo:  a.requestConfig.ShowVideos,
 		}
 
 		if a.requestConfig.RequireAllPeople {
@@ -255,6 +256,15 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			return err
 		}
 
+		// Add videos is user wants them
+		if a.requestConfig.ShowVideos {
+			err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
+			if err != nil {
+				_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+				return err
+			}
+		}
+
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
@@ -263,13 +273,18 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			continue
 		}
 
+		wantedAssetType := ImageOnlyAssetTypes
+		if a.requestConfig.ShowVideos {
+			wantedAssetType = AllAssetTypes
+		}
+
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourcePerson
 			asset.requestConfig = a.requestConfig
 			asset.ctx = a.ctx
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 

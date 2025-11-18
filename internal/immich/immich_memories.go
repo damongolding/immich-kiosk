@@ -169,6 +169,11 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 			memories[pickedMemoryIndex].Assets[i], memories[pickedMemoryIndex].Assets[j] = memories[pickedMemoryIndex].Assets[j], memories[pickedMemoryIndex].Assets[i]
 		})
 
+		wantedAssetType := ImageOnlyAssetTypes
+		if a.requestConfig.ShowVideos {
+			wantedAssetType = AllAssetTypes
+		}
+
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
 			asset.Bucket = kiosk.SourceMemories
@@ -182,7 +187,7 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 				continue
 			}
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 
