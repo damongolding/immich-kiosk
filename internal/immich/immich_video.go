@@ -1,12 +1,16 @@
 package immich
 
 import (
+	"crypto/sha256"
+	"encoding/json"
 	"fmt"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 	"path"
 
 	"github.com/charmbracelet/log"
+	"github.com/google/go-querystring/query"
 )
 
 // Video retrieves the video asset from Immich server.
@@ -56,4 +60,57 @@ func (a *Asset) durationCheck() bool {
 	totalSeconds := hours*3600 + minutes*60 + seconds
 
 	return totalSeconds >= 1
+}
+
+func (a *Asset) AddVideos(requestID, deviceID string, immichAssets *[]Asset, apiURL url.URL, requestBody SearchRandomBody) error {
+
+	if len(*immichAssets) == 0 {
+		return nil
+	}
+
+	for _, a := range *immichAssets {
+		if a.Type == VideoType {
+			return nil
+		}
+	}
+
+	var videoAssets []Asset
+
+	requestBody.Type = string(VideoType)
+
+	queries, _ := query.Values(requestBody)
+	apiURL.RawQuery = fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode())))
+
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		return err
+	}
+
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, videoAssets)
+	apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(apiBody, &videoAssets)
+	if err != nil {
+		return err
+	}
+
+	if len(videoAssets) == 0 {
+		return nil
+	}
+
+	mergeVideoAssetsRandomly(immichAssets, videoAssets)
+
+	return nil
+}
+
+func mergeVideoAssetsRandomly(imageAssets *[]Asset, videoAssets []Asset) {
+	*imageAssets = append(*imageAssets, videoAssets...)
+
+	// Shuffle the combined slice
+	rand.Shuffle(len(*imageAssets), func(i, j int) {
+		(*imageAssets)[i], (*imageAssets)[j] = (*imageAssets)[j], (*imageAssets)[i]
+	})
 }

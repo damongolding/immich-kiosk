@@ -461,7 +461,7 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		handleRelativeAssetConfig(&requestConfig, options)
 	}
 
-	// Process image
+	// Process asset
 	img, err := processAsset(&immichAsset, allowedAssetTypes, requestConfig, metadata.requestID, metadata.deviceID, metadata.urlString, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, fmt.Errorf("selecting asset: %w", err)

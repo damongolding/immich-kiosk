@@ -32,6 +32,7 @@ func (a *Asset) favouriteImagesCount(requestID, deviceID string) (int, error) {
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+		WithVideo:  a.requestConfig.ShowVideos,
 	}
 
 	if a.requestConfig.ShowArchived {
@@ -47,12 +48,12 @@ func (a *Asset) favouriteImagesCount(requestID, deviceID string) (int, error) {
 
 // RandomImageFromFavourites retrieves a random favorite image from the Immich server.
 // It makes an API request to get random favorite images and caches them for future use.
-// The function includes retries if no viable images are found and handles caching of
+// The function includes retries if No viable assets are found and handles caching of
 // unused images for subsequent requests. It filters images based on type, trash status,
 // archive status and aspect ratio requirements. The response images are processed
 // sequentially until a valid image is found that meets all criteria.
 //
-// A retry mechanism is implemented to handle cases where no viable images are found
+// A retry mechanism is implemented to handle cases where No viable assets are found
 // in the current cache. The cache is cleared and a new request is made up to MaxRetries
 // times. Images are filtered based on:
 // - Must be of type ImageType
@@ -70,7 +71,7 @@ func (a *Asset) favouriteImagesCount(requestID, deviceID string) (int, error) {
 //
 // Returns:
 //   - error: Any error encountered during the operation, including API failures,
-//     marshaling errors, cache operations, or when max retries are reached with no viable images found
+//     marshaling errors, cache operations, or when max retries are reached with No viable assets found
 func (a *Asset) RandomImageFromFavourites(requestID, deviceID string, _ []AssetType, isPrefetch bool) error {
 
 	if isPrefetch {
@@ -133,7 +134,7 @@ func (a *Asset) RandomImageFromFavourites(requestID, deviceID string, _ []AssetT
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
-			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
+			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
 			cache.Delete(apiCacheKey)
 			continue
 		}
@@ -171,11 +172,11 @@ func (a *Asset) RandomImageFromFavourites(requestID, deviceID string, _ []AssetT
 			return nil
 		}
 
-		log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
+		log.Debug(requestID + " No viable assets left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
 	}
 
-	return errors.New("no images found for favourites. Max retries reached")
+	return errors.New("no assets found for favourites. Max retries reached")
 }
 
 func (a *Asset) FavouriteStatus(deviceID string, favourite bool) error {

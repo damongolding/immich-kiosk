@@ -258,7 +258,7 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
-			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
+			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
 			cache.Delete(apiCacheKey)
 			continue
 		}
@@ -296,10 +296,10 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			return nil
 		}
 
-		log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
+		log.Debug(requestID + " No viable assets left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
 	}
-	return fmt.Errorf("no images found for person '%s'. Max retries reached", personID)
+	return fmt.Errorf("no assets found for person '%s'. Max retries reached", personID)
 }
 
 // RandomPersonFromAllPeople returns a random person ID from all people in the system.

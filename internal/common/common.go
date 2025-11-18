@@ -152,6 +152,7 @@ type URLBuilderRequest struct {
 	Tags             []string `form:"tag" url:"tag,omitempty"`
 	ExcludedTags     []string `form:"excluded_tags" url:"excluded_tag,omitempty"`
 	ShowMemories     *bool    `form:"memories" url:"memories,omitempty"`
+	ShowArchived     *bool    `form:"show_archived"   url:"show_archived,omitempty"`
 
 	// Video
 	ShowVideos         *bool   `form:"show_videos" url:"show_videos,omitempty"`

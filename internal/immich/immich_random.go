@@ -94,7 +94,7 @@ func (a *Asset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
-			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
+			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
 			cache.Delete(apiCacheKey)
 			continue
 		}
@@ -130,8 +130,8 @@ func (a *Asset) RandomImage(requestID, deviceID string, isPrefetch bool) error {
 			return nil
 		}
 
-		log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
+		log.Debug(requestID + " No viable assets left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
 	}
-	return errors.New("no images found for random. Max retries reached")
+	return errors.New("no assets found for random. Max retries reached")
 }

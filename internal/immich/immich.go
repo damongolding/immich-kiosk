@@ -251,6 +251,9 @@ type SearchRandomBody struct {
 	WithExif      bool     `url:"withExif,omitempty" json:"withExif,omitempty"`
 	WithPeople    bool     `url:"withPeople,omitempty" json:"withPeople,omitempty"`
 	WithStacked   bool     `url:"withStacked,omitempty" json:"withStacked,omitempty"`
+
+	// Add videos. This is not part of the immich API.
+	WithVideo bool `url:"withVideo,omitempty" json:"withVideo,omitempty"`
 }
 
 type TagAssetsBody struct {
