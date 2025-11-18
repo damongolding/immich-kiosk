@@ -170,7 +170,7 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}
 
-	// Add videos is user wants them
+	// Add videos if user wants them
 	if a.requestConfig.ShowVideos {
 		err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
 		if err != nil {

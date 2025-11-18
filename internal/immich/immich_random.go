@@ -92,11 +92,11 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 			return err
 		}
 
-		// Add videos is user wants them
+		// Add videos if user wants them
 		if a.requestConfig.ShowVideos {
 			err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
 			if err != nil {
-				_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+				_, _, err = immichAPIFail(immichAssets, err, nil, apiURL.String())
 				return err
 			}
 		}
