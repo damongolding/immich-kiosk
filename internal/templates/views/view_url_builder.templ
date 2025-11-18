@@ -55,7 +55,9 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					// Behaviour
 					<h2>Behaviour</h2>
 					@URLBuilderNumber("Duration", "duration", "The amount of time in seconds an asset will be displayed for", 0, 0, strconv.FormatInt(int64(c.Duration), 10))
-					@URLBuilderRadio("Optimize", "optimize_images", "Scale images to fit the screen.", "true", "true", "false", "false")
+					if extended {
+						@URLBuilderRadio("Optimize", "optimize_images", "Scale images to fit the screen.", "true", "true", "false", "false")
+					}
 					// Buckets
 					<h2>Buckets</h2>
 					@URLBuilderMultiSelect("People", "people", "Person or people you want to display.") {
@@ -105,7 +107,7 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					}
 					@URLBuilderRadio("Memories", "memories", "Display memories.", "true", "true", "false", "false")
 					if extended {
-						@URLBuilderRadio("Include Archived", "show_archived", "Allow assets marked as archived to be displayed.", "true", "true", "false", "false")
+						@URLBuilderRadio("Include archived", "show_archived", "Allow assets marked as archived to be displayed.", "true", "true", "false", "false")
 					}
 					// Clock
 					<h2>Clock</h2>
@@ -120,9 +122,9 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					}
 					// UI
 					<h2>User Interface</h2>
-					@URLBuilderRadio("Show Progress Bar", "show_progress_bar", "Show a progress bar indicating the time remaining for the current asset.", "true", "true", "false", "false")
+					@URLBuilderRadio("Show progress bar", "show_progress_bar", "Show a progress bar indicating the time remaining for the current asset.", "true", "true", "false", "false")
 					if extended {
-						@URLBuilderRadio("Progress Bar Position", "progress_bar_position", "Set the position of the progress bar.", "top", "top", "bottom", "bottom")
+						@URLBuilderRadio("Progress bar position", "progress_bar_position", "Set the position of the progress bar.", "top", "top", "bottom", "bottom")
 						@URLBuilderRadio("Hide cursor", "hide_cursor", "", "true", "true", "false", "false")
 						@URLBuilderNumber("Font size", "font_size", "The base font size for Kiosk. Default is 100% (16px).", 100, 0, strconv.FormatInt(int64(c.FontSize), 10))
 					}
