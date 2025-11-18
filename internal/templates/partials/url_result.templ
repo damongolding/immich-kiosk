@@ -3,9 +3,9 @@ package partials
 templ URLResult(url string, errMsg string) {
 	<div id="url-result">
 		if errMsg != "" {
-			<div id="url-result--error">{ errMsg }</div>
+			<div id="url-result--error" role="alert" aria-live="polite">{ errMsg }</div>
 		}
-		<div id="url-result--url" class={ templ.KV("with-error", errMsg != "") }>
+		<div id="url-result--url" class={ templ.KV("with-error", errMsg != "") } aria-describedby={ templ.KV("url-result--error", errMsg != "") }>
 			<a href={ templ.SafeURL(url) }>{ url }</a>
 		</div>
 	</div>
