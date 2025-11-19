@@ -42,6 +42,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	assets := []utils.AssetWithWeighting{}
 
+	// People bucket
 	for _, person := range requestConfig.People {
 		if person == "" || strings.EqualFold(person, "none") {
 			continue
@@ -66,6 +67,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
+	// Albums bucket
 	for _, album := range requestConfig.Albums {
 		if album == "" || strings.EqualFold(album, "none") {
 			continue
@@ -90,6 +92,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
+	// Tags bucket
 	for _, tag := range requestConfig.Tags {
 		if tag == "" || strings.EqualFold(tag, "none") {
 			continue
@@ -126,6 +129,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
+	// Dates bucket
 	for _, date := range requestConfig.Dates {
 		if date == "" || strings.EqualFold(date, "none") {
 			continue
@@ -138,6 +142,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
+	// Memories bucket
 	if requestConfig.Memories {
 		memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
 		if memories == 0 {

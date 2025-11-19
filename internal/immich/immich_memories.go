@@ -26,6 +26,16 @@ import (
 // As the returned MemoriesResponse is a combination of memories from the past days (multiple API calls)
 // the cache is managed manually.
 func (a *Asset) MemoriesWithPastDays(requestID, deviceID string, days int) (MemoriesResponse, string, error) {
+	return a.memoriesWithPastDays(requestID, deviceID, false, days)
+}
+
+// MemoriesWithPastDays
+// Fetches memories for a given device ID and user ID for a specified number of past days.
+// Returns a MemoriesResponse, the URL used for the request, and an error if any occurred.
+//
+// As the returned MemoriesResponse is a combination of memories from the past days (multiple API calls)
+// the cache is managed manually.
+func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool, days int) (MemoriesResponse, string, error) {
 	var memories MemoriesResponse
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
@@ -40,6 +50,12 @@ func (a *Asset) MemoriesWithPastDays(requestID, deviceID string, days int) (Memo
 		Host:     u.Host,
 		Path:     path.Join("api", "memories"),
 		RawQuery: fmt.Sprintf("for=%s&pastDays=%d", url.PathEscape(startOfDay.Format("2006-01-02T15:04:05.000Z")), days),
+	}
+
+	// If we want the memories assets count we will use a separate cache entry
+	// because Kiosk removes used assets from the normal cache entry
+	if assetCount {
+		apiURL.RawQuery += "&count=true"
 	}
 
 	cacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
@@ -156,7 +172,16 @@ func memoriesCount(memories MemoriesResponse) int {
 // Returns:
 //   - int: Total number of assets, or 0 if error occurs
 func (a *Asset) MemoriesAssetsCount(requestID, deviceID string) int {
-	m, _, err := a.memories(requestID, deviceID, true, 0)
+	var m MemoriesResponse
+	var err error
+	pastDays := a.requestConfig.PastMemoryDays
+
+	if pastDays > 0 {
+		m, _, err = a.memoriesWithPastDays(requestID, deviceID, true, pastDays)
+	} else {
+		m, _, err = a.memories(requestID, deviceID, true, 0)
+	}
+
 	if err != nil {
 		return 0
 	}
