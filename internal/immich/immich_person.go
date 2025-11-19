@@ -171,7 +171,7 @@ func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, err
 		return 0, err
 	}
 
-	return personStatistics.Assets, err
+	return personStatistics.Assets, nil
 }
 
 // RandomAssetOfPerson retrieves a random asset for a given person from the Immich API.
