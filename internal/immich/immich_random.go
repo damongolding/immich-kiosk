@@ -15,28 +15,28 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-// RandomAsset fetches a random image from the Immich API while handling caching and retries.
+// RandomAsset fetches a random asset from the Immich API while handling caching and retries.
 //
 // This function performs the following:
-// - Makes an API request to get random images based on configured parameters
+// - Makes an API request to get random assets based on configured parameters
 // - Caches results to optimize subsequent requests
-// - Filters images based on type, trash/archive status, and aspect ratio
-// - Retries up to MaxRetries times if no suitable images are found
-// - Updates the cache to remove used images
+// - Filters assets based on type, trash/archive status, and aspect ratio
+// - Retries up to MaxRetries times if no suitable assets are found
+// - Updates the cache to remove used assets
 //
 // Parameters:
 //   - requestID: Unique identifier for tracking and logging
 //   - deviceID: ID of the device making the request
 //   - isPrefetch: Indicates if this is a prefetch request
 //
-// Returns an error if no suitable image is found after retries or if there
-// are any issues with API calls, caching, or image processing.
+// Returns an error if no suitable asset is found after retries or if there
+// are any issues with API calls, caching, or asset processing.
 func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image", true)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset", true)
 	} else {
-		log.Debug(requestID + " Getting Random image")
+		log.Debug(requestID + " Getting Random asset")
 	}
 
 	for range MaxRetries {
@@ -125,7 +125,7 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 			}
 
 			if a.requestConfig.Kiosk.Cache {
-				// Remove the current image from the slice
+				// Remove the current asset from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
 				if cacheMarshalErr != nil {
@@ -133,7 +133,7 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 					return cacheMarshalErr
 				}
 
-				// replace with cache minus used image
+				// replace with cache minus used asset
 				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
 				if cacheErr != nil {
 					log.Debug("cache not found!")
