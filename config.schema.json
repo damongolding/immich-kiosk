@@ -115,6 +115,9 @@
     "memories": {
       "type": "boolean"
     },
+    "past_memory_days": {
+      "type": "integer"
+    },
     "date_filter": {
       "type": "string"
     },
