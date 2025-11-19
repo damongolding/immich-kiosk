@@ -153,6 +153,7 @@ type URLBuilderRequest struct {
 	Tags             []string `form:"tag" url:"tag,omitempty"`
 	ExcludedTags     []string `form:"excluded_tags" url:"excluded_tag,omitempty"`
 	ShowMemories     *bool    `form:"memories" url:"memories,omitempty"`
+	PastMemoryDays   *uint64  `form:"past_memory_days" url:"past_memory_days,omitempty"`
 
 	// Clock
 	ShowTime    *bool   `form:"show_time" url:"show_time,omitempty"`
