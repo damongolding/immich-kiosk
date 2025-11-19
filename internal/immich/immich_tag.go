@@ -113,7 +113,7 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 		allAssetsCount += allVideosCount
 	}
 
-	return allAssetsCount, err
+	return allAssetsCount, nil
 }
 
 // AssetsWithTag retrieves assets that have the specified tag from the Immich API.
@@ -189,9 +189,9 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image with tag", "ID", tagID)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset with tag", "ID", tagID)
 	} else {
-		log.Debug(requestID+" Getting Random image with tag", "ID", tagID)
+		log.Debug(requestID+" Getting Random asset with tag", "ID", tagID)
 	}
 
 	for range MaxRetries {
@@ -231,7 +231,7 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 			}
 
 			if a.requestConfig.Kiosk.Cache {
-				// Remove the current image from the slice
+				// Remove the current asset from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
 				if cacheMarshalErr != nil {
@@ -239,7 +239,7 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 					return cacheMarshalErr
 				}
 
-				// replace cache with used image(s) removed
+				// replace cache with used asset(s) removed
 				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
 				if cacheErr != nil {
 					log.Debug("Failed to update device cache for tag", "tagID", tagID, "deviceID", deviceID)
