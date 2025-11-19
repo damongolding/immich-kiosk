@@ -168,7 +168,7 @@ func isSleepMode(requestConfig config.Config) bool {
 
 // retrieveImage fetches a random image based on the picked image type.
 // It returns an error if the image retrieval fails.
-func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, allowedAssetType []immich.AssetType, requestID, deviceID string, isPrefetch bool) error {
+func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
 
 	switch pickedAsset.Type {
 	case kiosk.SourceAlbum:
@@ -192,7 +192,7 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 			}
 			pickedAsset.ID = pickedAlbumID
 		case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
-			return immichAsset.RandomImageFromFavourites(requestID, deviceID, allowedAssetType, isPrefetch)
+			return immichAsset.RandomImageFromFavourites(requestID, deviceID, isPrefetch)
 		}
 
 		switch strings.ToLower(albumOrder) {
@@ -263,7 +263,7 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 
 // processAsset handles the entire process of selecting and retrieving an image.
 // It returns the image bytes and an error if any step fails.
-func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetType, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
+func processAsset(immichAsset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
 
 	var err error
 
@@ -276,7 +276,7 @@ func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetTyp
 
 		pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
 
-		err = retrieveImage(immichAsset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, allowedAssetTypes, requestID, deviceID, isPrefetch)
+		err = retrieveImage(immichAsset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
 		if err != nil {
 			continue
 		}
@@ -311,7 +311,7 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 	}
 
 	// if the video is not available, run processAsset again to get a new asset
-	return processAsset(immichAsset, immich.AllAssetTypes, requestConfig, requestID, deviceID, requestURL, isPrefetch)
+	return processAsset(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
 }
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview
@@ -454,7 +454,6 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	// Set up configuration
 	setupRequestConfig(&requestConfig)
 	immichAsset := setupImmichAsset(requestConfig, options.ImageOrientation)
-	allowedAssetTypes := determineAllowedAssetTypes(requestConfig, isPrefetch)
 
 	// Handle relative asset configuration if needed
 	if options.RelativeAssetWanted {
@@ -462,7 +461,7 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	}
 
 	// Process asset
-	img, err := processAsset(&immichAsset, allowedAssetTypes, requestConfig, metadata.requestID, metadata.deviceID, metadata.urlString, isPrefetch)
+	img, err := processAsset(&immichAsset, requestConfig, metadata.requestID, metadata.deviceID, metadata.urlString, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, fmt.Errorf("selecting asset: %w", err)
 	}
@@ -512,16 +511,6 @@ func setupImmichAsset(config config.Config, orientation immich.ImageOrientation)
 		asset.RatioWanted = orientation
 	}
 	return asset
-}
-
-// determineAllowedAssetTypes returns the allowed asset types based on config settings
-// Returns AllAssetTypes if experimental video is enabled and isPrefetch is true,
-// otherwise returns ImageOnlyAssetTypes
-func determineAllowedAssetTypes(config config.Config, isPrefetch bool) []immich.AssetType {
-	if config.ShowVideos && isPrefetch {
-		return immich.AllAssetTypes
-	}
-	return immich.ImageOnlyAssetTypes
 }
 
 // handleRelativeAssetConfig updates the config buckets based on the relative asset options.

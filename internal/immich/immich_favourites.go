@@ -86,7 +86,7 @@ func (a *Asset) favouriteImagesCount(requestID, deviceID string) (int, error) {
 // Returns:
 //   - error: Any error encountered during the operation, including API failures,
 //     marshaling errors, cache operations, or when max retries are reached with No viable assets found
-func (a *Asset) RandomImageFromFavourites(requestID, deviceID string, _ []AssetType, isPrefetch bool) error {
+func (a *Asset) RandomImageFromFavourites(requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite image", true)

@@ -62,13 +62,13 @@ func (a *Asset) durationCheck() bool {
 	return totalSeconds >= 1
 }
 
-func (a *Asset) AddVideos(requestID, deviceID string, immichAssets *[]Asset, apiURL url.URL, requestBody SearchRandomBody) error {
+func (a *Asset) AddVideos(requestID, deviceID string, assets *[]Asset, apiURL url.URL, requestBody SearchRandomBody) error {
 
-	if len(*immichAssets) == 0 {
+	if len(*assets) == 0 {
 		return nil
 	}
 
-	for _, a := range *immichAssets {
+	for _, a := range *assets {
 		if a.Type == VideoType {
 			return nil
 		}
@@ -101,7 +101,7 @@ func (a *Asset) AddVideos(requestID, deviceID string, immichAssets *[]Asset, api
 		return nil
 	}
 
-	mergeVideoAssetsRandomly(immichAssets, videoAssets)
+	mergeVideoAssetsRandomly(assets, videoAssets)
 
 	return nil
 }
