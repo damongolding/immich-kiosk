@@ -95,15 +95,15 @@ func (a *Asset) AllNamedPeople(requestID, deviceID string) ([]Person, error) {
 	return a.people(requestID, deviceID, true, false)
 }
 
-// allPeopleAssetCount returns the total count of images across all named people in the system.
-// It performs concurrent queries for each person's image count using a limited number of goroutines.
+// allPeopleAssetCount returns the total count of assets across all named people in the system.
+// It performs concurrent queries for each person's asset count using a limited number of goroutines.
 //
 // Parameters:
 //   - requestID: The ID of the API request for tracking purposes
 //   - deviceID: The ID of the device making the request
 //
 // Returns:
-//   - int: The total number of images across all named people
+//   - int: The total number of assets across all named people
 //   - error: nil if successful, error if the people query fails or if any individual count fails
 func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
 	allPeople, allPeopleErr := a.people(requestID, deviceID, true, false)
@@ -120,7 +120,7 @@ func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
 		errGroup.Go(func() error {
 			count, err := a.PersonAssetCount(p.ID, requestID, deviceID)
 			if err != nil {
-				log.Error(requestID+" Failed to count images for person", "personID", p.ID, "error", err)
+				log.Error(requestID+" Failed to count assets for person", "personID", p.ID, "error", err)
 				return err
 			}
 			counts.Add(int64(count))
@@ -175,26 +175,26 @@ func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, err
 }
 
 // RandomAssetOfPerson retrieves a random asset for a given person from the Immich API.
-// It handles retries, caching, and filtering to find suitable images. The function will make
-// multiple attempts to find a valid image that matches the criteria (not trashed, correct type, etc).
-// If caching is enabled, it will maintain a cache of unused images for future requests.
+// It handles retries, caching, and filtering to find suitable assets. The function will make
+// multiple attempts to find a valid asset that matches the criteria (not trashed, correct type, etc).
+// If caching is enabled, it will maintain a cache of unused assets for future requests.
 //
 // Parameters:
-//   - personID: The ID of the person whose images to search for
+//   - personID: The ID of the person whose assets to search for
 //   - requestID: The ID of the API request for tracking purposes
 //   - deviceID: The ID of the device making the request
 //
 // Returns:
 //   - error: nil if successful, error otherwise. Returns specific error if no suitable
-//     image is found after MaxRetries attempts or if there are API/parsing failures
+//     asset is found after MaxRetries attempts or if there are API/parsing failures
 //
-// The function mutates the receiver (i *ImmichAsset) to store the selected image if successful.
+// The function mutates the receiver (i *ImmichAsset) to store the selected asset if successful.
 func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image of", personID)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset of", personID)
 	} else {
-		log.Debug(requestID+" Getting Random image of", personID)
+		log.Debug(requestID+" Getting Random asset of", personID)
 	}
 
 	for range MaxRetries {
@@ -289,7 +289,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 			}
 
 			if a.requestConfig.Kiosk.Cache {
-				// Remove the current image from the slice
+				// Remove the current asset from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
 				if cacheMarshalErr != nil {
@@ -297,7 +297,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 					return cacheMarshalErr
 				}
 
-				// Replace cache with remaining images after removing used image(s)
+				// Replace cache with remaining assets after removing used asset(s)
 				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
 				if cacheErr != nil {
 					log.Debug("cache not found!")
