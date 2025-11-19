@@ -45,7 +45,7 @@ func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool
 
 	startOfDay, _ := processTodayDateRange()
 
-	apiURL := url.URL{
+	apiURLRaw := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     path.Join("api", "memories"),
@@ -55,24 +55,26 @@ func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool
 	// If we want the memories assets count we will use a separate cache entry
 	// because Kiosk removes used assets from the normal cache entry
 	if assetCount {
-		apiURL.RawQuery += "&count=true"
+		apiURLRaw.RawQuery += "&count=true"
 	}
 
-	cacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
+	apiURL := apiURLRaw.String()
+
+	cacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 	if apiData, found := cache.Get(cacheKey); found {
-		log.Debug(requestID+" Cache hit", "url", apiURL.String())
+		log.Debug(requestID+" Cache hit", "url", apiURL)
 		data, ok := apiData.([]byte)
 		if !ok {
-			return memories, apiURL.String(), errors.New("could not parse past memories data")
+			return memories, apiURL, errors.New("could not parse past memories data")
 		}
 
 		err = json.Unmarshal(data, &memories)
 		if err != nil {
-			return memories, apiURL.String(), err
+			return memories, apiURL, err
 		}
 
-		return memories, apiURL.String(), nil
+		return memories, apiURL, nil
 	}
 
 	for day := range days {
@@ -87,12 +89,12 @@ func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool
 
 	b, marshalErr := json.Marshal(memories)
 	if marshalErr != nil {
-		return memories, apiURL.String(), marshalErr
+		return memories, apiURL, marshalErr
 	}
 
 	cache.Set(cacheKey, b)
 
-	return memories, apiURL.String(), nil
+	return memories, apiURL, nil
 }
 
 func (a *Asset) Memories(requestID, deviceID string) (MemoriesResponse, string, error) {
