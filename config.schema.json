@@ -116,7 +116,8 @@
       "type": "boolean"
     },
     "past_memory_days": {
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0
     },
     "date_filter": {
       "type": "string"
