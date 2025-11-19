@@ -78,7 +78,10 @@ func (a *Asset) AddVideos(requestID, deviceID string, assets *[]Asset, apiURL ur
 
 	requestBody.Type = string(VideoType)
 
-	queries, _ := query.Values(requestBody)
+	queries, err := query.Values(requestBody)
+	if err != nil {
+		return fmt.Errorf("encoding query values: %w", err)
+	}
 	apiURL.RawQuery = fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode())))
 
 	jsonBody, err := json.Marshal(requestBody)
