@@ -71,9 +71,6 @@
       },
       "uniqueItems": true
     },
-    "album_video": {
-      "type": "boolean"
-    },
     "album_order": {
       "type": "string"
     },
