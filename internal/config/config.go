@@ -377,7 +377,8 @@ type Config struct {
 	// AlbumVideo whether to display videos
 	AlbumVideo bool `json:"albumVideo" yaml:"album_video" mapstructure:"album_video" query:"album_video" form:"album_video" default:"false"`
 	// Memories show memories
-	Memories bool `json:"memories" yaml:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
+	Memories       bool `json:"memories" yaml:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
+	PastMemoryDays int  `json:"pastMemoryDays" yaml:"past_memory_days" mapstructure:"past_memory_days" query:"past_memory_days" form:"past_memory_days" default:"0"`
 
 	// LivePhotos show live photos
 	LivePhotos bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
