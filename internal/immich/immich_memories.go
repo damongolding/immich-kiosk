@@ -2,6 +2,7 @@ package immich
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand/v2"
 	"net/http"
@@ -18,20 +19,64 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
+// MemoriesWithPastDays
+// Fetches memories for a given device ID and user ID for a specified number of past days.
+// Returns a MemoriesResponse, the URL used for the request, and an error if any occurred.
+//
+// As the returned MemoriesResponse is a combination of memories from the past days (multiple API calls)
+// the cache is managed manually.
 func (a *Asset) MemoriesWithPastDays(requestID, deviceID string, days int) (MemoriesResponse, string, error) {
 	var memories MemoriesResponse
 
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		return immichAPIFail(memories, err, nil, "")
+	}
+
+	startOfDay, _ := processTodayDateRange()
+
+	apiURL := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     path.Join("api", "memories"),
+		RawQuery: fmt.Sprintf("for=%s&pastDays=%d", url.PathEscape(startOfDay.Format("2006-01-02T15:04:05.000Z")), days),
+	}
+
+	cacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
+
+	if apiData, found := cache.Get(cacheKey); found {
+		log.Debug(requestID+" Cache hit", "url", apiURL.String())
+		data, ok := apiData.([]byte)
+		if !ok {
+			return memories, apiURL.String(), errors.New("could not parse past memories data")
+		}
+
+		err = json.Unmarshal(data, &memories)
+		if err != nil {
+			return memories, apiURL.String(), err
+		}
+
+		return memories, apiURL.String(), nil
+	}
+
 	for day := range days {
 		// Fetch memories for each day
-		m, apiURL, err := a.memories(requestID, deviceID, false, day)
-		if err != nil {
-			return memories, apiURL, err
+		m, memURL, memErr := a.memories(requestID, deviceID, false, day)
+		if memErr != nil {
+			return memories, memURL, memErr
 		}
 
 		memories = append(memories, m...)
 	}
 
-	return memories, "", nil
+	b, marshalErr := json.Marshal(memories)
+	if marshalErr != nil {
+		return memories, apiURL.String(), marshalErr
+	}
+
+	cache.Set(cacheKey, b)
+
+	return memories, apiURL.String(), nil
 }
 
 func (a *Asset) Memories(requestID, deviceID string) (MemoriesResponse, string, error) {
@@ -254,7 +299,15 @@ func (a *Asset) IsMemory() (bool, Memory, int) {
 
 	memLookUp := strconv.FormatInt(time.Now().Unix()/int64(5*60), 10)
 
-	m, _, err := a.memories(kiosk.GlobalCache, memLookUp, false, 0)
+	var m []Memory
+	var err error
+
+	if a.requestConfig.PastMemoryDays > 0 {
+		m, _, err = a.MemoriesWithPastDays(kiosk.GlobalCache, memLookUp, a.requestConfig.PastMemoryDays)
+	} else {
+		m, _, err = a.Memories(kiosk.GlobalCache, memLookUp)
+	}
+
 	if err != nil {
 		log.Error("failed to get memories", "error", err)
 		return false, Memory{}, 0
