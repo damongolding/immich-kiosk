@@ -22,7 +22,7 @@ import (
 
 const (
 	maxWeatherRetries      = 3
-	maxProcessAssetRetries = 3
+	maxProcessAssetRetries = 10
 	maxRedirects           = 10
 	redirectCountHeader    = "X-Redirect-Count"
 )

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -23,6 +24,8 @@ import (
 	"github.com/fogleman/gg"
 	"github.com/labstack/echo/v4"
 )
+
+var errVideoNotReady = errors.New("video not ready")
 
 // gatherAssetBuckets collects asset weightings for people, albums and date ranges.
 // For each person, it gets the count of images containing that person.
@@ -197,7 +200,7 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 			}
 			pickedAsset.ID = pickedAlbumID
 		case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
-			return immichAsset.RandomImageFromFavourites(requestID, deviceID, isPrefetch)
+			return immichAsset.RandomAssetFromFavourites(requestID, deviceID, isPrefetch)
 		}
 
 		switch strings.ToLower(albumOrder) {
@@ -268,11 +271,11 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 
 // processAsset handles the entire process of selecting and retrieving an image.
 // It returns the image bytes and an error if any step fails.
-func processAsset(immichAsset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
+func processAsset(asset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
 
 	var err error
 
-	assets, assetsErr := gatherAssetBuckets(immichAsset, requestConfig, requestID, deviceID)
+	assets, assetsErr := gatherAssetBuckets(asset, requestConfig, requestID, deviceID)
 	if assetsErr != nil {
 		return nil, assetsErr
 	}
@@ -281,17 +284,27 @@ func processAsset(immichAsset *immich.Asset, requestConfig config.Config, reques
 
 		pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
 
-		err = retrieveImage(immichAsset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
+		err = retrieveImage(asset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
 		if err != nil {
 			continue
 		}
 
 		//  At this point immichAsset could be a video or an image
-		if requestConfig.ShowVideos && immichAsset.Type == immich.VideoType {
-			return processVideo(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
+		if requestConfig.ShowVideos && asset.Type == immich.VideoType {
+			var img image.Image
+			img, err = processVideo(asset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
+			if err == nil {
+				return img, nil
+			}
+			if errors.Is(err, errVideoNotReady) {
+				// try another asset
+				log.Debug(requestID+" Video not ready, trying another asset", "video", asset.ID)
+				continue
+			}
+			return nil, err
 		}
 
-		return processImage(immichAsset, requestConfig, requestID, deviceID, isPrefetch)
+		return processImage(asset, requestConfig, requestID, deviceID, isPrefetch)
 	}
 
 	return nil, fmt.Errorf("%w: max retries exceeded", err)
@@ -315,8 +328,8 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 		go VideoManager.DownloadVideo(*immichAsset, requestConfig, deviceID, requestURL)
 	}
 
-	// if the video is not available, run processAsset again to get a new asset
-	return processAsset(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
+	// video not ready yet; signal caller to pick another asset
+	return nil, errVideoNotReady
 }
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview

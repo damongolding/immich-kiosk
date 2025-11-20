@@ -213,7 +213,7 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 		return countAssetsInAlbums(albums), nil
 
 	case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
-		favouriteImagesCount, err := a.favouriteImagesCount(requestID, deviceID)
+		favouriteImagesCount, err := a.favouriteAssetsCount(requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get favorite images: %w", err)
 		}
@@ -257,8 +257,8 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 			log.Debug(requestID+" No assets left in cache. Refreshing and trying again for album", albumID)
 			cache.Delete(apiCacheKey)
 
-			album, _, retryErr := a.albumAssets(albumID, requestID, deviceID)
-			if retryErr != nil || len(album.Assets) == 0 {
+			al, _, retryErr := a.albumAssets(albumID, requestID, deviceID)
+			if retryErr != nil || len(al.Assets) == 0 {
 				return fmt.Errorf("no assets found for album %s after refresh", albumID)
 			}
 
