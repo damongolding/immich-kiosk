@@ -213,11 +213,11 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 		return countAssetsInAlbums(albums), nil
 
 	case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
-		favouriteImagesCount, err := a.favouriteAssetsCount(requestID, deviceID)
+		favouriteAssetCount, err := a.favouriteAssetsCount(requestID, deviceID)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get favorite images: %w", err)
+			return 0, fmt.Errorf("failed to get favorite assets: %w", err)
 		}
-		return favouriteImagesCount, nil
+		return favouriteAssetCount, nil
 
 	default:
 		album, _, err := a.albumAssets(albumID, requestID, deviceID)

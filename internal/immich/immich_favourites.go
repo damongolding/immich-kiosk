@@ -167,7 +167,7 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 			wantedAssetType = AllAssetTypes
 		}
 
-		for immichAssetIndex, asset := range assets {
+		for assetIndex, asset := range assets {
 
 			asset.Bucket = kiosk.SourceAlbum
 			asset.requestConfig = a.requestConfig
@@ -179,10 +179,10 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 
 			if a.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
-				immichAssetsToCache := slices.Delete(assets, immichAssetIndex, immichAssetIndex+1)
-				jsonBytes, marshalErr := json.Marshal(immichAssetsToCache)
+				assetsToCache := slices.Delete(assets, assetIndex, assetIndex+1)
+				jsonBytes, marshalErr := json.Marshal(assetsToCache)
 				if marshalErr != nil {
-					log.Error("Failed to marshal immichAssetsToCache", "error", marshalErr)
+					log.Error("Failed to marshal assetsToCache", "error", marshalErr)
 					return marshalErr
 				}
 
