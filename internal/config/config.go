@@ -374,12 +374,13 @@ type Config struct {
 	ShowArchived bool `json:"showArchived" yaml:"show_archived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 
 	RequireAllPeople bool `json:"requireAllPeople" yaml:"require_all_people" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
-	// AlbumVideo whether to display videos
-	AlbumVideo bool `json:"albumVideo" yaml:"album_video" mapstructure:"album_video" query:"album_video" form:"album_video" default:"false"`
+
 	// Memories show memories
 	Memories       bool `json:"memories" yaml:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
 	PastMemoryDays int  `json:"pastMemoryDays" yaml:"past_memory_days" mapstructure:"past_memory_days" query:"past_memory_days" form:"past_memory_days" default:"0"`
 
+	// ShowVideos whether to display videos
+	ShowVideos bool `json:"showVideos" yaml:"show_videos" mapstructure:"show_videos" query:"show_videos" form:"show_videos" default:"false"`
 	// LivePhotos show live photos
 	LivePhotos bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
 	// UseOriginalImage use the original image
@@ -642,7 +643,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
 
 	// Disabled features in demo mode
 	if c.Kiosk.DemoMode {
-		c.AlbumVideo = false
+		c.ShowVideos = false
 		c.UseOriginalImage = false
 		c.OptimizeImages = false
 		c.Memories = false

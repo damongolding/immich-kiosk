@@ -262,7 +262,7 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 		if len(memories) == 0 {
-			log.Debug(requestID + " No images left in cache. Refreshing and trying again for memories")
+			log.Debug(requestID + " No assets left in cache. Refreshing and trying again for memories")
 			cache.Delete(apiCacheKey)
 			continue
 		}
@@ -272,6 +272,11 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 		rand.Shuffle(len(memories[pickedMemoryIndex].Assets), func(i, j int) {
 			memories[pickedMemoryIndex].Assets[i], memories[pickedMemoryIndex].Assets[j] = memories[pickedMemoryIndex].Assets[j], memories[pickedMemoryIndex].Assets[i]
 		})
+
+		wantedAssetType := ImageOnlyAssetTypes
+		if a.requestConfig.ShowVideos {
+			wantedAssetType = AllAssetTypes
+		}
 
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
@@ -286,7 +291,7 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 				continue
 			}
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 

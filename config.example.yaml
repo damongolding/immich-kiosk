@@ -30,8 +30,6 @@ excluded_people:
 ## ID(s) of album or albums to display
 albums:
   - "ALBUM_ID"
-# display album videos
-album_video: false
 album_order: random # random | newest | oldest
 # Album IDs to exclude from being shown. Albums in this list will be filtered from
 # appearing in the frame even if they are included in the 'album' list.
@@ -84,6 +82,11 @@ image_fit: contain # none | contain | cover
 image_effect: none # none | zoom | smart-zoom
 image_effect_amount: 120
 use_original_image: false # use the original file.
+
+## Video
+show_videos: false
+live_photos: false
+live_photo_loop_delay: 0
 
 ## Image METADATA
 show_owner: false # show the owner of the image

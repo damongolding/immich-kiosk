@@ -147,13 +147,20 @@ type URLBuilderRequest struct {
 	RequireAllPeople *bool    `form:"require_all_people" url:"require_all_people,omitempty"`
 	ExcludedPeople   []string `form:"excluded_people" url:"excluded_person,omitempty"`
 	Albums           []string `form:"album" url:"album,omitempty"`
-	AlbumVideo       *bool    `form:"album_video" url:"album_video,omitempty"`
 	AlbumOrder       *string  `form:"album_order" url:"album_order,omitempty"`
 	ExcludedAlbums   []string `form:"excluded_albums" url:"excluded_album,omitempty"`
 	Tags             []string `form:"tag" url:"tag,omitempty"`
 	ExcludedTags     []string `form:"excluded_tags" url:"excluded_tag,omitempty"`
 	ShowMemories     *bool    `form:"memories" url:"memories,omitempty"`
 	PastMemoryDays   *uint64  `form:"past_memory_days" url:"past_memory_days,omitempty"`
+
+	ShowArchived     *bool    `form:"show_archived" url:"show_archived,omitempty"`
+
+	// Video
+	ShowVideos         *bool   `form:"show_videos" url:"show_videos,omitempty"`
+	LivePhotos         *bool   `form:"live_photos" url:"live_photos,omitempty"`
+	LivePhotoLoopDelay *uint64 `form:"live_photo_loop_delay" url:"live_photo_loop_delay,omitempty"`
+
 
 	// Clock
 	ShowTime    *bool   `form:"show_time" url:"show_time,omitempty"`
