@@ -190,7 +190,7 @@ func memoriesCount(memories MemoriesResponse) int {
 func (a *Asset) MemoriesAssetsCount(requestID, deviceID string) int {
 	var m MemoriesResponse
 	var err error
-	pastDays := a.requestConfig.PastMemoryDays
+	pastDays := max(a.requestConfig.PastMemoryDays, 0)
 
 	if pastDays > 0 {
 		m, _, err = a.memoriesWithPastDays(requestID, deviceID, true, pastDays)
