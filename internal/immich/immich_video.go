@@ -110,11 +110,11 @@ func (a *Asset) AddVideos(requestID, deviceID string, assets *[]Asset, apiURL ur
 	return nil
 }
 
-func mergeVideoAssetsRandomly(imageAssets *[]Asset, videoAssets []Asset) {
-	*imageAssets = append(*imageAssets, videoAssets...)
+func mergeVideoAssetsRandomly(existingAssets *[]Asset, videoAssets []Asset) {
+	*existingAssets = append(*existingAssets, videoAssets...)
 
 	// Shuffle the combined slice
-	rand.Shuffle(len(*imageAssets), func(i, j int) {
-		(*imageAssets)[i], (*imageAssets)[j] = (*imageAssets)[j], (*imageAssets)[i]
+	rand.Shuffle(len(*existingAssets), func(i, j int) {
+		(*existingAssets)[i], (*existingAssets)[j] = (*existingAssets)[j], (*existingAssets)[i]
 	})
 }
