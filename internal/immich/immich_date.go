@@ -19,7 +19,7 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-// RandomImageInDateRange retrieves a random image from the Immich API within the specified date range.
+// RandomAssetInDateRange retrieves a random asset from the Immich API within the specified date range.
 // Parameters:
 //   - dateRange: A string in the format "YYYY-MM-DD_to_YYYY-MM-DD" or using "today" for current date
 //   - requestID: Unique identifier for tracking the request
@@ -30,11 +30,11 @@ import (
 // - Date range parsing and validation
 // - Making API requests with retries
 // - Caching of results
-// - Filtering images based on type/status
-// - Ratio checking of images
+// - Filtering assets based on type/status
+// - Ratio checking of assets
 //
-// Returns an error if no valid images are found after max retries
-func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
+// Returns an error if no valid assets are found after max retries
+func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
 
 	dateStart, dateEnd, dateErr := determineDateRange(dateRange)
 	if dateErr != nil {
@@ -45,9 +45,9 @@ func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 	dateEndHuman := dateEnd.Format("2006-01-02 15:04:05 MST")
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image from", dateStartHuman, "to", dateEndHuman)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset from", dateStartHuman, "to", dateEndHuman)
 	} else {
-		log.Debug(requestID+" Getting Random image", "from", dateStartHuman, "to", dateEndHuman)
+		log.Debug(requestID+" Getting Random asset", "from", dateStartHuman, "to", dateEndHuman)
 	}
 
 	for range MaxRetries {
@@ -134,7 +134,7 @@ func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 			}
 
 			if a.requestConfig.Kiosk.Cache {
-				// Remove the current image from the slice
+				// Remove the current asset from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
 				if cacheMarshalErr != nil {
@@ -142,7 +142,7 @@ func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 					return cacheMarshalErr
 				}
 
-				// replace cache with used image(s) removed
+				// replace cache with used asset(s) removed
 				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
 				if cacheErr != nil {
 					log.Debug("Failed to update cache", "error", cacheErr, "url", apiURL.String())
@@ -208,7 +208,7 @@ func processTodayDateRange() (time.Time, time.Time) {
 }
 
 // processDateRange parses a date range string in the format "YYYY-MM-DD_to_YYYY-MM-DD"
-// and returns the start and end times for filtering images.
+// and returns the start and end times for filtering assets.
 //
 // The function:
 // - Accepts a string in format "YYYY-MM-DD_to_YYYY-MM-DD"
