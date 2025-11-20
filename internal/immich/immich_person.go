@@ -95,15 +95,15 @@ func (a *Asset) AllNamedPeople(requestID, deviceID string) ([]Person, error) {
 	return a.people(requestID, deviceID, true, false)
 }
 
-// allPeopleAssetCount returns the total count of images across all named people in the system.
-// It performs concurrent queries for each person's image count using a limited number of goroutines.
+// allPeopleAssetCount returns the total count of assets across all named people in the system.
+// It performs concurrent queries for each person's asset count using a limited number of goroutines.
 //
 // Parameters:
 //   - requestID: The ID of the API request for tracking purposes
 //   - deviceID: The ID of the device making the request
 //
 // Returns:
-//   - int: The total number of images across all named people
+//   - int: The total number of assets across all named people
 //   - error: nil if successful, error if the people query fails or if any individual count fails
 func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
 	allPeople, allPeopleErr := a.people(requestID, deviceID, true, false)
@@ -118,9 +118,9 @@ func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
 	for _, person := range allPeople {
 		p := person
 		errGroup.Go(func() error {
-			count, err := a.PersonImageCount(p.ID, requestID, deviceID)
+			count, err := a.PersonAssetCount(p.ID, requestID, deviceID)
 			if err != nil {
-				log.Error(requestID+" Failed to count images for person", "personID", p.ID, "error", err)
+				log.Error(requestID+" Failed to count assets for person", "personID", p.ID, "error", err)
 				return err
 			}
 			counts.Add(int64(count))
@@ -137,8 +137,8 @@ func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
 	return int(counts.Load()), nil
 }
 
-// PersonImageCount returns the number of images associated with a specific person in Immich.
-func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, error) {
+// PersonAssetCount returns the number of assets associated with a specific person in Immich.
+func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, error) {
 
 	if personID == kiosk.PersonKeywordAll {
 		return a.allPeopleAssetCount(requestID, deviceID)
@@ -171,30 +171,30 @@ func (a *Asset) PersonImageCount(personID, requestID, deviceID string) (int, err
 		return 0, err
 	}
 
-	return personStatistics.Assets, err
+	return personStatistics.Assets, nil
 }
 
-// RandomImageOfPerson retrieves a random image for a given person from the Immich API.
-// It handles retries, caching, and filtering to find suitable images. The function will make
-// multiple attempts to find a valid image that matches the criteria (not trashed, correct type, etc).
-// If caching is enabled, it will maintain a cache of unused images for future requests.
+// RandomAssetOfPerson retrieves a random asset for a given person from the Immich API.
+// It handles retries, caching, and filtering to find suitable assets. The function will make
+// multiple attempts to find a valid asset that matches the criteria (not trashed, correct type, etc).
+// If caching is enabled, it will maintain a cache of unused assets for future requests.
 //
 // Parameters:
-//   - personID: The ID of the person whose images to search for
+//   - personID: The ID of the person whose assets to search for
 //   - requestID: The ID of the API request for tracking purposes
 //   - deviceID: The ID of the device making the request
 //
 // Returns:
 //   - error: nil if successful, error otherwise. Returns specific error if no suitable
-//     image is found after MaxRetries attempts or if there are API/parsing failures
+//     asset is found after MaxRetries attempts or if there are API/parsing failures
 //
-// The function mutates the receiver (i *ImmichAsset) to store the selected image if successful.
-func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
+// The function mutates the receiver (i *ImmichAsset) to store the selected asset if successful.
+func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image of", personID)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset of", personID)
 	} else {
-		log.Debug(requestID+" Getting Random image of", personID)
+		log.Debug(requestID+" Getting Random asset of", personID)
 	}
 
 	for range MaxRetries {
@@ -213,6 +213,7 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+			WithVideo:  a.requestConfig.ShowVideos,
 		}
 
 		if a.requestConfig.RequireAllPeople {
@@ -255,12 +256,26 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			return err
 		}
 
+		// Add videos if user wants them
+		if a.requestConfig.ShowVideos {
+			err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
+			if err != nil {
+				_, _, err = immichAPIFail(immichAssets, err, nil, apiURL.String())
+				return err
+			}
+		}
+
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
-			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
+			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
 			cache.Delete(apiCacheKey)
 			continue
+		}
+
+		wantedAssetType := ImageOnlyAssetTypes
+		if a.requestConfig.ShowVideos {
+			wantedAssetType = AllAssetTypes
 		}
 
 		for immichAssetIndex, asset := range immichAssets {
@@ -269,12 +284,12 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			asset.requestConfig = a.requestConfig
 			asset.ctx = a.ctx
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 
 			if a.requestConfig.Kiosk.Cache {
-				// Remove the current image from the slice
+				// Remove the current asset from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
 				if cacheMarshalErr != nil {
@@ -282,7 +297,7 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 					return cacheMarshalErr
 				}
 
-				// Replace cache with remaining images after removing used image(s)
+				// Replace cache with remaining assets after removing used asset(s)
 				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
 				if cacheErr != nil {
 					log.Debug("cache not found!")
@@ -296,10 +311,10 @@ func (a *Asset) RandomImageOfPerson(personID, requestID, deviceID string, isPref
 			return nil
 		}
 
-		log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
+		log.Debug(requestID + " No viable assets left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
 	}
-	return fmt.Errorf("no images found for person '%s'. Max retries reached", personID)
+	return fmt.Errorf("no assets found for person '%s'. Max retries reached", personID)
 }
 
 // RandomPersonFromAllPeople returns a random person ID from all people in the system.

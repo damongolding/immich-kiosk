@@ -82,7 +82,7 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NewAsset, viewData)
 
-		if len(viewData.Assets) > 0 && requestConfig.AlbumVideo && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
+		if len(viewData.Assets) > 0 && requestConfig.ShowVideos && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
 			return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret()))
 		}
 
@@ -128,7 +128,7 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		default:
 		}
 
-		img, err := processAsset(&immichAsset, immich.ImageOnlyAssetTypes, requestConfig, requestID, "", "", false)
+		img, err := processAsset(&immichAsset, requestConfig, requestID, "", "", false)
 		if err != nil {
 			return err
 		}

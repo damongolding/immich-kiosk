@@ -1,4 +1,7 @@
+// kiosk constants
 package kiosk
+
+import "github.com/charmbracelet/lipgloss"
 
 type Source string
 
@@ -53,3 +56,5 @@ const (
 	ThemeBubble string = "bubble"
 	ThemeBlur   string = "blur"
 )
+
+var DebugID = lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(lipgloss.Color("#000000")).Background(lipgloss.Color("#1ed2bb")).Render("KIOSK")

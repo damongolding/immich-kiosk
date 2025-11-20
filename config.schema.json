@@ -71,9 +71,6 @@
       },
       "uniqueItems": true
     },
-    "album_video": {
-      "type": "boolean"
-    },
     "album_order": {
       "type": "string"
     },
@@ -115,8 +112,16 @@
     "memories": {
       "type": "boolean"
     },
+    "past_memory_days": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 365
+    },
     "date_filter": {
       "type": "string"
+    },
+    "show_videos": {
+      "type": "boolean"
     },
     "live_photos": {
       "type": "boolean"

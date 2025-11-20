@@ -2,6 +2,7 @@ package immich
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand/v2"
 	"net/http"
@@ -18,18 +19,124 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
+const MaxPastMemoryDays = 365
+
+// MemoriesWithPastDays retrieves memories for a given device ID and user ID over a specified number of past days.
+//
+// Parameters:
+//   - requestID: Unique identifier for tracking the request.
+//   - deviceID: ID of the requesting device.
+//   - days: Number of past days to fetch memories for.
+//
+// Returns:
+//   - MemoriesResponse: Slice of Memory objects for the requested days.
+//   - string: The API URL used for the request.
+//   - error: Any error encountered.
+func (a *Asset) MemoriesWithPastDays(requestID, deviceID string, days int) (MemoriesResponse, string, error) {
+	return a.memoriesWithPastDays(requestID, deviceID, false, days)
+}
+
+// memoriesWithPastDays fetches memories for a given device ID and user ID over a specified number of past days.
+//
+// This function aggregates memories from multiple API calls (one per day) and manages the cache manually.
+// If assetCount is true, a separate cache entry is used to avoid interference with the normal cache.
+//
+// Parameters:
+//   - requestID: Unique identifier for tracking the request.
+//   - deviceID: ID of the requesting device.
+//   - assetCount: If true, only the count of assets is requested.
+//   - days: Number of past days to fetch memories for.
+//
+// Returns:
+//   - MemoriesResponse: Slice of Memory objects for the requested days.
+//   - string: The API URL used for the request.
+//   - error: Any error encountered.
+func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool, days int) (MemoriesResponse, string, error) {
+	var memories MemoriesResponse
+
+	if days < 0 {
+		return memories, "", fmt.Errorf("days must be non-negative, got %d", days)
+	}
+	if days > MaxPastMemoryDays {
+		days = MaxPastMemoryDays
+		log.Warn("past memory days exceeds maximum, capping", "requested", days, "max", MaxPastMemoryDays)
+	}
+
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		return immichAPIFail(memories, err, nil, "")
+	}
+
+	startOfDay, _ := processTodayDateRange()
+
+	apiURLRaw := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     path.Join("api", "memories"),
+		RawQuery: fmt.Sprintf("for=%s&pastDays=%d", url.PathEscape(startOfDay.Format("2006-01-02T15:04:05.000Z")), days),
+	}
+
+	// If we want the memories assets count we will use a separate cache entry
+	// because Kiosk removes used assets from the normal cache entry
+	if assetCount {
+		apiURLRaw.RawQuery += "&count=true"
+	}
+
+	apiURL := apiURLRaw.String()
+
+	cacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
+
+	if apiData, found := cache.Get(cacheKey); found {
+		log.Debug(requestID+" Cache hit", "url", apiURL)
+		data, ok := apiData.([]byte)
+		if !ok {
+			return memories, apiURL, errors.New("could not parse past memories data")
+		}
+
+		err = json.Unmarshal(data, &memories)
+		if err != nil {
+			return memories, apiURL, err
+		}
+
+		return memories, apiURL, nil
+	}
+
+	for day := range days {
+		// Fetch memories for each day
+		m, memURL, memErr := a.memories(requestID, deviceID, false, day)
+		if memErr != nil {
+			return memories, memURL, memErr
+		}
+
+		memories = append(memories, m...)
+	}
+
+	b, marshalErr := json.Marshal(memories)
+	if marshalErr != nil {
+		return memories, apiURL, marshalErr
+	}
+
+	cache.Set(cacheKey, b)
+
+	return memories, apiURL, nil
+}
+
+func (a *Asset) Memories(requestID, deviceID string) (MemoriesResponse, string, error) {
+	return a.memories(requestID, deviceID, false, 0)
+}
+
 // memories fetches memory assets from the Immich API.
 //
 // Parameters:
 //   - requestID: Used for request tracking
-//   - deviceID: Identifies the requesting device
+//   - deviceID: Identifies the requesting device and for caching purposes
 //   - assetCount: Determines if we want just the count of assets
 //
 // Returns:
 //   - MemoriesResponse: The memory response data
 //   - string: The API URL used for the request
 //   - error: Any error that occurred
-func (a *Asset) memories(requestID, deviceID string, assetCount bool) (MemoriesResponse, string, error) {
+func (a *Asset) memories(requestID, deviceID string, assetCount bool, days int) (MemoriesResponse, string, error) {
 	var memories MemoriesResponse
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
@@ -37,13 +144,17 @@ func (a *Asset) memories(requestID, deviceID string, assetCount bool) (MemoriesR
 		return immichAPIFail(memories, err, nil, "")
 	}
 
-	startOfToday, _ := processTodayDateRange()
+	startOfDay, _ := processTodayDateRange()
+
+	if days > 0 {
+		startOfDay = startOfDay.AddDate(0, 0, -days)
+	}
 
 	apiURL := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     path.Join("api", "memories"),
-		RawQuery: fmt.Sprintf("for=%s", url.PathEscape(startOfToday.Format("2006-01-02T15:04:05.000Z"))),
+		RawQuery: fmt.Sprintf("for=%s", url.PathEscape(startOfDay.Format("2006-01-02T15:04:05.000Z"))),
 	}
 
 	// If we want the memories assets count we will use a separate cache entry
@@ -87,7 +198,16 @@ func memoriesCount(memories MemoriesResponse) int {
 // Returns:
 //   - int: Total number of assets, or 0 if error occurs
 func (a *Asset) MemoriesAssetsCount(requestID, deviceID string) int {
-	m, _, err := a.memories(requestID, deviceID, true)
+	var m MemoriesResponse
+	var err error
+	pastDays := max(a.requestConfig.PastMemoryDays, 0)
+
+	if pastDays > 0 {
+		m, _, err = a.memoriesWithPastDays(requestID, deviceID, true, pastDays)
+	} else {
+		m, _, err = a.memories(requestID, deviceID, true, 0)
+	}
+
 	if err != nil {
 		return 0
 	}
@@ -150,7 +270,15 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 
 	for range MaxRetries {
 
-		memories, apiURL, err := a.memories(requestID, deviceID, false)
+		var memories []Memory
+		var apiURL string
+		var err error
+
+		if a.requestConfig.PastMemoryDays > 0 {
+			memories, apiURL, err = a.MemoriesWithPastDays(requestID, deviceID, a.requestConfig.PastMemoryDays)
+		} else {
+			memories, apiURL, err = a.Memories(requestID, deviceID)
+		}
 		if err != nil {
 			return err
 		}
@@ -158,7 +286,7 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 		if len(memories) == 0 {
-			log.Debug(requestID + " No images left in cache. Refreshing and trying again for memories")
+			log.Debug(requestID + " No assets left in cache. Refreshing and trying again for memories")
 			cache.Delete(apiCacheKey)
 			continue
 		}
@@ -168,6 +296,11 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 		rand.Shuffle(len(memories[pickedMemoryIndex].Assets), func(i, j int) {
 			memories[pickedMemoryIndex].Assets[i], memories[pickedMemoryIndex].Assets[j] = memories[pickedMemoryIndex].Assets[j], memories[pickedMemoryIndex].Assets[i]
 		})
+
+		wantedAssetType := ImageOnlyAssetTypes
+		if a.requestConfig.ShowVideos {
+			wantedAssetType = AllAssetTypes
+		}
 
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
@@ -182,7 +315,7 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 				continue
 			}
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 
@@ -222,7 +355,15 @@ func (a *Asset) IsMemory() (bool, Memory, int) {
 
 	memLookUp := strconv.FormatInt(time.Now().Unix()/int64(5*60), 10)
 
-	m, _, err := a.memories(kiosk.GlobalCache, memLookUp, false)
+	var m []Memory
+	var err error
+
+	if a.requestConfig.PastMemoryDays > 0 {
+		m, _, err = a.MemoriesWithPastDays(kiosk.GlobalCache, memLookUp, a.requestConfig.PastMemoryDays)
+	} else {
+		m, _, err = a.Memories(kiosk.GlobalCache, memLookUp)
+	}
+
 	if err != nil {
 		log.Error("failed to get memories", "error", err)
 		return false, Memory{}, 0

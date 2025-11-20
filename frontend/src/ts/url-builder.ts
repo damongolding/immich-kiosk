@@ -61,7 +61,7 @@ function initCopyToClipboard(): void {
     if (!copyButton) return;
 
     copyButton.addEventListener("click", () => {
-        const url = document.getElementById("url-result");
+        const url = document.getElementById("url-result--url");
         if (!url) return;
 
         copyToClipboard(copyButton, url.innerText);

@@ -30,11 +30,9 @@ excluded_people:
 ## ID(s) of album or albums to display
 albums:
   - "ALBUM_ID"
-# display album videos
-album_video: false
+album_order: random # random | newest | oldest
 # Album IDs to exclude from being shown. Albums in this list will be filtered from
 # appearing in the frame even if they are included in the 'album' list.
-album_order: random # random | newest | oldest
 excluded_albums:
   - "ALBUM_ID"
 
@@ -57,6 +55,7 @@ memories: false # show memories
 # date_filter: last-30-days # only applies to people and random assets
 
 ## UI
+show_progress_bar: false # display a progress bar
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
 frameless: false # remove border around image and rounded corners.
 frame_padding: 0 # padding (px) around the edge of Kiosk; accepts integer or array [top, right, bottom, left]
@@ -79,11 +78,15 @@ fade_transition_duration: 1 # in seconds
 cross_fade_transition_duration: 1 # in seconds
 
 ## Image display settings
-show_progress_bar: false # display a progress bar
 image_fit: contain # none | contain | cover
 image_effect: none # none | zoom | smart-zoom
 image_effect_amount: 120
 use_original_image: false # use the original file.
+
+## Video
+show_videos: false
+live_photos: false
+live_photo_loop_delay: 0
 
 ## Image METADATA
 show_owner: false # show the owner of the image
@@ -141,6 +144,9 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 kiosk:
   port: 3000
   behind_proxy: false
+  disable_url_queries: false
+  disable_config_endpoint: false
+  enable_url_builder: false
   watch_config: false
   fetched_assets_size: 1000
   http_timeout: 20

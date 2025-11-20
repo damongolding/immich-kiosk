@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -24,6 +25,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var errVideoNotReady = errors.New("video not ready")
+
 // gatherAssetBuckets collects asset weightings for people, albums and date ranges.
 // For each person, it gets the count of images containing that person.
 // For each album, it gets the total count of images in the album.
@@ -42,12 +45,13 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	assets := []utils.AssetWithWeighting{}
 
+	// People bucket
 	for _, person := range requestConfig.People {
 		if person == "" || strings.EqualFold(person, "none") {
 			continue
 		}
 
-		personAssetCount, personCountErr := immichAsset.PersonImageCount(person, requestID, deviceID)
+		personAssetCount, personCountErr := immichAsset.PersonAssetCount(person, requestID, deviceID)
 		if personCountErr != nil {
 			if requestConfig.SelectedUser != "" {
 				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", requestConfig.SelectedUser, person, personCountErr)
@@ -66,6 +70,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
+	// Albums bucket
 	for _, album := range requestConfig.Albums {
 		if album == "" || strings.EqualFold(album, "none") {
 			continue
@@ -90,6 +95,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
+	// Tags bucket
 	for _, tag := range requestConfig.Tags {
 		if tag == "" || strings.EqualFold(tag, "none") {
 			continue
@@ -126,6 +132,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
+	// Dates bucket
 	for _, date := range requestConfig.Dates {
 		if date == "" || strings.EqualFold(date, "none") {
 			continue
@@ -138,6 +145,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
+	// Memories bucket
 	if requestConfig.Memories {
 		memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
 		if memories == 0 {
@@ -168,7 +176,7 @@ func isSleepMode(requestConfig config.Config) bool {
 
 // retrieveImage fetches a random image based on the picked image type.
 // It returns an error if the image retrieval fails.
-func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, allowedAssetType []immich.AssetType, requestID, deviceID string, isPrefetch bool) error {
+func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
 
 	switch pickedAsset.Type {
 	case kiosk.SourceAlbum:
@@ -192,7 +200,7 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 			}
 			pickedAsset.ID = pickedAlbumID
 		case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
-			return immichAsset.RandomImageFromFavourites(requestID, deviceID, allowedAssetType, isPrefetch)
+			return immichAsset.RandomAssetFromFavourites(requestID, deviceID, isPrefetch)
 		}
 
 		switch strings.ToLower(albumOrder) {
@@ -205,7 +213,7 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 		}
 
 	case kiosk.SourceDateRange:
-		return immichAsset.RandomImageInDateRange(pickedAsset.ID, requestID, deviceID, isPrefetch)
+		return immichAsset.RandomAssetInDateRange(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourcePerson:
 		if pickedAsset.ID == kiosk.PersonKeywordAll {
@@ -216,7 +224,7 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 			pickedAsset.ID = pickedPersonID
 		}
 
-		return immichAsset.RandomImageOfPerson(pickedAsset.ID, requestID, deviceID, isPrefetch)
+		return immichAsset.RandomAssetOfPerson(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourceMemories:
 		return immichAsset.RandomMemoryAsset(requestID, deviceID)
@@ -228,7 +236,7 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 		fallthrough
 
 	default:
-		return immichAsset.RandomImage(requestID, deviceID, isPrefetch)
+		return immichAsset.RandomAsset(requestID, deviceID, isPrefetch)
 	}
 
 }
@@ -263,11 +271,11 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 
 // processAsset handles the entire process of selecting and retrieving an image.
 // It returns the image bytes and an error if any step fails.
-func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetType, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
+func processAsset(asset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
 
 	var err error
 
-	assets, assetsErr := gatherAssetBuckets(immichAsset, requestConfig, requestID, deviceID)
+	assets, assetsErr := gatherAssetBuckets(asset, requestConfig, requestID, deviceID)
 	if assetsErr != nil {
 		return nil, assetsErr
 	}
@@ -276,17 +284,27 @@ func processAsset(immichAsset *immich.Asset, allowedAssetTypes []immich.AssetTyp
 
 		pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
 
-		err = retrieveImage(immichAsset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, allowedAssetTypes, requestID, deviceID, isPrefetch)
+		err = retrieveImage(asset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
 		if err != nil {
 			continue
 		}
 
 		//  At this point immichAsset could be a video or an image
-		if requestConfig.AlbumVideo && immichAsset.Type == immich.VideoType {
-			return processVideo(immichAsset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
+		if requestConfig.ShowVideos && asset.Type == immich.VideoType {
+			var img image.Image
+			img, err = processVideo(asset, requestConfig, requestID, deviceID, requestURL, isPrefetch)
+			if err == nil {
+				return img, nil
+			}
+			if errors.Is(err, errVideoNotReady) {
+				// try another asset
+				log.Debug(requestID+" Video not ready, trying another asset", "video", asset.ID)
+				continue
+			}
+			return nil, err
 		}
 
-		return processImage(immichAsset, requestConfig, requestID, deviceID, isPrefetch)
+		return processImage(asset, requestConfig, requestID, deviceID, isPrefetch)
 	}
 
 	return nil, fmt.Errorf("%w: max retries exceeded", err)
@@ -310,8 +328,8 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 		go VideoManager.DownloadVideo(*immichAsset, requestConfig, deviceID, requestURL)
 	}
 
-	// if the video is not available, run processAsset again to get a new asset
-	return processAsset(immichAsset, immich.AllAssetTypes, requestConfig, requestID, deviceID, requestURL, isPrefetch)
+	// video not ready yet; signal caller to pick another asset
+	return nil, errVideoNotReady
 }
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview
@@ -454,15 +472,14 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	// Set up configuration
 	setupRequestConfig(&requestConfig)
 	immichAsset := setupImmichAsset(requestConfig, options.ImageOrientation)
-	allowedAssetTypes := determineAllowedAssetTypes(requestConfig, isPrefetch)
 
 	// Handle relative asset configuration if needed
 	if options.RelativeAssetWanted {
 		handleRelativeAssetConfig(&requestConfig, options)
 	}
 
-	// Process image
-	img, err := processAsset(&immichAsset, allowedAssetTypes, requestConfig, metadata.requestID, metadata.deviceID, metadata.urlString, isPrefetch)
+	// Process asset
+	img, err := processAsset(&immichAsset, requestConfig, metadata.requestID, metadata.deviceID, metadata.urlString, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, fmt.Errorf("selecting asset: %w", err)
 	}
@@ -512,16 +529,6 @@ func setupImmichAsset(config config.Config, orientation immich.ImageOrientation)
 		asset.RatioWanted = orientation
 	}
 	return asset
-}
-
-// determineAllowedAssetTypes returns the allowed asset types based on config settings
-// Returns AllAssetTypes if experimental video is enabled and isPrefetch is true,
-// otherwise returns ImageOnlyAssetTypes
-func determineAllowedAssetTypes(config config.Config, isPrefetch bool) []immich.AssetType {
-	if config.AlbumVideo && isPrefetch {
-		return immich.AllAssetTypes
-	}
-	return immich.ImageOnlyAssetTypes
 }
 
 // handleRelativeAssetConfig updates the config buckets based on the relative asset options.
@@ -653,7 +660,7 @@ func renderCachedViewData(c echo.Context, cachedViewData []common.ViewData, requ
 	utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
 	viewDataToRender.History = requestConfig.History
 
-	if requestConfig.AlbumVideo && viewDataToRender.Assets[0].ImmichAsset.Type == immich.VideoType {
+	if requestConfig.ShowVideos && viewDataToRender.Assets[0].ImmichAsset.Type == immich.VideoType {
 		return Render(c, http.StatusOK, videoComponent.Video(viewDataToRender, secret))
 	}
 

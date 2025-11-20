@@ -15,6 +15,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
@@ -63,7 +64,7 @@ func initialise() error {
 		return err
 	}
 
-	log.Info("created video tmp dir at", "path", customTempVideoDir)
+	log.Info("created video tmp dir", "path", customTempVideoDir)
 
 	return nil
 }
@@ -263,19 +264,19 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 	var imageData, imageBlurData string
 
 	defer func() {
-		log.Debug("downloaded video", "path", filePath)
+		log.Debug(kiosk.DebugID+" Downloaded video", "path", filePath)
 		v.AddVideoToViewCache(videoID, filename, filePath, contentType, &requestConfig, deviceID, requestURL, immichAsset, imageData, imageBlurData)
 	}()
 
 	imgBytes, _, imgBytesErr := immichAsset.ImagePreview()
 	if imgBytesErr != nil {
-		log.Debug("getting image preview for video", "id", videoID, "err", imgBytesErr)
+		log.Debug("Getting image preview for video", "id", videoID, "err", imgBytesErr)
 		return
 	}
 
 	img, imgErr := utils.BytesToImage(imgBytes)
 	if imgErr != nil {
-		log.Error("image BytesToImage", "err", imgErr)
+		log.Error("Image BytesToImage", "err", imgErr)
 	}
 
 	img = utils.ApplyExifOrientation(img, immichAsset.ExifInfo.Orientation)
@@ -289,16 +290,16 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 
 	imgBlur, imgBlurErr := utils.BlurImage(img, requestConfig.BackgroundBlurAmount, false, 0, 0)
 	if imgBlurErr != nil {
-		log.Error("getting image preview", "err", imgBlurErr)
+		log.Error("Getting image preview", "err", imgBlurErr)
 	}
 
 	imageData, imageDataErr := utils.ImageToBase64(img)
 	if imageDataErr != nil {
-		log.Error("converting image to base64", "err", imageDataErr)
+		log.Error("Converting image to base64", "err", imageDataErr)
 	}
 
 	imageBlurData, err := utils.ImageToBase64(imgBlur)
 	if err != nil {
-		log.Error("converting image to base64", "err", err)
+		log.Error("Converting image to base64", "err", err)
 	}
 }
