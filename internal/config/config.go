@@ -376,7 +376,8 @@ type Config struct {
 	RequireAllPeople bool `json:"requireAllPeople" yaml:"require_all_people" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
 
 	// Memories show memories
-	Memories bool `json:"memories" yaml:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
+	Memories       bool `json:"memories" yaml:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
+	PastMemoryDays int  `json:"pastMemoryDays" yaml:"past_memory_days" mapstructure:"past_memory_days" query:"past_memory_days" form:"past_memory_days" default:"0"`
 
 	// ShowVideos whether to display videos
 	ShowVideos bool `json:"showVideos" yaml:"show_videos" mapstructure:"show_videos" query:"show_videos" form:"show_videos" default:"false"`

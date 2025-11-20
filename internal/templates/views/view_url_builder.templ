@@ -111,6 +111,7 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					}
 					@URLBuilderRadio("Memories", "memories", "Display memories.", "true", "true", "false", "false")
 					if extended {
+						@URLBuilderNumber("Past memory days", "past_memory_days", "Include memories from the last N days. 0 shows only today.", 0, 0, strconv.FormatInt(int64(c.PastMemoryDays), 10))
 						@URLBuilderRadio("Include archived", "show_archived", "Allow assets marked as archived to be displayed.", "true", "true", "false", "false")
 					}
 					if extended {

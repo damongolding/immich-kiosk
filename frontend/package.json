@@ -38,5 +38,5 @@
     "not op_mini all",
     "not IE 11"
   ],
-  "packageManager": "pnpm@10.20.0"
+  "packageManager": "pnpm@10.22.0"
 }
