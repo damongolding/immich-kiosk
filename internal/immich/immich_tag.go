@@ -212,7 +212,7 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 				return fmt.Errorf("no assets found with tag %s after refresh", tagID)
 			}
 
-			continue
+			immichAssets = immichAssetsRetry
 		}
 
 		wantedAssetType := ImageOnlyAssetTypes
