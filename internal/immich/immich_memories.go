@@ -19,22 +19,36 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-// MemoriesWithPastDays
-// Fetches memories for a given device ID and user ID for a specified number of past days.
-// Returns a MemoriesResponse, the URL used for the request, and an error if any occurred.
+// MemoriesWithPastDays retrieves memories for a given device ID and user ID over a specified number of past days.
 //
-// As the returned MemoriesResponse is a combination of memories from the past days (multiple API calls)
-// the cache is managed manually.
+// Parameters:
+//   - requestID: Unique identifier for tracking the request.
+//   - deviceID: ID of the requesting device.
+//   - days: Number of past days to fetch memories for.
+//
+// Returns:
+//   - MemoriesResponse: Slice of Memory objects for the requested days.
+//   - string: The API URL used for the request.
+//   - error: Any error encountered.
 func (a *Asset) MemoriesWithPastDays(requestID, deviceID string, days int) (MemoriesResponse, string, error) {
 	return a.memoriesWithPastDays(requestID, deviceID, false, days)
 }
 
-// MemoriesWithPastDays
-// Fetches memories for a given device ID and user ID for a specified number of past days.
-// Returns a MemoriesResponse, the URL used for the request, and an error if any occurred.
+// memoriesWithPastDays fetches memories for a given device ID and user ID over a specified number of past days.
 //
-// As the returned MemoriesResponse is a combination of memories from the past days (multiple API calls)
-// the cache is managed manually.
+// This function aggregates memories from multiple API calls (one per day) and manages the cache manually.
+// If assetCount is true, a separate cache entry is used to avoid interference with the normal cache.
+//
+// Parameters:
+//   - requestID: Unique identifier for tracking the request.
+//   - deviceID: ID of the requesting device.
+//   - assetCount: If true, only the count of assets is requested.
+//   - days: Number of past days to fetch memories for.
+//
+// Returns:
+//   - MemoriesResponse: Slice of Memory objects for the requested days.
+//   - string: The API URL used for the request.
+//   - error: Any error encountered.
 func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool, days int) (MemoriesResponse, string, error) {
 	var memories MemoriesResponse
 
