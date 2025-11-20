@@ -257,8 +257,8 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 			log.Debug(requestID+" No assets left in cache. Refreshing and trying again for album", albumID)
 			cache.Delete(apiCacheKey)
 
-			a, _, retryErr := a.albumAssets(albumID, requestID, deviceID)
-			if retryErr != nil || len(a.Assets) == 0 {
+			album, _, retryErr := a.albumAssets(albumID, requestID, deviceID)
+			if retryErr != nil || len(album.Assets) == 0 {
 				return fmt.Errorf("no assets found for album %s after refresh", albumID)
 			}
 
