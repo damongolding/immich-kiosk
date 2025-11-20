@@ -88,6 +88,7 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+		WithVideo:  a.requestConfig.ShowVideos,
 	}
 
 	if a.requestConfig.ShowArchived {
@@ -96,9 +97,23 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 
 	DateFilter(&requestBody, a.requestConfig.DateFilter)
 
-	allAssetsCount, err = a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
+	allImagesCount, imagesErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
+	if imagesErr != nil {
+		return allAssetsCount, imagesErr
+	}
 
-	return allAssetsCount, err
+	allAssetsCount += allImagesCount
+
+	if a.requestConfig.ShowVideos {
+		requestBody.Type = string(VideoType)
+		allVideosCount, videosErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
+		if videosErr != nil {
+			return allAssetsCount, videosErr
+		}
+		allAssetsCount += allVideosCount
+	}
+
+	return allAssetsCount, nil
 }
 
 // AssetsWithTag retrieves assets that have the specified tag from the Immich API.
@@ -120,6 +135,7 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 		WithExif:   true,
 		WithPeople: true,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+		WithVideo:  a.requestConfig.ShowVideos,
 	}
 
 	if a.requestConfig.ShowArchived {
@@ -154,6 +170,14 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}
 
+	// Add videos if user wants them
+	if a.requestConfig.ShowVideos {
+		err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
+		if err != nil {
+			return immichAPIFail(immichAssets, err, nil, apiURL.String())
+		}
+	}
+
 	return immichAssets, apiURL.String(), nil
 }
 
@@ -165,9 +189,9 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random image with tag", tagID)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset with tag", "ID", tagID)
 	} else {
-		log.Debug(requestID+" Getting Random image with tag", tagID)
+		log.Debug(requestID+" Getting Random asset with tag", "ID", tagID)
 	}
 
 	for range MaxRetries {
@@ -180,7 +204,7 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
-			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
+			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
 			cache.Delete(apiCacheKey)
 
 			immichAssetsRetry, _, retryErr := a.AssetsWithTag(tagID, requestID, deviceID)
@@ -191,18 +215,23 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 			continue
 		}
 
+		wantedAssetType := ImageOnlyAssetTypes
+		if a.requestConfig.ShowVideos {
+			wantedAssetType = AllAssetTypes
+		}
+
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourceTag
 			asset.requestConfig = a.requestConfig
 			asset.ctx = a.ctx
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 
 			if a.requestConfig.Kiosk.Cache {
-				// Remove the current image from the slice
+				// Remove the current asset from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
 				if cacheMarshalErr != nil {
@@ -210,7 +239,7 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 					return cacheMarshalErr
 				}
 
-				// replace cache with used image(s) removed
+				// replace cache with used asset(s) removed
 				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
 				if cacheErr != nil {
 					log.Debug("Failed to update device cache for tag", "tagID", tagID, "deviceID", deviceID)
@@ -224,11 +253,11 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 			return nil
 		}
 
-		log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
+		log.Debug(requestID + " No viable assets left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
 	}
 
-	return fmt.Errorf("no images found for '%s'. Max retries reached", tagID)
+	return fmt.Errorf("no assets found for '%s'. Max retries reached", tagID)
 }
 
 func (a *Asset) HasTag(tagID string) bool {

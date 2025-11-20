@@ -13,7 +13,9 @@ templ URLResult(url string, errMsg string) {
 				aria-describedby="url-result--error"
 			}
 		>
-			<a href={ templ.SafeURL(url) }>{ url }</a>
+			if url != "" {
+				<a href={ templ.SafeURL(url) }>{ url }</a>
+			}
 		</div>
 	</div>
 }

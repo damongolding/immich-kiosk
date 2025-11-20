@@ -71,9 +71,6 @@
       },
       "uniqueItems": true
     },
-    "album_video": {
-      "type": "boolean"
-    },
     "album_order": {
       "type": "string"
     },
@@ -117,6 +114,9 @@
     },
     "date_filter": {
       "type": "string"
+    },
+    "show_videos": {
+      "type": "boolean"
     },
     "live_photos": {
       "type": "boolean"

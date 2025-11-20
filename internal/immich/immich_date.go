@@ -66,6 +66,7 @@ func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 			WithExif:    true,
 			WithPeople:  true,
 			Size:        a.requestConfig.Kiosk.FetchedAssetsSize,
+			WithVideo:   a.requestConfig.ShowVideos,
 		}
 
 		if a.requestConfig.ShowArchived {
@@ -100,12 +101,26 @@ func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 			return err
 		}
 
+		// Add videos if user wants them
+		if a.requestConfig.ShowVideos {
+			err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
+			if err != nil {
+				_, _, err = immichAPIFail(immichAssets, err, nil, apiURL.String())
+				return err
+			}
+		}
+
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
-			log.Debug(requestID + " No images left in cache. Refreshing and trying again")
+			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
 			cache.Delete(apiCacheKey)
 			continue
+		}
+
+		wantedAssetType := ImageOnlyAssetTypes
+		if a.requestConfig.ShowVideos {
+			wantedAssetType = AllAssetTypes
 		}
 
 		for immichAssetIndex, asset := range immichAssets {
@@ -114,7 +129,7 @@ func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 			asset.requestConfig = a.requestConfig
 			asset.ctx = a.ctx
 
-			if !asset.isValidAsset(requestID, deviceID, ImageOnlyAssetTypes, a.RatioWanted) {
+			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 
@@ -141,11 +156,11 @@ func (a *Asset) RandomImageInDateRange(dateRange, requestID, deviceID string, is
 			return nil
 		}
 
-		log.Debug(requestID + " No viable images left in cache. Refreshing and trying again")
+		log.Debug(requestID + " No viable assets left in cache. Refreshing and trying again")
 		cache.Delete(apiCacheKey)
 	}
 
-	return fmt.Errorf("no images found for '%s'. Max retries reached", dateRange)
+	return fmt.Errorf("no assets found for '%s'. Max retries reached", dateRange)
 }
 
 func determineDateRange(dateRange string) (time.Time, time.Time, error) {

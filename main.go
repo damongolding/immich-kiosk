@@ -97,11 +97,10 @@ func main() {
 	videoManager, videoManagerErr := video.New(c.Context())
 	if videoManagerErr != nil {
 		log.Error("Failed to initialize video manager", "err", videoManagerErr)
+	} else {
+		videoManager.MaxAge = time.Minute * 10
+		routes.VideoManager = videoManager
 	}
-
-	videoManager.MaxAge = time.Duration(10) * time.Minute
-
-	routes.VideoManager = videoManager
 
 	if baseConfig.Kiosk.WatchConfig {
 		log.Info("Watching config for changes", "file", baseConfig.V.ConfigFileUsed())

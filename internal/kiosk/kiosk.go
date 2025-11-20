@@ -1,3 +1,4 @@
+// kiosk constants
 package kiosk
 
 type Source string
