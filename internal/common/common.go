@@ -154,13 +154,12 @@ type URLBuilderRequest struct {
 	ShowMemories     *bool    `form:"memories" url:"memories,omitempty"`
 	PastMemoryDays   *uint64  `form:"past_memory_days" url:"past_memory_days,omitempty"`
 
-	ShowArchived     *bool    `form:"show_archived" url:"show_archived,omitempty"`
+	ShowArchived *bool `form:"show_archived" url:"show_archived,omitempty"`
 
 	// Video
 	ShowVideos         *bool   `form:"show_videos" url:"show_videos,omitempty"`
 	LivePhotos         *bool   `form:"live_photos" url:"live_photos,omitempty"`
 	LivePhotoLoopDelay *uint64 `form:"live_photo_loop_delay" url:"live_photo_loop_delay,omitempty"`
-
 
 	// Clock
 	ShowTime    *bool   `form:"show_time" url:"show_time,omitempty"`
