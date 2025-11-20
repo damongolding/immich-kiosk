@@ -19,6 +19,8 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
+const MaxPastMemoryDays = 365
+
 // MemoriesWithPastDays retrieves memories for a given device ID and user ID over a specified number of past days.
 //
 // Parameters:
@@ -51,6 +53,14 @@ func (a *Asset) MemoriesWithPastDays(requestID, deviceID string, days int) (Memo
 //   - error: Any error encountered.
 func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool, days int) (MemoriesResponse, string, error) {
 	var memories MemoriesResponse
+
+	if days < 0 {
+		return memories, "", fmt.Errorf("days must be non-negative, got %d", days)
+	}
+	if days > MaxPastMemoryDays {
+		days = MaxPastMemoryDays
+		log.Warn("past memory days exceeds maximum, capping", "requested", days, "max", MaxPastMemoryDays)
+	}
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {

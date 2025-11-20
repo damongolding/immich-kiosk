@@ -114,7 +114,8 @@
     },
     "past_memory_days": {
       "type": "integer",
-      "minimum": 0
+      "minimum": 0,
+      "maximum": 365
     },
     "date_filter": {
       "type": "string"
