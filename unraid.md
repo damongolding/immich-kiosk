@@ -19,7 +19,7 @@ This section is used to generate the UnRaid template.
 | albums                            | KIOSK_ALBUMS            | []string                   | []          | The ID(s) of one or more albums to display. |
 | album_order                       | KIOSK_ALBUM_ORDER       | random \| newest \| oldest | random      | The order an album's assets will be displayed. |
 | excluded_albums                   | KIOSK_EXCLUDED_ALBUMS   | []string                   | []          | The ID(s) of a specific album or albums you want to exclude. |
-| show_video                        | KIOSK_SHOW_VIDEOS       | bool                       | false       | Enable video playback. |
+| show_videos                       | KIOSK_SHOW_VIDEOS       | bool                       | false       | Enable video playback. |
 | live_photos                       | KIOSK_LIVE_PHOTOS       | bool                       | false       | Enable live photos playback for albums. |
 | live_photo_loop_delay             | KIOSK_LIVE_PHOTO_LOOP_DELAY | int                    | 0           | Delay in seconds before looping live photos. |
 | people                            | KIOSK_PEOPLE            | []string                   | []          | The ID(s) of a specific person or people you want to display. |
