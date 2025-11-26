@@ -375,8 +375,7 @@ func imageToBase64(img image.Image, config config.Config, requestID, deviceID st
 func processBlurredImage(img image.Image, assetType immich.AssetType, config config.Config, requestID, deviceID string, isPrefetch bool) (string, error) {
 	isImage := assetType == immich.ImageType
 	shouldSkipBlur := !config.BackgroundBlur ||
-		(strings.EqualFold(config.ImageFit, "cover") && !config.LivePhotos) ||
-		(config.ImageEffect != "" && config.ImageEffect != "none" && config.Layout != "single" && !config.LivePhotos)
+		(strings.EqualFold(config.ImageFit, "cover") && !config.LivePhotos)
 
 	if isImage && shouldSkipBlur {
 		return "", nil
