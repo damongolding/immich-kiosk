@@ -279,7 +279,8 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		log.Error("Image BytesToImage", "err", imgErr)
 	}
 
-	img = utils.ApplyExifOrientation(img, immichAsset.ExifInfo.Orientation)
+	// I think this is incorrectly rotating the blurred background for videos
+	// img = utils.ApplyExifOrientation(img, immichAsset.ExifInfo.Orientation)
 
 	if requestConfig.OptimizeImages {
 		img, imgErr = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
