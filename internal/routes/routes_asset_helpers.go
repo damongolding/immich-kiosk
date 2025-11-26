@@ -381,14 +381,7 @@ func shouldSkipBlur(config config.Config) bool {
 	usingImageCover := strings.EqualFold(config.ImageFit, "cover")
 
 	// Skip if using image cover with live photos off
-	if coverNoLiveVideo := usingImageCover && !config.LivePhotos; coverNoLiveVideo {
-		return true
-	}
-
-	// using zoom or smart-zoom effect
-	hasImageEffect := config.ImageEffect != "" && config.ImageEffect != "none"
-
-	if hasImageEffect && usingImageCover && !config.LivePhotos {
+	if usingImageCover && !config.LivePhotos {
 		return true
 	}
 
