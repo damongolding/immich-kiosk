@@ -137,6 +137,21 @@ async function init(): Promise<void> {
     const MILLISECONDS_PER_SECOND = 1000;
     const TIMEOUT_GRACE_FACTOR = 3;
 
+    document.body.addEventListener(
+        "htmx:afterRequest",
+        ((e: Event) => {
+            const detail = (e as any).detail;
+            const path = detail?.pathInfo?.requestPath;
+            const status = detail?.xhr?.status;
+
+            console.debug("[DEBUG] htmx:afterRequest", {
+                path,
+                status,
+                successful: detail?.successful,
+            });
+        }) as EventListener,
+    );
+
     if (kioskData.httpTimeout <= 0) {
         htmx.config.timeout = 0;
     } else {
@@ -288,6 +303,20 @@ function addEventListeners(): void {
             htmx.addClass(offlineSVG, "offline");
         }
     });
+    
+    // Slideshow polling control. Fires after every AJAX request.
+    // Only (re)start polling when a new asset has been loaded
+    htmx.on("htmx:afterRequest", (e: HTMXEvent) => {
+        const path = e.detail?.pathInfo?.requestPath || "";
+
+        // Debug so we can see exactly when this runs
+        console.debug("[DEBUG] kiosk polling afterRequest", { path });
+
+        // Only restart polling for asset endpoints (new slide)
+        if (path.startsWith("/asset/")) {
+            startPolling();
+        }
+    });
 
     htmx.on("htmx:timeout", (e: HTMXEvent) => {
         let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
@@ -416,6 +445,15 @@ async function cleanupFrames(): Promise<void> {
  * @throws {Error} If request lock is already set
  */
 function setRequestLock(e: HTMXEvent): void {
+    const path = e.detail?.pathInfo?.requestPath || "";
+
+    console.debug("[DEBUG] setRequestLock for asset request", { path });
+
+    // Only lock and pause polling for asset requests (new slide)
+    if (!path.startsWith("/asset/")) {
+        return;
+    }
+
     if (requestInFlight) {
         e.preventDefault();
         return;
@@ -439,6 +477,22 @@ function releaseRequestLock(): void {
     enableAssetNavigationButtons();
 
     requestInFlight = false;
+}
+
+/**
+ * Only starts polling for asset events after a request completes
+ * @description Request event handling function that:
+ * - Starts polling only if there is an asset change event
+ * - Ignores polling events due to live photo failures
+ */ 
+function afterRequest(e: HTMXEvent): void {
+    const path = e.detail?.pathInfo?.requestPath || "";
+
+    // Only restart polling for asset endpoints
+    if (path.startsWith("/asset/")) {
+        startPolling();
+    }
+
 }
 
 /**
@@ -551,4 +605,5 @@ export {
     clientData,
     videoHandler,
     sleepMode,
+    afterRequest,
 };

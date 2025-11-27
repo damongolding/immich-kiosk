@@ -34,7 +34,6 @@ templ Home(viewData common.ViewData, secret string) {
 					hx-include=".kiosk-history--entry"
 					hx-trigger={ triggers(viewData.DisableNavigation) }
 					hx-on::before-send="kiosk.setRequestLock(event)"
-					hx-on::after-request="kiosk.startPolling()"
 					hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames()"
 				>
 					@partials.Spinner()
