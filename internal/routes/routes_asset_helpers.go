@@ -370,15 +370,31 @@ func imageToBase64(img image.Image, config config.Config, requestID, deviceID st
 	return imgBytes, nil
 }
 
+// shouldSkipBlur determines whether background blur should be skipped.
+// - Blur is skipped when BackgroundBlur is disabled.
+// - Blur is skipped when ImageFit is "cover" and LivePhotos is disabled.
+func shouldSkipBlur(config config.Config) bool {
+	if !config.BackgroundBlur {
+		return true
+	}
+
+	usingImageCover := strings.EqualFold(config.ImageFit, "cover")
+
+	// Skip if using image cover with live photos off
+	if usingImageCover && !config.LivePhotos {
+		return true
+	}
+
+	return false
+}
+
 // processBlurredImage applies a blur effect to the image if required by the configuration.
 // It returns the blurred image as a base64 string and an error if any occurs.
 func processBlurredImage(img image.Image, assetType immich.AssetType, config config.Config, requestID, deviceID string, isPrefetch bool) (string, error) {
 	isImage := assetType == immich.ImageType
-	shouldSkipBlur := !config.BackgroundBlur ||
-		(strings.EqualFold(config.ImageFit, "cover") && !config.LivePhotos) ||
-		(config.ImageEffect != "" && config.ImageEffect != "none" && config.Layout != "single" && !config.LivePhotos)
+	skipBlur := shouldSkipBlur(config)
 
-	if isImage && shouldSkipBlur {
+	if isImage && skipBlur {
 		return "", nil
 	}
 
