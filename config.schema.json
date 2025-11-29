@@ -340,6 +340,9 @@
           },
           "event": {
             "type": "string"
+          },
+          "secret": {
+            "type": "string"
           }
         },
         "required": ["url", "event"]
