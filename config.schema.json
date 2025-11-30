@@ -482,6 +482,9 @@
             "required": ["name", "url"]
           }
         },
+        "api_albums_password": {
+          "type": "string"
+        },
         "demo_mode": {
           "type": "boolean"
         }
