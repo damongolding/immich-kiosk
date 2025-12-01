@@ -1,0 +1,18 @@
+# navigation
+previous_asset = "Previous Asset"
+next_asset = "Next Asset"
+play_pause = "Play/Pause"
+mute_unmute = "Mute/Unmute"
+more_info = "More information"
+redirects = "Redirects"
+clear_cache = "Clear server cache"
+fullscreen = "Fullscreen"
+
+# aria
+redirects_label = "Redirects"
+navigation_label = "Navigation"
+
+# common
+ok = "OK"
+cancel = "Cancel"
+loading = "Loading..."
