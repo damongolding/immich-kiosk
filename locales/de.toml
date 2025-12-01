@@ -1,18 +1,53 @@
-# navigation
-previous_asset = "Vorheriges Element"
-next_asset = "Nächstes Element"
+## navigation
+previous_asset = "Vorheriges Objekt"
+next_asset = "Nächstes Objekt"
 play_pause = "Abspielen/Pause"
-mute_unmute = "Stumm ein/aus"
+mute_unmute = "Stumm/Einschalten"
 more_info = "Mehr Informationen"
 redirects = "Weiterleitungen"
-clear_cache = "Server-Cache löschen"
+clear_cache = "Server-Cache leeren"
 fullscreen = "Vollbild"
-
-# aria
 redirects_label = "Weiterleitungen"
 navigation_label = "Navigation"
 
-# common
-ok = "OK"
-cancel = "Abbrechen"
-loading = "Lädt..."
+## More info overlay
+immich_link_btn = "In Immich anzeigen"
+trigger_webhook_btn = "Webhook auslösen"
+
+unknown_make = "Unbekannter Hersteller"
+unknown_stats = "Unbekannte Statistiken"
+unknown_date_time = "Unbekanntes Datum und Uhrzeit"
+unknown_location = "Unbekannter Ort"
+
+people = "Personen"
+tags = "Tags"
+
+like_asset = "Objekt mögen"
+unlike_asset = "Objekt nicht mehr mögen"
+liked = "Gemocht"
+like = "Gefällt mir"
+
+hide_asset = "Objekt ausblenden"
+unhide_asset = "Objekt einblenden"
+hidden = "Ausgeblendet"
+hide = "Ausblenden"
+
+sleep_mode = "Ruhemodus"
+
+unauthorized_access = "Unbefugter Zugriff"
+unauthorized = "Unbefugt"
+
+## URL builder
+url_builder = "URL-Generator"
+extended_options = "Erweiterte Optionen anzeigen"
+basic_options = "Basisoptionen anzeigen"
+
+## About
+current_version = "Aktuelle Version"
+latest_version = "Neueste Version"
+unknown = "Unbekannt"
+status = "Status"
+configuration = "Konfiguration"
+view_configuration = "Konfiguration anzeigen"
+online = "Online"
+offline = "Offline"
