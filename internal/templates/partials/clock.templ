@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/goodsign/monday"
 	"strings"
 	"time"
 )
@@ -12,14 +13,11 @@ import (
 // If no date format is specified in config, it uses the default date layout.
 func clockDate(c config.Config) string {
 	clockDateFormat := utils.DateToLayout(c.DateFormat)
-
 	if clockDateFormat == "" {
 		clockDateFormat = config.DefaultDateLayout
 	}
 
-	t := time.Now()
-
-	return t.Format(clockDateFormat)
+	return monday.Format(time.Now(), clockDateFormat, c.SystemLang)
 }
 
 // clockTime returns the current time formatted according to the configuration settings.
