@@ -1,0 +1,18 @@
+# navigation
+previous_asset = "Elemento anterior"
+next_asset = "Siguiente elemento"
+play_pause = "Reproducir/Pausar"
+mute_unmute = "Silenciar/Activar sonido"
+more_info = "Más información"
+redirects = "Redirecciones"
+clear_cache = "Borrar caché del servidor"
+fullscreen = "Pantalla completa"
+
+# aria
+redirects_label = "Redirecciones"
+navigation_label = "Navegación"
+
+# common
+ok = "OK"
+cancel = "Cancelar"
+loading = "Cargando..."
