@@ -47,7 +47,7 @@ func webhookAttributes(viewData common.ViewData, event, secret string) templ.Att
 }
 
 templ Menu(viewData common.ViewData, queries url.Values, secret string) {
-	{{ t := i18n.T(string(viewData.SystemLang)) }}
+	{{ t := i18n.T() }}
 	{{ hasCustomNavigation := viewData.Webhooks.ContainsEvent(webhooks.UserNavigationCustom.String()) }}
 	<nav id={ "navigation-interaction-area" }>
 		<div
@@ -127,7 +127,7 @@ templ Menu(viewData common.ViewData, queries url.Values, secret string) {
 			<div
 				class="navigation--item navigation--links rounded"
 				role="navigation"
-				aria-label="Redirects"
+				aria-label={ t("redirects") }
 				aria-expanded="false"
 				title={ t("redirects") }
 			>

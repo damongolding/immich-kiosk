@@ -1,18 +1,53 @@
-# navigation
+## navigation
 previous_asset = "Élément précédent"
 next_asset = "Élément suivant"
 play_pause = "Lecture/Pause"
-mute_unmute = "Activer/Désactiver le son"
+mute_unmute = "Muet/Son"
 more_info = "Plus d'informations"
 redirects = "Redirections"
 clear_cache = "Vider le cache du serveur"
 fullscreen = "Plein écran"
-
-# aria
 redirects_label = "Redirections"
 navigation_label = "Navigation"
 
-# common
-ok = "OK"
-cancel = "Annuler"
-loading = "Chargement..."
+## More info overlay
+immich_link_btn = "Voir dans Immich"
+trigger_webhook_btn = "Déclencher le webhook"
+
+unknown_make = "Marque inconnue"
+unknown_stats = "Statistiques inconnues"
+unknown_date_time = "Date et heure inconnues"
+unknown_location = "Emplacement inconnu"
+
+people = "Personnes"
+tags = "Tags"
+
+like_asset = "Aimer l'élément"
+unlike_asset = "Ne plus aimer l'élément"
+liked = "Aimé"
+like = "Aimer"
+
+hide_asset = "Masquer l'élément"
+unhide_asset = "Afficher l'élément"
+hidden = "Masqué"
+hide = "Masquer"
+
+sleep_mode = "Mode veille"
+
+unauthorized_access = "Accès non autorisé"
+unauthorized = "Non autorisé"
+
+## URL builder
+url_builder = "Générateur d'URL"
+extended_options = "Voir les options avancées"
+basic_options = "Voir les options de base"
+
+## About
+current_version = "Version actuelle"
+latest_version = "Dernière version"
+unknown = "Inconnu"
+status = "Statut"
+configuration = "Configuration"
+view_configuration = "Voir la configuration"
+online = "En ligne"
+offline = "Hors ligne"

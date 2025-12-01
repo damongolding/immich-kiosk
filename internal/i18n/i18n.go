@@ -2,6 +2,7 @@ package i18n
 
 import (
 	"embed"
+	"io/fs"
 
 	"github.com/charmbracelet/log"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -12,27 +13,38 @@ import (
 var (
 	LocaleFS embed.FS
 	Bundle   *i18n.Bundle
+	lang     string
 )
 
 // Init initializes the i18n bundle and loads message files.
-func Init() error {
+func Init(systemLang string) error {
+	lang = systemLang
+
 	Bundle = i18n.NewBundle(language.English)
 	Bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 
-	locales := []string{"en", "de", "fr", "es"}
-	for _, loc := range locales {
-		if _, err := Bundle.LoadMessageFileFS(LocaleFS, "locales/"+loc+".toml"); err != nil {
+	return fs.WalkDir(LocaleFS, "locales", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
 			return err
 		}
-	}
 
-	return nil
+		if d.IsDir() {
+			return nil
+		}
+
+		_, bundleErr := Bundle.LoadMessageFileFS(LocaleFS, path)
+		if bundleErr != nil {
+			return bundleErr
+		}
+
+		return nil
+	})
 }
 
 // T returns a translation function for the given locale.
-func T(locale string) func(string) string {
+func T() func(string) string {
 	defaultLocalizer := i18n.NewLocalizer(Bundle, "en")
-	localizer := i18n.NewLocalizer(Bundle, locale)
+	localizer := i18n.NewLocalizer(Bundle, lang)
 
 	return func(key string) string {
 		translated, err := localizer.Localize(&i18n.LocalizeConfig{

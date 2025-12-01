@@ -81,11 +81,15 @@ func main() {
 	baseConfig := config.New()
 	baseConfig.Kiosk.Version = version
 
-	systemLang := monday.Locale(utils.SystemLanguage())
+	lang := utils.SystemLanguage()
+	systemLang := monday.Locale(lang)
 	baseConfig.SystemLang = systemLang
 	log.Info("System language", "lang", systemLang)
 
-	i18n.Init()
+	i18nErr := i18n.Init(lang)
+	if i18nErr != nil {
+		log.Error("Failed to initialize i18n", "err", i18nErr)
+	}
 
 	configErr := baseConfig.Load()
 	if configErr != nil {

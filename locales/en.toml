@@ -1,4 +1,4 @@
-# navigation
+## navigation
 previous_asset = "Previous Asset"
 next_asset = "Next Asset"
 play_pause = "Play/Pause"
@@ -7,12 +7,47 @@ more_info = "More information"
 redirects = "Redirects"
 clear_cache = "Clear server cache"
 fullscreen = "Fullscreen"
-
-# aria
 redirects_label = "Redirects"
 navigation_label = "Navigation"
 
-# common
-ok = "OK"
-cancel = "Cancel"
-loading = "Loading..."
+## More info overlay
+immich_link_btn = "View in Immich"
+trigger_webhook_btn = "Trigger webhook"
+
+unknown_make = "Unknown make"
+unknown_stats = "Unknown stats"
+unknown_date_time = "Unknown date and time"
+unknown_location = "Unknown location"
+
+people = "People"
+tags = "Tags"
+
+like_asset = "Like asset"
+unlike_asset = "Unlike asset"
+liked = "Liked"
+like = "Like"
+
+hide_asset = "Hide asset"
+unhide_asset = "Unhide asset"
+hidden = "Hidden"
+hide = "Hide"
+
+sleep_mode = "Sleep mode"
+
+unauthorized_access = "Unauthorized Access"
+unauthorized = "Unauthorized"
+
+## URL builder
+url_builder = "URL Builder"
+extended_options = "View extended options"
+basic_options = "View basic options"
+
+## About
+current_version = "Current Version"
+latest_version = "Latest Version"
+unknown = "Unknown"
+status = "Status"
+configuration = "Configuration"
+view_configuration = "View Configuration"
+online = "Online"
+offline = "Offline"
