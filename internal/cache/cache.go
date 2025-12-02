@@ -83,8 +83,12 @@ func Get(s string) (any, bool) {
 
 // Set adds an item to the cache with the default expiration time.
 // If the key already exists, its value will be overwritten.
-func Set(key string, x any) {
-	kioskCache.Set(key, x, gocache.DefaultExpiration)
+func Set(key string, x any, deviceDuration int) {
+	if deviceDuration >= int(defaultExpiration) {
+		kioskCache.Set(key, x, gocache.DefaultExpiration)
+	}
+	deviceDurationPlusMin := (time.Duration(deviceDuration) * time.Second) + time.Minute
+	SetWithExpiration(key, x, deviceDurationPlusMin)
 }
 
 // SetWithExpiration adds an item to the cache with the specified expiration duration.
@@ -152,5 +156,5 @@ func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID
 		cachedViewData = append([]T{viewDataToAdd}, cachedViewData...)
 	}
 
-	Set(viewCacheKey, cachedViewData)
+	Set(viewCacheKey, cachedViewData, requestConfig.Duration)
 }

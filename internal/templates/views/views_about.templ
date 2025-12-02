@@ -177,7 +177,7 @@ func getLatestRelease(owner, repo string) (string, string) {
 
 	link = fmt.Sprintf("https://github.com/%s/%s/releases/tag/%s", owner, repo, release.TagName)
 
-	cache.Set(url, release)
+	cache.Set(url, release, 0)
 
 	return release.TagName, link
 }
