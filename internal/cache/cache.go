@@ -86,6 +86,11 @@ func Get(s string) (any, bool) {
 // Otherwise, the item expires after deviceDuration plus one extra minute.
 // If the key already exists, its value is replaced.
 func Set(key string, x any, deviceDuration int) {
+	if deviceDuration < 0 {
+		log.Warn("Negative duration provided, using default expiration", "deviceDuration", deviceDuration)
+		kioskCache.Set(key, x, gocache.DefaultExpiration)
+		return
+	}
 	deviceDurationPlusMin := (time.Duration(deviceDuration) * time.Second) + time.Minute
 	if deviceDurationPlusMin <= defaultExpiration {
 		kioskCache.Set(key, x, gocache.DefaultExpiration)
