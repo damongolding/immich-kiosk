@@ -87,7 +87,7 @@ func Get(s string) (any, bool) {
 // If the key already exists, its value is replaced.
 func Set(key string, x any, deviceDuration int) {
 	deviceDurationPlusMin := (time.Duration(deviceDuration) * time.Second) + time.Minute
-	if deviceDurationPlusMin >= defaultExpiration {
+	if deviceDurationPlusMin <= defaultExpiration {
 		kioskCache.Set(key, x, gocache.DefaultExpiration)
 		return
 	}
