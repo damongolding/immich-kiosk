@@ -81,8 +81,10 @@ func Get(s string) (any, bool) {
 	return kioskCache.Get(s)
 }
 
-// Set adds an item to the cache with the default expiration time.
-// If the key already exists, its value will be overwritten.
+// Set stores a value in the cache under the given key.
+// If deviceDuration is less than the defaultExpiration, the default expiration is used.
+// Otherwise, the item expires after deviceDuration plus one extra minute.
+// If the key already exists, its value is replaced.
 func Set(key string, x any, deviceDuration int) {
 	if deviceDuration >= int(defaultExpiration) {
 		kioskCache.Set(key, x, gocache.DefaultExpiration)
