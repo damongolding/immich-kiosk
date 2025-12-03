@@ -10,7 +10,7 @@ import (
 func TestMain(m *testing.M) {
 	Initialize()
 	code := m.Run()
-	kioskCache.Flush()
+	Flush()
 	os.Exit(code)
 }
 
@@ -27,7 +27,7 @@ func TestCacheSet(t *testing.T) {
 			want:     defaultExpiration,
 		},
 		{
-			name:     "Less then default expiration",
+			name:     "Less than default expiration",
 			duration: 10,
 			want:     defaultExpiration,
 		},
@@ -37,7 +37,7 @@ func TestCacheSet(t *testing.T) {
 			want:     (6 * time.Minute) + time.Minute,
 		},
 		{
-			name:     "30 minutes more then default expiration",
+			name:     "30 minutes. More than default expiration",
 			duration: 1800, // 30 minutes
 			want:     (30 * time.Minute) + time.Minute,
 		},
@@ -45,6 +45,11 @@ func TestCacheSet(t *testing.T) {
 			name:     "Negative duration",
 			duration: -10,
 			want:     defaultExpiration,
+		},
+		{
+			name:     "Exactly default expiration",
+			duration: 300,
+			want:     defaultExpiration + time.Minute,
 		},
 	}
 
@@ -61,12 +66,12 @@ func TestCacheSet(t *testing.T) {
 				t.Errorf("Expected key '%s' to be found in cache", key)
 			}
 
-			expirationStr := expiration.Format("2006-01-02 15:04:05")
-			expectedStr := expected.Format("2006-01-02 15:04:05")
-
-			if expirationStr != expectedStr {
-				t.Errorf("Expected expiration '%v', got '%v'", expectedStr, expirationStr)
+			diff := expiration.Sub(expected)
+			const tolerance = 2 * time.Second
+			if diff < -tolerance || diff > tolerance {
+				t.Errorf("expected expiration within %v of %v, got %v (diff %v)", tolerance, expected, expiration, diff)
 			}
+
 		})
 	}
 
