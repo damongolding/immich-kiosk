@@ -27,6 +27,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/routes"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -40,12 +41,16 @@ var version string
 //go:embed frontend/public
 var public embed.FS
 
+//go:embed locales/*.toml
+var localeFS embed.FS
+
 //go:embed config.schema.json
 var SchemaJSON string
 
 func init() {
 	routes.KioskVersion = version
 	config.SchemaJSON = SchemaJSON
+	i18n.LocaleFS = localeFS
 }
 
 // main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
@@ -76,9 +81,15 @@ func main() {
 	baseConfig := config.New()
 	baseConfig.Kiosk.Version = version
 
-	systemLang := monday.Locale(utils.SystemLanguage())
+	lang := utils.SystemLanguage()
+	systemLang := monday.Locale(lang)
 	baseConfig.SystemLang = systemLang
 	log.Info("System language", "lang", systemLang)
+
+	i18nErr := i18n.Init(lang)
+	if i18nErr != nil {
+		log.Error("Failed to initialize i18n", "err", i18nErr)
+	}
 
 	configErr := baseConfig.Load()
 	if configErr != nil {
