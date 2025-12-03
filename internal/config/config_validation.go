@@ -153,7 +153,7 @@ func (c *Config) checkSecrets() {
 
 		systemdWeatherAPIFile := filepath.Clean(filepath.Join(credsDir, systemdCredWeatherAPIKeyFileEnv))
 		if weatherAPIKey, ok := loadSecretFromFile(systemdWeatherAPIFile); ok {
-			log.Info("Loaded weather api", "source", "systemd credential")
+			log.Info("Loaded weather API key", "source", "systemd credential")
 			for i, location := range c.WeatherLocations {
 				if location.API == "" {
 					log.Info("Added weather API key to", "location", location.Name)
