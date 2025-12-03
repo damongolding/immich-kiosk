@@ -26,7 +26,7 @@ templ About(viewData common.ViewData) {
 	}}
 	<!DOCTYPE html>
 	<html
-		if len(lang) > 1 {
+		if len(lang) > 0 && lang[0] != "" {
 			lang={ lang[0] }
 		} else {
 			lang="en"

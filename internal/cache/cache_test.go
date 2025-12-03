@@ -32,7 +32,7 @@ func TestCacheSet(t *testing.T) {
 			want:     defaultExpiration,
 		},
 		{
-			name:     "More then default expiration",
+			name:     "More than default expiration",
 			duration: 360, // 6 minutes
 			want:     (6 * time.Minute) + time.Minute,
 		},
