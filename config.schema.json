@@ -325,7 +325,7 @@
             "type": "boolean"
           }
         },
-        "required": ["name", "lat", "lon", "api"]
+        "required": ["name", "lat", "lon"]
       }
     },
     "webhooks": {

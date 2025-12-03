@@ -104,9 +104,6 @@ func loadSecretFromFile(filePath string) (string, bool) {
 }
 
 func (c *Config) checkSecrets() {
-	if c.ImmichAPIKey != "" {
-		return
-	}
 
 	apiKeyFile := os.Getenv(apiKeyFileEnv)
 	if apiKeyFile != "" {
@@ -126,6 +123,20 @@ func (c *Config) checkSecrets() {
 		}
 	}
 
+	weatherAPIFile := os.Getenv(weatherAPIKeyFileEnv)
+	if weatherAPIFile != "" {
+		weatherAPIFile = filepath.Clean(weatherAPIFile)
+		if weatherAPIKey, ok := loadSecretFromFile(weatherAPIFile); ok {
+			log.Info("Loaded weather API key", "source", "docker secret")
+			for i, location := range c.WeatherLocations {
+				if location.API == "" {
+					log.Info("Added weather API key to", "location", location.Name)
+					c.WeatherLocations[i].API = weatherAPIKey
+				}
+			}
+		}
+	}
+
 	credsDir := os.Getenv(systemdCredDirEnv)
 	if credsDir != "" {
 		systemdAPIFile := filepath.Clean(filepath.Join(credsDir, systemdCredAPIKeyFileEnv))
@@ -138,6 +149,14 @@ func (c *Config) checkSecrets() {
 		if password, ok := loadSecretFromFile(systemdPasswordFile); ok {
 			log.Info("Loaded password", "source", "systemd credential")
 			c.Kiosk.Password = password
+		}
+
+		systemdWeatherAPIFile := filepath.Clean(filepath.Join(credsDir, systemdCredWeatherAPIKeyFileEnv))
+		if weatherAPIKey, ok := loadSecretFromFile(systemdWeatherAPIFile); ok {
+			log.Info("Loaded weather api", "source", "systemd credential")
+			for _, location := range c.WeatherLocations {
+				location.API = weatherAPIKey
+			}
 		}
 	}
 }
@@ -259,11 +278,7 @@ func (c *Config) checkWeatherLocations() {
 			missingFields = append(missingFields, "longitude")
 		}
 		if w.API == "" {
-			if c.Kiosk.DemoMode && os.Getenv("KIOSK_DEMO_WEATHER_API") != "" {
-				w.API = os.Getenv("KIOSK_DEMO_WEATHER_API")
-			} else {
-				missingFields = append(missingFields, "API key")
-			}
+			missingFields = append(missingFields, "API key")
 		}
 		if w.Default {
 			if c.HasWeatherDefault {

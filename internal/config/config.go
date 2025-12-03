@@ -57,12 +57,14 @@ const (
 	redactedMarker = "REDACTED"
 
 	// Secrets
-	systemdCredDirEnv          = "CREDENTIALS_DIRECTORY"
-	systemdCredAPIKeyFileEnv   = "kiosk_immich_api_key"
-	systemdCredPasswordFileEnv = "kiosk_password_file"
+	systemdCredDirEnv               = "CREDENTIALS_DIRECTORY"
+	systemdCredAPIKeyFileEnv        = "kiosk_immich_api_key"
+	systemdCredPasswordFileEnv      = "kiosk_password_file"
+	systemdCredWeatherAPIKeyFileEnv = "kiosk_weather_api_key_file"
 
-	apiKeyFileEnv   = "KIOSK_IMMICH_API_KEY_FILE"
-	passwordFileEnv = "KIOSK_PASSWORD_FILE"
+	apiKeyFileEnv        = "KIOSK_IMMICH_API_KEY_FILE"
+	passwordFileEnv      = "KIOSK_PASSWORD_FILE"
+	weatherAPIKeyFileEnv = "KIOSK_WEATHER_API_KEY_FILE"
 )
 
 type OfflineMode struct {
