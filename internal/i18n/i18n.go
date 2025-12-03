@@ -11,9 +11,11 @@ import (
 )
 
 var (
-	LocaleFS embed.FS
-	Bundle   *i18n.Bundle
-	lang     string
+	LocaleFS         embed.FS
+	Bundle           *i18n.Bundle
+	lang             string
+	localizer        *i18n.Localizer
+	defaultLocalizer *i18n.Localizer
 )
 
 // Init initializes the i18n bundle and loads message files.
@@ -23,7 +25,7 @@ func Init(systemLang string) error {
 	Bundle = i18n.NewBundle(language.English)
 	Bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 
-	return fs.WalkDir(LocaleFS, "locales", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(LocaleFS, "locales", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -39,13 +41,19 @@ func Init(systemLang string) error {
 
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
+	defaultLocalizer = i18n.NewLocalizer(Bundle, "en")
+	localizer = i18n.NewLocalizer(Bundle, lang)
+
+	return nil
 }
 
 // T returns a translation function for the given locale.
 func T() func(string) string {
-	defaultLocalizer := i18n.NewLocalizer(Bundle, "en")
-	localizer := i18n.NewLocalizer(Bundle, lang)
-
 	return func(key string) string {
 		translated, err := localizer.Localize(&i18n.LocalizeConfig{
 			MessageID: key,

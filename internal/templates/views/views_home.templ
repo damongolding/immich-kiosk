@@ -20,7 +20,7 @@ templ Home(viewData common.ViewData, secret string) {
 	{{ lang := strings.Split(string(viewData.SystemLang), "_") }}
 	<!DOCTYPE html>
 	<html
-		if len(lang) > 1 {
+		if len(lang) > 0 && lang[0] != "" {
 			lang={ lang[0] }
 		} else {
 			lang="en"
