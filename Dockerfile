@@ -35,7 +35,7 @@ RUN go tool templ generate
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION}" -o dist/kiosk .
 
 # Release
-FROM alpine:latest
+FROM --platform=$BUILDPLATFORM alpine:latest
 
 ENV TZ=Europe/London
 
