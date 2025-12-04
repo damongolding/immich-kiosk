@@ -17,8 +17,16 @@ import (
 
 // Home renders the Home layout template
 templ Home(viewData common.ViewData, secret string) {
+	{{ lang := strings.Split(string(viewData.SystemLang), "_") }}
 	<!DOCTYPE html>
-	<html lang="en" hx-request={ fmt.Sprintf("{\"timeout\":%d}", formatTimeout(viewData.Kiosk.HTTPTimeout)) }>
+	<html
+		if len(lang) > 0 && lang[0] != "" {
+			lang={ lang[0] }
+		} else {
+			lang="en"
+		}
+		hx-request={ fmt.Sprintf("{\"timeout\":%d}", formatTimeout(viewData.Kiosk.HTTPTimeout)) }
+	>
 		<head>
 			@partials.Head(viewData)
 		</head>
