@@ -21,6 +21,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
@@ -475,20 +476,26 @@ func handleNoOfflineAssets(c echo.Context, requestConfig config.Config, com *com
 		}
 	}
 
+	t := i18n.T()
+
 	message := fmt.Sprintf(`
 		<ul>
-			<li>Limit: <strong>%v</strong> assets</li>
-			<li>Storage Capacity: <strong>%s</strong> </li>
-			<li>Expiration: <strong>%s</strong></li>
+			<li>%s: <strong>%v</strong> %s</li>
+			<li>%s: <strong>%s</strong></li>
+			<li>%s: <strong>%s</strong></li>
 		</ul>
 		`,
+		t("limit"),
 		requestConfig.OfflineMode.NumberOfAssets,
+		t("assets"),
+		t("storage_capacity"),
 		maxSizeMessage,
+		t("expiration"),
 		expiryMessage,
 	)
 
 	return Render(c, http.StatusOK, partials.Message(partials.MessageData{
-		Title:         "Downloading Assets",
+		Title:         t("downloading_assets"),
 		Message:       message,
 		IsDownloading: true,
 	}))

@@ -15,6 +15,7 @@ import (
 
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
@@ -135,7 +136,8 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	// Wait for all goroutines to complete and check for errors
 	errGroupWait := g.Wait()
 	if errGroupWait != nil {
-		return RenderError(c, errGroupWait, "processing images", requestConfig.Duration)
+		t := i18n.T()
+		return RenderError(c, errGroupWait, t("processing_images"), requestConfig.Duration)
 	}
 
 	webhookEvent := webhooks.PreviousHistoryAsset
