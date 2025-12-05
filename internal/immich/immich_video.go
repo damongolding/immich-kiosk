@@ -107,10 +107,10 @@ func (a *Asset) AddVideos(requestID, deviceID string, assets *[]Asset, apiURL ur
 		return nil
 	}
 
-	log.Info("START Adding videos", "assets", len(*assets), "videoAssets", len(videoAssets))
-	videoAssets = videoLimiter(len(*assets), videoAssets, 0.10)
+	if len(*assets) == a.requestConfig.Kiosk.FetchedAssetsSize {
+		videoAssets = videoLimiter(len(*assets), videoAssets, 0.10)
+	}
 	mergeVideoAssetsRandomly(assets, videoAssets)
-	log.Info("END   Adding videos", "assets", len(*assets), "videoAssets", len(videoAssets))
 
 	return nil
 }
@@ -131,20 +131,25 @@ func (a *Asset) AddVideos(requestID, deviceID string, assets *[]Asset, apiURL ur
 //
 //	A shuffled slice of video assets whose count satisfies the video limit.
 func videoLimiter(assetLen int, videoAssets []Asset, videoLimit float64) []Asset {
-	E := assetLen
-	V := len(videoAssets)
+	if videoLimit < 0 || videoLimit > 1 {
+		log.Warn("videoLimiter: limit must be between 0 and 1", "videoLimit", videoLimit)
+		return videoAssets
+	}
+
+	e := assetLen
+	v := len(videoAssets)
 
 	// Calculate the raw maximum using the ratio constraint:
 	//   x / (E + x) <= videoLimit
 	// Solves to:
 	//   x <= (videoLimit * E) / (1 - videoLimit)
-	rawMax := (videoLimit * float64(E)) / (1 - videoLimit)
+	rawMax := (videoLimit * float64(e)) / (1 - videoLimit)
 
 	// Apply rounding instead of flooring for smoother behavior on small sets
 	rounded := int(math.Round(rawMax))
 
 	// Clamp to valid range [0, V]
-	maxAllowed := min(max(0, rounded), V)
+	maxAllowed := min(max(0, rounded), v)
 
 	// Slice selection is safe because maxAllowed ≤ V
 	selected := videoAssets[:maxAllowed]
