@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/rand/v2"
 	"net/http"
 	"net/url"
@@ -68,6 +69,7 @@ func (a *Asset) AddVideos(requestID, deviceID string, assets *[]Asset, apiURL ur
 		return nil
 	}
 
+	// Do not add videos if any videos are already present
 	for _, a := range *assets {
 		if a.Type == VideoType {
 			return nil
@@ -105,12 +107,58 @@ func (a *Asset) AddVideos(requestID, deviceID string, assets *[]Asset, apiURL ur
 		return nil
 	}
 
+	log.Info("START Adding videos", "assets", len(*assets), "videoAssets", len(videoAssets))
+	videoAssets = videoLimiter(len(*assets), videoAssets, 0.10)
 	mergeVideoAssetsRandomly(assets, videoAssets)
+	log.Info("END   Adding videos", "assets", len(*assets), "videoAssets", len(videoAssets))
 
 	return nil
 }
 
+// videoLimiter returns a randomly shuffled slice of video assets,
+// limited so that when merged into an existing asset list of size `assetLen`,
+// the resulting list does not exceed `videoLimit` percent videos.
+//
+// The calculation uses rounding instead of truncation to produce
+// more natural results for small sample sizes.
+//
+// Parameters:
+//   - assetLen: number of existing (non-video) assets already present
+//   - videoAssets: slice of available video assets to choose from
+//   - videoLimit: fraction (0.0–1.0) representing the maximum allowed video ratio
+//
+// Returns:
+//
+//	A shuffled slice of video assets whose count satisfies the video limit.
+func videoLimiter(assetLen int, videoAssets []Asset, videoLimit float64) []Asset {
+	E := assetLen
+	V := len(videoAssets)
+
+	// Calculate the raw maximum using the ratio constraint:
+	//   x / (E + x) <= videoLimit
+	// Solves to:
+	//   x <= (videoLimit * E) / (1 - videoLimit)
+	rawMax := (videoLimit * float64(E)) / (1 - videoLimit)
+
+	// Apply rounding instead of flooring for smoother behavior on small sets
+	rounded := int(math.Round(rawMax))
+
+	// Clamp to valid range [0, V]
+	maxAllowed := min(max(0, rounded), V)
+
+	// Slice selection is safe because maxAllowed ≤ V
+	selected := videoAssets[:maxAllowed]
+
+	// Shuffle in place
+	rand.Shuffle(len(selected), func(i, j int) {
+		selected[i], selected[j] = selected[j], selected[i]
+	})
+
+	return selected
+}
+
 func mergeVideoAssetsRandomly(existingAssets *[]Asset, videoAssets []Asset) {
+
 	*existingAssets = append(*existingAssets, videoAssets...)
 
 	// Shuffle the combined slice
