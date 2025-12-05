@@ -107,6 +107,9 @@ func (a *Asset) AddVideos(requestID, deviceID string, assets *[]Asset, apiURL ur
 		return nil
 	}
 
+	// If we've already reached the fetch limit for image assets, assume the user
+	// has more images than videos. In this case, limit the number of videos added
+	// so they do not exceed 10% of the final asset mix.
 	if len(*assets) == a.requestConfig.Kiosk.FetchedAssetsSize {
 		videoAssets = videoLimiter(len(*assets), videoAssets, 0.10)
 	}
