@@ -102,6 +102,9 @@ type KioskSettings struct {
 	// Password the password used to add authentication to the frontend
 	Password string `json:"-" yaml:"password" mapstructure:"password" default:"" redact:"true"`
 
+	// APIAlbumsPassword the password used to protect access to API albums
+	APIAlbumsPassword string `json:"-" yaml:"api_albums_password" mapstructure:"api_albums_password" default:"" redact:"true"`
+
 	// Redirects defines a list of URL redirections with friendly names
 	Redirects []Redirect `yaml:"redirects" mapstructure:"redirects" default:"[]"`
 
@@ -479,6 +482,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.fetched_assets_size", "KIOSK_FETCHED_ASSETS_SIZE"},
 		{"kiosk.http_timeout", "KIOSK_HTTP_TIMEOUT"},
 		{"kiosk.password", "KIOSK_PASSWORD"},
+		{"kiosk.api_albums_password", "KIOSK_API_ALBUMS_PASSWORD"},
 		{"kiosk.cache", "KIOSK_CACHE"},
 		{"kiosk.prefetch", "KIOSK_PREFETCH"},
 		{"kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING"},

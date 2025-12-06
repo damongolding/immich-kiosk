@@ -101,9 +101,25 @@ func (a *Asset) allSharedAlbums(requestID, deviceID string) (Albums, string, err
 func (a *Asset) allAlbums(requestID, deviceID string) (Albums, string, error) {
 	owned, ownedURL, ownedErr := a.albums(requestID, deviceID, false, "", false)
 	shared, sharedURL, sharedErr := a.albums(requestID, deviceID, true, "", false)
-	all := make(Albums, len(owned)+len(shared))
-	copy(all, owned)
-	copy(all[len(owned):], shared)
+	
+	// Combine owned and shared albums, removing duplicates by ID
+	albumMap := make(map[string]Album)
+	
+	// Add owned albums first
+	for _, album := range owned {
+		albumMap[album.ID] = album
+	}
+	
+	// Add shared albums (will overwrite if already exists, but that's fine since it's the same album)
+	for _, album := range shared {
+		albumMap[album.ID] = album
+	}
+	
+	// Convert map back to slice
+	all := make(Albums, 0, len(albumMap))
+	for _, album := range albumMap {
+		all = append(all, album)
+	}
 
 	var err error
 	if ownedErr != nil {

@@ -25,14 +25,48 @@ templ Redirects(redirects []config.Redirect, queries url.Values) {
 				if hasPassword {
 					<a href={ templ.SafeURL("/?" + paramType + "=" + password) }>Home</a>
 				}
-				for _ , redirect := range redirects {
-					{{ redirectName, _ := strings.CutPrefix(redirect.Name, "/") }}
-					if hasPassword {
-						<a href={ templ.SafeURL(fmt.Sprintf("/%s?%s=%s", redirectName, paramType, password)) }>{ redirectName }</a>
-					} else {
-						<a href={ templ.SafeURL(fmt.Sprintf("/%s", redirectName)) }>{ redirectName }</a>
+				
+				<div class="redirects-content">
+					<!-- Config Albums Section -->
+					if len(redirects) > 0 {
+						<div class="redirects-category">
+							<div class="category-header">Albums from Config</div>
+							for _ , redirect := range redirects {
+								{{ redirectName, _ := strings.CutPrefix(redirect.Name, "/") }}
+								if hasPassword {
+									<a href={ templ.SafeURL(fmt.Sprintf("/%s?%s=%s", redirectName, paramType, password)) }>{ redirectName }</a>
+								} else {
+									<a href={ templ.SafeURL(fmt.Sprintf("/%s", redirectName)) }>{ redirectName }</a>
+								}
+							}
+						</div>
 					}
-				}
+					
+					<!-- API Albums Section -->
+					<div class="redirects-category">
+						<div class="category-header">Select Albums From API</div>
+						<div id="albums-tabs" class="albums-tabs">
+							<!-- Tabs will be injected here by JS -->
+						</div>
+						<div class="albums-search-container">
+							<input type="text" id="album-search-input" placeholder="Search albums..." />
+							<button id="clear-search-btn" class="clear-search-btn" title="Clear Search">×</button>
+							<button id="select-all-albums-btn" class="select-all-btn" title="Select All">Select All</button>
+						</div>
+						<div class="albums-sort-controls">
+							<button id="sort-name-btn" class="sort-btn active" data-sort="name">Name</button>
+							<button id="sort-count-asc-btn" class="sort-btn" data-sort="count-asc">Assets ↑</button>
+							<button id="sort-count-desc-btn" class="sort-btn" data-sort="count-desc">Assets ↓</button>
+							<button id="refresh-albums-btn" class="sort-btn refresh-btn" title="Refresh Albums">↻</button>
+						</div>
+						<div id="api-albums-list" class="api-albums-list">
+							<div class="loading-albums">Loading albums...</div>
+						</div>
+						<div class="api-albums-actions">
+							<button id="apply-albums-btn" class="apply-albums-btn" disabled>Apply Selection</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

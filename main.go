@@ -192,6 +192,8 @@ func main() {
 		})
 	}
 
+	e.GET("/api/albums", routes.Albums(baseConfig, c))
+
 	e.GET("/", routes.Home(baseConfig, c))
 
 	e.GET("/health", func(c echo.Context) error {

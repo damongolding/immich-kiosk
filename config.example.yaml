@@ -151,6 +151,7 @@ kiosk:
   fetched_assets_size: 1000
   http_timeout: 20
   password: ""
+  api_albums_password: "" # password to protect access to API albums selection
   cache: true # cache select api calls
   prefetch: true # fetch assets in the background
   asset_weighting: true # use weighting when picking assets
