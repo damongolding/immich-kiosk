@@ -222,10 +222,11 @@ func (a *Asset) MemoriesAssetsCount(requestID, deviceID string) int {
 //   - pickedMemoryIndex: Index of selected memory
 //   - assetIndex: Index of asset within memory
 //   - cache.ApiCacheKey: Cache key for API response
+//   - duration: Device duration in seconds for cache expiration
 //
 // Returns:
 //   - error: Any error during cache update
-func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex int, apiCacheKey string) error {
+func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex int, apiCacheKey string, duration int) error {
 
 	// Deep copy the memories slice
 	assetsToCache := make(MemoriesResponse, len(memories))
@@ -249,7 +250,7 @@ func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex 
 	}
 
 	// replace with cache minus used asset
-	err = cache.Replace(apiCacheKey, jsonBytes)
+	err = cache.ReplaceWithDuration(apiCacheKey, jsonBytes, duration)
 	if err != nil {
 		log.Debug("Failed to update device cache for memories")
 	}
@@ -320,7 +321,7 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 			}
 
 			if a.requestConfig.Kiosk.Cache {
-				if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, assetIndex, apiCacheKey); cacheErr != nil {
+				if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, assetIndex, apiCacheKey, a.requestConfig.Duration); cacheErr != nil {
 					return cacheErr
 				}
 			}
@@ -336,7 +337,7 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 
 		// no viable assets left in memories
 		memories[pickedMemoryIndex].Assets = make([]Asset, 1)
-		if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, 0, apiCacheKey); cacheErr != nil {
+		if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, 0, apiCacheKey, a.requestConfig.Duration); cacheErr != nil {
 			return cacheErr
 		}
 

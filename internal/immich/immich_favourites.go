@@ -187,7 +187,7 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 				}
 
 				// replace cache minus used image
-				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				cacheErr := cache.ReplaceWithDuration(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 				if cacheErr != nil {
 					log.Debug("cache not found!")
 				}

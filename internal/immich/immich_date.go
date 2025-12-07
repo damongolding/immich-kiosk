@@ -143,7 +143,7 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 				}
 
 				// replace cache with used asset(s) removed
-				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				cacheErr := cache.ReplaceWithDuration(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 				if cacheErr != nil {
 					log.Debug("Failed to update cache", "error", cacheErr, "url", apiURL.String())
 				}

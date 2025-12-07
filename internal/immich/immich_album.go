@@ -305,7 +305,7 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 				}
 
 				// replace with cache minus used asset
-				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				cacheErr := cache.ReplaceWithDuration(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 				if cacheErr != nil {
 					log.Debug("Failed to update device cache for album", "albumID", albumID, "deviceID", deviceID)
 				}

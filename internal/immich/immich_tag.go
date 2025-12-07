@@ -240,7 +240,7 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 				}
 
 				// replace cache with used asset(s) removed
-				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
+				cacheErr := cache.ReplaceWithDuration(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 				if cacheErr != nil {
 					log.Debug("Failed to update device cache for tag", "tagID", tagID, "deviceID", deviceID)
 				}
