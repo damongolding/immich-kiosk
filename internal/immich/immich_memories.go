@@ -250,10 +250,7 @@ func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex 
 	}
 
 	// replace with cache minus used asset
-	err = cache.ReplaceWithDuration(apiCacheKey, jsonBytes, duration)
-	if err != nil {
-		log.Debug("Failed to update device cache for memories")
-	}
+	cache.Set(apiCacheKey, jsonBytes, duration)
 
 	return nil
 }

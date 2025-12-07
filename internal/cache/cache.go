@@ -118,29 +118,6 @@ func Replace(key string, x any) error {
 	return kioskCache.Replace(key, x, gocache.DefaultExpiration)
 }
 
-// ReplaceWithExpiration updates an existing item in the cache with a new value and specified expiration time.
-// The item will expire after the given duration has elapsed. Returns an error if the key does not exist.
-func ReplaceWithExpiration(key string, x any, t time.Duration) error {
-	return kioskCache.Replace(key, x, t)
-}
-
-// ReplaceWithDuration updates an existing item in the cache with a new value, calculating
-// the expiration time based on the device duration (same logic as Set).
-// If deviceDuration is less than defaultExpiration, uses defaultExpiration.
-// Otherwise, uses deviceDuration plus one extra minute.
-// Returns an error if the key does not exist.
-func ReplaceWithDuration(key string, x any, deviceDuration int) error {
-	if deviceDuration < 0 {
-		log.Warn("Negative duration provided for replace, using default expiration", "deviceDuration", deviceDuration)
-		return kioskCache.Replace(key, x, gocache.DefaultExpiration)
-	}
-	deviceDurationPlusMin := (time.Duration(deviceDuration) * time.Second) + time.Minute
-	if deviceDurationPlusMin <= defaultExpiration {
-		return kioskCache.Replace(key, x, gocache.DefaultExpiration)
-	}
-	return ReplaceWithExpiration(key, x, deviceDurationPlusMin)
-}
-
 // AssetToCache adds a new item of type T to the cache array by appending it to the end.
 // It uses the device ID and URL to generate a unique cache key for storing view-related data.
 func AssetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string) {

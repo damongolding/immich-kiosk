@@ -298,10 +298,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 				}
 
 				// Replace cache with remaining assets after removing used asset(s)
-				cacheErr := cache.ReplaceWithDuration(apiCacheKey, jsonBytes, a.requestConfig.Duration)
-				if cacheErr != nil {
-					log.Debug("cache not found!")
-				}
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 			}
 
 			asset.BucketID = personID

@@ -134,10 +134,7 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 				}
 
 				// replace with cache minus used asset
-				cacheErr := cache.ReplaceWithDuration(apiCacheKey, jsonBytes, a.requestConfig.Duration)
-				if cacheErr != nil {
-					log.Debug("cache not found!")
-				}
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 			}
 
 			*a = asset
