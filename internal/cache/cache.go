@@ -113,9 +113,24 @@ func Delete(key string) {
 }
 
 // Replace updates an existing item in the cache with a new value.
+// Preserves the original expiration time of the cached item.
 // Returns an error if the key does not exist.
 func Replace(key string, x any) error {
-	return kioskCache.Replace(key, x, gocache.DefaultExpiration)
+	// Get the existing item's expiration time
+	_, expiration, found := kioskCache.GetWithExpiration(key)
+	if !found {
+		return fmt.Errorf("key not found: %s", key)
+	}
+
+	// Calculate remaining time until expiration
+	remainingTime := time.Until(expiration)
+	if remainingTime <= 0 {
+		// Item has already expired, use default expiration
+		return kioskCache.Replace(key, x, gocache.DefaultExpiration)
+	}
+
+	// Replace with the same expiration time
+	return kioskCache.Replace(key, x, remainingTime)
 }
 
 // ReplaceWithExpiration updates an existing item in the cache with a new value and specified expiration time.
