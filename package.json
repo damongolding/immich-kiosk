@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "esbuild": "^0.27.1",
-    "tsc": "^2.0.4"
-  }
-}
