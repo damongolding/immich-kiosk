@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/damongolding/immich-kiosk/main/config.schema.json
+# yaml-language-server: $schema=./config.schema.json
 
 ## Required settings - move these to ENV if you want to check in this file
 immich_api_key: ""
@@ -85,6 +85,7 @@ use_original_image: false # use the original file.
 
 ## Video
 show_videos: false
+show_videos_percent: 0.1
 live_photos: false
 live_photo_loop_delay: 0
 
