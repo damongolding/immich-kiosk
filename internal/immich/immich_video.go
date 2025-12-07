@@ -111,7 +111,7 @@ func (a *Asset) AddVideos(requestID, deviceID string, assets *[]Asset, apiURL ur
 	// has more images than videos. In this case, limit the number of videos added
 	// so they do not exceed 10% of the final asset mix.
 	if len(*assets) == a.requestConfig.Kiosk.FetchedAssetsSize {
-		videoAssets = videoLimiter(len(*assets), videoAssets, 0.10)
+		videoAssets = videoLimiter(len(*assets), videoAssets, a.requestConfig.ShowVideosPercent)
 	}
 	mergeVideoAssetsRandomly(assets, videoAssets)
 
