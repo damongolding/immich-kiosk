@@ -383,8 +383,7 @@ type Config struct {
 
 	// ShowVideos whether to display videos
 	ShowVideos bool `json:"showVideos" yaml:"show_videos" mapstructure:"show_videos" query:"show_videos" form:"show_videos" default:"false"`
-	// ShowVideosPercent what percentage of assets shown will be videos
-	ShowVideosPercent float64 `json:"showVideosPercent" yaml:"show_videos_percent" mapstructure:"show_videos_percent" query:"show_videos_percent" form:"show_videos_percent" default:"0.1"`
+
 	// LivePhotos show live photos
 	LivePhotos bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
 	// UseOriginalImage use the original image

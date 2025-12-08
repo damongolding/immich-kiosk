@@ -85,7 +85,6 @@ use_original_image: false # use the original file.
 
 ## Video
 show_videos: false
-show_videos_percent: 0.1
 live_photos: false
 live_photo_loop_delay: 0
 

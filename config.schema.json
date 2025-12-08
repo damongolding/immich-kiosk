@@ -123,11 +123,6 @@
     "show_videos": {
       "type": "boolean"
     },
-    "show_videos_percent": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 1
-    },
     "live_photos": {
       "type": "boolean"
     },
