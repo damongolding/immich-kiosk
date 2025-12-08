@@ -14,8 +14,7 @@ css ReloadBody(imageFit, queries string) {
 }
 
 templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string) {
-	<!DOCTYPE html>
-	<html lang="en">
+	@HTMLTag(requestConfig.SystemLang) {
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -48,8 +47,9 @@ templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string)
 					background-repeat: no-repeat;
 				}
 			</style>
+			<meta name="google" content="notranslate"/>
 		</head>
-		<body class={ ReloadBody(requestConfig.ImageFit, queries) }>
+		<body class={ "notranslate", ReloadBody(requestConfig.ImageFit, queries) }>
 			{{ data := ReloadData{Queries: queries, Duration: requestConfig.Duration} }}
 			@templ.JSONScript("kiosk-data", data)
 			<script>
@@ -81,5 +81,5 @@ templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string)
 				setInterval(refreshImage, duration * 1000);
 			</script>
 		</body>
-	</html>
+	}
 }

@@ -1,0 +1,30 @@
+package views
+
+import (
+	"github.com/goodsign/monday"
+	"strings"
+)
+
+templ HTMLTag(lang monday.Locale, attrs ...templ.Attributes) {
+	{{
+		lang := strings.Split(string(lang), "_")
+		mergedAttrs := templ.Attributes{}
+		for _, attr := range attrs {
+			for k, v := range attr {
+				mergedAttrs[k] = v
+			}
+		}
+	}}
+	<!DOCTYPE html>
+	<html
+		if len(lang) > 0 && lang[0] != "" {
+			lang={ lang[0] }
+		} else {
+			lang="en"
+		}
+		{ mergedAttrs... }
+	>
+		{ children... }
+		class="notranslate"
+	</html>
+}
