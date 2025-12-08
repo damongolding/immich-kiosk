@@ -154,15 +154,17 @@ func videoLimiter(assetLen int, videoAssets []Asset, videoLimit float64) []Asset
 	// Clamp to valid range [0, V]
 	maxAllowed := min(max(0, rounded), v)
 
-	// Slice selection is safe because maxAllowed ≤ V
-	selected := videoAssets[:maxAllowed]
+	// Nothing to add
+	if maxAllowed == 0 {
+		return videoAssets[:0]
+	}
 
 	// Shuffle in place
-	rand.Shuffle(len(selected), func(i, j int) {
-		selected[i], selected[j] = selected[j], selected[i]
+	rand.Shuffle(v, func(i, j int) {
+		videoAssets[i], videoAssets[j] = videoAssets[j], videoAssets[i]
 	})
 
-	return selected
+	return videoAssets[:maxAllowed]
 }
 
 func mergeVideoAssetsRandomly(existingAssets *[]Asset, videoAssets []Asset) {
