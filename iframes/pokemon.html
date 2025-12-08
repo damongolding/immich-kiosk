@@ -27,7 +27,7 @@
             }
         </style>
     </head>
-    <body>
+    <body class="notranslate">
         <h1>Random Pokémon: <span id="pokemon-name"></span></h1>
 
         <script>
@@ -69,7 +69,6 @@
 
                     document.getElementById("pokemon-name").textContent =
                         capitalize(randomPokemon.name);
-
                 } catch (err) {
                     console.error("Error fetching Pokémon:", err);
                     // Use fallback Pokémon if API fails
@@ -90,7 +89,6 @@
             getRandomPokemon();
             const updateInterval = 10000;
             let intervalId = setInterval(getRandomPokemon, updateInterval);
-
         </script>
     </body>
 </html>
