@@ -14,6 +14,11 @@ templ HTMLTag(lang monday.Locale, attrs ...templ.Attributes) {
 				mergedAttrs[k] = v
 			}
 		}
+		if existingClass, ok := mergedAttrs["class"].(string); ok {
+			mergedAttrs["class"] = existingClass + " notranslate"
+		} else {
+			mergedAttrs["class"] = "notranslate"
+		}
 	}}
 	<!DOCTYPE html>
 	<html
@@ -23,7 +28,6 @@ templ HTMLTag(lang monday.Locale, attrs ...templ.Attributes) {
 			lang="en"
 		}
 		{ mergedAttrs... }
-		class="notranslate"
 	>
 		{ children... }
 	</html>
