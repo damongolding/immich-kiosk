@@ -74,12 +74,12 @@ func (a *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
 // The requestID and deviceID are used for caching and logging purposes.
 func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (int, error) {
 
-	var allAssetsCount int
+	var totalAssetsCount int
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
-		_, _, err = immichAPIFail(allAssetsCount, err, nil, "")
-		return allAssetsCount, err
+		_, _, err = immichAPIFail(totalAssetsCount, err, nil, "")
+		return totalAssetsCount, err
 	}
 
 	requestBody := SearchRandomBody{
@@ -101,14 +101,14 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 
 	DateFilter(&requestBody, a.requestConfig.DateFilter)
 
-	allImagesCount, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
+	allAssetsCount, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {
-		return allAssetsCount, assetsErr
+		return totalAssetsCount, assetsErr
 	}
 
-	allAssetsCount += allImagesCount
+	totalAssetsCount += allAssetsCount
 
-	return allAssetsCount, nil
+	return totalAssetsCount, nil
 }
 
 // AssetsWithTag retrieves assets that have the specified tag from the Immich API.
