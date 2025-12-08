@@ -34,7 +34,7 @@ config.yaml
 *.pprof
 
 dist/
-
+.vscode/
 
 node_modules/
 custom.css
