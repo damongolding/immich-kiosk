@@ -7,7 +7,7 @@ import (
 
 templ HTMLTag(lang monday.Locale, attrs ...templ.Attributes) {
 	{{
-		lang := strings.Split(string(lang), "_")
+		langParts := strings.Split(string(lang), "_")
 		mergedAttrs := templ.Attributes{}
 		for _, attr := range attrs {
 			for k, v := range attr {
@@ -17,8 +17,8 @@ templ HTMLTag(lang monday.Locale, attrs ...templ.Attributes) {
 	}}
 	<!DOCTYPE html>
 	<html
-		if len(lang) > 0 && lang[0] != "" {
-			lang={ lang[0] }
+		if len(langParts) > 0 && langParts[0] != "" {
+			lang={ langParts[0] }
 		} else {
 			lang="en"
 		}
