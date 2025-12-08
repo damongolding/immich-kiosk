@@ -102,8 +102,8 @@ func TestCacheExpirationScenario(t *testing.T) {
 	startTime := time.Now()
 	initialExpected := startTime.Add(expectedExpiration)
 
-	_, initialExpiration, found := kioskCache.GetWithExpiration(key)
-	if !found {
+	_, initialExpiration, initialFound := kioskCache.GetWithExpiration(key)
+	if !initialFound {
 		t.Fatal("Expected album to be in cache after initial Set")
 	}
 
@@ -116,7 +116,7 @@ func TestCacheExpirationScenario(t *testing.T) {
 	}
 
 	// Simulate showing images one by one
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		// Small delay to simulate time passing
 		time.Sleep(10 * time.Millisecond)
 
@@ -147,7 +147,7 @@ func TestCacheExpirationScenario(t *testing.T) {
 			t.Fatalf("Expected album in cache after Set at iteration %d", i)
 		}
 
-		diff := expiration.Sub(expectedAfterReplace)
+		diff = expiration.Sub(expectedAfterReplace)
 		if diff < -tolerance || diff > tolerance {
 			t.Errorf("Iteration %d: expected expiration within %v of %v, got %v (diff %v)",
 				i, tolerance, expectedAfterReplace, expiration, diff)
