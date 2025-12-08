@@ -41,13 +41,18 @@ func TestRawImage(t *testing.T) {
 
 	cache.Initialize()
 
+	prevVideoManager := VideoManager
 	videoManager, videoManagerErr := video.New(t.Context())
 	if videoManagerErr != nil {
-		t.Error("Failed to initialize video manager", "err", videoManagerErr)
-	} else {
-		videoManager.MaxAge = time.Minute
-		VideoManager = videoManager
+		t.Fatalf("Failed to initialise video manager: %v", videoManagerErr)
 	}
+
+	videoManager.MaxAge = time.Minute
+	VideoManager = videoManager
+
+	t.Cleanup(func() {
+		VideoManager = prevVideoManager
+	})
 
 	h := Image(baseConfig, common.New())
 
