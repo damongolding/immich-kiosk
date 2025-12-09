@@ -18,12 +18,10 @@ import (
 // favouriteAssetsCount retrieves the total count of favorite assets from the Immich server.
 func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 
-	var allFavouritesCount int
-
 	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
-		_, _, err = immichAPIFail(allFavouritesCount, err, nil, "")
-		return allFavouritesCount, err
+		_, _, err = immichAPIFail(0, err, nil, "")
+		return 0, err
 	}
 
 	requestBody := SearchRandomBody{
@@ -32,7 +30,11 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-		WithVideo:  a.requestConfig.ShowVideos,
+	}
+
+	// Include videos if show videos is enabled
+	if a.requestConfig.ShowVideos {
+		requestBody.Type = ""
 	}
 
 	if a.requestConfig.ShowArchived {
@@ -41,23 +43,7 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 
 	DateFilter(&requestBody, a.requestConfig.DateFilter)
 
-	allImagesCount, imagesErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
-	if imagesErr != nil {
-		return allFavouritesCount, imagesErr
-	}
-
-	allFavouritesCount += allImagesCount
-
-	if a.requestConfig.ShowVideos {
-		requestBody.Type = string(VideoType)
-		allVideosCount, videosErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
-		if videosErr != nil {
-			return allFavouritesCount, videosErr
-		}
-		allFavouritesCount += allVideosCount
-	}
-
-	return allFavouritesCount, nil
+	return a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 }
 
 // RandomAssetFromFavourites retrieves a random favorite asset from the Immich server.
@@ -88,9 +74,9 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite image", true)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite asset", true)
 	} else {
-		log.Debug(requestID + " Getting Random favourite image")
+		log.Debug(requestID + " Getting Random favourite asset")
 	}
 
 	for range MaxRetries {
@@ -108,7 +94,11 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-			WithVideo:  a.requestConfig.ShowVideos,
+		}
+
+		// Include videos if show videos is enabled
+		if a.requestConfig.ShowVideos {
+			requestBody.Type = ""
 		}
 
 		if a.requestConfig.ShowArchived {
@@ -143,15 +133,6 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 		if err != nil {
 			_, _, err = immichAPIFail(assets, err, apiBody, apiURL.String())
 			return err
-		}
-
-		// Add videos if user wants them
-		if a.requestConfig.ShowVideos {
-			err = a.AddVideos(requestID, deviceID, &assets, apiURL, requestBody)
-			if err != nil {
-				_, _, err = immichAPIFail(assets, err, nil, apiURL.String())
-				return err
-			}
 		}
 
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)

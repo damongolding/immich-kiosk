@@ -17,25 +17,17 @@ import (
 type ChoicesOptions map[string]any
 
 templ URLBuilder(viewData common.ViewData, urlData common.URLViewData, extended bool) {
-	{{ lang := strings.Split(string(viewData.SystemLang), "_") }}
-	<!DOCTYPE html>
-	<html
-		if len(lang) > 0 && lang[0] != "" {
-			lang={ lang[0] }
-		} else {
-			lang="en"
-		}
-	>
+	@HTMLTag(viewData.SystemLang) {
 		<head>
 			@partials.Head(viewData)
 			<script src={ string(templ.URL(fmt.Sprintf("/assets/js/url-builder.%s.js", viewData.KioskVersion))) }></script>
 		</head>
-		<body id="url-builder">
+		<body id="url-builder" class="notranslate">
 			<div class="url-container">
 				@URLBuilderForm(viewData.Config, urlData, extended)
 			</div>
 		</body>
-	</html>
+	}
 }
 
 templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {

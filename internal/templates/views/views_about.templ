@@ -20,28 +20,20 @@ import (
 
 templ About(viewData common.ViewData) {
 	{{
-		lang := strings.Split(string(viewData.SystemLang), "_")
 		immichStats, immichStatsErr := getImmichStats(viewData.ImmichURL, viewData.ImmichAPIKey)
 		immichOnline := immichStatsErr == nil
 	}}
-	<!DOCTYPE html>
-	<html
-		if len(lang) > 0 && lang[0] != "" {
-			lang={ lang[0] }
-		} else {
-			lang="en"
-		}
-	>
+	@HTMLTag(viewData.SystemLang) {
 		<head>
 			@partials.Head(viewData)
 		</head>
-		<body id="about">
+		<body id="about" class="notranslate">
 			<div class="about-container">
 				@Stats("kiosk", viewData.KioskVersion, true, viewData.Config)
 				@Stats("immich", immichStats.Version, immichOnline, viewData.Config)
 			</div>
 		</body>
-	</html>
+	}
 }
 
 css background(service string) {
