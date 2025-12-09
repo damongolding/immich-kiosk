@@ -32,7 +32,11 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-		WithVideo:  a.requestConfig.ShowVideos,
+	}
+
+	// Include videos if show videos is enabled
+	if a.requestConfig.ShowVideos {
+		requestBody.Type = ""
 	}
 
 	if a.requestConfig.ShowArchived {
@@ -41,21 +45,12 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 
 	DateFilter(&requestBody, a.requestConfig.DateFilter)
 
-	allImagesCount, imagesErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
+	allAssetsCount, imagesErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if imagesErr != nil {
 		return allFavouritesCount, imagesErr
 	}
 
-	allFavouritesCount += allImagesCount
-
-	if a.requestConfig.ShowVideos {
-		requestBody.Type = string(VideoType)
-		allVideosCount, videosErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
-		if videosErr != nil {
-			return allFavouritesCount, videosErr
-		}
-		allFavouritesCount += allVideosCount
-	}
+	allFavouritesCount += allAssetsCount
 
 	return allFavouritesCount, nil
 }
@@ -108,7 +103,11 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-			WithVideo:  a.requestConfig.ShowVideos,
+		}
+
+		// Include videos if show videos is enabled
+		if a.requestConfig.ShowVideos {
+			requestBody.Type = ""
 		}
 
 		if a.requestConfig.ShowArchived {
@@ -143,15 +142,6 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 		if err != nil {
 			_, _, err = immichAPIFail(assets, err, apiBody, apiURL.String())
 			return err
-		}
-
-		// Add videos if user wants them
-		if a.requestConfig.ShowVideos {
-			err = a.AddVideos(requestID, deviceID, &assets, apiURL, requestBody)
-			if err != nil {
-				_, _, err = immichAPIFail(assets, err, nil, apiURL.String())
-				return err
-			}
 		}
 
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)

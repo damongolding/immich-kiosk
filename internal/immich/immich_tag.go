@@ -74,12 +74,12 @@ func (a *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
 // The requestID and deviceID are used for caching and logging purposes.
 func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (int, error) {
 
-	var allAssetsCount int
+	var totalAssetsCount int
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
-		_, _, err = immichAPIFail(allAssetsCount, err, nil, "")
-		return allAssetsCount, err
+		_, _, err = immichAPIFail(totalAssetsCount, err, nil, "")
+		return totalAssetsCount, err
 	}
 
 	requestBody := SearchRandomBody{
@@ -88,7 +88,11 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-		WithVideo:  a.requestConfig.ShowVideos,
+	}
+
+	// Include videos if show videos is enabled
+	if a.requestConfig.ShowVideos {
+		requestBody.Type = ""
 	}
 
 	if a.requestConfig.ShowArchived {
@@ -97,23 +101,14 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 
 	DateFilter(&requestBody, a.requestConfig.DateFilter)
 
-	allImagesCount, imagesErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
-	if imagesErr != nil {
-		return allAssetsCount, imagesErr
+	allAssetsCount, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
+	if assetsErr != nil {
+		return totalAssetsCount, assetsErr
 	}
 
-	allAssetsCount += allImagesCount
+	totalAssetsCount += allAssetsCount
 
-	if a.requestConfig.ShowVideos {
-		requestBody.Type = string(VideoType)
-		allVideosCount, videosErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
-		if videosErr != nil {
-			return allAssetsCount, videosErr
-		}
-		allAssetsCount += allVideosCount
-	}
-
-	return allAssetsCount, nil
+	return totalAssetsCount, nil
 }
 
 // AssetsWithTag retrieves assets that have the specified tag from the Immich API.
@@ -135,7 +130,11 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 		WithExif:   true,
 		WithPeople: true,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-		WithVideo:  a.requestConfig.ShowVideos,
+	}
+
+	// Include videos if show videos is enabled
+	if a.requestConfig.ShowVideos {
+		requestBody.Type = ""
 	}
 
 	if a.requestConfig.ShowArchived {
@@ -168,14 +167,6 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 	err = json.Unmarshal(apiBody, &immichAssets)
 	if err != nil {
 		return immichAPIFail(immichAssets, err, nil, apiURL.String())
-	}
-
-	// Add videos if user wants them
-	if a.requestConfig.ShowVideos {
-		err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
-		if err != nil {
-			return immichAPIFail(immichAssets, err, nil, apiURL.String())
-		}
 	}
 
 	return immichAssets, apiURL.String(), nil
