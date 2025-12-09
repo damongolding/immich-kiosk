@@ -5,30 +5,37 @@ import (
 	"strings"
 )
 
+func mergeAttributes(lang monday.Locale, attrs ...templ.Attributes) templ.Attributes {
+	langParts := strings.Split(string(lang), "_")
+	langAttr := "en"
+
+	if len(langParts) > 0 && langParts[0] != "" {
+		langAttr = langParts[0]
+	}
+
+	mergedAttrs := templ.Attributes{}
+	for _, attr := range attrs {
+		for k, v := range attr {
+			mergedAttrs[k] = v
+		}
+	}
+	if _, ok := mergedAttrs["lang"]; !ok {
+		mergedAttrs["lang"] = langAttr
+	}
+
+	if existingClass, ok := mergedAttrs["class"].(string); ok {
+		mergedAttrs["class"] = strings.TrimSpace(existingClass) + " notranslate"
+	} else {
+		mergedAttrs["class"] = "notranslate"
+	}
+
+	return mergedAttrs
+}
+
 templ HTMLTag(lang monday.Locale, attrs ...templ.Attributes) {
-	{{
-		langParts := strings.Split(string(lang), "_")
-		mergedAttrs := templ.Attributes{}
-		for _, attr := range attrs {
-			for k, v := range attr {
-				mergedAttrs[k] = v
-			}
-		}
-		if existingClass, ok := mergedAttrs["class"].(string); ok {
-			mergedAttrs["class"] = strings.TrimSpace(existingClass) + " notranslate"
-		} else {
-			mergedAttrs["class"] = "notranslate"
-		}
-	}}
+	{{ mergedAttrs := mergeAttributes(lang, attrs...) }}
 	<!DOCTYPE html>
-	<html
-		if len(langParts) > 0 && langParts[0] != "" {
-			lang={ langParts[0] }
-		} else {
-			lang="en"
-		}
-		{ mergedAttrs... }
-	>
+	<html { mergedAttrs... }>
 		{ children... }
 	</html>
 }
