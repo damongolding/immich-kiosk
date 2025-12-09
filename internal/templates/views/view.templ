@@ -15,7 +15,7 @@ templ HTMLTag(lang monday.Locale, attrs ...templ.Attributes) {
 			}
 		}
 		if existingClass, ok := mergedAttrs["class"].(string); ok {
-			mergedAttrs["class"] = existingClass + " notranslate"
+			mergedAttrs["class"] = strings.TrimSpace(existingClass) + " notranslate"
 		} else {
 			mergedAttrs["class"] = "notranslate"
 		}

@@ -18,12 +18,10 @@ import (
 // favouriteAssetsCount retrieves the total count of favorite assets from the Immich server.
 func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 
-	var allFavouritesCount int
-
 	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
-		_, _, err = immichAPIFail(allFavouritesCount, err, nil, "")
-		return allFavouritesCount, err
+		_, _, err = immichAPIFail(0, err, nil, "")
+		return 0, err
 	}
 
 	requestBody := SearchRandomBody{
@@ -45,14 +43,7 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 
 	DateFilter(&requestBody, a.requestConfig.DateFilter)
 
-	allAssetsCount, imagesErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
-	if imagesErr != nil {
-		return allFavouritesCount, imagesErr
-	}
-
-	allFavouritesCount += allAssetsCount
-
-	return allFavouritesCount, nil
+	return a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 }
 
 // RandomAssetFromFavourites retrieves a random favorite asset from the Immich server.
@@ -83,9 +74,9 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch bool) error {
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite image", true)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite asset", true)
 	} else {
-		log.Debug(requestID + " Getting Random favourite image")
+		log.Debug(requestID + " Getting Random favourite asset")
 	}
 
 	for range MaxRetries {
