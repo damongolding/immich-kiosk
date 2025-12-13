@@ -77,7 +77,11 @@ func Home(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 				viewData.BirthdayModeActive = true
 				for _, p := range birthdayPeople {
 					viewData.BirthdayPeople = append(viewData.BirthdayPeople, p.Name)
-					bd, _ := p.BirthDate.Time()
+					bd, err := p.BirthDate.Time()
+					if err != nil {
+						log.Error("parsing birthdate", "person", p.Name, "err", err)
+						continue
+					}
 					age := utils.CalculateAge(bd)
 					viewData.BirthdayAges[p.Name] = age
 				}

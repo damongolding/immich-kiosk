@@ -747,14 +747,40 @@ func DaysInMonth(date time.Time) int {
 	return time.Date(date.Year(), date.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
 }
 
-// CalculateAge calculates the age based on the birthdate and current time
+// CalculateAge calculates the age based on the birthdate and current time.
+// It handles timezone normalization and Feb 29 birthdays on non-leap years.
 func CalculateAge(birthDate time.Time) int {
-	today := time.Now()
+	today := time.Now().In(birthDate.Location())
+
 	age := today.Year() - birthDate.Year()
-	if today.YearDay() < birthDate.YearDay() {
+	if age < 0 {
+		return 0
+	}
+
+	// Birthday date in the current year (with Feb 29 policy => Mar 1 on non-leap years)
+	month, day := birthDate.Month(), birthDate.Day()
+	if month == time.February && day == 29 && !isLeapYear(today.Year()) {
+		month, day = time.March, 1
+	}
+	birthdayThisYear := time.Date(today.Year(), month, day, 0, 0, 0, 0, today.Location())
+	if today.Before(birthdayThisYear) {
 		age--
 	}
+	if age < 0 {
+		return 0
+	}
 	return age
+}
+
+// isLeapYear returns true if the given year is a leap year
+func isLeapYear(y int) bool {
+	if y%400 == 0 {
+		return true
+	}
+	if y%100 == 0 {
+		return false
+	}
+	return y%4 == 0
 }
 
 // ParseSize converts a human-readable size string (e.g., "10MB", "1GB") to bytes

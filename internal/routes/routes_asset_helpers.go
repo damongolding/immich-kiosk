@@ -773,8 +773,12 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, request
 				birthdayPersonNames = append(birthdayPersonNames, p.Name)
 				viewData.BirthdayPeople = append(viewData.BirthdayPeople, p.Name)
 
-				bd, _ := p.BirthDate.Time()
-				age := time.Now().Year() - bd.Year()
+				bd, err := p.BirthDate.Time()
+				if err != nil {
+					log.Error("parsing birthdate", "person", p.Name, "err", err)
+					continue
+				}
+				age := utils.CalculateAge(bd)
 				viewData.BirthdayAges[p.Name] = age
 			}
 

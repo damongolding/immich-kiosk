@@ -211,12 +211,16 @@ async function init(): Promise<void> {
 
 function handleBirthdayMode() {
     console.log("Handling Birthday Mode");
-    // Confetti every 3-4 photos
-    htmx.on("htmx:afterSwap", () => {
+
+    // Avoid duplicate overlays/listeners
+    if (document.querySelector(".birthday-overlay")) return;
+
+    // Confetti on kiosk image swaps only
+    htmx.on(kiosk ?? document.body, "htmx:afterSwap", (e: Event) => {
+        const target = e.target as HTMLElement | null;
+        if (kiosk && target !== kiosk) return;
         imageCount++;
-        // Confetti every 3-4 photos (randomly pick between 3 or 4 to make it "3-4")
-        // Or simply strict modulo. The requirement says "every 3-4", let's stick to 4 for simplicity as per existing code, 
-        // or add randomness if strict 3-4 is needed. Existing was 4. 
+        // Confetti every 3-4 photos
         if (imageCount % 4 === 0) {
             triggerConfetti();
         }
@@ -233,8 +237,8 @@ function handleBirthdayMode() {
     const birthdayParts: string[] = [];
     if (kioskData.birthdayPeople && kioskData.birthdayPeople.length > 0) {
         kioskData.birthdayPeople.forEach((person) => {
-            const age = kioskData.birthdayAges[person];
-            if (age) {
+            const age = kioskData.birthdayAges?.[person];
+            if (age !== undefined && age !== null) {
                 birthdayParts.push(`${person} (${age})`);
             } else {
                 birthdayParts.push(person);
