@@ -47,6 +47,9 @@
     "show_archived": {
       "type": "boolean"
     },
+    "birthday": {
+      "type": "boolean"
+    },
     "people": {
       "type": ["string", "array"],
       "items": {

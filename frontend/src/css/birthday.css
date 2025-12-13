@@ -1,0 +1,75 @@
+/* Birthday Mode Styles */
+.birthday-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* Move to bottom */
+  padding-bottom: clamp(20px, 5vh, 50px); /* Space from bottom */
+}
+
+.birthday-frame {
+    padding: clamp(10px, 2vh, 20px) clamp(15px, 4vw, 40px);
+    border: 4px solid;
+    border-image-slice: 1;
+    border-width: 4px;
+    border-radius: 15px; /* Note: border-image and border-radius conflict involved, using box-shadow for "border" or pseudo-element is safer for rounded gradient borders */
+    /* Let's use a simpler solid gold border with radius for now, or a double border */
+    border: 5px solid #BF953F;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.6); /* Semi-transparent black background to pop against photos */
+    box-shadow: 0 0 15px #FCF6BA, inset 0 0 15px #BF953F; /* Outer and inner glow */
+    backdrop-filter: blur(5px);
+    max-width: 90%;
+    
+    /* Layout for emojis + text */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(8px, 2vw, 20px);
+}
+
+.birthday-emoji {
+    font-size: clamp(2rem, 5vw, 2rem);
+}
+
+
+
+.gold-shimmer {
+  font-family: "Arial", sans-serif; /* Or a more "premium" font if available via @import, but staying safe */
+  font-weight: bold;
+  font-size: clamp(1.5rem, 4vw, 4rem);
+  text-align: center;
+
+  /* Gold Gradient Text */
+  background: linear-gradient(
+    to right,
+    #bf953f,
+    #fcf6ba,
+    #b38728,
+    #fbf5b7,
+    #aa771c
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  /* Text Shadow only works on the box if color is transparent, 
+       so we use a drop-shadow filter instead for the "text shadow" effect on gradient text */
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+
+  /* Shimmer Animation */
+  background-size: 200% auto;
+  animation: shine 3s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}

@@ -11,6 +11,9 @@ import (
 	"strings"
 	"time"
 
+	"slices"
+	"sync"
+
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -25,7 +28,13 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var errVideoNotReady = errors.New("video not ready")
+var (
+	errVideoNotReady = errors.New("video not ready")
+
+	lastLoggedBirthdayPeople []string
+	lastLoggedBirthdayDate   time.Time
+	birthdayLogMutex         sync.Mutex
+)
 
 // gatherAssetBuckets collects asset weightings for people, albums and date ranges.
 // For each person, it gets the count of images containing that person.
@@ -712,14 +721,88 @@ func determineLayoutMode(layout string, clientHeight, clientWidth int) string {
 	return layout
 }
 
+// CheckBirthdays checks if any known people have a birthday today
+func CheckBirthdays(ctx context.Context, config config.Config, requestID, deviceID string) ([]immich.Person, error) {
+	asset := immich.New(ctx, config)
+	people, err := asset.AllNamedPeople(requestID, deviceID)
+	if err != nil {
+		return nil, err
+	}
+
+	var birthdayPeople []immich.Person
+	today := time.Now()
+
+	for _, person := range people {
+		if person.BirthDate == "" {
+			continue
+		}
+		bd, err := person.BirthDate.Time()
+		if err != nil {
+			continue
+		}
+
+		if bd.Month() == today.Month() && bd.Day() == today.Day() {
+			birthdayPeople = append(birthdayPeople, person)
+		}
+	}
+	return birthdayPeople, nil
+}
+
 // generateViewData prepares view data for a kiosk page request based on the specified layout and client display dimensions.
 // It selects and processes one or two assets as needed for the layout, handling orientation and split view logic, and returns the resulting ViewData or an error.
 func generateViewData(requestConfig config.Config, c common.ContextCopy, requestID, deviceID string, isPrefetch bool) (common.ViewData, error) {
 
 	viewData := common.ViewData{
-		RequestID: requestID,
-		DeviceID:  deviceID,
-		Config:    requestConfig,
+		RequestID:    requestID,
+		DeviceID:     deviceID,
+		Config:       requestConfig,
+		BirthdayAges: make(map[string]int),
+	}
+
+	if requestConfig.Birthday {
+		birthdayPeople, err := CheckBirthdays(context.Background(), requestConfig, requestID, deviceID)
+		if err != nil {
+			log.Error("checking birthdays", "err", err)
+		} else if len(birthdayPeople) > 0 {
+			viewData.BirthdayModeActive = true
+			var birthdayPersonIDs []string
+			var birthdayPersonNames []string
+
+			for _, p := range birthdayPeople {
+				birthdayPersonIDs = append(birthdayPersonIDs, p.ID)
+				birthdayPersonNames = append(birthdayPersonNames, p.Name)
+				viewData.BirthdayPeople = append(viewData.BirthdayPeople, p.Name)
+
+				bd, err := p.BirthDate.Time()
+				if err != nil {
+					log.Error("parsing birthdate", "person", p.Name, "err", err)
+					continue
+				}
+				age := utils.CalculateAge(bd)
+				viewData.BirthdayAges[p.Name] = age
+			}
+
+			birthdayLogMutex.Lock()
+			today := time.Now()
+			isSameDay := today.Year() == lastLoggedBirthdayDate.Year() && today.YearDay() == lastLoggedBirthdayDate.YearDay()
+			isSamePeople := slices.Equal(birthdayPersonNames, lastLoggedBirthdayPeople)
+
+			if !isSameDay || !isSamePeople {
+				formattedPeople := fmt.Sprintf("[%s]", strings.Join(birthdayPersonNames, ", "))
+				log.Info("🎉 BIRTHDAY MODE ACTIVATED 🎂", "people", formattedPeople)
+				lastLoggedBirthdayPeople = birthdayPersonNames
+				lastLoggedBirthdayDate = today
+			}
+			birthdayLogMutex.Unlock()
+
+			// Override config to only show birthday people
+			requestConfig.People = birthdayPersonIDs
+			requestConfig.Albums = []string{}
+			requestConfig.Tags = []string{}
+			requestConfig.Dates = []string{}
+			requestConfig.Memories = false
+			requestConfig.RequireAllPeople = false
+		}
 	}
 
 	requestConfig.Layout = determineLayoutMode(requestConfig.Layout, requestConfig.ClientData.Height, requestConfig.ClientData.Width)

@@ -101,6 +101,10 @@ type ViewData struct {
 	Queries       url.Values      // Queries contains the URL query parameters
 	CustomCSS     []byte          // CustomCSS contains custom CSS styling as bytes
 	config.Config                 // Config contains the instance configuration
+
+	BirthdayModeActive bool           // BirthdayModeActive indicates if birthday mode is active
+	BirthdayPeople     []string       // BirthdayPeople contains the names of people with birthdays today
+	BirthdayAges       map[string]int // BirthdayAges contains the ages of people with birthdays today
 }
 
 type ViewImageDataOptions struct {

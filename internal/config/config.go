@@ -375,6 +375,9 @@ type Config struct {
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `json:"showArchived" yaml:"show_archived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
 
+	// Birthday mode
+	Birthday bool `json:"birthday" yaml:"birthday" mapstructure:"birthday" query:"birthday" form:"birthday" default:"false"`
+
 	RequireAllPeople bool `json:"requireAllPeople" yaml:"require_all_people" mapstructure:"require_all_people" query:"require_all_people" form:"require_all_people" default:"false"`
 
 	// Memories show memories

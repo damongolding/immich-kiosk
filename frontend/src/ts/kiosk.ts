@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import htmx from "htmx.org";
+import confetti from "canvas-confetti";
 import type { TimeFormat } from "./clock";
 import { initClock } from "./clock";
 import {
@@ -67,6 +68,9 @@ type KioskData = {
     livePhotos: boolean;
     LivePhotoLoopDelay: number;
     httpTimeout: number;
+    birthdayModeActive: boolean;
+    birthdayPeople: string[];
+    birthdayAges: Record<string, number>;
 };
 
 const MAX_FRAMES: number = 2 as const;
@@ -115,6 +119,7 @@ const linksButton = htmx.find(".navigation--links") as HTMLElement | null;
 const offlineSVG = htmx.find("#offline") as HTMLElement | null;
 
 let requestInFlight = false;
+let imageCount = 0;
 
 /**
  * Initialize Kiosk functionality
@@ -130,6 +135,7 @@ let requestInFlight = false;
  * @returns {Promise<void>} Promise that resolves when initialization is complete
  */
 async function init(): Promise<void> {
+    console.log("Kiosk Init", kioskData);
     if (kioskData.debugVerbose) {
         htmx.logAll();
     }
@@ -197,6 +203,111 @@ async function init(): Promise<void> {
     addEventListeners();
 
     if (kioskData.livePhotos) livePhoto(kioskData.LivePhotoLoopDelay);
+
+    if (kioskData.birthdayModeActive) {
+        handleBirthdayMode();
+    }
+}
+
+function handleBirthdayMode() {
+    console.log("Handling Birthday Mode");
+
+    // Avoid duplicate overlays/listeners
+    if (document.querySelector(".birthday-overlay")) return;
+
+    // Confetti on kiosk image swaps only
+    htmx.on(kiosk ?? document.body, "htmx:afterSwap", (e: Event) => {
+        const target = e.target as HTMLElement | null;
+        if (kiosk && target !== kiosk) return;
+        imageCount++;
+        // Confetti every 3-4 photos
+        if (imageCount % 4 === 0) {
+            triggerConfetti();
+        }
+    });
+
+    // Initial confetti
+    triggerConfetti();
+
+    // Create overlay
+    const overlay = document.createElement("div");
+    overlay.className = "birthday-overlay";
+    
+    // Construct text: Happy Birthday Name (Age) and Name (Age)
+    const birthdayParts: string[] = [];
+    if (kioskData.birthdayPeople && kioskData.birthdayPeople.length > 0) {
+        kioskData.birthdayPeople.forEach((person) => {
+            const age = kioskData.birthdayAges?.[person];
+            if (age !== undefined && age !== null) {
+                birthdayParts.push(`${person} (${age})`);
+            } else {
+                birthdayParts.push(person);
+            }
+        });
+    }
+
+    let bdayString = "Happy Birthday";
+    if (birthdayParts.length > 0) {
+        // join with " and " for the last element, commas for others
+        const joinedNames = birthdayParts.length === 1 
+            ? birthdayParts[0] 
+            : `${birthdayParts.slice(0, -1).join(", ")} and ${birthdayParts.slice(-1)}`;
+        bdayString = `Happy Birthday ${joinedNames}`;
+    }
+
+    // Emoji elements
+    const leftEmoji = document.createElement("span");
+    leftEmoji.textContent = "🎉";
+    leftEmoji.className = "birthday-emoji";
+    
+    const rightEmoji = document.createElement("span");
+    rightEmoji.textContent = "🎉";
+    rightEmoji.className = "birthday-emoji";
+
+    const textElement = document.createElement("div");
+    textElement.className = "gold-shimmer";
+    textElement.textContent = bdayString;
+    
+    // Create frame container
+    const frameElement = document.createElement("div");
+    frameElement.className = "birthday-frame";
+    
+    frameElement.appendChild(leftEmoji);
+    frameElement.appendChild(textElement);
+    frameElement.appendChild(rightEmoji);
+
+    overlay.appendChild(frameElement);
+    document.body.appendChild(overlay);
+}
+
+function triggerConfetti() {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2000 };
+
+    function randomInRange(min: number, max: number) {
+        return Math.random() * (max - min) + min;
+    }
+
+    let lastTick = 0;
+
+    function frame(currentTime: number) {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) return;
+
+        // Throttle: only fire every ~200ms
+        if (currentTime - lastTick > 200) {
+            const particleCount = 20 * (timeLeft / duration);
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            lastTick = currentTime;
+        }
+
+        requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
 }
 
 /**

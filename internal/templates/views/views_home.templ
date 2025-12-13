@@ -100,6 +100,9 @@ templ Home(viewData common.ViewData, secret string) {
 					"livePhotos":         viewData.LivePhotos,
 					"LivePhotoLoopDelay": viewData.LivePhotoLoopDelay * 1000,
 					"httpTimeout":        viewData.Kiosk.HTTPTimeout,
+					"birthdayModeActive": viewData.BirthdayModeActive,
+					"birthdayPeople":     viewData.BirthdayPeople,
+					"birthdayAges":       viewData.BirthdayAges,
 				})
 				<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			}
