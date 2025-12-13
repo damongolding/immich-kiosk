@@ -5,11 +5,13 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/damongolding/immich-kiosk/internal/video"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -38,6 +40,19 @@ func TestRawImage(t *testing.T) {
 	}
 
 	cache.Initialize()
+
+	prevVideoManager := VideoManager
+	videoManager, videoManagerErr := video.New(t.Context())
+	if videoManagerErr != nil {
+		t.Fatalf("Failed to initialise video manager: %v", videoManagerErr)
+	}
+
+	videoManager.MaxAge = time.Minute
+	VideoManager = videoManager
+
+	t.Cleanup(func() {
+		VideoManager = prevVideoManager
+	})
 
 	h := Image(baseConfig, common.New())
 
@@ -151,6 +166,74 @@ func TestTruncateURLQueries(t *testing.T) {
 			got := truncateURLQueries(tt.rawURL, tt.maxLength)
 			if got != tt.want {
 				t.Errorf("truncateURLQueries() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestShouldSkipBlur(t *testing.T) {
+	tests := []struct {
+		name       string
+		config     config.Config
+		shouldSkip bool
+	}{
+		{
+			name:       "Blur off disables blur",
+			config:     config.Config{BackgroundBlur: false},
+			shouldSkip: true,
+		},
+		{
+			name:       "Blur on, image fit cover, live photos enabled",
+			config:     config.Config{BackgroundBlur: true, ImageFit: "cover", LivePhotos: true},
+			shouldSkip: false,
+		},
+		{
+			name:       "Blur on, image fit cover, live photos disabled",
+			config:     config.Config{BackgroundBlur: true, ImageFit: "cover", LivePhotos: false},
+			shouldSkip: true,
+		},
+		{
+			name:       "Blur on, image fit cover, image effect zoom",
+			config:     config.Config{BackgroundBlur: true, ImageFit: "cover", ImageEffect: "zoom"},
+			shouldSkip: true,
+		},
+		{
+			name:       "Blur on, image fit cover, image effect smart-zoom",
+			config:     config.Config{BackgroundBlur: true, ImageFit: "cover", ImageEffect: "smart-zoom"},
+			shouldSkip: true,
+		},
+		{
+			name:       "Blur on, image fit contain, no effect",
+			config:     config.Config{BackgroundBlur: true, ImageFit: "contain", ImageEffect: ""},
+			shouldSkip: false,
+		},
+		{
+			name:       "Blur on, image fit cover, effect none",
+			config:     config.Config{BackgroundBlur: true, ImageFit: "cover", ImageEffect: "none"},
+			shouldSkip: true,
+		},
+		{
+			name:       "Blur on, image fit cover, effect zoom, live photos enabled",
+			config:     config.Config{BackgroundBlur: true, ImageFit: "cover", ImageEffect: "zoom", LivePhotos: true},
+			shouldSkip: false,
+		},
+		{
+			name:       "Blur on, image fit contain, image effect smart-zoom",
+			config:     config.Config{BackgroundBlur: true, ImageFit: "contain", ImageEffect: "smart-zoom"},
+			shouldSkip: false,
+		},
+		{
+			name:       "Blur on, layout splitview, image fit contain, image effect zoom, live photos disabled",
+			config:     config.Config{BackgroundBlur: true, Layout: "splitview", ImageFit: "contain", ImageEffect: "zoom", LivePhotos: false},
+			shouldSkip: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := shouldSkipBlur(tt.config)
+			if got != tt.shouldSkip {
+				t.Errorf("shouldSkipBlur() = %v, want %v", got, tt.shouldSkip)
 			}
 		})
 	}

@@ -81,10 +81,22 @@ func Get(s string) (any, bool) {
 	return kioskCache.Get(s)
 }
 
-// Set adds an item to the cache with the default expiration time.
-// If the key already exists, its value will be overwritten.
-func Set(key string, x any) {
-	kioskCache.Set(key, x, gocache.DefaultExpiration)
+// Set stores a value in the cache under the given key.
+// If deviceDuration is less than the defaultExpiration, the default expiration is used.
+// Otherwise, the item expires after deviceDuration plus one extra minute.
+// If the key already exists, its value is replaced.
+func Set(key string, x any, deviceDuration int) {
+	if deviceDuration < 0 {
+		log.Warn("Negative duration provided, using default expiration", "deviceDuration", deviceDuration)
+		kioskCache.Set(key, x, gocache.DefaultExpiration)
+		return
+	}
+	deviceDurationPlusMin := (time.Duration(deviceDuration) * time.Second) + time.Minute
+	if deviceDurationPlusMin <= defaultExpiration {
+		kioskCache.Set(key, x, gocache.DefaultExpiration)
+		return
+	}
+	SetWithExpiration(key, x, deviceDurationPlusMin)
 }
 
 // SetWithExpiration adds an item to the cache with the specified expiration duration.
@@ -104,12 +116,6 @@ func Delete(key string) {
 // Returns an error if the key does not exist.
 func Replace(key string, x any) error {
 	return kioskCache.Replace(key, x, gocache.DefaultExpiration)
-}
-
-// ReplaceWithExpiration updates an existing item in the cache with a new value and specified expiration time.
-// The item will expire after the given duration has elapsed. Returns an error if the key does not exist.
-func ReplaceWithExpiration(key string, x any, t time.Duration) error {
-	return kioskCache.Replace(key, x, t)
 }
 
 // AssetToCache adds a new item of type T to the cache array by appending it to the end.
@@ -152,5 +158,5 @@ func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID
 		cachedViewData = append([]T{viewDataToAdd}, cachedViewData...)
 	}
 
-	Set(viewCacheKey, cachedViewData)
+	Set(viewCacheKey, cachedViewData, requestConfig.Duration)
 }

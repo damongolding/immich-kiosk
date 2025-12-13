@@ -17,12 +17,14 @@ import (
 
 // Home renders the Home layout template
 templ Home(viewData common.ViewData, secret string) {
-	<!DOCTYPE html>
-	<html lang="en" hx-request={ fmt.Sprintf("{\"timeout\":%d}", formatTimeout(viewData.Kiosk.HTTPTimeout)) }>
+	@HTMLTag(
+		viewData.SystemLang,
+		templ.Attributes{"hx-request": fmt.Sprintf("{\"timeout\":%d}", formatTimeout(viewData.Kiosk.HTTPTimeout))},
+	) {
 		<head>
 			@partials.Head(viewData)
 		</head>
-		<body>
+		<body class="notranslate">
 			@partials.KioskContainer(viewData, secret) {
 				<main
 					id="kiosk"
@@ -105,7 +107,7 @@ templ Home(viewData common.ViewData, secret string) {
 				<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			}
 		</body>
-	</html>
+	}
 }
 
 func formatTimeout(timeout int) int {

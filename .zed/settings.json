@@ -7,7 +7,7 @@
     "JavaScript": {
       "formatter": {
         "external": {
-          "command": "biome",
+          "command": "./frontend/node_modules/.bin/biome",
           "arguments": [
             "check",
             "--stdin-file-path",
@@ -20,7 +20,7 @@
     "TypeScript": {
       "formatter": {
         "external": {
-          "command": "biome",
+          "command": "./frontend/node_modules/.bin/biome",
           "arguments": [
             "check",
             "--stdin-file-path",

@@ -213,7 +213,11 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-			WithVideo:  a.requestConfig.ShowVideos,
+		}
+
+		// Include videos if show videos is enabled
+		if a.requestConfig.ShowVideos {
+			requestBody.Type = ""
 		}
 
 		if a.requestConfig.RequireAllPeople {
@@ -256,15 +260,6 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 			return err
 		}
 
-		// Add videos if user wants them
-		if a.requestConfig.ShowVideos {
-			err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
-			if err != nil {
-				_, _, err = immichAPIFail(immichAssets, err, nil, apiURL.String())
-				return err
-			}
-		}
-
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
@@ -298,10 +293,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 				}
 
 				// Replace cache with remaining assets after removing used asset(s)
-				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
-				if cacheErr != nil {
-					log.Debug("cache not found!")
-				}
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 			}
 
 			asset.BucketID = personID

@@ -17,7 +17,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm css && pnpm js && pnpm url-builder
 
 # Go Builder
-FROM --platform=$BUILDPLATFORM golang:1.25.4-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.25.5-bookworm AS build
 
 ARG VERSION=demo
 ARG TARGETOS
@@ -35,7 +35,7 @@ RUN go tool templ generate
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION}" -o dist/kiosk .
 
 # Release
-FROM alpine:latest
+FROM alpine:3.22.2
 
 ENV TZ=Europe/London
 

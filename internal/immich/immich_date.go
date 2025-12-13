@@ -66,7 +66,11 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 			WithExif:    true,
 			WithPeople:  true,
 			Size:        a.requestConfig.Kiosk.FetchedAssetsSize,
-			WithVideo:   a.requestConfig.ShowVideos,
+		}
+
+		// Include videos if show videos is enabled
+		if a.requestConfig.ShowVideos {
+			requestBody.Type = ""
 		}
 
 		if a.requestConfig.ShowArchived {
@@ -99,15 +103,6 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
-		}
-
-		// Add videos if user wants them
-		if a.requestConfig.ShowVideos {
-			err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
-			if err != nil {
-				_, _, err = immichAPIFail(immichAssets, err, nil, apiURL.String())
-				return err
-			}
 		}
 
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
@@ -143,10 +138,7 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 				}
 
 				// replace cache with used asset(s) removed
-				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
-				if cacheErr != nil {
-					log.Debug("Failed to update cache", "error", cacheErr, "url", apiURL.String())
-				}
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 			}
 
 			asset.BucketID = dateRange

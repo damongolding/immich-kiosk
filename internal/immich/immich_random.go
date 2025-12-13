@@ -54,7 +54,11 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-			WithVideo:  a.requestConfig.ShowVideos,
+		}
+
+		// Include videos if show videos is enabled
+		if a.requestConfig.ShowVideos {
+			requestBody.Type = ""
 		}
 
 		if a.requestConfig.ShowArchived {
@@ -92,15 +96,6 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 			return err
 		}
 
-		// Add videos if user wants them
-		if a.requestConfig.ShowVideos {
-			err = a.AddVideos(requestID, deviceID, &immichAssets, apiURL, requestBody)
-			if err != nil {
-				_, _, err = immichAPIFail(immichAssets, err, nil, apiURL.String())
-				return err
-			}
-		}
-
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
@@ -134,10 +129,7 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 				}
 
 				// replace with cache minus used asset
-				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
-				if cacheErr != nil {
-					log.Debug("cache not found!")
-				}
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 			}
 
 			*a = asset

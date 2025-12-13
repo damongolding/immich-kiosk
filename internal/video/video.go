@@ -64,7 +64,7 @@ func initialise() error {
 		return err
 	}
 
-	log.Info("created video tmp dir", "path", customTempVideoDir)
+	log.Info("Created video tmp dir", "path", customTempVideoDir)
 
 	return nil
 }
@@ -278,8 +278,6 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 	if imgErr != nil {
 		log.Error("Image BytesToImage", "err", imgErr)
 	}
-
-	img = utils.ApplyExifOrientation(img, immichAsset.ExifInfo.Orientation)
 
 	if requestConfig.OptimizeImages {
 		img, imgErr = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)

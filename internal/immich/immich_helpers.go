@@ -85,7 +85,7 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 			return nil, contentType, err
 		}
 
-		cache.Set(apiCacheKey, jsonBytes)
+		cache.Set(apiCacheKey, jsonBytes, requestConfig.Duration)
 		if requestConfig.Kiosk.DebugVerbose {
 			log.Debug(requestID+" Cache saved", "url", apiURL)
 		}
