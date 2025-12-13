@@ -20,7 +20,9 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.4",
+    "@types/canvas-confetti": "^1.6.4",
     "autoprefixer": "^10.4.21",
+    "canvas-confetti": "^1.9.0",
     "choices.js": "^11.1.0",
     "date-fns": "^4.1.0",
     "dompurify": "^3.3.0",

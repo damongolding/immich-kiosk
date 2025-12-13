@@ -11,9 +11,15 @@ importers:
       '@biomejs/biome':
         specifier: 2.3.4
         version: 2.3.4
+      '@types/canvas-confetti':
+        specifier: ^1.6.4
+        version: 1.9.0
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
+      canvas-confetti:
+        specifier: ^1.9.0
+        version: 1.9.4
       choices.js:
         specifier: ^11.1.0
         version: 11.1.0
@@ -253,6 +259,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@types/canvas-confetti@1.9.0':
+    resolution: {integrity: sha512-aBGj/dULrimR1XDZLtG9JwxX1b4HPRF6CX9Yfwh3NvstZEm1ZL7RBnel4keCPSqs1ANRu1u2Aoz9R+VmtjYuTg==}
+
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
 
@@ -294,6 +303,9 @@ packages:
 
   caniuse-lite@1.0.30001754:
     resolution: {integrity: sha512-x6OeBXueoAceOmotzx3PO4Zpt4rzpeIFsSr6AAePTZxSkXiYDUmpypEl7e2+8NCd9bD7bXjqyef8CJYPC1jfxg==}
+
+  canvas-confetti@1.9.4:
+    resolution: {integrity: sha512-yxQbJkAVrFXWNbTUjPqjF7G+g6pDotOUHGbkZq2NELZUMDpiJ85rIEazVb8GTaAptNW2miJAXbs1BtioA251Pw==}
 
   choices.js@11.1.0:
     resolution: {integrity: sha512-mIt0uLhedHg2ea/K2PACrVpt391vRGHuOoctPAiHcyemezwzNMxj7jOzNEk8e7EbjLh0S0sspDkSCADOKz9kcw==}
@@ -685,6 +697,8 @@ snapshots:
   '@esbuild/win32-x64@0.27.0':
     optional: true
 
+  '@types/canvas-confetti@1.9.0': {}
+
   '@types/trusted-types@2.0.7':
     optional: true
 
@@ -726,6 +740,8 @@ snapshots:
       update-browserslist-db: 1.1.4(browserslist@4.27.0)
 
   caniuse-lite@1.0.30001754: {}
+
+  canvas-confetti@1.9.4: {}
 
   choices.js@11.1.0:
     dependencies:

@@ -747,6 +747,16 @@ func DaysInMonth(date time.Time) int {
 	return time.Date(date.Year(), date.Month()+1, 0, 0, 0, 0, 0, time.UTC).Day()
 }
 
+// CalculateAge calculates the age based on the birthdate and current time
+func CalculateAge(birthDate time.Time) int {
+	today := time.Now()
+	age := today.Year() - birthDate.Year()
+	if today.YearDay() < birthDate.YearDay() {
+		age--
+	}
+	return age
+}
+
 // ParseSize converts a human-readable size string (e.g., "10MB", "1GB") to bytes
 // using binary prefixes (1KB = 1024B, 1MB = 1024KB, etc.)
 func ParseSize(sizeStr string) (int64, error) {

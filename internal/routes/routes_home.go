@@ -66,6 +66,22 @@ func Home(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			Queries:      queryParams,
 			CustomCSS:    customCSS,
 			Config:       requestConfig,
+			BirthdayAges: make(map[string]int),
+		}
+
+		if requestConfig.Birthday {
+			birthdayPeople, err := CheckBirthdays(c.Request().Context(), requestConfig, requestID, viewData.DeviceID)
+			if err != nil {
+				log.Error("checking birthdays", "err", err)
+			} else if len(birthdayPeople) > 0 {
+				viewData.BirthdayModeActive = true
+				for _, p := range birthdayPeople {
+					viewData.BirthdayPeople = append(viewData.BirthdayPeople, p.Name)
+					bd, _ := p.BirthDate.Time()
+					age := utils.CalculateAge(bd)
+					viewData.BirthdayAges[p.Name] = age
+				}
+			}
 		}
 
 		return Render(c, http.StatusOK, views.Home(viewData, com.Secret()))
