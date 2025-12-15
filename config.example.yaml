@@ -99,6 +99,7 @@ image_time_format: 24 # 12 or 24
 show_image_date: false
 image_date_format: YYYY-MM-DD
 show_image_description: false
+show_image_camera: false
 show_image_exif: false
 show_image_location: false
 show_image_qr: false

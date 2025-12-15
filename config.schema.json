@@ -250,6 +250,9 @@
     "show_image_description": {
       "type": "boolean"
     },
+    "show_image_camera": {
+      "type": "boolean"
+    },
     "show_image_exif": {
       "type": "boolean"
     },
