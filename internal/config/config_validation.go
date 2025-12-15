@@ -532,7 +532,7 @@ func (c *Config) checkBurnIn() {
 		log.Warn("BurnInOpacity must be between 0 and 100, using default", "value", c.BurnInOpacity)
 		c.BurnInOpacity = 70
 	}
-	if c.BurnInDuration < 0 {
+	if c.BurnInDuration < 1 {
 		log.Warn("BurnInDuration cannot be negative, using default", "value", c.BurnInDuration)
 		c.BurnInDuration = 30
 	}

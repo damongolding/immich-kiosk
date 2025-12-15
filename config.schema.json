@@ -45,10 +45,12 @@
       "type": "boolean"
     },
     "burn_in_interval": {
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0
     },
     "burn_in_duration": {
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0
     },
     "burn_in_opacity": {
       "type": "integer",
