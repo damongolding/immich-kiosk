@@ -53,7 +53,7 @@ func burnInOpacity(opacity int) string {
 	return fmt.Sprintf(`
 	<style>
 		:root{
-			--burn-in-opacity: %f;
+			--burn-in-opacity: %.2f;
 		}
 	</style>`, float32(opacity)/100)
 }

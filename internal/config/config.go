@@ -217,7 +217,7 @@ type Config struct {
 
 	// ImmichUsersAPIKeys a map of usernames to their respective api keys for accessing Immich
 	ImmichUsersAPIKeys map[string]string `json:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}" redact:"true"`
-	// User the user from ImmichUsersApiKeys to use when fetching images. If not set, it will use the default ImmichApiKey
+	// User the user from ImmichUsersAPIKeys to use when fetching images. If not set, it will use the default ImmichAPIKey
 	User []string `json:"user" yaml:"user" mapstructure:"user" query:"user" form:"user" default:"[]" redact:"true"`
 	// ReloadTimeStamp timestamp for when the last client reload was called for
 	ReloadTimeStamp string `json:"-" yaml:"-"`
