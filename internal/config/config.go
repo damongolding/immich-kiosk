@@ -436,6 +436,8 @@ type Config struct {
 	UseGpu bool `json:"use_gpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
 
 	UseOfflineMode bool `json:"useOfflineMode" yaml:"use_offline_mode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
+
+	ShowClearCacheButton bool `json:"showClearCacheButton" yaml:"show_clear_cache_button" mapstructure:"show_clear_cache_button" query:"show_clear_cache_button" form:"show_clear_cache_button" default:"false"`
 }
 
 // New returns a new config pointer instance
