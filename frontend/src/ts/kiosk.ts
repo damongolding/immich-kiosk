@@ -65,7 +65,9 @@ type KioskData = {
     showMoreInfo: boolean;
     showRedirects: boolean;
     livePhotos: boolean;
-    LivePhotoLoopDelay: number;
+    livePhotoLoopDelay: number;
+    burnInInterval: number;
+    burnInDuration: number;
     httpTimeout: number;
 };
 
@@ -115,6 +117,8 @@ const linksButton = htmx.find(".navigation--links") as HTMLElement | null;
 const offlineSVG = htmx.find("#offline") as HTMLElement | null;
 
 let requestInFlight = false;
+
+let burnInTimerId: number | null = null;
 
 /**
  * Initialize Kiosk functionality
@@ -196,7 +200,34 @@ async function init(): Promise<void> {
 
     addEventListeners();
 
-    if (kioskData.livePhotos) livePhoto(kioskData.LivePhotoLoopDelay);
+    if (kioskData.livePhotos) livePhoto(kioskData.livePhotoLoopDelay);
+
+    // Burn-in prevention
+    if (kioskData.burnInInterval > 0 && kioskData.burnInDuration > 0)
+        burnInCycle();
+}
+
+function burnInCycle() {
+    if (burnInTimerId !== null) {
+        clearTimeout(burnInTimerId);
+        burnInTimerId = null;
+    }
+    const runBurnInCycle = () => {
+        document.body.classList.add("burn-in-dim");
+        console.debug("Burn-in cycle started");
+
+        setTimeout(() => {
+            document.body.classList.remove("burn-in-dim");
+            console.debug("Burn-in cycle ended");
+
+            burnInTimerId = setTimeout(
+                runBurnInCycle,
+                kioskData.burnInInterval * 1000,
+            );
+        }, kioskData.burnInDuration * 1000);
+    };
+
+    burnInTimerId = setTimeout(runBurnInCycle, kioskData.burnInInterval * 1000);
 }
 
 /**
