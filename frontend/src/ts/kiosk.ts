@@ -65,7 +65,9 @@ type KioskData = {
     showMoreInfo: boolean;
     showRedirects: boolean;
     livePhotos: boolean;
-    LivePhotoLoopDelay: number;
+    livePhotoLoopDelay: number;
+    burnInInterval: number;
+    burnInDuration: number;
     httpTimeout: number;
 };
 
@@ -196,7 +198,26 @@ async function init(): Promise<void> {
 
     addEventListeners();
 
-    if (kioskData.livePhotos) livePhoto(kioskData.LivePhotoLoopDelay);
+    if (kioskData.livePhotos) livePhoto(kioskData.livePhotoLoopDelay);
+
+    // Burn-in prevention
+    if (kioskData.burnInInterval > 0) burnInCycle();
+}
+
+function burnInCycle() {
+    const runBurnInCycle = () => {
+        document.body.classList.add("burn-in-dim");
+        console.debug("Burn-in cycle started");
+
+        setTimeout(() => {
+            document.body.classList.remove("burn-in-dim");
+            console.debug("Burn-in cycle ended");
+
+            setTimeout(runBurnInCycle, kioskData.burnInInterval * 1000);
+        }, kioskData.burnInDuration * 1000);
+    };
+
+    setTimeout(runBurnInCycle, kioskData.burnInInterval * 1000);
 }
 
 /**

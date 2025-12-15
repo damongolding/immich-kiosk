@@ -37,4 +37,7 @@
         hsla(0, 0%, 0%, 0.008) 93.5%, hsla(0, 0%, 0%, 0) 100%;
 
     --bubble-background: rgba(0, 0, 0, 0.2);
+
+    --burn-in-fade: 10s;
+    --burn-in-opacity: 0.7;
 }

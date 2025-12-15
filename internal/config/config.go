@@ -254,6 +254,7 @@ type Config struct {
 	SleepStart string `json:"sleepStart" yaml:"sleep_start" mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
 	// SleepEnd when to exit sleep mode
 	SleepEnd string `json:"sleepEnd" yaml:"sleep_end" mapstructure:"sleep_end" query:"sleep_end" form:"sleep_end" default:""`
+
 	// AlbumOrder specifies the order in which album assets are displayed.
 	AlbumOrder string `json:"album_order" yaml:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
 
@@ -328,6 +329,7 @@ type Config struct {
 
 	// Duration in seconds to display assets
 	Duration int `json:"duration" yaml:"duration" mapstructure:"duration" query:"duration" form:"duration" default:"60"`
+
 	// FontSize the base font size as a percentage
 	FontSize           int `json:"fontSize" yaml:"font_size" mapstructure:"font_size" query:"font_size" form:"font_size" default:"100"`
 	LivePhotoLoopDelay int `json:"livePhotoLoopDelay" yaml:"live_photo_loop_delay" mapstructure:"live_photo_loop_delay" query:"live_photo_loop_delay" form:"live_photo_loop_delay" default:"0"`
@@ -436,6 +438,10 @@ type Config struct {
 	UseGpu bool `json:"use_gpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
 
 	UseOfflineMode bool `json:"useOfflineMode" yaml:"use_offline_mode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
+
+	BurnInInterval int     `json:"burnInInterval" yaml:"burn_in_interval" mapstructure:"burn_in_interval" query:"burn_in_interval" form:"burn_in_interval" default:"0"`
+	BurnInDuration int     `json:"burnInDuration" yaml:"burn_in_duration" mapstructure:"burn_in_duration" query:"burn_in_duration" form:"burn_in_duration" default:"30"`
+	BurnInOpacity  float32 `json:"burnInOpacity" yaml:"burn_in_opacity" mapstructure:"burn_in_opacity" query:"burn_in_opacity" form:"burn_in_opacity" default:"0.7"`
 }
 
 // New returns a new config pointer instance
