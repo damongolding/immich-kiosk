@@ -55,7 +55,7 @@ memories: false # show memories
 # date_filter: last-30-days # only applies to people and random assets
 
 ## UI
-show_clear_cache_button: false # Show a menu button to clear the kiosk server cache
+show_clear_cache_button: false # Show a menu button to clear the Kiosk server cache
 show_progress_bar: false # display a progress bar
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
 frameless: false # remove border around image and rounded corners.

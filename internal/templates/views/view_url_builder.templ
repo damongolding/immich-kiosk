@@ -135,6 +135,9 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					}
 					// UI
 					<h2>User Interface</h2>
+					if extended {
+						@URLBuilderRadio("Show clear cache button", "show_clear_cache_button", "Show a menu button to clear the Kiosk server cache.", "true", "true", "false", "false")
+					}
 					@URLBuilderRadio("Show progress bar", "show_progress_bar", "Show a progress bar indicating the time remaining for the current asset.", "true", "true", "false", "false")
 					if extended {
 						@URLBuilderRadio("Progress bar position", "progress_bar_position", "Set the position of the progress bar.", "top", "top", "bottom", "bottom")

@@ -169,17 +169,16 @@ type URLBuilderRequest struct {
 	ClockSource *string `form:"clock_source" url:"clock_source,omitempty"`
 
 	// UI
-	HideCursor *bool   `form:"hide_cursor" url:"hide_cursor,omitempty"`
-	FontSize   *uint64 `form:"font_size" url:"font_size,omitempty"`
-	Theme      *string `form:"theme" url:"theme,omitempty"`
-	Layout     *string `form:"layout" url:"layout,omitempty"`
+	ShowClearCacheButton *bool   `form:"show_clear_cache_button" url:"show_clear_cache_button,omitempty"`
+	ShowProgressBar      *bool   `form:"show_progress_bar" url:"show_progress_bar,omitempty"`
+	ProgressBarPosition  *string `form:"progress_bar_position" url:"progress_bar_position,omitempty"`
+	HideCursor           *bool   `form:"hide_cursor" url:"hide_cursor,omitempty"`
+	FontSize             *uint64 `form:"font_size" url:"font_size,omitempty"`
+	Theme                *string `form:"theme" url:"theme,omitempty"`
+	Layout               *string `form:"layout" url:"layout,omitempty"`
 
 	// Transition
 	Transition *string `form:"transition" url:"transition,omitempty"`
-
-	// Progress Bar
-	ShowProgressBar     *bool   `form:"show_progress_bar" url:"show_progress_bar,omitempty"`
-	ProgressBarPosition *string `form:"progress_bar_position" url:"progress_bar_position,omitempty"`
 
 	// Image
 	ImageFit          *string `form:"image_fit" url:"image_fit,omitempty"`
