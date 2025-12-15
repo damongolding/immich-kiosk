@@ -413,6 +413,8 @@ type Config struct {
 	ShowImageDate bool `json:"showImageDate" yaml:"show_image_date" mapstructure:"show_image_date" query:"show_image_date" form:"show_image_date"  default:"false"`
 	// ShowImageDescription isplay image description
 	ShowImageDescription bool `json:"showImageDescription" yaml:"show_image_description" mapstructure:"show_image_description" query:"show_image_description" form:"show_image_description" default:"false"`
+	// ShowImageCamera display camera model
+	ShowImageCamera bool `json:"showImageCamera" yaml:"show_image_camera" mapstructure:"show_image_camera" query:"show_image_camera" form:"show_image_camera" default:"false"`
 	// ShowImageExif display image exif data (f number, iso, shutter speed, Focal length)
 	ShowImageExif bool `json:"showImageExif" yaml:"show_image_exif" mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
 	// ShowImageLocation display image location data

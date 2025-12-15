@@ -199,6 +199,7 @@ type URLBuilderRequest struct {
 	ShowImageDate        *bool   `form:"show_image_date" url:"show_image_date,omitempty"`
 	ImageDateFormat      *string `form:"image_date_format" url:"image_date_format,omitempty"`
 	ShowImageDescription *bool   `form:"show_image_description" url:"show_image_description,omitempty"`
+	ShowImageCamera      *bool   `form:"show_image_camera" url:"show_image_camera,omitempty"`
 	ShowImageEXIF        *bool   `form:"show_image_exif" url:"show_image_exif,omitempty"`
 	ShowImageLocation    *bool   `form:"show_image_location" url:"show_image_location,omitempty"`
 	ShowImageQR          *bool   `form:"show_image_qr" url:"show_image_qr,omitempty"`
