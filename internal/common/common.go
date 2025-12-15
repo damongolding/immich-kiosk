@@ -141,6 +141,9 @@ type URLBuilderRequest struct {
 	// Duration
 	Duration       *uint64 `form:"duration" url:"duration,omitempty"`
 	OptimizeImages *bool   `form:"optimize_images" url:"optimize_images,omitempty"`
+	BurnInInterval *uint64 `form:"burn_in_interval" url:"burn_in_interval,omitempty"`
+	BurnInDuration *uint64 `form:"burn_in_duration" url:"burn_in_duration,omitempty"`
+	BurnInOpacity  *uint64 `form:"burn_in_opacity" url:"burn_in_opacity,omitempty"`
 
 	// Buckets
 	People           []string `form:"people" url:"person,omitempty"`

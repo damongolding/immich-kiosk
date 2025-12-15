@@ -58,6 +58,9 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					@URLBuilderNumber("Duration", "duration", "The amount of time in seconds an asset will be displayed for", 0, 0, strconv.FormatInt(int64(c.Duration), 10))
 					if extended {
 						@URLBuilderRadio("Optimize", "optimize_images", "Scale images to fit the screen.", "true", "true", "false", "false")
+						@URLBuilderNumber("Burn-in Interval", "burn_in_interval", "The interval between burn-in protection cycles (minutes).", 0, 0, strconv.FormatInt(int64(c.BurnInInterval), 10))
+						@URLBuilderNumber("Burn-in Duration", "burn_in_duration", "The duration of each burn-in protection cycle (seconds).", 0, 0, strconv.FormatInt(int64(c.BurnInDuration), 10))
+						@URLBuilderNumber("Burn-in Opacity", "burn_in_opacity", "The opacity the UI will dip to, as a percentage", 0, 100, strconv.FormatInt(int64(c.BurnInOpacity), 10))
 					}
 					// Buckets
 					<h2>Buckets</h2>
