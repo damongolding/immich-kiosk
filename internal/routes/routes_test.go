@@ -5,11 +5,13 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/damongolding/immich-kiosk/internal/video"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -38,6 +40,19 @@ func TestRawImage(t *testing.T) {
 	}
 
 	cache.Initialize()
+
+	prevVideoManager := VideoManager
+	videoManager, videoManagerErr := video.New(t.Context())
+	if videoManagerErr != nil {
+		t.Fatalf("Failed to initialise video manager: %v", videoManagerErr)
+	}
+
+	videoManager.MaxAge = time.Minute
+	VideoManager = videoManager
+
+	t.Cleanup(func() {
+		VideoManager = prevVideoManager
+	})
 
 	h := Image(baseConfig, common.New())
 

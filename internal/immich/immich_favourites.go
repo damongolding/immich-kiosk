@@ -168,10 +168,7 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 				}
 
 				// replace cache minus used image
-				cacheErr := cache.Replace(apiCacheKey, jsonBytes)
-				if cacheErr != nil {
-					log.Debug("cache not found!")
-				}
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 			}
 
 			asset.BucketID = kiosk.AlbumKeywordFavourites
