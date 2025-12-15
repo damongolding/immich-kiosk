@@ -118,6 +118,8 @@ const offlineSVG = htmx.find("#offline") as HTMLElement | null;
 
 let requestInFlight = false;
 
+let burnInTimerId: number | null = null;
+
 /**
  * Initialize Kiosk functionality
  * @description Sets up kiosk by configuring:
@@ -201,10 +203,15 @@ async function init(): Promise<void> {
     if (kioskData.livePhotos) livePhoto(kioskData.livePhotoLoopDelay);
 
     // Burn-in prevention
-    if (kioskData.burnInInterval > 0) burnInCycle();
+    if (kioskData.burnInInterval > 0 && kioskData.burnInDuration > 0)
+        burnInCycle();
 }
 
 function burnInCycle() {
+    if (burnInTimerId !== null) {
+        clearTimeout(burnInTimerId);
+        burnInTimerId = null;
+    }
     const runBurnInCycle = () => {
         document.body.classList.add("burn-in-dim");
         console.debug("Burn-in cycle started");
@@ -213,11 +220,14 @@ function burnInCycle() {
             document.body.classList.remove("burn-in-dim");
             console.debug("Burn-in cycle ended");
 
-            setTimeout(runBurnInCycle, kioskData.burnInInterval * 1000);
+            burnInTimerId = setTimeout(
+                runBurnInCycle,
+                kioskData.burnInInterval * 1000,
+            );
         }, kioskData.burnInDuration * 1000);
     };
 
-    setTimeout(runBurnInCycle, kioskData.burnInInterval * 1000);
+    burnInTimerId = setTimeout(runBurnInCycle, kioskData.burnInInterval * 1000);
 }
 
 /**

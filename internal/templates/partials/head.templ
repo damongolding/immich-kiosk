@@ -49,14 +49,14 @@ templ Head(viewData common.ViewData) {
 	}
 }
 
-func burnInOpacity(d int, o float32) string {
+func burnInOpacity(duration, opacity int) string {
 	return fmt.Sprintf(`
 	<style>
 		:root{
 			--burn-in-duration: %vs;
 			--burn-in-opacity: %f;
 		}
-	</style>`, d, o)
+	</style>`, duration, float32(opacity)/100)
 }
 
 // framepadding generates CSS for kiosk padding

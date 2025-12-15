@@ -99,7 +99,7 @@ templ Home(viewData common.ViewData, secret string) {
 					"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
 					"livePhotos":         viewData.LivePhotos,
 					"livePhotoLoopDelay": viewData.LivePhotoLoopDelay * 1000,
-					"burnInInterval":     viewData.BurnInInterval,
+					"burnInInterval":     viewData.BurnInInterval * 60,
 					"burnInDuration":     viewData.BurnInDuration,
 					"burnInOpacity":      viewData.BurnInOpacity,
 					"httpTimeout":        viewData.Kiosk.HTTPTimeout,

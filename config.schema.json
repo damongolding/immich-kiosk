@@ -44,6 +44,17 @@
     "use_gpu": {
       "type": "boolean"
     },
+    "burn_in_interval": {
+      "type": "integer"
+    },
+    "burn_in_duration": {
+      "type": "integer"
+    },
+    "burn_in_opacity": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
     "show_archived": {
       "type": "boolean"
     },

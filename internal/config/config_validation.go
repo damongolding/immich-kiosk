@@ -526,6 +526,22 @@ func checkSchema(config map[string]any, level string) bool {
 	return true
 }
 
+// checkBurnIn validates burn-in prevention configuration values
+func (c *Config) checkBurnIn() {
+	if c.BurnInOpacity < 0 || c.BurnInOpacity > 100 {
+		log.Warn("BurnInOpacity must be between 0 and 100, using default", "value", c.BurnInOpacity)
+		c.BurnInOpacity = 70
+	}
+	if c.BurnInDuration < 0 {
+		log.Warn("BurnInDuration cannot be negative, using default", "value", c.BurnInDuration)
+		c.BurnInDuration = 30
+	}
+	if c.BurnInInterval < 0 {
+		log.Warn("BurnInInterval cannot be negative, disabling", "value", c.BurnInInterval)
+		c.BurnInInterval = 0
+	}
+}
+
 func ConfigTypes(settings map[string]any, cfgStruct any) map[string]any {
 	return convertConfigTypes(reflect.TypeOf(cfgStruct), settings)
 }
