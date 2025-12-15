@@ -411,6 +411,8 @@ type Config struct {
 	ShowImageDate bool `json:"showImageDate" yaml:"show_image_date" mapstructure:"show_image_date" query:"show_image_date" form:"show_image_date"  default:"false"`
 	// ShowImageDescription isplay image description
 	ShowImageDescription bool `json:"showImageDescription" yaml:"show_image_description" mapstructure:"show_image_description" query:"show_image_description" form:"show_image_description" default:"false"`
+	// ShowImageCamera display camer model
+	ShowImageCamera bool `json:"showImageCamera" yaml:"show_image_camera" mapstructure:"show_image_camera" query:"show_image_camera" form:"show_image_camera" default:"false"`
 	// ShowImageExif display image exif data (f number, iso, shutter speed, Focal length)
 	ShowImageExif bool `json:"showImageExif" yaml:"show_image_exif" mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
 	// ShowImageLocation display image location data
@@ -436,6 +438,15 @@ type Config struct {
 	UseGpu bool `json:"use_gpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
 
 	UseOfflineMode bool `json:"useOfflineMode" yaml:"use_offline_mode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
+<<<<<<< Updated upstream
+=======
+
+	BurnInInterval int `json:"burnInInterval" yaml:"burn_in_interval" mapstructure:"burn_in_interval" query:"burn_in_interval" form:"burn_in_interval" default:"0"`
+	BurnInDuration int `json:"burnInDuration" yaml:"burn_in_duration" mapstructure:"burn_in_duration" query:"burn_in_duration" form:"burn_in_duration" default:"30"`
+	BurnInOpacity  int `json:"burnInOpacity" yaml:"burn_in_opacity" mapstructure:"burn_in_opacity" query:"burn_in_opacity" form:"burn_in_opacity" default:"70"`
+
+	ShowClearCacheButton bool `json:"showClearCacheButton" yaml:"show_clear_cache_button" mapstructure:"show_clear_cache_button" query:"show_clear_cache_button" form:"show_clear_cache_button" default:"false"`
+>>>>>>> Stashed changes
 }
 
 // New returns a new config pointer instance
