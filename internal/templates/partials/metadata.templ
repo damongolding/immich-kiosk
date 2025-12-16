@@ -73,6 +73,9 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 		if showDescription && len(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description) > 0 {
 			@descriptionIcon(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Description)
 		}
+		if viewData.ShowImageCamera {
+			@cameraIcon(AssetCameraData(viewData.Assets[assetIndex].ImmichAsset.ExifInfo))
+		}
 		if viewData.ShowImageExif {
 			@exifIcon(AssetExif(viewData.Assets[assetIndex].ImmichAsset.ExifInfo))
 		}
@@ -166,6 +169,10 @@ func AssetExif(info immich.ExifInfo) string {
 	}
 
 	return stats.String()
+}
+
+func AssetCameraData(exifInfo immich.ExifInfo) string {
+	return strings.TrimSpace(fmt.Sprintf("%s %s", exifInfo.Make, exifInfo.Model))
 }
 
 // AssetDateTime generates a formatted date/time string for an asset.

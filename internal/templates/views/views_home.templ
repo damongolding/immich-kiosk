@@ -98,7 +98,10 @@ templ Home(viewData common.ViewData, secret string) {
 					"showMoreInfo":       viewData.ShowMoreInfo,
 					"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
 					"livePhotos":         viewData.LivePhotos,
-					"LivePhotoLoopDelay": viewData.LivePhotoLoopDelay * 1000,
+					"livePhotoLoopDelay": viewData.LivePhotoLoopDelay * 1000,
+					"burnInInterval":     viewData.BurnInInterval * 60,
+					"burnInDuration":     viewData.BurnInDuration,
+					"burnInOpacity":      viewData.BurnInOpacity,
 					"httpTimeout":        viewData.Kiosk.HTTPTimeout,
 				})
 				<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>

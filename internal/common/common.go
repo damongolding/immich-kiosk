@@ -141,6 +141,9 @@ type URLBuilderRequest struct {
 	// Duration
 	Duration       *uint64 `form:"duration" url:"duration,omitempty"`
 	OptimizeImages *bool   `form:"optimize_images" url:"optimize_images,omitempty"`
+	BurnInInterval *uint64 `form:"burn_in_interval" url:"burn_in_interval,omitempty"`
+	BurnInDuration *uint64 `form:"burn_in_duration" url:"burn_in_duration,omitempty"`
+	BurnInOpacity  *uint64 `form:"burn_in_opacity" url:"burn_in_opacity,omitempty"`
 
 	// Buckets
 	People           []string `form:"people" url:"person,omitempty"`
@@ -169,17 +172,16 @@ type URLBuilderRequest struct {
 	ClockSource *string `form:"clock_source" url:"clock_source,omitempty"`
 
 	// UI
-	HideCursor *bool   `form:"hide_cursor" url:"hide_cursor,omitempty"`
-	FontSize   *uint64 `form:"font_size" url:"font_size,omitempty"`
-	Theme      *string `form:"theme" url:"theme,omitempty"`
-	Layout     *string `form:"layout" url:"layout,omitempty"`
+	ShowClearCacheButton *bool   `form:"show_clear_cache_button" url:"show_clear_cache_button,omitempty"`
+	ShowProgressBar      *bool   `form:"show_progress_bar" url:"show_progress_bar,omitempty"`
+	ProgressBarPosition  *string `form:"progress_bar_position" url:"progress_bar_position,omitempty"`
+	HideCursor           *bool   `form:"hide_cursor" url:"hide_cursor,omitempty"`
+	FontSize             *uint64 `form:"font_size" url:"font_size,omitempty"`
+	Theme                *string `form:"theme" url:"theme,omitempty"`
+	Layout               *string `form:"layout" url:"layout,omitempty"`
 
 	// Transition
 	Transition *string `form:"transition" url:"transition,omitempty"`
-
-	// Progress Bar
-	ShowProgressBar     *bool   `form:"show_progress_bar" url:"show_progress_bar,omitempty"`
-	ProgressBarPosition *string `form:"progress_bar_position" url:"progress_bar_position,omitempty"`
 
 	// Image
 	ImageFit          *string `form:"image_fit" url:"image_fit,omitempty"`
@@ -197,6 +199,7 @@ type URLBuilderRequest struct {
 	ShowImageDate        *bool   `form:"show_image_date" url:"show_image_date,omitempty"`
 	ImageDateFormat      *string `form:"image_date_format" url:"image_date_format,omitempty"`
 	ShowImageDescription *bool   `form:"show_image_description" url:"show_image_description,omitempty"`
+	ShowImageCamera      *bool   `form:"show_image_camera" url:"show_image_camera,omitempty"`
 	ShowImageEXIF        *bool   `form:"show_image_exif" url:"show_image_exif,omitempty"`
 	ShowImageLocation    *bool   `form:"show_image_location" url:"show_image_location,omitempty"`
 	ShowImageQR          *bool   `form:"show_image_qr" url:"show_image_qr,omitempty"`

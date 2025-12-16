@@ -8,6 +8,13 @@
     padding: 1rem;
     justify-content: space-between;
     align-items: flex-end;
+
+    transition: opacity var(--burn-in-fade) ease-in-out;
+    opacity: 1;
+}
+
+.burn-in-dim .asset-metadata-container {
+    opacity: var(--burn-in-opacity);
 }
 
 .asset-metadata-qr img {
