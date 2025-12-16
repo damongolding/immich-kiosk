@@ -265,11 +265,13 @@ type Config struct {
 	// OptimizeImages tells Kiosk to optimize images
 	OptimizeImages bool `json:"optimize_images" yaml:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
 	// UseGpu tells Kiosk to use GPU where possible
-	UseGpu bool `json:"use_gpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
-	// Burn in config
+	UseGpu bool `json:"useGpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
+	// BurnInInterval specifies (in minutes) the interval between burn-in cycles. 0 disables.
 	BurnInInterval int `json:"burnInInterval" yaml:"burn_in_interval" mapstructure:"burn_in_interval" query:"burn_in_interval" form:"burn_in_interval" default:"0"`
+	// BurnInDuration specifies how long (in seconds) the burn-in effect lasts
 	BurnInDuration int `json:"burnInDuration" yaml:"burn_in_duration" mapstructure:"burn_in_duration" query:"burn_in_duration" form:"burn_in_duration" default:"30"`
-	BurnInOpacity  int `json:"burnInOpacity" yaml:"burn_in_opacity" mapstructure:"burn_in_opacity" query:"burn_in_opacity" form:"burn_in_opacity" default:"70"`
+	// BurnInOpacity specifies the opacity (0-100) of UI elements during burn-in shift
+	BurnInOpacity int `json:"burnInOpacity" yaml:"burn_in_opacity" mapstructure:"burn_in_opacity" query:"burn_in_opacity" form:"burn_in_opacity" default:"70"`
 
 	// ShowArchived allow archived image to be displayed
 	ShowArchived bool `json:"showArchived" yaml:"show_archived" mapstructure:"show_archived" query:"show_archived" form:"show_archived" default:"false"`
