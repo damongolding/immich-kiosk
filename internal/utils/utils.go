@@ -336,8 +336,10 @@ func RandomItem[T any](s []T) T {
 }
 
 func assetWeight(a AssetWithWeighting) float64 {
+	weight := max(0, a.Weight)
+
 	// Base logarithmic weight
-	base := math.Log(float64(a.Weight) + 1)
+	base := math.Log(float64(weight) + 1)
 
 	// Default penalty
 	penalty := float64(a.Penalty)
