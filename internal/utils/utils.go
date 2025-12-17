@@ -350,9 +350,7 @@ func assetWeight(a AssetWithWeighting) float64 {
 	final := base * penalty
 
 	// Never allow zero or negative weight
-	if final < 0.0001 {
-		final = 0.0001
-	}
+	final = max(final, 0.0001)
 
 	return final
 }
