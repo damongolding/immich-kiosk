@@ -130,6 +130,9 @@
       "minimum": 0,
       "maximum": 365
     },
+    "memory_weight": {
+      "type": "number"
+    },
     "date_filter": {
       "type": "string"
     },
