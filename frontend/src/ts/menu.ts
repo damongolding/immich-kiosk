@@ -88,14 +88,12 @@ function redirectKeyHandler(e: KeyboardEvent) {
 
     switch (e.code) {
         case "ArrowDown":
-        case "KEYCODE_DPAD_DOWN":
             e.preventDefault(); // Prevent page scrolling
             currentRedirectIndex =
                 (currentRedirectIndex + 1) % redirects.length;
             redirects[currentRedirectIndex].focus();
             break;
         case "ArrowUp":
-        case "KEYCODE_DPAD_UP":
             e.preventDefault(); // Prevent page scrolling
             currentRedirectIndex =
                 (currentRedirectIndex - 1 + redirects.length) %
@@ -103,13 +101,11 @@ function redirectKeyHandler(e: KeyboardEvent) {
             redirects[currentRedirectIndex].focus();
             break;
         case "KeyI":
-        case "KEYCODE_I":
             if (!allowMoreInfo) return;
             e.preventDefault();
             infoKeyPress();
             break;
         case "KeyR":
-        case "KEYCODE_R":
             if (e.ctrlKey || e.metaKey) return;
             e.preventDefault();
             redirectsKeyPress();
