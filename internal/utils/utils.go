@@ -934,3 +934,12 @@ func ExtractDominantColor(img image.Image) (color.RGBA, error) {
 		A: 255,
 	}, 0.3), nil
 }
+
+func ContainsWholeWord(a, b string) bool {
+	if strings.TrimSpace(a) == "" || strings.TrimSpace(b) == "" {
+		return false
+	}
+
+	re := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(a) + `\b`)
+	return re.MatchString(b)
+}

@@ -190,6 +190,7 @@ func triggers(disableNav bool) string {
 		click from:#navigation-interaction-area--next-asset throttle:1s,
 		click from:.navigation--next-asset throttle:1s,
 		keyup[key=='ArrowRight'] from:body throttle:1s,
+		keyup[key=='Right'] from:body throttle:1s,
 		`)
 	}
 	b.WriteString(`
