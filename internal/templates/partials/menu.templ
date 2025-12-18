@@ -59,7 +59,7 @@ templ Menu(viewData common.ViewData, queries url.Values, secret string) {
 			  click throttle:1s,
 			  click from:.navigation--prev-asset throttle:1s,
 			  keyup[key=='ArrowLeft'] from:body throttle:1s,
-			  keyup[key=='KEYCODE_DPAD_LEFT'] from:body throttle:1s,
+			  keyup[key=='Left'] from:body throttle:1s,
 			  kiosk-prev-asset throttle:1s
 			"
 			hx-on::before-request="kiosk.checkHistoryExists(event)"

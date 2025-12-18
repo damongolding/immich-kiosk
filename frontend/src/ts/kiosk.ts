@@ -362,6 +362,7 @@ function addEventListeners(): void {
                 break;
 
             case "Space":
+            case " ":
             case "KEYCODE_SPACE":
                 e.preventDefault();
                 togglePolling(true);
