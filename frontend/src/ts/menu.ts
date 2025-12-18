@@ -88,14 +88,12 @@ function redirectKeyHandler(e: KeyboardEvent) {
 
     switch (e.code) {
         case "ArrowDown":
-        case "Down":
             e.preventDefault(); // Prevent page scrolling
             currentRedirectIndex =
                 (currentRedirectIndex + 1) % redirects.length;
             redirects[currentRedirectIndex].focus();
             break;
         case "ArrowUp":
-        case "Up":
             e.preventDefault(); // Prevent page scrolling
             currentRedirectIndex =
                 (currentRedirectIndex - 1 + redirects.length) %
