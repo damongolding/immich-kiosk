@@ -349,6 +349,7 @@ function addEventListeners(): void {
 
         switch (e.code) {
             case "KeyP":
+            case "KEYCODE_P":
                 if (!e.shiftKey) {
                     // Regular P
                     e.preventDefault();
@@ -361,11 +362,13 @@ function addEventListeners(): void {
                 break;
 
             case "Space":
+            case "KEYCODE_SPACE":
                 e.preventDefault();
                 togglePolling(true);
                 break;
 
             case "KeyI":
+            case "KEYCODE_I":
                 if (!kioskData.showMoreInfo) return;
                 if (e.ctrlKey || e.metaKey) return;
                 e.preventDefault();
@@ -373,6 +376,7 @@ function addEventListeners(): void {
                 break;
 
             case "KeyR":
+            case "KEYCODE_R":
                 if (!kioskData.showRedirects) return;
                 if (e.ctrlKey || e.metaKey) return;
                 e.preventDefault();
@@ -380,6 +384,7 @@ function addEventListeners(): void {
                 break;
 
             case "KeyM":
+            case "KEYCODE_M":
                 if (!toggleMuteMenuButton) return;
                 e.preventDefault();
                 toggleMute();
