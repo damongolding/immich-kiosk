@@ -304,6 +304,7 @@ type Config struct {
 	// DateFilter filter certain asset bucket assets by date
 	DateFilter string `json:"dateFilter" yaml:"date_filter" mapstructure:"date_filter" query:"date_filter" form:"date_filter" default:""`
 
+	// ShowClearCacheButton display a button to clear cache
 	ShowClearCacheButton bool `json:"showClearCacheButton" yaml:"show_clear_cache_button" mapstructure:"show_clear_cache_button" query:"show_clear_cache_button" form:"show_clear_cache_button" default:"false"`
 	// ShowProgressBar display a progress bar
 	ShowProgressBar bool `json:"showProgressBar" yaml:"show_progress_bar" mapstructure:"show_progress_bar" query:"show_progress_bar" form:"show_progress_bar" default:"false"`
