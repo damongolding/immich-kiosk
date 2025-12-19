@@ -46,9 +46,13 @@ import (
 
 const (
 
-	// SigmaConstant is used to normalise the blur effect across different image sizes.
+	// sigmaConstant is used to normalise the blur effect across different image sizes.
 	// The value 1300.0 was chosen as it provides consistent blur effects for typical screen resolutions.
-	SigmaConstant = 1300.0
+	sigmaConstant          float64 = 1300.0
+	blurredImageBrightness float64 = -20
+
+	// minMemoryWeight is the minimum weight allowed for memory assets.
+	minMemoryWeight float64 = 0.0001
 )
 
 // WeightedAsset represents an asset with a type and ID
@@ -255,10 +259,10 @@ func BlurImage(img image.Image, blurrAmount int, isOptimized bool, clientWidth, 
 		blurredImage = imaging.Fit(blurredImage, clientWidth, clientHeight, imaging.Lanczos)
 	}
 
-	sigma := calculateNormalizedSigma(blurrAmount, blurredImage.Bounds().Dx(), blurredImage.Bounds().Dy(), SigmaConstant)
+	sigma := calculateNormalizedSigma(blurrAmount, blurredImage.Bounds().Dx(), blurredImage.Bounds().Dy(), sigmaConstant)
 
 	blurredImage = imaging.Blur(blurredImage, sigma)
-	blurredImage = imaging.AdjustBrightness(blurredImage, -20)
+	blurredImage = imaging.AdjustBrightness(blurredImage, blurredImageBrightness)
 
 	return blurredImage, nil
 }
@@ -336,6 +340,7 @@ func RandomItem[T any](s []T) T {
 }
 
 func assetWeight(a AssetWithWeighting) float64 {
+
 	weight := max(0, a.Weight)
 
 	// Base logarithmic weight
@@ -350,7 +355,7 @@ func assetWeight(a AssetWithWeighting) float64 {
 	final := base * penalty
 
 	// Never allow zero or negative weight
-	final = max(final, 0.0001)
+	final = max(final, minMemoryWeight)
 
 	return final
 }
