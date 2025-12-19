@@ -66,7 +66,7 @@ type WeightedAsset struct {
 type AssetWithWeighting struct {
 	Asset   WeightedAsset
 	Weight  int     // base weight
-	Penalty float32 // penalty for weight. 1.0 = no penalty, 0.5 = 50% penalty.
+	Penalty float64 // penalty for weight. 1.0 = no penalty, 0.5 = 50% penalty.
 }
 
 // GenerateUUID generates a new random UUID string
@@ -347,7 +347,7 @@ func assetWeight(a AssetWithWeighting) float64 {
 	base := math.Log(float64(weight) + 1)
 
 	// Default penalty
-	penalty := float64(a.Penalty)
+	penalty := a.Penalty
 	if penalty <= 0 {
 		penalty = 1.0
 	}
