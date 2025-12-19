@@ -130,6 +130,9 @@
       "minimum": 0,
       "maximum": 365
     },
+    "memory_weight": {
+      "type": "number"
+    },
     "date_filter": {
       "type": "string"
     },
@@ -201,9 +204,6 @@
     },
     "cross_fade_transition_duration": {
       "type": "integer"
-    },
-    "show_clear_cache_button": {
-      "type": "boolean"
     },
     "show_progress_bar": {
       "type": "boolean"

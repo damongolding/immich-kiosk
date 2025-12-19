@@ -152,8 +152,9 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			log.Warn("No assets found for memories")
 		} else {
 			assets = append(assets, utils.AssetWithWeighting{
-				Asset:  utils.WeightedAsset{Type: kiosk.SourceMemories, ID: "memories"},
-				Weight: memories,
+				Asset:   utils.WeightedAsset{Type: kiosk.SourceMemories, ID: "memories"},
+				Weight:  memories,
+				Penalty: requestConfig.MemoryWeight,
 			})
 		}
 	}

@@ -172,14 +172,7 @@ func AssetExif(info immich.ExifInfo) string {
 }
 
 func AssetCameraData(exifInfo immich.ExifInfo) string {
-	ma := strings.TrimSpace(exifInfo.Make)
-	mo := strings.TrimSpace(exifInfo.Model)
-
-	if utils.ContainsWholeWord(ma, mo) {
-		return strings.TrimSpace(mo)
-	}
-
-	return strings.TrimSpace(fmt.Sprintf("%s %s", ma, mo))
+	return strings.TrimSpace(fmt.Sprintf("%s %s", exifInfo.Make, exifInfo.Model))
 }
 
 // AssetDateTime generates a formatted date/time string for an asset.

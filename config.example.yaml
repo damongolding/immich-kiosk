@@ -1,40 +1,36 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/damongolding/immich-kiosk/main/config.schema.json
 
 ## Required settings - move these to ENV if you want to check in this file
-## Docs: https://docs.immichkiosk.app/configuration/core
 immich_api_key: ""
 immich_url: ""
 
-## Kiosk behaviour
-## Docs: https://docs.immichkiosk.app/configuration/behavior
-duration: 60 # The duration a slide will be displayed (seconds).
-disable_screensaver: false # Ask the browser to request a lock that prevents device screens from dimming or locking.
-optimize_images: false # Whether Kiosk should resize images to match your browser screen dimensions for better performance.
-# burn_in_interval: 0 # The interval between burn-in protection cycles (minutes, 0 = disabled).
-# burn_in_duration: 30 # The duration of each burn-in protection cycle (seconds).
-# burn_in_opacity: 70 # The opacity the UI will dip to, as a percentage.
-
 ## Clock
-## Docs: https://docs.immichkiosk.app/configuration/clock
 show_time: false
 time_format: 24 # 12 or 24
 show_date: false
 date_format: YYYY/MM/DD
 clock_source: client
 
+## Kiosk behaviour
+duration: 60 # The duration a slide will be displayed (seconds).
+disable_screensaver: false # Ask the browser to request a lock that prevents device screens from dimming or locking.
+optimize_images: false # Whether Kiosk should resize images to match your browser screen dimensions for better performance.
+use_gpu: true # Enable GPU acceleration for improved performance.
+burn_in_interval: 0 # The interval between burn-in protection cycles (minutes, 0 = disabled).
+burn_in_duration: 30 # The duration of each burn-in protection cycle (seconds).
+burn_in_opacity: 70 # The opacity the UI will dip to, as a percentage.
+
 ## Asset sources
 show_archived: false # Allow assets marked as archived to be displayed.
 
-## People
-## Docs: https://docs.immichkiosk.app/configuration/people
+## ID(s) of person or people to display
 people:
   - "PERSON_ID"
 require_all_people: false # When true, only show images containing all specified people together
 excluded_people:
   - "PERSON_ID"
 
-## Albums
-## Docs: https://docs.immichkiosk.app/configuration/albums
+## ID(s) of album or albums to display
 albums:
   - "ALBUM_ID"
 album_order: random # random | newest | oldest
@@ -43,33 +39,25 @@ album_order: random # random | newest | oldest
 excluded_albums:
   - "ALBUM_ID"
 
-## Date ranges
-## Docs: https://docs.immichkiosk.app/configuration/date-range
+## Date range or ranges to display
 dates:
   - "YYYY-MM-DD_to_YYYY-MM-DD"
 
-## Tags
-## Docs: https://docs.immichkiosk.app/configuration/tags
+## Value(s) of tag(s) to display
 tags:
   - "TAG_VALUE"
 excluded_tags:
   - "TAG_VALUE"
 
-## Partners
-## Docs: https://docs.immichkiosk.app/configuration/partners
 excluded_partners:
   - "PARTNER_ID"
 
-## Memories
-## Docs: https://docs.immichkiosk.app/configuration/memories
-memories: false
+memories: false # show memories
 
 ## Filters
-## Docs: https://docs.immichkiosk.app/configuration/filters
-# date_filter: last-30-days # Example: filter people, albums, and tags to the last 30 days
+# date_filter: last-30-days # only applies to people and random assets
 
 ## UI
-## Docs: https://docs.immichkiosk.app/configuration/ui
 show_clear_cache_button: false # Show a menu button to clear the Kiosk server cache
 show_progress_bar: false # display a progress bar
 disable_ui: false # this is just a shortcut for all ui elements (show_time, show_date, show_image_time, show_image_date)
@@ -79,39 +67,32 @@ hide_cursor: false # Hide cursor/mouse via CSS.
 font_size: 100 # the base font size as a percentage. OMIT the % character
 background_blur: true # display a blurred version of image as background
 background_blur_amount: 10 # amount of blur to apply to background image (sigma)
-theme: fade # which theme to use. fade, solid or bubble
+theme: fade # which theme to use. fade or solid
 layout: single # which layout to use. single | splitview | splitview-landscape | portrait | landscape
+
+## Sleep mode
+# sleep_start: 22 # sleep mode start time
+# sleep_end: 7 # sleep mode end time
+# sleep_dim_screen: false # dim screen when sleep mode is active (only works with Fully Kiosk Browser)
+sleep_icon: true
 
 ## Transition options
 transition: none # cross-fade, fade or none
 fade_transition_duration: 1 # in seconds
 cross_fade_transition_duration: 1 # in seconds
 
-## Sleep mode
-## Docs: https://docs.immichkiosk.app/configuration/sleep-mode
-# sleep_start: 22 # sleep mode start time
-# sleep_end: 7 # sleep mode end time
-# sleep_dim_screen: false # dim screen when sleep mode is active (only works with Fully Kiosk Browser)
-# sleep_icon: true
-
 ## Image display settings
-## Docs: https://docs.immichkiosk.app/configuration/image-fit
 image_fit: contain # none | contain | cover
 image_effect: none # none | zoom | smart-zoom
 image_effect_amount: 120
 use_original_image: false # use the original file.
 
 ## Video
-## Docs: https://docs.immichkiosk.app/configuration/videos
 show_videos: false
-
-## Live photos
-## Docs: https://docs.immichkiosk.app/configuration/live-photos
 live_photos: false
 live_photo_loop_delay: 0
 
 ## Image METADATA
-## Docs: https://docs.immichkiosk.app/configuration/metadata
 show_owner: false # show the owner of the image
 show_album_name: false
 show_person_name: false
@@ -136,7 +117,6 @@ like_button_action: favorite # album, favorite or both [album, favorite]
 hide_button_action: tag # tag, archive, or both [tag, archive]
 
 ## Weather feature - you’ll need an API key from OpenWeatherMap
-## Docs: https://docs.immichkiosk.app/configuration/weather
 # weather:
 #   - name: london
 #     lat: 51.5285262
@@ -148,7 +128,6 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 #     default: false
 
 ## Add iframes into Kiosk - you can use local files or remote URLs
-## Docs: https://docs.immichkiosk.app/configuration/iframe
 #iframe:
 # - https://iframe.immichkiosk.app/pokemon
 # - ./iframes/pokemon.html
@@ -159,7 +138,6 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 # show_user: false # show user name
 
 ## Offline mode
-## Docs: https://docs.immichkiosk.app/configuration/offline-mode
 # offline_mode:
 #   enabled: false
 #   number_of_assets: 100
@@ -168,7 +146,6 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 #   expiration_hours: 0
 
 ## Options that can NOT be changed via url params
-## Docs: https://docs.immichkiosk.app/configuration/additional-options
 kiosk:
   port: 3000
   behind_proxy: false
