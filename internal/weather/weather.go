@@ -48,13 +48,14 @@ var (
 )
 
 type Location struct {
-	Name     string
-	Lat      string
-	Lon      string
-	API      string
-	Unit     string
-	Lang     string
-	Forecast []DailySummary
+	Name      string
+	Lat       string
+	Lon       string
+	API       string
+	Unit      string
+	Lang      string
+	Forecast  []DailySummary
+	RoundTemp bool
 	Weather
 }
 
@@ -156,12 +157,13 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 	}
 
 	w := &Location{
-		Name: location.Name,
-		Lat:  location.Lat,
-		Lon:  location.Lon,
-		API:  location.API,
-		Unit: location.Unit,
-		Lang: location.Lang,
+		Name:      location.Name,
+		Lat:       location.Lat,
+		Lon:       location.Lon,
+		API:       location.API,
+		Unit:      location.Unit,
+		Lang:      location.Lang,
+		RoundTemp: location.RoundTemp,
 	}
 
 	weatherDataStore.Store(strings.ToLower(w.Name), *w)

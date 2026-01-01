@@ -340,6 +340,11 @@
             "default": false,
             "description": "Whether to include 3 day forecast data"
           },
+          "round_temperature": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to round temperature values to the nearest integer"
+          },
           "default": {
             "type": "boolean"
           }
