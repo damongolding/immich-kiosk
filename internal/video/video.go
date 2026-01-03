@@ -274,7 +274,7 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		return
 	}
 
-	img, imgErr := utils.BytesToImage(imgBytes, requestConfig.UseOriginalImage)
+	img, imgErr := utils.BytesToImage(imgBytes, false)
 	if imgErr != nil {
 		log.Error("Image BytesToImage", "err", imgErr)
 	}
