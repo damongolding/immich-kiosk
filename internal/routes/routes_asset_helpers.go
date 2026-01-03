@@ -251,7 +251,7 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 		return nil, fmt.Errorf("getting image preview: %w", err)
 	}
 
-	img, err := utils.BytesToImage(imgBytes)
+	img, err := utils.BytesToImage(imgBytes, isOriginal)
 	if err != nil {
 		return nil, err
 	}
@@ -260,10 +260,6 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 		log.Debug(requestID, "PREFETCH", deviceID, "Got image in", time.Since(imageGet).Seconds())
 	} else {
 		log.Debug(requestID, "Got image in", time.Since(imageGet).Seconds())
-	}
-
-	if isOriginal {
-		img = utils.ApplyExifOrientation(img, immichAsset.ExifInfo.Orientation)
 	}
 
 	return img, nil

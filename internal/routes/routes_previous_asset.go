@@ -220,7 +220,7 @@ func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID,
 			}
 		}
 
-		img, byteErr := utils.BytesToImage(imgBytes)
+		img, byteErr := utils.BytesToImage(imgBytes, requestConfig.UseOriginalImage)
 		if byteErr != nil {
 			return byteErr
 		}
