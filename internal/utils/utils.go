@@ -168,8 +168,6 @@ func ApplyExifOrientation(img image.Image, exifOrientation string) image.Image {
 		return img
 	}
 
-	log.Info("Applying EXIF orientation", "orientation", o)
-
 	switch o {
 	case 1:
 		return img
