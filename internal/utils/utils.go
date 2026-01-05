@@ -123,7 +123,7 @@ func ImageToBytes(img image.Image) ([]byte, error) {
 // It takes a byte slice as input and returns an image.Image and any error encountered.
 // It handles both WebP and other common image formats (JPEG, PNG, GIF) automatically
 // by detecting the MIME type and using the appropriate decoder.
-func BytesToImage(imgBytes []byte) (image.Image, error) {
+func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, error) {
 
 	var img image.Image
 	var err error
@@ -138,7 +138,7 @@ func BytesToImage(imgBytes []byte) (image.Image, error) {
 			return nil, err
 		}
 	default:
-		img, err = imaging.Decode(bytes.NewReader(imgBytes))
+		img, err = imaging.Decode(bytes.NewReader(imgBytes), imaging.AutoOrientation(isOriginal))
 		if err != nil {
 			log.Error("could not decode image", "image mime type", imageMime, "err", err)
 			return nil, err
