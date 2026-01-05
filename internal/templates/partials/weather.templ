@@ -11,9 +11,8 @@ import (
 	"strings"
 )
 
-// formatTemp formats a temperature value based on the measurement system
-// It returns a string representation of the temperature with appropriate precision
-func formatTemp(temp float64, roundTemp bool, measurement string) string {
+// formatTemp formats a temperature value
+func formatTemp(temp float64, roundTemp bool) string {
 	if roundTemp {
 		return strconv.Itoa(int(math.Round(temp)))
 	}
@@ -92,7 +91,7 @@ templ WeatherLocation(weatherData weather.Location, systemLang monday.Locale) {
 		</div>
 		<div class="weather--temp">
 			<div class="weather--temp--value">
-				{ formatTemp(weatherData.Main.Temp, weatherData.RoundTemp, weatherData.Unit) }
+				{ formatTemp(weatherData.Main.Temp, weatherData.RoundTemp) }
 				<div class="weather--temp--unit">°</div>
 			</div>
 		</div>
@@ -116,7 +115,7 @@ templ WeatherLocation(weatherData weather.Location, systemLang monday.Locale) {
 							@weatherIcon(f.WeatherIcon)
 						</div>
 						<div>
-							<strong>{ formatTemp(f.MaxTemp, weatherData.RoundTemp, weatherData.Unit) }°</strong>
+							<strong>{ formatTemp(f.MaxTemp, weatherData.RoundTemp) }°</strong>
 						</div>
 					</div>
 				}
