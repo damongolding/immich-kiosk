@@ -46,9 +46,13 @@ import (
 
 const (
 
-	// SigmaConstant is used to normalise the blur effect across different image sizes.
+	// sigmaConstant is used to normalise the blur effect across different image sizes.
 	// The value 1300.0 was chosen as it provides consistent blur effects for typical screen resolutions.
-	SigmaConstant = 1300.0
+	sigmaConstant          float64 = 1300.0
+	blurredImageBrightness float64 = -20
+
+	// minMemoryWeight is the minimum weight allowed for memory assets.
+	minMemoryWeight float64 = 0.0001
 )
 
 // WeightedAsset represents an asset with a type and ID
@@ -60,8 +64,9 @@ type WeightedAsset struct {
 
 // AssetWithWeighting represents a WeightedAsset with an associated weight value
 type AssetWithWeighting struct {
-	Asset  WeightedAsset
-	Weight int
+	Asset   WeightedAsset
+	Weight  int     // base weight
+	Penalty float64 // penalty for weight. 1.0 = no penalty, 0.5 = 50% penalty.
 }
 
 // GenerateUUID generates a new random UUID string
@@ -254,10 +259,10 @@ func BlurImage(img image.Image, blurrAmount int, isOptimized bool, clientWidth, 
 		blurredImage = imaging.Fit(blurredImage, clientWidth, clientHeight, imaging.Lanczos)
 	}
 
-	sigma := calculateNormalizedSigma(blurrAmount, blurredImage.Bounds().Dx(), blurredImage.Bounds().Dy(), SigmaConstant)
+	sigma := calculateNormalizedSigma(blurrAmount, blurredImage.Bounds().Dx(), blurredImage.Bounds().Dy(), sigmaConstant)
 
 	blurredImage = imaging.Blur(blurredImage, sigma)
-	blurredImage = imaging.AdjustBrightness(blurredImage, -20)
+	blurredImage = imaging.AdjustBrightness(blurredImage, blurredImageBrightness)
 
 	return blurredImage, nil
 }
@@ -334,25 +339,36 @@ func RandomItem[T any](s []T) T {
 	return copySlice[0]
 }
 
-// calculateTotalWeight calculates the sum of logarithmic weights for all assets in the given slice.
-// It uses natural logarithm (base e) and adds 1 to avoid log(0).
-func calculateTotalWeight(assets []AssetWithWeighting) int {
-	total := 0
+func assetWeight(a AssetWithWeighting) float64 {
+
+	weight := max(0, a.Weight)
+
+	// Base logarithmic weight
+	base := math.Log(float64(weight) + 1)
+
+	// Default penalty
+	penalty := a.Penalty
+	if penalty <= 0 {
+		penalty = 1.0
+	}
+
+	final := base * penalty
+
+	// Never allow zero or negative weight
+	final = max(final, minMemoryWeight)
+
+	return final
+}
+
+func calculateTotalWeight(assets []AssetWithWeighting) float64 {
+	total := 0.0
 	for _, asset := range assets {
-		logWeight := int(math.Log(float64(asset.Weight) + 1))
-		if logWeight == 0 {
-			logWeight = 1
-		}
-		total += logWeight
+		total += assetWeight(asset)
 	}
 	return total
 }
 
-// WeightedRandomItem selects a random asset from the given slice of WeightedAsset(s)
-// based on their logarithmic weights. It uses a weighted random selection algorithm.
 func WeightedRandomItem(assets []AssetWithWeighting) WeightedAsset {
-
-	// guards
 	switch len(assets) {
 	case 0:
 		return WeightedAsset{}
@@ -361,23 +377,18 @@ func WeightedRandomItem(assets []AssetWithWeighting) WeightedAsset {
 	}
 
 	totalWeight := calculateTotalWeight(assets)
-	randomWeight := rand.IntN(totalWeight) + 1
+	r := rand.Float64() * totalWeight
 
 	for _, asset := range assets {
-		logWeight := int(math.Log(float64(asset.Weight) + 1))
-		if randomWeight <= logWeight {
+		w := assetWeight(asset)
+		if r < w {
 			return asset.Asset
 		}
-		randomWeight -= logWeight
+		r -= w
 	}
 
-	// WeightedRandomItem sometimes returns an empty WeightedAsset
-	// when the random selection process fails to pick an item.
-	// This is a fallback to ensure we always return a valid asset.
-	if len(assets) > 0 {
-		return assets[0].Asset
-	}
-	return WeightedAsset{}
+	// Should never happen, but keep a safe fallback
+	return assets[0].Asset
 }
 
 // Color represents an RGB color with string representations
@@ -927,13 +938,4 @@ func ExtractDominantColor(img image.Image) (color.RGBA, error) {
 		B: uint8(colours[0].Color.B),
 		A: 255,
 	}, 0.3), nil
-}
-
-func ContainsWholeWord(a, b string) bool {
-	if strings.TrimSpace(a) == "" || strings.TrimSpace(b) == "" {
-		return false
-	}
-
-	re := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(a) + `\b`)
-	return re.MatchString(b)
 }
