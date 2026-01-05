@@ -107,7 +107,12 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context,
 	requestConfig.History[entryIndex] = kiosk.HistoryIndicator + requestConfig.History[entryIndex]
 
 	if requestConfig.UseOfflineMode && requestConfig.OfflineMode.Enabled {
-		return historyAssetOffline(c, requestID, deviceID, wantedAssets, requestConfig, com.Secret())
+		webhookEvent := webhooks.PreviousHistoryOfflineAsset
+		if useNextImage {
+			webhookEvent = webhooks.NextHistoryOfflineAsset
+		}
+
+		return historyAssetOffline(c, requestData, wantedAssets, requestConfig, com, webhookEvent)
 	}
 
 	viewData := common.ViewData{
@@ -300,7 +305,7 @@ func findHistoryEntry(history []string, useNextImage bool) (string, int) {
 //
 // Returns:
 // - error if loading or rendering cached data fails
-func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAssets []string, requestConfig config.Config, secret string) error {
+func historyAssetOffline(c echo.Context, requestData *common.RouteRequestData, wantedAssets []string, requestConfig config.Config, com *common.Common, webhookEvent webhooks.WebhookEvent) error {
 	replacer := strings.NewReplacer(
 		kiosk.HistoryIndicator, "",
 		":", "",
@@ -325,10 +330,13 @@ func historyAssetOffline(c echo.Context, requestID, deviceID string, wantedAsset
 	}
 
 	viewData.KioskVersion = KioskVersion
-	viewData.RequestID = requestID
-	viewData.DeviceID = deviceID
+	viewData.RequestID = requestData.RequestID
+	viewData.DeviceID = requestData.DeviceID
 	viewData.History = requestConfig.History
 	viewData.Theme = requestConfig.Theme
+	viewData.Kiosk.DemoMode = requestConfig.Kiosk.DemoMode
 
-	return Render(c, http.StatusOK, imageComponent.Image(viewData, secret))
+	go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhookEvent, viewData)
+
+	return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
 }

@@ -27,6 +27,7 @@ import (
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/damongolding/immich-kiosk/internal/webhooks"
 	"github.com/dustin/go-humanize"
 	"github.com/klauspost/compress/zstd"
 	"github.com/labstack/echo/v4"
@@ -138,6 +139,9 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
 			viewData.History = requestConfig.History
 			viewData.Theme = requestConfig.Theme
+			viewData.Kiosk.DemoMode = requestConfig.Kiosk.DemoMode
+
+			go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NewOfflineAsset, viewData)
 
 			return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
 		}
