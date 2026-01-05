@@ -145,14 +145,15 @@ type KioskSettings struct {
 }
 
 type WeatherLocation struct {
-	Name     string `yaml:"name" mapstructure:"name" redact:"true"`
-	Lat      string `yaml:"lat" mapstructure:"lat" redact:"true"`
-	Lon      string `yaml:"lon" mapstructure:"lon" redact:"true"`
-	API      string `yaml:"api" mapstructure:"api" redact:"true"`
-	Unit     string `yaml:"unit" mapstructure:"unit" redact:"true"`
-	Lang     string `yaml:"lang" mapstructure:"lang" redact:"true"`
-	Forecast bool   `yaml:"forecast" mapstructure:"forecast" default:"false"`
-	Default  bool   `yaml:"default" mapstructure:"default"`
+	Name      string `yaml:"name" mapstructure:"name" redact:"true"`
+	Lat       string `yaml:"lat" mapstructure:"lat" redact:"true"`
+	Lon       string `yaml:"lon" mapstructure:"lon" redact:"true"`
+	API       string `yaml:"api" mapstructure:"api" redact:"true"`
+	Unit      string `yaml:"unit" mapstructure:"unit" redact:"true"`
+	Lang      string `yaml:"lang" mapstructure:"lang" redact:"true"`
+	Forecast  bool   `yaml:"forecast" mapstructure:"forecast" default:"false"`
+	RoundTemp bool   `yaml:"round_temperature" mapstructure:"round_temperature" default:"false"`
+	Default   bool   `yaml:"default" mapstructure:"default"`
 }
 
 type Webhook struct {
@@ -298,8 +299,9 @@ type Config struct {
 	ExcludedPartners []string `json:"excluded_partners" yaml:"excluded_partners" mapstructure:"excluded_partners" query:"exclude_partner" form:"exclude_partner" default:"[]" redact:"true"`
 
 	// Memories show memories
-	Memories       bool `json:"memories" yaml:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
-	PastMemoryDays int  `json:"pastMemoryDays" yaml:"past_memory_days" mapstructure:"past_memory_days" query:"past_memory_days" form:"past_memory_days" default:"0"`
+	Memories       bool    `json:"memories" yaml:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
+	PastMemoryDays int     `json:"pastMemoryDays" yaml:"past_memory_days" mapstructure:"past_memory_days" query:"past_memory_days" form:"past_memory_days" default:"0"`
+	MemoryWeight   float64 `json:"memoryWeight" yaml:"memory_weight" mapstructure:"memory_weight" default:"1.0"`
 
 	// DateFilter filter certain asset bucket assets by date
 	DateFilter string `json:"dateFilter" yaml:"date_filter" mapstructure:"date_filter" query:"date_filter" form:"date_filter" default:""`

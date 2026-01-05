@@ -6,16 +6,17 @@ import (
 	"github.com/goodsign/monday"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"math"
 	"strconv"
 	"strings"
 )
 
-// formatTemp formats a temperature value based on the measurement system
-// It returns a string representation of the temperature with appropriate precision
-func formatTemp(temp float64, measurement string) string {
-	if strings.ToLower(measurement) == weather.ImperialSystem {
-		return strconv.Itoa(int(temp))
+// formatTemp formats a temperature value
+func formatTemp(temp float64, roundTemp bool) string {
+	if roundTemp {
+		return strconv.Itoa(int(math.Round(temp)))
 	}
+
 	// Use metric formatting for both metric, standard and invalid measurement systems
 	s := fmt.Sprintf("%.1f", temp)
 	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
@@ -90,7 +91,7 @@ templ WeatherLocation(weatherData weather.Location, systemLang monday.Locale) {
 		</div>
 		<div class="weather--temp">
 			<div class="weather--temp--value">
-				{ formatTemp(weatherData.Main.Temp, weatherData.Unit) }
+				{ formatTemp(weatherData.Main.Temp, weatherData.RoundTemp) }
 				<div class="weather--temp--unit">°</div>
 			</div>
 		</div>
@@ -107,16 +108,14 @@ templ WeatherLocation(weatherData weather.Location, systemLang monday.Locale) {
 		if len(weatherData.Forecast) > 0 {
 			<div class="weather--forecast">
 				for _, f := range weatherData.Forecast {
-					{{
-						forecastDay := monday.Format(f.Date, "Mon", systemLang)
-					}}
+					{{ forecastDay := monday.Format(f.Date, "Mon", systemLang) }}
 					<div class="weather--forecast--item">
 						<div>{ forecastDay }</div>
 						<div class="weather--description--icon">
 							@weatherIcon(f.WeatherIcon)
 						</div>
 						<div>
-							<strong>{ formatTemp(f.MaxTemp, weatherData.Unit) }°</strong>
+							<strong>{ formatTemp(f.MaxTemp, weatherData.RoundTemp) }°</strong>
 						</div>
 					</div>
 				}
