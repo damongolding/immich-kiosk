@@ -52,3 +52,5 @@ frontend/public/assets/js/*.js
 /tmp/
 
 /secrets/
+
+_config.yaml

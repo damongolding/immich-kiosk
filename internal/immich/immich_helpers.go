@@ -533,17 +533,17 @@ func (a *Asset) FacesCenterPointPX() (float64, float64) {
 }
 
 // containsTag checks if an asset has a specific tag (case-insensitive).
-// It iterates through the asset's tags and compares the given tagName
-// with each tag's name, ignoring case.
+// It iterates through the asset's tags and compares the given tagValue
+// with each tag's value, ignoring case.
 //
 // Parameters:
-//   - tagName: The name of the tag to search for (case-insensitive)
+//   - tagValue: The name of the tag to search for (case-insensitive)
 //
 // Returns:
 //   - bool: true if the tag is found, false otherwise
-func (a *Asset) containsTag(tagName string) bool {
+func (a *Asset) containsTag(tagValue string) bool {
 	for _, tag := range a.Tags {
-		if strings.EqualFold(tag.Name, tagName) {
+		if strings.EqualFold(tag.Value, tagValue) {
 			return true
 		}
 	}
@@ -663,6 +663,20 @@ func (a *Asset) hasValidPartners() bool {
 	return !slices.Contains(a.requestConfig.ExcludedPartners, a.Owner.ID)
 }
 
+func tagMatches(pattern, value string) bool {
+	pattern = strings.ToLower(pattern)
+	value = strings.ToLower(value)
+
+	// Recursive wildcard: parent/**
+	if strings.HasSuffix(pattern, "/**") {
+		base := strings.TrimSuffix(pattern, "/**")
+		return value == base || strings.HasPrefix(value, base+"/")
+	}
+
+	// Exact match
+	return value == pattern
+}
+
 // hasValidTags checks if the asset has any tags that would exclude it from processing.
 // It first fetches additional asset metadata via AssetInfo if needed. After getting
 // the metadata, it restores the asset's orientation ratio since AssetInfo can override
@@ -689,7 +703,7 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 	}
 
 	return !slices.ContainsFunc(a.Tags, func(assetTag Tag) bool {
-		return slices.Contains(a.requestConfig.ExcludedTags, strings.ToLower(assetTag.Name))
+		return slices.Contains(a.requestConfig.ExcludedTags, strings.ToLower(assetTag.Value))
 	})
 }
 
