@@ -549,7 +549,7 @@ func TestTagMatches(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := tagMatches(tt.pattern, tt.value)
+			result := matchesTagPattern(tt.value, tt.pattern)
 			if result != tt.expected {
 				t.Errorf("tagMatches(%q, %q) = %v, expected %v",
 					tt.pattern, tt.value, result, tt.expected)

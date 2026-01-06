@@ -663,7 +663,7 @@ func (a *Asset) hasValidPartners() bool {
 	return !slices.Contains(a.requestConfig.ExcludedPartners, a.Owner.ID)
 }
 
-func tagMatches(pattern, value string) bool {
+func matchesTagPattern(value, pattern string) bool {
 	pattern = strings.Trim(strings.ToLower(pattern), "/")
 	value = strings.Trim(strings.ToLower(value), "/")
 
@@ -713,7 +713,7 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 
 	return !slices.ContainsFunc(a.Tags, func(assetTag Tag) bool {
 		return slices.ContainsFunc(a.requestConfig.ExcludedTags, func(excluded string) bool {
-			return tagMatches(excluded, assetTag.Value)
+			return matchesTagPattern(assetTag.Value, excluded)
 		})
 	})
 }
