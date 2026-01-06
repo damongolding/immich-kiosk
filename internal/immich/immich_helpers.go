@@ -663,6 +663,24 @@ func (a *Asset) hasValidPartners() bool {
 	return !slices.Contains(a.requestConfig.ExcludedPartners, a.Owner.ID)
 }
 
+// matchesTagPattern checks if a tag matches a given pattern using glob-style matching.
+//
+// Pattern syntax:
+//   - "parent" matches exactly "parent" (case-insensitive)
+//   - "parent/*" matches direct children only (e.g., "parent/child" but not "parent/child/grandchild")
+//   - "parent/**" matches all descendants at any depth (e.g., "parent/child", "parent/child/grandchild", etc.)
+//
+// Note: Wildcards match descendants only, not the parent tag itself.
+// Both tag and pattern are trimmed of leading/trailing slashes and compared case-insensitively.
+//
+// Examples:
+//
+//	matchesTagPattern("parent", "parent")                    // true
+//	matchesTagPattern("parent/child", "parent")              // false
+//	matchesTagPattern("parent/child", "parent/*")            // true
+//	matchesTagPattern("parent/child/grandchild", "parent/*") // false
+//	matchesTagPattern("parent/child/grandchild", "parent/**") // true
+//	matchesTagPattern("parent", "parent/**")                 // false
 func matchesTagPattern(value, pattern string) bool {
 	pattern = strings.Trim(strings.ToLower(pattern), "/")
 	value = strings.Trim(strings.ToLower(value), "/")
