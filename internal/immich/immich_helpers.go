@@ -664,13 +664,22 @@ func (a *Asset) hasValidPartners() bool {
 }
 
 func tagMatches(pattern, value string) bool {
-	pattern = strings.ToLower(pattern)
-	value = strings.ToLower(value)
+	pattern = strings.Trim(strings.ToLower(pattern), "/")
+	value = strings.Trim(strings.ToLower(value), "/")
 
-	// Recursive wildcard: parent/**
-	if strings.HasSuffix(pattern, "/**") {
-		base := strings.TrimSuffix(pattern, "/**")
-		return value == base || strings.HasPrefix(value, base+"/")
+	// Recursive wildcard: parent/** (descendants only, not parent itself)
+	if base, ok := strings.CutSuffix(pattern, "/**"); ok {
+		return strings.HasPrefix(value, base+"/")
+	}
+
+	// Single-level wildcard: parent/* (direct children only)
+	if base, ok := strings.CutSuffix(pattern, "/*"); ok {
+		// Check if value starts with base/ and has no additional slashes
+		if !strings.HasPrefix(value, base+"/") {
+			return false
+		}
+		remainder := strings.TrimPrefix(value, base+"/")
+		return !strings.Contains(remainder, "/")
 	}
 
 	// Exact match
@@ -703,7 +712,9 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 	}
 
 	return !slices.ContainsFunc(a.Tags, func(assetTag Tag) bool {
-		return slices.Contains(a.requestConfig.ExcludedTags, strings.ToLower(assetTag.Value))
+		return slices.ContainsFunc(a.requestConfig.ExcludedTags, func(excluded string) bool {
+			return tagMatches(excluded, assetTag.Value)
+		})
 	})
 }
 
