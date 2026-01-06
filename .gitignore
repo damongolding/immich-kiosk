@@ -29,6 +29,7 @@ dist
 
 config.yaml
 *.config.yaml
+_config.yaml
 !demo.config.yaml
 
 *.pprof
@@ -52,5 +53,3 @@ frontend/public/assets/js/*.js
 /tmp/
 
 /secrets/
-
-_config.yaml
