@@ -675,12 +675,12 @@ func (a *Asset) hasValidPartners() bool {
 //
 // Examples:
 //
-//	matchesTagPattern("parent", "parent")                    // true
-//	matchesTagPattern("parent/child", "parent")              // false
-//	matchesTagPattern("parent/child", "parent/*")            // true
-//	matchesTagPattern("parent/child/grandchild", "parent/*") // false
+//	matchesTagPattern("parent", "parent")                     // true
+//	matchesTagPattern("parent/child", "parent")               // false
+//	matchesTagPattern("parent/child", "parent/*")             // true
+//	matchesTagPattern("parent/child/grandchild", "parent/*")  // false
 //	matchesTagPattern("parent/child/grandchild", "parent/**") // true
-//	matchesTagPattern("parent", "parent/**")                 // false
+//	matchesTagPattern("parent", "parent/**")                  // false
 func matchesTagPattern(value, pattern string) bool {
 	pattern = strings.Trim(strings.ToLower(pattern), "/")
 	value = strings.Trim(strings.ToLower(value), "/")
