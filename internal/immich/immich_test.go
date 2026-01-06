@@ -1,6 +1,7 @@
 package immich
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -553,6 +554,53 @@ func TestTagMatches(t *testing.T) {
 			if result != tt.expected {
 				t.Errorf("tagMatches(%q, %q) = %v, expected %v",
 					tt.pattern, tt.value, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestExpandTags(t *testing.T) {
+
+	tests := []struct {
+		name     string
+		tag      string
+		expected []string
+	}{
+		// Exact match tests
+		{
+			name:     "nested parent - single wildcard",
+			tag:      "parent/child/*",
+			expected: []string{"parent/child/grand-child"},
+		},
+		{
+			name:     "nested parent - recursive wildcard",
+			tag:      "parent/child/**",
+			expected: []string{"parent/child/grand-child", "parent/child/grand-child/great-grand-child"},
+		},
+		{
+			name:     "nested parent - recursive wildcard",
+			tag:      "parent/**",
+			expected: []string{"parent/child", "parent/child/grand-child", "parent/child/grand-child/great-grand-child"},
+		},
+	}
+
+	allTags := []Tag{
+		{Value: "parent"},
+		{Value: "parent/child"},
+		{Value: "parent/child/grand-child"},
+		{Value: "parent/child/grand-child/great-grand-child"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			expandedTags := []string{}
+
+			expandedTags = addRecursiveTags(tt.tag, expandedTags, allTags)
+
+			if slices.Compare(expandedTags, tt.expected) != 0 {
+				t.Errorf("expandedTags = %v, expected %v",
+					expandedTags, tt.expected)
 			}
 		})
 	}
