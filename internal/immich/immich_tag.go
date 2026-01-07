@@ -435,3 +435,46 @@ func (a *Asset) addTagToAsset(tag Tag, assetID string) error {
 func (a *Asset) removeTagFromAsset(tag Tag, assetID string) error {
 	return a.modifyTagAsset(tag, assetID, http.MethodDelete, "remove")
 }
+
+// addRecursiveTags adds all matching child/nested tags to the expandedTags slice.
+func addRecursiveTags(tag string, expandedTags []string, allTags Tags) []string {
+	if strings.HasSuffix(tag, "/**") || strings.HasSuffix(tag, "/*") {
+		for _, t := range allTags {
+			if matchesTagPattern(t.Value, tag) && !slices.Contains(expandedTags, t.Value) {
+				expandedTags = append(expandedTags, t.Value)
+			}
+		}
+	}
+
+	return expandedTags
+}
+
+// ExpandTagPatterns expands tag patterns to include all matching tags and removes patterns from the expanded tags.
+//
+// Examples:
+//
+// []string{"parent/*"} -> []string{"parent/child"}
+// []string{"parent/**"} -> []string{"parent/child", "parent/child/grandchild"}
+func (a *Asset) ExpandTagPatterns(tags []string, requestID, deviceID string) []string {
+	if len(tags) == 0 {
+		return tags
+	}
+
+	allTags, _, err := a.AllTags(requestID, deviceID)
+	if err != nil {
+		log.Error("error fetching all tags", "error", err)
+		return tags
+	}
+
+	expandedTags := make([]string, len(tags))
+	copy(expandedTags, tags)
+
+	for _, tag := range tags {
+		expandedTags = addRecursiveTags(tag, expandedTags, allTags)
+	}
+
+	// remove patterns from expanded tags
+	return slices.DeleteFunc(expandedTags, func(tag string) bool {
+		return strings.HasSuffix(tag, "/**") || strings.HasSuffix(tag, "/*")
+	})
+}

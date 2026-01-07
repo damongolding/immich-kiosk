@@ -140,10 +140,10 @@ type Person struct {
 
 type Tag struct {
 	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Value     string    `json:"value"`
-	CreatedAt time.Time `json:"-"` // `json:"createdAt"`
-	UpdatedAt time.Time `json:"-"` // `json:"updatedAt"`
+	Name      string    `json:"name"`  // e.g "child"
+	Value     string    `json:"value"` // e.g "parent/child"
+	CreatedAt time.Time `json:"-"`     // `json:"createdAt"`
+	UpdatedAt time.Time `json:"-"`     // `json:"updatedAt"`
 	Color     string    `json:"color"`
 }
 
