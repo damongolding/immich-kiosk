@@ -451,9 +451,10 @@ func addRecursiveTags(tag string, expandedTags []string, allTags Tags) []string 
 
 // ExpandTagPatterns expands tag patterns to include all matching tags and removes patterns from the expanded tags.
 //
-// Example:
+// Examples:
 //
 // []string{"parent/*"} -> []string{"parent/child"}
+// []string{"parent/**"} -> []string{"parent/child", "parent/child/grandchild"}
 func (a *Asset) ExpandTagPatterns(tags []string, requestID, deviceID string) []string {
 	if len(tags) == 0 {
 		return tags
