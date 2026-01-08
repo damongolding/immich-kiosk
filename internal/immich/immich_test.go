@@ -598,7 +598,7 @@ func TestExpandTags(t *testing.T) {
 
 			expandedTags = addRecursiveTags(tt.tag, expandedTags, allTags)
 
-			if slices.Compare(expandedTags, tt.expected) != 0 {
+			if !slices.Equal(expandedTags, tt.expected) {
 				t.Errorf("expandedTags = %v, expected %v",
 					expandedTags, tt.expected)
 			}
