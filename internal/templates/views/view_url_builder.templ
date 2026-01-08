@@ -77,7 +77,7 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 							}
 						}
 					}
-					@URLBuilderMultiSelect("Albums", "album", "Album or albums you want to display. Albums with ~ special keyword albums") {
+					@URLBuilderMultiSelect("Albums", "albums", "Album or albums you want to display. Albums with ~ special keyword albums") {
 						for _, a := range d.Albums {
 							<option value={ a.ID }>{ a.AlbumName }</option>
 						}
@@ -95,7 +95,7 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						}
 					}
 					@URLBuilderRadio("Album order", "album_order", "The order in which albums will be displayed.", "random", "random", "newest", "newest", "oldest", "oldest")
-					@URLBuilderMultiSelect("Tags", "tag", "Tag or tags you want to display") {
+					@URLBuilderMultiSelect("Tags", "tags", "Tag or tags you want to display") {
 						for _, t := range d.Tags {
 							if strings.EqualFold(t.Name, kiosk.TagSkip) || strings.EqualFold(t.Value, kiosk.TagSkip) {
 								{{ continue }}
