@@ -574,13 +574,13 @@ func TestExpandTags(t *testing.T) {
 		},
 		{
 			name:     "nested parent - recursive wildcard",
-			tag:      "parent/child/**",
-			expected: []string{"parent/child/grand-child", "parent/child/grand-child/great-grand-child"},
-		},
-		{
-			name:     "nested parent - recursive wildcard",
 			tag:      "parent/**",
 			expected: []string{"parent/child", "parent/child/grand-child", "parent/child/grand-child/great-grand-child"},
+		},
+		{
+			name:     "nested child - recursive wildcard",
+			tag:      "parent/child/**",
+			expected: []string{"parent/child/grand-child", "parent/child/grand-child/great-grand-child"},
 		},
 	}
 
