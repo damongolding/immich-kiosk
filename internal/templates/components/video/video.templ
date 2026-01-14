@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/templates/components"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/google/uuid"
@@ -32,6 +33,7 @@ templ Video(viewData common.ViewData, secret string) {
 			<video
 				id={ ID }
 				class={ "frame--video--" + videoOrientation }
+				data-tags={ components.CreateDataTag(video.ImmichAsset.Tags) }
 				autoplay
 				muted
 				playsinline

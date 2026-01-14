@@ -5,6 +5,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/templates/components"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"strings"
@@ -157,17 +158,6 @@ templ renderImageFit(imageData, imageFit, imageOrientation string, tags ...immic
 	}
 }
 
-func createDataTag(tags []immich.Tag) string {
-	clean := make([]string, 0, len(tags))
-
-	for _, tag := range tags {
-		clean = append(clean, utils.SanitizeClassName(tag.Value))
-	}
-
-	return strings.Join(clean, " ")
-
-}
-
 // RenderImageWithCoverFit renders an image with "cover" fit style.
 //
 // Parameters:
@@ -177,7 +167,7 @@ templ RenderImageWithCoverFit(ImageData, imageOrientation string, tags ...immich
 	<img
 		class={ "frame--image-fit-cover", "frame--image--"+imageOrientation }
 		if len(tags) > 0 {
-			data-tags={ createDataTag(tags) }
+			data-tags={ components.CreateDataTag(tags) }
 		}
 		src={ ImageData }
 		alt="Main image"
@@ -193,7 +183,7 @@ templ RenderImageWithoutFit(ImageData, imageOrientation string, tags ...immich.T
 	<img
 		class={ "frame--image--" + imageOrientation }
 		if len(tags) > 0 {
-			data-tags={ createDataTag(tags) }
+			data-tags={ components.CreateDataTag(tags) }
 		}
 		src={ ImageData }
 		alt="Main image"
@@ -210,7 +200,7 @@ templ RenderImageWithContainFit(ImageData, imageOrientation string, tags ...immi
 		class={ "frame--image-fit-contain", "frame--image--"+imageOrientation }
 		src={ ImageData }
 		if len(tags) > 0 {
-			data-tags={ createDataTag(tags) }
+			data-tags={ components.CreateDataTag(tags) }
 		}
 		alt="Main image"
 	/>
