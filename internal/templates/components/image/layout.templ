@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -69,7 +70,7 @@ templ renderImageBackground(viewData common.ViewData, imageData common.ViewImage
 //
 // The function uses frameWithZoom for zoom effects and frame for default rendering.
 // It delegates to RenderImageWithCoverFit or renderImageFit based on the image effect.
-templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
+templ renderImage(viewData common.ViewData, imageData common.ViewImageData, tags ...immich.Tag) {
 	{{
 		imageOrientation := kiosk.LandscapeOrientation
 		if imageData.ImmichAsset.IsPortrait {
@@ -79,15 +80,15 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData) {
 	switch viewData.ImageEffect {
 		case "zoom":
 			@frameWithZoom(viewData.Duration, viewData.ImageEffect, imageData.ImmichAsset) {
-				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation)
+				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation, tags...)
 			}
 		case "smart-zoom":
 			@frameWithZoom(viewData.Duration, viewData.ImageEffect, imageData.ImmichAsset) {
-				@RenderImageWithCoverFit(imageData.ImageData, imageOrientation)
+				@RenderImageWithCoverFit(imageData.ImageData, imageOrientation, tags...)
 			}
 		default:
 			@frame() {
-				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation)
+				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation, tags...)
 			}
 	}
 }
@@ -118,7 +119,7 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 		}
 	}}
 	@renderImageBackground(viewData, imageData)
-	@renderImage(viewData, imageData)
+	@renderImage(viewData, imageData, viewData.Assets[imageIndex].ImmichAsset.Tags...)
 	if livePhotos {
 		@renderLivePhoto(viewData, imageData)
 	}
@@ -145,15 +146,26 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 //   - "cover": Uses RenderImageWithCoverFit
 //   - "none": Uses RenderImageWithoutFit
 //   - Any other value: Uses RenderImageWithContainFit (default behavior)
-templ renderImageFit(imageData, imageFit, imageOrientation string) {
+templ renderImageFit(imageData, imageFit, imageOrientation string, tags ...immich.Tag) {
 	switch imageFit {
 		case "cover":
-			@RenderImageWithCoverFit(imageData, imageOrientation)
+			@RenderImageWithCoverFit(imageData, imageOrientation, tags...)
 		case "none":
-			@RenderImageWithoutFit(imageData, imageOrientation)
+			@RenderImageWithoutFit(imageData, imageOrientation, tags...)
 		default:
-			@RenderImageWithContainFit(imageData, imageOrientation)
+			@RenderImageWithContainFit(imageData, imageOrientation, tags...)
 	}
+}
+
+func createDataTag(tags []immich.Tag) string {
+	clean := make([]string, 0, len(tags))
+
+	for _, tag := range tags {
+		clean = append(clean, utils.SanitizeClassName(tag.Value))
+	}
+
+	return strings.Join(clean, " ")
+
 }
 
 // RenderImageWithCoverFit renders an image with "cover" fit style.
@@ -161,9 +173,12 @@ templ renderImageFit(imageData, imageFit, imageOrientation string) {
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
 //   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
-templ RenderImageWithCoverFit(ImageData, imageOrientation string) {
+templ RenderImageWithCoverFit(ImageData, imageOrientation string, tags ...immich.Tag) {
 	<img
 		class={ "frame--image-fit-cover", "frame--image--"+imageOrientation }
+		if len(tags) > 0 {
+			data-tags={ createDataTag(tags) }
+		}
 		src={ ImageData }
 		alt="Main image"
 	/>
@@ -174,9 +189,12 @@ templ RenderImageWithCoverFit(ImageData, imageOrientation string) {
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
 //   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
-templ RenderImageWithoutFit(ImageData, imageOrientation string) {
+templ RenderImageWithoutFit(ImageData, imageOrientation string, tags ...immich.Tag) {
 	<img
 		class={ "frame--image--" + imageOrientation }
+		if len(tags) > 0 {
+			data-tags={ createDataTag(tags) }
+		}
 		src={ ImageData }
 		alt="Main image"
 	/>
@@ -187,10 +205,13 @@ templ RenderImageWithoutFit(ImageData, imageOrientation string) {
 // Parameters:
 //   - ImageData: A string containing the image data (typically a URL or base64-encoded image).
 //   - imageOrientation: A string specifying the image orientation ("portrait", "landscape", or "square").
-templ RenderImageWithContainFit(ImageData, imageOrientation string) {
+templ RenderImageWithContainFit(ImageData, imageOrientation string, tags ...immich.Tag) {
 	<img
 		class={ "frame--image-fit-contain", "frame--image--"+imageOrientation }
 		src={ ImageData }
+		if len(tags) > 0 {
+			data-tags={ createDataTag(tags) }
+		}
 		alt="Main image"
 	/>
 }
