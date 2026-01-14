@@ -33,7 +33,9 @@ templ Video(viewData common.ViewData, secret string) {
 			<video
 				id={ ID }
 				class={ "frame--video--" + videoOrientation }
-				data-tags={ components.CreateDataTag(video.ImmichAsset.Tags) }
+				if len(video.ImmichAsset.Tags) > 0 {
+					data-tags={ components.CreateDataTag(video.ImmichAsset.Tags) }
+				}
 				autoplay
 				muted
 				playsinline
