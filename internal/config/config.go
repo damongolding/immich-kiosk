@@ -578,6 +578,8 @@ func (c *Config) Load() error {
 	c.checkAssetBuckets()
 	c.checkAlbumOrder()
 	c.checkExcludedAlbums()
+	c.checkTags()
+	c.checkExcludedTags()
 	c.checkURLScheme()
 	c.checkHideCountries()
 	c.checkWeatherLocations()

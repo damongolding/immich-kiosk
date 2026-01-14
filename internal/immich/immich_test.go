@@ -1,6 +1,7 @@
 package immich
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -377,6 +378,230 @@ func TestMergeAssetInfo(t *testing.T) {
 				assert.NoError(t, err)
 			}
 			assert.Equal(t, tt.expected, tt.baseAsset)
+		})
+	}
+}
+
+func TestTagMatches(t *testing.T) {
+	tests := []struct {
+		name     string
+		pattern  string
+		value    string
+		expected bool
+	}{
+		// Exact match tests
+		{
+			name:     "exact match - same case",
+			pattern:  "parent",
+			value:    "parent",
+			expected: true,
+		},
+		{
+			name:     "exact match - different case",
+			pattern:  "Parent",
+			value:    "PARENT",
+			expected: true,
+		},
+		{
+			name:     "exact match - with leading/trailing slashes",
+			pattern:  "/parent/",
+			value:    "/parent/",
+			expected: true,
+		},
+		{
+			name:     "exact match - no match",
+			pattern:  "parent",
+			value:    "other",
+			expected: false,
+		},
+		{
+			name:     "exact match - parent vs child",
+			pattern:  "parent",
+			value:    "parent/child",
+			expected: false,
+		},
+
+		// Single-level wildcard tests (parent/*)
+		{
+			name:     "single wildcard - does not match parent itself",
+			pattern:  "parent/*",
+			value:    "parent",
+			expected: false,
+		},
+		{
+			name:     "single wildcard - matches direct child",
+			pattern:  "parent/*",
+			value:    "parent/child",
+			expected: true,
+		},
+		{
+			name:     "single wildcard - does not match grandchild",
+			pattern:  "parent/*",
+			value:    "parent/child/grandchild",
+			expected: false,
+		},
+		{
+			name:     "single wildcard - matches another direct child",
+			pattern:  "parent/*",
+			value:    "parent/another",
+			expected: true,
+		},
+		{
+			name:     "single wildcard - does not match different parent",
+			pattern:  "parent/*",
+			value:    "other/child",
+			expected: false,
+		},
+		{
+			name:     "single wildcard - case insensitive",
+			pattern:  "Parent/*",
+			value:    "PARENT/CHILD",
+			expected: true,
+		},
+
+		// Recursive wildcard tests (parent/**)
+		{
+			name:     "recursive wildcard - does not match parent itself",
+			pattern:  "parent/**",
+			value:    "parent",
+			expected: false,
+		},
+		{
+			name:     "recursive wildcard - matches direct child",
+			pattern:  "parent/**",
+			value:    "parent/child",
+			expected: true,
+		},
+		{
+			name:     "recursive wildcard - matches grandchild",
+			pattern:  "parent/**",
+			value:    "parent/child/grandchild",
+			expected: true,
+		},
+		{
+			name:     "recursive wildcard - matches deep nesting",
+			pattern:  "parent/**",
+			value:    "parent/a/b/c/d/e",
+			expected: true,
+		},
+		{
+			name:     "recursive wildcard - does not match different parent",
+			pattern:  "parent/**",
+			value:    "other/child",
+			expected: false,
+		},
+		{
+			name:     "recursive wildcard - does not match partial prefix",
+			pattern:  "parent/**",
+			value:    "parental/child",
+			expected: false,
+		},
+		{
+			name:     "recursive wildcard - case insensitive",
+			pattern:  "Parent/**",
+			value:    "PARENT/CHILD/GRANDCHILD",
+			expected: true,
+		},
+
+		// Edge cases
+		{
+			name:     "empty pattern and value",
+			pattern:  "",
+			value:    "",
+			expected: true,
+		},
+		{
+			name:     "empty pattern",
+			pattern:  "",
+			value:    "something",
+			expected: false,
+		},
+		{
+			name:     "empty value",
+			pattern:  "something",
+			value:    "",
+			expected: false,
+		},
+		{
+			name:     "nested parent - exact match",
+			pattern:  "vacation/2023",
+			value:    "vacation/2023",
+			expected: true,
+		},
+		{
+			name:     "nested parent - single wildcard",
+			pattern:  "vacation/2023/*",
+			value:    "vacation/2023/summer",
+			expected: true,
+		},
+		{
+			name:     "nested parent - recursive wildcard",
+			pattern:  "vacation/2023/**",
+			value:    "vacation/2023/summer/beach",
+			expected: true,
+		},
+		{
+			name:     "multiple slashes normalized",
+			pattern:  "//parent//",
+			value:    "parent",
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := matchesTagPattern(tt.value, tt.pattern)
+			if result != tt.expected {
+				t.Errorf("matchesTagPattern(%q, %q) = %v, expected %v",
+					tt.pattern, tt.value, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestExpandTags(t *testing.T) {
+
+	tests := []struct {
+		name     string
+		tag      string
+		expected []string
+	}{
+		// Exact match tests
+		{
+			name:     "nested parent - single wildcard",
+			tag:      "parent/child/*",
+			expected: []string{"parent/child/grand-child"},
+		},
+		{
+			name:     "nested parent - recursive wildcard",
+			tag:      "parent/**",
+			expected: []string{"parent/child", "parent/child/grand-child", "parent/child/grand-child/great-grand-child"},
+		},
+		{
+			name:     "nested child - recursive wildcard",
+			tag:      "parent/child/**",
+			expected: []string{"parent/child/grand-child", "parent/child/grand-child/great-grand-child"},
+		},
+	}
+
+	allTags := []Tag{
+		{Value: "parent"},
+		{Value: "parent/child"},
+		{Value: "parent/child/grand-child"},
+		{Value: "parent/child/grand-child/great-grand-child"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			expandedTags := []string{}
+
+			expandedTags = addRecursiveTags(tt.tag, expandedTags, allTags)
+
+			if !slices.Equal(expandedTags, tt.expected) {
+				t.Errorf("expandedTags = %v, expected %v",
+					expandedTags, tt.expected)
+			}
 		})
 	}
 }

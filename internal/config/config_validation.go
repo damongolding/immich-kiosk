@@ -266,6 +266,44 @@ func (c *Config) checkExcludedAlbums() {
 	}
 }
 
+func (c *Config) checkTags() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if len(c.Tags) == 0 {
+		return
+	}
+
+	for i := range c.Tags {
+		t, err := url.QueryUnescape(c.Tags[i])
+		if err != nil {
+			log.Error("Failed to unescape", "tag", c.Tags[i])
+			continue
+		}
+
+		c.Tags[i] = t
+	}
+}
+
+func (c *Config) checkExcludedTags() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if len(c.ExcludedTags) == 0 {
+		return
+	}
+
+	for i := range c.ExcludedTags {
+		t, err := url.QueryUnescape(c.ExcludedTags[i])
+		if err != nil {
+			log.Error("Failed to unescape", "tag", c.ExcludedTags[i])
+			continue
+		}
+
+		c.ExcludedTags[i] = t
+	}
+}
+
 // checkWeatherLocations validates the WeatherLocations in the Config.
 // It checks each WeatherLocation for required fields (name, latitude, longitude, and API key),
 // and logs an error message if any required fields are missing.

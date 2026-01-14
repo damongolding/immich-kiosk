@@ -148,12 +148,12 @@ type URLBuilderRequest struct {
 	// Buckets
 	People           []string `form:"people" url:"person,omitempty"`
 	RequireAllPeople *bool    `form:"require_all_people" url:"require_all_people,omitempty"`
-	ExcludedPeople   []string `form:"excluded_people" url:"excluded_person,omitempty"`
-	Albums           []string `form:"album" url:"album,omitempty"`
+	ExcludedPeople   []string `form:"excluded_people" url:"exclude_person,omitempty"`
+	Albums           []string `form:"albums" url:"album,omitempty"`
 	AlbumOrder       *string  `form:"album_order" url:"album_order,omitempty"`
-	ExcludedAlbums   []string `form:"excluded_albums" url:"excluded_album,omitempty"`
-	Tags             []string `form:"tag" url:"tag,omitempty"`
-	ExcludedTags     []string `form:"excluded_tags" url:"excluded_tag,omitempty"`
+	ExcludedAlbums   []string `form:"excluded_albums" url:"exclude_album,omitempty"`
+	Tags             []string `form:"tags" url:"tag,omitempty"`
+	ExcludedTags     []string `form:"excluded_tags" url:"exclude_tag,omitempty"`
 	ShowMemories     *bool    `form:"memories" url:"memories,omitempty"`
 	PastMemoryDays   *uint64  `form:"past_memory_days" url:"past_memory_days,omitempty"`
 
