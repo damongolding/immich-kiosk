@@ -7,21 +7,22 @@
 package main
 
 import (
-	"context"
+	"crypto/subtle"
 	"embed"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/goodsign/monday"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 	"golang.org/x/time/rate"
 
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -131,8 +132,6 @@ func main() {
 	log.Debug("🕐", "current_time", time.Now().Format(time.Kitchen), "current_zone", zone)
 
 	e := echo.New()
-	e.HideBanner = true
-	e.HidePort = true
 	if baseConfig.Kiosk.BehindProxy {
 		e.IPExtractor = echo.ExtractIPFromXFFHeader()
 	} else {
@@ -147,23 +146,26 @@ func main() {
 
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 6,
-		Skipper: func(c echo.Context) bool {
+		Skipper: func(c *echo.Context) bool {
 			return strings.Contains(c.Path(), "image")
 		},
 	}))
 
 	if baseConfig.Kiosk.Password != "" {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
-			Skipper: func(c echo.Context) bool {
+			Skipper: func(c *echo.Context) bool {
 				// skip auth for assets and /health endpoint
 				path := c.Request().URL.Path
 				return strings.HasPrefix(path, "/assets/") || path == "/health" || path == "/favicon.ico"
 			},
 			KeyLookup: "header:Authorization,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
-			Validator: func(queryPassword string, _ echo.Context) (bool, error) {
-				return queryPassword == baseConfig.Kiosk.Password, nil
+			Validator: func(c *echo.Context, key string, _ middleware.ExtractorSource) (bool, error) {
+				if subtle.ConstantTimeCompare([]byte(key), []byte(baseConfig.Kiosk.Password)) == 1 {
+					return true, nil
+				}
+				return false, nil
 			},
-			ErrorHandler: func(err error, c echo.Context) error {
+			ErrorHandler: func(c *echo.Context, err error) error {
 				if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
 					log.Warn("unauthorized request",
 						"IP", c.RealIP(),
@@ -187,14 +189,14 @@ func main() {
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
 
 	if !baseConfig.Kiosk.DisableConfigEndpoint {
-		e.GET("/config", func(c echo.Context) error {
+		e.GET("/config", func(c *echo.Context) error {
 			return c.String(http.StatusOK, baseConfig.SanitizedYaml())
 		})
 	}
 
 	e.GET("/", routes.Home(baseConfig, c))
 
-	e.GET("/health", func(c echo.Context) error {
+	e.GET("/health", func(c *echo.Context) error {
 		return c.String(http.StatusOK, "OK")
 	})
 
@@ -238,7 +240,7 @@ func main() {
 
 	e.POST("/refresh/check", routes.RefreshCheck(baseConfig))
 
-	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(20))))
+	e.POST("/webhooks", routes.Webhooks(baseConfig, c), middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(float64(rate.Limit(20)))))
 
 	e.GET("/live/:liveID", routes.LivePhoto(baseConfig.Kiosk.DemoMode, baseConfig.Kiosk.Password))
 
@@ -263,9 +265,19 @@ func main() {
 	}
 
 	go func() {
-		startErr := e.Start(fmt.Sprintf(":%v", baseConfig.Kiosk.Port))
-		if startErr != nil && !errors.Is(startErr, http.ErrServerClosed) {
-			log.Fatal(startErr)
+
+		ctx, cancel := signal.NotifyContext(c.Context(), os.Interrupt, syscall.SIGTERM)
+		defer cancel()
+
+		sc := echo.StartConfig{
+			Address:         fmt.Sprintf(":%v", baseConfig.Kiosk.Port),
+			HideBanner:      true,
+			HidePort:        true,
+			GracefulTimeout: 10 * time.Second,
+		}
+
+		if err := sc.Start(ctx, e); err != nil {
+			log.Fatal(err)
 		}
 	}()
 
@@ -279,13 +291,6 @@ func main() {
 	} else {
 		log.Info("Kiosk shutting down")
 		fmt.Println("")
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	if shutdownErr := e.Shutdown(ctx); shutdownErr != nil {
-		log.Error(shutdownErr)
 	}
 }
 
@@ -311,7 +316,7 @@ func setLogLevel(logLevel *log.Level) {
 
 // Middleware to set no-store for dynamic endpoints
 func NoCacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		c.Response().Header().Set("Cache-Control", "no-store")
 		return next(c)
 	}
@@ -325,7 +330,7 @@ func StaticCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareF
 			return NoCacheMiddleware(next)
 		}
 
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			c.Response().Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 			return next(c)
 		}
@@ -340,7 +345,7 @@ func AssetCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFu
 			return NoCacheMiddleware(next)
 		}
 
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			c.Response().Header().Set("Cache-Control", "private, max-age=86400, no-transform")
 			return next(c)
 		}

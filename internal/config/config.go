@@ -39,7 +39,7 @@ import (
 	"github.com/spf13/viper"
 	"go.yaml.in/yaml/v3"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 const (
@@ -616,7 +616,7 @@ func getHistory(queries url.Values) []string {
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
-func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
+func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error {
 
 	if c.Kiosk.DisableURLQueries {
 		c.History = getHistory(queries)
