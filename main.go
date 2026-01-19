@@ -12,10 +12,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"os/signal"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
@@ -264,25 +262,16 @@ func main() {
 		fmt.Println("")
 	}
 
-	go func() {
+	sc := echo.StartConfig{
+		Address:         fmt.Sprintf(":%v", baseConfig.Kiosk.Port),
+		HideBanner:      true,
+		HidePort:        true,
+		GracefulTimeout: 10 * time.Second,
+	}
 
-		ctx, cancel := signal.NotifyContext(c.Context(), os.Interrupt, syscall.SIGTERM)
-		defer cancel()
+	_ = sc.Start(c.Context(), e)
 
-		sc := echo.StartConfig{
-			Address:         fmt.Sprintf(":%v", baseConfig.Kiosk.Port),
-			HideBanner:      true,
-			HidePort:        true,
-			GracefulTimeout: 10 * time.Second,
-		}
-
-		if err := sc.Start(ctx, e); err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	<-c.Context().Done()
-
+	// Shutting down, clean up
 	video.Delete()
 
 	fmt.Println("")
