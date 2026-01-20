@@ -652,3 +652,116 @@ func TestWeightedRandomItem_EdgeCases(t *testing.T) {
 		})
 	}
 }
+
+func TestContainsWholeWord(t *testing.T) {
+
+	tests := []struct {
+		name string
+		a    string
+		b    string
+		want bool
+	}{
+		{
+			name: "Exact match",
+			a:    "Canon",
+			b:    "Canon",
+			want: true,
+		},
+		{
+			name: "Whole word at start",
+			a:    "Canon",
+			b:    "Canon D90 X",
+			want: true,
+		},
+		{
+			name: "Whole word in middle",
+			a:    "D90",
+			b:    "Canon D90 X",
+			want: true,
+		},
+		{
+			name: "Whole word at end",
+			a:    "X",
+			b:    "Canon D90 X",
+			want: true,
+		},
+		{
+			name: "Case insensitive match",
+			a:    "canon",
+			b:    "Canon D90",
+			want: true,
+		},
+		{
+			name: "Substring only (not whole word)",
+			a:    "Canon",
+			b:    "Canonic D90",
+			want: false,
+		},
+		{
+			name: "Substring inside word",
+			a:    "D9",
+			b:    "D90",
+			want: false,
+		},
+		{
+			name: "Word followed by punctuation",
+			a:    "Canon",
+			b:    "Canon, D90",
+			want: true,
+		},
+		{
+			name: "Word preceded by punctuation",
+			a:    "Canon",
+			b:    "(Canon) D90",
+			want: true,
+		},
+		{
+			name: "Hyphenated word (boundary break)",
+			a:    "Canon",
+			b:    "Canon-D90",
+			want: true,
+		},
+		{
+			name: "Underscore treated as word char",
+			a:    "Canon",
+			b:    "Canon_D90",
+			want: false,
+		},
+		{
+			name: "Multiple occurrences",
+			a:    "Canon",
+			b:    "Canon D90 Canon",
+			want: true,
+		},
+		{
+			name: "No match at all",
+			a:    "Nikon",
+			b:    "Canon D90",
+			want: false,
+		},
+		{
+			name: "Empty search string",
+			a:    "",
+			b:    "Canon D90",
+			want: false,
+		},
+		{
+			name: "Empty target string",
+			a:    "Canon",
+			b:    "",
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ContainsWholeWord(tt.a, tt.b)
+			if got != tt.want {
+				t.Errorf(
+					"ContainsWholeWord(%q, %q) = %v, want %v",
+					tt.a, tt.b, got, tt.want,
+				)
+			}
+		})
+	}
+}
