@@ -179,7 +179,7 @@ func AssetCameraData(exifInfo immich.ExifInfo) string {
 		return mo
 	}
 
-	return fmt.Sprintf("%s %s", ma, mo)
+	return strings.TrimSpace(fmt.Sprintf("%s %s", ma, mo))
 }
 
 // AssetDateTime generates a formatted date/time string for an asset.
