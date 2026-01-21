@@ -176,7 +176,7 @@ func AssetCameraData(exifInfo immich.ExifInfo) string {
 	mo := strings.TrimSpace(exifInfo.Model)
 
 	if utils.ContainsWholeWord(ma, mo) {
-		return strings.TrimSpace(mo)
+		return mo
 	}
 
 	return strings.TrimSpace(fmt.Sprintf("%s %s", ma, mo))
