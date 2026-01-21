@@ -53,32 +53,30 @@ templ ImageWithReload(requestConfig config.Config, queries, kioskVersion string)
 			{{ data := ReloadData{Queries: queries, Duration: requestConfig.Duration} }}
 			@templ.JSONScript("kiosk-data", data)
 			<script>
-
 				var kioskData;
 				var duration = 60;
 				var queries = '';
-
-				var rawData = document.getElementById('kiosk-data').textContent;
+				var kioskDataElement = document.getElementById('kiosk-data');
+				var rawData = kioskDataElement ? kioskDataElement.textContent : '';
 
 				try {
 				    kioskData = JSON.parse(rawData);
-					if (kioskData.duration && kioskData.duration > 5) duration = kioskData.duration;
-					if (kioskData.queries) queries = kioskData.queries;
-				} catch (e) {
-				    console.error("Error parsing duration interval:", e);
-					duration = 60;
-				}
+				    if (kioskData.duration && kioskData.duration > 5) duration = kioskData.duration;
+				    if (kioskData.queries) queries = kioskData.queries;
+	            } catch (e) {
+	                console.error("Error parsing duration interval:", e);
+	                duration = 60;
+	            }
 
-				var bodyElement = document.body;
+	            var bodyElement = document.body;
 
-			    function refreshImage() {
-                  var date = new Date();
-                  var separator = queries ? "&" : "";
-                  bodyElement.style.backgroundImage = "url(/image?" + queries + separator + "timestamp=" + date.getTime() + ")";
+	            function refreshImage() {
+	                var date = new Date();
+	                var separator = queries ? "&" : "";
+	                bodyElement.style.backgroundImage = "url(/image?" + queries + separator + "timestamp=" + date.getTime() + ")";
+	            }
 
-			    }
-
-				setInterval(refreshImage, duration * 1000);
+	            setInterval(refreshImage, duration * 1000);
 			</script>
 		</body>
 	}
