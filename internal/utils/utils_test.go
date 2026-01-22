@@ -755,7 +755,7 @@ func TestSanitizeClassName(t *testing.T) {
 		})
 	}
 }
-          
+
 func TestContainsWholeWord(t *testing.T) {
 
 	tests := []struct {
@@ -853,18 +853,19 @@ func TestContainsWholeWord(t *testing.T) {
 			a:    "Canon",
 			b:    "",
 			want: false,
-    }
-      
-    for _, tt := range tests {
+		},
+	}
+
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-      got := ContainsWholeWord(tt.a, tt.b)
+			got := ContainsWholeWord(tt.a, tt.b)
 			if got != tt.want {
 				t.Errorf(
 					"ContainsWholeWord(%q, %q) = %v, want %v",
 					tt.a, tt.b, got, tt.want,
 				)
-        
-        			}
+
+			}
 		})
 	}
 }
