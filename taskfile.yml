@@ -37,6 +37,7 @@ tasks:
 
   test:
     desc: Run tests
+    deps: [templ]
     cmds:
       - go test ./...
 

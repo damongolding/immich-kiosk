@@ -362,6 +362,8 @@ type Config struct {
 
 	// ShowVideos whether to display videos
 	ShowVideos bool `json:"showVideos" yaml:"show_videos" mapstructure:"show_videos" query:"show_videos" form:"show_videos" default:"false"`
+	// ExcludeVideosOver excludes videos longer than the specified duration in seconds. 0 means no limit.
+	ExcludeVideosOver int `json:"excludeVideosOver" yaml:"exclude_videos_over" mapstructure:"exclude_videos_over" query:"exclude_videos_over" form:"exclude_videos_over" default:"0"`
 	// LivePhotos show live photos
 	LivePhotos         bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
 	LivePhotoLoopDelay int  `json:"livePhotoLoopDelay" yaml:"live_photo_loop_delay" mapstructure:"live_photo_loop_delay" query:"live_photo_loop_delay" form:"live_photo_loop_delay" default:"0"`

@@ -957,3 +957,12 @@ func SanitizeClassName(s string) string {
 
 	return s
 }
+
+func ContainsWholeWord(a, b string) bool {
+	if strings.TrimSpace(a) == "" || strings.TrimSpace(b) == "" {
+		return false
+	}
+
+	re := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(a) + `\b`)
+	return re.MatchString(b)
+}

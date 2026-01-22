@@ -139,6 +139,11 @@
     "show_videos": {
       "type": "boolean"
     },
+    "exclude_videos_over": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Exclude videos over X seconds"
+    },
     "live_photos": {
       "type": "boolean"
     },
