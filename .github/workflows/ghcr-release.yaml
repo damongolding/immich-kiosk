@@ -33,9 +33,16 @@ jobs:
       - name: Build and push Docker image
         run: |
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/immich-kiosk
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           docker buildx build --build-arg VERSION=${{ env.VERSION }} \
           --platform linux/amd64,linux/arm64 \
-          --push -t $IMAGE_NAME:${{ env.VERSION }} \
+          --push \
+          --label org.opencontainers.image.created=$TIMESTAMP \
+          --label org.opencontainers.image.revision=${{ github.ref }} \
+          --label org.opencontainers.image.source="${{ github.server_url }}/${{ github.repository }}" \
+          --label org.opencontainers.image.version=${{ env.VERSION }} \
+          --label org.opencontainers.image.authors=${{ github.repository_owner }} \
+          -t $IMAGE_NAME:${{ env.VERSION }} \
           -t $IMAGE_NAME:latest .
 
       - name: Construct release URL
