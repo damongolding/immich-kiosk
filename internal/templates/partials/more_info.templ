@@ -194,17 +194,19 @@ templ HideButton(ID string, isHidden bool, isButtonEnabled bool, secret string) 
 // Parameters:
 //   - exifInfo: EXIF information containing camera details
 templ cameraData(exifInfo immich.ExifInfo) {
-	{{ t := i18n.T() }}
-	{{ exif := AssetExif(exifInfo) }}
+	{{
+		t := i18n.T()
+		exif := AssetExif(exifInfo)
+		cameraData := AssetCameraData(exifInfo)
+	}}
 	<div>
 		<div>
 			<h3>
-				if exifInfo.Make != "" {
-					{ exifInfo.Make }
+				if cameraData != "" {
+					{ cameraData }
 				} else {
 					{ t("unknown_make") }
 				}
-				{ exifInfo.Model }
 			</h3>
 		</div>
 		<div>
