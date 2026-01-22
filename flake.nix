@@ -20,7 +20,7 @@
 
             src = ./.;
 
-            vendorHash = null;
+            vendorHash = pkgs.lib.hashFile "sha256-";
 
             nativeBuildInputs = with pkgs; [
               nodePackages.pnpm
