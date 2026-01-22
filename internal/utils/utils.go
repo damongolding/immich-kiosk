@@ -940,6 +940,24 @@ func ExtractDominantColor(img image.Image) (color.RGBA, error) {
 	}, 0.3), nil
 }
 
+func SanitizeClassName(s string) string {
+
+	allowed := regexp.MustCompile(`[^a-z0-9_/-]+`)
+
+	s = strings.ToLower(strings.TrimSpace(s))
+
+	// replace whitespace with hyphen
+	s = strings.ReplaceAll(s, " ", "-")
+
+	// remove anything NOT in the allowed set
+	s = allowed.ReplaceAllString(s, "")
+
+	// remove trailing and leading hyphens made during joining
+	s = strings.Trim(s, "-")
+
+	return s
+}
+
 func ContainsWholeWord(a, b string) bool {
 	if strings.TrimSpace(a) == "" || strings.TrimSpace(b) == "" {
 		return false
