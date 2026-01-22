@@ -206,6 +206,7 @@ linters:
           - gosec
           - noctx
           - wrapcheck
+          - cyclop
         path: _test\.go
     paths:
       - third_party$
