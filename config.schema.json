@@ -130,11 +130,19 @@
       "minimum": 0,
       "maximum": 365
     },
+    "memory_weight": {
+      "type": "number"
+    },
     "date_filter": {
       "type": "string"
     },
     "show_videos": {
       "type": "boolean"
+    },
+    "exclude_videos_over": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Exclude videos over X seconds"
     },
     "live_photos": {
       "type": "boolean"
@@ -339,6 +347,11 @@
             "type": "boolean",
             "default": false,
             "description": "Whether to include 3 day forecast data"
+          },
+          "round_temperature": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to round temperature values to the nearest integer"
           },
           "default": {
             "type": "boolean"

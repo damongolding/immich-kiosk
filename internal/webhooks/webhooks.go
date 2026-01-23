@@ -28,6 +28,7 @@ const (
 	PreviousHistoryAsset WebhookEvent = "asset.history.previous"
 	PrefetchAsset        WebhookEvent = "asset.prefetch"
 	CacheFlush           WebhookEvent = "cache.flush"
+
 	// UserInteractionClick          WebhookEvent = "user.interaction.click"
 	UserWebhookTriggerInfoOverlay WebhookEvent = "user.webhook.trigger.info_overlay"
 	UserLikeInfoOverlay           WebhookEvent = "user.like.info_overlay"
@@ -35,6 +36,11 @@ const (
 	UserHideInfoOverlay           WebhookEvent = "user.hide.info_overlay"
 	UserUnhideInfoOverlay         WebhookEvent = "user.unhide.info_overlay"
 	UserNavigationCustom          WebhookEvent = "user.navigation.custom"
+
+	// Offline mode
+	NewOfflineAsset             WebhookEvent = "asset.offline.new"
+	NextHistoryOfflineAsset     WebhookEvent = "asset.offline.history.next"
+	PreviousHistoryOfflineAsset WebhookEvent = "asset.offline.history.previous"
 )
 
 type Meta struct {

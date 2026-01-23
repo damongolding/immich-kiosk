@@ -144,35 +144,42 @@ func AssetExif(info immich.ExifInfo) string {
 	}
 
 	if info.FNumber != 0 {
-		stats.WriteString(fmt.Sprintf("<span class=\"asset--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber))
+		fmt.Fprintf(&stats, "<span class=\"asset--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber)
 	}
 
 	if info.ExposureTime != "" {
 		if stats.Len() > 0 {
 			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
 		}
-		stats.WriteString(fmt.Sprintf("%s<small>s</small>", info.ExposureTime))
+		fmt.Fprintf(&stats, "%s<small>s</small>", info.ExposureTime)
 	}
 
 	if info.FocalLength != 0 {
 		if stats.Len() > 0 {
 			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
 		}
-		stats.WriteString(fmt.Sprintf("%vmm", info.FocalLength))
+		fmt.Fprintf(&stats, "%vmm", info.FocalLength)
 	}
 
 	if info.Iso != 0 {
 		if stats.Len() > 0 {
 			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
 		}
-		stats.WriteString(fmt.Sprintf("ISO %v", info.Iso))
+		fmt.Fprintf(&stats, "ISO %v", info.Iso)
 	}
 
 	return stats.String()
 }
 
 func AssetCameraData(exifInfo immich.ExifInfo) string {
-	return strings.TrimSpace(fmt.Sprintf("%s %s", exifInfo.Make, exifInfo.Model))
+	ma := strings.TrimSpace(exifInfo.Make)
+	mo := strings.TrimSpace(exifInfo.Model)
+
+	if utils.ContainsWholeWord(ma, mo) {
+		return mo
+	}
+
+	return strings.TrimSpace(fmt.Sprintf("%s %s", ma, mo))
 }
 
 // AssetDateTime generates a formatted date/time string for an asset.
