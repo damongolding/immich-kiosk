@@ -205,10 +205,12 @@
       "type": "string"
     },
     "fade_transition_duration": {
-      "type": "integer"
+      "type": "number",
+      "minimum": 0
     },
     "cross_fade_transition_duration": {
-      "type": "integer"
+      "type": "number",
+      "minimum": 0
     },
     "show_clear_cache_button": {
       "type": "boolean"
