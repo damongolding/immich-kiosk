@@ -384,6 +384,19 @@ function addEventListeners(): void {
                 e.preventDefault();
                 toggleMute();
                 break;
+
+            case "ArrowUp":
+                if (!toggleMuteMenuButton) return;
+                e.preventDefault();
+                toggleMute();
+                break;
+
+            case "ArrowDown":
+                if (!kioskData.showMoreInfo) return;
+                if (e.ctrlKey || e.metaKey) return;
+                e.preventDefault();
+                handleInfoKeyPress();
+                break;
         }
     });
 
