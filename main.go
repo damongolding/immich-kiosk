@@ -7,8 +7,10 @@
 package main
 
 import (
+	"context"
 	"crypto/subtle"
 	"embed"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -270,7 +272,7 @@ func main() {
 	}
 
 	startErr := sc.Start(c.Context(), e)
-	if startErr != nil {
+	if startErr != nil && !errors.Is(startErr, http.ErrServerClosed) && !errors.Is(startErr, context.Canceled) {
 		log.Error("Failed to start Kiosk server", "error", startErr)
 	}
 
