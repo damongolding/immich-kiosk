@@ -184,7 +184,7 @@ type ClientData struct {
 	FullyAndroidVersion string `json:"fully_android_version" query:"fully_android_version" form:"fully_android_version"`
 
 	// ClientTime represents the client's current time
-	ClientTime string `json:"client_time" query:"client_time" form:"client_time" lowercase:"true"`
+	ClientTime string `json:"client_time" query:"client_time" form:"client_time"`
 	// Width represents the client's viewport width in pixels
 	Width int `json:"client_width" query:"client_width" form:"client_width"`
 	// Height represents the client's viewport height in pixels

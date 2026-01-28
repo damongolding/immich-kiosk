@@ -1,3 +1,4 @@
+import { formatRFC3339 } from "date-fns/formatRFC3339";
 import DOMPurify from "dompurify";
 import htmx from "htmx.org";
 import type { TimeFormat } from "./clock";
@@ -522,7 +523,7 @@ type BrowserData = {
  */
 function clientData(): BrowserData {
     const data: BrowserData = {
-        client_time: new Date().toISOString(),
+        client_time: formatRFC3339(new Date()),
         client_width: fullyKiosk.getDisplayDimensions().width,
         client_height: fullyKiosk.getDisplayDimensions().height,
     };
