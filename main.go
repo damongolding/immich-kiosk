@@ -272,7 +272,7 @@ func main() {
 	_ = sc.Start(c.Context(), e)
 
 	// Shutting down, clean up
-	video.Delete()
+	video.DeleteTmpDir()
 
 	fmt.Println("")
 	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {
