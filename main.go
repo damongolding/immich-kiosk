@@ -269,7 +269,10 @@ func main() {
 		GracefulTimeout: 10 * time.Second,
 	}
 
-	_ = sc.Start(c.Context(), e)
+	startErr := sc.Start(c.Context(), e)
+	if startErr != nil {
+		log.Error("Failed to Kiosk server", "error", startErr)
+	}
 
 	// Shutting down, clean up
 	video.DeleteTmpDir()
