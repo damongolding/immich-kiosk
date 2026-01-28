@@ -503,6 +503,7 @@ function checkHistoryExists(e: HTMXEvent): void {
  * - client_height: Height of the browser viewport in pixels
  */
 type BrowserData = {
+    client_time: string;
     client_width: number;
     client_height: number;
     fully_version?: string;
@@ -521,6 +522,7 @@ type BrowserData = {
  */
 function clientData(): BrowserData {
     const data: BrowserData = {
+        client_time: new Date().toISOString(),
         client_width: fullyKiosk.getDisplayDimensions().width,
         client_height: fullyKiosk.getDisplayDimensions().height,
     };
