@@ -14,7 +14,7 @@ func webhookAttributes(viewData common.ViewData, event, secret string) templ.Att
 
 	validEvent := viewData.Webhooks.ContainsEvent(event)
 
-	headers := map[string]interface{}{
+	headers := map[string]any{
 		"kiosk-version":   viewData.KioskVersion,
 		"kiosk-device-id": viewData.DeviceID,
 		"X-Timestamp":     time.Now().Unix(),
