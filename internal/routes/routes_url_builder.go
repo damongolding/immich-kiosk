@@ -13,13 +13,13 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/templates/views"
 	"github.com/google/go-querystring/query"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 	const maxURLLength = 2048
 
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		kioskHost := c.Request().Header.Get("X-Forwarded-Host")
 		if kioskHost == "" {
 			kioskHost = c.Request().Host
@@ -107,7 +107,7 @@ func truncateURLQueries(rawURL string, maxLength int) string {
 }
 
 func URLBuilderPage(baseConfig *config.Config, com *common.Common, extended bool) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {

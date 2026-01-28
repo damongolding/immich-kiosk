@@ -30,7 +30,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 	"github.com/dustin/go-humanize"
 	"github.com/klauspost/compress/zstd"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/vmihailenco/msgpack/v5"
 	"golang.org/x/sync/errgroup"
 )
@@ -46,7 +46,7 @@ var ErrMaxStorageReached = errors.New("max offline storage size reached")
 // It attempts to load and render a cached offline asset, handling asset expiration, cache directory creation, and duplicate removal.
 // If no valid offline assets are available or assets have expired, it initiates an asynchronous download and displays a status page.
 func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
@@ -455,7 +455,7 @@ func generateCacheFilename(uuids ...string) string {
 //  3. Renders a status page with download information
 //
 // Returns an error if the render operation fails
-func handleNoOfflineAssets(c echo.Context, requestConfig config.Config, com *common.Common, requestID, deviceID string) error {
+func handleNoOfflineAssets(c *echo.Context, requestConfig config.Config, com *common.Common, requestID, deviceID string) error {
 	requestCtx := common.CopyContext(c)
 	go func(c common.ContextCopy) {
 		downloadErr := downloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
@@ -543,7 +543,7 @@ func checkOfflineAssetsExpiration(ctx context.Context, immichURL string) (bool, 
 	return false, nil
 }
 
-func IsDownloading(c echo.Context) error {
+func IsDownloading(c *echo.Context) error {
 	if IsOfflineDownloadRunning() {
 		return c.NoContent(http.StatusOK)
 	}

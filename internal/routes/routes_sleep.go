@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
@@ -15,7 +15,7 @@ import (
 
 // Sleep returns an Echo HTTP handler that displays the sleep mode page, indicating whether the current time falls within the configured sleep period and applying the relevant sleep settings.
 func Sleep(baseConfig *config.Config) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
