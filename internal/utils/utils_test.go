@@ -652,3 +652,220 @@ func TestWeightedRandomItem_EdgeCases(t *testing.T) {
 		})
 	}
 }
+
+func TestSanitizeClassName(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "Empty string",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "Whitespace only",
+			input:    "   ",
+			expected: "",
+		},
+		{
+			name:     "Leading and trailing whitespace",
+			input:    "  valid-class-name  ",
+			expected: "valid-class-name",
+		},
+		{
+			name:     "Multiple internal spaces",
+			input:    "parent   child",
+			expected: "parent---child", // multiple hyphens expected with current implementation
+		},
+		{
+			name:     "Uppercase is lowercased",
+			input:    "ParentChild",
+			expected: "parentchild",
+		},
+		{
+			name:     "Valid class name",
+			input:    "valid-class-name",
+			expected: "valid-class-name",
+		},
+		{
+			name:     "Valid class name with slashes",
+			input:    "parent/child/grandchild",
+			expected: "parent/child/grandchild",
+		},
+		{
+			name:     "Valid class name with slashes and spaces",
+			input:    "parent/child/grand child",
+			expected: "parent/child/grand-child",
+		},
+		{
+			name:     "Class name with special characters, slashes and spaces",
+			input:    "parent/!child/grand@c$$$$$hild",
+			expected: "parent/child/grandchild",
+		},
+		{
+			name:     "Consecutive slashes preserved",
+			input:    "a//b///c",
+			expected: "a//b///c",
+		},
+		{
+			name:     "Mixed separators",
+			input:    "foo_bar/baz-qux",
+			expected: "foo_bar/baz-qux",
+		},
+		{
+			name:     "Leading digits",
+			input:    "123abc",
+			expected: "123abc",
+		},
+		{
+			name:     "Digits and special characters",
+			input:    "123!@#abc",
+			expected: "123abc",
+		},
+		{
+			name:     "Emoji and unicode removed",
+			input:    "hello🌟world",
+			expected: "helloworld",
+		},
+		{
+			name:     "Accented characters removed",
+			input:    "niño/ação",
+			expected: "nio/ao",
+		},
+		{
+			name:     "Everything invalid collapses to empty",
+			input:    "!@#$%^&*()",
+			expected: "",
+		},
+		{
+			name:     "Leading and trailing hyphens removed",
+			input:    "-parent-child-",
+			expected: "parent-child",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := SanitizeClassName(tt.input)
+			if got != tt.expected {
+				t.Errorf("SanitizeClassName(%q) = %q, want %q", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestContainsWholeWord(t *testing.T) {
+
+	tests := []struct {
+		name string
+		a    string
+		b    string
+		want bool
+	}{
+		{
+			name: "Exact match",
+			a:    "Canon",
+			b:    "Canon",
+			want: true,
+		},
+		{
+			name: "Whole word at start",
+			a:    "Canon",
+			b:    "Canon D90 X",
+			want: true,
+		},
+		{
+			name: "Whole word in middle",
+			a:    "D90",
+			b:    "Canon D90 X",
+			want: true,
+		},
+		{
+			name: "Whole word at end",
+			a:    "X",
+			b:    "Canon D90 X",
+			want: true,
+		},
+		{
+			name: "Case insensitive match",
+			a:    "canon",
+			b:    "Canon D90",
+			want: true,
+		},
+		{
+			name: "Substring only (not whole word)",
+			a:    "Canon",
+			b:    "Canonic D90",
+			want: false,
+		},
+		{
+			name: "Substring inside word",
+			a:    "D9",
+			b:    "D90",
+			want: false,
+		},
+		{
+			name: "Word followed by punctuation",
+			a:    "Canon",
+			b:    "Canon, D90",
+			want: true,
+		},
+		{
+			name: "Word preceded by punctuation",
+			a:    "Canon",
+			b:    "(Canon) D90",
+			want: true,
+		},
+		{
+			name: "Hyphenated word (boundary break)",
+			a:    "Canon",
+			b:    "Canon-D90",
+			want: true,
+		},
+		{
+			name: "Underscore treated as word char",
+			a:    "Canon",
+			b:    "Canon_D90",
+			want: false,
+		},
+		{
+			name: "Multiple occurrences",
+			a:    "Canon",
+			b:    "Canon D90 Canon",
+			want: true,
+		},
+		{
+			name: "No match at all",
+			a:    "Nikon",
+			b:    "Canon D90",
+			want: false,
+		},
+		{
+			name: "Empty search string",
+			a:    "",
+			b:    "Canon D90",
+			want: false,
+		},
+		{
+			name: "Empty target string",
+			a:    "Canon",
+			b:    "",
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ContainsWholeWord(tt.a, tt.b)
+			if got != tt.want {
+				t.Errorf(
+					"ContainsWholeWord(%q, %q) = %v, want %v",
+					tt.a, tt.b, got, tt.want,
+				)
+
+			}
+		})
+	}
+}

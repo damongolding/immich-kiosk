@@ -55,5 +55,15 @@ func (a *Asset) durationCheck() bool {
 	}
 	totalSeconds := hours*3600 + minutes*60 + seconds
 
-	return totalSeconds >= 1
+	// Ignore videos with duration less than one second
+	if totalSeconds < 1 {
+		return false
+	}
+
+	// Check maximum duration if configured
+	if a.requestConfig.ExcludeVideosOver > 0 && totalSeconds > a.requestConfig.ExcludeVideosOver {
+		return false
+	}
+
+	return true
 }

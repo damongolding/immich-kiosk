@@ -139,6 +139,11 @@
     "show_videos": {
       "type": "boolean"
     },
+    "exclude_videos_over": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Exclude videos over X seconds"
+    },
     "live_photos": {
       "type": "boolean"
     },
@@ -200,10 +205,12 @@
       "type": "string"
     },
     "fade_transition_duration": {
-      "type": "integer"
+      "type": "number",
+      "minimum": 0
     },
     "cross_fade_transition_duration": {
-      "type": "integer"
+      "type": "number",
+      "minimum": 0
     },
     "show_clear_cache_button": {
       "type": "boolean"

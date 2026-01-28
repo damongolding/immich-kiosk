@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v5"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
@@ -33,11 +34,23 @@ func Sleep(baseConfig *config.Config) echo.HandlerFunc {
 			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
+			"clock_source", requestConfig.ClockSource,
+			"client_time", requestConfig.ClientData.ClientTime,
 			"Sleep start", requestConfig.SleepStart,
 			"Sleep end", requestConfig.SleepEnd,
 		)
 
-		sleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, time.Now())
+		now := time.Now()
+		if requestConfig.ClockSource == kiosk.Client {
+			clientTime, timeParseErr := time.Parse(time.RFC3339, requestConfig.ClientData.ClientTime)
+			if timeParseErr != nil {
+				log.Error("Failed to parse client time", timeParseErr)
+			} else {
+				now = clientTime
+			}
+		}
+
+		sleepTime, _ := utils.IsSleepTime(requestConfig.SleepStart, requestConfig.SleepEnd, now)
 
 		runningInImmichFrame := c.Request().Header.Get("X-Requested-With") == "com.immichframe.immichframe"
 
