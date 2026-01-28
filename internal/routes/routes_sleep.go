@@ -42,10 +42,11 @@ func Sleep(baseConfig *config.Config) echo.HandlerFunc {
 
 		now := time.Now()
 		if requestConfig.ClockSource == kiosk.Client {
-			var timeParseErr error
-			now, timeParseErr = time.Parse(time.RFC3339, requestConfig.ClientData.ClientTime)
+			clientTime, timeParseErr := time.Parse(time.RFC3339, requestConfig.ClientData.ClientTime)
 			if timeParseErr != nil {
 				log.Error("Failed to parse client time", timeParseErr)
+			} else {
+				now = clientTime
 			}
 		}
 
