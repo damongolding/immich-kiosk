@@ -8,11 +8,11 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/templates/views"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func About(baseConfig *config.Config) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {

@@ -55,6 +55,9 @@ const (
 	ThemeSolid  string = "solid"
 	ThemeBubble string = "bubble"
 	ThemeBlur   string = "blur"
+
+	Client string = "client"
+	Server string = "server"
 )
 
 var DebugID = lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(lipgloss.Color("#000000")).Background(lipgloss.Color("#1ed2bb")).Render("KIOSK")

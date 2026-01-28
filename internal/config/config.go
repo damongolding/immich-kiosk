@@ -39,7 +39,7 @@ import (
 	"github.com/spf13/viper"
 	"go.yaml.in/yaml/v3"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 const (
@@ -183,6 +183,8 @@ type ClientData struct {
 	// FullyAndroidVersion stores the Android version for Fully Kiosk Browser
 	FullyAndroidVersion string `json:"fully_android_version" query:"fully_android_version" form:"fully_android_version"`
 
+	// ClientTime represents the client's current time
+	ClientTime string `json:"client_time" query:"client_time" form:"client_time"`
 	// Width represents the client's viewport width in pixels
 	Width int `json:"client_width" query:"client_width" form:"client_width"`
 	// Height represents the client's viewport height in pixels
@@ -252,7 +254,7 @@ type Config struct {
 	//  DateFormat format for date
 	DateFormat string `json:"dateFormat" yaml:"date_format" mapstructure:"date_format" query:"date_format" form:"date_format" default:"DD/MM/YYYY"`
 	// ClockSource source of clock time
-	ClockSource string `json:"clockSource" yaml:"clock_source" mapstructure:"clock_source" query:"clock_source" form:"clock_source" default:"client"`
+	ClockSource string `json:"clockSource" yaml:"clock_source" mapstructure:"clock_source" query:"clock_source" form:"clock_source" default:"client" lowercase:"true"`
 
 	// Duration in seconds to display assets
 	Duration int `json:"duration" yaml:"duration" mapstructure:"duration" query:"duration" form:"duration" default:"60"`
@@ -618,7 +620,7 @@ func getHistory(queries url.Values) []string {
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
-func (c *Config) ConfigWithOverrides(queries url.Values, e echo.Context) error {
+func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error {
 
 	if c.Kiosk.DisableURLQueries {
 		c.History = getHistory(queries)

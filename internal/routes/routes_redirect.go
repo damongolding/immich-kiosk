@@ -12,7 +12,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // Redirect returns an Echo handler that processes redirect requests based on a configured map of redirect paths.
@@ -20,7 +20,7 @@ import (
 // If the redirect name is not found, it redirects to the root path. If the maximum number of redirects is exceeded, it returns HTTP 429.
 func Redirect(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 
 		if baseConfig.Kiosk.DisableURLQueries {
 			log.Warn("URL query overrides disabled, redirecting to root")

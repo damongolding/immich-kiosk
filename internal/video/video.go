@@ -85,8 +85,8 @@ func (v *Manager) VideoCleanup(ctx context.Context) {
 	}
 }
 
-// Delete removes the video temp directory and all its contents
-func Delete() {
+// DeleteTmpDir removes the video temp directory and all its contents
+func DeleteTmpDir() {
 	log.Debug("Remove custom temp video directory")
 	err := os.RemoveAll(customTempVideoDir)
 	if err != nil {
