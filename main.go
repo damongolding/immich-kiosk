@@ -271,7 +271,7 @@ func main() {
 
 	startErr := sc.Start(c.Context(), e)
 	if startErr != nil {
-		log.Error("Failed to Kiosk server", "error", startErr)
+		log.Error("Failed to start Kiosk server", "error", startErr)
 	}
 
 	// Shutting down, clean up
