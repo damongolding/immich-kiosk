@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-templ LivePhoto(videoID, videoOrientation, password string) {
+templ LivePhoto(videoID, videoMimeType, videoOrientation, password string) {
 	<video
 		data-live-photo
 		data-group={ fmt.Sprintf("live-photo-%s", videoID) }
@@ -22,6 +22,9 @@ templ LivePhoto(videoID, videoOrientation, password string) {
 			} else {
 				src={ fmt.Sprintf("/video/%s", videoID) }
 			}
+			if videoMimeType != "" {
+				type={ videoMimeType }
+			}
 		/>
 	</video>
 	<video
@@ -34,12 +37,16 @@ templ LivePhoto(videoID, videoOrientation, password string) {
 		playsinline
 		webkit-playsinline
 		x-webkit-airplay="allow"
+		hx-on::load="this.play()"
 	>
 		<source
 			if password != "" {
 				src={ fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password)) }
 			} else {
 				src={ fmt.Sprintf("/video/%s", videoID) }
+			}
+			if videoMimeType != "" {
+				type={ videoMimeType }
 			}
 		/>
 	</video>

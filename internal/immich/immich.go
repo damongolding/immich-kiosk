@@ -168,7 +168,6 @@ type Asset struct {
 
 	ctx context.Context `json:"-"`
 
-	// Data added and used by Kiosk
 	mu               *sync.Mutex
 	Owner            Owner     `json:"owner"`
 	ID               string    `json:"id"`
@@ -180,7 +179,8 @@ type Asset struct {
 	OriginalPath     string    `json:"-"` // `json:"originalPath"`
 	OriginalFileName string    `json:"originalFileName"`
 	OriginalMimeType string    `json:"originalMimeType"`
-	Thumbhash        string    `json:"-"` // `json:"thumbhash"`
+	ServedMimeType   string    `json:"servedMimeType"` // mime type served from the Immich server
+	Thumbhash        string    `json:"-"`              // `json:"thumbhash"`
 	Duration         string    `json:"duration"`
 	LivePhotoVideoID string    `json:"livePhotoVideoId"`
 	Checksum         string    `json:"checksum"`
