@@ -283,7 +283,7 @@ class PollingController {
         document.body.classList.remove("polling-paused");
         hideAssetOverlay();
 
-        if (!this.video?.paused) {
+        if (this.video?.paused) {
             this.video.play().catch((error) => {
                 console.error("Video playback error:", error);
                 if (this.playTimeout) {

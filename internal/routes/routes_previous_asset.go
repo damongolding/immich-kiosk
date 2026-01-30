@@ -10,7 +10,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/dustin/go-humanize"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -44,21 +44,21 @@ import (
 //
 // Triggers webhook on successful render.
 func PreviousHistoryAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		return historyAsset(baseConfig, com, c, false)
 	}
 }
 
 // NextHistoryAsset handles requests to show the next asset in the navigation history.
 // It delegates to historyAsset with useNextImage=true to handle displaying the next asset.
-func NextHistoryAsset(baseConfig *config.Config, com *common.Common, c echo.Context) error {
+func NextHistoryAsset(baseConfig *config.Config, com *common.Common, c *echo.Context) error {
 	return historyAsset(baseConfig, com, c, true)
 }
 
 // historyAsset processes and displays either the previous or next asset(s) from the navigation history, handling both online and offline modes.
 // It retrieves the relevant history entry, fetches asset metadata and image previews concurrently, and prepares view data for rendering. If offline mode is enabled, it loads cached asset data instead. The function triggers a webhook event corresponding to the navigation direction and renders either an image or video component based on the asset type.
 // Returns an error if asset retrieval, image processing, or view rendering fails.
-func historyAsset(baseConfig *config.Config, com *common.Common, c echo.Context, useNextImage bool) error {
+func historyAsset(baseConfig *config.Config, com *common.Common, c *echo.Context, useNextImage bool) error {
 	requestData, err := InitializeRequestData(c, baseConfig)
 	if err != nil {
 		return err
@@ -305,7 +305,7 @@ func findHistoryEntry(history []string, useNextImage bool) (string, int) {
 //
 // Returns:
 // - error if loading or rendering cached data fails
-func historyAssetOffline(c echo.Context, requestData *common.RouteRequestData, wantedAssets []string, requestConfig config.Config, com *common.Common, webhookEvent webhooks.WebhookEvent) error {
+func historyAssetOffline(c *echo.Context, requestData *common.RouteRequestData, wantedAssets []string, requestConfig config.Config, com *common.Common, webhookEvent webhooks.WebhookEvent) error {
 	replacer := strings.NewReplacer(
 		kiosk.HistoryIndicator, "",
 		":", "",

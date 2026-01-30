@@ -1,3 +1,4 @@
+import { formatRFC3339 } from "date-fns/formatRFC3339";
 import DOMPurify from "dompurify";
 import htmx from "htmx.org";
 import type { TimeFormat } from "./clock";
@@ -503,6 +504,7 @@ function checkHistoryExists(e: HTMXEvent): void {
  * - client_height: Height of the browser viewport in pixels
  */
 type BrowserData = {
+    client_time: string;
     client_width: number;
     client_height: number;
     fully_version?: string;
@@ -521,6 +523,7 @@ type BrowserData = {
  */
 function clientData(): BrowserData {
     const data: BrowserData = {
+        client_time: formatRFC3339(new Date()),
         client_width: fullyKiosk.getDisplayDimensions().width,
         client_height: fullyKiosk.getDisplayDimensions().height,
     };

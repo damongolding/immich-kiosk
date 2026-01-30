@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -20,7 +20,7 @@ import (
 
 // Home returns an HTTP handler for the home endpoint, initializing request data, applying custom CSS if available, and rendering the home view with device identification and configuration context.
 func Home(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 
 		c.SetCookie(&http.Cookie{
 			Name:   redirectCountHeader,
@@ -77,7 +77,7 @@ func Home(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 // It uses the "kiosk-device-id" header if present, otherwise falls back to a combination of
 // the client's IP address and User-Agent. The identifier also incorporates normalized query
 // parameters. The resulting string is hashed using SHA-256 and returned as a hex string.
-func generateDeviceID(c echo.Context) string {
+func generateDeviceID(c *echo.Context) string {
 	queryParams := c.QueryParams()
 	var parts []string
 	for key, values := range queryParams {

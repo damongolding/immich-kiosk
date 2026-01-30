@@ -16,7 +16,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 type Common struct {
@@ -120,7 +120,7 @@ type ContextCopy struct {
 // CopyContext creates a copy of essential context data from an echo.Context
 // This allows preserving context information without maintaining a reference to the original context
 // Returns a ContextCopy containing the URL and header information
-func CopyContext(c echo.Context) ContextCopy {
+func CopyContext(c *echo.Context) ContextCopy {
 
 	ctxCopy := ContextCopy{
 		URL:            *c.Request().URL,

@@ -49,6 +49,11 @@ templ Video(viewData common.ViewData, secret string) {
 					} else {
 						src={ fmt.Sprintf("/video/%s", video.ImmichAsset.ID) }
 					}
+					if video.ImmichAsset.ServedMimeType != "" {
+						type={ video.ImmichAsset.ServedMimeType }
+					} else {
+						data-type="empty"
+					}
 				/>
 			</video>
 		</div>

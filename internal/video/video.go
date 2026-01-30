@@ -85,8 +85,8 @@ func (v *Manager) VideoCleanup(ctx context.Context) {
 	}
 }
 
-// Delete removes the video temp directory and all its contents
-func Delete() {
+// DeleteTmpDir removes the video temp directory and all its contents
+func DeleteTmpDir() {
 	log.Debug("Remove custom temp video directory")
 	err := os.RemoveAll(customTempVideoDir)
 	if err != nil {
@@ -236,6 +236,7 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 
 	ext := filepath.Ext(immichAsset.OriginalFileName)
 	if strings.HasPrefix(contentType, "video/") {
+		immichAsset.ServedMimeType = contentType
 		mediaType := strings.Split(contentType, ";")[0]
 		parts := strings.Split(mediaType, "/")
 		if len(parts) == 2 && parts[1] != "" {

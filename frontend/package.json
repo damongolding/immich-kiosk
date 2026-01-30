@@ -19,7 +19,7 @@
     "node": "22.17.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.11",
+    "@biomejs/biome": "2.3.13",
     "autoprefixer": "^10.4.23",
     "choices.js": "^11.1.0",
     "date-fns": "^4.1.0",
@@ -38,5 +38,5 @@
     "not op_mini all",
     "not IE 11"
   ],
-  "packageManager": "pnpm@10.27.0"
+  "packageManager": "pnpm@10.28.2"
 }
