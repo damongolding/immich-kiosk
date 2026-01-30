@@ -14,7 +14,7 @@ require (
 	github.com/google/go-querystring v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/klauspost/compress v1.18.3
-	github.com/labstack/echo/v5 v5.0.0
+	github.com/labstack/echo/v5 v5.0.1
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/nicksnyder/go-i18n/v2 v2.6.1
 	github.com/oapi-codegen/runtime v1.1.2
