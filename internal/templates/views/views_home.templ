@@ -103,6 +103,8 @@ templ Home(viewData common.ViewData, secret string) {
 					"burnInDuration":     viewData.BurnInDuration,
 					"burnInOpacity":      viewData.BurnInOpacity,
 					"httpTimeout":        viewData.Kiosk.HTTPTimeout,
+					"upArrowAction":      viewData.UpArrowAction,
+					"downArrowAction":    viewData.DownArrowAction,
 				})
 				<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			}
