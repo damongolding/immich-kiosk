@@ -45,6 +45,14 @@ interface HTMXEvent extends Event {
     };
 }
 
+enum customKeyboardActions {
+    MUTE = "mute",
+    REDIRECTS = "redirects",
+    PAUSE = "pause",
+    MORE_INFO = "more-info",
+    FULLSCREEN = "fullscreen",
+}
+
 /**
  * Configuration data for managing the kiosk display and behavior
  */
@@ -70,6 +78,8 @@ type KioskData = {
     burnInInterval: number;
     burnInDuration: number;
     httpTimeout: number;
+    upArrowAction: string;
+    downArrowAction: string;
 };
 
 const MAX_FRAMES: number = 2 as const;
@@ -282,6 +292,61 @@ function handleRedirectsKeyPress(): void {
     handleOverlayToggle("redirects-open", toggleRedirectsOverlay);
 }
 
+function keyboardActionPause(e: KeyboardEvent): void {
+    e.preventDefault();
+    togglePolling(true);
+}
+
+function keyboardActionInfo(e: KeyboardEvent): void {
+    if (!kioskData.showMoreInfo) return;
+    if (e.ctrlKey || e.metaKey) return;
+    e.preventDefault();
+    handleInfoKeyPress();
+}
+
+function keyboardActionRedirects(e: KeyboardEvent): void {
+    if (!kioskData.showRedirects) return;
+    if (e.ctrlKey || e.metaKey) return;
+    e.preventDefault();
+    handleRedirectsKeyPress();
+}
+
+function keyboardActionMute(e: KeyboardEvent): void {
+    if (!toggleMuteMenuButton) return;
+    e.preventDefault();
+    toggleMute();
+}
+
+function keyboardActionFullscreen(e: KeyboardEvent): void {
+    e.preventDefault();
+    handleFullscreenClick();
+}
+
+function handleCustomKeyboardAction(
+    e: KeyboardEvent,
+    customKeyboardAction: string,
+): void {
+    switch (customKeyboardAction) {
+        case customKeyboardActions.MUTE:
+            keyboardActionMute(e);
+            break;
+        case customKeyboardActions.REDIRECTS:
+            keyboardActionRedirects(e);
+            break;
+        case customKeyboardActions.PAUSE:
+            keyboardActionPause(e);
+            break;
+        case customKeyboardActions.MORE_INFO:
+            keyboardActionInfo(e);
+            break;
+        case customKeyboardActions.FULLSCREEN:
+            keyboardActionFullscreen(e);
+            break;
+        default:
+            break;
+    }
+}
+
 /**
  * Add event listeners to Kiosk elements
  * @description Sets up all interactive behaviors and event handling:
@@ -367,23 +432,22 @@ function addEventListeners(): void {
                 break;
 
             case "KeyI":
-                if (!kioskData.showMoreInfo) return;
-                if (e.ctrlKey || e.metaKey) return;
-                e.preventDefault();
-                handleInfoKeyPress();
+                keyboardActionInfo(e);
                 break;
 
             case "KeyR":
-                if (!kioskData.showRedirects) return;
-                if (e.ctrlKey || e.metaKey) return;
-                e.preventDefault();
-                handleRedirectsKeyPress();
+                keyboardActionRedirects(e);
                 break;
 
             case "KeyM":
-                if (!toggleMuteMenuButton) return;
-                e.preventDefault();
-                toggleMute();
+                keyboardActionMute(e);
+                break;
+
+            case "ArrowUp":
+                handleCustomKeyboardAction(e, kioskData.upArrowAction);
+                break;
+            case "ArrowDown":
+                handleCustomKeyboardAction(e, kioskData.downArrowAction);
                 break;
         }
     });

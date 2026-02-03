@@ -156,6 +156,16 @@
     "disable_navigation": {
       "type": "boolean"
     },
+    "up_arrow_action": {
+      "type": "string",
+      "enum": ["mute", "redirects", "pause", "more-info", "fullscreen"],
+      "description": "Action to perform when the up arrow is triggered"
+    },
+    "down_arrow_action": {
+      "type": "string",
+      "enum": ["mute", "redirects", "pause", "more-info", "fullscreen"],
+      "description": "Action to perform when the down arrow is triggered"
+    },
     "disable_ui": {
       "type": "boolean"
     },

@@ -335,6 +335,11 @@ type Config struct {
 	// Layout which layout to use
 	Layout string `json:"layout" yaml:"layout" mapstructure:"layout" query:"layout" form:"layout" default:"single" lowercase:"true"`
 
+	// UpArrowAction action to perform when up arrow is pressed
+	UpArrowAction string `json:"upArrowAction" yaml:"up_arrow_action" mapstructure:"up_arrow_action" query:"up_arrow_action" form:"up_arrow_action" default:"" lowercase:"true"`
+	// DownArrowAction action to perform when down arrow is pressed
+	DownArrowAction string `json:"downArrowAction" yaml:"down_arrow_action" mapstructure:"down_arrow_action" query:"down_arrow_action" form:"down_arrow_action" default:"" lowercase:"true"`
+
 	// SleepStart when to start sleep mode
 	SleepStart string `json:"sleepStart" yaml:"sleep_start" mapstructure:"sleep_start" query:"sleep_start" form:"sleep_start" default:""`
 	// SleepEnd when to exit sleep mode
