@@ -12,7 +12,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/video"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"
 )
 

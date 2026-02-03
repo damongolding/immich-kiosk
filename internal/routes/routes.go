@@ -11,7 +11,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/charmbracelet/log"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -63,7 +63,7 @@ func ShouldDrawFacesOnImages() bool {
 // Returns:
 //   - *common.RouteRequestData: Processed request data and configuration
 //   - error: Any errors encountered during initialization
-func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.RouteRequestData, error) {
+func InitializeRequestData(c *echo.Context, baseConfig *config.Config) (*common.RouteRequestData, error) {
 
 	kioskDeviceVersion := c.Request().Header.Get("kiosk-version")
 	deviceID := c.Request().Header.Get("kiosk-device-id")
@@ -83,7 +83,7 @@ func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.R
 	}
 
 	queryParams := c.QueryParams()
-	formParam, err := c.FormParams()
+	formParam, err := c.FormValues()
 	if err != nil {
 		log.Error("initialise request data", "error", err, "path", c.Request().URL.Path)
 		return nil, echo.NewHTTPError(http.StatusInternalServerError, "Failed to process request")
@@ -105,7 +105,7 @@ func InitializeRequestData(c echo.Context, baseConfig *config.Config) (*common.R
 	}, nil
 }
 
-func RenderError(c echo.Context, err error, message string, refresh int) error {
+func RenderError(c *echo.Context, err error, message string, refresh int) error {
 	log.Error(message, "err", err)
 
 	retry := refresh > 5
@@ -117,11 +117,11 @@ func RenderError(c echo.Context, err error, message string, refresh int) error {
 	}))
 }
 
-func RenderUnauthorized(c echo.Context) error {
+func RenderUnauthorized(c *echo.Context) error {
 	return Render(c, http.StatusUnauthorized, partials.Unauthorized())
 }
 
-func RenderMessage(c echo.Context, title, message string) error {
+func RenderMessage(c *echo.Context, title, message string) error {
 	return Render(c, http.StatusOK, partials.Message(partials.MessageData{
 		Title:   title,
 		Message: message,
@@ -129,13 +129,13 @@ func RenderMessage(c echo.Context, title, message string) error {
 }
 
 // This custom Render replaces Echo's echo.Context.Render() with templ's templ.Component.Render().
-func Render(ctx echo.Context, statusCode int, t templ.Component) error {
+func Render(ctx *echo.Context, statusCode int, t templ.Component) error {
 	// Set content type manually
 	ctx.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTMLCharsetUTF8)
 	ctx.Response().WriteHeader(statusCode)
 
 	// Stream the rendered HTML directly
-	if err := t.Render(ctx.Request().Context(), ctx.Response().Writer); err != nil {
+	if err := t.Render(ctx.Request().Context(), ctx.Response()); err != nil {
 		log.Warn("rendering view", "err", err)
 		return err
 	}
