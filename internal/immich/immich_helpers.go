@@ -381,7 +381,11 @@ func (a *Asset) ImagePreview() ([]byte, string, error) {
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     path.Join("api", "assets", a.ID, assetSize),
-		RawQuery: "size=preview&edited=true",
+		RawQuery: "size=preview",
+	}
+
+	if !a.requestConfig.UseOriginalImage {
+		apiURL.RawQuery += "&edited=true"
 	}
 
 	return a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
