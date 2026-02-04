@@ -384,6 +384,10 @@ func (a *Asset) ImagePreview() ([]byte, string, error) {
 		RawQuery: "size=preview",
 	}
 
+	if a.IsEdited {
+		apiURL.RawQuery += "&edited=true"
+	}
+
 	return a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 }
 
