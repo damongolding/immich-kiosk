@@ -198,6 +198,7 @@ type Asset struct {
 	ExifInfo        ExifInfo `json:"exifInfo"`
 
 	requestConfig config.Config `json:"-"`
+	IsEdited      bool          `json:"isEdited"`
 	IsFavorite    bool          `json:"isFavorite"`
 	IsArchived    bool          `json:"isArchived"`
 	IsTrashed     bool          `json:"isTrashed"`
