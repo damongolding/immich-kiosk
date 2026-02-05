@@ -105,18 +105,19 @@ func AssetLocation(info immich.ExifInfo, hideCountries []string) string {
 	var parts []string
 
 	if info.City != "" {
-		parts = append(parts, info.City)
+		parts = append(parts, fmt.Sprintf("<span class=\"location-city\">%s</span>", info.City))
 	}
 
 	if info.State != "" {
-		parts = append(parts, info.State)
+		parts = append(parts, fmt.Sprintf("<span class=\"location-state\">%s</span>", info.State))
 	}
 
 	if info.Country != "" && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
+		country := fmt.Sprintf("<span class=\"location-country\">%s</span>", info.Country)
 		if len(parts) > 0 {
-			parts = append(parts, "<br class=\"responsive-break\"/>"+info.Country)
+			parts = append(parts, "<br class=\"responsive-break\"/>"+country)
 		} else {
-			parts = append(parts, info.Country)
+			parts = append(parts, country)
 		}
 	}
 
@@ -124,7 +125,7 @@ func AssetLocation(info immich.ExifInfo, hideCountries []string) string {
 		return ""
 	}
 
-	return strings.Join(parts, ", ")
+	return strings.Join(parts, "")
 }
 
 // AssetExif generates a formatted string containing camera EXIF metadata.

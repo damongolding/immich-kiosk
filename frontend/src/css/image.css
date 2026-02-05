@@ -212,3 +212,7 @@
         order: 0 !important;
     }
 }
+
+.asset--metadata--location span:not(:last-child):not(.responsive-break)::after {
+    content: ", ";
+}
