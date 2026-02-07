@@ -245,9 +245,15 @@ templ originalAssetData(img immich.Asset) {
 //   - imageIndex: The index of the current image in the view data
 //   - hideCountries: List of country names to hide from location display
 templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCity, hideState, hideCountry bool, hideCountries []string) {
-	{{ t := i18n.T() }}
-	{{ imageDatetime := AssetDateTime(viewData, imageIndex, true) }}
-	{{ location := AssetLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo, hideCity, hideState, hideCountry, hideCountries) }}
+	{{
+		t := i18n.T()
+		imageDatetime := AssetDateTime(viewData, imageIndex, true)
+		location := AssetLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo,
+			hideCity,
+			hideState,
+			hideCountry,
+			hideCountries)
+	}}
 	<div>
 		<div>
 			<h3>
