@@ -401,13 +401,15 @@ type Config struct {
 	ShowImageCamera bool `json:"showImageCamera" yaml:"show_image_camera" mapstructure:"show_image_camera" query:"show_image_camera" form:"show_image_camera" default:"false"`
 	// ShowImageExif display image exif data (f number, iso, shutter speed, Focal length)
 	ShowImageExif bool `json:"showImageExif" yaml:"show_image_exif" mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
-	// ShowImageLocation display image location data
-	ShowImageLocation bool `json:"showImageLocation" yaml:"show_image_location" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
 	// ShowImageQR display image QR code
 	ShowImageQR bool `json:"showImageQR" yaml:"show_image_qr" mapstructure:"show_image_qr" query:"show_image_qr" form:"show_image_qr" default:"false"`
-
-	HideCity    bool `json:"hideCity" yaml:"hide_city" mapstructure:"hide_city" query:"hide_city" form:"hide_city" default:"false"`
-	HideState   bool `json:"hideState" yaml:"hide_state" mapstructure:"hide_state" query:"hide_state" form:"hide_state" default:"false"`
+	// ShowImageLocation display image location data
+	ShowImageLocation bool `json:"showImageLocation" yaml:"show_image_location" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
+	// HideCity hide city from location UI
+	HideCity bool `json:"hideCity" yaml:"hide_city" mapstructure:"hide_city" query:"hide_city" form:"hide_city" default:"false"`
+	// HideState hide city from location UI
+	HideState bool `json:"hideState" yaml:"hide_state" mapstructure:"hide_state" query:"hide_state" form:"hide_state" default:"false"`
+	// HideCountry hide city from location UI
 	HideCountry bool `json:"hideCountry" yaml:"hide_country" mapstructure:"hide_country" query:"hide_country" form:"hide_country" default:"false"`
 	// HideCountries hide country names in location information
 	HideCountries []string `json:"hideCountries" yaml:"hide_countries" mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
