@@ -45,6 +45,7 @@
             gopls
             gotools
             go-task
+            golangci-lint
             nodePackages.pnpm
             nodejs
           ];
