@@ -407,9 +407,9 @@ type Config struct {
 	ShowImageLocation bool `json:"showImageLocation" yaml:"show_image_location" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
 	// HideCity hide city from location UI
 	HideCity bool `json:"hideCity" yaml:"hide_city" mapstructure:"hide_city" query:"hide_city" form:"hide_city" default:"false"`
-	// HideState hide city from location UI
+	// HideState hide state from location UI
 	HideState bool `json:"hideState" yaml:"hide_state" mapstructure:"hide_state" query:"hide_state" form:"hide_state" default:"false"`
-	// HideCountry hide city from location UI
+	// HideCountry hide country from location UI
 	HideCountry bool `json:"hideCountry" yaml:"hide_country" mapstructure:"hide_country" query:"hide_country" form:"hide_country" default:"false"`
 	// HideCountries hide country names in location information
 	HideCountries []string `json:"hideCountries" yaml:"hide_countries" mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
