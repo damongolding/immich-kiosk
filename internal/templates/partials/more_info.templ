@@ -48,7 +48,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 							)
 						</div>
 					}
-					@originalImageTimeLocation(viewData, i, viewData.HideCountries)
+					@originalImageTimeLocation(viewData, i, viewData.HideCity, viewData.HideState, viewData.HideCountry, viewData.HideCountries)
 					@cameraData(img.ImmichAsset.ExifInfo)
 					@originalAssetData(img.ImmichAsset)
 					@people(img.ImmichAsset.People, viewData.ShowAgeYearUnit, viewData.AgeSwitchToYearsAfter, img.ImmichAsset.LocalDateTime)
@@ -244,10 +244,16 @@ templ originalAssetData(img immich.Asset) {
 //   - viewData: The view data containing image information and display options
 //   - imageIndex: The index of the current image in the view data
 //   - hideCountries: List of country names to hide from location display
-templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCountries []string) {
-	{{ t := i18n.T() }}
-	{{ imageDatetime := AssetDateTime(viewData, imageIndex, true) }}
-	{{ location := AssetLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo, hideCountries) }}
+templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCity, hideState, hideCountry bool, hideCountries []string) {
+	{{
+		t := i18n.T()
+		imageDatetime := AssetDateTime(viewData, imageIndex, true)
+		location := AssetLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo,
+			hideCity,
+			hideState,
+			hideCountry,
+			hideCountries)
+	}}
 	<div>
 		<div>
 			<h3>
