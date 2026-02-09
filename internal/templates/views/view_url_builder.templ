@@ -173,6 +173,9 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						@URLBuilderRadio("Show image camera", "show_image_camera", "Show camera model for the image.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show image EXIF", "show_image_exif", "Show EXIF metadata for the image.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show image location", "show_image_location", "Show the location where the image was taken.", "true", "true", "false", "false")
+						@URLBuilderRadio("Hide location - city", "hide_city", "Hide the city name in the location.", "true", "true", "false", "false")
+						@URLBuilderRadio("Hide location - state", "hide_state", "Hide the state name in the location.", "true", "true", "false", "false")
+						@URLBuilderRadio("Hide location - country", "hide_country", "Hide the country name in the location.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show image QR", "show_image_qr", "Display a QR code linking to the original image (in Immich).", "true", "true", "false", "false")
 						@URLBuilderRadio("Show image ID", "show_image_id", "Display the Immich ID of the image.", "true", "true", "false", "false")
 						// More information

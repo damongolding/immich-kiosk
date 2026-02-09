@@ -202,6 +202,9 @@ type URLBuilderRequest struct {
 	ShowImageCamera      *bool   `form:"show_image_camera" url:"show_image_camera,omitempty"`
 	ShowImageEXIF        *bool   `form:"show_image_exif" url:"show_image_exif,omitempty"`
 	ShowImageLocation    *bool   `form:"show_image_location" url:"show_image_location,omitempty"`
+	HideCity             *bool   `form:"hide_city" url:"hide_city,omitempty"`
+	HideState            *bool   `form:"hide_state" url:"hide_state,omitempty"`
+	HideCountry          *bool   `form:"hide_country" url:"hide_country,omitempty"`
 	ShowImageQR          *bool   `form:"show_image_qr" url:"show_image_qr,omitempty"`
 	ShowImageID          *bool   `form:"show_image_id" url:"show_image_id,omitempty"`
 
