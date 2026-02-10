@@ -4,12 +4,12 @@
   "description": "",
   "main": "src/kiosk.ts",
   "scripts": {
-    "lint": "pnpm exec biome lint --write",
-    "js": "pnpm exec esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --minify --target=es6 --outfile=./public/assets/js/kiosk.js",
-    "css": "pnpm exec esbuild --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css && pnpm css:postcss",
+    "lint": "bunx --bun biome lint --write",
+    "js": "bunx --bun esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --minify --target=es6 --outfile=./public/assets/js/kiosk.js",
+    "css": "bunx --bun esbuild --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css && bun run css:postcss",
     "css:postcss": "postcss ./public/assets/css/kiosk.css --no-map -o ./public/assets/css/kiosk.css",
-    "build": "pnpm test && pnpm css && pnpm js && pnpm url-builder",
-    "url-builder": "pnpm exec esbuild 'src/ts/url-builder.ts' --format=iife --global-name=urlBuilder --bundle --minify --target=es6 --outfile=./public/assets/js/url-builder.js",
+    "build": "bun run test && bun run css && bun run js && bun run url-builder",
+    "url-builder": "bunx --bun esbuild 'src/ts/url-builder.ts' --format=iife --global-name=urlBuilder --bundle --minify --target=es6 --outfile=./public/assets/js/url-builder.js",
     "test": "tsc --noEmit"
   },
   "keywords": [],
@@ -24,7 +24,7 @@
     "choices.js": "^11.1.0",
     "date-fns": "^4.1.0",
     "dompurify": "^3.3.1",
-    "esbuild": "^0.27.2",
+    "esbuild": "^0.27.3",
     "htmx.org": "^2.0.8",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
@@ -37,6 +37,5 @@
     "not android 136",
     "not op_mini all",
     "not IE 11"
-  ],
-  "packageManager": "pnpm@10.28.2"
+  ]
 }

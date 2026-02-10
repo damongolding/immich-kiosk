@@ -23,7 +23,6 @@
             vendorHash = pkgs.lib.hashFile "sha256-";
 
             nativeBuildInputs = with pkgs; [
-              nodePackages.pnpm
               go-task
             ];
 
@@ -45,8 +44,7 @@
             gopls
             gotools
             go-task
-            nodePackages.pnpm
-            nodejs
+            bun
           ];
 
           shellHook = ''

@@ -6,46 +6,46 @@ tasks:
     dir: ./frontend
     desc: Run frontend linting
     cmds:
-      - pnpm lint
+      - bun run lint
 
   frontend-install:
     dir: ./frontend
     desc: Install frontend dependencies
     cmds:
-      - pnpm i
+      - bun run i
 
   frontend-build:
     dir: ./frontend
     desc: Build frontend assets
     cmds:
-      - pnpm build
+      - bun run build
 
   frontend-test:
     dir: ./frontend
     desc: Run frontend tests
     cmds:
-      - pnpm test
+      - bun run test
 
   frontend-css:
     dir: ./frontend
     desc: Compile and minify CSS assets
     cmds:
-      - pnpm css
+      - bun run css
 
   frontend-js:
     dir: ./frontend
     desc: Build JavaScript assets
     cmds:
-      - pnpm js
+      - bun run js
 
   frontend-url-builder:
     dir: ./frontend
     desc: Build URL builder assets
     cmds:
-      - pnpm url-builder
+      - bun run url-builder
 
   frontend-outdated:
     dir: ./frontend
     desc: Check for outdated frontend dependencies
     cmds:
-      - pnpm outdated || true
+      - bun outdated || true

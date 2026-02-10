@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.32.1
+  VERSION: 0.32.2
 
 includes:
   frontend:
@@ -45,7 +45,7 @@ tasks:
     desc: Run linters
     cmds:
       - golangci-lint run
-      - cd frontend && pnpm lint
+      - cd frontend && bun run lint
 
   # Build tasks
   build:
