@@ -196,6 +196,15 @@ type ClientData struct {
 	FullyScreenBrightness int `json:"fully_screen_brightness" query:"fully_screen_brightness" form:"fully_screen_brightness"`
 }
 
+type ImageLocation struct {
+	// HideCity hide city from location UI
+	HideCity bool `json:"hideCity" yaml:"hide_city" mapstructure:"hide_city" query:"image_location_hide_city" form:"image_location_hide_city" default:"false"`
+	// HideState hide state from location UI
+	HideState bool `json:"hideState" yaml:"hide_state" mapstructure:"hide_state" query:"image_location_hide_state" form:"image_location_hide_state" default:"false"`
+	// HideCountry hide country from location UI
+	HideCountry bool `json:"hideCountry" yaml:"hide_country" mapstructure:"hide_country" query:"image_location_hide_country" form:"image_location_hide_country" default:"false"`
+}
+
 // Config represents the main configuration structure for the Immich Kiosk application.
 // It contains all the settings that control the behavior and appearance of the kiosk,
 // including connection details, display options, image settings, and various feature toggles.
@@ -404,13 +413,8 @@ type Config struct {
 	// ShowImageQR display image QR code
 	ShowImageQR bool `json:"showImageQR" yaml:"show_image_qr" mapstructure:"show_image_qr" query:"show_image_qr" form:"show_image_qr" default:"false"`
 	// ShowImageLocation display image location data
-	ShowImageLocation bool `json:"showImageLocation" yaml:"show_image_location" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
-	// HideCity hide city from location UI
-	HideCity bool `json:"hideCity" yaml:"hide_city" mapstructure:"hide_city" query:"hide_city" form:"hide_city" default:"false"`
-	// HideState hide state from location UI
-	HideState bool `json:"hideState" yaml:"hide_state" mapstructure:"hide_state" query:"hide_state" form:"hide_state" default:"false"`
-	// HideCountry hide country from location UI
-	HideCountry bool `json:"hideCountry" yaml:"hide_country" mapstructure:"hide_country" query:"hide_country" form:"hide_country" default:"false"`
+	ShowImageLocation bool          `json:"showImageLocation" yaml:"show_image_location" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
+	ImageLocation     ImageLocation `json:"imageLocation" yaml:"image_location" mapstructure:"image_location" default:""`
 	// HideCountries hide country names in location information
 	HideCountries []string `json:"hideCountries" yaml:"hide_countries" mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
 	// ShowImageID display image ID
@@ -488,6 +492,9 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		configKey string
 		envVar    string
 	}{
+		{"image_location.hide_city", "IMAGE_LOCATION_HIDE_CITY"},
+		{"image_location.hide_state", "IMAGE_LOCATION_HIDE_STATE"},
+		{"image_location.hide_country", "IMAGE_LOCATION_HIDE_COUNTRY"},
 		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.behind_proxy", "KIOSK_BEHIND_PROXY"},
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},

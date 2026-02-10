@@ -190,23 +190,23 @@ type URLBuilderRequest struct {
 	UseOriginalImage  *bool   `form:"use_original_image" url:"use_original_image,omitempty"`
 
 	// Metadata
-	ShowOwner            *bool   `form:"show_owner" url:"show_owner,omitempty"`
-	ShowAlbumName        *bool   `form:"show_album_name" url:"show_album_name,omitempty"`
-	ShowPersonName       *bool   `form:"show_person_name" url:"show_person_name,omitempty"`
-	ShowPersonAge        *bool   `form:"show_person_age" url:"show_person_age,omitempty"`
-	ShowImageTime        *bool   `form:"show_image_time" url:"show_image_time,omitempty"`
-	ImageTimeFormat      *string `form:"image_time_format" url:"image_time_format,omitempty"`
-	ShowImageDate        *bool   `form:"show_image_date" url:"show_image_date,omitempty"`
-	ImageDateFormat      *string `form:"image_date_format" url:"image_date_format,omitempty"`
-	ShowImageDescription *bool   `form:"show_image_description" url:"show_image_description,omitempty"`
-	ShowImageCamera      *bool   `form:"show_image_camera" url:"show_image_camera,omitempty"`
-	ShowImageEXIF        *bool   `form:"show_image_exif" url:"show_image_exif,omitempty"`
-	ShowImageLocation    *bool   `form:"show_image_location" url:"show_image_location,omitempty"`
-	HideCity             *bool   `form:"hide_city" url:"hide_city,omitempty"`
-	HideState            *bool   `form:"hide_state" url:"hide_state,omitempty"`
-	HideCountry          *bool   `form:"hide_country" url:"hide_country,omitempty"`
-	ShowImageQR          *bool   `form:"show_image_qr" url:"show_image_qr,omitempty"`
-	ShowImageID          *bool   `form:"show_image_id" url:"show_image_id,omitempty"`
+	ShowOwner                *bool   `form:"show_owner" url:"show_owner,omitempty"`
+	ShowAlbumName            *bool   `form:"show_album_name" url:"show_album_name,omitempty"`
+	ShowPersonName           *bool   `form:"show_person_name" url:"show_person_name,omitempty"`
+	ShowPersonAge            *bool   `form:"show_person_age" url:"show_person_age,omitempty"`
+	ShowImageTime            *bool   `form:"show_image_time" url:"show_image_time,omitempty"`
+	ImageTimeFormat          *string `form:"image_time_format" url:"image_time_format,omitempty"`
+	ShowImageDate            *bool   `form:"show_image_date" url:"show_image_date,omitempty"`
+	ImageDateFormat          *string `form:"image_date_format" url:"image_date_format,omitempty"`
+	ShowImageDescription     *bool   `form:"show_image_description" url:"show_image_description,omitempty"`
+	ShowImageCamera          *bool   `form:"show_image_camera" url:"show_image_camera,omitempty"`
+	ShowImageEXIF            *bool   `form:"show_image_exif" url:"show_image_exif,omitempty"`
+	ShowImageLocation        *bool   `form:"show_image_location" url:"show_image_location,omitempty"`
+	ImageLocationHideCity    *bool   `form:"image_location_hide_city" url:"image_location_hide_city,omitempty"`
+	ImageLocationHideState   *bool   `form:"image_location_hide_state" url:"image_location_hide_state,omitempty"`
+	ImageLocationHideCountry *bool   `form:"image_location_hide_country" url:"image_location_hide_country,omitempty"`
+	ShowImageQR              *bool   `form:"show_image_qr" url:"show_image_qr,omitempty"`
+	ShowImageID              *bool   `form:"show_image_id" url:"show_image_id,omitempty"`
 
 	// Show more overlay
 	ShowMoreInfo          *bool    `form:"show_more_info" url:"show_more_info,omitempty"`

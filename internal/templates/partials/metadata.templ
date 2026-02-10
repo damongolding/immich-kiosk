@@ -80,7 +80,7 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 			@exifIcon(AssetExif(viewData.Assets[assetIndex].ImmichAsset.ExifInfo))
 		}
 		if viewData.ShowImageLocation {
-			@locationIcon(AssetLocation(viewData.Assets[assetIndex].ImmichAsset.ExifInfo, viewData.HideCity, viewData.HideState, viewData.HideCountry, viewData.HideCountries))
+			@locationIcon(AssetLocation(viewData.Assets[assetIndex].ImmichAsset.ExifInfo, viewData.ImageLocation, viewData.HideCountries))
 		}
 		if viewData.ShowImageID {
 			@idIcon(viewData.Assets[assetIndex].ImmichAsset.ID)
@@ -101,18 +101,18 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 // Returns:
 //   - string: Comma-separated location with optional line break before country,
 //     or empty string if no location data present
-func AssetLocation(info immich.ExifInfo, hideCity, hideState, hideCountry bool, hideCountries []string) string {
+func AssetLocation(info immich.ExifInfo, l config.ImageLocation, hideCountries []string) string {
 	var parts []string
 
-	if info.City != "" && !hideCity {
+	if info.City != "" && !l.HideCity {
 		parts = append(parts, info.City)
 	}
 
-	if info.State != "" && !hideState {
+	if info.State != "" && !l.HideState {
 		parts = append(parts, info.State)
 	}
 
-	if info.Country != "" && !hideCountry && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
+	if info.Country != "" && !l.HideCountry && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
 		if len(parts) > 0 {
 			parts = append(parts, "<br class=\"responsive-break\"/>"+info.Country)
 		} else {
