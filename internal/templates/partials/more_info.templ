@@ -48,7 +48,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 							)
 						</div>
 					}
-					@originalImageTimeLocation(viewData, i, viewData.HideCity, viewData.HideState, viewData.HideCountry, viewData.HideCountries)
+					@originalImageTimeLocation(viewData, i, false, false, false, []string{})
 					@cameraData(img.ImmichAsset.ExifInfo)
 					@originalAssetData(img.ImmichAsset)
 					@people(img.ImmichAsset.People, viewData.ShowAgeYearUnit, viewData.AgeSwitchToYearsAfter, img.ImmichAsset.LocalDateTime)
