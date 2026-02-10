@@ -12,7 +12,7 @@ tasks:
     dir: ./frontend
     desc: Install frontend dependencies
     cmds:
-      - bun run i
+      - bun install
 
   frontend-build:
     dir: ./frontend
