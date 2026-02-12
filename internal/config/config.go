@@ -144,6 +144,15 @@ type KioskSettings struct {
 	DemoMode bool `json:"-" yaml:"-" mapstructure:"demo_mode" default:"false"`
 }
 
+type WeatherConfig struct {
+	// Locations A list of locations to fetch and display weather data from. Each location
+	Locations []WeatherLocation `json:"locations" yaml:"locations" mapstructure:"locations" default:"[]"`
+	// RotationInterval The interval in seconds to rotate weather locations.
+	RotationInterval int `json:"rotationInterval" yaml:"rotation_interval" mapstructure:"rotation_interval" query:"rotation_interval" form:"rotation_interval" default:"60"`
+	// HasDefault indicates whether any weather location has been set as the default.
+	HasDefault bool `json:"-" yaml:"-" default:"false"`
+}
+
 type WeatherLocation struct {
 	Name      string `yaml:"name" mapstructure:"name" redact:"true"`
 	Lat       string `yaml:"lat" mapstructure:"lat" redact:"true"`
@@ -430,10 +439,7 @@ type Config struct {
 	// HideButtonAction indicates the action to take when the hide button is clicked
 	HideButtonAction []string `json:"hideButtonAction" yaml:"hide_button_action" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
 
-	// WeatherLocations A list of locations to fetch and display weather data from. Each location
-	WeatherLocations []WeatherLocation `json:"weather" yaml:"weather" mapstructure:"weather" default:"[]"`
-	// HasWeatherDefault indicates whether any weather location has been set as the default.
-	HasWeatherDefault bool `json:"-" yaml:"-" default:"false"`
+	Weather WeatherConfig `json:"weather" yaml:"weather" mapstructure:"weather"`
 
 	Iframe []string `json:"iframe" yaml:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:"[]"`
 
@@ -598,6 +604,7 @@ func (c *Config) Load() error {
 	c.checkURLScheme()
 	c.checkHideCountries()
 	c.checkWeatherLocations()
+	c.checkWeatherRotationInterval()
 	c.checkDebuging()
 	c.checkFetchedAssetsSize()
 	c.checkRedirects()

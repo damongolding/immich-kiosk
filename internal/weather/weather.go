@@ -18,16 +18,20 @@ import (
 )
 
 const (
-	MetricSystem   = "metric"
-	ImperialSystem = "imperial"
-	APINameKeyword = "-api"
+	MetricSystem         = "metric"
+	ImperialSystem       = "imperial"
+	APINameKeyword       = "-api"
+	WeatherRotation      = "rotate"
+	WeatherParam         = "weather"
+	WeatherRotationParam = "weather_rotation"
 )
 
 var (
 	weatherDataStore  sync.Map
 	defaultLocationMu sync.RWMutex
 	defaultLocation   string
-	httpTransport     = &http.Transport{
+
+	httpTransport = &http.Transport{
 		Proxy:               http.ProxyFromEnvironment,
 		MaxIdleConns:        100,
 		IdleConnTimeout:     90 * time.Second,
@@ -46,6 +50,45 @@ var (
 		Timeout:   30 * time.Second,
 	}
 )
+
+type LocationRotate struct {
+	mu    sync.RWMutex
+	items []string
+}
+
+func (s *LocationRotate) Append(item string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.items = append(s.items, item)
+}
+
+func (s *LocationRotate) Get(i int) string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	if len(s.items) == 0 || i < 0 {
+		return ""
+	}
+
+	return s.items[i]
+}
+
+func (s *LocationRotate) Next(i int) (int, string) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	if len(s.items) == 0 || i < 0 {
+		return 0, ""
+	}
+
+	n := i + 1
+	if n >= len(s.items) {
+		return 0, s.items[0]
+	}
+	return n, s.items[n]
+}
+
+var LocationRotator = &LocationRotate{}
 
 type Location struct {
 	Name      string
@@ -167,6 +210,7 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 	}
 
 	weatherDataStore.Store(strings.ToLower(w.Name), *w)
+	LocationRotator.Append(w.Name)
 
 	// Run once immediately
 	log.Debug("Getting initial weather for", "name", w.Name)

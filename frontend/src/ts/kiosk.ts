@@ -30,6 +30,7 @@ import {
 } from "./polling";
 import { sleepMode } from "./sleep";
 import { preventSleep } from "./wakelock";
+import { weatherRotationPosition } from "./weather";
 
 ("use strict");
 
@@ -649,4 +650,5 @@ export {
     clientData,
     videoHandler,
     sleepMode,
+    weatherRotationPosition,
 };
