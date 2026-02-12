@@ -65,6 +65,11 @@ func (s *LocationRotate) Append(item string) {
 func (s *LocationRotate) Get(i int) string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	if len(s.items) == 0 {
+		return ""
+	}
+
 	return s.items[i]
 }
 
