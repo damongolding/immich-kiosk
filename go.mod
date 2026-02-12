@@ -1,6 +1,6 @@
 module github.com/damongolding/immich-kiosk
 
-go 1.25.7
+go 1.26.0
 
 require (
 	github.com/EdlinOrg/prominentcolor v1.0.0
