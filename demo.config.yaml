@@ -41,6 +41,7 @@ show_more_info_image_link: true
 show_more_info_qr_code: true
 
 weather:
+  rotation_interval: 10 # in seconds
   locations:
     - name: London
       lat: 51.5285262
@@ -49,6 +50,22 @@ weather:
       unit: metric
       lang: en
       default: true
+
+    - name: New York
+      lat: 40.7858335
+      lon: -73.9883068
+      api: ""
+      unit: imperial
+      lang: en
+      default: false
+
+    - name: Tokyo
+      lat: 35.5020591
+      lon: 138.4505645
+      api: ""
+      unit: imperial
+      lang: en
+      default: false
 
 use_offline_mode: true
 
@@ -65,7 +82,7 @@ kiosk:
 
   redirects:
     - name: curated
-      url: /
+      url: /?weather=rotate
 
     - name: all
       url: /?album=none&use_offline_mode=false
