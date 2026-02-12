@@ -1,7 +1,6 @@
 /* --- weather --- */
 #weather-container {
     position: relative;
-
     opacity: 1;
     transition: opacity 1s ease-out;
     will-change: opacity;
@@ -9,8 +8,6 @@
 
 #weather-container.htmx-swapping {
     opacity: 0;
-    transition: opacity 1s ease-out;
-    will-change: opacity;
 }
 
 .weather {
