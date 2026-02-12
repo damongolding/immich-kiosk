@@ -245,8 +245,10 @@ func TestCheckWeatherLocations(t *testing.T) {
 		{
 			name: "All fields present",
 			config: &Config{
-				WeatherLocations: []WeatherLocation{
-					{Name: "City", Lat: "123", Lon: "456", API: "abc123"},
+				Weather: WeatherConfig{
+					Locations: []WeatherLocation{
+						{Name: "City", Lat: "123", Lon: "456", API: "abc123"},
+					},
 				},
 			},
 			expected: "",
@@ -254,8 +256,10 @@ func TestCheckWeatherLocations(t *testing.T) {
 		{
 			name: "Missing name",
 			config: &Config{
-				WeatherLocations: []WeatherLocation{
-					{Lat: "123", Lon: "456", API: "abc123"},
+				Weather: WeatherConfig{
+					Locations: []WeatherLocation{
+						{Lat: "123", Lon: "456", API: "abc123"},
+					},
 				},
 			},
 			expected: "Weather location is missing required fields: name",
@@ -263,8 +267,10 @@ func TestCheckWeatherLocations(t *testing.T) {
 		{
 			name: "Missing latitude",
 			config: &Config{
-				WeatherLocations: []WeatherLocation{
-					{Name: "City", Lon: "456", API: "abc123"},
+				Weather: WeatherConfig{
+					Locations: []WeatherLocation{
+						{Name: "City", Lon: "456", API: "abc123"},
+					},
 				},
 			},
 			expected: "Weather location is missing required fields: latitude",
@@ -272,8 +278,8 @@ func TestCheckWeatherLocations(t *testing.T) {
 		{
 			name: "Missing longitude",
 			config: &Config{
-				WeatherLocations: []WeatherLocation{
-					{Name: "City", Lat: "123", API: "abc123"},
+				Weather: WeatherConfig{
+					Locations: []WeatherLocation{{Name: "City", Lat: "123", API: "abc123"}},
 				},
 			},
 			expected: "Weather location is missing required fields: longitude",
@@ -281,8 +287,8 @@ func TestCheckWeatherLocations(t *testing.T) {
 		{
 			name: "Missing API key",
 			config: &Config{
-				WeatherLocations: []WeatherLocation{
-					{Name: "City", Lat: "123", Lon: "456"},
+				Weather: WeatherConfig{
+					Locations: []WeatherLocation{{Name: "City", Lat: "123", Lon: "456"}},
 				},
 			},
 			expected: "Weather location is missing required fields: API key",
@@ -290,8 +296,8 @@ func TestCheckWeatherLocations(t *testing.T) {
 		{
 			name: "Multiple missing fields",
 			config: &Config{
-				WeatherLocations: []WeatherLocation{
-					{Name: "City"},
+				Weather: WeatherConfig{
+					Locations: []WeatherLocation{{Name: "City"}},
 				},
 			},
 			expected: "Weather location is missing required fields: latitude, longitude, API key",

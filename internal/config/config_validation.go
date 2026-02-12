@@ -128,10 +128,10 @@ func (c *Config) checkSecrets() {
 		weatherAPIFile = filepath.Clean(weatherAPIFile)
 		if weatherAPIKey, ok := loadSecretFromFile(weatherAPIFile); ok {
 			log.Info("Loaded weather API key", "source", "docker secret")
-			for i, location := range c.WeatherLocations {
+			for i, location := range c.Weather.Locations {
 				if location.API == "" {
 					log.Info("Added weather API key to", "location", location.Name)
-					c.WeatherLocations[i].API = weatherAPIKey
+					c.Weather.Locations[i].API = weatherAPIKey
 				}
 			}
 		}
@@ -158,10 +158,10 @@ func (c *Config) checkSecrets() {
 	systemdWeatherAPIFile := filepath.Clean(filepath.Join(credsDir, systemdCredWeatherAPIKeyFileEnv))
 	if weatherAPIKey, ok := loadSecretFromFile(systemdWeatherAPIFile); ok {
 		log.Info("Loaded weather API key", "source", "systemd credential")
-		for i, location := range c.WeatherLocations {
+		for i, location := range c.Weather.Locations {
 			if location.API == "" {
 				log.Info("Added weather API key to", "location", location.Name)
-				c.WeatherLocations[i].API = weatherAPIKey
+				c.Weather.Locations[i].API = weatherAPIKey
 			}
 		}
 	}
@@ -310,7 +310,7 @@ func (c *Config) checkExcludedTags() {
 func (c *Config) checkWeatherLocations() {
 	var validLocations []WeatherLocation
 
-	for _, w := range c.WeatherLocations {
+	for _, w := range c.Weather.Locations {
 		missingFields := []string{}
 		if w.Name == "" {
 			missingFields = append(missingFields, "name")
@@ -325,11 +325,11 @@ func (c *Config) checkWeatherLocations() {
 			missingFields = append(missingFields, "API key")
 		}
 		if w.Default {
-			if c.HasWeatherDefault {
+			if c.Weather.HasDefault {
 				log.Warn("Multiple default weather locations found.")
 				w.Default = false
 			} else {
-				c.HasWeatherDefault = true
+				c.Weather.HasDefault = true
 			}
 		}
 		if len(missingFields) == 0 {
@@ -340,7 +340,7 @@ func (c *Config) checkWeatherLocations() {
 		}
 	}
 
-	c.WeatherLocations = validLocations
+	c.Weather.Locations = validLocations
 }
 
 // checkHideCountries processes the list of countries to hide in location information

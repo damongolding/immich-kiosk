@@ -332,44 +332,56 @@
       "uniqueItems": true
     },
     "weather": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "lat": {
-            "type": ["number", "string"]
-          },
-          "lon": {
-            "type": ["number", "string"]
-          },
-          "api": {
-            "type": ["string", "null"]
-          },
-          "unit": {
-            "type": "string"
-          },
-          "lang": {
-            "type": "string"
-          },
-          "forecast": {
-            "type": "boolean",
-            "default": false,
-            "description": "Whether to include 3 day forecast data"
-          },
-          "round_temperature": {
-            "type": "boolean",
-            "default": false,
-            "description": "Whether to round temperature values to the nearest integer"
-          },
-          "default": {
-            "type": "boolean"
-          }
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rotation_interval": {
+          "type": "number",
+          "minimum": 0,
+          "default": 60,
+          "description": "The interval in seconds between weather updates"
         },
-        "required": ["name", "lat", "lon"]
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "lat": {
+                "type": ["number", "string"]
+              },
+              "lon": {
+                "type": ["number", "string"]
+              },
+              "api": {
+                "type": ["string", "null"]
+              },
+              "unit": {
+                "type": "string"
+              },
+              "lang": {
+                "type": "string"
+              },
+              "forecast": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether to include 3 day forecast data"
+              },
+              "round_temperature": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether to round temperature values to the nearest integer"
+              },
+              "default": {
+                "type": "boolean"
+              }
+            },
+            "required": ["name", "lat", "lon"]
+          }
+        }
       }
     },
     "webhooks": {
