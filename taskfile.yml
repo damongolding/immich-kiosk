@@ -45,7 +45,7 @@ tasks:
     desc: Run linters
     cmds:
       - golangci-lint run
-      - cd frontend && pnpm lint
+      - cd frontend && bun run lint
 
   # Build tasks
   build:

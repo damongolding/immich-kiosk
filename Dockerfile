@@ -1,20 +1,13 @@
 # Frontend Base Image
-FROM node:22-slim AS frontend-base
+FROM oven/bun:1 AS frontend-base
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
 COPY . /app
 WORKDIR /app/frontend
 
-# Frontend Dependencies
-FROM frontend-base AS frontend-prod-deps
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
-
-# Frontend Build
 FROM frontend-base AS frontend-build
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm css && pnpm js && pnpm url-builder
+RUN bun install --frozen-lockfile
+RUN bun run css && bun run js && bun run url-builder
+
 
 # Go Builder
 FROM --platform=$BUILDPLATFORM golang:1.26.0-bookworm AS build
