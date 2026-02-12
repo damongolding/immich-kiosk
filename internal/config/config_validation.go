@@ -343,6 +343,13 @@ func (c *Config) checkWeatherLocations() {
 	c.Weather.Locations = validLocations
 }
 
+func (c *Config) checkWeatherRotationInterval() {
+	if c.Weather.RotationInterval < 10 {
+		log.Warn("Weather rotation_interval too low, setting to minimum", "value", c.Weather.RotationInterval)
+		c.Weather.RotationInterval = 10
+	}
+}
+
 // checkHideCountries processes the list of countries to hide in location information
 // by converting all country names to lowercase for case-insensitive matching.
 // If the HideCountries slice is empty, the function returns early without making

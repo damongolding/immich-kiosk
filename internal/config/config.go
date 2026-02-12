@@ -598,6 +598,7 @@ func (c *Config) Load() error {
 	c.checkURLScheme()
 	c.checkHideCountries()
 	c.checkWeatherLocations()
+	c.checkWeatherRotationInterval()
 	c.checkDebuging()
 	c.checkFetchedAssetsSize()
 	c.checkRedirects()
