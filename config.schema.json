@@ -336,7 +336,7 @@
       "additionalProperties": false,
       "properties": {
         "rotation_interval": {
-          "type": "number",
+          "type": "integer",
           "minimum": 0,
           "default": 60,
           "description": "The interval in seconds between weather updates"

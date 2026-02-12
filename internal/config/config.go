@@ -146,7 +146,7 @@ type KioskSettings struct {
 
 type WeatherConfig struct {
 	// Locations A list of locations to fetch and display weather data from. Each location
-	Locations []WeatherLocation `json:"weather" yaml:"weather" mapstructure:"weather" default:"[]"`
+	Locations []WeatherLocation `json:"locations" yaml:"locations" mapstructure:"locations" default:"[]"`
 	// RotationInterval The interval in seconds to rotate weather locations.
 	RotationInterval int `json:"rotationInterval" yaml:"rotation_interval" mapstructure:"rotation_interval" query:"rotation_interval" form:"rotation_interval" default:"60"`
 	// HasDefault indicates whether any weather location has been set as the default.

@@ -71,6 +71,11 @@ func (s *LocationRotate) Get(i int) string {
 func (s *LocationRotate) Next(i int) (int, string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	if len(s.items) == 0 {
+		return 0, ""
+	}
+
 	n := i + 1
 	if n >= len(s.items) {
 		return 0, s.items[0]
