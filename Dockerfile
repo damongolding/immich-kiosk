@@ -10,7 +10,7 @@ RUN bun run css && bun run js && bun run url-builder
 
 
 # Go Builder
-FROM --platform=$BUILDPLATFORM golang:1.25.5-bookworm AS build
+FROM --platform=$BUILDPLATFORM golang:1.26.0-bookworm AS build
 
 ARG VERSION=demo
 ARG TARGETOS

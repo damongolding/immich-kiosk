@@ -295,8 +295,17 @@
     "show_image_location": {
       "type": "boolean"
     },
-    "show_image_qr": {
-      "type": "boolean"
+    "hide_city": {
+      "type": "boolean",
+      "description": "hide city from location UI"
+    },
+    "hide_state": {
+      "type": "boolean",
+      "description": "hide state from location UI"
+    },
+    "hide_country": {
+      "type": "boolean",
+      "description": "hide country from location UI"
     },
     "hide_countries": {
       "type": ["string", "array"],
@@ -304,6 +313,9 @@
         "type": "string"
       },
       "uniqueItems": true
+    },
+    "show_image_qr": {
+      "type": "boolean"
     },
     "show_image_id": {
       "type": "boolean"

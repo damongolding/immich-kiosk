@@ -44,6 +44,7 @@
             gopls
             gotools
             go-task
+            golangci-lint
             bun
           ];
 
