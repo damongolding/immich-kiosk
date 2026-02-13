@@ -174,6 +174,11 @@ func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
+	case strings.Contains(dateRange, "newest-"):
+		dateStart, dateEnd, err = processNewestAssets(dateRange)
+		if err != nil {
+			return dateStart, dateEnd, err
+		}
 	default:
 		return dateStart, dateEnd, fmt.Errorf("invalid date filter format: %s. Expected format: YYYY-MM-DD_to_YYYY-MM-DD or last-X", dateRange)
 	}
@@ -263,6 +268,23 @@ func extractDays(s string) (int, error) {
 // and returns a time range from X days ago to now.
 // Returns an error if the number of days cannot be extracted from the string.
 func processLastDays(dateRange string) (time.Time, time.Time, error) {
+
+	dateStart, dateEnd := processTodayDateRange()
+
+	days, err := extractDays(dateRange)
+	if err != nil {
+		return dateStart, dateEnd, err
+	}
+
+	dateStart = dateStart.AddDate(0, 0, -days)
+
+	return dateStart, dateEnd, nil
+}
+
+// processLastDays takes a date range string in the format "last_X" where X is a number of days
+// and returns a time range from X days ago to now.
+// Returns an error if the number of days cannot be extracted from the string.
+func processNewestAssets(dateRange string) (time.Time, time.Time, error) {
 
 	dateStart, dateEnd := processTodayDateRange()
 

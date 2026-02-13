@@ -375,6 +375,13 @@ type AllPeopleResponse struct {
 	HasNextPage bool     `json:"hasNextPage"`
 }
 
+type TimelineBucket struct {
+	TimeBucket string `json:"timeBucket"`
+	Count      int    `json:"count"`
+}
+
+type TimelineBuckets []TimelineBucket
+
 type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, string, error)
 
 type APIResponse interface {
@@ -396,6 +403,7 @@ type APIResponse interface {
 		UpsertTagResponse |
 		UserResponse |
 		AllPeopleResponse |
+		TimelineBuckets |
 		[]byte
 }
 
