@@ -295,17 +295,23 @@
     "show_image_location": {
       "type": "boolean"
     },
-    "hide_city": {
-      "type": "boolean",
-      "description": "hide city from location UI"
-    },
-    "hide_state": {
-      "type": "boolean",
-      "description": "hide state from location UI"
-    },
-    "hide_country": {
-      "type": "boolean",
-      "description": "hide country from location UI"
+    "image_location": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hide_city": {
+          "type": "boolean",
+          "description": "Hide city from the image location display"
+        },
+        "hide_state": {
+          "type": "boolean",
+          "description": "Hide state from the image location display"
+        },
+        "hide_country": {
+          "type": "boolean",
+          "description": "Hide country from the image location display"
+        }
+      }
     },
     "hide_countries": {
       "type": ["string", "array"],
