@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      is_prerelease: ${{ steps.check_prerelease.outputs.is_prerelease }}
 
     steps:
       - name: Checkout code
@@ -30,20 +32,39 @@ jobs:
           VERSION=${VERSION#v}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: Check if pre-release
+        id: check_prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          IS_PRERELEASE=$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/$TAG_NAME" --jq .prerelease)
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          echo "IS_PRERELEASE=$IS_PRERELEASE" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         run: |
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/immich-kiosk
           TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          # Set version tag based on pre-release status
+          if [ "${{ env.IS_PRERELEASE }}" = "true" ]; then
+            VERSION_TAG="${{ env.VERSION }}-prerelease"
+            TAGS="-t $IMAGE_NAME:$VERSION_TAG"
+          else
+            VERSION_TAG="${{ env.VERSION }}"
+            TAGS="-t $IMAGE_NAME:$VERSION_TAG -t $IMAGE_NAME:latest"
+          fi
+
           docker buildx build --build-arg VERSION=${{ env.VERSION }} \
           --platform linux/amd64,linux/arm64 \
           --push \
           --label "org.opencontainers.image.created=$TIMESTAMP" \
           --label "org.opencontainers.image.revision=${{ github.sha }}" \
           --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" \
-          --label "org.opencontainers.image.version=${{ env.VERSION }}" \
+          --label "org.opencontainers.image.version=$VERSION_TAG" \
           --label "org.opencontainers.image.authors=${{ github.repository_owner }}" \
-          -t $IMAGE_NAME:${{ env.VERSION }} \
-          -t $IMAGE_NAME:latest .
+          $TAGS .
 
       - name: Construct release URL
         run: |
@@ -77,6 +98,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Discord Notification
+        if: env.IS_PRERELEASE == 'false'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
@@ -91,6 +113,7 @@ jobs:
 
   trigger:
     runs-on: ubuntu-latest
+    if: needs.build.outputs.is_prerelease == 'false'
     steps:
       - uses: actions/github-script@v6
         with:
