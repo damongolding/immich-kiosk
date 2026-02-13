@@ -144,6 +144,15 @@ type KioskSettings struct {
 	DemoMode bool `json:"-" yaml:"-" mapstructure:"demo_mode" default:"false"`
 }
 
+type WeatherConfig struct {
+	// Locations A list of locations to fetch and display weather data from. Each location
+	Locations []WeatherLocation `json:"locations" yaml:"locations" mapstructure:"locations" default:"[]"`
+	// RotationInterval The interval in seconds to rotate weather locations.
+	RotationInterval int `json:"rotationInterval" yaml:"rotation_interval" mapstructure:"rotation_interval" query:"rotation_interval" form:"rotation_interval" default:"60"`
+	// HasDefault indicates whether any weather location has been set as the default.
+	HasDefault bool `json:"-" yaml:"-" default:"false"`
+}
+
 type WeatherLocation struct {
 	Name      string `yaml:"name" mapstructure:"name" redact:"true"`
 	Lat       string `yaml:"lat" mapstructure:"lat" redact:"true"`
@@ -194,6 +203,15 @@ type ClientData struct {
 	FullyScreenOrientation int `json:"fully_screen_orientation" query:"fully_screen_orientation" form:"fully_screen_orientation"`
 	// FullyScreenBrightness stores the screen brightness level from Fully Kiosk Browser
 	FullyScreenBrightness int `json:"fully_screen_brightness" query:"fully_screen_brightness" form:"fully_screen_brightness"`
+}
+
+type ImageLocation struct {
+	// HideCity hide city from location UI
+	HideCity bool `json:"hideCity" yaml:"hide_city" mapstructure:"hide_city" query:"image_location_hide_city" form:"image_location_hide_city" default:"false"`
+	// HideState hide state from location UI
+	HideState bool `json:"hideState" yaml:"hide_state" mapstructure:"hide_state" query:"image_location_hide_state" form:"image_location_hide_state" default:"false"`
+	// HideCountry hide country from location UI
+	HideCountry bool `json:"hideCountry" yaml:"hide_country" mapstructure:"hide_country" query:"image_location_hide_country" form:"image_location_hide_country" default:"false"`
 }
 
 // Config represents the main configuration structure for the Immich Kiosk application.
@@ -401,10 +419,11 @@ type Config struct {
 	ShowImageCamera bool `json:"showImageCamera" yaml:"show_image_camera" mapstructure:"show_image_camera" query:"show_image_camera" form:"show_image_camera" default:"false"`
 	// ShowImageExif display image exif data (f number, iso, shutter speed, Focal length)
 	ShowImageExif bool `json:"showImageExif" yaml:"show_image_exif" mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
-	// ShowImageLocation display image location data
-	ShowImageLocation bool `json:"showImageLocation" yaml:"show_image_location" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
 	// ShowImageQR display image QR code
 	ShowImageQR bool `json:"showImageQR" yaml:"show_image_qr" mapstructure:"show_image_qr" query:"show_image_qr" form:"show_image_qr" default:"false"`
+	// ShowImageLocation display image location data
+	ShowImageLocation bool          `json:"showImageLocation" yaml:"show_image_location" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
+	ImageLocation     ImageLocation `json:"imageLocation" yaml:"image_location" mapstructure:"image_location" default:""`
 	// HideCountries hide country names in location information
 	HideCountries []string `json:"hideCountries" yaml:"hide_countries" mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
 	// ShowImageID display image ID
@@ -424,10 +443,7 @@ type Config struct {
 	// HideButtonAction indicates the action to take when the hide button is clicked
 	HideButtonAction []string `json:"hideButtonAction" yaml:"hide_button_action" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
 
-	// WeatherLocations A list of locations to fetch and display weather data from. Each location
-	WeatherLocations []WeatherLocation `json:"weather" yaml:"weather" mapstructure:"weather" default:"[]"`
-	// HasWeatherDefault indicates whether any weather location has been set as the default.
-	HasWeatherDefault bool `json:"-" yaml:"-" default:"false"`
+	Weather WeatherConfig `json:"weather" yaml:"weather" mapstructure:"weather"`
 
 	Iframe []string `json:"iframe" yaml:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:"[]"`
 
@@ -482,6 +498,9 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		configKey string
 		envVar    string
 	}{
+		{"image_location.hide_city", "KIOSK_IMAGE_LOCATION_HIDE_CITY"},
+		{"image_location.hide_state", "KIOSK_IMAGE_LOCATION_HIDE_STATE"},
+		{"image_location.hide_country", "KIOSK_IMAGE_LOCATION_HIDE_COUNTRY"},
 		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.behind_proxy", "KIOSK_BEHIND_PROXY"},
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
@@ -592,6 +611,7 @@ func (c *Config) Load() error {
 	c.checkURLScheme()
 	c.checkHideCountries()
 	c.checkWeatherLocations()
+	c.checkWeatherRotationInterval()
 	c.checkDebuging()
 	c.checkFetchedAssetsSize()
 	c.checkRedirects()

@@ -248,7 +248,7 @@ func main() {
 
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 
-	for _, w := range baseConfig.WeatherLocations {
+	for _, w := range baseConfig.Weather.Locations {
 		if w.Forecast {
 			go weather.AddWeatherLocationWithForecast(c.Context(), w)
 		} else {

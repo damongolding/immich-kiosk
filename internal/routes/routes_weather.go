@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -27,7 +28,8 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 
 		requestID := requestData.RequestID
 
-		locationName := c.FormValue("weather")
+		locationName := c.FormValue(weather.WeatherParam)
+		nextWeatherRotation := 0
 
 		log.Debug(
 			requestID,
@@ -36,12 +38,23 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 			"location", locationName,
 		)
 
+		// handle weather rotation
+		if locationName == weather.WeatherRotation {
+			currentWeatherRotation, cwrErr := strconv.Atoi(c.FormValue(weather.WeatherRotationParam))
+			if cwrErr != nil {
+				log.Error("Could not parse weather location position", "error", cwrErr)
+				return c.NoContent(http.StatusNoContent)
+			}
+			nextWeatherRotation, locationName = weather.LocationRotator.Next(currentWeatherRotation)
+			log.Info("Rotating weather location", "location", locationName, "position", nextWeatherRotation)
+		}
+
 		if locationName == "" {
-			if !baseConfig.HasWeatherDefault {
+			if !baseConfig.Weather.HasDefault {
 				log.Warn("No weather location provided and no default set")
 				return c.NoContent(http.StatusNoContent)
 			}
-			for _, loc := range baseConfig.WeatherLocations {
+			for _, loc := range baseConfig.Weather.Locations {
 				if loc.Default {
 					locationName = loc.Name
 					break
@@ -61,7 +74,7 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 				time.Sleep(time.Duration(1<<attempts) * time.Second)
 				continue
 			}
-			return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation, baseConfig.SystemLang))
+			return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation, nextWeatherRotation, baseConfig.SystemLang))
 
 		}
 

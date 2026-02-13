@@ -8,6 +8,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/damongolding/immich-kiosk/internal/weather"
 	"html"
 	"net/url"
 	"os"
@@ -66,8 +67,9 @@ templ Home(viewData common.ViewData, secret string) {
 							}
 						</div>
 						<div>
-							if viewData.Queries.Has("weather") || viewData.HasWeatherDefault {
-								@partials.Weather(viewData.Theme)
+							if viewData.Queries.Has(weather.WeatherParam) || viewData.Weather.HasDefault {
+								{{ rotatingLocations := viewData.Queries.Get(weather.WeatherParam) == weather.WeatherRotation }}
+								@partials.Weather(viewData.Theme, rotatingLocations, viewData.Weather.RotationInterval)
 							}
 						</div>
 					</section>
