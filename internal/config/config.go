@@ -492,9 +492,9 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		configKey string
 		envVar    string
 	}{
-		{"image_location.hide_city", "IMAGE_LOCATION_HIDE_CITY"},
-		{"image_location.hide_state", "IMAGE_LOCATION_HIDE_STATE"},
-		{"image_location.hide_country", "IMAGE_LOCATION_HIDE_COUNTRY"},
+		{"image_location.hide_city", "KIOSK_IMAGE_LOCATION_HIDE_CITY"},
+		{"image_location.hide_state", "KIOSK_IMAGE_LOCATION_HIDE_STATE"},
+		{"image_location.hide_country", "KIOSK_IMAGE_LOCATION_HIDE_COUNTRY"},
 		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.behind_proxy", "KIOSK_BEHIND_PROXY"},
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
