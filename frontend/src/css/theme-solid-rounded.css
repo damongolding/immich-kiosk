@@ -1,5 +1,5 @@
 /* solid theme */
-.asset--metadata--theme-solid {
+.asset--metadata--theme-solid-rounded {
     padding: 1rem;
     margin: -1rem;
     background-color: rgba(0, 0, 0, 0.6);
@@ -9,20 +9,24 @@
         content: "";
         position: absolute;
 
+        background-image: url("/assets/images/rounded-corner.svg");
+        background-size: contain;
+
         top: -1.5rem;
         left: 0rem;
 
         width: 1.5rem;
         height: 1.5rem;
 
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 0 100% 0 0;
-        corner-shape: scoop;
+        transform: rotate(180deg);
     }
 
     &::before {
         content: "";
         position: absolute;
+
+        background-image: url("/assets/images/rounded-corner.svg");
+        background-size: contain;
 
         bottom: 0rem;
         right: -1.5rem;
@@ -30,13 +34,11 @@
         width: 1.5rem;
         height: 1.5rem;
 
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 0 100% 0 0;
-        corner-shape: scoop;
+        transform: rotate(180deg);
     }
 }
 
-.frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
+.frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid-rounded {
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 1.5rem 0 0 0;
 
@@ -44,20 +46,34 @@
         content: "";
         position: absolute;
 
+        background-image: url("/assets/images/rounded-corner.svg");
+        background-size: contain;
+
+        top: unset;
+        right: unset;
+        bottom: unset;
+        left: unset;
+
         top: -1.5rem;
-        left: 0rem;
+        right: 0rem;
 
         width: 1.5rem;
         height: 1.5rem;
 
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 100% 0 0 0;
-        corner-shape: scoop;
+        transform: rotate(90deg);
     }
 
     &::before {
         content: "";
         position: absolute;
+
+        background-image: url("/assets/images/rounded-corner.svg");
+        background-size: contain;
+
+        top: unset;
+        right: unset;
+        bottom: unset;
+        left: unset;
 
         bottom: 0rem;
         left: -1.5rem;
@@ -65,21 +81,20 @@
         width: 1.5rem;
         height: 1.5rem;
 
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 100% 0 0 0;
-        corner-shape: scoop;
+        transform: rotate(90deg);
     }
 }
 
 @media (orientation: portrait) {
-    .frame--layout-splitview:nth-child(2) .asset--metadata--theme-solid {
+    .frame--layout-splitview:nth-child(2)
+        .asset--metadata--theme-solid-rounded {
         background-color: rgba(0, 0, 0, 0.6);
         border-radius: 0 1.5rem 0 0;
     }
 }
 
 /* clock */
-.clock--theme-solid {
+.clock--theme-solid-rounded {
     background-color: rgba(0, 0, 0, 0.6);
 
     border-radius: 0 0 1.5rem 0;
@@ -88,19 +103,24 @@
         content: "";
         position: absolute;
 
+        background-image: url("/assets/images/rounded-corner.svg");
+        background-size: contain;
+
         top: 0.3rem;
         right: -1.5rem;
 
         width: 1.5rem;
         height: 1.5rem;
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 0 0 100% 0;
-        corner-shape: scoop;
+
+        transform: rotate(270deg);
     }
 
     &::before {
         content: "";
         position: absolute;
+
+        background-image: url("/assets/images/rounded-corner.svg");
+        background-size: contain;
 
         bottom: -1.5rem;
         left: 0.3rem;
@@ -108,14 +128,12 @@
         width: 1.5rem;
         height: 1.5rem;
 
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 0 0 100% 0;
-        corner-shape: scoop;
+        transform: rotate(270deg);
     }
 }
 
 /* weather */
-.weather--theme-solid {
+.weather--theme-solid-rounded {
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 0 0 0 1.5rem;
     align-self: start;
@@ -124,27 +142,27 @@
         content: "";
         position: absolute;
 
+        background-image: url("/assets/images/rounded-corner.svg");
+        background-size: contain;
+
         top: 0.3rem;
         left: -1.5rem;
 
         width: 1.5rem;
         height: 1.5rem;
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 0 0 0 100%;
-        corner-shape: scoop;
     }
 
     &::before {
         content: "";
         position: absolute;
 
+        background-image: url("/assets/images/rounded-corner.svg");
+        background-size: contain;
+
         bottom: -1.5rem;
         right: 0.3rem;
 
         width: 1.5rem;
         height: 1.5rem;
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 0 0 0 100%;
-        corner-shape: scoop;
     }
 }

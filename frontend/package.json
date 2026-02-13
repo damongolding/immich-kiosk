@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "bunx --bun biome lint --write",
     "js": "bunx --bun esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --minify --target=es6 --outfile=./public/assets/js/kiosk.js",
-    "css": "bunx --bun esbuild --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css && bun run css:postcss",
+    "css": "bunx --bun esbuild --bundle --loader:.css=css --external:*.svg --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css && bun run css:postcss",
     "css:postcss": "postcss ./public/assets/css/kiosk.css --no-map -o ./public/assets/css/kiosk.css",
     "build": "bun run test && bun run css && bun run js && bun run url-builder",
     "url-builder": "bunx --bun esbuild 'src/ts/url-builder.ts' --format=iife --global-name=urlBuilder --bundle --minify --target=es6 --outfile=./public/assets/js/url-builder.js",
