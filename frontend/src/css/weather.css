@@ -4,10 +4,10 @@
     opacity: 1;
     transition: opacity 1s ease-out;
     will-change: opacity;
-}
 
-#weather-container.htmx-swapping {
-    opacity: 0;
+    &.htmx-swapping {
+        opacity: 0;
+    }
 }
 
 .weather {
