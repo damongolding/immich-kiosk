@@ -281,9 +281,7 @@ func processLastDays(dateRange string) (time.Time, time.Time, error) {
 	return dateStart, dateEnd, nil
 }
 
-// processLastDays takes a date range string in the format "last_X" where X is a number of days
-// and returns a time range from X days ago to now.
-// Returns an error if the number of days cannot be extracted from the string.
+// processNewestAssets IMPLIMENT
 func processNewestAssets(dateRange string) (time.Time, time.Time, error) {
 
 	dateStart, dateEnd := processTodayDateRange()
