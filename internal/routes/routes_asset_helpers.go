@@ -216,6 +216,9 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 		}
 
 	case kiosk.SourceDateRange:
+		if strings.Contains(pickedAsset.ID, "newest-") {
+			return immichAsset.RandomAssetFromLatestXAssets(pickedAsset.ID, requestID, deviceID, isPrefetch)
+		}
 		return immichAsset.RandomAssetInDateRange(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourcePerson:

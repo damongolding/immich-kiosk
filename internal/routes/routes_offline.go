@@ -60,6 +60,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		requestConfig.History = requestData.RequestConfig.History
 		requestConfig.Memories = false
 		requestConfig.ShowVideos = false
+		requestConfig.LivePhotos = false
 		requestConfig.Theme = requestData.RequestConfig.Theme
 
 		if len(requestConfig.History) > 1 && !strings.HasPrefix(requestConfig.History[len(requestConfig.History)-1], "*") {

@@ -155,6 +155,159 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 	return fmt.Errorf("no assets found for '%s'. Max retries reached", dateRange)
 }
 
+func (a *Asset) RandomAssetFromLatestXAssets(dateRange, requestID, deviceID string, isPrefetch bool) error {
+
+	s := strings.Replace(dateRange, "newest-", "", 1)
+	wantedAssets, convErr := strconv.Atoi(s)
+	if convErr != nil {
+		return convErr
+	}
+
+	tb, _, tbErr := a.TimelineBuckets(requestID, deviceID)
+	if tbErr != nil {
+		return tbErr
+	}
+
+	log.Info("tb", tb)
+
+	if len(tb) == 0 {
+		return errors.New("no timeline buckets found")
+	}
+
+	dateEnd := time.Now()
+
+	var dateStart time.Time
+	var dateStartErr error
+
+	assetCount := 0
+
+	for _, b := range tb {
+		assetCount += b.Count
+		if assetCount >= wantedAssets {
+			dateStart, dateStartErr = time.Parse("2006-01-02", b.TimeBucket)
+			if dateStartErr != nil {
+				return dateStartErr
+			}
+			break
+		}
+	}
+
+	dateEnd = time.Date(dateEnd.Year(), dateEnd.Month(), dateEnd.Day(), 23, 59, 59, 999999999, dateEnd.Location())
+
+	dateStartHuman := dateStart.Format("2006-01-02 15:04:05 MST")
+	dateEndHuman := dateEnd.Format("2006-01-02 15:04:05 MST")
+
+	if isPrefetch {
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset from", "newest", wantedAssets, "startDate", dateStartHuman, "endDate", dateEndHuman)
+	} else {
+		log.Debug(requestID+" Getting Random asset from", "newest", wantedAssets, "startDate", dateStartHuman, "endDate", dateEndHuman)
+	}
+
+	for range MaxRetries {
+
+		var immichAssets []Asset
+
+		u, uErr := url.Parse(a.requestConfig.ImmichURL)
+		if uErr != nil {
+			return fmt.Errorf("parsing url: %w", uErr)
+		}
+
+		requestBody := SearchRandomBody{
+			Type:        string(ImageType),
+			TakenAfter:  dateStart.Format(time.RFC3339),
+			TakenBefore: dateEnd.Format(time.RFC3339),
+			WithExif:    true,
+			WithPeople:  true,
+			Size:        wantedAssets,
+		}
+
+		// Include videos if show videos is enabled
+		if a.requestConfig.ShowVideos {
+			requestBody.Type = ""
+		}
+
+		if a.requestConfig.ShowArchived {
+			requestBody.WithArchived = true
+		}
+
+		// convert body to queries so url is unique and can be cached
+		queries, _ := query.Values(requestBody)
+
+		apiURL := url.URL{
+			Scheme:   u.Scheme,
+			Host:     u.Host,
+			Path:     "api/search/random",
+			RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
+		}
+
+		jsonBody, marshalErr := json.Marshal(requestBody)
+		if marshalErr != nil {
+			return fmt.Errorf("marshaling request body: %w", marshalErr)
+		}
+
+		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
+		apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		if err != nil {
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+			return err
+		}
+
+		err = json.Unmarshal(apiBody, &immichAssets)
+		if err != nil {
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+			return err
+		}
+
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
+
+		if len(immichAssets) == 0 {
+			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
+			cache.Delete(apiCacheKey)
+			continue
+		}
+
+		wantedAssetType := ImageOnlyAssetTypes
+		if a.requestConfig.ShowVideos {
+			wantedAssetType = AllAssetTypes
+		}
+
+		for immichAssetIndex, asset := range immichAssets {
+
+			asset.Bucket = kiosk.SourceDateRange
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
+
+			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
+				continue
+			}
+
+			if a.requestConfig.Kiosk.Cache {
+				// Remove the current asset from the slice
+				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
+				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
+				if cacheMarshalErr != nil {
+					log.Error("Failed to marshal immichAssetsToCache", "error", cacheMarshalErr)
+					return cacheMarshalErr
+				}
+
+				// replace cache with used asset(s) removed
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
+			}
+
+			asset.BucketID = dateRange
+
+			*a = asset
+
+			return nil
+		}
+
+		log.Debug(requestID + " No viable assets left in cache. Refreshing and trying again")
+		cache.Delete(apiCacheKey)
+	}
+
+	return fmt.Errorf("no assets found for '%s'. Max retries reached", dateRange)
+}
+
 func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 	var dateStart time.Time
 	var dateEnd time.Time
@@ -169,16 +322,13 @@ func determineDateRange(dateRange string) (time.Time, time.Time, error) {
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
+
 	case strings.Contains(dateRange, "last-"):
 		dateStart, dateEnd, err = processLastDays(dateRange)
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
-	case strings.Contains(dateRange, "newest-"):
-		dateStart, dateEnd, err = processNewestAssets(dateRange)
-		if err != nil {
-			return dateStart, dateEnd, err
-		}
+
 	default:
 		return dateStart, dateEnd, fmt.Errorf("invalid date filter format: %s. Expected format: YYYY-MM-DD_to_YYYY-MM-DD or last-X", dateRange)
 	}
@@ -268,21 +418,6 @@ func extractDays(s string) (int, error) {
 // and returns a time range from X days ago to now.
 // Returns an error if the number of days cannot be extracted from the string.
 func processLastDays(dateRange string) (time.Time, time.Time, error) {
-
-	dateStart, dateEnd := processTodayDateRange()
-
-	days, err := extractDays(dateRange)
-	if err != nil {
-		return dateStart, dateEnd, err
-	}
-
-	dateStart = dateStart.AddDate(0, 0, -days)
-
-	return dateStart, dateEnd, nil
-}
-
-// processNewestAssets IMPLIMENT
-func processNewestAssets(dateRange string) (time.Time, time.Time, error) {
 
 	dateStart, dateEnd := processTodayDateRange()
 
