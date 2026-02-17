@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v5"
@@ -111,6 +112,9 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 
+		requestConfig.ShowVideos = false
+		requestConfig.LivePhotos = false
+
 		layout := strings.ToLower(strings.TrimSpace(c.QueryParam("layout")))
 
 		log.Debug(
@@ -130,7 +134,9 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		default:
 		}
 
-		img, err := processAsset(&immichAsset, requestConfig, requestID, "", "", false)
+		r := time.Now().Format(time.StampNano)
+
+		img, err := processAsset(&immichAsset, requestConfig, requestID, r, "", false)
 		if err != nil {
 			return err
 		}
