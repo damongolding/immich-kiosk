@@ -134,9 +134,9 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		default:
 		}
 
-		r := time.Now().Format(time.StampNano)
+		timestamp := time.Now().Format(time.StampNano)
 
-		img, err := processAsset(&immichAsset, requestConfig, requestID, r, "", false)
+		img, err := processAsset(&immichAsset, requestConfig, requestID, timestamp, "", false)
 		if err != nil {
 			return err
 		}
