@@ -111,6 +111,9 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 
+		requestConfig.ShowVideos = false
+		requestConfig.LivePhotos = false
+
 		layout := strings.ToLower(strings.TrimSpace(c.QueryParam("layout")))
 
 		log.Debug(
@@ -130,7 +133,7 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		default:
 		}
 
-		img, err := processAsset(&immichAsset, requestConfig, requestID, "", "", false)
+		img, err := processAsset(&immichAsset, requestConfig, requestID, requestID, "", false)
 		if err != nil {
 			return err
 		}
