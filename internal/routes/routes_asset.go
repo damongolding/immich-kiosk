@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v5"
@@ -134,9 +133,7 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		default:
 		}
 
-		timestamp := time.Now().Format(time.StampNano)
-
-		img, err := processAsset(&immichAsset, requestConfig, requestID, timestamp, "", false)
+		img, err := processAsset(&immichAsset, requestConfig, requestID, requestID, "", false)
 		if err != nil {
 			return err
 		}
