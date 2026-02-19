@@ -587,6 +587,10 @@ func (c *Config) checkBurnIn() {
 	}
 }
 
+func (c *Config) checkUsersAPIKeys() {
+	c.ImmichUsersAPIKeys["default"] = c.ImmichAPIKey
+}
+
 func ConfigTypes(settings map[string]any, cfgStruct any) map[string]any {
 	return convertConfigTypes(reflect.TypeOf(cfgStruct), settings)
 }

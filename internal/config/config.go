@@ -602,6 +602,7 @@ func (c *Config) Load() error {
 
 	c.checkSecrets()
 	c.checkRequiredFields()
+	c.checkUsersAPIKeys()
 	c.checkLowercaseTaggedFields()
 	c.checkAssetBuckets()
 	c.checkAlbumOrder()
