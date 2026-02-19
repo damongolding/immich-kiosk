@@ -312,7 +312,7 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 
 			asset.BucketID = album.ID
 			if asset.requestConfig.SelectedUser != "" {
-				asset.BucketID = fmt.Sprintf("%s@%s", asset.requestConfig.SelectedUser, album.ID)
+				asset.BucketID = fmt.Sprintf("%s@%s", album.ID, asset.requestConfig.SelectedUser)
 			}
 
 			*a = asset
