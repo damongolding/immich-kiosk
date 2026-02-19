@@ -43,6 +43,8 @@ var errVideoNotReady = errors.New("video not ready")
 //   - An error if any database queries fail
 func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string) ([]utils.AssetWithWeighting, error) {
 
+	log.Debug(requestID + " gatherAssetBuckets()")
+
 	assets := []utils.AssetWithWeighting{}
 
 	// People bucket
@@ -51,16 +53,18 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		personAssetCount, personCountErr := immichAsset.PersonAssetCount(person, requestID, deviceID)
+		personTmp := immichAsset.SwitchUserFromID(person)
+
+		personAssetCount, personCountErr := immichAsset.PersonAssetCount(personTmp, requestID, deviceID)
 		if personCountErr != nil {
 			if requestConfig.SelectedUser != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", requestConfig.SelectedUser, person, personCountErr)
+				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", requestConfig.SelectedUser, personTmp, personCountErr)
 			}
 			return nil, fmt.Errorf("getting person image count: %w", personCountErr)
 		}
 
 		if personAssetCount == 0 {
-			log.Error("No assets found for", "person", person)
+			log.Error("No assets found for", "person", personTmp)
 			continue
 		}
 
@@ -76,16 +80,18 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		albumAssetCount, albumCountErr := immichAsset.AlbumImageCount(album, requestID, deviceID)
+		albumTmp := immichAsset.SwitchUserFromID(album)
+
+		albumAssetCount, albumCountErr := immichAsset.AlbumImageCount(albumTmp, requestID, deviceID)
 		if albumCountErr != nil {
 			if requestConfig.SelectedUser != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no Album '%s'. error='%w'", requestConfig.SelectedUser, album, albumCountErr)
+				return nil, fmt.Errorf("user '<b>%s</b>' has no Album '%s'. error='%w'", requestConfig.SelectedUser, albumTmp, albumCountErr)
 			}
 			return nil, fmt.Errorf("getting album asset count: %w", albumCountErr)
 		}
 
 		if albumAssetCount == 0 {
-			log.Error("No assets found for", "album", album)
+			log.Error("No assets found for", "album", albumTmp)
 			continue
 		}
 
@@ -202,6 +208,8 @@ func isSleepMode(requestConfig config.Config) bool {
 // It returns an error if the image retrieval fails.
 func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
 
+	log.Debug(requestID + " retrieveImage()")
+
 	switch pickedAsset.Type {
 	case kiosk.SourceAlbum:
 		switch pickedAsset.ID {
@@ -296,6 +304,8 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 // It returns the image bytes and an error if any step fails.
 func processAsset(asset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
 
+	log.Debug(requestID + " processAsset()")
+
 	var err error
 
 	assets, assetsErr := gatherAssetBuckets(asset, requestConfig, requestID, deviceID)
@@ -306,6 +316,8 @@ func processAsset(asset *immich.Asset, requestConfig config.Config, requestID st
 	for range maxProcessAssetRetries {
 
 		pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
+
+		pickedAsset.ID = asset.SwitchUserFromID(pickedAsset.ID)
 
 		err = retrieveImage(asset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
 		if err != nil {
@@ -508,6 +520,8 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		urlString: c.URL.String(),
 	}
 
+	log.Debug(metadata.requestID + " processViewImageData()")
+
 	// Set up configuration
 	setupRequestConfig(&requestConfig)
 	immichAsset := setupImmichAsset(requestConfig, options.ImageOrientation)
@@ -545,7 +559,7 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		ImageData:          imgString,
 		ImageBlurData:      imgBlurString,
 		ImageDominantColor: dominantColor,
-		User:               requestConfig.SelectedUser,
+		User:               immichAsset.SelectedUser(),
 	}, nil
 }
 
@@ -656,6 +670,8 @@ func assetPreFetch(common *common.Common, requestData *common.RouteRequestData, 
 	requestID := requestData.RequestID
 	deviceID := requestData.DeviceID
 
+	log.Debug(requestID + " assetPreFetch()")
+
 	viewDataToAdd, err := generateViewData(requestConfig, c, requestID, deviceID, true)
 	if err != nil {
 		log.Error("generateViewData", "prefetch", true, "err", err)
@@ -739,6 +755,8 @@ func determineLayoutMode(layout string, clientHeight, clientWidth int) string {
 // It selects and processes one or two assets as needed for the layout, handling orientation and split view logic, and returns the resulting ViewData or an error.
 func generateViewData(requestConfig config.Config, c common.ContextCopy, requestID, deviceID string, isPrefetch bool) (common.ViewData, error) {
 
+	log.Debug(requestID + " generateViewData()")
+
 	viewData := common.ViewData{
 		RequestID: requestID,
 		DeviceID:  deviceID,
@@ -778,6 +796,8 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, request
 			RelativeAssetBucketID: viewDataSplitView.ImmichAsset.BucketID,
 			ImageOrientation:      immich.PortraitOrientation,
 		}
+
+		log.Debug(requestID + " generateViewData() -  Second image")
 
 		// Second image
 		if secondAssetErr := fetchSecondSplitViewAsset(&viewData, viewDataSplitView, requestConfig, c, isPrefetch, options); secondAssetErr != nil {
