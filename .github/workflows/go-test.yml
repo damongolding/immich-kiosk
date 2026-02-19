@@ -24,11 +24,12 @@ jobs:
           go tool templ generate
 
       - name: Run tests
+        shell: bash
         env:
           CI: true
         run: |
-          mkdir -p test-results
-          go test -v ./... > test-results/test.log
+          set -o pipefail
+          go test -v ./... 2>&1 | tee test-results.log
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
