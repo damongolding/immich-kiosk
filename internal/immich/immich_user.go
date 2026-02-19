@@ -70,8 +70,8 @@ func (a *Asset) SwitchUserFromID(assetID string) string {
 		return assetID
 	}
 
-	user := parts[0]
-	assetID = parts[1]
+	assetID = parts[0]
+	user := parts[1]
 
 	log.Info("Switching user to", "user", user)
 
