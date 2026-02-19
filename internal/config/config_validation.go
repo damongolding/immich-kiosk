@@ -588,6 +588,9 @@ func (c *Config) checkBurnIn() {
 }
 
 func (c *Config) checkUsersAPIKeys() {
+	if c.ImmichUsersAPIKeys == nil {
+		c.ImmichUsersAPIKeys = make(map[string]string)
+	}
 	c.ImmichUsersAPIKeys["default"] = c.ImmichAPIKey
 }
 
