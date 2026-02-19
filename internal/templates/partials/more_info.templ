@@ -36,6 +36,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 						<div class="more-info--button-group">
 							@LikeButton(
 								img.ImmichAsset.ID,
+								img.ImmichAsset.SelectedUser(),
 								img.ImmichAsset.IsFavorite,
 								false,
 								img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
@@ -43,6 +44,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 							)
 							@HideButton(
 								img.ImmichAsset.ID,
+								img.ImmichAsset.SelectedUser(),
 								img.ImmichAsset.HasTag(kiosk.TagSkip),
 								img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
 								secret,
@@ -92,7 +94,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 //   - liked: Whether to show the liked animation
 //   - isButtonEnabled: Whether the button should be enabled
 //   - secret: Secret key for webhook signatures
-templ LikeButton(ID string, isLiked bool, liked bool, isButtonEnabled bool, secret string) {
+templ LikeButton(ID, selectedUser string, isLiked bool, liked bool, isButtonEnabled bool, secret string) {
 	{{
 		t := i18n.T()
 		webhook := webhooks.UserLikeInfoOverlay
@@ -110,7 +112,7 @@ templ LikeButton(ID string, isLiked bool, liked bool, isButtonEnabled bool, secr
 		}
 		class={ "more-info--like-asset", templ.KV("is-liked", isLiked) }
 		hx-trigger="click throttle:2s"
-		hx-vals={ fmt.Sprintf("{\"assetID\": \"%s\"}", ID) }
+		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "user": "%s"}`, ID, selectedUser) }
 		hx-swap="outerHTML"
 		disabled?={ !isButtonEnabled }
 	>
@@ -154,7 +156,7 @@ templ LikeButton(ID string, isLiked bool, liked bool, isButtonEnabled bool, secr
 //   - isHidden: Whether the asset is currently hidden
 //   - isButtonEnabled: Whether the button is enabled
 //   - secret: Secret key for webhook signatures
-templ HideButton(ID string, isHidden bool, isButtonEnabled bool, secret string) {
+templ HideButton(ID, selectedUser string, isHidden bool, isButtonEnabled bool, secret string) {
 	{{
 		t := i18n.T()
 		webhook := webhooks.UserHideInfoOverlay
@@ -172,7 +174,7 @@ templ HideButton(ID string, isHidden bool, isButtonEnabled bool, secret string) 
 			title={ t("unhide_asset") }
 		}
 		hx-trigger="click throttle:2s"
-		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "tagName": "%s"}`, ID, kiosk.TagSkip) }
+		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "tagName": "%s", "user": "%s"}`, ID, kiosk.TagSkip, selectedUser) }
 		hx-swap="outerHTML"
 		disabled?={ !isButtonEnabled }
 	>
