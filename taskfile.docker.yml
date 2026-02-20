@@ -20,9 +20,12 @@ tasks:
     desc: Build and push development multi-arch docker image
     deps: [build]
     cmds:
-      - orb start
+      - cmd: orb start
+        if: 'command -v orb >/dev/null 2>&1'
       - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t ghcr.io/damongolding/immich-kiosk-development:{{.VERSION}} -t ghcr.io/damongolding/immich-kiosk-development:latest .
-      - orb stop
+      - cmd: orb stop
+        if: 'command -v orb >/dev/null 2>&1'
+
 
   push:
     desc: Build and push development multi-arch docker image
