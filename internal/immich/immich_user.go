@@ -52,33 +52,28 @@ func (a *Asset) UserOwnsAsset(requestID, deviceID string) bool {
 	return strings.EqualFold(me.ID, a.OwnerID)
 }
 
-func (a *Asset) SwitchUserFromID(assetID string) string {
+func (a *Asset) ApplyUserFromAssetID(assetID string) string {
 
-	if !strings.Contains(assetID, "@") {
-		log.Info("Switching user to", "user", "default")
-		if defaultAPI, ok := a.requestConfig.ImmichUsersAPIKeys["default"]; ok {
-			log.Info("Switched user to", "user", "default")
-			a.requestConfig.SelectedUser = ""
-			a.requestConfig.ImmichAPIKey = defaultAPI
+	// assetID has @user
+	id, user, ok := strings.Cut(assetID, "@")
+	if ok {
+		if userAPI, userFound := a.requestConfig.ImmichUsersAPIKeys[user]; userFound {
+			log.Info("Switched user to", "user", user)
+			a.requestConfig.SelectedUser = user
+			a.requestConfig.ImmichAPIKey = userAPI
+			return id
 		}
-		return assetID
+		log.Warn("User not found in API keys, falling back to default")
 	}
 
-	parts := strings.Split(assetID, "@")
-	if len(parts) != 2 {
-		log.Error("Invalid user format", "user", assetID)
-		return assetID
-	}
-
-	assetID = parts[0]
-	user := parts[1]
-
-	log.Info("Switching user to", "user", user)
-
-	if userAPI, ok := a.requestConfig.ImmichUsersAPIKeys[user]; ok {
-		log.Info("Switched user to", "user", user)
-		a.requestConfig.SelectedUser = user
-		a.requestConfig.ImmichAPIKey = userAPI
+	// use default
+	log.Info("Switching user to", "user", "default")
+	if defaultAPI, apiFound := a.requestConfig.ImmichUsersAPIKeys["default"]; apiFound {
+		log.Info("Switched user to", "user", "default")
+		a.requestConfig.SelectedUser = ""
+		a.requestConfig.ImmichAPIKey = defaultAPI
+	} else {
+		log.Error("Default user not found in API keys")
 	}
 
 	return assetID

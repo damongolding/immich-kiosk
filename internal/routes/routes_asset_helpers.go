@@ -53,7 +53,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		personTmp := immichAsset.SwitchUserFromID(person)
+		personTmp := immichAsset.ApplyUserFromAssetID(person)
 
 		personAssetCount, personCountErr := immichAsset.PersonAssetCount(personTmp, requestID, deviceID)
 		if personCountErr != nil {
@@ -80,7 +80,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		albumTmp := immichAsset.SwitchUserFromID(album)
+		albumTmp := immichAsset.ApplyUserFromAssetID(album)
 
 		albumAssetCount, albumCountErr := immichAsset.AlbumImageCount(albumTmp, requestID, deviceID)
 		if albumCountErr != nil {
@@ -317,7 +317,7 @@ func processAsset(asset *immich.Asset, requestConfig config.Config, requestID st
 
 		pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
 
-		pickedAsset.ID = asset.SwitchUserFromID(pickedAsset.ID)
+		pickedAsset.ID = asset.ApplyUserFromAssetID(pickedAsset.ID)
 
 		err = retrieveImage(asset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
 		if err != nil {
