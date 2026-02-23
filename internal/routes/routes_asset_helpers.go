@@ -53,7 +53,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		personTmp := immichAsset.ApplyUserFromAssetID(person)
+		personTmp, _ := immichAsset.ApplyUserFromAssetID(person)
 
 		personAssetCount, personCountErr := immichAsset.PersonAssetCount(personTmp, requestID, deviceID)
 		if personCountErr != nil {
@@ -80,7 +80,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		albumTmp := immichAsset.ApplyUserFromAssetID(album)
+		albumTmp, _ := immichAsset.ApplyUserFromAssetID(album)
 
 		albumAssetCount, albumCountErr := immichAsset.AlbumImageCount(albumTmp, requestID, deviceID)
 		if albumCountErr != nil {
@@ -107,6 +107,11 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 	for _, tag := range requestConfig.Tags {
 		if tag == "" || strings.EqualFold(tag, "none") {
 			continue
+		}
+
+		if strings.Contains(tag, "@") {
+			log.Warn("Tags with multi user information are not currently supported")
+			tag, _, _ = strings.Cut(tag, "@")
 		}
 
 		tags, _, tagsErr := immichAsset.AllTags(requestID, deviceID)
@@ -144,6 +149,11 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 	for _, date := range requestConfig.Dates {
 		if date == "" || strings.EqualFold(date, "none") {
 			continue
+		}
+
+		if strings.Contains(date, "@") {
+			log.Warn("Dates with multi user information are not currently supported")
+			date, _, _ = strings.Cut(date, "@")
 		}
 
 		// use FetchedAssetsSize as a weighting for date ranges
@@ -293,7 +303,7 @@ func processAsset(asset *immich.Asset, requestConfig config.Config, requestID st
 
 		pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
 
-		pickedAsset.ID = asset.ApplyUserFromAssetID(pickedAsset.ID)
+		pickedAsset.ID, _ = asset.ApplyUserFromAssetID(pickedAsset.ID)
 
 		err = retrieveImage(asset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
 		if err != nil {
