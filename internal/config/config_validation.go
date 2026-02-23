@@ -607,7 +607,6 @@ func convertConfigTypes(typ reflect.Type, settings map[string]any) map[string]an
 	}
 
 	for field := range typ.Fields() {
-		field := field
 		tag := field.Tag.Get("mapstructure")
 		if tag == "" {
 			tag = field.Name
