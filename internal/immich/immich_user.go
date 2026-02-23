@@ -52,7 +52,7 @@ func (a *Asset) UserOwnsAsset(requestID, deviceID string) bool {
 	return strings.EqualFold(me.ID, a.OwnerID)
 }
 
-func (a *Asset) ApplyUserFromAssetID(assetID string) string {
+func (a *Asset) ApplyUserFromAssetID(assetID string) (string, string) {
 
 	// assetID has @user
 	id, user, ok := strings.Cut(assetID, "@")
@@ -61,7 +61,7 @@ func (a *Asset) ApplyUserFromAssetID(assetID string) string {
 			log.Info("Switched user to", "user", user)
 			a.requestConfig.SelectedUser = user
 			a.requestConfig.ImmichAPIKey = userAPI
-			return id
+			return id, user
 		}
 		log.Warn("User not found in API keys, falling back to default")
 	}
@@ -76,7 +76,7 @@ func (a *Asset) ApplyUserFromAssetID(assetID string) string {
 		log.Error("Default user not found in API keys")
 	}
 
-	return assetID
+	return assetID, ""
 }
 
 func (a *Asset) SelectedUser() string {
