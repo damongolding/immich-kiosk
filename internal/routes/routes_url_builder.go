@@ -80,13 +80,11 @@ func BuildURL(baseConfig *config.Config) echo.HandlerFunc {
 }
 
 func truncateURLQueries(rawURL string, maxLength int) string {
-	parts := strings.SplitN(rawURL, "?", 2)
-	if len(parts) < 2 {
+
+	base, queryString, ok := strings.Cut(rawURL, "?")
+	if !ok {
 		return rawURL
 	}
-
-	base := parts[0]
-	queryString := parts[1]
 
 	if len(base) >= maxLength {
 		return base
