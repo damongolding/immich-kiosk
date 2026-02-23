@@ -165,7 +165,7 @@ func AssetExif(info immich.ExifInfo) string {
 		if stats.Len() > 0 {
 			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
 		}
-		fmt.Fprintf(&stats, "ISO %v", info.Iso)
+		fmt.Fprintf(&stats, "ISO %d", info.Iso)
 	}
 
 	return stats.String()
