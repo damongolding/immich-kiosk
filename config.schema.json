@@ -558,6 +558,12 @@
         },
         "demo_mode": {
           "type": "boolean"
+        },
+        "allowed_origins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": []

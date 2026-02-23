@@ -137,6 +137,8 @@ type KioskSettings struct {
 	// AssetWeighting use weighting when picking assets
 	AssetWeighting bool `json:"assetWeighting" yaml:"asset_weighting" mapstructure:"asset_weighting" default:"true"`
 
+	AllowedOrigins []string `json:"allowedOrigins" yaml:"allowed_origins" mapstructure:"allowed_origins" default:"[]"`
+
 	// debug modes
 	Debug        bool `json:"debug" yaml:"debug" mapstructure:"debug" default:"false"`
 	DebugVerbose bool `json:"debugVerbose" yaml:"debug_verbose" mapstructure:"debug_verbose" default:"false"`

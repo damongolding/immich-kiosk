@@ -178,6 +178,10 @@ func main() {
 		}))
 	}
 
+	if len(baseConfig.Kiosk.AllowedOrigins) > 0 {
+		e.Use(middleware.CORS(baseConfig.Kiosk.AllowedOrigins...))
+	}
+
 	// CSS cache busting
 	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public, StaticCacheMiddlewareWithConfig(baseConfig))
 
