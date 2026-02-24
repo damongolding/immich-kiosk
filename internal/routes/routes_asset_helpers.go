@@ -101,11 +101,11 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
-	// Tags bucket
-	requestConfig.Tags = immichAsset.ExpandTagPatterns(requestConfig.Tags, requestID, deviceID)
-
 	// Use the default user for the rest of the request (tags, dates, memories)
 	immichAsset.ApplyDefaultUser()
+
+	// Tags bucket
+	requestConfig.Tags = immichAsset.ExpandTagPatterns(requestConfig.Tags, requestID, deviceID)
 
 	for _, tag := range requestConfig.Tags {
 		if tag == "" || strings.EqualFold(tag, "none") {
