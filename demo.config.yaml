@@ -60,10 +60,10 @@ weather:
       default: false
 
     - name: Tokyo
-      lat: 35.5020591
-      lon: 138.4505645
+      lat: 35.6895
+      lon: 139.6917
       api: ""
-      unit: imperial
+      unit: metric
       lang: en
       default: false
 
