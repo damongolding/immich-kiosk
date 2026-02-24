@@ -220,6 +220,7 @@ type Album struct {
 type Albums []Album
 
 type SearchRandomBody struct {
+	AlbumIDs      []string `url:"albumIds,omitempty" json:"albumIds,omitempty"`
 	City          string   `url:"city,omitempty" json:"city,omitempty"`
 	Country       string   `url:"country,omitempty" json:"country,omitempty"`
 	CreatedAfter  string   `url:"createdAfter,omitempty" json:"createdAfter,omitempty"`
