@@ -28,7 +28,7 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 
 	requestBody := SearchRandomBody{
 		Type:       string(ImageType),
-		Rating:     rating,
+		Rating:     &rating,
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
@@ -66,7 +66,7 @@ func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]
 
 	requestBody := SearchRandomBody{
 		Type:       string(ImageType),
-		Rating:     rating,
+		Rating:     &rating,
 		WithExif:   true,
 		WithPeople: true,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
@@ -127,7 +127,7 @@ func (a *Asset) RandomAssetWithRating(ratingID string, requestID, deviceID strin
 	rating := float32(rating64)
 
 	if isPrefetch {
-		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset with", "rating", rating)
+		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset with rating", rating)
 	} else {
 		log.Debug(requestID+" Getting Random asset with", "rating", rating)
 	}

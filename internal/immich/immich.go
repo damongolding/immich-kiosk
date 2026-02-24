@@ -239,7 +239,7 @@ type SearchRandomBody struct {
 	Type          string   `url:"type,omitempty" json:"type,omitempty"`
 	UpdatedAfter  string   `url:"updatedAfter,omitempty" json:"updatedAfter,omitempty"`
 	UpdatedBefore string   `url:"updatedBefore,omitempty" json:"updatedBefore,omitempty"`
-	Rating        float32  `url:"rating,omitempty" json:"rating,omitempty"`
+	Rating        *float32 `url:"rating,omitempty" json:"rating,omitempty"`
 	PersonIDs     []string `url:"personIds,omitempty" json:"personIds,omitempty"`
 	TagIDs        []string `url:"tagIds,omitempty" json:"tagIds,omitempty"`
 	Size          int      `url:"size,omitempty" json:"size,omitempty"`

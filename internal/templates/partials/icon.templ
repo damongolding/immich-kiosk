@@ -184,7 +184,7 @@ templ memoryIcon(data string) {
 
 templ ratingStars(rating float32) {
 	{{
-		stars := int(rating)
+		stars := min(max(int(rating), 0), 5)
 		empty := 5 - stars
 	}}
 	<div class="asset--metadata--has-icon">
