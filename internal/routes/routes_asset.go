@@ -133,7 +133,9 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		default:
 		}
 
-		img, err := processAsset(&immichAsset, requestConfig, requestID, requestID, "", false)
+		fakeDeviceID := requestID
+
+		img, err := processAsset(&immichAsset, requestConfig, requestID, fakeDeviceID, "", false)
 		if err != nil {
 			return err
 		}

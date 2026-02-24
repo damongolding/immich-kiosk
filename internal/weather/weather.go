@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -59,6 +60,9 @@ type LocationRotate struct {
 func (s *LocationRotate) Append(item string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if slices.Contains(s.items, item) {
+		return
+	}
 	s.items = append(s.items, item)
 }
 

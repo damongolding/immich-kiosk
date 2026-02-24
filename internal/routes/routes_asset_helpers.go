@@ -112,8 +112,9 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		if strings.Contains(tag, "@") {
 			log.Warn("Tags with multi user information are not currently supported")
 			tag, _, _ = strings.Cut(tag, "@")
-			immichAsset.ApplyDefaultUser()
 		}
+
+		immichAsset.ApplyDefaultUser()
 
 		tags, _, tagsErr := immichAsset.AllTags(requestID, deviceID)
 		if tagsErr != nil {
@@ -809,7 +810,7 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, request
 			ImageOrientation:      immich.PortraitOrientation,
 		}
 
-		log.Debug(requestID + " generateViewData() -  Second image")
+		log.Debug(requestID + " generateViewData() - Second image")
 
 		// Second image
 		if secondAssetErr := fetchSecondSplitViewAsset(&viewData, viewDataSplitView, requestConfig, c, isPrefetch, options); secondAssetErr != nil {
