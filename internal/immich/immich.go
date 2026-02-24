@@ -95,28 +95,29 @@ type Owner struct {
 }
 
 type ExifInfo struct {
+	City             string    `json:"city"`
+	Country          string    `json:"country"`
 	DateTimeOriginal time.Time `json:"dateTimeOriginal"`
-	ModifyDate       time.Time `json:"modifyDate"`
-	ProjectionType   any       `json:"-"` // `json:"projectionType"`
+	Description      string    `json:"description"`
+	ExifImageHeight  int       `json:"exifImageHeight"`
+	ExifImageWidth   int       `json:"exifImageWidth"`
+	ExposureTime     string    `json:"exposureTime"`
+	FileSizeInByte   int       `json:"fileSizeInByte"`
+	FNumber          float64   `json:"fNumber"`
+	FocalLength      float64   `json:"focalLength"`
+	ImageOrientation ImageOrientation
+	Iso              int       `json:"iso"`
+	Latitude         float64   `json:"latitude"`
+	LensModel        string    `json:"lensModel"`
+	Longitude        float64   `json:"longitude"`
 	Make             string    `json:"make"`
 	Model            string    `json:"model"`
+	ModifyDate       time.Time `json:"modifyDate"`
 	Orientation      string    `json:"orientation"`
-	TimeZone         string    `json:"timeZone"`
-	LensModel        string    `json:"lensModel"`
-	ExposureTime     string    `json:"exposureTime"`
-	City             string    `json:"city"`
+	ProjectionType   any       `json:"-"` // `json:"projectionType"`
+	Rating           float32   `json:"rating"`
 	State            string    `json:"state"`
-	Country          string    `json:"country"`
-	Description      string    `json:"description"`
-	ImageOrientation ImageOrientation
-	ExifImageWidth   int     `json:"exifImageWidth"`
-	ExifImageHeight  int     `json:"exifImageHeight"`
-	FileSizeInByte   int     `json:"fileSizeInByte"`
-	FNumber          float64 `json:"fNumber"`
-	FocalLength      float64 `json:"focalLength"`
-	Iso              int     `json:"iso"`
-	Latitude         float64 `json:"latitude"`
-	Longitude        float64 `json:"longitude"`
+	TimeZone         string    `json:"timeZone"`
 }
 
 type BirthDate string
