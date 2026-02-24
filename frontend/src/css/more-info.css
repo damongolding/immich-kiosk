@@ -110,6 +110,10 @@
     padding-top: 1rem;
 }
 
+.more-info--rating {
+    width: fit-content;
+}
+
 .more-info--tag-wrapper {
     display: flex;
     flex-wrap: wrap;

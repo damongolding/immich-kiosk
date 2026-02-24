@@ -666,3 +666,9 @@ func convertConfigTypes(typ reflect.Type, settings map[string]any) map[string]an
 
 	return result
 }
+
+func (c *Config) checkRating() {
+	if c.Rating < -1 || c.Rating > 5 {
+		log.Warn("Rating should be set between 0 and 5")
+	}
+}

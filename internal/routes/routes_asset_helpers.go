@@ -147,6 +147,27 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
+	if requestConfig.Rating > -1 {
+		wantedRating := requestConfig.Rating
+
+		ratedAssetsCount, ratedCountErr := immichAsset.AssetsWithRatingCount(wantedRating, requestID, deviceID)
+		if ratedCountErr != nil {
+			if requestConfig.SelectedUser != "" {
+				return nil, fmt.Errorf("user '<b>%s</b>' has no assets with rating '%f'. error='%w'", requestConfig.SelectedUser, wantedRating, ratedCountErr)
+			}
+			return nil, fmt.Errorf("getting rated asset count: %w", ratedCountErr)
+		}
+
+		if ratedAssetsCount > 0 {
+			assets = append(assets, utils.AssetWithWeighting{
+				Asset:  utils.WeightedAsset{Type: kiosk.SourceRating, ID: fmt.Sprintf("rating-%.2f", requestConfig.Rating)},
+				Weight: ratedAssetsCount,
+			})
+		} else {
+			log.Error("No assets found with", "rating", wantedRating)
+		}
+	}
+
 	// Memories bucket
 	if requestConfig.Memories {
 		memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
@@ -234,6 +255,9 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 
 	case kiosk.SourceTag:
 		return immichAsset.RandomAssetWithTag(pickedAsset.ID, requestID, deviceID, isPrefetch)
+
+	case kiosk.SourceRating:
+		return immichAsset.RandomAssetWithRating(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourceRandom:
 		fallthrough

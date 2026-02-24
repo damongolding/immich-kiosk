@@ -230,6 +230,7 @@ type SearchRandomBody struct {
 	LibraryID     string   `url:"libraryId,omitempty" json:"libraryId,omitempty"`
 	Make          string   `url:"make,omitempty" json:"make,omitempty"`
 	Model         string   `url:"model,omitempty" json:"model,omitempty"`
+	Ocr           string   `url:"ocr,omitempty" json:"ocr,omitempty"`
 	State         string   `url:"state,omitempty" json:"state,omitempty"`
 	TakenAfter    string   `url:"takenAfter,omitempty" json:"takenAfter,omitempty"`
 	TakenBefore   string   `url:"takenBefore,omitempty" json:"takenBefore,omitempty"`
@@ -238,6 +239,7 @@ type SearchRandomBody struct {
 	Type          string   `url:"type,omitempty" json:"type,omitempty"`
 	UpdatedAfter  string   `url:"updatedAfter,omitempty" json:"updatedAfter,omitempty"`
 	UpdatedBefore string   `url:"updatedBefore,omitempty" json:"updatedBefore,omitempty"`
+	Rating        float32  `url:"rating,omitempty" json:"rating,omitempty"`
 	PersonIDs     []string `url:"personIds,omitempty" json:"personIds,omitempty"`
 	TagIDs        []string `url:"tagIds,omitempty" json:"tagIds,omitempty"`
 	Size          int      `url:"size,omitempty" json:"size,omitempty"`

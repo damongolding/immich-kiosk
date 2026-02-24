@@ -49,6 +49,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 							)
 						</div>
 					}
+					@rating(img.ImmichAsset.ExifInfo.Rating)
 					@originalImageTimeLocation(viewData, i)
 					@cameraData(img.ImmichAsset.ExifInfo)
 					@originalAssetData(img.ImmichAsset)
@@ -237,6 +238,12 @@ templ originalAssetData(img immich.Asset) {
 			</h3>
 		</div>
 		@imageIcon(data)
+	</div>
+}
+
+templ rating(rating float32) {
+	<div class="more-info--rating">
+		@ratingStars(rating)
 	</div>
 }
 
