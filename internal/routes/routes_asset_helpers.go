@@ -57,8 +57,8 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 		personAssetCount, personCountErr := immichAsset.PersonAssetCount(personTmp, requestID, deviceID)
 		if personCountErr != nil {
-			if requestConfig.SelectedUser != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", requestConfig.SelectedUser, personTmp, personCountErr)
+			if immichAsset.SelectedUser() != "" {
+				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", immichAsset.SelectedUser(), personTmp, personCountErr)
 			}
 			return nil, fmt.Errorf("getting person image count: %w", personCountErr)
 		}
@@ -84,8 +84,8 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 		albumAssetCount, albumCountErr := immichAsset.AlbumImageCount(albumTmp, requestID, deviceID)
 		if albumCountErr != nil {
-			if requestConfig.SelectedUser != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no Album '%s'. error='%w'", requestConfig.SelectedUser, albumTmp, albumCountErr)
+			if immichAsset.SelectedUser() != "" {
+				return nil, fmt.Errorf("user '<b>%s</b>' has no Album '%s'. error='%w'", immichAsset.SelectedUser(), albumTmp, albumCountErr)
 			}
 			return nil, fmt.Errorf("getting album asset count: %w", albumCountErr)
 		}
