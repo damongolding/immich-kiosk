@@ -636,6 +636,7 @@ func (c *Config) ResetBuckets() {
 	c.Albums = []string{}
 	c.Dates = []string{}
 	c.Tags = []string{}
+	c.Rating = -1
 }
 
 func getHistory(queries url.Values) []string {
@@ -659,7 +660,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 	}
 
 	// check for person or album in quries and empty baseconfig slice if found
-	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") {
+	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") || queries.Has("rating") {
 		c.ResetBuckets()
 	}
 
