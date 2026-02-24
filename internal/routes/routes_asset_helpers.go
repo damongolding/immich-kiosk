@@ -104,6 +104,9 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 	// Tags bucket
 	requestConfig.Tags = immichAsset.ExpandTagPatterns(requestConfig.Tags, requestID, deviceID)
 
+	// Use the default user for the rest of the request (tags, dates, memories)
+	immichAsset.ApplyDefaultUser()
+
 	for _, tag := range requestConfig.Tags {
 		if tag == "" || strings.EqualFold(tag, "none") {
 			continue
@@ -113,8 +116,6 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			log.Warn("Tags with multi user information are not currently supported")
 			tag, _, _ = strings.Cut(tag, "@")
 		}
-
-		immichAsset.ApplyDefaultUser()
 
 		tags, _, tagsErr := immichAsset.AllTags(requestID, deviceID)
 		if tagsErr != nil {
@@ -156,7 +157,6 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		if strings.Contains(date, "@") {
 			log.Warn("Dates with multi user information are not currently supported")
 			date, _, _ = strings.Cut(date, "@")
-			immichAsset.ApplyDefaultUser()
 		}
 
 		// use FetchedAssetsSize as a weighting for date ranges
