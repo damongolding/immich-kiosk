@@ -24,7 +24,9 @@ func (a *Asset) Me(requestID, deviceID string) (UserResponse, error) {
 	}
 
 	if a.requestConfig.SelectedUser != "" {
-		apiURL.RawQuery += "&user=" + a.requestConfig.SelectedUser
+		q := apiURL.Query()
+		q.Set("user", a.requestConfig.SelectedUser)
+		apiURL.RawQuery = q.Encode()
 	}
 
 	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, user)

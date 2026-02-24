@@ -1,4 +1,4 @@
 package immich_open_api
 
 // This is used for reference only
-// Kiosk impliments it's own Immich API connections
+// Kiosk implements its own Immich API connections and types
