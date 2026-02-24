@@ -115,6 +115,11 @@
       },
       "uniqueItems": true
     },
+    "rating": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5
+    },
     "excluded_partners": {
       "type": ["string", "array"],
       "items": {
@@ -247,6 +252,9 @@
       "type": "integer"
     },
     "use_original_image": {
+      "type": "boolean"
+    },
+    "show_image_rating": {
       "type": "boolean"
     },
     "show_owner": {

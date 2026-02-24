@@ -308,12 +308,15 @@ type Config struct {
 	AlbumOrder     string   `json:"album_order" yaml:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
 	ExcludedAlbums []string `json:"excluded_albums" yaml:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]" redact:"true"`
 
-	// Dates date filter
+	// Dates date ranges
 	Dates []string `json:"dates" yaml:"dates" mapstructure:"dates" query:"date" form:"date" default:"[]"`
 
 	// Tags Name of tag to display
 	Tags         []string `json:"tags" yaml:"tags" mapstructure:"tags" query:"tag" form:"tag" default:"[]" lowercase:"true" redact:"true"`
 	ExcludedTags []string `json:"excluded_tags" yaml:"excluded_tags" mapstructure:"excluded_tags" query:"exclude_tag" form:"exclude_tag" default:"[]" lowercase:"true" redact:"true"`
+
+	// Rating number representing stars
+	Rating float32 `json:"rating" yaml:"rating" mapstructure:"rating" query:"rating" form:"rating" default:"-1"`
 
 	// ExcludedPartners ID(s) of partner to exclude
 	ExcludedPartners []string `json:"excluded_partners" yaml:"excluded_partners" mapstructure:"excluded_partners" query:"exclude_partner" form:"exclude_partner" default:"[]" redact:"true"`
@@ -393,6 +396,8 @@ type Config struct {
 	LivePhotos         bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
 	LivePhotoLoopDelay int  `json:"livePhotoLoopDelay" yaml:"live_photo_loop_delay" mapstructure:"live_photo_loop_delay" query:"live_photo_loop_delay" form:"live_photo_loop_delay" default:"0"`
 
+	// ShowImageRating display stars is image is rated
+	ShowImageRating bool `json:"showImageRating" yaml:"show_image_rating" mapstructure:"show_image_rating" query:"show_image_rating" form:"show_image_rating" default:"false"`
 	// ShowOwner whether to display owner
 	ShowOwner bool `json:"showOwner" yaml:"show_owner" mapstructure:"show_owner" query:"show_owner" form:"show_owner" default:"false"`
 	// ShowAlbumName whether to display the album name
@@ -607,6 +612,7 @@ func (c *Config) Load() error {
 	c.checkAlbumOrder()
 	c.checkExcludedAlbums()
 	c.checkTags()
+	c.checkRating()
 	c.checkExcludedTags()
 	c.checkURLScheme()
 	c.checkHideCountries()

@@ -25,6 +25,7 @@ const (
 	SourcePerson    Source = "PERSON"
 	SourceRandom    Source = "RANDOM"
 	SourceTag       Source = "TAG"
+	SourceRating    Source = "RATING"
 	SourceMemories  Source = "MEMORIES"
 
 	LayoutLandscape          string = "landscape"

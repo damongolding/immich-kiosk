@@ -52,6 +52,9 @@ templ AssetMetadata(viewData common.ViewData, assetIndex int) {
 		@templ.Raw(bubbleBackground(className, viewData.Assets[assetIndex]))
 	}
 	<div class={ "asset--metadata", fmt.Sprintf("asset--metadata--theme-%s", viewData.Theme), templ.KV("right-align-icons", rightAlignIcons), className }>
+		if viewData.ShowImageRating {
+			@ratingStars(viewData.Assets[assetIndex].ImmichAsset.ExifInfo.Rating)
+		}
 		if showUser && viewData.Assets[assetIndex].User != "" {
 			@userIcon(cases.Title(language.English).String(viewData.Assets[assetIndex].User))
 		}
