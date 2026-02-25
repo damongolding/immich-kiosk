@@ -126,6 +126,12 @@ templ WeatherLocation(weatherData weather.Location, locationPos int, systemLang 
 
 // WeatherContainer renders a weather component with HTMX updates
 templ Weather(theme string, rotatingLocations bool, weatherRotationInterval int) {
+	{{
+		interval := weatherRotationInterval
+		if interval <= 0 {
+			interval = 60
+		}
+	}}
 	<div
 		id="weather-container"
 		class={ fmt.Sprintf("weather--theme-%s", theme) }
@@ -136,6 +142,6 @@ templ Weather(theme string, rotatingLocations bool, weatherRotationInterval int)
 		} else {
 			hx-swap="innerHTML"
 		}
-		hx-trigger={ fmt.Sprintf("load, every %ds", weatherRotationInterval) }
+		hx-trigger={ fmt.Sprintf("load, every %ds", interval) }
 	></div>
 }

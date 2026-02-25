@@ -81,8 +81,12 @@ func (s *LocationRotate) Next(i int) (int, string) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	if len(s.items) == 0 || i >= len(s.items) || i < 0 {
+	if len(s.items) == 0 {
 		return 0, ""
+	}
+
+	if i < 0 || i >= len(s.items) {
+		return 0, s.items[0]
 	}
 
 	n := i + 1
