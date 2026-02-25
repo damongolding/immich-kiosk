@@ -42,7 +42,7 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 		if locationName == weather.WeatherRotation {
 			currentWeatherRotation, cwrErr := strconv.Atoi(c.FormValue(weather.WeatherRotationParam))
 			if cwrErr != nil {
-				log.Error("Could not parse weather location position", "error", cwrErr)
+				log.Warn("Could not parse weather location position", "error", cwrErr)
 				return c.NoContent(http.StatusNoContent)
 			}
 			nextWeatherRotation, locationName = weather.LocationRotator.Next(currentWeatherRotation)

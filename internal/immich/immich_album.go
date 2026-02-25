@@ -244,6 +244,8 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 //     after maximum retry attempts
 func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requestID, deviceID string) error {
 
+	log.Debug(requestID + " AssetFromAlbum()")
+
 	for range MaxRetries {
 
 		album, apiURL, err := a.albumAssets(albumID, requestID, deviceID)
@@ -309,6 +311,9 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 			}
 
 			asset.BucketID = album.ID
+			if asset.requestConfig.SelectedUser != "" {
+				asset.BucketID = fmt.Sprintf("%s@%s", album.ID, asset.requestConfig.SelectedUser)
+			}
 
 			*a = asset
 

@@ -161,14 +161,14 @@ func parseRangeHeader(rangeHeader string, fileSize int64) (int64, int64, int, er
 	}
 
 	statusCode = http.StatusPartialContent
-	ranges := strings.Split(strings.Replace(rangeHeader, "bytes=", "", 1), "-")
-	if len(ranges) != 2 {
+	rangeStart, rangeEnd, ok := strings.Cut(strings.Replace(rangeHeader, "bytes=", "", 1), "-")
+	if !ok {
 		return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range format")
 	}
 
 	// Handle empty start range
-	if ranges[0] == "" {
-		end, err = strconv.ParseInt(ranges[1], 10, 64)
+	if rangeStart == "" {
+		end, err = strconv.ParseInt(rangeEnd, 10, 64)
 		if err != nil {
 			return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range end")
 		}
@@ -178,16 +178,16 @@ func parseRangeHeader(rangeHeader string, fileSize int64) (int64, int64, int, er
 	}
 
 	// Parse start range
-	start, err = strconv.ParseInt(ranges[0], 10, 64)
+	start, err = strconv.ParseInt(rangeStart, 10, 64)
 	if err != nil {
 		return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range start")
 	}
 
 	// Handle empty end range
-	if ranges[1] == "" {
+	if rangeEnd == "" {
 		end = fileSize - 1
 	} else {
-		end, err = strconv.ParseInt(ranges[1], 10, 64)
+		end, err = strconv.ParseInt(rangeEnd, 10, 64)
 		if err != nil {
 			return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range end")
 		}

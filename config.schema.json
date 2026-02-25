@@ -116,7 +116,7 @@
       "uniqueItems": true
     },
     "rating": {
-      "type": "number",
+      "type": "integer",
       "minimum": 0,
       "maximum": 5
     },
@@ -369,6 +369,7 @@
         },
         "locations": {
           "type": "array",
+          "maxItems": 1,
           "items": {
             "type": "object",
             "additionalProperties": false,
@@ -408,7 +409,8 @@
             "required": ["name", "lat", "lon"]
           }
         }
-      }
+      },
+      "required": ["locations"]
     },
     "webhooks": {
       "type": "array",

@@ -128,12 +128,12 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c *echo.Context
 
 	for i, assetID := range wantedAssets {
 
-		parts := strings.Split(assetID, ":")
-		if len(parts) != 2 {
+		currentAssetID, selectedUser, ok := strings.Cut(assetID, ":")
+		if !ok {
 			return fmt.Errorf("invalid history entry format: %s", assetID)
 		}
 
-		prevAssetsID, currentAssetID, selectedUser := i, parts[0], parts[1]
+		prevAssetsID := i
 
 		g.Go(getHistoryAsset(requestConfig, com, requestID, deviceID, selectedUser, &viewData, prevAssetsID, currentAssetID))
 	}
