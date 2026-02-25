@@ -2,6 +2,7 @@ package views
 
 import (
 	"github.com/goodsign/monday"
+	"maps"
 	"strings"
 )
 
@@ -15,9 +16,7 @@ func mergeAttributes(lang monday.Locale, attrs ...templ.Attributes) templ.Attrib
 
 	mergedAttrs := templ.Attributes{}
 	for _, attr := range attrs {
-		for k, v := range attr {
-			mergedAttrs[k] = v
-		}
+		maps.Copy(mergedAttrs, attr)
 	}
 	if _, ok := mergedAttrs["lang"]; !ok {
 		mergedAttrs["lang"] = langAttr

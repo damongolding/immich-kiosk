@@ -97,6 +97,8 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 // immichAPICall bootstrap for immich api call
 func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, error) {
 
+	log.Info("immichAPICall", "user", a.requestConfig.SelectedUser, "url", apiURL)
+
 	var responseBody []byte
 	var lastErr error
 	var contentType string
@@ -135,6 +137,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			apiKey := a.requestConfig.ImmichAPIKey
 			if a.requestConfig.SelectedUser != "" {
 				if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
+					log.Info("using API key for user", "user", a.requestConfig.SelectedUser, "url", apiURL, "key", key)
 					apiKey = key
 				} else {
 					return responseBody, contentType, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
@@ -160,8 +163,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			lastErr = resErr
 
 			// Type assert to get more details about the error
-			var urlErr *url.Error
-			if errors.As(resErr, &urlErr) {
+			if urlErr, ok := errors.AsType[*url.Error](resErr); ok {
 				log.Error("Request failed",
 					"attempt", attempts,
 					"URL", apiURL,

@@ -344,7 +344,7 @@ func (c *Config) checkWeatherLocations() {
 }
 
 func (c *Config) checkWeatherRotationInterval() {
-	if c.Weather.RotationInterval < 10 {
+	if c.Weather.RotationInterval != 0 && c.Weather.RotationInterval < 10 {
 		log.Warn("Weather rotation_interval too low, setting to minimum", "value", c.Weather.RotationInterval)
 		c.Weather.RotationInterval = 10
 	}
@@ -587,6 +587,13 @@ func (c *Config) checkBurnIn() {
 	}
 }
 
+func (c *Config) checkUsersAPIKeys() {
+	if c.ImmichUsersAPIKeys == nil {
+		c.ImmichUsersAPIKeys = make(map[string]string)
+	}
+	c.ImmichUsersAPIKeys["default"] = c.ImmichAPIKey
+}
+
 func ConfigTypes(settings map[string]any, cfgStruct any) map[string]any {
 	return convertConfigTypes(reflect.TypeOf(cfgStruct), settings)
 }
@@ -599,8 +606,7 @@ func convertConfigTypes(typ reflect.Type, settings map[string]any) map[string]an
 		typ = typ.Elem()
 	}
 
-	for i := range typ.NumField() {
-		field := typ.Field(i)
+	for field := range typ.Fields() {
 		tag := field.Tag.Get("mapstructure")
 		if tag == "" {
 			tag = field.Name
@@ -669,7 +675,7 @@ func convertConfigTypes(typ reflect.Type, settings map[string]any) map[string]an
 
 func (c *Config) checkRating() {
 	if c.Rating < -1 || c.Rating > 5 {
-		log.Warn("Rating should be set between 0 and 5; disabling rating", "value", c.Rating)
+		log.Warn("Rating must be -1 (disabled) or 0–5; disabling rating", "value", c.Rating)
 		c.Rating = -1
 	}
 }

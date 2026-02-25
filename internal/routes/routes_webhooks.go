@@ -106,14 +106,14 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 			g, _ := errgroup.WithContext(c.Request().Context())
 
-			for i, imageID := range prevImages {
+			for i, id := range prevImages {
 
-				parts := strings.Split(imageID, ":")
-				if len(parts) != 2 {
-					return fmt.Errorf("invalid history entry format: %s", imageID)
+				imageID, _, ok := strings.Cut(id, ":")
+				if !ok {
+					return fmt.Errorf("invalid history entry format: %s", id)
 				}
 
-				currentAssetID := strings.Replace(parts[0], kiosk.HistoryIndicator, "", 1)
+				currentAssetID := strings.Replace(imageID, kiosk.HistoryIndicator, "", 1)
 
 				g.Go(func(currentAssetID string) func() error {
 					return func() error {

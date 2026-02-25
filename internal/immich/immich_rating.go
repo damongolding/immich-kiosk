@@ -134,9 +134,9 @@ func (a *Asset) RandomAssetWithRating(ratingID string, requestID, deviceID strin
 
 	for range MaxRetries {
 
-		immichAssets, apiURL, err := a.AssetsWithRating(rating, requestID, deviceID)
-		if err != nil {
-			return err
+		immichAssets, apiURL, immichAssetsErr := a.AssetsWithRating(rating, requestID, deviceID)
+		if immichAssetsErr != nil {
+			return immichAssetsErr
 		}
 
 		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)

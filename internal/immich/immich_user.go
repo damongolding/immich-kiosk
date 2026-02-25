@@ -23,6 +23,12 @@ func (a *Asset) Me(requestID, deviceID string) (UserResponse, error) {
 		Path:   "api/users/me",
 	}
 
+	if a.requestConfig.SelectedUser != "" {
+		q := apiURL.Query()
+		q.Set("user", a.requestConfig.SelectedUser)
+		apiURL.RawQuery = q.Encode()
+	}
+
 	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, user)
 	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
@@ -46,4 +52,39 @@ func (a *Asset) UserOwnsAsset(requestID, deviceID string) bool {
 	}
 
 	return strings.EqualFold(me.ID, a.OwnerID)
+}
+
+func (a *Asset) ApplyUserFromAssetID(assetID string) (string, string) {
+
+	// assetID has @user
+	id, user, ok := strings.Cut(assetID, "@")
+	if ok {
+		if userAPI, userFound := a.requestConfig.ImmichUsersAPIKeys[user]; userFound {
+			log.Info("Switched user to", "user", user)
+			a.requestConfig.SelectedUser = user
+			a.requestConfig.ImmichAPIKey = userAPI
+			return id, user
+		}
+		log.Warn("User not found in API keys, falling back to default")
+	}
+
+	// use default
+	a.ApplyDefaultUser()
+
+	return assetID, ""
+}
+
+func (a *Asset) ApplyDefaultUser() {
+	log.Info("Switching user to", "user", "default")
+	if defaultAPI, apiFound := a.requestConfig.ImmichUsersAPIKeys["default"]; apiFound {
+		log.Info("Switched user to", "user", "default")
+		a.requestConfig.SelectedUser = ""
+		a.requestConfig.ImmichAPIKey = defaultAPI
+	} else {
+		log.Error("Default user not found in API keys")
+	}
+}
+
+func (a *Asset) SelectedUser() string {
+	return a.requestConfig.SelectedUser
 }
