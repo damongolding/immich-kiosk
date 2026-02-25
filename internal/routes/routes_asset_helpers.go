@@ -166,6 +166,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		})
 	}
 
+	// Rating bucket
 	if requestConfig.Rating > -1 {
 		wantedRating := requestConfig.Rating
 
