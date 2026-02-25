@@ -135,6 +135,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			apiKey := a.requestConfig.ImmichAPIKey
 			if a.requestConfig.SelectedUser != "" {
 				if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
+					log.Debug("using API key for", "user", a.requestConfig.SelectedUser, "url", apiURL)
 					apiKey = key
 				} else {
 					return responseBody, contentType, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
