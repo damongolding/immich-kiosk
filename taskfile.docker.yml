@@ -13,8 +13,7 @@ tasks:
   docker-buildx:
     desc: Create and install docker buildx builder
     cmds:
-      - docker buildx create --name mybuilder --use
-      - docker buildx install
+      - docker buildx create --name multiplatform --driver docker-container --use
 
   dev-push:
     desc: Build and push development multi-arch docker image

@@ -443,5 +443,5 @@ func imageZoomKeyframes(zoomAmount int, useGpu bool) string {
 // customCss wraps CSS content in style tags and removes null bytes
 func customCss(css []byte) string {
 	css = bytes.ReplaceAll(css, []byte{0}, []byte{})
-	return fmt.Sprintf("<style>%s</style>", css)
+	return fmt.Sprintf("<style id='custom-css-style-tag'>%s</style>", css)
 }
