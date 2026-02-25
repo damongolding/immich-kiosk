@@ -168,23 +168,9 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	// Rating bucket
 	if requestConfig.Rating > -1 {
-		wantedRating := requestConfig.Rating
-
-		ratedAssetsCount, ratedCountErr := immichAsset.AssetsWithRatingCount(wantedRating, requestID, deviceID)
-		if ratedCountErr != nil {
-			if requestConfig.SelectedUser != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no assets with rating '%f'. error='%w'", requestConfig.SelectedUser, wantedRating, ratedCountErr)
-			}
-			return nil, fmt.Errorf("getting rated asset count: %w", ratedCountErr)
-		}
-
-		if ratedAssetsCount > 0 {
-			assets = append(assets, utils.AssetWithWeighting{
-				Asset:  utils.WeightedAsset{Type: kiosk.SourceRating, ID: fmt.Sprintf("rating-%.2f", requestConfig.Rating)},
-				Weight: ratedAssetsCount,
-			})
-		} else {
-			log.Error("No assets found with", "rating", wantedRating)
+		ratedErr := gatherRatedAssets(immichAsset, requestConfig, requestID, deviceID, &assets)
+		if ratedErr != nil {
+			log.Error(ratedErr)
 		}
 	}
 
@@ -203,6 +189,29 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 	}
 
 	return assets, nil
+}
+
+func gatherRatedAssets(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string, assets *[]utils.AssetWithWeighting) error {
+	wantedRating := requestConfig.Rating
+
+	ratedAssetsCount, ratedCountErr := immichAsset.AssetsWithRatingCount(wantedRating, requestID, deviceID)
+	if ratedCountErr != nil {
+		if requestConfig.SelectedUser != "" {
+			return fmt.Errorf("user '<b>%s</b>' has no assets with rating '%f'. error='%w'", requestConfig.SelectedUser, wantedRating, ratedCountErr)
+		}
+		return fmt.Errorf("getting rated asset count: %w", ratedCountErr)
+	}
+
+	if ratedAssetsCount > 0 {
+		*assets = append(*assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceRating, ID: fmt.Sprintf("rating-%.2f", requestConfig.Rating)},
+			Weight: ratedAssetsCount,
+		})
+	} else {
+		log.Error("No assets found with", "rating", wantedRating)
+	}
+
+	return nil
 }
 
 // isSleepMode checks if the kiosk should currently be in sleep mode based on configured sleep times
