@@ -49,6 +49,9 @@ tags:
 excluded_tags:
   - "TAG_VALUE"
 
+# Include assets based on their rating
+rating: -1 # -1 = disabled
+
 excluded_partners:
   - "PARTNER_ID"
 
