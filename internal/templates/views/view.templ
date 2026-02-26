@@ -34,7 +34,7 @@ func mergeAttributes(lang monday.Locale, attrs ...templ.Attributes) templ.Attrib
 templ HTMLTag(lang monday.Locale, attrs ...templ.Attributes) {
 	{{ mergedAttrs := mergeAttributes(lang, attrs...) }}
 	<!DOCTYPE html>
-	<html { mergedAttrs... }>
+	<html { mergedAttrs... } data-theme="dark">
 		{ children... }
 	</html>
 }
