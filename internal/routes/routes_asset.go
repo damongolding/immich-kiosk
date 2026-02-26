@@ -111,6 +111,9 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 
+		requestConfig.ShowVideos = false
+		requestConfig.LivePhotos = false
+
 		layout := strings.ToLower(strings.TrimSpace(c.QueryParam("layout")))
 
 		log.Debug(
@@ -130,7 +133,9 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		default:
 		}
 
-		img, err := processAsset(&immichAsset, requestConfig, requestID, "", "", false)
+		fakeDeviceID := requestID
+
+		img, err := processAsset(&immichAsset, requestConfig, requestID, fakeDeviceID, "", false)
 		if err != nil {
 			return err
 		}
@@ -318,8 +323,9 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 		)
 
 		assetID := c.FormValue("assetID")
-		if u := strings.TrimSpace(c.FormValue("user")); u != "" {
-			requestConfig.SelectedUser = u
+		user := strings.TrimSpace(c.FormValue("user"))
+		if user != "" {
+			requestConfig.SelectedUser = user
 		}
 
 		if assetID == "" {
@@ -328,7 +334,7 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 		}
 
 		if baseConfig.Kiosk.DemoMode {
-			return Render(c, http.StatusOK, partials.LikeButton(assetID, true, true, true, com.Secret()))
+			return Render(c, http.StatusOK, partials.LikeButton(assetID, user, true, true, true, com.Secret()))
 		}
 
 		immichAsset := immich.New(com.Context(), requestConfig)
@@ -370,10 +376,10 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 
 		// handle error
 		if eg != nil {
-			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, !setAssetAsLiked, false, true, com.Secret()))
+			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, user, !setAssetAsLiked, false, true, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, partials.LikeButton(assetID, setAssetAsLiked, setAssetAsLiked, true, com.Secret()))
+		return Render(c, http.StatusOK, partials.LikeButton(assetID, user, setAssetAsLiked, setAssetAsLiked, true, com.Secret()))
 	}
 }
 
@@ -409,8 +415,9 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 
 		assetID := c.FormValue("assetID")
 		tagName := c.FormValue("tagName")
-		if u := strings.TrimSpace(c.FormValue("user")); u != "" {
-			requestConfig.SelectedUser = u
+		user := strings.TrimSpace(c.FormValue("user"))
+		if user != "" {
+			requestConfig.SelectedUser = user
 		}
 
 		if assetID == "" {
@@ -424,7 +431,7 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		if baseConfig.Kiosk.DemoMode {
-			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, true, com.Secret()))
+			return Render(c, http.StatusOK, partials.HideButton(assetID, user, !hideAsset, true, com.Secret()))
 		}
 
 		immichAsset := immich.New(com.Context(), requestConfig)
@@ -467,9 +474,9 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		if eg != nil {
-			return Render(c, http.StatusOK, partials.HideButton(assetID, !hideAsset, true, com.Secret()))
+			return Render(c, http.StatusOK, partials.HideButton(assetID, user, !hideAsset, true, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, partials.HideButton(assetID, hideAsset, true, com.Secret()))
+		return Render(c, http.StatusOK, partials.HideButton(assetID, user, hideAsset, true, com.Secret()))
 	}
 }

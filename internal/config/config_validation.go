@@ -128,10 +128,10 @@ func (c *Config) checkSecrets() {
 		weatherAPIFile = filepath.Clean(weatherAPIFile)
 		if weatherAPIKey, ok := loadSecretFromFile(weatherAPIFile); ok {
 			log.Info("Loaded weather API key", "source", "docker secret")
-			for i, location := range c.WeatherLocations {
+			for i, location := range c.Weather.Locations {
 				if location.API == "" {
 					log.Info("Added weather API key to", "location", location.Name)
-					c.WeatherLocations[i].API = weatherAPIKey
+					c.Weather.Locations[i].API = weatherAPIKey
 				}
 			}
 		}
@@ -158,10 +158,10 @@ func (c *Config) checkSecrets() {
 	systemdWeatherAPIFile := filepath.Clean(filepath.Join(credsDir, systemdCredWeatherAPIKeyFileEnv))
 	if weatherAPIKey, ok := loadSecretFromFile(systemdWeatherAPIFile); ok {
 		log.Info("Loaded weather API key", "source", "systemd credential")
-		for i, location := range c.WeatherLocations {
+		for i, location := range c.Weather.Locations {
 			if location.API == "" {
 				log.Info("Added weather API key to", "location", location.Name)
-				c.WeatherLocations[i].API = weatherAPIKey
+				c.Weather.Locations[i].API = weatherAPIKey
 			}
 		}
 	}
@@ -310,7 +310,7 @@ func (c *Config) checkExcludedTags() {
 func (c *Config) checkWeatherLocations() {
 	var validLocations []WeatherLocation
 
-	for _, w := range c.WeatherLocations {
+	for _, w := range c.Weather.Locations {
 		missingFields := []string{}
 		if w.Name == "" {
 			missingFields = append(missingFields, "name")
@@ -325,11 +325,11 @@ func (c *Config) checkWeatherLocations() {
 			missingFields = append(missingFields, "API key")
 		}
 		if w.Default {
-			if c.HasWeatherDefault {
+			if c.Weather.HasDefault {
 				log.Warn("Multiple default weather locations found.")
 				w.Default = false
 			} else {
-				c.HasWeatherDefault = true
+				c.Weather.HasDefault = true
 			}
 		}
 		if len(missingFields) == 0 {
@@ -340,7 +340,14 @@ func (c *Config) checkWeatherLocations() {
 		}
 	}
 
-	c.WeatherLocations = validLocations
+	c.Weather.Locations = validLocations
+}
+
+func (c *Config) checkWeatherRotationInterval() {
+	if c.Weather.RotationInterval != 0 && c.Weather.RotationInterval < 10 {
+		log.Warn("Weather rotation_interval too low, setting to minimum", "value", c.Weather.RotationInterval)
+		c.Weather.RotationInterval = 10
+	}
 }
 
 // checkHideCountries processes the list of countries to hide in location information
@@ -580,6 +587,13 @@ func (c *Config) checkBurnIn() {
 	}
 }
 
+func (c *Config) checkUsersAPIKeys() {
+	if c.ImmichUsersAPIKeys == nil {
+		c.ImmichUsersAPIKeys = make(map[string]string)
+	}
+	c.ImmichUsersAPIKeys["default"] = c.ImmichAPIKey
+}
+
 func ConfigTypes(settings map[string]any, cfgStruct any) map[string]any {
 	return convertConfigTypes(reflect.TypeOf(cfgStruct), settings)
 }
@@ -592,8 +606,7 @@ func convertConfigTypes(typ reflect.Type, settings map[string]any) map[string]an
 		typ = typ.Elem()
 	}
 
-	for i := range typ.NumField() {
-		field := typ.Field(i)
+	for field := range typ.Fields() {
 		tag := field.Tag.Get("mapstructure")
 		if tag == "" {
 			tag = field.Name
@@ -658,4 +671,11 @@ func convertConfigTypes(typ reflect.Type, settings map[string]any) map[string]an
 	}
 
 	return result
+}
+
+func (c *Config) checkRating() {
+	if c.Rating < -1 || c.Rating > 5 {
+		log.Warn("Rating must be -1 (disabled) or 0–5; disabling rating", "value", c.Rating)
+		c.Rating = -1
+	}
 }

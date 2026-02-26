@@ -11,6 +11,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 
+	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/dustin/go-humanize"
 	"io"
 	"net/url"
@@ -35,6 +36,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 						<div class="more-info--button-group">
 							@LikeButton(
 								img.ImmichAsset.ID,
+								img.ImmichAsset.SelectedUser(),
 								img.ImmichAsset.IsFavorite,
 								false,
 								img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
@@ -42,13 +44,15 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 							)
 							@HideButton(
 								img.ImmichAsset.ID,
+								img.ImmichAsset.SelectedUser(),
 								img.ImmichAsset.HasTag(kiosk.TagSkip),
 								img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
 								secret,
 							)
 						</div>
 					}
-					@originalImageTimeLocation(viewData, i, viewData.HideCountries)
+					@rating(img.ImmichAsset.ExifInfo.Rating)
+					@originalImageTimeLocation(viewData, i)
 					@cameraData(img.ImmichAsset.ExifInfo)
 					@originalAssetData(img.ImmichAsset)
 					@people(img.ImmichAsset.People, viewData.ShowAgeYearUnit, viewData.AgeSwitchToYearsAfter, img.ImmichAsset.LocalDateTime)
@@ -90,7 +94,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 //   - liked: Whether to show the liked animation
 //   - isButtonEnabled: Whether the button should be enabled
 //   - secret: Secret key for webhook signatures
-templ LikeButton(ID string, isLiked bool, liked bool, isButtonEnabled bool, secret string) {
+templ LikeButton(ID, selectedUser string, isLiked bool, liked bool, isButtonEnabled bool, secret string) {
 	{{
 		t := i18n.T()
 		webhook := webhooks.UserLikeInfoOverlay
@@ -108,7 +112,7 @@ templ LikeButton(ID string, isLiked bool, liked bool, isButtonEnabled bool, secr
 		}
 		class={ "more-info--like-asset", templ.KV("is-liked", isLiked) }
 		hx-trigger="click throttle:2s"
-		hx-vals={ fmt.Sprintf("{\"assetID\": \"%s\"}", ID) }
+		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "user": "%s"}`, ID, selectedUser) }
 		hx-swap="outerHTML"
 		disabled?={ !isButtonEnabled }
 	>
@@ -152,7 +156,7 @@ templ LikeButton(ID string, isLiked bool, liked bool, isButtonEnabled bool, secr
 //   - isHidden: Whether the asset is currently hidden
 //   - isButtonEnabled: Whether the button is enabled
 //   - secret: Secret key for webhook signatures
-templ HideButton(ID string, isHidden bool, isButtonEnabled bool, secret string) {
+templ HideButton(ID, selectedUser string, isHidden bool, isButtonEnabled bool, secret string) {
 	{{
 		t := i18n.T()
 		webhook := webhooks.UserHideInfoOverlay
@@ -170,7 +174,7 @@ templ HideButton(ID string, isHidden bool, isButtonEnabled bool, secret string) 
 			title={ t("unhide_asset") }
 		}
 		hx-trigger="click throttle:2s"
-		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "tagName": "%s"}`, ID, kiosk.TagSkip) }
+		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "tagName": "%s", "user": "%s"}`, ID, kiosk.TagSkip, selectedUser) }
 		hx-swap="outerHTML"
 		disabled?={ !isButtonEnabled }
 	>
@@ -239,15 +243,22 @@ templ originalAssetData(img immich.Asset) {
 	</div>
 }
 
+templ rating(rating float32) {
+	<div class="more-info--rating">
+		@ratingStars(rating)
+	</div>
+}
+
 // originalImageTimeLocation displays the date/time and location of the image
 // Parameters:
 //   - viewData: The view data containing image information and display options
 //   - imageIndex: The index of the current image in the view data
-//   - hideCountries: List of country names to hide from location display
-templ originalImageTimeLocation(viewData common.ViewData, imageIndex int, hideCountries []string) {
-	{{ t := i18n.T() }}
-	{{ imageDatetime := AssetDateTime(viewData, imageIndex, true) }}
-	{{ location := AssetLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo, hideCountries) }}
+templ originalImageTimeLocation(viewData common.ViewData, imageIndex int) {
+	{{
+		t := i18n.T()
+		imageDatetime := AssetDateTime(viewData, imageIndex, true)
+		location := AssetLocation(viewData.Assets[imageIndex].ImmichAsset.ExifInfo, config.ImageLocation{}, []string{})
+	}}
 	<div>
 		<div>
 			<h3>

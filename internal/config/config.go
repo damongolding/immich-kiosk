@@ -137,11 +137,22 @@ type KioskSettings struct {
 	// AssetWeighting use weighting when picking assets
 	AssetWeighting bool `json:"assetWeighting" yaml:"asset_weighting" mapstructure:"asset_weighting" default:"true"`
 
+	AllowedOrigins []string `json:"allowedOrigins" yaml:"allowed_origins" mapstructure:"allowed_origins" default:"[]"`
+
 	// debug modes
 	Debug        bool `json:"debug" yaml:"debug" mapstructure:"debug" default:"false"`
 	DebugVerbose bool `json:"debugVerbose" yaml:"debug_verbose" mapstructure:"debug_verbose" default:"false"`
 
 	DemoMode bool `json:"-" yaml:"-" mapstructure:"demo_mode" default:"false"`
+}
+
+type WeatherConfig struct {
+	// Locations A list of locations to fetch and display weather data from. Each location
+	Locations []WeatherLocation `json:"locations" yaml:"locations" mapstructure:"locations" default:"[]"`
+	// RotationInterval The interval in seconds to rotate weather locations.
+	RotationInterval int `json:"rotationInterval" yaml:"rotation_interval" mapstructure:"rotation_interval" query:"rotation_interval" form:"rotation_interval" default:"60"`
+	// HasDefault indicates whether any weather location has been set as the default.
+	HasDefault bool `json:"-" yaml:"-" default:"false"`
 }
 
 type WeatherLocation struct {
@@ -194,6 +205,15 @@ type ClientData struct {
 	FullyScreenOrientation int `json:"fully_screen_orientation" query:"fully_screen_orientation" form:"fully_screen_orientation"`
 	// FullyScreenBrightness stores the screen brightness level from Fully Kiosk Browser
 	FullyScreenBrightness int `json:"fully_screen_brightness" query:"fully_screen_brightness" form:"fully_screen_brightness"`
+}
+
+type ImageLocation struct {
+	// HideCity hide city from location UI
+	HideCity bool `json:"hideCity" yaml:"hide_city" mapstructure:"hide_city" query:"image_location_hide_city" form:"image_location_hide_city" default:"false"`
+	// HideState hide state from location UI
+	HideState bool `json:"hideState" yaml:"hide_state" mapstructure:"hide_state" query:"image_location_hide_state" form:"image_location_hide_state" default:"false"`
+	// HideCountry hide country from location UI
+	HideCountry bool `json:"hideCountry" yaml:"hide_country" mapstructure:"hide_country" query:"image_location_hide_country" form:"image_location_hide_country" default:"false"`
 }
 
 // Config represents the main configuration structure for the Immich Kiosk application.
@@ -290,12 +310,15 @@ type Config struct {
 	AlbumOrder     string   `json:"album_order" yaml:"album_order" mapstructure:"album_order" query:"album_order" form:"album_order" default:"random"`
 	ExcludedAlbums []string `json:"excluded_albums" yaml:"excluded_albums" mapstructure:"excluded_albums" query:"exclude_album" form:"exclude_album" default:"[]" redact:"true"`
 
-	// Dates date filter
+	// Dates date ranges
 	Dates []string `json:"dates" yaml:"dates" mapstructure:"dates" query:"date" form:"date" default:"[]"`
 
 	// Tags Name of tag to display
 	Tags         []string `json:"tags" yaml:"tags" mapstructure:"tags" query:"tag" form:"tag" default:"[]" lowercase:"true" redact:"true"`
 	ExcludedTags []string `json:"excluded_tags" yaml:"excluded_tags" mapstructure:"excluded_tags" query:"exclude_tag" form:"exclude_tag" default:"[]" lowercase:"true" redact:"true"`
+
+	// Rating number representing stars
+	Rating float32 `json:"rating" yaml:"rating" mapstructure:"rating" query:"rating" form:"rating" default:"-1"`
 
 	// ExcludedPartners ID(s) of partner to exclude
 	ExcludedPartners []string `json:"excluded_partners" yaml:"excluded_partners" mapstructure:"excluded_partners" query:"exclude_partner" form:"exclude_partner" default:"[]" redact:"true"`
@@ -375,6 +398,8 @@ type Config struct {
 	LivePhotos         bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
 	LivePhotoLoopDelay int  `json:"livePhotoLoopDelay" yaml:"live_photo_loop_delay" mapstructure:"live_photo_loop_delay" query:"live_photo_loop_delay" form:"live_photo_loop_delay" default:"0"`
 
+	// ShowImageRating display stars is image is rated
+	ShowImageRating bool `json:"showImageRating" yaml:"show_image_rating" mapstructure:"show_image_rating" query:"show_image_rating" form:"show_image_rating" default:"false"`
 	// ShowOwner whether to display owner
 	ShowOwner bool `json:"showOwner" yaml:"show_owner" mapstructure:"show_owner" query:"show_owner" form:"show_owner" default:"false"`
 	// ShowAlbumName whether to display the album name
@@ -401,10 +426,11 @@ type Config struct {
 	ShowImageCamera bool `json:"showImageCamera" yaml:"show_image_camera" mapstructure:"show_image_camera" query:"show_image_camera" form:"show_image_camera" default:"false"`
 	// ShowImageExif display image exif data (f number, iso, shutter speed, Focal length)
 	ShowImageExif bool `json:"showImageExif" yaml:"show_image_exif" mapstructure:"show_image_exif" query:"show_image_exif" form:"show_image_exif" default:"false"`
-	// ShowImageLocation display image location data
-	ShowImageLocation bool `json:"showImageLocation" yaml:"show_image_location" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
 	// ShowImageQR display image QR code
 	ShowImageQR bool `json:"showImageQR" yaml:"show_image_qr" mapstructure:"show_image_qr" query:"show_image_qr" form:"show_image_qr" default:"false"`
+	// ShowImageLocation display image location data
+	ShowImageLocation bool          `json:"showImageLocation" yaml:"show_image_location" mapstructure:"show_image_location" query:"show_image_location" form:"show_image_location" default:"false"`
+	ImageLocation     ImageLocation `json:"imageLocation" yaml:"image_location" mapstructure:"image_location" default:""`
 	// HideCountries hide country names in location information
 	HideCountries []string `json:"hideCountries" yaml:"hide_countries" mapstructure:"hide_countries" query:"hide_countries" form:"hide_countries" default:"[]"`
 	// ShowImageID display image ID
@@ -424,10 +450,7 @@ type Config struct {
 	// HideButtonAction indicates the action to take when the hide button is clicked
 	HideButtonAction []string `json:"hideButtonAction" yaml:"hide_button_action" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
 
-	// WeatherLocations A list of locations to fetch and display weather data from. Each location
-	WeatherLocations []WeatherLocation `json:"weather" yaml:"weather" mapstructure:"weather" default:"[]"`
-	// HasWeatherDefault indicates whether any weather location has been set as the default.
-	HasWeatherDefault bool `json:"-" yaml:"-" default:"false"`
+	Weather WeatherConfig `json:"weather" yaml:"weather" mapstructure:"weather"`
 
 	Iframe []string `json:"iframe" yaml:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:"[]"`
 
@@ -482,6 +505,9 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		configKey string
 		envVar    string
 	}{
+		{"image_location.hide_city", "KIOSK_IMAGE_LOCATION_HIDE_CITY"},
+		{"image_location.hide_state", "KIOSK_IMAGE_LOCATION_HIDE_STATE"},
+		{"image_location.hide_country", "KIOSK_IMAGE_LOCATION_HIDE_COUNTRY"},
 		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.behind_proxy", "KIOSK_BEHIND_PROXY"},
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
@@ -583,15 +609,18 @@ func (c *Config) Load() error {
 
 	c.checkSecrets()
 	c.checkRequiredFields()
+	c.checkUsersAPIKeys()
 	c.checkLowercaseTaggedFields()
 	c.checkAssetBuckets()
 	c.checkAlbumOrder()
 	c.checkExcludedAlbums()
 	c.checkTags()
+	c.checkRating()
 	c.checkExcludedTags()
 	c.checkURLScheme()
 	c.checkHideCountries()
 	c.checkWeatherLocations()
+	c.checkWeatherRotationInterval()
 	c.checkDebuging()
 	c.checkFetchedAssetsSize()
 	c.checkRedirects()
@@ -610,6 +639,7 @@ func (c *Config) ResetBuckets() {
 	c.Albums = []string{}
 	c.Dates = []string{}
 	c.Tags = []string{}
+	c.Rating = -1
 }
 
 func getHistory(queries url.Values) []string {
@@ -633,7 +663,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 	}
 
 	// check for person or album in quries and empty baseconfig slice if found
-	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") {
+	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") || queries.Has("rating") {
 		c.ResetBuckets()
 	}
 

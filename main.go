@@ -139,44 +139,7 @@ func main() {
 	}
 
 	// Middleware
-	e.Pre(middleware.RemoveTrailingSlash())
-	e.Pre(NoCacheMiddleware)
-	e.Use(middleware.Recover())
-	e.Use(middleware.RequestID())
-
-	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
-		Level: 6,
-		Skipper: func(c *echo.Context) bool {
-			return strings.Contains(c.Path(), "image")
-		},
-	}))
-
-	if baseConfig.Kiosk.Password != "" {
-		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
-			Skipper: func(c *echo.Context) bool {
-				// skip auth for assets and /health endpoint
-				path := c.Request().URL.Path
-				return strings.HasPrefix(path, "/assets/") || path == "/health" || path == "/favicon.ico"
-			},
-			KeyLookup: "header:Authorization,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
-			Validator: func(c *echo.Context, key string, _ middleware.ExtractorSource) (bool, error) {
-				if subtle.ConstantTimeCompare([]byte(key), []byte(baseConfig.Kiosk.Password)) == 1 {
-					return true, nil
-				}
-				return false, nil
-			},
-			ErrorHandler: func(c *echo.Context, err error) error {
-				if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
-					log.Warn("unauthorized request",
-						"IP", c.RealIP(),
-						"method", c.Request().Method,
-						"URL", c.Request().URL.String(),
-						"error", err)
-				}
-				return routes.RenderUnauthorized(c)
-			},
-		}))
-	}
+	addMiddleware(e, baseConfig)
 
 	// CSS cache busting
 	e.FileFS("/assets/css/kiosk.*.css", "frontend/public/assets/css/kiosk.css", public, StaticCacheMiddlewareWithConfig(baseConfig))
@@ -248,7 +211,7 @@ func main() {
 
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 
-	for _, w := range baseConfig.WeatherLocations {
+	for _, w := range baseConfig.Weather.Locations {
 		if w.Forecast {
 			go weather.AddWeatherLocationWithForecast(c.Context(), w)
 		} else {
@@ -285,6 +248,51 @@ func main() {
 	} else {
 		log.Info("Kiosk shutting down")
 		fmt.Println("")
+	}
+}
+
+func addMiddleware(e *echo.Echo, baseConfig *config.Config) {
+	e.Pre(middleware.RemoveTrailingSlash())
+	e.Pre(NoCacheMiddleware)
+	e.Use(middleware.Recover())
+	e.Use(middleware.RequestID())
+
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Level: 6,
+		Skipper: func(c *echo.Context) bool {
+			return strings.Contains(c.Path(), "image")
+		},
+	}))
+
+	if baseConfig.Kiosk.Password != "" {
+		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
+			Skipper: func(c *echo.Context) bool {
+				// skip auth for assets and /health endpoint
+				path := c.Request().URL.Path
+				return strings.HasPrefix(path, "/assets/") || path == "/health" || path == "/favicon.ico"
+			},
+			KeyLookup: "header:Authorization,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
+			Validator: func(c *echo.Context, key string, _ middleware.ExtractorSource) (bool, error) {
+				if subtle.ConstantTimeCompare([]byte(key), []byte(baseConfig.Kiosk.Password)) == 1 {
+					return true, nil
+				}
+				return false, nil
+			},
+			ErrorHandler: func(c *echo.Context, err error) error {
+				if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
+					log.Warn("unauthorized request",
+						"IP", c.RealIP(),
+						"method", c.Request().Method,
+						"URL", c.Request().URL.String(),
+						"error", err)
+				}
+				return routes.RenderUnauthorized(c)
+			},
+		}))
+	}
+
+	if len(baseConfig.Kiosk.AllowedOrigins) > 0 {
+		e.Use(middleware.CORS(baseConfig.Kiosk.AllowedOrigins...))
 	}
 }
 

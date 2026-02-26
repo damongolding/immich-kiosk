@@ -80,8 +80,8 @@ templ weatherIcon(ID int) {
 	}
 }
 
-templ WeatherLocation(weatherData weather.Location, systemLang monday.Locale) {
-	<div class="weather">
+templ WeatherLocation(weatherData weather.Location, locationPos int, systemLang monday.Locale) {
+	<div class="weather" data-weather-position={ locationPos }>
 		<div class="weather--location">
 			if strings.HasSuffix(weatherData.Name, weather.APINameKeyword) {
 				{ weatherData.Weather.Name }
@@ -125,12 +125,23 @@ templ WeatherLocation(weatherData weather.Location, systemLang monday.Locale) {
 }
 
 // WeatherContainer renders a weather component with HTMX updates
-templ Weather(theme string) {
+templ Weather(theme string, rotatingLocations bool, weatherRotationInterval int) {
+	{{
+		interval := weatherRotationInterval
+		if interval <= 0 {
+			interval = 60
+		}
+	}}
 	<div
 		id="weather-container"
 		class={ fmt.Sprintf("weather--theme-%s", theme) }
 		hx-post="/weather"
-		hx-trigger="load, every 60s"
-		hx-swap="innerHTML"
+		if rotatingLocations {
+			hx-swap="innerHTML swap:1s"
+			hx-vals={ fmt.Sprintf("js:{\"%s\": kiosk.weatherRotationPosition()}", weather.WeatherRotationParam) }
+		} else {
+			hx-swap="innerHTML"
+		}
+		hx-trigger={ fmt.Sprintf("load, every %ds", interval) }
 	></div>
 }

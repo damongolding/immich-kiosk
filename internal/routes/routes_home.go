@@ -55,7 +55,7 @@ func Home(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		}
 
 		queryParams := c.QueryParams()
-		if !queryParams.Has("weather") && requestConfig.HasWeatherDefault {
+		if !queryParams.Has("weather") && requestConfig.Weather.HasDefault {
 			queryParams.Set("weather", weather.DefaultLocation())
 		}
 

@@ -108,6 +108,11 @@
     padding: 0 0.5rem;
 }
 
+.asset--metadata--rating-stars {
+    width: 100%;
+    gap: 0.3rem;
+}
+
 .frame--layout-splitview:nth-child(2) {
     .asset--metadata {
         display: flex;

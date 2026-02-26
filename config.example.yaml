@@ -118,14 +118,16 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 
 ## Weather feature - you’ll need an API key from OpenWeatherMap
 # weather:
-#   - name: london
-#     lat: 51.5285262
-#     lon: -0.2663999
-#     api: ""
-#     unit: metric
-#     lang: en
-#     forecast: false
-#     default: false
+#   rotation_interval: 60 # in seconds (minimum: 10); rotation must be enabled via URL parameter
+#   locations:
+#     - name: london
+#       lat: 51.5285262
+#       lon: -0.2663999
+#       api: ""
+#       unit: metric
+#       lang: en
+#       forecast: false
+#       default: false
 
 ## Add iframes into Kiosk - you can use local files or remote URLs
 #iframe:

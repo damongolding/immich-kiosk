@@ -85,7 +85,7 @@ func TestRandomStruct(t *testing.T) {
 
 	out := RandomItem(s)
 
-	assert.Equal(t, "utils.RendomStructDemo", reflect.TypeOf(out).String(), "Unexpected type returned from RandomItem")
+	assert.Equal(t, "utils.RendomStructDemo", reflect.TypeFor[RendomStructDemo]().String(), "Unexpected type returned from RandomItem")
 
 	assert.Contains(t, s, out, "RandomItem should return an item from the input slice")
 

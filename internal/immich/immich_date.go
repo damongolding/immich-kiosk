@@ -220,20 +220,20 @@ func processDateRange(dateRange string) (time.Time, time.Time, error) {
 
 	dateStart, dateEnd := processTodayDateRange()
 
-	dates := strings.SplitN(dateRange, "_to_", 2)
-	if len(dates) != 2 {
+	startRange, endRange, ok := strings.Cut(dateRange, "_to_")
+	if !ok {
 		return dateStart, dateEnd, fmt.Errorf("invalid date range format. Expected 'YYYY-MM-DD_to_YYYY-MM-DD', got '%s'", dateRange)
 	}
 
-	if !strings.EqualFold(dates[0], "today") {
-		dateStart, err = time.ParseInLocation(time.DateOnly, dates[0], time.Local)
+	if !strings.EqualFold(startRange, "today") {
+		dateStart, err = time.ParseInLocation(time.DateOnly, startRange, time.Local)
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
 	}
 
-	if !strings.EqualFold(dates[1], "today") {
-		dateEnd, err = time.ParseInLocation(time.DateOnly, dates[1], time.Local)
+	if !strings.EqualFold(endRange, "today") {
+		dateEnd, err = time.ParseInLocation(time.DateOnly, endRange, time.Local)
 		if err != nil {
 			return dateStart, dateEnd, err
 		}
