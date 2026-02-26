@@ -369,7 +369,7 @@
         },
         "locations": {
           "type": "array",
-          "maxItems": 1,
+          "minItems": 1,
           "items": {
             "type": "object",
             "additionalProperties": false,
