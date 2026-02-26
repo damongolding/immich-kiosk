@@ -96,6 +96,7 @@ live_photos: false
 live_photo_loop_delay: 0
 
 ## Image METADATA
+show_image_rating: false
 show_owner: false # show the owner of the image
 show_album_name: false
 show_person_name: false

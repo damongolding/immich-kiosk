@@ -71,6 +71,7 @@ services:
       KIOSK_LIVE_PHOTOS: false
       KIOSK_LIVE_PHOTO_LOOP_DELAY: 0
       # Image metadata
+      KIOSK_SHOW_IMAGE_RATING: false
       KIOSK_SHOW_OWNER: false
       KIOSK_SHOW_ALBUM_NAME: false
       KIOSK_SHOW_PERSON_NAME: false
