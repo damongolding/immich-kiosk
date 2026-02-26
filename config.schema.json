@@ -117,7 +117,7 @@
     },
     "rating": {
       "type": "integer",
-      "minimum": 0,
+      "minimum": -1,
       "maximum": 5
     },
     "excluded_partners": {
