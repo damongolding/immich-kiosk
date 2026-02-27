@@ -60,7 +60,6 @@ func (a *Asset) ApplyUserFromAssetID(assetID string) (string, string) {
 	id, user, ok := strings.Cut(assetID, "@")
 	if ok {
 		if userAPI, userFound := a.requestConfig.ImmichUsersAPIKeys[user]; userFound {
-			log.Info("Switched user to", "user", user)
 			a.requestConfig.SelectedUser = user
 			a.requestConfig.ImmichAPIKey = userAPI
 			return id, user

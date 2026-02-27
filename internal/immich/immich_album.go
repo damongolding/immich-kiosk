@@ -244,8 +244,6 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 //     after maximum retry attempts
 func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requestID, deviceID string) error {
 
-	log.Debug(requestID + " AssetFromAlbum()")
-
 	for range MaxRetries {
 
 		album, apiURL, err := a.albumAssets(albumID, requestID, deviceID)
