@@ -113,6 +113,7 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 							}
 						}
 					}
+					@URLBuilderNumber("Rating", "rating", "The star rating of assets you want to display", -1, 5, strconv.FormatInt(int64(c.Rating), 10))
 					@URLBuilderRadio("Memories", "memories", "Display memories.", "true", "true", "false", "false")
 					if extended {
 						@URLBuilderNumber("Past memory days", "past_memory_days", "Include memories from the last N days. 0 shows only today.", 0, 360, strconv.FormatInt(int64(c.PastMemoryDays), 10))
@@ -161,6 +162,7 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						@URLBuilderRadio("Use original image", "use_original_image", "Use the original image instead of the Immich optimized version.", "true", "true", "false", "false")
 						// Metadata
 						<h2>Metadata</h2>
+						@URLBuilderRadio("Show star rating", "show_image_rating", "Show the star rating of the asset.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show owner", "show_owner", "Show the owner of the asset.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show album name", "show_album_name", "Display album name(s) that the asset appears in.", "true", "true", "false", "false")
 						@URLBuilderRadio("Show person name", "show_person_name", "Display person name(s).", "true", "true", "false", "false")
