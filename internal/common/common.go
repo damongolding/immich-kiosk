@@ -154,6 +154,7 @@ type URLBuilderRequest struct {
 	ExcludedAlbums   []string `form:"excluded_albums" url:"exclude_album,omitempty"`
 	Tags             []string `form:"tags" url:"tag,omitempty"`
 	ExcludedTags     []string `form:"excluded_tags" url:"exclude_tag,omitempty"`
+	Rating           *int     `form:"rating" url:"rating,omitempty"`
 	ShowMemories     *bool    `form:"memories" url:"memories,omitempty"`
 	PastMemoryDays   *uint64  `form:"past_memory_days" url:"past_memory_days,omitempty"`
 
@@ -190,6 +191,7 @@ type URLBuilderRequest struct {
 	UseOriginalImage  *bool   `form:"use_original_image" url:"use_original_image,omitempty"`
 
 	// Metadata
+	ShowImageRating          *bool   `form:"show_image_rating" url:"show_image_rating,omitempty"`
 	ShowOwner                *bool   `form:"show_owner" url:"show_owner,omitempty"`
 	ShowAlbumName            *bool   `form:"show_album_name" url:"show_album_name,omitempty"`
 	ShowPersonName           *bool   `form:"show_person_name" url:"show_person_name,omitempty"`

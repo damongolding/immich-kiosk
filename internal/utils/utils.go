@@ -33,8 +33,8 @@ import (
 
 	"golang.org/x/image/webp"
 
+	"charm.land/lipgloss/v2"
 	"github.com/EdlinOrg/prominentcolor"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/disintegration/imaging"

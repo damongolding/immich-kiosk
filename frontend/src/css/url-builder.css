@@ -195,6 +195,7 @@ body#url-builder {
         color: var(--dark-grey);
         border-radius: 0.25rem;
         padding: 0.5rem;
+        min-width: 30%;
     }
 }
 .result--container {
