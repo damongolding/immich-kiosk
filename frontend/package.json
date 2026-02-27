@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
-    "autoprefixer": "^10.4.24",
+    "autoprefixer": "^10.4.27",
     "choices.js": "^11.1.0",
     "date-fns": "^4.1.0",
     "dompurify": "^3.3.1",

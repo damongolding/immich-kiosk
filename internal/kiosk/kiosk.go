@@ -1,7 +1,7 @@
 // kiosk constants
 package kiosk
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 type Source string
 

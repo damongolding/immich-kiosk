@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/log"
 	"github.com/goodsign/monday"
 	"github.com/labstack/echo/v5"
@@ -62,14 +62,14 @@ func main() {
 	log.SetLevel(logLevel)
 
 	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {
-		fmt.Println(kioskBanner)
+		lipgloss.Println(kioskBanner)
 	} else {
 		log.Info(kioskBanner)
 	}
 
 	versionStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#5af78e")).Render
 	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {
-		fmt.Print("Version ", versionStyle(version), "\n\n")
+		lipgloss.Print("Version ", versionStyle(version), "\n\n")
 	} else {
 		log.Info("Version", "v", version)
 		fmt.Println()
@@ -220,7 +220,7 @@ func main() {
 	}
 
 	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {
-		fmt.Printf("\nKiosk listening on port %s\n\n", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))
+		lipgloss.Printf("\nKiosk listening on port %s\n\n", versionStyle(strconv.Itoa(baseConfig.Kiosk.Port)))
 	} else {
 		fmt.Println("")
 		log.Info("Kiosk listening on", "port", baseConfig.Kiosk.Port)
