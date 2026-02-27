@@ -53,7 +53,7 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 		apiCacheKey := cache.APICacheKey(apiURL, deviceID, requestConfig.SelectedUser)
 
 		if apiData, found := cache.Get(apiCacheKey); found {
-			log.Debug(requestID+" Cache hit", "url", apiURL)
+			log.Debug(strings.TrimSpace(requestID+" Cache hit"), "url", apiURL)
 			data, ok := apiData.([]byte)
 			if !ok {
 				return nil, contentType, errors.New("cache data type assertion failed")
@@ -97,8 +97,6 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 // immichAPICall bootstrap for immich api call
 func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, error) {
 
-	log.Info("immichAPICall", "user", a.requestConfig.SelectedUser, "url", apiURL)
-
 	var responseBody []byte
 	var lastErr error
 	var contentType string
@@ -137,7 +135,6 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			apiKey := a.requestConfig.ImmichAPIKey
 			if a.requestConfig.SelectedUser != "" {
 				if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
-					log.Info("using API key for user", "user", a.requestConfig.SelectedUser, "url", apiURL, "key", key)
 					apiKey = key
 				} else {
 					return responseBody, contentType, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
