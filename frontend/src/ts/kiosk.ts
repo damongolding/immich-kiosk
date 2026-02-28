@@ -386,6 +386,17 @@ function addEventListeners(): void {
             htmx.addClass(offlineSVG, "offline");
         }
     });
+    
+    // Slideshow polling control. Fires after every AJAX request.
+    // Only (re)start polling when a new asset has been loaded
+    htmx.on("htmx:afterRequest", (e: HTMXEvent) => {
+        const path = e.detail?.pathInfo?.requestPath || "";
+
+        // Only restart polling for asset endpoints (new slide)
+        if (path.startsWith("/asset/")) {
+            startPolling();
+        }
+    });
 
     htmx.on("htmx:timeout", (e: HTMXEvent) => {
         let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
@@ -513,6 +524,13 @@ async function cleanupFrames(): Promise<void> {
  * @throws {Error} If request lock is already set
  */
 function setRequestLock(e: HTMXEvent): void {
+    const path = e.detail?.pathInfo?.requestPath || "";
+
+    // Only lock and pause polling for asset requests (new slide)
+    if (!path.startsWith("/asset/")) {
+        return;
+    }
+
     if (requestInFlight) {
         e.preventDefault();
         return;
