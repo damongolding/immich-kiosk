@@ -26,14 +26,14 @@
     }
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.4",
+    "@biomejs/biome": "^2.4.5",
     "autoprefixer": "^10.4.27",
     "choices.js": "^11.1.0",
     "date-fns": "^4.1.0",
     "dompurify": "^3.3.1",
     "esbuild": "^0.27.3",
     "htmx.org": "^2.0.8",
-    "postcss": "^8.5.6",
+    "postcss": "^8.5.8",
     "postcss-cli": "^11.0.1",
     "postcss-nested": "^7.0.2",
     "typescript": "^5.9.3"
