@@ -1,9 +1,18 @@
 package components
 
 import (
+	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 )
+
+func modifyGIFAssets(viewData *common.ViewData) {
+	for i, asset := range viewData.Assets {
+		if asset.ImmichAsset.OriginalMimeType == "image/gif" {
+			viewData.Assets[i].ImageData = fmt.Sprintf("/image/%s?use_original_image=true", asset.ImmichAsset.ID)
+		}
+	}
+}
 
 // Image is the main entry point for rendering images.
 // It determines whether to use a single or split view layout based on the number of images,
@@ -13,6 +22,7 @@ import (
 //   - viewData: ViewData containing all necessary information for rendering the images.
 //   - secret: The secret key used for generating the signature.
 templ Image(viewData common.ViewData, secret string) {
+	{{ modifyGIFAssets(&viewData) }}
 	if len(viewData.Assets) < 2 {
 		@layoutSingleView(viewData)
 	} else {

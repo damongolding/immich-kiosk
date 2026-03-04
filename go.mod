@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	charm.land/lipgloss/v2 v2.0.0
 	github.com/EdlinOrg/prominentcolor v1.0.0
-	github.com/a-h/templ v0.3.977
+	github.com/a-h/templ v0.3.1001
 	github.com/charmbracelet/log v0.4.2
 	github.com/disintegration/imaging v1.6.2
 	github.com/dustin/go-humanize v1.0.1
