@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 )
 
 func (a *Asset) Me(requestID, deviceID string) (UserResponse, error) {

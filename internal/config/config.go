@@ -32,7 +32,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/goodsign/monday"
 	"github.com/mcuadros/go-defaults"

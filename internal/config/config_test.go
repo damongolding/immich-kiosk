@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 
 	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"

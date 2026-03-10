@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/google/go-querystring/query"
