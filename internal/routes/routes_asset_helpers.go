@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"math/rand/v2"
 	"net/http"
 	"strings"
 	"time"
@@ -537,8 +536,6 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		urlString: c.URL.String(),
 	}
 
-	// Set up configuration
-	setupRequestConfig(&requestConfig)
 	immichAsset := setupImmichAsset(requestConfig, options.ImageOrientation)
 
 	// Handle relative asset configuration if needed
@@ -576,17 +573,6 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		ImageDominantColor: dominantColor,
 		User:               immichAsset.SelectedUser(),
 	}, nil
-}
-
-// setupRequestConfig configures the selected user for the request by picking a random
-// user from the config if multiple users are provided, otherwise sets to empty string
-func setupRequestConfig(config *config.Config) {
-	if len(config.User) > 0 {
-		randomIndex := rand.IntN(len(config.User))
-		config.SelectedUser = config.User[randomIndex]
-	} else {
-		config.SelectedUser = ""
-	}
 }
 
 // setupImmichAsset creates and configures a new ImmichAsset based on the provided config
