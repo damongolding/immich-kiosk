@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"charm.land/lipgloss/v2"
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/goodsign/monday"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"

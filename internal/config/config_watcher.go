@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 )
 
 // WatchConfig sets up a configuration file watcher that monitors for changes
