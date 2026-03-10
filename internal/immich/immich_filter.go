@@ -3,7 +3,7 @@ package immich
 import (
 	"time"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 )
 
 // DateFilter applies date filtering to the search request body based on the configured date filter.

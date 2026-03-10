@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 )
 
 type ServerAboutResponse struct {

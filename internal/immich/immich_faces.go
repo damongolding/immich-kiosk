@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 )
 
 // convertFaceResponse takes a slice of AssetFaceResponse and converts it into a slice of Person.

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo/v5"
 	"golang.org/x/sync/errgroup"

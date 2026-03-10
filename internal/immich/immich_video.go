@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"path"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 )
 
 // Video retrieves the video asset from Immich server.

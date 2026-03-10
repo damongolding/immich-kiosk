@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"sync"
 
+	"charm.land/log/v2"
 	"github.com/a-h/templ"
-	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v5"
 
 	"github.com/damongolding/immich-kiosk/internal/common"
