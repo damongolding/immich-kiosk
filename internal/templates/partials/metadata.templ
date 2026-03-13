@@ -130,6 +130,11 @@ func AssetLocation(info immich.ExifInfo, l config.ImageLocation, hideCountries [
 	return strings.Join(parts, ", ")
 }
 
+func trimFloatToString(f float64) string {
+	s := fmt.Sprintf("%.2f", f)
+	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
+}
+
 // AssetExif generates a formatted string containing camera EXIF metadata.
 // Includes f-number (aperture), exposure time, focal length and ISO settings
 // when available in the EXIF data.
@@ -161,9 +166,8 @@ func AssetExif(info immich.ExifInfo) string {
 		if stats.Len() > 0 {
 			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
 		}
-		f := fmt.Sprintf("%.2f", info.FocalLength)
-		fs := strings.TrimRight(strings.TrimRight(f, "0"), ".")
-		fmt.Fprintf(&stats, "%smm", fs)
+		f := trimFloatToString(info.FocalLength)
+		fmt.Fprintf(&stats, "%smm", f)
 	}
 
 	if info.Iso != 0 {
