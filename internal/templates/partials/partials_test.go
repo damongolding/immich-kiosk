@@ -1,6 +1,7 @@
 package partials
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/damongolding/immich-kiosk/internal/immich"
@@ -114,9 +115,11 @@ func TestTrimFloatToString(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := trimFloatToString(test.input)
-		if result != test.expected {
-			t.Errorf("trimFloatToString(%f) = %s; expected %s", test.input, result, test.expected)
-		}
+		t.Run(fmt.Sprintf("%f", test.input), func(t *testing.T) {
+			result := trimFloatToString(test.input)
+			if result != test.expected {
+				t.Errorf("trimFloatToString(%f) = %s; expected %s", test.input, result, test.expected)
+			}
+		})
 	}
 }
