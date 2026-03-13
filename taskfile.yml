@@ -92,6 +92,17 @@ tasks:
     desc: Check for outdated Go and frontend dependencies
     deps: [outdated-go, frontend-outdated]
 
+  update-go-deps:
+    desc: Update Go dependencies
+    cmds:
+      - eval $(go list -u -m -json all | jq -rs '[.[] | select(.Main or .Indirect | not) | select(.Update) | .Path + "@latest"] | "go get " + join(" ")')
+
+  update-deps:
+    desc: Update Go and frontend dependencies
+    deps: [update-go-deps, frontend-update]
+    cmds:
+      - go mod tidy
+
   openapi:
     desc: Generate OpenAPI specification
     cmds:

@@ -49,3 +49,9 @@ tasks:
     desc: Check for outdated frontend dependencies
     cmds:
       - bun outdated || true
+
+  frontend-update:
+    dir: ./frontend
+    desc: Update frontend dependencies
+    cmds:
+      - bun update
