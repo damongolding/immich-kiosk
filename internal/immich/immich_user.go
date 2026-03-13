@@ -2,6 +2,7 @@ package immich
 
 import (
 	"encoding/json"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 	"strings"
@@ -56,15 +57,30 @@ func (a *Asset) UserOwnsAsset(requestID, deviceID string) bool {
 
 func (a *Asset) ApplyUserFromAssetID(assetID string) (string, string) {
 
+	var userAPI string
+	var userFound bool
+
 	// assetID has @user
 	id, user, ok := strings.Cut(assetID, "@")
 	if ok {
-		if userAPI, userFound := a.requestConfig.ImmichUsersAPIKeys[user]; userFound {
+		if userAPI, userFound = a.requestConfig.ImmichUsersAPIKeys[user]; userFound {
 			a.requestConfig.SelectedUser = user
 			a.requestConfig.ImmichAPIKey = userAPI
 			return id, user
 		}
-		log.Warn("User not found in API keys, falling back to default")
+		log.Warn("User from assetID not found in API keys")
+	}
+
+	// User provided via URL query parameter
+	if len(a.requestConfig.URLParamUsers) > 0 {
+		randomIndex := rand.IntN(len(a.requestConfig.URLParamUsers))
+		selectedUser := a.requestConfig.URLParamUsers[randomIndex]
+		if userAPI, userFound = a.requestConfig.ImmichUsersAPIKeys[selectedUser]; userFound {
+			a.requestConfig.SelectedUser = selectedUser
+			a.requestConfig.ImmichAPIKey = userAPI
+			return id, selectedUser
+		}
+		log.Warn("User from URL query parameter not found in API keys")
 	}
 
 	// use default
