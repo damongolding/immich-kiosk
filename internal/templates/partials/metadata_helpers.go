@@ -1,0 +1,361 @@
+package partials
+
+import (
+	"fmt"
+	"slices"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/utils"
+	"github.com/goodsign/monday"
+)
+
+func bubbleBackground(c string, asset common.ViewImageData) string {
+	r := max(0, min(255, asset.ImageDominantColor.R))
+	g := max(0, min(255, asset.ImageDominantColor.G))
+	b := max(0, min(255, asset.ImageDominantColor.B))
+
+	return fmt.Sprintf(`
+	<style>
+		.%s .asset--metadata--has-icon {
+			background-color: rgba(%d, %d, %d, 0.6);
+		}
+	</style>
+	`, c, r, g, b)
+}
+
+// AssetLocation generates a formatted string containing location metadata for an asset.
+// Builds a hierarchical location string from EXIF city, state and country data.
+// Country names can be filtered out based on the hideCountries list.
+// Location parts are joined with commas, with country on a new line if other fields exist.
+// Empty fields are skipped. Returns empty string if no location data available.
+//
+// Parameters:
+//   - info: ExifInfo containing the asset's location metadata including city, state, country
+//   - hideCountries: List of country names (lowercase) that should be excluded from display
+//
+// Returns:
+//   - string: Comma-separated location with optional line break before country,
+//     or empty string if no location data present
+func AssetLocation(info immich.ExifInfo, l config.ImageLocation, hideCountries []string) string {
+	var parts []string
+
+	if info.City != "" && !l.HideCity {
+		parts = append(parts, info.City)
+	}
+
+	if info.State != "" && !l.HideState {
+		parts = append(parts, info.State)
+	}
+
+	if info.Country != "" && !l.HideCountry && !slices.Contains(hideCountries, strings.ToLower(info.Country)) {
+		if len(parts) > 0 {
+			parts = append(parts, "<br class=\"responsive-break\"/>"+info.Country)
+		} else {
+			parts = append(parts, info.Country)
+		}
+	}
+
+	if len(parts) == 0 {
+		return ""
+	}
+
+	return strings.Join(parts, ", ")
+}
+
+// AssetExif generates a formatted string containing camera EXIF metadata.
+// Includes f-number (aperture), exposure time, focal length and ISO settings
+// when available in the EXIF data.
+//
+// Parameters:
+//   - info: ExifInfo struct containing the EXIF metadata
+//
+// Returns:
+//   - string: HTML-formatted EXIF information string, or empty if no EXIF data
+func AssetExif(info immich.ExifInfo) string {
+	var stats strings.Builder
+
+	if info.FNumber == 0 && info.ExposureTime == "" && info.FocalLength == 0 && info.Iso == 0 {
+		return ""
+	}
+
+	if info.FNumber != 0 {
+		fmt.Fprintf(&stats, "<span class=\"asset--metadata--exif--fnumber\">&#402;</span>/%.1f", info.FNumber)
+	}
+
+	if info.ExposureTime != "" {
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
+		}
+		fmt.Fprintf(&stats, "%s<small>s</small>", info.ExposureTime)
+	}
+
+	if info.FocalLength != 0 {
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
+		}
+		f := fmt.Sprintf("%.2f", info.FocalLength)
+		fs := strings.TrimRight(strings.TrimRight(f, "0"), ".")
+		fmt.Fprintf(&stats, "%smm", fs)
+	}
+
+	if info.Iso != 0 {
+		if stats.Len() > 0 {
+			stats.WriteString("<span class=\"asset--metadata--exif--seperator\">&#124;</span>")
+		}
+		fmt.Fprintf(&stats, "ISO %d", info.Iso)
+	}
+
+	return stats.String()
+}
+
+func AssetCameraData(exifInfo immich.ExifInfo) string {
+	ma := strings.TrimSpace(exifInfo.Make)
+	mo := strings.TrimSpace(exifInfo.Model)
+
+	if utils.ContainsWholeWord(ma, mo) {
+		return mo
+	}
+
+	return strings.TrimSpace(fmt.Sprintf("%s %s", ma, mo))
+}
+
+// AssetDateTime generates a formatted date/time string for an asset.
+// The format is controlled by the ViewData settings, allowing for different
+// date formats, 12/24hr time, and showing/hiding date or time components.
+//
+// Parameters:
+//   - viewData: ViewData struct containing display settings and assets
+//   - assetIndex: Index of the asset in the ViewData assets slice
+//   - moreInfo: Boolean indicating if additional date/time info should be shown
+//
+// Returns:
+//   - string: Formatted date/time string based on settings
+func AssetDateTime(viewData common.ViewData, assetIndex int, moreInfo bool) string {
+
+	if assetIndex < 0 || assetIndex >= len(viewData.Assets) {
+		return ""
+	}
+	if viewData.Assets[assetIndex].ImmichAsset.LocalDateTime.IsZero() {
+		return ""
+	}
+
+	var assetDate string
+
+	assetTimeFormat := "15:04"
+	if viewData.ImageTimeFormat == "12" {
+		assetTimeFormat = time.Kitchen
+	}
+
+	assetDateFormat := utils.DateToLayout(viewData.ImageDateFormat)
+	if assetDateFormat == "" {
+		assetDateFormat = config.DefaultDateLayout
+	}
+
+	parsedDateTime := viewData.Assets[assetIndex].ImmichAsset.LocalDateTime
+	timeZone := viewData.Assets[assetIndex].ImmichAsset.ExifInfo.TimeZone
+	if timeZone != "" {
+		loc, err := time.LoadLocation(timeZone)
+		if err == nil {
+			parsedDateTime = viewData.Assets[assetIndex].ImmichAsset.ExifInfo.DateTimeOriginal.In(loc)
+		}
+	}
+	switch {
+	case moreInfo || (viewData.ShowImageDate && viewData.ShowImageTime):
+		assetDate = fmt.Sprintf(
+			"%s %s",
+			monday.Format(parsedDateTime, assetDateFormat, viewData.SystemLang),
+			parsedDateTime.Format(assetTimeFormat),
+		)
+	case viewData.ShowImageDate:
+		assetDate = monday.Format(parsedDateTime, assetDateFormat, viewData.SystemLang)
+	case viewData.ShowImageTime:
+		assetDate = parsedDateTime.Format(assetTimeFormat)
+	}
+
+	return strings.ToLower(assetDate)
+}
+
+// calculateAge calculates a person's age based on their birth date.
+// For individuals less than a month old, returns age in days.
+// For individuals less than 1 year old, returns age in months.
+// For individuals 1 year or older, returns age in years.
+//
+// Parameters:
+//   - assetDate: time.Time representing the reference date to calculate age against
+//   - birthDate: time.Time representing the person's date of birth
+//
+// Returns:
+//   - string: Age formatted as "X days", "X months" or "X years"
+//     with appropriate pluralization. Returns empty string if assetDate is before birthDate.
+func calculateAge(assetDate, birthDate time.Time, addYearUnit bool, switchToYears int) string {
+	if assetDate.Before(birthDate) {
+		return ""
+	}
+
+	years := assetDate.Year() - birthDate.Year()
+	months := int(assetDate.Month() - birthDate.Month())
+	days := assetDate.Day() - birthDate.Day()
+
+	// Adjust for negative months or days
+	if days < 0 {
+		// Subtract a month and add days of the previous month
+		months--
+		previousMonth := assetDate.AddDate(0, -1, 0)
+		days += utils.DaysInMonth(previousMonth)
+	}
+	if months < 0 {
+		years--
+		months += 12
+	}
+
+	// Calculate total days for comparison
+	totalDays := int(assetDate.Sub(birthDate).Hours() / 24)
+
+	// Choose appropriate format based on the age
+	switch {
+	case years > 0 && years < switchToYears:
+		if months == 0 {
+			if addYearUnit {
+				return fmt.Sprintf("%dy", years)
+			}
+			return strconv.Itoa(years)
+		}
+		return fmt.Sprintf("%dy %dm", years, months)
+	case years > 0:
+		if addYearUnit {
+			return fmt.Sprintf("%dy", years)
+		}
+		return strconv.Itoa(years)
+	case months > 0:
+		return fmt.Sprintf("%dm", months)
+	default:
+		return pluralize(totalDays, "day")
+	}
+}
+
+func pluralize(count int, unit string) string {
+	if count == 1 {
+		return fmt.Sprintf("%d %s", count, unit)
+	}
+	return fmt.Sprintf("%d %ss", count, unit)
+}
+
+// peopleNames returns a comma-separated string of person names with optional ages.
+//
+// Parameters:
+//   - people: Slice of Person structs containing name and birth date information
+//   - showName: Boolean indicating if names should be displayed
+//   - showAge: Boolean indicating if ages should be displayed
+//   - assetDate: Reference date for calculating ages
+//
+// Returns:
+//   - string: Comma-separated list of formatted person names with optional ages
+func peopleNames(people []immich.Person, showName, showAge, addYearUnit bool, switchToYears int, assetDate time.Time) string {
+	var names []string
+
+	for _, person := range people {
+		if person.Name == "" {
+			continue
+		}
+
+		name := formatPersonName(person, showName, showAge, addYearUnit, switchToYears, assetDate)
+		if name != "" {
+			names = append(names, name)
+		}
+	}
+
+	slices.Sort(names)
+
+	return strings.Join(names, ", ")
+}
+
+// formatPersonName formats a single person's name with optional age.
+//
+// Parameters:
+//   - person: Person struct containing name and birth date
+//   - showName: Boolean indicating if name should be displayed
+//   - showAge: Boolean indicating if age should be displayed
+//   - assetDate: Reference date for calculating age
+//
+// Returns:
+//   - string: Formatted name with optional age in parentheses
+func formatPersonName(person immich.Person, showName, showAge, addYearUnit bool, switchToYears int, assetDate time.Time) string {
+	if !showName && !showAge {
+		return ""
+	}
+
+	if !showName && showAge && person.BirthDate == "" {
+		return ""
+	}
+
+	name := person.Name
+
+	if showAge && person.BirthDate != "" {
+		if age := getPersonAge(person, addYearUnit, switchToYears, assetDate); age != "" {
+			name = fmt.Sprintf("%s <span class=\"metadata-age-bracket\">(</span>%s<span class=\"metadata-age-bracket\">)</span>", name, age)
+		}
+	}
+
+	return name
+}
+
+// getPersonAge calculates the age of a person at a given reference date.
+//
+// Parameters:
+//   - person: Person struct containing birth date information
+//   - assetDate: Reference date for calculating age
+//
+// Returns:
+//   - string: Formatted age string or empty string if birth date is invalid
+func getPersonAge(person immich.Person, addYearUnit bool, switchToYears int, assetDate time.Time) string {
+	birthDate, err := person.BirthDate.Time()
+	if err != nil {
+		return ""
+	}
+
+	return calculateAge(assetDate, birthDate, addYearUnit, switchToYears)
+}
+
+// joinAlbumNames joins album names into a comma-separated string.
+//
+// Parameters:
+//   - albums: Slice of Album structs containing album information
+//
+// Returns:
+//   - string: Comma-separated list of album names
+func joinAlbumNames(albums immich.Albums) string {
+	albumNames := make([]string, len(albums))
+
+	for i, album := range albums {
+		albumNames[i] = album.AlbumName
+	}
+
+	return strings.Join(albumNames, ", ")
+}
+
+// AssetPeople returns HTML markup for displaying people metadata with an icon.
+//
+// Parameters:
+//   - peopleNames: Comma-separated string of person names
+//
+// Returns:
+//   - string: HTML markup with people icon and names
+func AssetPeople(peopleNames string) string {
+	return fmt.Sprintf(`
+		<div class="asset--metadata--has-icon">
+			<div class="asset--metadata--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+					<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+					<path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"></path>
+				</svg>
+			</div>
+			<div>
+				%s
+			</div>
+		</div>`, peopleNames)
+}
