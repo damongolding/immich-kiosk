@@ -173,6 +173,11 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	// Memories bucket
 	if requestConfig.Memories {
+
+		if len(assets) == 0 {
+			// add all assets as random source
+		}
+
 		memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
 		if memories == 0 {
 			log.Warn("No assets found for memories")
