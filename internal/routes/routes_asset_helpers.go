@@ -176,6 +176,11 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 		if len(assets) == 0 {
 			// add all assets as random source
+			// TODO: get real weight number
+			assets = append(assets, utils.AssetWithWeighting{
+				Asset:  utils.WeightedAsset{Type: kiosk.SourceRandom, ID: "random"},
+				Weight: requestConfig.Kiosk.FetchedAssetsSize,
+			})
 		}
 
 		memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
