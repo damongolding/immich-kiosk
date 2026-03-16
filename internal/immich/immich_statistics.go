@@ -16,7 +16,7 @@ type StatisticsResponse struct {
 	Total  int `json:"total"`
 }
 
-// TotalAssetCount returns the total number of assets in the Immich timeline.
+// TotalAssetCount returns the total number of assets from the (default user) timeline.
 func (a *Asset) TotalAssetCount() int {
 	s, err := a.assetsStatistics()
 	if err != nil {
