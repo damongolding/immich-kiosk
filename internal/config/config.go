@@ -451,6 +451,9 @@ type Config struct {
 	// HideButtonAction indicates the action to take when the hide button is clicked
 	HideButtonAction []string `json:"hideButtonAction" yaml:"hide_button_action" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
 
+	ButtonOpenInApp bool `json:"buttonOpenInApp" yaml:"button_open_in_app" mapstructure:"button_open_in_app" query:"button_open_in_app" form:"button_open_in_app" default:"false"`
+	QrCodeOpenInApp bool `json:"qrCodeOpenInApp" yaml:"qr_code_open_in_app" mapstructure:"qr_code_open_in_app" query:"qr_code_open_in_app" form:"qr_code_open_in_app" default:"true"`
+
 	Weather WeatherConfig `json:"weather" yaml:"weather" mapstructure:"weather"`
 
 	Iframe []string `json:"iframe" yaml:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:"[]"`

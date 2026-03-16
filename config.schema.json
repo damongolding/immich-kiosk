@@ -357,6 +357,14 @@
       },
       "uniqueItems": true
     },
+    "qr_code_open_in_app": {
+      "type": "boolean",
+      "default": true
+    },
+    "button_open_in_app": {
+      "type": "boolean",
+      "default": false
+    },
     "weather": {
       "type": "object",
       "additionalProperties": false,
