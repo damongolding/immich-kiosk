@@ -173,19 +173,31 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	// Memories bucket
 	if requestConfig.Memories {
-		memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
-		if memories == 0 {
-			log.Warn("No assets found for memories")
-		} else {
-			assets = append(assets, utils.AssetWithWeighting{
-				Asset:   utils.WeightedAsset{Type: kiosk.SourceMemories, ID: "memories"},
-				Weight:  memories,
-				Penalty: requestConfig.MemoryWeight,
-			})
-		}
+		getMemoriesAssetsCount(immichAsset, requestConfig, requestID, deviceID, &assets)
 	}
 
 	return assets, nil
+}
+
+func getMemoriesAssetsCount(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string, assets *[]utils.AssetWithWeighting) {
+	if len(*assets) == 0 && !requestConfig.MemoriesOnly {
+		// add all assets as random source
+		*assets = append(*assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceRandom, ID: string(kiosk.SourceRandom)},
+			Weight: immichAsset.TotalAssetCount(),
+		})
+	}
+
+	memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
+	if memories == 0 {
+		log.Warn("No assets found for memories")
+	} else {
+		*assets = append(*assets, utils.AssetWithWeighting{
+			Asset:   utils.WeightedAsset{Type: kiosk.SourceMemories, ID: string(kiosk.SourceMemories)},
+			Weight:  memories,
+			Penalty: requestConfig.MemoryWeight,
+		})
+	}
 }
 
 func gatherRatedAssets(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string, assets *[]utils.AssetWithWeighting) error {
@@ -588,6 +600,7 @@ func setupImmichAsset(config config.Config, orientation immich.ImageOrientation)
 // handleRelativeAssetConfig updates the config buckets based on the relative asset options.
 // Resets existing buckets and configures the appropriate bucket based on the asset source type.
 func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDataOptions) {
+
 	config.ResetBuckets()
 	config.Memories = false
 
@@ -602,6 +615,7 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 		config.Tags = append(config.Tags, options.RelativeAssetBucketID)
 	case kiosk.SourceMemories:
 		config.Memories = true
+		config.MemoriesOnly = true
 	case kiosk.SourceRandom:
 	}
 }

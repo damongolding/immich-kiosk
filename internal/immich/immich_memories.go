@@ -327,6 +327,8 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 				asset.MemoryTitle = humanize.Time(memories[pickedMemoryIndex].Assets[assetIndex].LocalDateTime)
 			}
 
+			asset.BucketID = string(kiosk.SourceMemories)
+
 			*a = asset
 
 			return nil

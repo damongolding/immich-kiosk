@@ -112,5 +112,4 @@ func IsOnline(ctx context.Context, immichURL string) bool {
 	}
 
 	return pong.Res == "pong"
-
 }
