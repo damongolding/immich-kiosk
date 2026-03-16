@@ -241,7 +241,7 @@ type Config struct {
 	// ImmichUsersAPIKeys a map of usernames to their respective api keys for accessing Immich
 	ImmichUsersAPIKeys map[string]string `json:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}" redact:"true"`
 	// URLParamUsers the user(s) submitted via URL query parameter
-	URLParamUsers []string `json:"user" yaml:"user" mapstructure:"user" query:"user" form:"user" default:"[]" redact:"true"`
+	URLParamUsers []string `json:"user" yaml:"-" mapstructure:"-" query:"user" form:"user" default:"[]" redact:"true"`
 	// ReloadTimeStamp timestamp for when the last client reload was called for
 	ReloadTimeStamp string `json:"-" yaml:"-"`
 	// configHash stores the SHA-256 hash of the configuration file

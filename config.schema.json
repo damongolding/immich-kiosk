@@ -456,13 +456,6 @@
       },
       "required": []
     },
-    "user": {
-      "type": ["string", "array"],
-      "items": {
-        "type": "string"
-      },
-      "uniqueItems": true
-    },
     "show_user": {
       "type": "boolean"
     },
