@@ -173,28 +173,31 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	// Memories bucket
 	if requestConfig.Memories {
-
-		if len(assets) == 0 && !requestConfig.MemoriesOnly {
-			// add all assets as random source
-			assets = append(assets, utils.AssetWithWeighting{
-				Asset:  utils.WeightedAsset{Type: kiosk.SourceRandom, ID: string(kiosk.SourceRandom)},
-				Weight: immichAsset.TotalAssetCount(),
-			})
-		}
-
-		memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
-		if memories == 0 {
-			log.Warn("No assets found for memories")
-		} else {
-			assets = append(assets, utils.AssetWithWeighting{
-				Asset:   utils.WeightedAsset{Type: kiosk.SourceMemories, ID: string(kiosk.SourceMemories)},
-				Weight:  memories,
-				Penalty: requestConfig.MemoryWeight,
-			})
-		}
+		getMemoriesAssetsCount(immichAsset, requestConfig, requestID, deviceID, &assets)
 	}
 
 	return assets, nil
+}
+
+func getMemoriesAssetsCount(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string, assets *[]utils.AssetWithWeighting) {
+	if len(*assets) == 0 && !requestConfig.MemoriesOnly {
+		// add all assets as random source
+		*assets = append(*assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceRandom, ID: string(kiosk.SourceRandom)},
+			Weight: immichAsset.TotalAssetCount(),
+		})
+	}
+
+	memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
+	if memories == 0 {
+		log.Warn("No assets found for memories")
+	} else {
+		*assets = append(*assets, utils.AssetWithWeighting{
+			Asset:   utils.WeightedAsset{Type: kiosk.SourceMemories, ID: string(kiosk.SourceMemories)},
+			Weight:  memories,
+			Penalty: requestConfig.MemoryWeight,
+		})
+	}
 }
 
 func gatherRatedAssets(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string, assets *[]utils.AssetWithWeighting) error {
