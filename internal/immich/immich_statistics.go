@@ -43,7 +43,7 @@ func (a *Asset) assetsStatistics() (StatisticsResponse, error) {
 		RawQuery: "visibility=timeline",
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, kiosk.GlobalCache, kiosk.GlobalCache, a.requestConfig, stats)
+	immichAPICall := withImmichAPICache(a.immichAPICall, kiosk.DebugID, kiosk.GlobalCache, a.requestConfig, stats)
 	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return stats, err
