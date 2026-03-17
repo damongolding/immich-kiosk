@@ -129,7 +129,7 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 			@partials.AssetMetadata(viewData, imageIndex)
 			<div class="asset-metadata-qr">
 				if (viewData.ShowImageQR) {
-					<img src={ utils.CreateQrCode(partials.ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, imageData.ImmichAsset.ID)) }/>
+					<img src={ utils.CreateQrCode(partials.ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, imageData.ImmichAsset.ID, viewData.QrCodeOpenInApp)) }/>
 				}
 			</div>
 		</div>
