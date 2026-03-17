@@ -32,7 +32,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/goodsign/monday"
 	"github.com/mcuadros/go-defaults"
@@ -240,8 +240,8 @@ type Config struct {
 
 	// ImmichUsersAPIKeys a map of usernames to their respective api keys for accessing Immich
 	ImmichUsersAPIKeys map[string]string `json:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}" redact:"true"`
-	// User the user from ImmichUsersAPIKeys to use when fetching images. If not set, it will use the default ImmichAPIKey
-	User []string `json:"user" yaml:"user" mapstructure:"user" query:"user" form:"user" default:"[]" redact:"true"`
+	// URLParamUsers the user(s) submitted via URL query parameter
+	URLParamUsers []string `json:"user" yaml:"-" mapstructure:"-" query:"user" form:"user" default:"[]" redact:"true"`
 	// ReloadTimeStamp timestamp for when the last client reload was called for
 	ReloadTimeStamp string `json:"-" yaml:"-"`
 	// configHash stores the SHA-256 hash of the configuration file
@@ -325,6 +325,7 @@ type Config struct {
 
 	// Memories show memories
 	Memories       bool    `json:"memories" yaml:"memories" mapstructure:"memories" query:"memories" form:"memories" default:"false"`
+	MemoriesOnly   bool    `json:"-" yaml:"-" default:"false"`
 	PastMemoryDays int     `json:"pastMemoryDays" yaml:"past_memory_days" mapstructure:"past_memory_days" query:"past_memory_days" form:"past_memory_days" default:"0"`
 	MemoryWeight   float64 `json:"memoryWeight" yaml:"memory_weight" mapstructure:"memory_weight" default:"1.0"`
 
@@ -449,6 +450,9 @@ type Config struct {
 	LikeButtonAction []string `json:"likeButtonAction" yaml:"like_button_action" mapstructure:"like_button_action" query:"like_button_action" form:"like_button_action" default:"[favorite]"`
 	// HideButtonAction indicates the action to take when the hide button is clicked
 	HideButtonAction []string `json:"hideButtonAction" yaml:"hide_button_action" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
+
+	ButtonOpenInApp bool `json:"buttonOpenInApp" yaml:"button_open_in_app" mapstructure:"button_open_in_app" query:"button_open_in_app" form:"button_open_in_app" default:"false"`
+	QrCodeOpenInApp bool `json:"qrCodeOpenInApp" yaml:"qr_code_open_in_app" mapstructure:"qr_code_open_in_app" query:"qr_code_open_in_app" form:"qr_code_open_in_app" default:"true"`
 
 	Weather WeatherConfig `json:"weather" yaml:"weather" mapstructure:"weather"`
 

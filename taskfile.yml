@@ -1,6 +1,6 @@
 version: "3"
 env:
-  VERSION: 0.33.0
+  VERSION: 0.33.4
 
 includes:
   frontend:
@@ -52,13 +52,13 @@ tasks:
     desc: Build kiosk
     deps: [frontend, templ]
     cmds:
-      - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}}" -o dist/kiosk .
+      - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -s -w" -o dist/kiosk .
 
   build-verbose:
     desc: Build kiosk with face detection debugging enabled
     deps: [frontend, templ]
     cmds:
-      - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -X github.com/damongolding/immich-kiosk/routes.drawFacesOnImages=true" -o dist/kiosk .
+      - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -X github.com/damongolding/immich-kiosk/routes.drawFacesOnImages=true -s -w" -o dist/kiosk .
 
   # Maintenance tasks
   install:
@@ -91,6 +91,17 @@ tasks:
   outdated:
     desc: Check for outdated Go and frontend dependencies
     deps: [outdated-go, frontend-outdated]
+
+  update-go-deps:
+    desc: Update Go dependencies
+    cmds:
+      - eval $(go list -u -m -json all | jq -rs '[.[] | select(.Main or .Indirect | not) | select(.Update) | .Path + "@latest"] | "go get " + join(" ")')
+
+  update-deps:
+    desc: Update Go and frontend dependencies
+    deps: [update-go-deps, frontend-update]
+    cmds:
+      - go mod tidy
 
   openapi:
     desc: Generate OpenAPI specification

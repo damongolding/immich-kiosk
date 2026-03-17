@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/google/go-querystring/query"
@@ -131,6 +131,8 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 				// replace with cache minus used asset
 				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
 			}
+
+			asset.BucketID = string(kiosk.SourceRandom)
 
 			*a = asset
 

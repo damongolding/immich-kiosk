@@ -21,6 +21,8 @@ builds:
       - darwin
     ldflags:
       - "-X main.version={{.Env.VERSION}}"
+      - "-s"
+      - "-w"
 
 archives:
   - formats: ["tar.gz"]

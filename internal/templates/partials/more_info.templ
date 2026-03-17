@@ -1,9 +1,9 @@
 package partials
 
 import (
+	"charm.land/log/v2"
 	"context"
 	"fmt"
-	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/immich"
@@ -59,7 +59,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 					@tags(img.ImmichAsset.Tags)
 					<div class="more-info--button-group">
 						if viewData.ShowMoreInfoImageLink {
-							<a class="more-info--image-link" href={ templ.SafeURL(ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID)) } target="_blank">
+							<a class="more-info--image-link" href={ templ.SafeURL(ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID, viewData.ButtonOpenInApp)) } target="_blank">
 								{ t("immich_link_btn") }
 							</a>
 						}
@@ -79,7 +79,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 				</div>
 				if viewData.ShowMoreInfoQrCode {
 					<div class="more-info--image--qr-code">
-						<img src={ utils.CreateQrCode(ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID)) }/>
+						<img src={ utils.CreateQrCode(ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID, viewData.QrCodeOpenInApp)) }/>
 					</div>
 				}
 			</div>
@@ -386,14 +386,19 @@ func tags(tags immich.Tags) templ.Component {
 //   - baseUrl: The base URL of the Immich instance
 //   - externalUrl: The external URL of the Immich instance, if different from base URL
 //   - imageID: The ID of the image to view
+//   - useAppLink: If true, uses https://my.immich.app instead of the base/external URL
 //
 // Returns:
 //   - The complete URL string for viewing the image, or '#' if URL parsing fails
-func ImmichAssetUrl(baseUrl, externalUrl, imageID string) string {
+func ImmichAssetUrl(baseUrl, externalUrl, imageID string, useAppLink bool) string {
 
 	urlToParse := externalUrl
 	if urlToParse == "" {
 		urlToParse = baseUrl
+	}
+
+	if useAppLink {
+		urlToParse = "https://my.immich.app"
 	}
 
 	u, err := url.Parse(urlToParse)

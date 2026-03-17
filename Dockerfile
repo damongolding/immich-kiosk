@@ -10,7 +10,7 @@ RUN bun run css && bun run js && bun run url-builder
 
 
 # Go Builder
-FROM --platform=$BUILDPLATFORM golang:1.26.0-bookworm AS build
+FROM --platform=$BUILDPLATFORM golang:1.26.1-bookworm AS build
 
 ARG VERSION=demo
 ARG TARGETOS
@@ -25,7 +25,7 @@ COPY --from=frontend-build /app/frontend/public/assets/js/ /app/frontend/public/
 RUN go mod download
 RUN go tool templ generate
 
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION}" -o dist/kiosk .
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION} -s -w" -o dist/kiosk .
 
 # Release
 FROM alpine:3.22.2

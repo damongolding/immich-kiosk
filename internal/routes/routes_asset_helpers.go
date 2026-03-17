@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"math/rand/v2"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -174,19 +173,31 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	// Memories bucket
 	if requestConfig.Memories {
-		memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
-		if memories == 0 {
-			log.Warn("No assets found for memories")
-		} else {
-			assets = append(assets, utils.AssetWithWeighting{
-				Asset:   utils.WeightedAsset{Type: kiosk.SourceMemories, ID: "memories"},
-				Weight:  memories,
-				Penalty: requestConfig.MemoryWeight,
-			})
-		}
+		getMemoriesAssetsCount(immichAsset, requestConfig, requestID, deviceID, &assets)
 	}
 
 	return assets, nil
+}
+
+func getMemoriesAssetsCount(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string, assets *[]utils.AssetWithWeighting) {
+	if len(*assets) == 0 && !requestConfig.MemoriesOnly {
+		// add all assets as random source
+		*assets = append(*assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceRandom, ID: string(kiosk.SourceRandom)},
+			Weight: immichAsset.TotalAssetCount(),
+		})
+	}
+
+	memories := immichAsset.MemoriesAssetsCount(requestID, deviceID)
+	if memories == 0 {
+		log.Warn("No assets found for memories")
+	} else {
+		*assets = append(*assets, utils.AssetWithWeighting{
+			Asset:   utils.WeightedAsset{Type: kiosk.SourceMemories, ID: string(kiosk.SourceMemories)},
+			Weight:  memories,
+			Penalty: requestConfig.MemoryWeight,
+		})
+	}
 }
 
 func gatherRatedAssets(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string, assets *[]utils.AssetWithWeighting) error {
@@ -537,8 +548,6 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		urlString: c.URL.String(),
 	}
 
-	// Set up configuration
-	setupRequestConfig(&requestConfig)
 	immichAsset := setupImmichAsset(requestConfig, options.ImageOrientation)
 
 	// Handle relative asset configuration if needed
@@ -578,17 +587,6 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	}, nil
 }
 
-// setupRequestConfig configures the selected user for the request by picking a random
-// user from the config if multiple users are provided, otherwise sets to empty string
-func setupRequestConfig(config *config.Config) {
-	if len(config.User) > 0 {
-		randomIndex := rand.IntN(len(config.User))
-		config.SelectedUser = config.User[randomIndex]
-	} else {
-		config.SelectedUser = ""
-	}
-}
-
 // setupImmichAsset creates and configures a new ImmichAsset based on the provided config
 // and orientation settings
 func setupImmichAsset(config config.Config, orientation immich.ImageOrientation) immich.Asset {
@@ -602,6 +600,7 @@ func setupImmichAsset(config config.Config, orientation immich.ImageOrientation)
 // handleRelativeAssetConfig updates the config buckets based on the relative asset options.
 // Resets existing buckets and configures the appropriate bucket based on the asset source type.
 func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDataOptions) {
+
 	config.ResetBuckets()
 	config.Memories = false
 
@@ -616,6 +615,7 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 		config.Tags = append(config.Tags, options.RelativeAssetBucketID)
 	case kiosk.SourceMemories:
 		config.Memories = true
+		config.MemoriesOnly = true
 	case kiosk.SourceRandom:
 	}
 }

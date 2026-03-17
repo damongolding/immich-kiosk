@@ -357,6 +357,16 @@
       },
       "uniqueItems": true
     },
+    "qr_code_open_in_app": {
+      "type": "boolean",
+      "default": true,
+      "description": "When enabled, QR codes will link to assets via the Immich app (my.immich.app)"
+    },
+    "button_open_in_app": {
+      "type": "boolean",
+      "default": false,
+      "description": "When enabled, image link buttons will open assets via the Immich app (my.immich.app)"
+    },
     "weather": {
       "type": "object",
       "additionalProperties": false,
@@ -455,13 +465,6 @@
         }
       },
       "required": []
-    },
-    "user": {
-      "type": ["string", "array"],
-      "items": {
-        "type": "string"
-      },
-      "uniqueItems": true
     },
     "show_user": {
       "type": "boolean"

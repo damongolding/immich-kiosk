@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
@@ -326,6 +326,8 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 			if memories[pickedMemoryIndex].Type == immich_open_api.OnThisDay {
 				asset.MemoryTitle = humanize.Time(memories[pickedMemoryIndex].Assets[assetIndex].LocalDateTime)
 			}
+
+			asset.BucketID = string(kiosk.SourceMemories)
 
 			*a = asset
 

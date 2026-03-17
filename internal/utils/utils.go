@@ -34,8 +34,8 @@ import (
 	"golang.org/x/image/webp"
 
 	"charm.land/lipgloss/v2"
+	"charm.land/log/v2"
 	"github.com/EdlinOrg/prominentcolor"
-	"github.com/charmbracelet/log"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/disintegration/imaging"
 
@@ -477,18 +477,18 @@ func linearize(value float64) float64 {
 
 // PickRandomImageType selects a random image type based on the given configuration and weightings.
 // It returns a WeightedAsset representing the picked image type.
-func PickRandomImageType(useWeighting bool, peopleAndAlbums []AssetWithWeighting) WeightedAsset {
+func PickRandomImageType(useWeighting bool, assetBuckets []AssetWithWeighting) WeightedAsset {
 
 	var pickedImage WeightedAsset
 
 	if useWeighting {
-		pickedImage = WeightedRandomItem(peopleAndAlbums)
+		pickedImage = WeightedRandomItem(assetBuckets)
 	} else {
-		var assetsOnly []WeightedAsset
-		for _, item := range peopleAndAlbums {
-			assetsOnly = append(assetsOnly, item.Asset)
+		var assetsWithoutWeighting []WeightedAsset
+		for _, item := range assetBuckets {
+			assetsWithoutWeighting = append(assetsWithoutWeighting, item.Asset)
 		}
-		pickedImage = RandomItem(assetsOnly)
+		pickedImage = RandomItem(assetsWithoutWeighting)
 	}
 
 	return pickedImage

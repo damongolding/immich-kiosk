@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 )
 
 type ServerAboutResponse struct {
@@ -112,5 +112,4 @@ func IsOnline(ctx context.Context, immichURL string) bool {
 	}
 
 	return pong.Res == "pong"
-
 }

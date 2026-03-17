@@ -22,8 +22,9 @@ transition: cross-fade # cross-fade, fade or none
 show_progress_bar: true # display a progress bar
 image_fit: cover # how the image fits the screen. Options are none, contain and cover
 image_effect: smart-zoom
+image_effect_amount: 200
 
-albums: 75c4860f-d31c-4dac-9831-0e67c7ab7668
+albums: f9695ff6-2140-49e7-9d0d-56ab8402f514
 
 ## Image METADATA
 show_album_name: true
@@ -78,6 +79,8 @@ offline_mode:
 kiosk:
   port: 3000
 
+  disable_config_endpoint: true
+
   http_timeout: -1
 
   redirects:
@@ -85,7 +88,7 @@ kiosk:
       url: /?weather=rotate
 
     - name: all
-      url: /?album=none&use_offline_mode=false
+      url: /?album=none&use_offline_mode=false&image_effect_amount=200
 
     - name: simple
       url: /?image_effect=none&layout=single&image_fit=contain&transition=none&disable_ui=true&show_more_info=false&use_offline_mode=false

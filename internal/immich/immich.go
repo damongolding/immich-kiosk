@@ -400,6 +400,7 @@ type APIResponse interface {
 		UpsertTagResponse |
 		UserResponse |
 		AllPeopleResponse |
+		StatisticsResponse |
 		[]byte
 }
 
