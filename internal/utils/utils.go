@@ -68,6 +68,8 @@ const (
 	orientationRotate90    = 8
 )
 
+type orientation int
+
 // WeightedAsset represents an asset with a type and ID
 type WeightedAsset struct {
 	Type kiosk.Source
@@ -158,13 +160,14 @@ func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, string, error)
 	}
 
 	if isOriginal {
-		img = ApplyExifOrientation(img, imgBytes)
+		orient := readOrientation(bytes.NewReader(imgBytes))
+		img = ApplyExifOrientation(img, orient)
 	}
 
 	return img, imageMime, nil
 }
 
-func readOrientation(r io.Reader) int {
+func readOrientation(r io.Reader) orientation {
 	const (
 		markerSOI      = 0xffd8
 		markerAPP1     = 0xffe1
@@ -278,7 +281,7 @@ func readOrientation(r io.Reader) int {
 		if val < 1 || val > 8 {
 			return orientationUnspecified // Invalid tag value.
 		}
-		return int(val)
+		return orientation(val)
 	}
 	return orientationUnspecified // Missing orientation tag.
 }
@@ -297,34 +300,12 @@ func readOrientation(r io.Reader) int {
 //	8 = Rotated 90° CW
 //
 // Returns the properly oriented image.
-func ApplyExifOrientation(img image.Image, b []byte) image.Image {
-
+func ApplyExifOrientation(img image.Image, orient orientation) image.Image {
 	if img == nil {
 		return nil
 	}
 
-	r := io.Reader(bytes.NewReader(b))
-
-	var orient int
-	pr, pw := io.Pipe()
-	r = io.TeeReader(r, pw)
-	done := make(chan struct{})
-	go func() {
-		defer close(done)
-		orient = readOrientation(pr)
-		_, _ = io.Copy(io.Discard, pr)
-	}()
-
-	img, _, err := image.Decode(r)
-	pw.Close()
-	<-done
-	if err != nil {
-		log.Error(err)
-		return img
-	}
-
 	switch orient {
-	case orientationNormal:
 	case orientationFlipH:
 		img = imaging.FlipH(img)
 	case orientationFlipV:
