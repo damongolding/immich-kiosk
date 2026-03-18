@@ -66,11 +66,12 @@ var (
 	}
 
 	supportedImageMimeTypes = []string{
-		"image/jpeg",
-		"image/jpg",
-		"image/png",
-		"image/gif",
-		"image/webp",
+		kiosk.MimeTypeJpeg,
+		kiosk.MimeTypeJpg,
+		kiosk.MimeTypePng,
+		kiosk.MimeTypeGif,
+		kiosk.MimeTypeWebp,
+		kiosk.MimeTypeAvif,
 	}
 
 	ImageOnlyAssetTypes = []AssetType{ImageType}

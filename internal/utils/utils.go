@@ -31,13 +31,13 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/image/webp"
-
 	"charm.land/lipgloss/v2"
 	"charm.land/log/v2"
 	"github.com/EdlinOrg/prominentcolor"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/disintegration/imaging"
+	"github.com/gen2brain/avif"
+	"github.com/gen2brain/webp"
 
 	"github.com/google/uuid"
 
@@ -121,9 +121,9 @@ func ImageToBytes(img image.Image) ([]byte, error) {
 
 // BytesToImage converts a byte slice to an image.Image.
 // It takes a byte slice as input and returns an image.Image and any error encountered.
-// It handles both WebP and other common image formats (JPEG, PNG, GIF) automatically
+// It handles both WebP and other common image formats (JPEG, PNG, GIF, AVIF) automatically
 // by detecting the MIME type and using the appropriate decoder.
-func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, error) {
+func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, string, error) {
 
 	var img image.Image
 	var err error
@@ -131,21 +131,27 @@ func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, error) {
 	imageMime := ImageMimeType(bytes.NewReader(imgBytes))
 
 	switch imageMime {
-	case "image/webp":
+	case kiosk.MimeTypeWebp:
 		img, err = webp.Decode(bytes.NewReader(imgBytes))
 		if err != nil {
 			log.Error("could not decode image", "image mime type", imageMime, "err", err)
-			return nil, err
+			return nil, imageMime, err
+		}
+	case kiosk.MimeTypeAvif:
+		img, err = avif.Decode(bytes.NewReader(imgBytes))
+		if err != nil {
+			log.Error("could not decode image", "image mime type", imageMime, "err", err)
+			return nil, imageMime, err
 		}
 	default:
 		img, err = imaging.Decode(bytes.NewReader(imgBytes), imaging.AutoOrientation(isOriginal))
 		if err != nil {
 			log.Error("could not decode image", "image mime type", imageMime, "err", err)
-			return nil, err
+			return nil, imageMime, err
 		}
 	}
 
-	return img, nil
+	return img, imageMime, nil
 }
 
 // ApplyExifOrientation adjusts an image's orientation based on EXIF data.
@@ -196,23 +202,29 @@ func ApplyExifOrientation(img image.Image, exifOrientation string) image.Image {
 }
 
 // ImageToBase64 converts an image.Image to a base64 encoded data URI string with appropriate MIME type
-func ImageToBase64(img image.Image) (string, error) {
+func ImageToBase64(img image.Image, mimeType string) (string, error) {
 
 	var buf bytes.Buffer
 
-	err := imaging.Encode(&buf, img, imaging.JPEG)
-	if err != nil {
-		return "", err
+	switch mimeType {
+	case kiosk.MimeTypeAvif:
+		err := avif.Encode(&buf, img)
+		if err != nil {
+			return "", err
+		}
+	case kiosk.MimeTypeWebp:
+		err := webp.Encode(&buf, img)
+		if err != nil {
+			return "", err
+		}
+	default:
+		err := imaging.Encode(&buf, img, imaging.JPEG)
+		if err != nil {
+			return "", err
+		}
 	}
 
-	var base64Encoding string
-
-	mimeType := http.DetectContentType(buf.Bytes())
-
-	base64Encoding += fmt.Sprintf("data:%s;base64,", mimeType)
-
-	base64Encoding += base64.StdEncoding.EncodeToString(buf.Bytes())
-
+	base64Encoding := fmt.Sprintf("data:%s;base64,%s", mimeType, base64.StdEncoding.EncodeToString(buf.Bytes()))
 	return base64Encoding, nil
 }
 
