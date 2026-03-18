@@ -38,6 +38,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/gen2brain/avif"
 	"github.com/gen2brain/webp"
+	xwebp "golang.org/x/image/webp"
 
 	"github.com/google/uuid"
 
@@ -132,7 +133,7 @@ func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, string, error)
 
 	switch imageMime {
 	case kiosk.MimeTypeWebp:
-		img, err = webp.Decode(bytes.NewReader(imgBytes))
+		img, err = xwebp.Decode(bytes.NewReader(imgBytes))
 		if err != nil {
 			log.Error("could not decode image", "image mime type", imageMime, "err", err)
 			return nil, imageMime, err
