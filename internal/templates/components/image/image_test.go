@@ -133,7 +133,7 @@ func TestModifyGIFAssets(t *testing.T) {
 						ImageData: "bmp-data",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-bmp",
-							OriginalMimeType: "image/bmp",
+							OriginalMimeType: kiosk.MimeTypeBmp,
 						},
 					},
 					{

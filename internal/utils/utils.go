@@ -218,6 +218,19 @@ func ImageToBase64(img image.Image, mimeType string) (string, error) {
 		if err != nil {
 			return "", err
 		}
+	case kiosk.MimeTypePng:
+		err := imaging.Encode(&buf, img, imaging.PNG)
+		if err != nil {
+			return "", err
+		}
+	case kiosk.MimeTypeGif:
+		err := imaging.Encode(&buf, img, imaging.GIF)
+		if err != nil {
+			return "", err
+		}
+	case kiosk.MimeTypeJpeg, kiosk.MimeTypeJpg, "":
+		mimeType = kiosk.MimeTypeJpeg
+		fallthrough
 	default:
 		err := imaging.Encode(&buf, img, imaging.JPEG)
 		if err != nil {

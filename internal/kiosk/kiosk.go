@@ -66,6 +66,7 @@ const (
 	MimeTypeGif  string = "image/gif"
 	MimeTypeWebp string = "image/webp"
 	MimeTypeAvif string = "image/avif"
+	MimeTypeBmp  string = "image/bmp"
 )
 
 var DebugID = lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(lipgloss.Color("#000000")).Background(lipgloss.Color("#1ed2bb")).Render("KIOSK")

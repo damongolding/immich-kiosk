@@ -275,7 +275,7 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		return
 	}
 
-	img, mimeType, imgErr := utils.BytesToImage(imgBytes, false)
+	img, _, imgErr := utils.BytesToImage(imgBytes, false)
 	if imgErr != nil {
 		log.Error("Image BytesToImage", "err", imgErr)
 	}
@@ -292,7 +292,7 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		log.Error("Getting image preview", "err", imgBlurErr)
 	}
 
-	imageData, imageDataErr := utils.ImageToBase64(img, mimeType)
+	imageData, imageDataErr := utils.ImageToBase64(img, kiosk.MimeTypeJpeg)
 	if imageDataErr != nil {
 		log.Error("Converting image to base64", "err", imageDataErr)
 	}
