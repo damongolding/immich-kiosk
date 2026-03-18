@@ -1,6 +1,7 @@
 package components
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -173,7 +174,7 @@ func TestModifyGIFAssets(t *testing.T) {
 						ImageData: "original-data",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-case",
-							OriginalMimeType: kiosk.MimeTypeGif, // uppercase
+							OriginalMimeType: strings.ToUpper(kiosk.MimeTypeGif), // uppercase
 						},
 					},
 				},
