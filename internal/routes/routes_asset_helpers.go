@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/color"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -574,7 +575,7 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 
 	// Convert images to required formats
 	mimeType := kiosk.MimeTypeJpeg
-	if requestConfig.UseOriginalImage {
+	if requestConfig.UseOriginalImage && slices.Contains(kiosk.SupportedImageMimeTypes, immichAsset.OriginalMimeType) {
 		mimeType = immichAsset.OriginalMimeType
 	}
 	imgString, imgBlurString, dominantColor, err := convertImages(img, immichAsset.Type, mimeType, requestConfig, metadata, isPrefetch)

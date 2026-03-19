@@ -65,14 +65,6 @@ var (
 		Transport: httpTransport,
 	}
 
-	supportedImageMimeTypes = []string{
-		kiosk.MimeTypeJpeg,
-		kiosk.MimeTypeJpg,
-		kiosk.MimeTypePng,
-		kiosk.MimeTypeGif,
-		kiosk.MimeTypeWebp,
-	}
-
 	ImageOnlyAssetTypes = []AssetType{ImageType}
 	VideoOnlyAssetTypes = []AssetType{VideoType}
 	AllAssetTypes       = []AssetType{ImageType, VideoType}
