@@ -7,7 +7,6 @@ import (
 	"image"
 	"image/color"
 	"net/http"
-	"slices"
 	"strings"
 	"time"
 
@@ -317,7 +316,7 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 		return nil, fmt.Errorf("getting image preview: %w", err)
 	}
 
-	img, _, err := utils.BytesToImage(imgBytes, isOriginal)
+	img, err := utils.BytesToImage(imgBytes, isOriginal)
 	if err != nil {
 		return nil, err
 	}
@@ -422,15 +421,15 @@ func processImage(immichAsset *immich.Asset, requestConfig config.Config, reques
 
 // imageToBase64 converts image bytes to a base64 string and logs the processing time.
 // It returns the base64 string and an error if conversion fails.
-func imageToBase64(img image.Image, mimeType string, verboseLogging bool, requestID, deviceID string, action string, isPrefetch bool) (string, error) {
+func imageToBase64(img image.Image, config config.Config, requestID, deviceID string, action string, isPrefetch bool) (string, error) {
 	startTime := time.Now()
 
-	imgBytes, err := utils.ImageToBase64(img, mimeType)
+	imgBytes, err := utils.ImageToBase64(img)
 	if err != nil {
 		return "", fmt.Errorf("converting image to base64: %w", err)
 	}
 
-	logImageProcessing(verboseLogging, requestID, deviceID, isPrefetch, action, startTime)
+	logImageProcessing(config, requestID, deviceID, isPrefetch, action, startTime)
 	return imgBytes, nil
 }
 
@@ -468,14 +467,14 @@ func processBlurredImage(img image.Image, assetType immich.AssetType, config con
 		return "", fmt.Errorf("blurring image: %w", err)
 	}
 
-	logImageProcessing(config.Kiosk.DebugVerbose, requestID, deviceID, isPrefetch, "Blurred", startTime)
+	logImageProcessing(config, requestID, deviceID, isPrefetch, "Blurred", startTime)
 
-	return imageToBase64(imgBlur, kiosk.MimeTypeJpeg, config.Kiosk.DebugVerbose, requestID, deviceID, "Converted blurred", isPrefetch)
+	return imageToBase64(imgBlur, config, requestID, deviceID, "Converted blurred", isPrefetch)
 }
 
 // logImageProcessing logs the time taken for image processing if debug verbose is enabled.
-func logImageProcessing(verboseLogging bool, requestID, deviceID string, isPrefetch bool, action string, startTime time.Time) {
-	if !verboseLogging {
+func logImageProcessing(config config.Config, requestID, deviceID string, isPrefetch bool, action string, startTime time.Time) {
+	if !config.Kiosk.DebugVerbose {
 		return
 	}
 
@@ -574,11 +573,7 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	}
 
 	// Convert images to required formats
-	mimeType := kiosk.MimeTypeJpeg
-	if requestConfig.UseOriginalImage && slices.Contains(kiosk.SupportedImageMimeTypes, immichAsset.OriginalMimeType) {
-		mimeType = immichAsset.OriginalMimeType
-	}
-	imgString, imgBlurString, dominantColor, err := convertImages(img, immichAsset.Type, mimeType, requestConfig, metadata, isPrefetch)
+	imgString, imgBlurString, dominantColor, err := convertImages(img, immichAsset.Type, requestConfig, metadata, isPrefetch)
 	if err != nil {
 		return common.ViewImageData{}, err
 	}
@@ -642,11 +637,11 @@ func handleFaceProcessing(img image.Image, asset *immich.Asset, config config.Co
 
 // convertImages converts the provided image to base64 strings for both normal and blurred versions.
 // Returns the base64 encoded normal image, blurred image, and any error that occurred.
-func convertImages(img image.Image, assetType immich.AssetType, mimeType string, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, color.RGBA, error) {
+func convertImages(img image.Image, assetType immich.AssetType, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, color.RGBA, error) {
 
 	var dominantColor color.RGBA
 
-	imgString, err := imageToBase64(img, mimeType, config.Kiosk.DebugVerbose, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
+	imgString, err := imageToBase64(img, config, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
 	if err != nil {
 		return "", "", dominantColor, err
 	}
