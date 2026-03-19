@@ -71,7 +71,6 @@ var (
 		kiosk.MimeTypePng,
 		kiosk.MimeTypeGif,
 		kiosk.MimeTypeWebp,
-		kiosk.MimeTypeAvif,
 	}
 
 	ImageOnlyAssetTypes = []AssetType{ImageType}

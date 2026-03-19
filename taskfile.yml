@@ -52,13 +52,13 @@ tasks:
     desc: Build kiosk
     deps: [frontend, templ]
     cmds:
-      - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -s -w"  -tags nodynamic -o dist/kiosk .
+      - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -s -w" -o dist/kiosk .
 
   build-verbose:
     desc: Build kiosk with face detection debugging enabled
     deps: [frontend, templ]
     cmds:
-      - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -X github.com/damongolding/immich-kiosk/routes.drawFacesOnImages=true -s -w"  -tags nodynamic -o dist/kiosk .
+      - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -X github.com/damongolding/immich-kiosk/routes.drawFacesOnImages=true -s -w" -o dist/kiosk .
 
   # Maintenance tasks
   install:

@@ -37,9 +37,7 @@ import (
 	"github.com/EdlinOrg/prominentcolor"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/disintegration/imaging"
-	"github.com/gen2brain/avif"
-	"github.com/gen2brain/webp"
-	xwebp "golang.org/x/image/webp"
+	"golang.org/x/image/webp"
 
 	"github.com/google/uuid"
 
@@ -147,9 +145,7 @@ func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, string, error)
 
 	switch imageMime {
 	case kiosk.MimeTypeWebp:
-		img, err = xwebp.Decode(bytes.NewReader(imgBytes))
-	case kiosk.MimeTypeAvif:
-		img, err = avif.Decode(bytes.NewReader(imgBytes))
+		img, err = webp.Decode(bytes.NewReader(imgBytes))
 	default:
 		img, err = imaging.Decode(bytes.NewReader(imgBytes), imaging.AutoOrientation(false))
 	}
@@ -331,16 +327,6 @@ func ImageToBase64(img image.Image, mimeType string) (string, error) {
 	var buf bytes.Buffer
 
 	switch mimeType {
-	case kiosk.MimeTypeAvif:
-		err := avif.Encode(&buf, img)
-		if err != nil {
-			return "", err
-		}
-	case kiosk.MimeTypeWebp:
-		err := webp.Encode(&buf, img)
-		if err != nil {
-			return "", err
-		}
 	case kiosk.MimeTypePng:
 		err := imaging.Encode(&buf, img, imaging.PNG)
 		if err != nil {

@@ -23,8 +23,6 @@ builds:
       - "-X main.version={{.Env.VERSION}}"
       - "-s"
       - "-w"
-    tags:
-      - nodynamic
 
 archives:
   - formats: ["tar.gz"]
