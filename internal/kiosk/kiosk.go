@@ -59,6 +59,24 @@ const (
 
 	Client string = "client"
 	Server string = "server"
+
+	MimeTypeJpeg string = "image/jpeg"
+	MimeTypeJpg  string = "image/jpg"
+	MimeTypePng  string = "image/png"
+	MimeTypeGif  string = "image/gif"
+	MimeTypeWebp string = "image/webp"
+	MimeTypeAvif string = "image/avif"
+	MimeTypeBmp  string = "image/bmp"
 )
 
-var DebugID = lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(lipgloss.Color("#000000")).Background(lipgloss.Color("#1ed2bb")).Render("KIOSK")
+var (
+	SupportedImageMimeTypes = []string{
+		MimeTypeJpeg,
+		MimeTypeJpg,
+		MimeTypePng,
+		MimeTypeGif,
+		MimeTypeWebp,
+	}
+
+	DebugID = lipgloss.NewStyle().Bold(true).Padding(0, 1).Foreground(lipgloss.Color("#000000")).Background(lipgloss.Color("#1ed2bb")).Render("KIOSK")
+)

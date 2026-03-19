@@ -65,14 +65,6 @@ var (
 		Transport: httpTransport,
 	}
 
-	supportedImageMimeTypes = []string{
-		"image/jpeg",
-		"image/jpg",
-		"image/png",
-		"image/gif",
-		"image/webp",
-	}
-
 	ImageOnlyAssetTypes = []AssetType{ImageType}
 	VideoOnlyAssetTypes = []AssetType{VideoType}
 	AllAssetTypes       = []AssetType{ImageType, VideoType}
