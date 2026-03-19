@@ -3,12 +3,13 @@ package components
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 )
 
 func modifyGIFAssets(viewData *common.ViewData) {
 	for i, asset := range viewData.Assets {
-		if asset.ImmichAsset.OriginalMimeType == "image/gif" {
+		if asset.ImmichAsset.OriginalMimeType == kiosk.MimeTypeGif {
 			viewData.Assets[i].ImageData = fmt.Sprintf("/image/%s?use_original_image=true", asset.ImmichAsset.ID)
 		}
 	}

@@ -12,6 +12,7 @@ import (
 	crand "crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -31,13 +32,12 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/image/webp"
-
 	"charm.land/lipgloss/v2"
 	"charm.land/log/v2"
 	"github.com/EdlinOrg/prominentcolor"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/disintegration/imaging"
+	"golang.org/x/image/webp"
 
 	"github.com/google/uuid"
 
@@ -53,7 +53,20 @@ const (
 
 	// minMemoryWeight is the minimum weight allowed for memory assets.
 	minMemoryWeight float64 = 0.0001
+
+	// orientation constants
+	orientationUnspecified = 0
+	orientationNormal      = 1
+	orientationFlipH       = 2
+	orientationRotate180   = 3
+	orientationFlipV       = 4
+	orientationTranspose   = 5
+	orientationRotate270   = 6
+	orientationTransverse  = 7
+	orientationRotate90    = 8
 )
+
+type orientation int
 
 // WeightedAsset represents an asset with a type and ID
 type WeightedAsset struct {
@@ -121,9 +134,9 @@ func ImageToBytes(img image.Image) ([]byte, error) {
 
 // BytesToImage converts a byte slice to an image.Image.
 // It takes a byte slice as input and returns an image.Image and any error encountered.
-// It handles both WebP and other common image formats (JPEG, PNG, GIF) automatically
+// It handles both WebP and other common image formats (JPEG, PNG, GIF, AVIF) automatically
 // by detecting the MIME type and using the appropriate decoder.
-func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, error) {
+func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, string, error) {
 
 	var img image.Image
 	var err error
@@ -131,21 +144,142 @@ func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, error) {
 	imageMime := ImageMimeType(bytes.NewReader(imgBytes))
 
 	switch imageMime {
-	case "image/webp":
+	case kiosk.MimeTypeWebp:
 		img, err = webp.Decode(bytes.NewReader(imgBytes))
-		if err != nil {
-			log.Error("could not decode image", "image mime type", imageMime, "err", err)
-			return nil, err
-		}
 	default:
-		img, err = imaging.Decode(bytes.NewReader(imgBytes), imaging.AutoOrientation(isOriginal))
-		if err != nil {
-			log.Error("could not decode image", "image mime type", imageMime, "err", err)
-			return nil, err
+		img, err = imaging.Decode(bytes.NewReader(imgBytes), imaging.AutoOrientation(false))
+	}
+
+	if err != nil {
+		log.Error("could not decode image", "image mime type", imageMime, "err", err)
+		return nil, imageMime, err
+	}
+
+	if isOriginal {
+		orient := readOrientation(bytes.NewReader(imgBytes))
+		img = ApplyExifOrientation(img, orient)
+	}
+
+	return img, imageMime, nil
+}
+
+func readOrientation(r io.Reader) orientation {
+	const (
+		markerSOI      = 0xffd8
+		markerAPP1     = 0xffe1
+		exifHeader     = 0x45786966
+		byteOrderBE    = 0x4d4d
+		byteOrderLE    = 0x4949
+		orientationTag = 0x0112
+	)
+
+	// Check if JPEG SOI marker is present.
+	var soi uint16
+	if err := binary.Read(r, binary.BigEndian, &soi); err != nil {
+		return orientationUnspecified
+	}
+	if soi != markerSOI {
+		return orientationUnspecified // Missing JPEG SOI marker.
+	}
+
+	// Find JPEG APP1 marker.
+	for {
+		var marker, size uint16
+		if err := binary.Read(r, binary.BigEndian, &marker); err != nil {
+			return orientationUnspecified
+		}
+		if err := binary.Read(r, binary.BigEndian, &size); err != nil {
+			return orientationUnspecified
+		}
+		if marker>>8 != 0xff {
+			return orientationUnspecified // Invalid JPEG marker.
+		}
+		if marker == markerAPP1 {
+			break
+		}
+		if size < 2 {
+			return orientationUnspecified // Invalid block size.
+		}
+		if _, err := io.CopyN(io.Discard, r, int64(size-2)); err != nil {
+			return orientationUnspecified
 		}
 	}
 
-	return img, nil
+	// Check if EXIF header is present.
+	var header uint32
+	if err := binary.Read(r, binary.BigEndian, &header); err != nil {
+		return orientationUnspecified
+	}
+	if header != exifHeader {
+		return orientationUnspecified
+	}
+	if _, err := io.CopyN(io.Discard, r, 2); err != nil {
+		return orientationUnspecified
+	}
+
+	// Read byte order information.
+	var (
+		byteOrderTag uint16
+		byteOrder    binary.ByteOrder
+	)
+	if err := binary.Read(r, binary.BigEndian, &byteOrderTag); err != nil {
+		return orientationUnspecified
+	}
+	switch byteOrderTag {
+	case byteOrderBE:
+		byteOrder = binary.BigEndian
+	case byteOrderLE:
+		byteOrder = binary.LittleEndian
+	default:
+		return orientationUnspecified // Invalid byte order flag.
+	}
+	if _, err := io.CopyN(io.Discard, r, 2); err != nil {
+		return orientationUnspecified
+	}
+
+	// Skip the EXIF offset.
+	var offset uint32
+	if err := binary.Read(r, byteOrder, &offset); err != nil {
+		return orientationUnspecified
+	}
+	if offset < 8 {
+		return orientationUnspecified // Invalid offset value.
+	}
+	if _, err := io.CopyN(io.Discard, r, int64(offset-8)); err != nil {
+		return orientationUnspecified
+	}
+
+	// Read the number of tags.
+	var numTags uint16
+	if err := binary.Read(r, byteOrder, &numTags); err != nil {
+		return orientationUnspecified
+	}
+
+	// Find the orientation tag.
+	for range int(numTags) {
+		var tag uint16
+		if err := binary.Read(r, byteOrder, &tag); err != nil {
+			return orientationUnspecified
+		}
+		if tag != orientationTag {
+			if _, err := io.CopyN(io.Discard, r, 10); err != nil {
+				return orientationUnspecified
+			}
+			continue
+		}
+		if _, err := io.CopyN(io.Discard, r, 6); err != nil {
+			return orientationUnspecified
+		}
+		var val uint16
+		if err := binary.Read(r, byteOrder, &val); err != nil {
+			return orientationUnspecified
+		}
+		if val < 1 || val > 8 {
+			return orientationUnspecified // Invalid tag value.
+		}
+		return orientation(val)
+	}
+	return orientationUnspecified // Missing orientation tag.
 }
 
 // ApplyExifOrientation adjusts an image's orientation based on EXIF data.
@@ -162,57 +296,58 @@ func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, error) {
 //	8 = Rotated 90° CW
 //
 // Returns the properly oriented image.
-func ApplyExifOrientation(img image.Image, exifOrientation string) image.Image {
-
+func ApplyExifOrientation(img image.Image, orient orientation) image.Image {
 	if img == nil {
 		return nil
 	}
 
-	o, err := strconv.Atoi(exifOrientation)
-	if err != nil {
-		return img
+	switch orient {
+	case orientationFlipH:
+		img = imaging.FlipH(img)
+	case orientationFlipV:
+		img = imaging.FlipV(img)
+	case orientationRotate90:
+		img = imaging.Rotate90(img)
+	case orientationRotate180:
+		img = imaging.Rotate180(img)
+	case orientationRotate270:
+		img = imaging.Rotate270(img)
+	case orientationTranspose:
+		img = imaging.Transpose(img)
+	case orientationTransverse:
+		img = imaging.Transverse(img)
 	}
 
-	switch o {
-	case 1:
-		return img
-	case 2:
-		return imaging.FlipH(img)
-	case 3:
-		return imaging.Rotate180(img)
-	case 4:
-		return imaging.FlipV(img)
-	case 5:
-		return imaging.Transpose(img)
-	case 6:
-		return imaging.Rotate270(img)
-	case 7:
-		return imaging.Transverse(img)
-	case 8:
-		return imaging.Rotate90(img)
-	default:
-		return img
-	}
+	return img
 }
 
 // ImageToBase64 converts an image.Image to a base64 encoded data URI string with appropriate MIME type
-func ImageToBase64(img image.Image) (string, error) {
+func ImageToBase64(img image.Image, mimeType string) (string, error) {
 
 	var buf bytes.Buffer
 
-	err := imaging.Encode(&buf, img, imaging.JPEG)
-	if err != nil {
-		return "", err
+	switch mimeType {
+	case kiosk.MimeTypePng:
+		err := imaging.Encode(&buf, img, imaging.PNG)
+		if err != nil {
+			return "", err
+		}
+	case kiosk.MimeTypeGif:
+		err := imaging.Encode(&buf, img, imaging.GIF)
+		if err != nil {
+			return "", err
+		}
+	case kiosk.MimeTypeJpeg, kiosk.MimeTypeJpg, "":
+		mimeType = kiosk.MimeTypeJpeg
+		fallthrough
+	default:
+		err := imaging.Encode(&buf, img, imaging.JPEG)
+		if err != nil {
+			return "", err
+		}
 	}
 
-	var base64Encoding string
-
-	mimeType := http.DetectContentType(buf.Bytes())
-
-	base64Encoding += fmt.Sprintf("data:%s;base64,", mimeType)
-
-	base64Encoding += base64.StdEncoding.EncodeToString(buf.Bytes())
-
+	base64Encoding := fmt.Sprintf("data:%s;base64,%s", mimeType, base64.StdEncoding.EncodeToString(buf.Bytes()))
 	return base64Encoding, nil
 }
 
