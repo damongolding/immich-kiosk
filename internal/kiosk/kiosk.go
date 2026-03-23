@@ -65,8 +65,8 @@ const (
 	MimeTypePng  string = "image/png"
 	MimeTypeGif  string = "image/gif"
 	MimeTypeWebp string = "image/webp"
-	MimeTypeAvif string = "image/avif"
-	MimeTypeBmp  string = "image/bmp"
+	MimeTypeAvif string = "image/avif" // currently unsupported
+	MimeTypeBmp  string = "image/bmp"  // currently unsupported
 )
 
 var (

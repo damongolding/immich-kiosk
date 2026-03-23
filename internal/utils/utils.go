@@ -134,7 +134,7 @@ func ImageToBytes(img image.Image) ([]byte, error) {
 
 // BytesToImage converts a byte slice to an image.Image.
 // It takes a byte slice as input and returns an image.Image and any error encountered.
-// It handles both WebP and other common image formats (JPEG, PNG, GIF, AVIF) automatically
+// It handles both WebP and other common image formats (JPEG, PNG, GIF) automatically
 // by detecting the MIME type and using the appropriate decoder.
 func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, string, error) {
 
