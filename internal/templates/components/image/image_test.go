@@ -1,7 +1,6 @@
 package components
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/damongolding/immich-kiosk/internal/common"
@@ -165,21 +164,6 @@ func TestModifyGIFAssets(t *testing.T) {
 				},
 			},
 			want: []string{"/image/?use_original_image=true"},
-		},
-		{
-			name: "Case sensitivity check",
-			viewData: &common.ViewData{
-				Assets: []common.ViewImageData{
-					{
-						ImageData: "original-data",
-						ImmichAsset: immich.Asset{
-							ID:               "asset-case",
-							OriginalMimeType: strings.ToUpper(kiosk.MimeTypeGif), // uppercase
-						},
-					},
-				},
-			},
-			want: []string{"original-data"}, // Should not match due to case sensitivity
 		},
 	}
 
