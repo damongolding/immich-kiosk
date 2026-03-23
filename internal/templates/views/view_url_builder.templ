@@ -131,6 +131,7 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					@URLBuilderRadio("Show time", "show_time", "Display the current time.", "true", "true", "false", "false")
 					if extended {
 						@URLBuilderRadio("Time format", "time_format", "The format in which the time will be displayed.", "24 hour", "24", "12 hour", "12")
+						@URLBuilderRadio("Show AM/PM", "show_am_pm", "Display AM/PM indicator for the time when the time format is 12 hour.", "true", "true", "false", "false")
 					}
 					@URLBuilderRadio("Show date", "show_date", "Display the current date.", "true", "true", "false", "false")
 					if extended {

@@ -70,6 +70,7 @@ type KioskData = {
     dateFormat: string;
     showTime: boolean;
     timeFormat: TimeFormat;
+    showAmPm: boolean;
     clockSource: "client" | "server";
     transition: string;
     showMoreInfo: boolean;
@@ -171,6 +172,7 @@ async function init(): Promise<void> {
             kioskData.dateFormat,
             kioskData.showTime,
             kioskData.timeFormat,
+            kioskData.showAmPm,
             kioskData.langCode,
         );
     }

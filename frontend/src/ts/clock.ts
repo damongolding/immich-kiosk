@@ -6,6 +6,7 @@ const CLOCK_UPDATE_INTERVAL = 5000;
 
 const TIME_FORMATS = {
     TWELVE_HOUR: "h:mma" as const,
+    TWELVE_HOUR_NO_AMPM: "h:mm" as const,
     TWENTY_FOUR_HOUR: "HH:mm" as const,
 } as const;
 
@@ -16,6 +17,7 @@ interface ClockConfig {
     dateFormat: string;
     showTime: boolean;
     timeFormat: TimeFormat;
+    showAmPm: boolean;
     langCode: string;
 }
 
@@ -116,7 +118,9 @@ class Clock {
 
         const timeFormat =
             this.config.timeFormat === "12"
-                ? TIME_FORMATS.TWELVE_HOUR
+                ? this.config.showAmPm
+                    ? TIME_FORMATS.TWELVE_HOUR
+                    : TIME_FORMATS.TWELVE_HOUR_NO_AMPM
                 : TIME_FORMATS.TWENTY_FOUR_HOUR;
 
         try {
@@ -163,6 +167,7 @@ function initClock(
     kioskDateFormat: string,
     kioskShowTime: boolean,
     kioskTimeFormat: TimeFormat,
+    kioskShowAmPm: boolean,
     kioskLangCode: string,
 ): Clock {
     const config: ClockConfig = {
@@ -170,6 +175,7 @@ function initClock(
         dateFormat: kioskDateFormat,
         showTime: kioskShowTime,
         timeFormat: kioskTimeFormat,
+        showAmPm: kioskShowAmPm,
         langCode: kioskLangCode,
     };
 
