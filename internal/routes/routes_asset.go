@@ -153,7 +153,7 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return err
 		}
 
-		return c.Blob(http.StatusOK, "image/jpeg", imgBytes)
+		return c.Blob(http.StatusOK, kiosk.MimeTypeJpeg, imgBytes)
 	}
 }
 

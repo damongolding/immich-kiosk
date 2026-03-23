@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"path"
 	"strings"
-	"sync"
 
 	"charm.land/log/v2"
 	"github.com/dustin/go-humanize"
@@ -175,26 +174,15 @@ func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID,
 			}
 		}
 
-		var wg sync.WaitGroup
-		wg.Add(1)
+		if assetInfoErr := asset.AssetInfo(requestID, deviceID); assetInfoErr != nil {
+			log.Error(fmt.Errorf("failed to get asset info: %w", assetInfoErr))
+		}
 
-		// Fetch asset info and album details in a goroutine.
-		go func(asset *immich.Asset, requestID string, wg *sync.WaitGroup) {
-			defer wg.Done()
-			var processingErr error
+		asset.AddRatio()
 
-			if assetInfoErr := asset.AssetInfo(requestID, deviceID); assetInfoErr != nil {
-				processingErr = fmt.Errorf("failed to get asset info: %w", assetInfoErr)
-				log.Error(processingErr)
-			}
-
-			asset.AddRatio()
-
-			if requestConfig.ShowAlbumName {
-				asset.AlbumsThatContainAsset(requestID, deviceID)
-			}
-
-		}(&asset, requestID, &wg)
+		if requestConfig.ShowAlbumName {
+			asset.AlbumsThatContainAsset(requestID, deviceID)
+		}
 
 		var imgString, imgBlurString string
 		var dominantColor color.RGBA
@@ -220,17 +208,16 @@ func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID,
 				return fmt.Errorf("retrieving asset: %w", previewErr)
 
 			case immich.VideoType, immich.AudioType, immich.OtherType:
-				wg.Wait()
 				return nil
 			}
 		}
 
-		img, byteErr := utils.BytesToImage(imgBytes, requestConfig.UseOriginalImage)
+		img, mimeType, byteErr := utils.BytesToImage(imgBytes, requestConfig.UseOriginalImage)
 		if byteErr != nil {
 			return byteErr
 		}
 
-		imgString, base64Err := imageToBase64(img, requestConfig, requestID, deviceID, "Converted", false)
+		imgString, base64Err := imageToBase64(img, mimeType, requestConfig.Kiosk.DebugVerbose, requestID, deviceID, "Converted", false)
 		if base64Err != nil {
 			return fmt.Errorf("converting image to base64: %w", base64Err)
 		}
@@ -246,8 +233,6 @@ func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID,
 				return fmt.Errorf("extracting dominant colour: %w", err)
 			}
 		}
-
-		wg.Wait()
 
 		return nil
 	}

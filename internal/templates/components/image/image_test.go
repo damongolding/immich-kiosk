@@ -1,10 +1,12 @@
 package components
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 func TestModifyGIFAssets(t *testing.T) {
@@ -21,7 +23,7 @@ func TestModifyGIFAssets(t *testing.T) {
 						ImageData: "original-data-1",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-123",
-							OriginalMimeType: "image/gif",
+							OriginalMimeType: kiosk.MimeTypeGif,
 						},
 					},
 				},
@@ -36,7 +38,7 @@ func TestModifyGIFAssets(t *testing.T) {
 						ImageData: "original-data-1",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-456",
-							OriginalMimeType: "image/jpeg",
+							OriginalMimeType: kiosk.MimeTypeJpeg,
 						},
 					},
 				},
@@ -51,14 +53,14 @@ func TestModifyGIFAssets(t *testing.T) {
 						ImageData: "original-data-1",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-111",
-							OriginalMimeType: "image/gif",
+							OriginalMimeType: kiosk.MimeTypeGif,
 						},
 					},
 					{
 						ImageData: "original-data-2",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-222",
-							OriginalMimeType: "image/gif",
+							OriginalMimeType: kiosk.MimeTypeGif,
 						},
 					},
 				},
@@ -76,28 +78,28 @@ func TestModifyGIFAssets(t *testing.T) {
 						ImageData: "original-data-1",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-gif",
-							OriginalMimeType: "image/gif",
+							OriginalMimeType: kiosk.MimeTypeGif,
 						},
 					},
 					{
 						ImageData: "original-data-2",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-jpeg",
-							OriginalMimeType: "image/jpeg",
+							OriginalMimeType: kiosk.MimeTypeJpeg,
 						},
 					},
 					{
 						ImageData: "original-data-3",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-png",
-							OriginalMimeType: "image/png",
+							OriginalMimeType: kiosk.MimeTypePng,
 						},
 					},
 					{
 						ImageData: "original-data-4",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-gif2",
-							OriginalMimeType: "image/gif",
+							OriginalMimeType: kiosk.MimeTypeGif,
 						},
 					},
 				},
@@ -124,21 +126,21 @@ func TestModifyGIFAssets(t *testing.T) {
 						ImageData: "webp-data",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-webp",
-							OriginalMimeType: "image/webp",
+							OriginalMimeType: kiosk.MimeTypeWebp,
 						},
 					},
 					{
 						ImageData: "bmp-data",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-bmp",
-							OriginalMimeType: "image/bmp",
+							OriginalMimeType: kiosk.MimeTypeBmp,
 						},
 					},
 					{
 						ImageData: "gif-data",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-animated",
-							OriginalMimeType: "image/gif",
+							OriginalMimeType: kiosk.MimeTypeGif,
 						},
 					},
 				},
@@ -157,7 +159,7 @@ func TestModifyGIFAssets(t *testing.T) {
 						ImageData: "gif-data",
 						ImmichAsset: immich.Asset{
 							ID:               "",
-							OriginalMimeType: "image/gif",
+							OriginalMimeType: kiosk.MimeTypeGif,
 						},
 					},
 				},
@@ -172,7 +174,7 @@ func TestModifyGIFAssets(t *testing.T) {
 						ImageData: "original-data",
 						ImmichAsset: immich.Asset{
 							ID:               "asset-case",
-							OriginalMimeType: "image/GIF", // uppercase
+							OriginalMimeType: strings.ToUpper(kiosk.MimeTypeGif), // uppercase
 						},
 					},
 				},
@@ -204,7 +206,7 @@ func TestModifyGIFAssets(t *testing.T) {
 // only modifies ImageData and doesn't change other fields
 func TestModifyGIFAssetsDoesNotModifyOriginalAsset(t *testing.T) {
 	originalID := "asset-test-123"
-	originalMimeType := "image/gif"
+	originalMimeType := kiosk.MimeTypeGif
 	originalImageData := "base64-encoded-data"
 
 	viewData := &common.ViewData{
@@ -261,14 +263,14 @@ func TestModifyGIFAssetsConcurrency(t *testing.T) {
 				ImageData: "data-1",
 				ImmichAsset: immich.Asset{
 					ID:               "asset-1",
-					OriginalMimeType: "image/gif",
+					OriginalMimeType: kiosk.MimeTypeGif,
 				},
 			},
 			{
 				ImageData: "data-2",
 				ImmichAsset: immich.Asset{
 					ID:               "asset-2",
-					OriginalMimeType: "image/jpeg",
+					OriginalMimeType: kiosk.MimeTypeJpeg,
 				},
 			},
 		},
