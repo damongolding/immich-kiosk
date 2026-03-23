@@ -26,7 +26,11 @@ func clockTime(c config.Config) string {
 	clockTimeFormat := "15:04"
 
 	if c.TimeFormat == "12" {
-		clockTimeFormat = time.Kitchen
+		if c.ShowAmPm {
+			clockTimeFormat = time.Kitchen
+		} else {
+			clockTimeFormat = "3:04"
+		}
 	}
 
 	t := time.Now()

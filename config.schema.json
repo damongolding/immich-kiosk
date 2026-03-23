@@ -23,6 +23,9 @@
       ],
       "examples": ["12", "24"]
     },
+    "show_am_pm": {
+      "type": "boolean"
+    },
     "show_date": {
       "type": "boolean"
     },
