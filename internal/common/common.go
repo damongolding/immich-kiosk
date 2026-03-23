@@ -168,6 +168,7 @@ type URLBuilderRequest struct {
 	// Clock
 	ShowTime    *bool   `form:"show_time" url:"show_time,omitempty"`
 	TimeFormat  *string `form:"time_format" url:"time_format,omitempty"`
+	ShowAmPm    *bool   `form:"show_am_pm" url:"show_am_pm,omitempty"`
 	ShowDate    *bool   `form:"show_date" url:"show_date,omitempty"`
 	DateFormat  *string `form:"date_format" url:"date_format,omitempty"`
 	ClockSource *string `form:"clock_source" url:"clock_source,omitempty"`
