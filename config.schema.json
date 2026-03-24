@@ -23,6 +23,9 @@
       ],
       "examples": ["12", "24"]
     },
+    "show_am_pm": {
+      "type": "boolean"
+    },
     "show_date": {
       "type": "boolean"
     },
@@ -402,15 +405,36 @@
               "lang": {
                 "type": "string"
               },
+              "round_temperature": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether to round temperature values to the nearest integer"
+              },
               "forecast": {
                 "type": "boolean",
                 "default": false,
                 "description": "Whether to include 3 day forecast data"
               },
-              "round_temperature": {
-                "type": "boolean",
-                "default": false,
-                "description": "Whether to round temperature values to the nearest integer"
+              "show": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "humidity": {
+                    "type": "boolean",
+                    "description": "Show the current humidity",
+                    "default": false
+                  },
+                  "wind": {
+                    "type": "boolean",
+                    "description": "Show the current wind speed",
+                    "default": false
+                  },
+                  "visibility": {
+                    "type": "boolean",
+                    "description": "Show the current visibility",
+                    "default": false
+                  }
+                }
               },
               "default": {
                 "type": "boolean"

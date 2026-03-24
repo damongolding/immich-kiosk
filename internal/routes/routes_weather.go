@@ -29,6 +29,10 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 		requestID := requestData.RequestID
 
 		locationName := c.FormValue(weather.WeatherParam)
+		// Enable weather rotation in demo mode
+		if baseConfig.Kiosk.DemoMode {
+			locationName = weather.WeatherRotation
+		}
 		nextWeatherRotation := 0
 
 		log.Debug(

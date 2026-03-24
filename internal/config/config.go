@@ -155,16 +155,23 @@ type WeatherConfig struct {
 	HasDefault bool `json:"-" yaml:"-" default:"false"`
 }
 
+type WeatherLocationStatOptions struct {
+	Humidity   bool `yaml:"humidity" mapstructure:"humidity" default:"false"`
+	Wind       bool `yaml:"wind" mapstructure:"wind" default:"false"`
+	Visibility bool `yaml:"visibility" mapstructure:"visibility" default:"false"`
+}
+
 type WeatherLocation struct {
-	Name      string `yaml:"name" mapstructure:"name" redact:"true"`
-	Lat       string `yaml:"lat" mapstructure:"lat" redact:"true"`
-	Lon       string `yaml:"lon" mapstructure:"lon" redact:"true"`
-	API       string `yaml:"api" mapstructure:"api" redact:"true"`
-	Unit      string `yaml:"unit" mapstructure:"unit" redact:"true"`
-	Lang      string `yaml:"lang" mapstructure:"lang" redact:"true"`
-	Forecast  bool   `yaml:"forecast" mapstructure:"forecast" default:"false"`
-	RoundTemp bool   `yaml:"round_temperature" mapstructure:"round_temperature" default:"false"`
-	Default   bool   `yaml:"default" mapstructure:"default"`
+	Name      string                     `yaml:"name" mapstructure:"name" redact:"true"`
+	Lat       string                     `yaml:"lat" mapstructure:"lat" redact:"true"`
+	Lon       string                     `yaml:"lon" mapstructure:"lon" redact:"true"`
+	API       string                     `yaml:"api" mapstructure:"api" redact:"true"`
+	Unit      string                     `yaml:"unit" mapstructure:"unit" redact:"true"`
+	Lang      string                     `yaml:"lang" mapstructure:"lang" redact:"true"`
+	Show      WeatherLocationStatOptions `yaml:"show" mapstructure:"show" default:""`
+	Forecast  bool                       `yaml:"forecast" mapstructure:"forecast" default:"false"`
+	RoundTemp bool                       `yaml:"round_temperature" mapstructure:"round_temperature" default:"false"`
+	Default   bool                       `yaml:"default" mapstructure:"default"`
 }
 
 type Webhook struct {
@@ -269,6 +276,8 @@ type Config struct {
 	ShowTime bool `json:"showTime" yaml:"show_time" mapstructure:"show_time" query:"show_time" form:"show_time" default:"false"`
 	// TimeFormat whether to use 12 of 24 hour format for clock
 	TimeFormat string `json:"timeFormat" yaml:"time_format" mapstructure:"time_format" query:"time_format" form:"time_format" default:"24"`
+	// ShowAmPm whether to display am/pm when using 12 hour format
+	ShowAmPm bool `json:"showAmPm" yaml:"show_am_pm" mapstructure:"show_am_pm" query:"show_am_pm" form:"show_am_pm" default:"true"`
 	// ShowDate whether to display date
 	ShowDate bool `json:"showDate" yaml:"show_date" mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
 	//  DateFormat format for date

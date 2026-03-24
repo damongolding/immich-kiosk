@@ -372,7 +372,7 @@ func (a *Asset) ImagePreview() ([]byte, string, error) {
 	}
 
 	assetSize := AssetSizeThumbnail
-	if a.requestConfig.UseOriginalImage && slices.Contains(supportedImageMimeTypes, a.OriginalMimeType) {
+	if a.requestConfig.UseOriginalImage && slices.Contains(kiosk.SupportedImageMimeTypes, a.OriginalMimeType) {
 		assetSize = AssetSizeOriginal
 	}
 

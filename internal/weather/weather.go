@@ -105,6 +105,7 @@ type Location struct {
 	API       string
 	Unit      string
 	Lang      string
+	Show      config.WeatherLocationStatOptions
 	Forecast  []DailySummary
 	RoundTemp bool
 	Weather
@@ -215,6 +216,7 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 		Unit:      location.Unit,
 		Lang:      location.Lang,
 		RoundTemp: location.RoundTemp,
+		Show:      location.Show,
 	}
 
 	weatherDataStore.Store(strings.ToLower(w.Name), *w)
