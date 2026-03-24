@@ -5,7 +5,7 @@
     "": {
       "name": "immich-kiosk",
       "devDependencies": {
-        "@biomejs/biome": "^2.4.7",
+        "@biomejs/biome": "^2.4.8",
         "autoprefixer": "^10.4.27",
         "choices.js": "^11.2.1",
         "date-fns": "^4.1.0",
