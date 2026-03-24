@@ -59,6 +59,10 @@ weather:
       unit: imperial
       lang: en
       default: false
+      show:
+        humidity: true
+        wind: true
+        visibility: true
 
     - name: Tokyo
       lat: 35.6895
@@ -67,6 +71,8 @@ weather:
       unit: metric
       lang: en
       default: false
+      show:
+        humidity: true
 
 use_offline_mode: true
 

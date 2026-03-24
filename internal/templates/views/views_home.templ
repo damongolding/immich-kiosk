@@ -68,7 +68,12 @@ templ Home(viewData common.ViewData, secret string) {
 						</div>
 						<div>
 							if viewData.Queries.Has(weather.WeatherParam) || viewData.Weather.HasDefault {
-								{{ rotatingLocations := viewData.Queries.Get(weather.WeatherParam) == weather.WeatherRotation }}
+								{{
+									rotatingLocations := viewData.Queries.Get(weather.WeatherParam) == weather.WeatherRotation
+									if viewData.Kiosk.DemoMode {
+										rotatingLocations = true
+									}
+								}}
 								@partials.Weather(viewData.Theme, rotatingLocations, viewData.Weather.RotationInterval)
 							}
 						</div>
