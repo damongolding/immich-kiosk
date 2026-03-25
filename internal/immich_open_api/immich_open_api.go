@@ -106,6 +106,7 @@ const (
 	Aac      AudioCodec = "aac"
 	Libopus  AudioCodec = "libopus"
 	Mp3      AudioCodec = "mp3"
+	Opus     AudioCodec = "opus"
 	PcmS16le AudioCodec = "pcm_s16le"
 )
 
@@ -556,6 +557,8 @@ const (
 	SyncEntityTypeAlbumUserV1                SyncEntityType = "AlbumUserV1"
 	SyncEntityTypeAlbumV1                    SyncEntityType = "AlbumV1"
 	SyncEntityTypeAssetDeleteV1              SyncEntityType = "AssetDeleteV1"
+	SyncEntityTypeAssetEditDeleteV1          SyncEntityType = "AssetEditDeleteV1"
+	SyncEntityTypeAssetEditV1                SyncEntityType = "AssetEditV1"
 	SyncEntityTypeAssetExifV1                SyncEntityType = "AssetExifV1"
 	SyncEntityTypeAssetFaceDeleteV1          SyncEntityType = "AssetFaceDeleteV1"
 	SyncEntityTypeAssetFaceV1                SyncEntityType = "AssetFaceV1"
@@ -598,6 +601,7 @@ const (
 	SyncRequestTypeAlbumToAssetsV1     SyncRequestType = "AlbumToAssetsV1"
 	SyncRequestTypeAlbumUsersV1        SyncRequestType = "AlbumUsersV1"
 	SyncRequestTypeAlbumsV1            SyncRequestType = "AlbumsV1"
+	SyncRequestTypeAssetEditsV1        SyncRequestType = "AssetEditsV1"
 	SyncRequestTypeAssetExifsV1        SyncRequestType = "AssetExifsV1"
 	SyncRequestTypeAssetFacesV1        SyncRequestType = "AssetFacesV1"
 	SyncRequestTypeAssetFacesV2        SyncRequestType = "AssetFacesV2"
@@ -935,8 +939,8 @@ type AssetBulkUpdateDto struct {
 	// Longitude Longitude coordinate
 	Longitude *float32 `json:"longitude,omitempty"`
 
-	// Rating Rating
-	Rating *float32 `json:"rating,omitempty"`
+	// Rating Rating in range [1-5], or null for unrated
+	Rating *float32 `json:"rating"`
 
 	// TimeZone Time zone (IANA timezone)
 	TimeZone *string `json:"timeZone,omitempty"`
@@ -2397,8 +2401,8 @@ type MetadataSearchDto struct {
 	// PreviewPath Filter by preview file path
 	PreviewPath *string `json:"previewPath,omitempty"`
 
-	// Rating Filter by rating
-	Rating *float32 `json:"rating,omitempty"`
+	// Rating Filter by rating [1-5], or null for unrated
+	Rating *float32 `json:"rating"`
 
 	// Size Number of results to return
 	Size *float32 `json:"size,omitempty"`
@@ -3137,8 +3141,8 @@ type RandomSearchDto struct {
 	// PersonIds Filter by person IDs
 	PersonIds *[]openapi_types.UUID `json:"personIds,omitempty"`
 
-	// Rating Filter by rating
-	Rating *float32 `json:"rating,omitempty"`
+	// Rating Filter by rating [1-5], or null for unrated
+	Rating *float32 `json:"rating"`
 
 	// Size Number of results to return
 	Size *float32 `json:"size,omitempty"`
@@ -3856,8 +3860,8 @@ type SmartSearchDto struct {
 	// QueryAssetId Asset ID to use as search reference
 	QueryAssetId *openapi_types.UUID `json:"queryAssetId,omitempty"`
 
-	// Rating Filter by rating
-	Rating *float32 `json:"rating,omitempty"`
+	// Rating Filter by rating [1-5], or null for unrated
+	Rating *float32 `json:"rating"`
 
 	// Size Number of results to return
 	Size *float32 `json:"size,omitempty"`
@@ -3982,8 +3986,8 @@ type StatisticsSearchDto struct {
 	// PersonIds Filter by person IDs
 	PersonIds *[]openapi_types.UUID `json:"personIds,omitempty"`
 
-	// Rating Filter by rating
-	Rating *float32 `json:"rating,omitempty"`
+	// Rating Filter by rating [1-5], or null for unrated
+	Rating *float32 `json:"rating"`
 
 	// State Filter by state/province name
 	State *string `json:"state"`
@@ -4711,8 +4715,8 @@ type UpdateAssetDto struct {
 	// Longitude Longitude coordinate
 	Longitude *float32 `json:"longitude,omitempty"`
 
-	// Rating Rating
-	Rating *float32 `json:"rating,omitempty"`
+	// Rating Rating in range [1-5], or null for unrated
+	Rating *float32 `json:"rating"`
 
 	// Visibility Asset visibility
 	Visibility *AssetVisibility `json:"visibility,omitempty"`
@@ -5473,7 +5477,7 @@ type SearchLargeAssetsParams struct {
 	// PersonIds Filter by person IDs
 	PersonIds *[]openapi_types.UUID `form:"personIds,omitempty" json:"personIds,omitempty"`
 
-	// Rating Filter by rating
+	// Rating Filter by rating [1-5], or null for unrated
 	Rating *float32 `form:"rating,omitempty" json:"rating,omitempty"`
 
 	// Size Number of results to return
@@ -5582,12 +5586,6 @@ type GetMySharedLinkParams struct {
 	Token *string `form:"token,omitempty" json:"token,omitempty"`
 }
 
-// RemoveSharedLinkAssetsParams defines parameters for RemoveSharedLinkAssets.
-type RemoveSharedLinkAssetsParams struct {
-	Key  *string `form:"key,omitempty" json:"key,omitempty"`
-	Slug *string `form:"slug,omitempty" json:"slug,omitempty"`
-}
-
 // AddSharedLinkAssetsParams defines parameters for AddSharedLinkAssets.
 type AddSharedLinkAssetsParams struct {
 	Key  *string `form:"key,omitempty" json:"key,omitempty"`
@@ -5604,6 +5602,9 @@ type SearchStacksParams struct {
 type GetTimeBucketParams struct {
 	// AlbumId Filter assets belonging to a specific album
 	AlbumId *openapi_types.UUID `form:"albumId,omitempty" json:"albumId,omitempty"`
+
+	// Bbox Bounding box coordinates as west,south,east,north (WGS84)
+	Bbox *string `form:"bbox,omitempty" json:"bbox,omitempty"`
 
 	// IsFavorite Filter by favorite status (true for favorites only, false for non-favorites only)
 	IsFavorite *bool `form:"isFavorite,omitempty" json:"isFavorite,omitempty"`
@@ -5645,6 +5646,9 @@ type GetTimeBucketParams struct {
 type GetTimeBucketsParams struct {
 	// AlbumId Filter assets belonging to a specific album
 	AlbumId *openapi_types.UUID `form:"albumId,omitempty" json:"albumId,omitempty"`
+
+	// Bbox Bounding box coordinates as west,south,east,north (WGS84)
+	Bbox *string `form:"bbox,omitempty" json:"bbox,omitempty"`
 
 	// IsFavorite Filter by favorite status (true for favorites only, false for non-favorites only)
 	IsFavorite *bool `form:"isFavorite,omitempty" json:"isFavorite,omitempty"`
@@ -6971,9 +6975,9 @@ type ClientInterface interface {
 	UpdateSharedLink(ctx context.Context, id openapi_types.UUID, body UpdateSharedLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RemoveSharedLinkAssetsWithBody request with any body
-	RemoveSharedLinkAssetsWithBody(ctx context.Context, id openapi_types.UUID, params *RemoveSharedLinkAssetsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RemoveSharedLinkAssetsWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	RemoveSharedLinkAssets(ctx context.Context, id openapi_types.UUID, params *RemoveSharedLinkAssetsParams, body RemoveSharedLinkAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RemoveSharedLinkAssets(ctx context.Context, id openapi_types.UUID, body RemoveSharedLinkAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AddSharedLinkAssetsWithBody request with any body
 	AddSharedLinkAssetsWithBody(ctx context.Context, id openapi_types.UUID, params *AddSharedLinkAssetsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -10366,8 +10370,8 @@ func (c *Client) UpdateSharedLink(ctx context.Context, id openapi_types.UUID, bo
 	return c.Client.Do(req)
 }
 
-func (c *Client) RemoveSharedLinkAssetsWithBody(ctx context.Context, id openapi_types.UUID, params *RemoveSharedLinkAssetsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRemoveSharedLinkAssetsRequestWithBody(c.Server, id, params, contentType, body)
+func (c *Client) RemoveSharedLinkAssetsWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveSharedLinkAssetsRequestWithBody(c.Server, id, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10378,8 +10382,8 @@ func (c *Client) RemoveSharedLinkAssetsWithBody(ctx context.Context, id openapi_
 	return c.Client.Do(req)
 }
 
-func (c *Client) RemoveSharedLinkAssets(ctx context.Context, id openapi_types.UUID, params *RemoveSharedLinkAssetsParams, body RemoveSharedLinkAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRemoveSharedLinkAssetsRequest(c.Server, id, params, body)
+func (c *Client) RemoveSharedLinkAssets(ctx context.Context, id openapi_types.UUID, body RemoveSharedLinkAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveSharedLinkAssetsRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -20162,18 +20166,18 @@ func NewUpdateSharedLinkRequestWithBody(server string, id openapi_types.UUID, co
 }
 
 // NewRemoveSharedLinkAssetsRequest calls the generic RemoveSharedLinkAssets builder with application/json body
-func NewRemoveSharedLinkAssetsRequest(server string, id openapi_types.UUID, params *RemoveSharedLinkAssetsParams, body RemoveSharedLinkAssetsJSONRequestBody) (*http.Request, error) {
+func NewRemoveSharedLinkAssetsRequest(server string, id openapi_types.UUID, body RemoveSharedLinkAssetsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewRemoveSharedLinkAssetsRequestWithBody(server, id, params, "application/json", bodyReader)
+	return NewRemoveSharedLinkAssetsRequestWithBody(server, id, "application/json", bodyReader)
 }
 
 // NewRemoveSharedLinkAssetsRequestWithBody generates requests for RemoveSharedLinkAssets with any type of body
-func NewRemoveSharedLinkAssetsRequestWithBody(server string, id openapi_types.UUID, params *RemoveSharedLinkAssetsParams, contentType string, body io.Reader) (*http.Request, error) {
+func NewRemoveSharedLinkAssetsRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -20196,44 +20200,6 @@ func NewRemoveSharedLinkAssetsRequestWithBody(server string, id openapi_types.UU
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.Key != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "key", runtime.ParamLocationQuery, *params.Key); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		if params.Slug != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "slug", runtime.ParamLocationQuery, *params.Slug); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("DELETE", queryURL.String(), body)
@@ -21479,6 +21445,22 @@ func NewGetTimeBucketRequest(server string, params *GetTimeBucketParams) (*http.
 
 		}
 
+		if params.Bbox != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "bbox", runtime.ParamLocationQuery, *params.Bbox); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.IsFavorite != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isFavorite", runtime.ParamLocationQuery, *params.IsFavorite); err != nil {
@@ -21719,6 +21701,22 @@ func NewGetTimeBucketsRequest(server string, params *GetTimeBucketsParams) (*htt
 		if params.AlbumId != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "albumId", runtime.ParamLocationQuery, *params.AlbumId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Bbox != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "bbox", runtime.ParamLocationQuery, *params.Bbox); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -23513,9 +23511,9 @@ type ClientWithResponsesInterface interface {
 	UpdateSharedLinkWithResponse(ctx context.Context, id openapi_types.UUID, body UpdateSharedLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSharedLinkResponse, error)
 
 	// RemoveSharedLinkAssetsWithBodyWithResponse request with any body
-	RemoveSharedLinkAssetsWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, params *RemoveSharedLinkAssetsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RemoveSharedLinkAssetsResponse, error)
+	RemoveSharedLinkAssetsWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RemoveSharedLinkAssetsResponse, error)
 
-	RemoveSharedLinkAssetsWithResponse(ctx context.Context, id openapi_types.UUID, params *RemoveSharedLinkAssetsParams, body RemoveSharedLinkAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*RemoveSharedLinkAssetsResponse, error)
+	RemoveSharedLinkAssetsWithResponse(ctx context.Context, id openapi_types.UUID, body RemoveSharedLinkAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*RemoveSharedLinkAssetsResponse, error)
 
 	// AddSharedLinkAssetsWithBodyWithResponse request with any body
 	AddSharedLinkAssetsWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, params *AddSharedLinkAssetsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddSharedLinkAssetsResponse, error)
@@ -31345,16 +31343,16 @@ func (c *ClientWithResponses) UpdateSharedLinkWithResponse(ctx context.Context, 
 }
 
 // RemoveSharedLinkAssetsWithBodyWithResponse request with arbitrary body returning *RemoveSharedLinkAssetsResponse
-func (c *ClientWithResponses) RemoveSharedLinkAssetsWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, params *RemoveSharedLinkAssetsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RemoveSharedLinkAssetsResponse, error) {
-	rsp, err := c.RemoveSharedLinkAssetsWithBody(ctx, id, params, contentType, body, reqEditors...)
+func (c *ClientWithResponses) RemoveSharedLinkAssetsWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RemoveSharedLinkAssetsResponse, error) {
+	rsp, err := c.RemoveSharedLinkAssetsWithBody(ctx, id, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseRemoveSharedLinkAssetsResponse(rsp)
 }
 
-func (c *ClientWithResponses) RemoveSharedLinkAssetsWithResponse(ctx context.Context, id openapi_types.UUID, params *RemoveSharedLinkAssetsParams, body RemoveSharedLinkAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*RemoveSharedLinkAssetsResponse, error) {
-	rsp, err := c.RemoveSharedLinkAssets(ctx, id, params, body, reqEditors...)
+func (c *ClientWithResponses) RemoveSharedLinkAssetsWithResponse(ctx context.Context, id openapi_types.UUID, body RemoveSharedLinkAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*RemoveSharedLinkAssetsResponse, error) {
+	rsp, err := c.RemoveSharedLinkAssets(ctx, id, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
