@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"charm.land/log/v2"
@@ -42,6 +43,7 @@ type Handler func(cmd Command, target string)
 type Client struct {
 	client      pahomqtt.Client
 	handlers    []Handler
+	handlersMu  sync.RWMutex
 	topic       string // global command topic
 	availTopic  string // global availability topic
 	topicPrefix string
@@ -225,7 +227,9 @@ func (c *Client) publishDiscovery(client pahomqtt.Client, uniqueIDPrefix, client
 
 // AddHandler registers a handler called when a command is received.
 func (c *Client) AddHandler(h Handler) {
+	c.handlersMu.Lock()
 	c.handlers = append(c.handlers, h)
+	c.handlersMu.Unlock()
 }
 
 // messageHandler processes incoming MQTT messages and determines target client.
@@ -255,7 +259,10 @@ func (c *Client) messageHandler(_ pahomqtt.Client, msg pahomqtt.Message) {
 		return
 	}
 
-	for _, h := range c.handlers {
+	c.handlersMu.RLock()
+	handlers := c.handlers
+	c.handlersMu.RUnlock()
+	for _, h := range handlers {
 		h(cmd, target)
 	}
 }
