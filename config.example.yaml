@@ -174,4 +174,13 @@ kiosk:
   # mqtt_username: ""              # optional
   # mqtt_password: ""              # optional
   # mqtt_client_id: "immich-kiosk"
-  # mqtt_topic_prefix: "immich-kiosk"  # commands arrive on <prefix>/command
+  # mqtt_topic_prefix: "immich-kiosk"
+  #
+  # Commands are received on:
+  #   <prefix>/command                    -> all connected clients
+  #   <prefix>/<client>/command           -> a specific screen only
+  #
+  # Open the kiosk with ?client=<name> in the URL to enable per-screen control:
+  #   http://kiosk:3000/?client=living-room
+  #
+  # Home Assistant devices are created automatically via MQTT discovery.

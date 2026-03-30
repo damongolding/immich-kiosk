@@ -62,6 +62,7 @@ func (h *SSEHub) unsubscribe(clientName string, ch chan string) {
 	delete(h.clients[clientName], ch)
 	if len(h.clients[clientName]) == 0 {
 		delete(h.clients, clientName)
+		delete(h.knownClients, clientName)
 	}
 	close(ch)
 }

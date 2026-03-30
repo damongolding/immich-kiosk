@@ -30,6 +30,24 @@ type ManifestIcons struct {
 	Type  string `json:"type"`  // MIME type of the icon
 }
 
+// manifestStartURL builds a safe start_url from the referer, keeping only the
+// "client" query parameter so transient or sensitive params are not baked into
+// the installed PWA launch URL.
+func manifestStartURL(referer *url.URL) string {
+	startURL := referer.EscapedPath()
+	if startURL == "" {
+		startURL = "/"
+	}
+	filtered := url.Values{}
+	if client := referer.Query().Get("client"); client != "" {
+		filtered.Set("client", client)
+	}
+	if encoded := filtered.Encode(); encoded != "" {
+		startURL += "?" + encoded
+	}
+	return startURL
+}
+
 // Manifest generates and returns a web app manifest JSON response
 // based on the request referer URL. It sets appropriate headers
 // and formats the manifest data according to the Web App Manifest spec.
@@ -49,7 +67,7 @@ func Manifest(c *echo.Context) error {
 		Name:            "Immich Kiosk",
 		ShortName:       "Kiosk",
 		Description:     "Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses Immich as a data source.",
-		StartURL:        referer.RequestURI(),
+		StartURL:        manifestStartURL(referer),
 		Scope:           "/",
 		Display:         "fullscreen",
 		BackgroundColor: "#000000",

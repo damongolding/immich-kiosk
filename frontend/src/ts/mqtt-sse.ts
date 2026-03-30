@@ -14,8 +14,7 @@ type KioskCommand = "next" | "previous";
  */
 export function initMqttSSE(): void {
     const params = new URLSearchParams(window.location.search);
-    const client = params.get("client");
-    const url = client ? `/events?client=${encodeURIComponent(client)}` : "/events";
+    const url = params.toString() ? `/events?${params.toString()}` : "/events";
     const evtSource = new EventSource(url);
 
     evtSource.addEventListener("kiosk-command", (e: MessageEvent) => {

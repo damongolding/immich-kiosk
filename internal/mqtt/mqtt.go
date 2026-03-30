@@ -149,10 +149,28 @@ func New(ctx context.Context, settings config.KioskSettings) (*Client, error) {
 	return c, nil
 }
 
+// isValidClientName returns true if clientName is safe to use as an MQTT
+// topic segment (non-empty, no '/', '#', or '+' characters).
+func isValidClientName(name string) bool {
+	if name == "" {
+		return false
+	}
+	for _, ch := range name {
+		if ch == '/' || ch == '#' || ch == '+' {
+			return false
+		}
+	}
+	return true
+}
+
 // PublishClientDiscovery publishes HA MQTT Discovery for a named client
 // (e.g. "living-room"). Called automatically when a new client connects via SSE.
 func (c *Client) PublishClientDiscovery(clientName string) {
 	if clientName == "_global" {
+		return
+	}
+	if !isValidClientName(clientName) {
+		log.Warn("MQTT invalid client name, skipping discovery", "client", clientName)
 		return
 	}
 	uniqueID := "immich-kiosk-" + clientName
