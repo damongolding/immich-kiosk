@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"sync"
 	"time"
 
@@ -20,7 +21,22 @@ const (
 
 	// ssePendingTTL how long a queued command waits for a client to reconnect.
 	ssePendingTTL = 10 * time.Second
+
+	// sseClientNameMaxLen maximum allowed length for a client name.
+	sseClientNameMaxLen = 32
 )
+
+// sseClientNameRe matches valid SSE client names: letters, digits, hyphens, underscores.
+var sseClientNameRe = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+
+// validSSEClientName returns the sanitised client name, or "_global" if the
+// name is empty, too long, or contains disallowed characters.
+func validSSEClientName(name string) string {
+	if name == "" || len(name) > sseClientNameMaxLen || !sseClientNameRe.MatchString(name) {
+		return "_global"
+	}
+	return name
+}
 
 // sseHub manages all active SSE client connections grouped by client name.
 var sseHub = &SSEHub{
@@ -66,19 +82,24 @@ func (h *SSEHub) subscribe(clientName string) chan string {
 	h.clients[clientName][ch] = struct{}{}
 
 	// Deliver a pending command if it hasn't expired yet.
-	// Check both a client-specific command and a global broadcast command.
+	// Check per-client first, then fall back to the global broadcast slot.
+	// The global slot is NOT deleted here so that other reconnecting clients
+	// can also receive it; it is cleaned up lazily in broadcast() once expired.
 	now := time.Now()
-	for _, key := range []string{clientName, ""} {
-		if p, ok := h.pending[key]; ok {
-			if now.Before(p.expires) {
-				select {
-				case ch <- p.event:
-				default:
-				}
+	if p, ok := h.pending[clientName]; ok {
+		if now.Before(p.expires) {
+			select {
+			case ch <- p.event:
+			default:
 			}
-			delete(h.pending, key)
-			break
 		}
+		delete(h.pending, clientName)
+	} else if p, ok := h.pending[""]; ok && now.Before(p.expires) {
+		select {
+		case ch <- p.event:
+		default:
+		}
+		// Do NOT delete pending[""] — other clients need it too.
 	}
 
 	// Notify on first ever connection for this name.
@@ -109,11 +130,18 @@ func (h *SSEHub) broadcast(target, event string) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	send := func(ch chan string) {
+	// Purge any expired global pending entry.
+	if p, ok := h.pending[""]; ok && !time.Now().Before(p.expires) {
+		delete(h.pending, "")
+	}
+
+	// send attempts a non-blocking channel send and returns true if delivered.
+	send := func(ch chan string) bool {
 		select {
 		case ch <- event:
+			return true
 		default:
-			// client too slow, skip
+			return false
 		}
 	}
 
@@ -122,8 +150,9 @@ func (h *SSEHub) broadcast(target, event string) {
 	if target == "" {
 		for _, channels := range h.clients {
 			for ch := range channels {
-				send(ch)
-				delivered = true
+				if send(ch) {
+					delivered = true
+				}
 			}
 		}
 		// Queue globally: store under empty-string key so any reconnecting
@@ -135,8 +164,9 @@ func (h *SSEHub) broadcast(target, event string) {
 	}
 
 	for ch := range h.clients[target] {
-		send(ch)
-		delivered = true
+		if send(ch) {
+			delivered = true
+		}
 	}
 	if !delivered {
 		h.pending[target] = pendingCmd{event: event, expires: time.Now().Add(ssePendingTTL)}
@@ -173,10 +203,7 @@ func SSEEvents(_ *config.Config) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError, "streaming not supported")
 		}
 
-		clientName := c.QueryParam("client")
-		if clientName == "" {
-			clientName = "_global"
-		}
+		clientName := validSSEClientName(c.QueryParam("client"))
 
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.Header().Set("Cache-Control", "no-cache")
