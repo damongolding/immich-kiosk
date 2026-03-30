@@ -9,6 +9,7 @@ require (
 	github.com/a-h/templ v0.3.1001
 	github.com/disintegration/imaging v1.6.2
 	github.com/dustin/go-humanize v1.0.1
+	github.com/eclipse/paho.mqtt.golang v1.5.0
 	github.com/fogleman/gg v1.3.0
 	github.com/goodsign/monday v1.0.2
 	github.com/google/go-querystring v1.2.0
@@ -62,6 +63,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gohugoio/hugo v0.152.2 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/mailru/easyjson v0.9.1 // indirect
