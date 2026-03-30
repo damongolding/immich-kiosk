@@ -565,6 +565,27 @@
         "asset_weighting": {
           "type": "boolean"
         },
+        "mqtt_enabled": {
+          "type": "boolean"
+        },
+        "mqtt_broker": {
+          "type": "string"
+        },
+        "mqtt_port": {
+          "type": "integer"
+        },
+        "mqtt_username": {
+          "type": "string"
+        },
+        "mqtt_password": {
+          "type": "string"
+        },
+        "mqtt_client_id": {
+          "type": "string"
+        },
+        "mqtt_topic_prefix": {
+          "type": "string"
+        },
         "disable_url_queries": {
           "type": "boolean"
         },
