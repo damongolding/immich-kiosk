@@ -49,7 +49,7 @@ func Manifest(c *echo.Context) error {
 		Name:            "Immich Kiosk",
 		ShortName:       "Kiosk",
 		Description:     "Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses Immich as a data source.",
-		StartURL:        referer.Path,
+		StartURL:        referer.RequestURI(),
 		Scope:           "/",
 		Display:         "fullscreen",
 		BackgroundColor: "#000000",
