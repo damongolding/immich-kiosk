@@ -280,14 +280,14 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 		log.Error("Image BytesToImage", "err", imgErr)
 	}
 
-	if requestConfig.OptimizeImages {
-		img, imgErr = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
+	if requestConfig.OptimizeImages || requestConfig.OptimizeImagesEInk {
+		img, imgErr = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height, requestConfig.OptimizeImagesEInk)
 		if imgErr != nil {
 			log.Error("OptimizeImages", "err", imgErr)
 		}
 	}
 
-	imgBlur, imgBlurErr := utils.BlurImage(img, requestConfig.BackgroundBlurAmount, false, 0, 0)
+	imgBlur, imgBlurErr := utils.BlurImage(img, requestConfig.BackgroundBlurAmount, false, false, 0, 0)
 	if imgBlurErr != nil {
 		log.Error("Getting image preview", "err", imgBlurErr)
 	}

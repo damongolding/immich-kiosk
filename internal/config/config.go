@@ -295,7 +295,8 @@ type Config struct {
 	// MenuPosition position of menu
 	MenuPosition string `json:"menuPosition" yaml:"menu_position" mapstructure:"menu_position" query:"menu_position" form:"menu_position" default:"top"`
 	// OptimizeImages tells Kiosk to optimize images
-	OptimizeImages bool `json:"optimize_images" yaml:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
+	OptimizeImages     bool `json:"optimize_images" yaml:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
+	OptimizeImagesEInk bool `json:"optimizeImagesEInk" yaml:"optimize_images_eink" mapstructure:"optimize_images_eink" query:"optimize_images_eink" form:"optimize_images_eink" default:"false"`
 	// UseGpu tells Kiosk to use GPU where possible
 	UseGpu bool `json:"useGpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
 	// BurnInInterval specifies (in minutes) the interval between burn-in cycles. 0 disables.
@@ -706,6 +707,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 		c.ShowVideos = false
 		c.UseOriginalImage = false
 		c.OptimizeImages = false
+		c.OptimizeImagesEInk = false
 		c.Memories = false
 		c.Kiosk.FetchedAssetsSize = 100
 	}

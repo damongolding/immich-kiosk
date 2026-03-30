@@ -141,8 +141,8 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		}
 
 		// Optimize image if wanted
-		if requestConfig.OptimizeImages && requestConfig.ClientData.Width > 0 && requestConfig.ClientData.Height > 0 {
-			img, err = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
+		if (requestConfig.OptimizeImages || requestConfig.OptimizeImagesEInk) && requestConfig.ClientData.Width > 0 && requestConfig.ClientData.Height > 0 {
+			img, err = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height, requestConfig.OptimizeImagesEInk)
 			if err != nil {
 				return err
 			}

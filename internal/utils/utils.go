@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
 	"io"
 	"math"
 	"math/rand/v2"
@@ -386,7 +387,7 @@ func ImageMimeType(r io.Reader) string {
 
 // BlurImage applies a Gaussian blur to an image with normalized sigma based on image dimensions.
 // It can optionally resize the image first based on client data dimensions.
-func BlurImage(img image.Image, blurrAmount int, isOptimized bool, clientWidth, clientHeight int) (image.Image, error) {
+func BlurImage(img image.Image, blurrAmount int, isOptimized bool, eink bool, clientWidth, clientHeight int) (image.Image, error) {
 
 	blurredImage := img
 
@@ -398,6 +399,10 @@ func BlurImage(img image.Image, blurrAmount int, isOptimized bool, clientWidth, 
 
 	blurredImage = imaging.Blur(blurredImage, sigma)
 	blurredImage = imaging.AdjustBrightness(blurredImage, blurredImageBrightness)
+
+	if eink {
+		blurredImage = OptimizeForEInk(blurredImage)
+	}
 
 	return blurredImage, nil
 }
@@ -813,14 +818,29 @@ func abs(x int64) int64 {
 	return x
 }
 
+var einkPalette = color.Palette{
+	color.RGBA{0, 0, 0, 255},       // black
+	color.RGBA{255, 255, 255, 255}, // white
+	color.RGBA{0, 255, 0, 255},     // green
+	color.RGBA{0, 0, 255, 255},     // blue
+	color.RGBA{255, 0, 0, 255},     // red
+	color.RGBA{255, 255, 0, 255},   // yellow
+	color.RGBA{255, 128, 0, 255},   // orange
+}
+
 // OptimizeImage resizes an image to the specified dimensions while maintaining aspect ratio.
 // If width or height is 0, the image is returned unmodified.
-func OptimizeImage(img image.Image, width, height int) (image.Image, error) {
+func OptimizeImage(img image.Image, width, height int, eink bool) (image.Image, error) {
 
 	optimizedImage := img
 
 	if width != 0 && height != 0 {
 		optimizedImage = imaging.Fit(img, width, height, imaging.Lanczos)
+
+		// eInk optimizations
+		if eink {
+			optimizedImage = OptimizeForEInk(optimizedImage)
+		}
 	}
 
 	return optimizedImage, nil
@@ -1100,4 +1120,15 @@ func ContainsWholeWord(a, b string) bool {
 
 	re := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(a) + `\b`)
 	return re.MatchString(b)
+}
+
+func OptimizeForEInk(img image.Image) image.Image {
+	optimizedImage := imaging.AdjustContrast(img, 20)
+	optimizedImage = imaging.AdjustSaturation(optimizedImage, 40)
+	optimizedImage = imaging.Sharpen(optimizedImage, 0.5)
+
+	dithered := image.NewPaletted(optimizedImage.Bounds(), einkPalette)
+	draw.FloydSteinberg.Draw(dithered, optimizedImage.Bounds(), optimizedImage, image.Point{})
+
+	return dithered
 }

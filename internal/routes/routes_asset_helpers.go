@@ -463,7 +463,7 @@ func processBlurredImage(img image.Image, assetType immich.AssetType, config con
 	}
 
 	startTime := time.Now()
-	imgBlur, err := utils.BlurImage(img, config.BackgroundBlurAmount, config.OptimizeImages, config.ClientData.Width, config.ClientData.Height)
+	imgBlur, err := utils.BlurImage(img, config.BackgroundBlurAmount, config.OptimizeImages, config.OptimizeImagesEInk, config.ClientData.Width, config.ClientData.Height)
 	if err != nil {
 		return "", fmt.Errorf("blurring image: %w", err)
 	}
@@ -566,8 +566,8 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 	img = handleFaceProcessing(img, &immichAsset, requestConfig, metadata)
 
 	// Optimize image if needed
-	if requestConfig.OptimizeImages {
-		img, err = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height)
+	if requestConfig.OptimizeImages || requestConfig.OptimizeImagesEInk {
+		img, err = utils.OptimizeImage(img, requestConfig.ClientData.Width, requestConfig.ClientData.Height, requestConfig.OptimizeImagesEInk)
 		if err != nil {
 			return common.ViewImageData{}, err
 		}
