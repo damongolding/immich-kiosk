@@ -587,6 +587,9 @@ func (a *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio Im
 	if !slices.Contains(allowedTypes, a.Type) {
 		return false
 	}
+	if !a.requestConfig.ShowAnimatedGifs && a.isAnimatedGif() {
+		return false
+	}
 	if a.Type == VideoType && !a.durationCheck() {
 		return false
 	}
@@ -600,6 +603,18 @@ func (a *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio Im
 		return false
 	}
 	if slices.Contains(a.requestConfig.Blacklist, a.ID) {
+		return false
+	}
+	return true
+}
+
+func (a *Asset) isAnimatedGif() bool {
+	if a.OriginalMimeType != kiosk.MimeTypeGif {
+		return false
+	}
+
+	switch a.Duration {
+	case "0:00:00.00000", "0:00:00.0", "0:00:00":
 		return false
 	}
 	return true

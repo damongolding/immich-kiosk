@@ -407,6 +407,8 @@ type Config struct {
 	// LivePhotos show live photos
 	LivePhotos         bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
 	LivePhotoLoopDelay int  `json:"livePhotoLoopDelay" yaml:"live_photo_loop_delay" mapstructure:"live_photo_loop_delay" query:"live_photo_loop_delay" form:"live_photo_loop_delay" default:"0"`
+	//ShowAnimatedGifs show animated gifs
+	ShowAnimatedGifs bool `json:"showAnimatedGifs" yaml:"show_animated_gifs" mapstructure:"show_animated_gifs" query:"show_animated_gifs" form:"show_animated_gifs" default:"false"`
 
 	// ShowImageRating display stars is image is rated
 	ShowImageRating bool `json:"showImageRating" yaml:"show_image_rating" mapstructure:"show_image_rating" query:"show_image_rating" form:"show_image_rating" default:"false"`
