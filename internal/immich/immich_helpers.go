@@ -613,11 +613,15 @@ func (a *Asset) isAnimatedGif() bool {
 		return false
 	}
 
-	switch a.Duration {
-	case "0:00:00.00000", "0:00:00.0", "0:00:00":
+	var hours, minutes int
+	var seconds float64
+	if _, err := fmt.Sscanf(a.Duration, "%d:%d:%f", &hours, &minutes, &seconds); err != nil {
+		log.Error("could not parse duration for animated gif", "err", err)
 		return false
 	}
-	return true
+
+	totalSeconds := float64(hours*3600+minutes*60) + seconds
+	return totalSeconds > 0
 }
 
 // hasValidDateFilter validates if the asset's date matches the configured date filter criteria.
