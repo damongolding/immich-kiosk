@@ -3,11 +3,15 @@ import type { Locale } from "date-fns/locale";
 import { locales } from "./locales";
 
 const CLOCK_UPDATE_INTERVAL = 5000;
+const CLOCK_UPDATE_INTERVAL_SECONDS = 1000;
 
 const TIME_FORMATS = {
     TWELVE_HOUR: "h:mma" as const,
+    TWELVE_HOUR_SECONDS: "h:mm:ssa" as const,
     TWELVE_HOUR_NO_AMPM: "h:mm" as const,
+    TWELVE_HOUR_SECONDS_NO_AMPM: "h:mm:ss" as const,
     TWENTY_FOUR_HOUR: "HH:mm" as const,
+    TWENTY_FOUR_HOUR_SECONDS: "HH:mm:ss" as const,
 } as const;
 
 type TimeFormat = "12" | "24";
@@ -17,6 +21,7 @@ interface ClockConfig {
     dateFormat: string;
     showTime: boolean;
     timeFormat: TimeFormat;
+    showSeconds: boolean;
     showAmPm: boolean;
     langCode: string;
 }
@@ -116,12 +121,29 @@ class Clock {
     private updateTime(now: Date): void {
         if (!this.config.showTime || !this.elements.time) return;
 
-        const timeFormat =
-            this.config.timeFormat === "12"
-                ? this.config.showAmPm
+        // const timeFormat =
+        //     this.config.timeFormat === "12"
+        //         ? this.config.showAmPm
+        //             ? TIME_FORMATS.TWELVE_HOUR
+        //             : TIME_FORMATS.TWELVE_HOUR_NO_AMPM
+        //         : TIME_FORMATS.TWENTY_FOUR_HOUR;
+
+        let timeFormat: string;
+        if (this.config.timeFormat === "12") {
+            if (this.config.showSeconds) {
+                timeFormat = this.config.showAmPm
+                    ? TIME_FORMATS.TWELVE_HOUR_SECONDS
+                    : TIME_FORMATS.TWELVE_HOUR_SECONDS_NO_AMPM;
+            } else {
+                timeFormat = this.config.showAmPm
                     ? TIME_FORMATS.TWELVE_HOUR
-                    : TIME_FORMATS.TWELVE_HOUR_NO_AMPM
+                    : TIME_FORMATS.TWELVE_HOUR_NO_AMPM;
+            }
+        } else {
+            timeFormat = this.config.showSeconds
+                ? TIME_FORMATS.TWENTY_FOUR_HOUR_SECONDS
                 : TIME_FORMATS.TWENTY_FOUR_HOUR;
+        }
 
         try {
             const formattedTime = format(now, timeFormat, {
@@ -150,7 +172,9 @@ class Clock {
         this.render();
         this.intervalId = window.setInterval(
             () => this.render(),
-            CLOCK_UPDATE_INTERVAL,
+            this.config.showSeconds
+                ? CLOCK_UPDATE_INTERVAL_SECONDS
+                : CLOCK_UPDATE_INTERVAL,
         );
     }
 
@@ -167,6 +191,7 @@ function initClock(
     kioskDateFormat: string,
     kioskShowTime: boolean,
     kioskTimeFormat: TimeFormat,
+    kioskShowSeconds: boolean,
     kioskShowAmPm: boolean,
     kioskLangCode: string,
 ): Clock {
@@ -175,6 +200,7 @@ function initClock(
         dateFormat: kioskDateFormat,
         showTime: kioskShowTime,
         timeFormat: kioskTimeFormat,
+        showSeconds: kioskShowSeconds,
         showAmPm: kioskShowAmPm,
         langCode: kioskLangCode,
     };
@@ -190,4 +216,4 @@ function initClock(
     });
 }
 
-export { initClock, Clock, type TimeFormat };
+export { Clock, initClock, type TimeFormat };
