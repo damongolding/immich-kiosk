@@ -121,13 +121,6 @@ class Clock {
     private updateTime(now: Date): void {
         if (!this.config.showTime || !this.elements.time) return;
 
-        // const timeFormat =
-        //     this.config.timeFormat === "12"
-        //         ? this.config.showAmPm
-        //             ? TIME_FORMATS.TWELVE_HOUR
-        //             : TIME_FORMATS.TWELVE_HOUR_NO_AMPM
-        //         : TIME_FORMATS.TWENTY_FOUR_HOUR;
-
         let timeFormat: string;
         if (this.config.timeFormat === "12") {
             if (this.config.showSeconds) {
