@@ -63,7 +63,7 @@ templ Home(viewData common.ViewData, secret string) {
 					<section id="clock-weather-container">
 						<div>
 							if (viewData.ShowTime || viewData.ShowDate) {
-								@partials.ClockContainer(viewData.ClockSource, viewData.Theme, viewData.ShowSeconds)
+								@partials.ClockContainer(viewData.ClockSource, viewData.Theme, viewData.ShowTime, viewData.ShowSeconds)
 							}
 						</div>
 						<div>
