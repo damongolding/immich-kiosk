@@ -70,6 +70,7 @@ services:
       KIOSK_SHOW_VIDEOS: false
       KIOSK_LIVE_PHOTOS: false
       KIOSK_LIVE_PHOTO_LOOP_DELAY: 0
+      KIOSK_SHOW_ANIMATED_GIFS: false
       # Image metadata
       KIOSK_SHOW_IMAGE_RATING: false
       KIOSK_SHOW_OWNER: false

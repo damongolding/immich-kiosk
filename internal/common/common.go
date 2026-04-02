@@ -164,6 +164,7 @@ type URLBuilderRequest struct {
 	ShowVideos         *bool   `form:"show_videos" url:"show_videos,omitempty"`
 	LivePhotos         *bool   `form:"live_photos" url:"live_photos,omitempty"`
 	LivePhotoLoopDelay *uint64 `form:"live_photo_loop_delay" url:"live_photo_loop_delay,omitempty"`
+	ShowAnimatedGifs   *bool   `form:"show_animated_gifs" url:"show_animated_gifs,omitempty"`
 
 	// Clock
 	ShowTime    *bool   `form:"show_time" url:"show_time,omitempty"`

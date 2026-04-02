@@ -95,6 +95,7 @@ use_original_image: false # use the original file.
 show_videos: false
 live_photos: false
 live_photo_loop_delay: 0
+show_animated_gifs: false
 
 ## Image METADATA
 show_image_rating: false
