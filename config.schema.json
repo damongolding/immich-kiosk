@@ -23,6 +23,11 @@
       ],
       "examples": ["12", "24"]
     },
+    "show_seconds": {
+      "type": "boolean",
+      "default": false,
+      "description": "Show seconds when displaying clock"
+    },
     "show_am_pm": {
       "type": "boolean"
     },
