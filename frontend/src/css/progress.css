@@ -2,28 +2,28 @@
 .progress {
     position: absolute;
     top: 0;
+    z-index: var(--z-progress);
     width: 100%;
     height: 0.18rem;
-    z-index: var(--z-progress);
 
     &.progress-bottom {
-        bottom: 0;
         top: unset;
+        bottom: 0;
     }
 }
 
 .progress--bar {
     position: absolute;
-    width: 100%;
-    height: 100%;
     top: 0;
     left: 0;
+    width: 100%;
+    height: 100%;
     background-color: #1e83f7;
-    will-change: transform;
-    transform-origin: left;
     transform: scaleX(0) translateZ(0);
+    transform-origin: left;
+    -webkit-perspective: 1000;
     backface-visibility: hidden;
     transition: transform 0.05s linear;
-    -webkit-perspective: 1000;
+    will-change: transform;
     /* border-radius: 0 1rem 1rem 0; */
 }

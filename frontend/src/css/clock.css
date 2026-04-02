@@ -1,13 +1,11 @@
 /* --- clock --- */
 #clock {
     position: relative;
-    color: #fff;
-    font-size: 3rem;
-    text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
-
-    padding: 1rem;
-
     z-index: var(--z-clock);
+    padding: 1rem;
+    font-size: 3rem;
+    color: #fff;
+    text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 }
 
 @media screen and (max-width: 31.25rem) {
@@ -18,16 +16,16 @@
 
 .clock--date {
     position: relative;
-    font-size: 1.5rem;
     z-index: 1;
+    font-size: 1.5rem;
     text-transform: capitalize;
 }
 
 .clock--time {
     position: relative;
+    z-index: 1;
     padding-right: 3rem;
     font-size: 3rem;
-    z-index: 1;
 }
 
 /* In sleep mode */
@@ -36,14 +34,13 @@
     #clock {
         position: absolute;
         top: 50%;
-        left: 50%;
-        bottom: unset;
         right: unset;
-        transform: translate(-50%, -50%);
-        opacity: 0.1;
+        bottom: unset;
+        left: 50%;
         z-index: var(--z-sleep-clock);
         line-height: 1;
-
+        opacity: 0.1;
+        transform: translate(-50%, -50%);
         animation-name: clock-screesaver;
         animation-duration: 3600s;
         animation-timing-function: step-end;

@@ -12,18 +12,18 @@
 
 .weather {
     position: relative;
-    color: #fff;
-    text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
-    padding: 1rem 1rem 1rem 1.5rem;
-    text-align: right;
-
-    display: flex;
-    align-items: flex-end;
-    flex-direction: column;
-
-    font-size: 1rem;
 
     z-index: var(--z-clock);
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 1rem 1rem 1rem 1.5rem;
+
+    font-size: 1rem;
+    color: #fff;
+    text-align: right;
+    text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 }
 
 @media screen and (max-width: 31.25rem) {
@@ -34,9 +34,9 @@
 
 .weather--temp {
     display: flex;
+    gap: 0.5rem;
     font-size: 3rem;
     font-weight: bold;
-    gap: 0.5rem;
 }
 
 .weather--temp--value {
@@ -44,25 +44,25 @@
 }
 
 .weather--temp--unit {
-    font-size: 1.5rem;
     padding: 0.6rem 0 0 0.1rem;
+    font-size: 1.5rem;
 }
 
 .weather--stats {
-    text-align: right;
-    display: flex;
-    align-items: flex-end;
-    flex-direction: column;
-    font-size: 1rem;
-    gap: 0.5rem;
     z-index: var(--z-clock);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+    font-size: 1rem;
+    text-align: right;
 }
 
 .weather--stat {
     display: flex;
-    padding-top: 0.1rem;
     gap: 0.5rem;
     align-items: center;
+    padding-top: 0.1rem;
 }
 
 .weather--stat--icon {
@@ -76,9 +76,9 @@
 .weather--stat--icon svg {
     max-width: 1rem;
     max-height: 1rem;
-    fill: #fff;
     opacity: 0.8;
     filter: drop-shadow(0 0 1rem rgba(0, 0, 0, 1));
+    fill: #fff;
 }
 
 .weather--stat--value {
@@ -91,15 +91,15 @@
 }
 
 .weather--forecast {
-    padding-top: 1rem;
     display: flex;
     flex-direction: row;
     gap: 1rem;
+    padding-top: 1rem;
 }
 
 .weather--forecast--item {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 0.2rem;
+    align-items: center;
 }

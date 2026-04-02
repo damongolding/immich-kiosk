@@ -1,16 +1,16 @@
 .asset-metadata-container {
     position: absolute;
+    right: 0;
+    bottom: 0;
     display: flex;
     gap: 0.5rem;
-    bottom: 0;
-    right: 0;
+    align-items: flex-end;
+    justify-content: space-between;
     width: 100%;
     padding: 1rem;
-    justify-content: space-between;
-    align-items: flex-end;
+    opacity: 1;
 
     transition: opacity var(--burn-in-fade) ease-in-out;
-    opacity: 1;
 }
 
 .burn-in-dim .asset-metadata-container {
@@ -18,9 +18,9 @@
 }
 
 .asset-metadata-qr img {
+    display: block;
     width: 6rem;
     border-radius: 0.2rem;
-    display: block;
 }
 
 /* --- image metadata --- */
@@ -37,15 +37,15 @@
 
 .asset--metadata {
     position: relative;
-    display: flex;
-    gap: 0.5rem;
-    flex-direction: column;
-    align-items: flex-start;
-    bottom: 0;
     right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
     max-width: 70vw;
-    color: #fff;
     font-size: 1.1rem;
+    color: #fff;
     text-align: left;
     text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
 }
@@ -66,8 +66,8 @@
 
 .asset--metadata--has-icon {
     display: flex;
-    align-items: center;
     gap: 0.5rem;
+    align-items: center;
 }
 
 .asset--metadata--icon {
@@ -76,8 +76,8 @@
     width: 0.9rem;
     padding-top: 0.1875rem;
     svg {
-        height: 0.9rem;
         width: 0.9rem;
+        height: 0.9rem;
         fill: white;
     }
 }
@@ -104,27 +104,27 @@
 }
 
 .asset--metadata--exif--seperator {
-    opacity: 0.3;
     padding: 0 0.5rem;
+    opacity: 0.3;
 }
 
 .asset--metadata--rating-stars {
-    width: 100%;
     gap: 0.3rem;
+    width: 100%;
 }
 
 .frame--layout-splitview:nth-child(2) {
     .asset--metadata {
         display: flex;
-        gap: 0.5rem;
         flex-direction: column;
+        gap: 0.5rem;
         align-items: flex-end;
+        order: 2;
         max-width: 70vw;
-        color: #fff;
         font-size: 1.1rem;
+        color: #fff;
         text-align: right;
         text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
-        order: 2;
     }
 
     .asset-metadata-qr {
@@ -134,12 +134,12 @@
 
 /* Image zoom effect  */
 .frame--image-zoom img {
-    animation-direction: normal;
-    animation-duration: inherit;
-    transition-timing-function: linear;
-    animation-fill-mode: forwards;
-    transform-origin: inherit;
     object-position: inherit;
+    transform-origin: inherit;
+    transition-timing-function: linear;
+    animation-duration: inherit;
+    animation-direction: normal;
+    animation-fill-mode: forwards;
     will-change: transform;
 }
 
@@ -172,8 +172,8 @@
         padding: 0.5rem;
     }
     .asset--metadata {
-        padding: 0.5rem !important;
         max-width: 50vw;
+        padding: 0.5rem !important;
     }
 
     .asset--metadata--description {
@@ -197,15 +197,15 @@
     .frame--layout-splitview:nth-child(2) {
         .asset--metadata {
             display: flex;
-            gap: 0.5rem;
             flex-direction: column;
+            gap: 0.5rem;
             align-items: flex-start;
+            order: 1;
             max-width: 70vw;
-            color: #fff;
             font-size: 1.1rem;
+            color: #fff;
             text-align: left;
             text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
-            order: 1;
         }
 
         .asset-metadata-qr {

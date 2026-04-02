@@ -3,19 +3,19 @@
     position: absolute;
     bottom: 2rem;
     left: 50%;
-    transform: translateX(-50%);
+
+    z-index: var(--z-offline);
 
     display: flex;
     gap: 1rem;
-
-    z-index: var(--z-offline);
+    transform: translateX(-50%);
 }
 
 /* --- offline icon --- */
 #offline {
+    display: none;
     width: 3rem;
     height: 3rem;
-    display: none;
 }
 
 #download svg,
@@ -38,8 +38,8 @@
 }
 
 #download {
-    height: 3rem;
     display: none;
+    height: 3rem;
 
     &.downloading {
         display: block;
@@ -54,15 +54,15 @@
 /* Spinner container */
 #downloading-spinner {
     position: absolute;
+    top: -0.4375rem;
+    left: -0.4375rem;
+    display: block;
     width: 3.75rem;
     height: 3.75rem;
-    left: -0.4375rem;
-    top: -0.4375rem;
-    display: block;
     margin: 0 auto;
+    filter: none !important;
     animation: downloading-spinner-spin 2s linear infinite;
     will-change: transform;
-    filter: none !important;
 }
 
 @keyframes downloading-spinner-spin {
@@ -75,15 +75,15 @@
 }
 
 #downloading-circle {
+    filter: none !important;
+    stroke-linecap: round;
     stroke-dasharray: 160;
     stroke-dashoffset: 160;
-    stroke-linecap: round;
-    animation: downloading-spinner 1.7s cubic-bezier(0.445, 0.05, 0.55, 0.95)
-        infinite;
     transform: translateZ(0);
     transform-origin: center;
+    animation: downloading-spinner 1.7s cubic-bezier(0.445, 0.05, 0.55, 0.95)
+        infinite;
     will-change: stroke-dashoffset;
-    filter: none !important;
 }
 
 @keyframes downloading-spinner {

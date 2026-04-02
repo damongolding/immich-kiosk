@@ -1,25 +1,25 @@
 /* --- frame --- */
 .frame {
     position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    z-index: var(--z-base);
     display: flex;
     width: 100%;
     height: 100%;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     overflow: hidden;
 
     background-color: #000;
-
-    z-index: var(--z-base);
 }
 
 .frame--image {
     position: absolute;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
 }
@@ -48,16 +48,16 @@
 .frame--background {
     position: absolute;
     top: -5%;
-    left: -5%;
     right: -5%;
     bottom: -5%;
+    left: -5%;
 }
 
 .frame--background img {
-    opacity: 1;
-    object-fit: cover;
     width: 100%;
     height: 100%;
+    object-fit: cover;
+    opacity: 1;
 }
 
 /* Splitview layout */
@@ -98,8 +98,8 @@
 .frame--layout-splitview .frame--image {
     position: absolute;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 }
 
 /* Splitview landscape layout */
@@ -139,8 +139,8 @@
     .frame--image {
         position: absolute;
         display: flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
     }
 }
 
@@ -151,8 +151,8 @@
 .frame--layout-splitview-landscape .frame--image {
     position: absolute;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 }
 
 /* No transition */
@@ -180,9 +180,9 @@
 }
 
 .transition-cross-fade .frame {
+    opacity: 0;
     animation-name: fade-in;
     animation-fill-mode: forwards;
-    opacity: 0;
     will-change: opacity;
 }
 /* END Cross fade transtion */
@@ -224,8 +224,8 @@
         .frame--image {
             position: absolute;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
         }
     }
 
