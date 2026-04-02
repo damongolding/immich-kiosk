@@ -172,7 +172,7 @@ class Clock {
         this.render();
         this.intervalId = window.setInterval(
             () => this.render(),
-            this.config.showSeconds
+            this.config.showTime && this.config.showSeconds
                 ? CLOCK_UPDATE_INTERVAL_SECONDS
                 : CLOCK_UPDATE_INTERVAL,
         );
