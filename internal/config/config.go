@@ -278,6 +278,8 @@ type Config struct {
 	TimeFormat string `json:"timeFormat" yaml:"time_format" mapstructure:"time_format" query:"time_format" form:"time_format" default:"24"`
 	// ShowAmPm whether to display am/pm when using 12 hour format
 	ShowAmPm bool `json:"showAmPm" yaml:"show_am_pm" mapstructure:"show_am_pm" query:"show_am_pm" form:"show_am_pm" default:"true"`
+	// ShowSeconds whether to display seconds on the clock
+	ShowSeconds bool `json:"showSeconds" yaml:"show_seconds" mapstructure:"show_seconds" query:"show_seconds" form:"show_seconds" default:"false"`
 	// ShowDate whether to display date
 	ShowDate bool `json:"showDate" yaml:"show_date" mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
 	//  DateFormat format for date

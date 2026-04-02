@@ -70,6 +70,7 @@ type KioskData = {
     dateFormat: string;
     showTime: boolean;
     timeFormat: TimeFormat;
+    showSeconds: boolean;
     showAmPm: boolean;
     clockSource: "client" | "server";
     transition: string;
@@ -172,6 +173,7 @@ async function init(): Promise<void> {
             kioskData.dateFormat,
             kioskData.showTime,
             kioskData.timeFormat,
+            kioskData.showSeconds,
             kioskData.showAmPm,
             kioskData.langCode,
         );
@@ -642,15 +644,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 export {
-    triggerNewAsset,
+    checkHistoryExists,
     cleanupFrames,
+    clientData,
+    releaseRequestLock,
+    setRequestLock,
+    sleepMode,
     startPolling,
     stopPolling,
-    setRequestLock,
-    releaseRequestLock,
-    checkHistoryExists,
-    clientData,
+    triggerNewAsset,
     videoHandler,
-    sleepMode,
     weatherRotationPosition,
 };
