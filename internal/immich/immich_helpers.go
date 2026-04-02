@@ -587,6 +587,9 @@ func (a *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio Im
 	if !slices.Contains(allowedTypes, a.Type) {
 		return false
 	}
+	if !a.requestConfig.ShowAnimatedGifs && a.isAnimatedGif() {
+		return false
+	}
 	if a.Type == VideoType && !a.durationCheck() {
 		return false
 	}
@@ -603,6 +606,22 @@ func (a *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio Im
 		return false
 	}
 	return true
+}
+
+func (a *Asset) isAnimatedGif() bool {
+	if a.OriginalMimeType != kiosk.MimeTypeGif {
+		return false
+	}
+
+	var hours, minutes int
+	var seconds float64
+	if _, err := fmt.Sscanf(a.Duration, "%d:%d:%f", &hours, &minutes, &seconds); err != nil {
+		log.Error("could not parse duration for animated gif", "err", err)
+		return false
+	}
+
+	totalSeconds := float64(hours*3600+minutes*60) + seconds
+	return totalSeconds > 0
 }
 
 // hasValidDateFilter validates if the asset's date matches the configured date filter criteria.

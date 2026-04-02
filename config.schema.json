@@ -158,6 +158,11 @@
     "live_photo_loop_delay": {
       "type": "integer"
     },
+    "show_animated_gifs": {
+      "type": "boolean",
+      "default": false,
+      "description": "Show animated GIFs"
+    },
     "menu_position": {
       "type": "string"
     },
