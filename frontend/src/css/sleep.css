@@ -21,17 +21,13 @@
     position: absolute;
     top: 2rem;
     left: 50%;
-
     display: flex;
     gap: 0.7rem;
     align-items: center;
-
     padding: 0;
     margin: 0;
     font-size: 1.5rem;
-
     color: #fff;
-
     opacity: 0.1;
     transform: translate(-50%);
 

@@ -9,7 +9,6 @@
     width: 100%;
     padding: 1rem;
     opacity: 1;
-
     transition: opacity var(--burn-in-fade) ease-in-out;
 }
 

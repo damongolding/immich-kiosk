@@ -3,9 +3,7 @@
     position: absolute;
     bottom: 2rem;
     left: 50%;
-
     z-index: var(--z-offline);
-
     display: flex;
     gap: 1rem;
     transform: translateX(-50%);

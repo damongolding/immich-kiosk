@@ -1,11 +1,9 @@
 * {
     box-sizing: border-box;
     -webkit-font-smoothing: subpixel-antialiased;
-
     font-smoothing: always;
     -moz-osx-font-smoothing: grayscale;
     user-select: none;
-
     text-rendering: optimizeLegibility;
 
     &:focus {

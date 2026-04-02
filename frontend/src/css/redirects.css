@@ -18,18 +18,15 @@
         right: 0;
         bottom: 0;
         left: 0;
-
         z-index: var(--z-overlay);
         display: flex;
         align-items: center;
         justify-content: center;
         width: calc(100% - 0.8rem);
         height: calc(100% - 0.8rem);
-
         padding: 8.12rem 2rem 2rem 2rem;
         margin: 0.4rem;
         background-color: rgb(51 52 96 / 60%);
-
         border-radius: 0.4rem;
     }
 
