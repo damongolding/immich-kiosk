@@ -14,12 +14,12 @@ require (
 	github.com/google/go-querystring v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/klauspost/compress v1.18.5
-	github.com/labstack/echo/v5 v5.0.4
+	github.com/labstack/echo/v5 v5.1.0
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/nicksnyder/go-i18n/v2 v2.6.1
-	github.com/oapi-codegen/runtime v1.3.0
+	github.com/oapi-codegen/runtime v1.3.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/pelletier/go-toml/v2 v2.2.4
+	github.com/pelletier/go-toml/v2 v2.3.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1

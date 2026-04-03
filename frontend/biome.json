@@ -8,6 +8,7 @@
   "files": {
     "ignoreUnknown": true,
     "includes": [
+      "**/*.css",
       "**/*.ts",
       "**/*.js",
       "**/*.tsx",
@@ -26,10 +27,17 @@
         "noDuplicateProperties": "off"
       },
       "correctness": {
-        "noUnknownProperty": "off"
+        "noUnknownProperty": {
+          "options": {
+            "ignore": ["font-smoothing", "-webkit-perspective"]
+          }
+        }
       },
       "style": {
         "noDescendingSpecificity": "off"
+      },
+      "complexity": {
+        "noImportantStyles": "off"
       },
       "recommended": true
     }
@@ -48,6 +56,7 @@
     "enabled": true,
     "actions": {
       "source": {
+        "useSortedProperties": "on",
         "organizeImports": "on"
       }
     }
