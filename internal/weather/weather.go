@@ -98,6 +98,12 @@ func (s *LocationRotate) Next(i int) (int, string) {
 
 var LocationRotator = &LocationRotate{}
 
+type ForecastData struct {
+	Daily       []DailySummary
+	Next24hHigh float64
+	Next24hLow  float64
+}
+
 type Location struct {
 	Name      string
 	Lat       string
@@ -106,7 +112,7 @@ type Location struct {
 	Unit      string
 	Lang      string
 	Show      config.WeatherLocationStatOptions
-	Forecast  []DailySummary
+	Forecast  ForecastData
 	RoundTemp bool
 	Weather
 }
@@ -400,7 +406,7 @@ func (w *Location) updateForecast(ctx context.Context) (Location, error) {
 	return *w, nil
 }
 
-func processForecast(forecast Forecast, tzOffsetSeconds int) []DailySummary {
+func processForecast(forecast Forecast, tzOffsetSeconds int) ForecastData {
 	loc := time.FixedZone("owm", tzOffsetSeconds)
 	// Today’s date at midnight in location zone
 	now := time.Now().In(loc)
@@ -470,6 +476,40 @@ func processForecast(forecast Forecast, tzOffsetSeconds int) []DailySummary {
 	})
 
 	n := min(3, len(summaries))
-	return summaries[:n]
+	high, low := computeNext24hTempRange(forecast)
+	return ForecastData{
+		Daily:       summaries[:n],
+		Next24hHigh: high,
+		Next24hLow:  low,
+	}
+}
 
+// computeNext24hTempRange scans the next 24 hours of forecast intervals and returns
+// the highest TempMax and lowest TempMin found. This gives a rolling "high/low for
+// the next 24 hours" that is always meaningful regardless of time of day.
+func computeNext24hTempRange(forecast Forecast) (float64, float64) {
+	now := time.Now()
+	cutoff := now.Add(24 * time.Hour)
+
+	var high, low float64
+	initialized := false
+	for _, item := range forecast.List {
+		itemTime := time.Unix(item.DT, 0)
+		if itemTime.Before(now) || itemTime.After(cutoff) {
+			continue
+		}
+		if !initialized {
+			high = item.Main.TempMax
+			low = item.Main.TempMin
+			initialized = true
+		} else {
+			if item.Main.TempMax > high {
+				high = item.Main.TempMax
+			}
+			if item.Main.TempMin < low {
+				low = item.Main.TempMin
+			}
+		}
+	}
+	return high, low
 }

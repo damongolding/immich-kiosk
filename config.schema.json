@@ -433,6 +433,11 @@
                     "type": "boolean",
                     "description": "Show the current visibility",
                     "default": false
+                  },
+                  "temperature_range": {
+                    "type": "boolean",
+                    "description": "Show the next 24-hour forecast high/low temperature (requires forecast: true)",
+                    "default": false
                   }
                 }
               },
