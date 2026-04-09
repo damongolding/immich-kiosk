@@ -1,5 +1,7 @@
 version: "3"
 
+silent: true
+
 tasks:
   # Docker tasks
   docker-image:
@@ -20,11 +22,10 @@ tasks:
     deps: [build]
     cmds:
       - cmd: orb start
-        if: 'command -v orb >/dev/null 2>&1'
+        if: "command -v orb >/dev/null 2>&1"
       - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t ghcr.io/damongolding/immich-kiosk-development:{{.VERSION}} -t ghcr.io/damongolding/immich-kiosk-development:latest .
       - cmd: orb stop
-        if: 'command -v orb >/dev/null 2>&1'
-
+        if: "command -v orb >/dev/null 2>&1"
 
   push:
     desc: Build and push development multi-arch docker image

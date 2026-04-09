@@ -5,11 +5,11 @@
     right: 0;
     bottom: 0;
     left: 0;
+    z-index: var(--z-interaction);
     display: flex;
     justify-content: center;
     width: 100%;
     height: 100%;
-    z-index: var(--z-interaction);
     background-color: transparent;
 }
 
@@ -35,9 +35,9 @@
 
 #navigation-interaction-area--custom-navigation {
     position: absolute;
+    bottom: 0;
     width: 50%;
     height: 70%;
-    bottom: 0;
 
     &.navigation-interaction-area--custom-navigation-bottom {
         top: 0;
@@ -47,36 +47,36 @@
 
 /* --- menu --- */
 .navigation {
-    display: flex;
-    gap: 1.4rem;
     position: absolute;
     top: 1rem;
     right: 50%;
-    transform: translateX(50%);
+    z-index: var(--z-navigation);
+    display: flex;
+    visibility: visible;
+    gap: 1.4rem;
     padding: 0.5rem;
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 40rem;
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.5s ease;
-    will-change: opacity;
     box-shadow:
         rgba(17, 17, 26, 0.1) 0rem 0.25rem 1rem,
         rgba(17, 17, 26, 0.05) 0rem 0.5rem 2rem;
-    z-index: var(--z-navigation);
+    opacity: 1;
+    transform: translateX(50%);
+    transition: opacity 0.5s ease;
+    will-change: opacity;
 
     &.navigation-bottom {
-        bottom: 1rem;
         top: unset;
+        bottom: 1rem;
     }
 }
 
 .navigation--item {
-    width: 3.62rem;
-    height: 3.62rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 3.62rem;
+    height: 3.62rem;
     cursor: pointer;
 
     &:hover {
@@ -92,20 +92,20 @@
 }
 
 .navigation-hidden {
-    transition-duration: 0s;
-    opacity: 0;
     visibility: hidden;
+    opacity: 0;
+    transition-duration: 0s;
 }
 
 .navigation svg {
-    fill: white;
     width: 1.8rem;
     height: 1.8rem;
+    fill: white;
 }
 
 .rounded {
-    border-radius: 40rem;
     background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 40rem;
 }
 
 .navigation--flush-cache svg {
@@ -193,9 +193,9 @@
 
 .navigation--next-asset.disabled,
 .navigation--prev-asset.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
     pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .navigation--mute {

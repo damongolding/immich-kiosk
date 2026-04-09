@@ -1,25 +1,25 @@
 body#about {
-    overflow: auto;
     max-height: none;
+    overflow: auto;
 }
 
 .about-container {
     display: flex;
     align-items: stretch;
-    min-height: 100vh;
     width: 100vw;
+    min-height: 100vh;
 }
 
 .about-container--immich,
 .about-container--kiosk {
     position: relative;
+    z-index: var(--z-base);
     display: flex;
     align-content: center;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 50%;
     min-height: 100vh;
-    z-index: var(--z-base);
 }
 
 .about-container--immich {
@@ -32,10 +32,10 @@ body#about {
 
 .about-container--immich--content,
 .about-container--kiosk--content {
-    max-width: 31.25rem;
     width: 100%;
-    margin: 0 auto;
+    max-width: 31.25rem;
     padding: 1.5rem;
+    margin: 0 auto;
 }
 
 .logo {
@@ -44,25 +44,25 @@ body#about {
 }
 
 .logo img {
+    display: block;
     max-width: 6.25rem;
     height: auto;
-    display: block;
     margin: 1rem auto;
 }
 
 .about_content {
     position: relative;
+    z-index: var(--z-base);
+    padding: 1.5rem;
     background-color: white;
     border-radius: 1rem;
-    padding: 1.5rem;
-    z-index: var(--z-base);
 }
 
 h1 {
+    margin: 0.5rem 0 1.5rem 0;
     font-size: 2rem;
     font-weight: bold;
     color: #333;
-    margin: 0.5rem 0 1.5rem 0;
 }
 
 .stats {
@@ -71,8 +71,8 @@ h1 {
 }
 
 .stats > div {
-    border-top: 1px solid #eee;
     padding: 1rem 0;
+    border-top: 1px solid #eee;
 }
 
 .stats > div:last-child {
@@ -80,9 +80,9 @@ h1 {
 }
 
 .label {
+    margin-bottom: 0.3rem;
     font-size: 0.8rem;
     color: #6d727a;
-    margin-bottom: 0.3rem;
 }
 
 .value {
@@ -101,36 +101,36 @@ h1 {
 }
 
 .value .service-online {
-    margin-top: 0.3rem;
-    padding: 0.5rem 1rem;
-    border: 1px solid #18c249;
-    background-color: rgba(24, 194, 73, 0.1);
-    color: #0f762c;
-    border-radius: 0.5rem;
     display: inline-block;
+    padding: 0.5rem 1rem;
+    margin-top: 0.3rem;
+    color: #0f762c;
+    background-color: rgba(24, 194, 73, 0.1);
+    border: 1px solid #18c249;
+    border-radius: 0.5rem;
 }
 
 .value .service-offline {
-    margin-top: 0.3rem;
-    padding: 0.5rem 1rem;
-    border: 1px solid #fa2921;
-    background-color: rgba(250, 41, 33, 0.1);
-    color: #d10800;
-    border-radius: 0.5rem;
     display: inline-block;
+    padding: 0.5rem 1rem;
+    margin-top: 0.3rem;
+    color: #d10800;
+    background-color: rgba(250, 41, 33, 0.1);
+    border: 1px solid #fa2921;
+    border-radius: 0.5rem;
 }
 
 .background {
     position: absolute;
     top: 0;
     left: 0;
+    z-index: var(--z-below);
     width: 100%;
     height: 100%;
-    background-size: cover;
     background-position: center;
-    z-index: var(--z-below);
-    filter: blur(64px);
+    background-size: cover;
     opacity: 0.4;
+    filter: blur(64px);
 }
 
 @media (orientation: portrait) {

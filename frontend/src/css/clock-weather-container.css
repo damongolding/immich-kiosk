@@ -1,5 +1,8 @@
 #clock-weather-container {
     position: absolute;
+    top: 0;
+    left: 0;
+    z-index: var(--z-clock);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -7,13 +10,8 @@
     min-width: 100%;
     height: auto;
     min-height: auto;
-    top: 0;
-    left: 0;
-
-    z-index: var(--z-clock);
-
-    transition: opacity var(--burn-in-fade) ease-in-out;
     opacity: 1;
+    transition: opacity var(--burn-in-fade) ease-in-out;
 }
 
 .burn-in-dim #clock-weather-container {
@@ -29,15 +27,15 @@
 
 /* Splitview */
 .layout-splitview #clock-weather-container {
+    bottom: unset;
     flex-direction: row;
     width: 100%;
     height: auto;
     min-height: auto;
-    bottom: unset;
 }
 
 .sleep #clock-weather-container {
-    height: 100%;
-    width: 100%;
     z-index: var(--z-sleep-clock);
+    width: 100%;
+    height: 100%;
 }
