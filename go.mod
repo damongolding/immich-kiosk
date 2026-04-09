@@ -1,6 +1,6 @@
 module github.com/damongolding/immich-kiosk
 
-go 1.26.1
+go 1.26.2
 
 require (
 	charm.land/lipgloss/v2 v2.0.2
@@ -17,7 +17,7 @@ require (
 	github.com/labstack/echo/v5 v5.1.0
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/nicksnyder/go-i18n/v2 v2.6.1
-	github.com/oapi-codegen/runtime v1.3.1
+	github.com/oapi-codegen/runtime v1.4.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pelletier/go-toml/v2 v2.3.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
