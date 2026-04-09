@@ -205,9 +205,7 @@
 .multi-select .multi-select-all {
     box-sizing: border-box;
     display: flex;
-    display: flex;
     flex-wrap: wrap;
-    align-items: center;
     align-items: center;
     width: 100%;
     font-size: 16px;
