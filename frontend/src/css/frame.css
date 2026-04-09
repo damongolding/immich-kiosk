@@ -155,11 +155,6 @@
     align-items: center;
 }
 
-/* No transition */
-.transition-none.frameless .frame {
-    background-color: transparent;
-}
-
 /* Fade transition */
 #kiosk.htmx-swapping {
     opacity: 0;
