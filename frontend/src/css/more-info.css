@@ -129,7 +129,7 @@
 .more-info--webhook,
 .more-info--image-link {
     padding: 0.5rem 2rem;
-    font-family: "Barlow", Arial, Helvetica, sans-serif;
+    font-family: Barlow, Arial, Helvetica, sans-serif;
     font-size: 1rem;
     font-weight: 600;
     color: var(--cool-grey);

@@ -262,7 +262,7 @@ body#url-builder {
     display: inline-block;
     padding: 0.5rem 2rem;
     margin-bottom: 1.5rem;
-    font-family: "Barlow", Arial, Helvetica, sans-serif;
+    font-family: Barlow, Arial, Helvetica, sans-serif;
     font-size: 1rem;
     font-weight: 600;
     color: var(--cool-grey);

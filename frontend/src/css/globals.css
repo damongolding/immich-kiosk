@@ -30,7 +30,7 @@ body {
     padding: 0;
     margin: 0;
     overflow: hidden;
-    font-family: "Barlow", Arial, Helvetica, sans-serif;
+    font-family: Barlow, Arial, Helvetica, sans-serif;
     font-size: 100%; /* 16px */
     letter-spacing: 0.0625rem;
     background-color: #000;
