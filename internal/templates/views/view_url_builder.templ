@@ -125,6 +125,7 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						@URLBuilderRadio("Show videos", "show_videos", "Display videos.", "true", "true", "false", "false")
 						@URLBuilderRadio("Live photos", "live_photos", "Display live photos.", "true", "true", "false", "false")
 						@URLBuilderNumber("Live photo loop delay", "live_photo_loop_delay", "The delay (in seconds) between each live photo replay.", 0, 0, strconv.FormatInt(int64(c.LivePhotoLoopDelay), 10))
+						@URLBuilderRadio("Show animated GIFs", "show_animated_gifs", "Display animated GIFs.", "true", "true", "false", "false")
 					}
 					// Clock
 					<h2>Clock</h2>

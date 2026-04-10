@@ -1,6 +1,6 @@
 /* vietnamese */
 @font-face {
-    font-family: "Barlow";
+    font-family: Barlow;
     font-style: normal;
     font-weight: 400;
     font-display: swap;
@@ -13,7 +13,7 @@
 
 /* latin-ext */
 @font-face {
-    font-family: "Barlow";
+    font-family: Barlow;
     font-style: normal;
     font-weight: 400;
     font-display: swap;
@@ -25,7 +25,7 @@
 
 /* latin */
 @font-face {
-    font-family: "Barlow";
+    font-family: Barlow;
     font-style: normal;
     font-weight: 400;
     font-display: swap;
@@ -38,7 +38,7 @@
 
 /* latin bold */
 @font-face {
-    font-family: "Barlow";
+    font-family: Barlow;
     font-style: normal;
     font-weight: 600;
     font-display: swap;

@@ -278,6 +278,8 @@ type Config struct {
 	TimeFormat string `json:"timeFormat" yaml:"time_format" mapstructure:"time_format" query:"time_format" form:"time_format" default:"24"`
 	// ShowAmPm whether to display am/pm when using 12 hour format
 	ShowAmPm bool `json:"showAmPm" yaml:"show_am_pm" mapstructure:"show_am_pm" query:"show_am_pm" form:"show_am_pm" default:"true"`
+	// ShowSeconds whether to display seconds on the clock
+	ShowSeconds bool `json:"showSeconds" yaml:"show_seconds" mapstructure:"show_seconds" query:"show_seconds" form:"show_seconds" default:"false"`
 	// ShowDate whether to display date
 	ShowDate bool `json:"showDate" yaml:"show_date" mapstructure:"show_date" query:"show_date" form:"show_date" default:"false"`
 	//  DateFormat format for date
@@ -407,6 +409,8 @@ type Config struct {
 	// LivePhotos show live photos
 	LivePhotos         bool `json:"livePhotos" yaml:"live_photos" mapstructure:"live_photos" query:"live_photos" form:"live_photos" default:"false"`
 	LivePhotoLoopDelay int  `json:"livePhotoLoopDelay" yaml:"live_photo_loop_delay" mapstructure:"live_photo_loop_delay" query:"live_photo_loop_delay" form:"live_photo_loop_delay" default:"0"`
+	// ShowAnimatedGifs show animated gifs
+	ShowAnimatedGifs bool `json:"showAnimatedGifs" yaml:"show_animated_gifs" mapstructure:"show_animated_gifs" query:"show_animated_gifs" form:"show_animated_gifs" default:"false"`
 
 	// ShowImageRating display stars is image is rated
 	ShowImageRating bool `json:"showImageRating" yaml:"show_image_rating" mapstructure:"show_image_rating" query:"show_image_rating" form:"show_image_rating" default:"false"`

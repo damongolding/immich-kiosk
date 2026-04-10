@@ -23,19 +23,40 @@ func clockDate(c config.Config) string {
 // clockTime returns the current time formatted according to the configuration settings.
 // Supports 12-hour (Kitchen) or 24-hour (15:04) format based on config.TimeFormat.
 func clockTime(c config.Config) string {
-	clockTimeFormat := "15:04"
+	const (
+		twelveHourWithWithAmPm          = time.Kitchen
+		twelveHourWithSeconds           = "3:04:05"
+		twelveHourWithSecondsWithAmPm   = "3:04:05PM"
+		twelveHourFormatNoAmPm          = "3:04"
+		twentyFourHourFormat            = "15:04"
+		twentyFourHourFormatWithSeconds = "15:04:05"
+	)
 
+	var clockTimeFormat string
+
+	// 12-hour format
 	if c.TimeFormat == "12" {
-		if c.ShowAmPm {
-			clockTimeFormat = time.Kitchen
-		} else {
-			clockTimeFormat = "3:04"
+		switch {
+		case c.ShowSeconds && c.ShowAmPm:
+			clockTimeFormat = twelveHourWithSecondsWithAmPm
+		case c.ShowSeconds:
+			clockTimeFormat = twelveHourWithSeconds
+		case c.ShowAmPm:
+			clockTimeFormat = twelveHourWithWithAmPm
+		default:
+			clockTimeFormat = twelveHourFormatNoAmPm
+		}
+	} else {
+		// 24-hour format
+		switch c.ShowSeconds {
+		case true:
+			clockTimeFormat = twentyFourHourFormatWithSeconds
+		default:
+			clockTimeFormat = twentyFourHourFormat
 		}
 	}
 
-	t := time.Now()
-
-	return strings.ToLower(t.Format(clockTimeFormat))
+	return strings.ToLower(time.Now().Format(clockTimeFormat))
 }
 
 // Clock renders a clock component showing date and/or time based on configuration settings.
@@ -49,13 +70,17 @@ templ Clock(requestConfig config.Config) {
 }
 
 // ClockContainer renders a clock html
-templ ClockContainer(source string, theme string) {
+templ ClockContainer(source string, theme string, showTime, showSeconds bool) {
 	<div
 		id="clock"
 		class={ fmt.Sprintf("clock--theme-%s", theme) }
 		if source == "server" {
 			hx-post="/clock"
-			hx-trigger="load, every 15s"
+			if showTime && showSeconds {
+				hx-trigger="load, every 1s"
+			} else {
+				hx-trigger="load, every 15s"
+			}
 			hx-swap="innerHTML"
 		}
 	>
