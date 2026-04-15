@@ -133,6 +133,11 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 #       lang: en
 #       forecast: false
 #       default: false
+#       show:
+#         humidity: false
+#         wind: false
+#         visibility: false
+#         temperature_range: false
 
 ## Add iframes into Kiosk - you can use local files or remote URLs
 #iframe:
