@@ -3,5 +3,11 @@
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 4
+  },
+  "linter": {
+    "enabled": true
+  },
+  "assist": {
+    "enabled": true
   }
 }

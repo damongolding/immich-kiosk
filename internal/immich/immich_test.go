@@ -4,6 +4,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -601,6 +602,55 @@ func TestExpandTags(t *testing.T) {
 			if !slices.Equal(expandedTags, tt.expected) {
 				t.Errorf("expandedTags = %v, expected %v",
 					expandedTags, tt.expected)
+			}
+		})
+	}
+}
+
+func TestIsAnimatedGif(t *testing.T) {
+	tests := []struct {
+		name     string
+		asset    *Asset
+		expected bool
+	}{
+		{
+			name:     "animated gif",
+			asset:    &Asset{OriginalMimeType: kiosk.MimeTypeGif, Duration: "0:00:01.0"},
+			expected: true,
+		},
+		{
+			name:     "non-animated gif",
+			asset:    &Asset{OriginalMimeType: kiosk.MimeTypeGif, Duration: "0:00:00.0"},
+			expected: false,
+		},
+		{
+			name:     "non-gif",
+			asset:    &Asset{OriginalMimeType: "image/jpeg", Duration: "0:00:01.0"},
+			expected: false,
+		},
+		{
+			name:     "animated gif with invalid duration",
+			asset:    &Asset{OriginalMimeType: kiosk.MimeTypeGif, Duration: "invalid"},
+			expected: false,
+		},
+		{
+			name:     "animated gif with invalid duration - missing minutes and seconds",
+			asset:    &Asset{OriginalMimeType: kiosk.MimeTypeGif, Duration: "0"},
+			expected: false,
+		},
+		{
+			name:     "animated gif with invalid duration - missing seconds",
+			asset:    &Asset{OriginalMimeType: kiosk.MimeTypeGif, Duration: "0:00"},
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tt.asset.isAnimatedGif()
+			if result != tt.expected {
+				t.Errorf("isAnimatedGif() = %v, expected %v",
+					result, tt.expected)
 			}
 		})
 	}

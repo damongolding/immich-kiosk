@@ -1,4 +1,7 @@
 version: "3"
+
+silent: true
+
 tasks:
   # Frontend tasks
   frontend:
