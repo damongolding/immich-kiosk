@@ -41,7 +41,7 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, a.requestConfig.DateFilter)
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 	return a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 }
@@ -105,7 +105,7 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 			requestBody.WithArchived = true
 		}
 
-		DateFilter(&requestBody, a.requestConfig.DateFilter)
+		FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)

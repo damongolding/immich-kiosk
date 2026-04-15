@@ -99,7 +99,7 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, a.requestConfig.DateFilter)
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 	allAssetsCount, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {
@@ -141,7 +141,7 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, a.requestConfig.DateFilter)
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 	// convert body to queries so url is unique and can be cached
 	queries, _ := query.Values(requestBody)

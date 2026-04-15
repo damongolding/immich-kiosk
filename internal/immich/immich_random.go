@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 	"slices"
@@ -65,17 +66,18 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 			requestBody.WithArchived = true
 		}
 
-		DateFilter(&requestBody, a.requestConfig.DateFilter)
+		FilterDate(&requestBody, a.requestConfig.FilterDate)
 
-		RecentFilter := 5
-		requestBody.Size = 5
+		if a.requestConfig.FilterNewest > 0 {
+			requestBody.Size = a.requestConfig.FilterNewest
+		}
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 
 		var apiURL url.URL
 
-		if RecentFilter > 0 {
+		if a.requestConfig.FilterNewest > 0 {
 
 			var searchMetadataResponse SearchMetadataResponse
 
@@ -117,6 +119,10 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 				}
 				immichAssets = searchMetadataResponse.Assets.Items
 			}
+
+			rand.Shuffle(len(immichAssets), func(i, j int) {
+				immichAssets[i], immichAssets[j] = immichAssets[j], immichAssets[i]
+			})
 
 			log.Info("using recent assets", "count", len(immichAssets))
 

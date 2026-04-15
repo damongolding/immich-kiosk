@@ -636,11 +636,11 @@ func (a *Asset) isAnimatedGif() bool {
 // Returns:
 //   - bool: true if date is valid or no filter set, false if outside filter range
 func (a *Asset) hasValidDateFilter() bool {
-	if a.requestConfig.DateFilter == "" || (a.Bucket == kiosk.SourceMemories || a.Bucket == kiosk.SourceDateRange) {
+	if a.requestConfig.FilterDate == "" || (a.Bucket == kiosk.SourceMemories || a.Bucket == kiosk.SourceDateRange) {
 		return true
 	}
 
-	dateStart, dateEnd, err := determineDateRange(a.requestConfig.DateFilter)
+	dateStart, dateEnd, err := determineDateRange(a.requestConfig.FilterDate)
 	if err != nil {
 		log.Error("malformed filter", "err", err)
 		return true // Continue processing if date filter is malformed

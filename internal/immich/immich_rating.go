@@ -43,7 +43,7 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, a.requestConfig.DateFilter)
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 	allAssetsCount, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {
@@ -81,7 +81,7 @@ func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, a.requestConfig.DateFilter)
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 	// convert body to queries so url is unique and can be cached
 	queries, _ := query.Values(requestBody)

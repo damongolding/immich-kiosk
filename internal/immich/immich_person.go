@@ -229,7 +229,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 			requestBody.WithArchived = true
 		}
 
-		DateFilter(&requestBody, a.requestConfig.DateFilter)
+		FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
