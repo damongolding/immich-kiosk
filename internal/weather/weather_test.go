@@ -83,4 +83,3 @@ func TestComputeNext24hTempRange(t *testing.T) {
 		})
 	}
 }
-
