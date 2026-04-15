@@ -106,6 +106,21 @@ templ WeatherLocation(weatherData weather.Location, locationPos int, systemLang 
 					</div>
 				</div>
 			}
+			if weatherData.Show.TemperatureRange && len(weatherData.Forecast.Daily) > 0 {
+				<div class="weather--stat weather--temperature-range">
+					<div class="weather--stat--value weather--temperature-range--value">
+						{ formatTemp(weatherData.Forecast.Next24hHigh, weatherData.RoundTemp) }°
+						<span class="asset--metadata--exif--seperator">&#124;</span>
+						{ formatTemp(weatherData.Forecast.Next24hLow, weatherData.RoundTemp) }°
+					</div>
+					<div class="weather--stat--icon weather--temperature-range--icon">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+							<!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
+							<path d="M160 0C107 0 64 43 64 96l0 164.7C34.5 287 16 325.4 16 368 16 447.5 80.5 512 160 512s144-64.5 144-144c0-42.6-18.5-81-48-107.3L256 96c0-53-43-96-96-96zm64 368c0 35.3-28.7 64-64 64s-64-28.7-64-64c0-26.9 16.5-49.9 40-59.3L136 96c0-13.3 10.7-24 24-24s24 10.7 24 24l0 212.7c23.5 9.5 40 32.5 40 59.3z"></path>
+						</svg>
+					</div>
+				</div>
+			}
 			if weatherData.Show.Humidity {
 				<div class="weather--stat weather--humidity">
 					<div class="weather--stat--value weather--humidity--value">
@@ -147,21 +162,6 @@ templ WeatherLocation(weatherData weather.Location, locationPos int, systemLang 
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
 							<!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
 							<path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6-46.8 43.5-78.1 95.4-93 131.1-3.3 7.9-3.3 16.7 0 24.6 14.9 35.7 46.2 87.7 93 131.1 47.1 43.7 111.8 80.6 192.6 80.6s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1 3.3-7.9 3.3-16.7 0-24.6-14.9-35.7-46.2-87.7-93-131.1-47.1-43.7-111.8-80.6-192.6-80.6zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64-11.5 0-22.3-3-31.7-8.4-1 10.9-.1 22.1 2.9 33.2 13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-12.2-45.7-55.5-74.8-101.1-70.8 5.3 9.3 8.4 20.1 8.4 31.7z"></path>
-						</svg>
-					</div>
-				</div>
-			}
-			if weatherData.Show.TemperatureRange && len(weatherData.Forecast.Daily) > 0 {
-				<div class="weather--stat weather--temperature-range">
-					<div class="weather--stat--value weather--temperature-range--value">
-						↗{ formatTemp(weatherData.Forecast.Next24hHigh, weatherData.RoundTemp) }°
-						<span class="asset--metadata--exif--seperator">&#124;</span>
-						↘{ formatTemp(weatherData.Forecast.Next24hLow, weatherData.RoundTemp) }°
-					</div>
-					<div class="weather--stat--icon weather--temperature-range--icon">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-							<!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
-							<path d="M160 0C107 0 64 43 64 96l0 164.7C34.5 287 16 325.4 16 368 16 447.5 80.5 512 160 512s144-64.5 144-144c0-42.6-18.5-81-48-107.3L256 96c0-53-43-96-96-96zm64 368c0 35.3-28.7 64-64 64s-64-28.7-64-64c0-26.9 16.5-49.9 40-59.3l0-92.7c0-13.3 10.7-24 24-24s24 10.7 24 24l0 92.7c23.5 9.5 40 32.5 40 59.3z"></path>
 						</svg>
 					</div>
 				</div>
