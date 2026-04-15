@@ -67,33 +67,86 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 
 		DateFilter(&requestBody, a.requestConfig.DateFilter)
 
+		RecentFilter := 5
+		requestBody.Size = 5
+
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 
-		apiURL := url.URL{
-			Scheme:   u.Scheme,
-			Host:     u.Host,
-			Path:     "api/search/random",
-			RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
-		}
+		var apiURL url.URL
 
-		jsonBody, err := json.Marshal(requestBody)
-		if err != nil {
-			_, _, err = immichAPIFail(immichAssets, err, nil, "")
-			return err
-		}
+		if RecentFilter > 0 {
 
-		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
-		apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
-		if err != nil {
-			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
-			return err
-		}
+			var searchMetadataResponse SearchMetadataResponse
 
-		err = json.Unmarshal(apiBody, &immichAssets)
-		if err != nil {
-			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
-			return err
+			apiURL = url.URL{
+				Scheme:   u.Scheme,
+				Host:     u.Host,
+				Path:     "api/search/metadata",
+				RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
+			}
+
+			jsonBody, err := json.Marshal(requestBody)
+			if err != nil {
+				log.Error("failed to marshal request body", "err", err)
+				_, _, err = immichAPIFail(searchMetadataResponse, err, nil, "")
+				return err
+			}
+
+			immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, searchMetadataResponse)
+			apiBody, _, usingCache, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+			if err != nil {
+				log.Error("failed immichAPICall", "err", err)
+				_, _, err = immichAPIFail(searchMetadataResponse, err, apiBody, apiURL.String())
+				return err
+			}
+
+			if usingCache {
+				err = json.Unmarshal(apiBody, &immichAssets)
+				if err != nil {
+					log.Error("failed Unmarshal (cache)", "err", err, "apiBody", string(apiBody))
+					_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+					return err
+				}
+			} else {
+				err = json.Unmarshal(apiBody, &searchMetadataResponse)
+				if err != nil {
+					log.Error("failed Unmarshal", "err", err)
+					_, _, err = immichAPIFail(searchMetadataResponse, err, apiBody, apiURL.String())
+					return err
+				}
+				immichAssets = searchMetadataResponse.Assets.Items
+			}
+
+			log.Info("using recent assets", "count", len(immichAssets))
+
+		} else {
+
+			apiURL = url.URL{
+				Scheme:   u.Scheme,
+				Host:     u.Host,
+				Path:     "api/search/random",
+				RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
+			}
+
+			jsonBody, err := json.Marshal(requestBody)
+			if err != nil {
+				_, _, err = immichAPIFail(immichAssets, err, nil, "")
+				return err
+			}
+
+			immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
+			apiBody, _, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+			if err != nil {
+				_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+				return err
+			}
+
+			err = json.Unmarshal(apiBody, &immichAssets)
+			if err != nil {
+				_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+				return err
+			}
 		}
 
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)

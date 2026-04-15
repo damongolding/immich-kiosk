@@ -48,14 +48,14 @@ func (a *Asset) people(requestID, deviceID string, knowPeopleOnly bool, bypassCa
 		var body []byte
 
 		if bypassCache {
-			body, _, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+			body, _, _, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 			if err != nil {
 				_, _, err = immichAPIFail(allPeople, err, body, apiURL.String())
 				return people, err
 			}
 		} else {
 			immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, allPeople)
-			body, _, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+			body, _, _, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 			if err != nil {
 				_, _, err = immichAPIFail(allPeople, err, body, apiURL.String())
 				return people, err
@@ -159,7 +159,7 @@ func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, err
 	}
 
 	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, personStatistics)
-	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(personStatistics, err, body, apiURL.String())
 		return 0, err
@@ -248,7 +248,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 		}
 
 		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
-		apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, _, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
