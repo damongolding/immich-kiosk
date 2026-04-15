@@ -156,9 +156,10 @@ type WeatherConfig struct {
 }
 
 type WeatherLocationStatOptions struct {
-	Humidity   bool `yaml:"humidity" mapstructure:"humidity" default:"false"`
-	Wind       bool `yaml:"wind" mapstructure:"wind" default:"false"`
-	Visibility bool `yaml:"visibility" mapstructure:"visibility" default:"false"`
+	Humidity         bool `yaml:"humidity" mapstructure:"humidity" default:"false"`
+	Wind             bool `yaml:"wind" mapstructure:"wind" default:"false"`
+	Visibility       bool `yaml:"visibility" mapstructure:"visibility" default:"false"`
+	TemperatureRange bool `yaml:"temperature_range" mapstructure:"temperature_range" default:"false"`
 }
 
 type WeatherLocation struct {
