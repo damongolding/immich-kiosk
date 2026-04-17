@@ -223,7 +223,7 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 		Unit:         location.Unit,
 		Lang:         location.Lang,
 		RoundTemp:    location.RoundTemp,
-		ShowForecast: withForecast,
+		ShowForecast: location.Forecast,
 		Show:         location.Show,
 	}
 
