@@ -167,7 +167,7 @@ templ WeatherLocation(weatherData weather.Location, locationPos int, systemLang 
 				</div>
 			}
 		</div>
-		if len(weatherData.Forecast.Daily) > 0 {
+		if weatherData.ShowForecast && len(weatherData.Forecast.Daily) > 0 {
 			<div class="weather--forecast">
 				for _, f := range weatherData.Forecast.Daily {
 					{{ forecastDay := monday.Format(f.Date, "Mon", systemLang) }}
