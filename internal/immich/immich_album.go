@@ -244,6 +244,8 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 //     after maximum retry attempts
 func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requestID, deviceID string) error {
 
+	filterNewest := a.requestConfig.FilterNewest > 0
+
 	for range MaxRetries {
 
 		album, apiURL, err := a.albumAssets(albumID, requestID, deviceID)
@@ -263,6 +265,10 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 			}
 
 			continue
+		}
+
+		if filterNewest && len(album.Assets) > a.requestConfig.FilterNewest {
+			album.Assets = album.Assets[:a.requestConfig.FilterNewest]
 		}
 
 		switch albumAssetsOrder {

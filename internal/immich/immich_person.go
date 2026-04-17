@@ -1,7 +1,6 @@
 package immich
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,7 +14,6 @@ import (
 	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
-	"github.com/google/go-querystring/query"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -199,14 +197,6 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 
 	for range MaxRetries {
 
-		var immichAssets []Asset
-
-		u, err := url.Parse(a.requestConfig.ImmichURL)
-		if err != nil {
-			_, _, err = immichAPIFail(immichAssets, err, nil, "")
-			return err
-		}
-
 		requestBody := SearchRandomBody{
 			PersonIDs:  []string{personID},
 			Type:       string(ImageType),
@@ -229,34 +219,8 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 			requestBody.WithArchived = true
 		}
 
-		FilterDate(&requestBody, a.requestConfig.FilterDate)
-
-		// convert body to queries so url is unique and can be cached
-		queries, _ := query.Values(requestBody)
-
-		apiURL := url.URL{
-			Scheme:   u.Scheme,
-			Host:     u.Host,
-			Path:     "api/search/random",
-			RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
-		}
-
-		jsonBody, bodyMarshalErr := json.Marshal(requestBody)
-		if bodyMarshalErr != nil {
-			_, _, bodyMarshalErr = immichAPIFail(immichAssets, bodyMarshalErr, nil, apiURL.String())
-			return bodyMarshalErr
-		}
-
-		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
-		apiBody, _, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)
 		if err != nil {
-			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
-			return err
-		}
-
-		err = json.Unmarshal(apiBody, &immichAssets)
-		if err != nil {
-			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
 		}
 

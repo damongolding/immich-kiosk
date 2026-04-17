@@ -645,6 +645,7 @@ func (c *Config) Load() error {
 	c.checkRedirects()
 	c.checkOffline()
 	c.checkBurnIn()
+	c.checkFilterNewest()
 
 	return nil
 }

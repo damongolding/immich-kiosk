@@ -1,10 +1,8 @@
 package immich
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"slices"
 	"strconv"
@@ -13,7 +11,6 @@ import (
 	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
-	"github.com/google/go-querystring/query"
 )
 
 func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string) (int, error) {
@@ -57,13 +54,6 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 
 func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]Asset, string, error) {
 
-	var immichAssets []Asset
-
-	u, err := url.Parse(a.requestConfig.ImmichURL)
-	if err != nil {
-		return immichAPIFail(immichAssets, err, nil, "")
-	}
-
 	requestBody := SearchRandomBody{
 		Type:       string(ImageType),
 		Rating:     &rating,
@@ -81,30 +71,7 @@ func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]
 		requestBody.WithArchived = true
 	}
 
-	FilterDate(&requestBody, a.requestConfig.FilterDate)
-
-	// convert body to queries so url is unique and can be cached
-	queries, _ := query.Values(requestBody)
-
-	apiURL := url.URL{
-		Scheme:   u.Scheme,
-		Host:     u.Host,
-		Path:     "api/search/random",
-		RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
-	}
-
-	jsonBody, err := json.Marshal(requestBody)
-	if err != nil {
-		return immichAPIFail(immichAssets, err, nil, apiURL.String())
-	}
-
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
-	apiBody, _, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
-	if err != nil {
-		return immichAPIFail(immichAssets, err, nil, apiURL.String())
-	}
-
-	err = json.Unmarshal(apiBody, &immichAssets)
+	immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)
 	if err != nil {
 		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}

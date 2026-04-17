@@ -3,10 +3,12 @@ package immich
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 	"path"
@@ -78,7 +80,7 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 		// Unpack api json into struct which discards data we don't use (for smaller cache size)
 		err = json.Unmarshal(apiBody, &jsonShape)
 		if err != nil {
-			log.Error(err)
+			log.Error(err, "body", string(apiBody))
 			return nil, contentType, usingCache, err
 		}
 
@@ -224,6 +226,82 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 	}
 
 	return responseBody, contentType, false, fmt.Errorf("request failed: max retries exceeded. last err=%w", lastErr)
+}
+
+// fetchAssets handles the API call and unmarshalling for both random and metadata endpoints.
+// FilterDate is applied here.
+// FilterNewest is applied here.
+func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandomBody) ([]Asset, url.URL, error) {
+
+	filterNewest := a.requestConfig.FilterNewest > 0
+
+	var immichAssets []Asset
+
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		_, _, err = immichAPIFail(immichAssets, err, nil, "")
+		return nil, url.URL{}, err
+	}
+
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
+
+	if filterNewest {
+		requestBody.Size = a.requestConfig.FilterNewest
+	}
+
+	queries, _ := query.Values(requestBody)
+
+	apiPath := "api/search/random"
+	if filterNewest {
+		apiPath = "api/search/metadata"
+	}
+
+	apiURL := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     apiPath,
+		RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
+	}
+
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		_, _, err = immichAPIFail(immichAssets, err, nil, "")
+		return nil, url.URL{}, err
+	}
+
+	var immichAPICall apiCall
+	if filterNewest {
+		immichAPICall = withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, SearchMetadataResponse{})
+	} else {
+		immichAPICall = withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, []Asset{})
+	}
+
+	apiBody, _, usingCache, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+	if err != nil {
+		_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+		return nil, url.URL{}, err
+	}
+
+	if filterNewest && !usingCache {
+		var searchMetadataResponse SearchMetadataResponse
+		if err = json.Unmarshal(apiBody, &searchMetadataResponse); err != nil {
+			log.Error("failed Unmarshal", "err", err)
+			_, _, err = immichAPIFail(searchMetadataResponse, err, apiBody, apiURL.String())
+			return nil, url.URL{}, err
+		}
+		immichAssets = searchMetadataResponse.Assets.Items
+		rand.Shuffle(len(immichAssets), func(i, j int) {
+			immichAssets[i], immichAssets[j] = immichAssets[j], immichAssets[i]
+		})
+	} else {
+		if err = json.Unmarshal(apiBody, &immichAssets); err != nil {
+			log.Error("failed Unmarshal", "err", err)
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+			return nil, url.URL{}, err
+		}
+	}
+
+	return immichAssets, apiURL, nil
 }
 
 // ratioCheck checks if an image's orientation matches a desired ratio.
