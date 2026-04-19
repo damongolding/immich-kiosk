@@ -144,6 +144,22 @@ type KioskSettings struct {
 	DebugVerbose bool `json:"debugVerbose" yaml:"debug_verbose" mapstructure:"debug_verbose" default:"false"`
 
 	DemoMode bool `json:"-" yaml:"-" mapstructure:"demo_mode" default:"false"`
+
+	// MQTT settings
+	// MqttEnabled enables MQTT support for remote control (e.g. from Home Assistant)
+	MqttEnabled bool `json:"mqttEnabled" yaml:"mqtt_enabled" mapstructure:"mqtt_enabled" default:"false"`
+	// MqttBroker is the hostname or IP address of the MQTT broker
+	MqttBroker string `json:"mqttBroker" yaml:"mqtt_broker" mapstructure:"mqtt_broker" default:""`
+	// MqttPort is the port of the MQTT broker
+	MqttPort int `json:"mqttPort" yaml:"mqtt_port" mapstructure:"mqtt_port" default:"1883"`
+	// MqttUsername is the MQTT broker username (optional)
+	MqttUsername string `json:"mqttUsername" yaml:"mqtt_username" mapstructure:"mqtt_username" default:""`
+	// MqttPassword is the MQTT broker password (optional)
+	MqttPassword string `json:"-" yaml:"mqtt_password" mapstructure:"mqtt_password" default:"" redact:"true"`
+	// MqttClientID is the MQTT client identifier
+	MqttClientID string `json:"mqttClientId" yaml:"mqtt_client_id" mapstructure:"mqtt_client_id" default:"immich-kiosk"`
+	// MqttTopicPrefix is the MQTT topic prefix. Commands are received on <prefix>/command
+	MqttTopicPrefix string `json:"mqttTopicPrefix" yaml:"mqtt_topic_prefix" mapstructure:"mqtt_topic_prefix" default:"immich-kiosk"`
 }
 
 type WeatherConfig struct {
@@ -542,6 +558,13 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.debug_verbose", "KIOSK_DEBUG_VERBOSE"},
 		{"kiosk.demo_mode", "KIOSK_DEMO_MODE"},
 		{"kiosk.config_validation_level", "KIOSK_CONFIG_VALIDATION_LEVEL"},
+		{"kiosk.mqtt_enabled", "KIOSK_MQTT_ENABLED"},
+		{"kiosk.mqtt_broker", "KIOSK_MQTT_BROKER"},
+		{"kiosk.mqtt_port", "KIOSK_MQTT_PORT"},
+		{"kiosk.mqtt_username", "KIOSK_MQTT_USERNAME"},
+		{"kiosk.mqtt_password", "KIOSK_MQTT_PASSWORD"},
+		{"kiosk.mqtt_client_id", "KIOSK_MQTT_CLIENT_ID"},
+		{"kiosk.mqtt_topic_prefix", "KIOSK_MQTT_TOPIC_PREFIX"},
 		{"offline_mode.enabled", "KIOSK_OFFLINE_MODE_ENABLED"},
 		{"offline_mode.number_of_assets", "KIOSK_OFFLINE_MODE_NUMBER_OF_ASSETS"},
 		{"offline_mode.max_size", "KIOSK_OFFLINE_MODE_MAX_SIZE"},

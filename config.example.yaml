@@ -172,3 +172,21 @@ kiosk:
   cache: true # cache select api calls
   prefetch: true # fetch assets in the background
   asset_weighting: true # use weighting when picking assets
+
+  ## MQTT - remote control via e.g. Home Assistant
+  # mqtt_enabled: false
+  # mqtt_broker: "192.168.1.100"   # IP or hostname of the MQTT broker
+  # mqtt_port: 1883
+  # mqtt_username: ""              # optional
+  # mqtt_password: ""              # optional
+  # mqtt_client_id: "immich-kiosk"
+  # mqtt_topic_prefix: "immich-kiosk"
+  #
+  # Commands are received on:
+  #   <prefix>/command                    -> all connected clients
+  #   <prefix>/<client>/command           -> a specific screen only
+  #
+  # Open the kiosk with ?client=<name> in the URL to enable per-screen control:
+  #   http://kiosk:3000/?client=living-room
+  #
+  # Home Assistant devices are created automatically via MQTT discovery.
