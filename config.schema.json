@@ -138,6 +138,11 @@
     "memories": {
       "type": "boolean"
     },
+    "memories_only": {
+      "type": "boolean",
+      "default": false,
+      "description": "!memories has to be set to true if you wish to use this feature! Only display memories when memories is set to true and no other sources (people, albums, tags etc) are set."
+    },
     "past_memory_days": {
       "type": "integer",
       "minimum": 0,
