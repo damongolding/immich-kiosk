@@ -151,8 +151,11 @@
     "memory_weight": {
       "type": "number"
     },
-    "date_filter": {
+    "filter_date": {
       "type": "string"
+    },
+    "filter_newest": {
+      "type": "integer"
     },
     "show_videos": {
       "type": "boolean"
