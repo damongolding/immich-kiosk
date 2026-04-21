@@ -249,12 +249,17 @@ func gatherDates(d *gatherData) {
 func gatherRatedAssets(d *gatherData) error {
 	wantedRating := d.requestConfig.Rating
 
-	ratedAssetsCount, ratedCountErr := d.immichAsset.AssetsWithRatingCount(wantedRating, d.requestID, d.deviceID)
-	if ratedCountErr != nil {
-		if d.requestConfig.SelectedUser != "" {
-			return fmt.Errorf("user '<b>%s</b>' has no assets with rating '%f'. error='%w'", d.requestConfig.SelectedUser, wantedRating, ratedCountErr)
+	ratedAssetsCount := d.requestConfig.FilterNewest
+	var ratedCountErr error
+
+	if !d.filterNewest {
+		ratedAssetsCount, ratedCountErr = d.immichAsset.AssetsWithRatingCount(wantedRating, d.requestID, d.deviceID)
+		if ratedCountErr != nil {
+			if d.requestConfig.SelectedUser != "" {
+				return fmt.Errorf("user '<b>%s</b>' has no assets with rating '%f'. error='%w'", d.requestConfig.SelectedUser, wantedRating, ratedCountErr)
+			}
+			return fmt.Errorf("getting rated asset count: %w", ratedCountErr)
 		}
-		return fmt.Errorf("getting rated asset count: %w", ratedCountErr)
 	}
 
 	if ratedAssetsCount > 0 {
