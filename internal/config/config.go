@@ -706,6 +706,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 		return err
 	}
 
+	c.checkFilterNewest()
 	c.checkExcludedAlbums()
 
 	// Disabled features in demo mode
