@@ -155,7 +155,9 @@
       "type": "string"
     },
     "filter_newest": {
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000
     },
     "show_videos": {
       "type": "boolean"
