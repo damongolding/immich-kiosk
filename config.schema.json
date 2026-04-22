@@ -152,12 +152,14 @@
       "type": "number"
     },
     "filter_date": {
-      "type": "string"
+      "type": "string",
+      "description": "Filter to limit assets to a certain date range"
     },
     "filter_newest": {
       "type": "integer",
       "minimum": 0,
-      "maximum": 1000
+      "maximum": 1000,
+      "description": "Filter to limit assets to the newest X"
     },
     "show_videos": {
       "type": "boolean"
