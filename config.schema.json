@@ -151,8 +151,15 @@
     "memory_weight": {
       "type": "number"
     },
-    "date_filter": {
-      "type": "string"
+    "filter_date": {
+      "type": "string",
+      "description": "Filter to limit assets to a certain date range"
+    },
+    "filter_newest": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000,
+      "description": "Filter to limit assets to the newest X"
     },
     "show_videos": {
       "type": "boolean"

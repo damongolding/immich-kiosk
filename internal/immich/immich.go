@@ -272,8 +272,9 @@ type UpsertTagResponse []struct {
 
 type SearchMetadataResponse struct {
 	Assets struct {
-		NextPage string `json:"nextPage"`
-		Total    int    `json:"total"`
+		Items    []Asset `json:"items"`
+		NextPage string  `json:"nextPage"`
+		Total    int     `json:"total"`
 	} `json:"assets"`
 }
 
@@ -371,7 +372,7 @@ type AllPeopleResponse struct {
 	HasNextPage bool     `json:"hasNextPage"`
 }
 
-type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, string, error)
+type apiCall func(context.Context, string, string, []byte, ...map[string]string) ([]byte, string, bool, error)
 
 type APIResponse interface {
 	Asset |

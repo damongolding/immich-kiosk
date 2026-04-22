@@ -40,7 +40,7 @@ templ Home(viewData common.ViewData, secret string) {
 					hx-on::after-request="kiosk.startPolling()"
 					hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames()"
 				>
-					@partials.Spinner()
+					@partials.SpinnerRotate()
 				</main>
 				for _, iframe := range viewData.Iframe {
 					{{ isUrl, html := isIframeUrl(iframe) }}

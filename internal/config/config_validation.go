@@ -679,3 +679,15 @@ func (c *Config) checkRating() {
 		c.Rating = -1
 	}
 }
+
+func (c *Config) checkFilterNewest() {
+	if c.FilterNewest < 0 {
+		log.Warn("FilterNewest must be 0 or greater; setting to 0", "value", c.FilterNewest)
+		c.FilterNewest = 0
+	}
+
+	if c.FilterNewest > 1000 {
+		log.Warn("FilterNewest must be 1000 or less; setting to 1000", "value", c.FilterNewest)
+		c.FilterNewest = 1000
+	}
+}
