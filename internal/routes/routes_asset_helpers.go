@@ -25,6 +25,24 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+type gatherData struct {
+	assets        *[]utils.AssetWithWeighting
+	filterNewest  bool
+	requestID     string
+	deviceID      string
+	immichAsset   *immich.Asset
+	requestConfig config.Config
+}
+
+type gatherPeopleAlbumsConfig struct {
+	sourceType    kiosk.Source
+	items         []string
+	countFn       func(id, requestID, deviceID string) (int, error)
+	notFoundMsg   string
+	userErrorFmt  string
+	countErrorFmt string
+}
+
 var errVideoNotReady = errors.New("video not ready")
 
 // gatherAssetBuckets collects asset weightings for people, albums and date ranges.
@@ -45,67 +63,116 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	assets := []utils.AssetWithWeighting{}
 
+	filterNewest := requestConfig.FilterNewest > 0
+
+	d := gatherData{
+		assets:        &assets,
+		filterNewest:  filterNewest,
+		requestID:     requestID,
+		deviceID:      deviceID,
+		immichAsset:   immichAsset,
+		requestConfig: requestConfig,
+	}
+
 	// People bucket
-	for _, person := range requestConfig.People {
-		if person == "" || strings.EqualFold(person, "none") {
-			continue
-		}
-
-		personTmp, _ := immichAsset.ApplyUserFromAssetID(person)
-
-		personAssetCount, personCountErr := immichAsset.PersonAssetCount(personTmp, requestID, deviceID)
-		if personCountErr != nil {
-			if immichAsset.SelectedUser() != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no Person '%s'. error='%w'", immichAsset.SelectedUser(), personTmp, personCountErr)
-			}
-			return nil, fmt.Errorf("getting person image count: %w", personCountErr)
-		}
-
-		if personAssetCount == 0 {
-			log.Error("No assets found for", "person", personTmp)
-			continue
-		}
-
-		assets = append(assets, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: kiosk.SourcePerson, ID: person},
-			Weight: personAssetCount,
-		})
+	err := gatherPeople(&d)
+	if err != nil {
+		return nil, err
 	}
 
 	// Albums bucket
-	for _, album := range requestConfig.Albums {
-		if album == "" || strings.EqualFold(album, "none") {
-			continue
-		}
-
-		albumTmp, _ := immichAsset.ApplyUserFromAssetID(album)
-
-		albumAssetCount, albumCountErr := immichAsset.AlbumImageCount(albumTmp, requestID, deviceID)
-		if albumCountErr != nil {
-			if immichAsset.SelectedUser() != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no Album '%s'. error='%w'", immichAsset.SelectedUser(), albumTmp, albumCountErr)
-			}
-			return nil, fmt.Errorf("getting album asset count: %w", albumCountErr)
-		}
-
-		if albumAssetCount == 0 {
-			log.Error("No assets found for", "album", albumTmp)
-			continue
-		}
-
-		assets = append(assets, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbum, ID: album},
-			Weight: albumAssetCount,
-		})
+	err = gatherAlbums(&d)
+	if err != nil {
+		return nil, err
 	}
 
 	// Use the default user for the rest of the request (tags, dates, memories)
-	immichAsset.ApplyDefaultUser()
+	d.immichAsset.ApplyDefaultUser()
 
 	// Tags bucket
-	requestConfig.Tags = immichAsset.ExpandTagPatterns(requestConfig.Tags, requestID, deviceID)
+	err = gatherTags(&d)
+	if err != nil {
+		return nil, err
+	}
 
-	for _, tag := range requestConfig.Tags {
+	// Dates bucket
+	gatherDates(&d)
+
+	// Rating bucket
+	if requestConfig.Rating > -1 {
+		err = gatherRatedAssets(&d)
+		if err != nil {
+			log.Error(err)
+		}
+	}
+
+	// Memories bucket
+	if requestConfig.Memories {
+		getMemoriesAssetsCount(immichAsset, requestConfig, requestID, deviceID, &assets)
+	}
+
+	return assets, nil
+}
+
+func gatherPeopleAlbums(d *gatherData, cfg gatherPeopleAlbumsConfig) error {
+	for _, item := range cfg.items {
+		if item == "" || strings.EqualFold(item, "none") {
+			continue
+		}
+
+		itemTmp, _ := d.immichAsset.ApplyUserFromAssetID(item)
+
+		assetCount := d.requestConfig.FilterNewest
+		if !d.filterNewest {
+			var countErr error
+			assetCount, countErr = cfg.countFn(itemTmp, d.requestID, d.deviceID)
+			if countErr != nil {
+				if d.immichAsset.SelectedUser() != "" {
+					return fmt.Errorf(cfg.userErrorFmt, d.immichAsset.SelectedUser(), itemTmp, countErr)
+				}
+				return fmt.Errorf(cfg.countErrorFmt, countErr)
+			}
+		}
+
+		if assetCount == 0 {
+			log.Error("No assets found for", cfg.notFoundMsg, itemTmp)
+			continue
+		}
+
+		*d.assets = append(*d.assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: cfg.sourceType, ID: item},
+			Weight: assetCount,
+		})
+	}
+	return nil
+}
+
+func gatherPeople(d *gatherData) error {
+	return gatherPeopleAlbums(d, gatherPeopleAlbumsConfig{
+		sourceType:    kiosk.SourcePerson,
+		items:         d.requestConfig.People,
+		countFn:       d.immichAsset.PersonAssetCount,
+		notFoundMsg:   "person",
+		userErrorFmt:  "user '<b>%s</b>' has no Person '%s'. error='%w'",
+		countErrorFmt: "getting person image count: %w",
+	})
+}
+
+func gatherAlbums(d *gatherData) error {
+	return gatherPeopleAlbums(d, gatherPeopleAlbumsConfig{
+		sourceType:    kiosk.SourceAlbum,
+		items:         d.requestConfig.Albums,
+		countFn:       d.immichAsset.AlbumImageCount,
+		notFoundMsg:   "album",
+		userErrorFmt:  "user '<b>%s</b>' has no Album '%s'. error='%w'",
+		countErrorFmt: "getting album asset count: %w",
+	})
+}
+
+func gatherTags(d *gatherData) error {
+	d.requestConfig.Tags = d.immichAsset.ExpandTagPatterns(d.requestConfig.Tags, d.requestID, d.deviceID)
+
+	for _, tag := range d.requestConfig.Tags {
 		if tag == "" || strings.EqualFold(tag, "none") {
 			continue
 		}
@@ -115,7 +182,7 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			tag, _, _ = strings.Cut(tag, "@")
 		}
 
-		tags, _, tagsErr := immichAsset.AllTags(requestID, deviceID)
+		tags, _, tagsErr := d.immichAsset.AllTags(d.requestID, d.deviceID)
 		if tagsErr != nil {
 			log.Error("getting tags", "err", tagsErr)
 			continue
@@ -127,12 +194,17 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		taggedAssetsCount, tagCountErr := immichAsset.AssetsWithTagCount(tagData.ID, requestID, deviceID)
-		if tagCountErr != nil {
-			if requestConfig.SelectedUser != "" {
-				return nil, fmt.Errorf("user '<b>%s</b>' has no assets with tag '%s'. error='%w'", requestConfig.SelectedUser, tagData.Value, tagCountErr)
+		taggedAssetsCount := d.requestConfig.FilterNewest
+		var tagCountErr error
+
+		if !d.filterNewest {
+			taggedAssetsCount, tagCountErr = d.immichAsset.AssetsWithTagCount(tagData.ID, d.requestID, d.deviceID)
+			if tagCountErr != nil {
+				if d.requestConfig.SelectedUser != "" {
+					return fmt.Errorf("user '<b>%s</b>' has no assets with tag '%s'. error='%w'", d.requestConfig.SelectedUser, tagData.Value, tagCountErr)
+				}
+				return fmt.Errorf("getting tagged asset count: %w", tagCountErr)
 			}
-			return nil, fmt.Errorf("getting tagged asset count: %w", tagCountErr)
 		}
 
 		if taggedAssetsCount == 0 {
@@ -140,14 +212,17 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			continue
 		}
 
-		assets = append(assets, utils.AssetWithWeighting{
+		*d.assets = append(*d.assets, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceTag, ID: tagData.ID},
 			Weight: taggedAssetsCount,
 		})
 	}
 
-	// Dates bucket
-	for _, date := range requestConfig.Dates {
+	return nil
+}
+
+func gatherDates(d *gatherData) {
+	for _, date := range d.requestConfig.Dates {
 		if date == "" || strings.EqualFold(date, "none") {
 			continue
 		}
@@ -157,27 +232,46 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 			date, _, _ = strings.Cut(date, "@")
 		}
 
+		dateWeight := d.requestConfig.Kiosk.FetchedAssetsSize
+		if d.filterNewest {
+			dateWeight = d.requestConfig.FilterNewest
+		}
+
 		// use FetchedAssetsSize as a weighting for date ranges
-		assets = append(assets, utils.AssetWithWeighting{
+		*d.assets = append(*d.assets, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceDateRange, ID: date},
-			Weight: requestConfig.Kiosk.FetchedAssetsSize,
+			Weight: dateWeight,
 		})
 	}
 
-	// Rating bucket
-	if requestConfig.Rating > -1 {
-		ratedErr := gatherRatedAssets(immichAsset, requestConfig, requestID, deviceID, &assets)
-		if ratedErr != nil {
-			log.Error(ratedErr)
+}
+
+func gatherRatedAssets(d *gatherData) error {
+	wantedRating := d.requestConfig.Rating
+
+	ratedAssetsCount := d.requestConfig.FilterNewest
+	var ratedCountErr error
+
+	if !d.filterNewest {
+		ratedAssetsCount, ratedCountErr = d.immichAsset.AssetsWithRatingCount(wantedRating, d.requestID, d.deviceID)
+		if ratedCountErr != nil {
+			if d.requestConfig.SelectedUser != "" {
+				return fmt.Errorf("user '<b>%s</b>' has no assets with rating '%f'. error='%w'", d.requestConfig.SelectedUser, wantedRating, ratedCountErr)
+			}
+			return fmt.Errorf("getting rated asset count: %w", ratedCountErr)
 		}
 	}
 
-	// Memories bucket
-	if requestConfig.Memories {
-		getMemoriesAssetsCount(immichAsset, requestConfig, requestID, deviceID, &assets)
+	if ratedAssetsCount > 0 {
+		*d.assets = append(*d.assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceRating, ID: fmt.Sprintf("rating-%.2f", d.requestConfig.Rating)},
+			Weight: ratedAssetsCount,
+		})
+	} else {
+		log.Error("No assets found with", "rating", wantedRating)
 	}
 
-	return assets, nil
+	return nil
 }
 
 func getMemoriesAssetsCount(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string, assets *[]utils.AssetWithWeighting) {
@@ -199,29 +293,6 @@ func getMemoriesAssetsCount(immichAsset *immich.Asset, requestConfig config.Conf
 			Penalty: requestConfig.MemoryWeight,
 		})
 	}
-}
-
-func gatherRatedAssets(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string, assets *[]utils.AssetWithWeighting) error {
-	wantedRating := requestConfig.Rating
-
-	ratedAssetsCount, ratedCountErr := immichAsset.AssetsWithRatingCount(wantedRating, requestID, deviceID)
-	if ratedCountErr != nil {
-		if requestConfig.SelectedUser != "" {
-			return fmt.Errorf("user '<b>%s</b>' has no assets with rating '%f'. error='%w'", requestConfig.SelectedUser, wantedRating, ratedCountErr)
-		}
-		return fmt.Errorf("getting rated asset count: %w", ratedCountErr)
-	}
-
-	if ratedAssetsCount > 0 {
-		*assets = append(*assets, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: kiosk.SourceRating, ID: fmt.Sprintf("rating-%.2f", requestConfig.Rating)},
-			Weight: ratedAssetsCount,
-		})
-	} else {
-		log.Error("No assets found with", "rating", wantedRating)
-	}
-
-	return nil
 }
 
 // isSleepMode checks if the kiosk should currently be in sleep mode based on configured sleep times

@@ -3,10 +3,12 @@ package immich
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
 	"path"
@@ -42,7 +44,9 @@ func immichAPIFail[T APIResponse](value T, err error, body []byte, apiURL string
 // On a cache miss, performs the API call, unmarshals and re-marshals the response into a provided JSON shape for efficient storage, caches the result, and returns the data along with the Content-Type.
 // Returns an error if unmarshaling, marshaling, or cache operations fail.
 func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) apiCall {
-	return func(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, error) {
+	return func(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, bool, error) {
+
+		usingCache := false
 
 		if !requestConfig.Kiosk.Cache {
 			return immichAPICall(ctx, method, apiURL, body, headers...)
@@ -56,33 +60,34 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 			log.Debug(strings.TrimSpace(requestID+" Cache hit"), "url", apiURL)
 			data, ok := apiData.([]byte)
 			if !ok {
-				return nil, contentType, errors.New("cache data type assertion failed")
+				return nil, contentType, usingCache, errors.New("cache data type assertion failed")
 			}
-			return data, contentType, nil
+			usingCache = true
+			return data, contentType, usingCache, nil
 		}
 
 		if requestConfig.Kiosk.DebugVerbose {
 			log.Debug(requestID+" Cache miss", "url", apiURL)
 		}
 
-		apiBody, contentType, err := immichAPICall(ctx, method, apiURL, body)
+		apiBody, contentType, _, err := immichAPICall(ctx, method, apiURL, body)
 		if err != nil {
 			log.Error(err)
-			return nil, contentType, err
+			return nil, contentType, usingCache, err
 		}
 
 		// Unpack api json into struct which discards data we don't use (for smaller cache size)
 		err = json.Unmarshal(apiBody, &jsonShape)
 		if err != nil {
-			log.Error(err)
-			return nil, contentType, err
+			log.Error(err, "body", string(apiBody))
+			return nil, contentType, usingCache, err
 		}
 
 		// get bytes and store in cache
 		jsonBytes, err := json.Marshal(jsonShape)
 		if err != nil {
 			log.Error(err)
-			return nil, contentType, err
+			return nil, contentType, usingCache, err
 		}
 
 		cache.Set(apiCacheKey, jsonBytes, requestConfig.Duration)
@@ -90,12 +95,12 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 			log.Debug(requestID+" Cache saved", "url", apiURL)
 		}
 
-		return jsonBytes, contentType, nil
+		return jsonBytes, contentType, usingCache, nil
 	}
 }
 
 // immichAPICall bootstrap for immich api call
-func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, error) {
+func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, bool, error) {
 
 	var responseBody []byte
 	var lastErr error
@@ -104,7 +109,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 	_, err := url.Parse(apiURL)
 	if err != nil {
 		log.Error("Invalid URL", "url", apiURL, "err", err)
-		return responseBody, contentType, err
+		return responseBody, contentType, false, err
 	}
 
 	for attempts := range 3 {
@@ -117,7 +122,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		req, reqErr := http.NewRequestWithContext(ctx, method, apiURL, bodyReader)
 		if reqErr != nil {
 			log.Error(reqErr)
-			return responseBody, contentType, reqErr
+			return responseBody, contentType, false, reqErr
 		}
 
 		req.Header.Set("Accept", "application/json")
@@ -127,7 +132,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			token, demoLoginErr := demo.Login(a.ctx, false)
 			if demoLoginErr != nil {
 				log.Error(demoLoginErr)
-				return responseBody, contentType, demoLoginErr
+				return responseBody, contentType, false, demoLoginErr
 			}
 			req.Header.Set("Authorization", "Bearer "+token)
 
@@ -137,7 +142,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 				if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
 					apiKey = key
 				} else {
-					return responseBody, contentType, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
+					return responseBody, contentType, false, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
 				}
 			}
 
@@ -190,7 +195,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			if !demo.ValidateToken(a.ctx, demo.DemoToken) {
 				_, err = demo.Login(a.ctx, true)
 				if err != nil {
-					return responseBody, contentType, err
+					return responseBody, contentType, false, err
 				}
 				continue
 			}
@@ -200,26 +205,102 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			responseBody, err = io.ReadAll(res.Body)
 			if err != nil {
 				log.Error("reading unexpected response body", "method", method, "url", apiURL, "err", err)
-				return responseBody, contentType, err
+				return responseBody, contentType, false, err
 			}
 
 			if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusForbidden {
-				return responseBody, contentType, fmt.Errorf("received %d (unauthorised) code from Immich. Please check your Immich API is correct", res.StatusCode)
+				return responseBody, contentType, false, fmt.Errorf("received %d (unauthorised) code from Immich. Please check your Immich API is correct", res.StatusCode)
 			}
 
-			return responseBody, contentType, fmt.Errorf("HTTP %d: unexpected status code", res.StatusCode)
+			return responseBody, contentType, false, fmt.Errorf("HTTP %d: unexpected status code", res.StatusCode)
 		}
 
 		responseBody, err = io.ReadAll(res.Body)
 		if err != nil {
 			log.Error("reading response body", "method", method, "url", apiURL, "err", err)
-			return responseBody, contentType, err
+			return responseBody, contentType, false, err
 		}
 
-		return responseBody, contentType, nil
+		return responseBody, contentType, false, nil
 	}
 
-	return responseBody, contentType, fmt.Errorf("request failed: max retries exceeded. last err=%w", lastErr)
+	return responseBody, contentType, false, fmt.Errorf("request failed: max retries exceeded. last err=%w", lastErr)
+}
+
+// fetchAssets handles the API call and unmarshalling for both random and metadata endpoints.
+// FilterDate is applied here.
+// FilterNewest is applied here.
+func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandomBody) ([]Asset, url.URL, error) {
+
+	filterNewest := a.requestConfig.FilterNewest > 0
+
+	var immichAssets []Asset
+
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		_, _, err = immichAPIFail(immichAssets, err, nil, "")
+		return nil, url.URL{}, err
+	}
+
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
+
+	if filterNewest {
+		requestBody.Size = a.requestConfig.FilterNewest
+	}
+
+	queries, _ := query.Values(requestBody)
+
+	apiPath := "api/search/random"
+	if filterNewest {
+		apiPath = "api/search/metadata"
+	}
+
+	apiURL := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     apiPath,
+		RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
+	}
+
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		_, _, err = immichAPIFail(immichAssets, err, nil, "")
+		return nil, url.URL{}, err
+	}
+
+	var immichAPICall apiCall
+	if filterNewest {
+		immichAPICall = withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, SearchMetadataResponse{})
+	} else {
+		immichAPICall = withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, []Asset{})
+	}
+
+	apiBody, _, usingCache, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+	if err != nil {
+		_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+		return nil, url.URL{}, err
+	}
+
+	if filterNewest && !usingCache {
+		var searchMetadataResponse SearchMetadataResponse
+		if err = json.Unmarshal(apiBody, &searchMetadataResponse); err != nil {
+			log.Error("failed Unmarshal", "err", err)
+			_, _, err = immichAPIFail(searchMetadataResponse, err, apiBody, apiURL.String())
+			return nil, url.URL{}, err
+		}
+		immichAssets = searchMetadataResponse.Assets.Items
+		rand.Shuffle(len(immichAssets), func(i, j int) {
+			immichAssets[i], immichAssets[j] = immichAssets[j], immichAssets[i]
+		})
+	} else {
+		if err = json.Unmarshal(apiBody, &immichAssets); err != nil {
+			log.Error("failed Unmarshal", "err", err)
+			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
+			return nil, url.URL{}, err
+		}
+	}
+
+	return immichAssets, apiURL, nil
 }
 
 // ratioCheck checks if an image's orientation matches a desired ratio.
@@ -345,7 +426,7 @@ func (a *Asset) AssetInfo(requestID, deviceID string) error {
 	}
 
 	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAsset)
-	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
 		return fmt.Errorf("fetching asset info, err=%w", err)
@@ -387,7 +468,9 @@ func (a *Asset) ImagePreview() ([]byte, string, error) {
 		apiURL.RawQuery += "&edited=true"
 	}
 
-	return a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	b, s, _, e := a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+
+	return b, s, e
 }
 
 // FacesCenterPoint calculates the center point of all detected faces in an image as percentages.
@@ -625,16 +708,16 @@ func (a *Asset) isAnimatedGif() bool {
 }
 
 // hasValidDateFilter validates if the asset's date matches the configured date filter criteria.
-// Assets from Memories or DateRange buckets bypass the date filter check.
+// Assets from DateRange buckets bypass the date filter check.
 //
 // Returns:
 //   - bool: true if date is valid or no filter set, false if outside filter range
 func (a *Asset) hasValidDateFilter() bool {
-	if a.requestConfig.DateFilter == "" || (a.Bucket == kiosk.SourceMemories || a.Bucket == kiosk.SourceDateRange) {
+	if a.requestConfig.FilterDate == "" || a.Bucket == kiosk.SourceDateRange {
 		return true
 	}
 
-	dateStart, dateEnd, err := determineDateRange(a.requestConfig.DateFilter)
+	dateStart, dateEnd, err := determineDateRange(a.requestConfig.FilterDate)
 	if err != nil {
 		log.Error("malformed filter", "err", err)
 		return true // Continue processing if date filter is malformed
@@ -787,7 +870,7 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 		}
 
 		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, response)
-		apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, _, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
 			return totalCount, err
@@ -834,7 +917,7 @@ func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error 
 		return fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	apiBody, _, err := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
+	apiBody, _, _, err := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, err = immichAPIFail(res, err, apiBody, apiURL.String())
 		return err

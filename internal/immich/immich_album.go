@@ -72,13 +72,13 @@ func (a *Asset) albums(requestID, deviceID string, shared bool, contains string,
 	var body []byte
 
 	if bypassCache {
-		body, _, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+		body, _, _, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 		if err != nil {
 			return immichAPIFail(albums, err, body, apiURL.String())
 		}
 	} else {
 		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, albums)
-		body, _, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+		body, _, _, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 		if err != nil {
 			return immichAPIFail(albums, err, body, apiURL.String())
 		}
@@ -152,7 +152,7 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string) (Album, string,
 	}
 
 	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, album)
-	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(album, err, body, apiURL.String())
 	}
@@ -244,6 +244,8 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 //     after maximum retry attempts
 func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requestID, deviceID string) error {
 
+	filterNewest := a.requestConfig.FilterNewest > 0
+
 	for range MaxRetries {
 
 		album, apiURL, err := a.albumAssets(albumID, requestID, deviceID)
@@ -263,6 +265,10 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 			}
 
 			continue
+		}
+
+		if filterNewest && len(album.Assets) > a.requestConfig.FilterNewest {
+			album.Assets = album.Assets[:a.requestConfig.FilterNewest]
 		}
 
 		switch albumAssetsOrder {
@@ -472,7 +478,7 @@ func (a *Asset) createKioskLikedAlbum() (string, error) {
 		return "", fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	body, _, err := a.immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+	body, _, _, err := a.immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, resErr := immichAPIFail(res, err, body, apiURL.String())
 		return "", resErr
@@ -557,7 +563,7 @@ func (a *Asset) modifyAssetInAlbum(albumID string, method string) error {
 		return fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	body, _, err := a.immichAPICall(a.ctx, method, apiURL.String(), jsonBody)
+	body, _, _, err := a.immichAPICall(a.ctx, method, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, err = immichAPIFail(res, err, body, apiURL.String())
 		return err
