@@ -625,12 +625,12 @@ func (a *Asset) isAnimatedGif() bool {
 }
 
 // hasValidDateFilter validates if the asset's date matches the configured date filter criteria.
-// Assets from Memories or DateRange buckets bypass the date filter check.
+// Assets from DateRange buckets bypass the date filter check.
 //
 // Returns:
 //   - bool: true if date is valid or no filter set, false if outside filter range
 func (a *Asset) hasValidDateFilter() bool {
-	if a.requestConfig.DateFilter == "" || (a.Bucket == kiosk.SourceMemories || a.Bucket == kiosk.SourceDateRange) {
+	if a.requestConfig.DateFilter == "" || a.Bucket == kiosk.SourceDateRange {
 		return true
 	}
 
