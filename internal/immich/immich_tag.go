@@ -1,7 +1,6 @@
 package immich
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,7 +13,6 @@ import (
 	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
-	"github.com/google/go-querystring/query"
 )
 
 type Tags []Tag
@@ -56,7 +54,7 @@ func (a *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
 	}
 
 	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, tags)
-	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(tags, err, body, apiURL.String())
 	}
@@ -99,7 +97,7 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, a.requestConfig.DateFilter)
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 	allAssetsCount, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {
@@ -116,13 +114,6 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 // The requestID and deviceID are used for caching and logging purposes.
 // It returns the list of assets, the API URL used, and any error encountered.
 func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset, string, error) {
-
-	var immichAssets []Asset
-
-	u, err := url.Parse(a.requestConfig.ImmichURL)
-	if err != nil {
-		return immichAPIFail(immichAssets, err, nil, "")
-	}
 
 	requestBody := SearchRandomBody{
 		Type:       string(ImageType),
@@ -141,30 +132,7 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 		requestBody.WithArchived = true
 	}
 
-	DateFilter(&requestBody, a.requestConfig.DateFilter)
-
-	// convert body to queries so url is unique and can be cached
-	queries, _ := query.Values(requestBody)
-
-	apiURL := url.URL{
-		Scheme:   u.Scheme,
-		Host:     u.Host,
-		Path:     "api/search/random",
-		RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
-	}
-
-	jsonBody, err := json.Marshal(requestBody)
-	if err != nil {
-		return immichAPIFail(immichAssets, err, nil, apiURL.String())
-	}
-
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
-	apiBody, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
-	if err != nil {
-		return immichAPIFail(immichAssets, err, nil, apiURL.String())
-	}
-
-	err = json.Unmarshal(apiBody, &immichAssets)
+	immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)
 	if err != nil {
 		return immichAPIFail(immichAssets, err, nil, apiURL.String())
 	}
@@ -322,7 +290,7 @@ func (a *Asset) upsertTag(tag Tag) (Tag, error) {
 		return createdTag, fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	apiBody, _, resErr := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
+	apiBody, _, _, resErr := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
 	if resErr != nil {
 		_, _, resErr = immichAPIFail(response, resErr, apiBody, apiURL.String())
 		log.Error("api call failed while creating tag", "error", resErr)
@@ -384,7 +352,7 @@ func (a *Asset) modifyTagAsset(tag Tag, assetID string, method string, action st
 		return fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	apiBody, _, resErr := a.immichAPICall(a.ctx, method, apiURL.String(), jsonBody)
+	apiBody, _, _, resErr := a.immichAPICall(a.ctx, method, apiURL.String(), jsonBody)
 	if resErr != nil {
 		_, _, resErr = immichAPIFail(response, resErr, apiBody, apiURL.String())
 		log.Error("api failed to "+action+" tag to asset", "error", resErr)

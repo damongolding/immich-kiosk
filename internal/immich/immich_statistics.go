@@ -44,7 +44,7 @@ func (a *Asset) assetsStatistics() (StatisticsResponse, error) {
 	}
 
 	immichAPICall := withImmichAPICache(a.immichAPICall, kiosk.DebugID, kiosk.GlobalCache, a.requestConfig, stats)
-	body, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return stats, err
 	}
