@@ -592,6 +592,29 @@
         "asset_weighting": {
           "type": "boolean"
         },
+        "mqtt_enabled": {
+          "type": "boolean"
+        },
+        "mqtt_broker": {
+          "type": "string"
+        },
+        "mqtt_port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "mqtt_username": {
+          "type": "string"
+        },
+        "mqtt_password": {
+          "type": "string"
+        },
+        "mqtt_client_id": {
+          "type": "string"
+        },
+        "mqtt_topic_prefix": {
+          "type": "string"
+        },
         "disable_url_queries": {
           "type": "boolean"
         },
@@ -630,7 +653,16 @@
           }
         }
       },
-      "required": []
+      "required": [],
+      "if": {
+        "properties": { "mqtt_enabled": { "const": true } }
+      },
+      "then": {
+        "required": ["mqtt_broker"],
+        "properties": {
+          "mqtt_broker": { "type": "string", "minLength": 1 }
+        }
+      }
     }
   },
   "required": ["immich_api_key", "immich_url"]
