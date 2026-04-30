@@ -53,3 +53,6 @@ frontend/public/assets/js/*.js
 /tmp/
 
 /secrets/
+
+result
+result-*
