@@ -83,7 +83,8 @@
 
               # Satisfy go:embed frontend/public
               mkdir -p frontend/public/assets
-              cp -r ${frontend}/assets frontend/public/assets
+              cp -r ${frontend}/assets/. frontend/public/assets/
+
 
               # Generate templ templates
               go tool templ generate
