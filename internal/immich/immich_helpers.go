@@ -740,9 +740,7 @@ func (a *Asset) hasValidFilterNoFaces(requestID, deviceID string) bool {
 		a.CheckForFaces(requestID, deviceID)
 	}
 
-	v := len(a.People) == 0 && len(a.UnassignedFaces) == 0
-	log.Info("hasValidFilterNoFaces", "valid", v, "id", a.ID)
-	return v
+	return len(a.People) == 0 && len(a.UnassignedFaces) == 0
 }
 
 // hasValidAlbums checks if the asset belongs to any excluded albums.
