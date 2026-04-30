@@ -10,6 +10,13 @@
         pkgs = nixpkgs.legacyPackages.${system};
         version = "0.37.0"; # hard coded for now
 
+        nodeModulesHashes = {
+          "x86_64-linux"  = pkgs.lib.fakeHash; # generate on an x86_64-linux machine
+          "aarch64-linux" = pkgs.lib.fakeHash; # generate on an aarch64-linux machine
+          "x86_64-darwin" = pkgs.lib.fakeHash; # generate on an x86_64 Mac
+          "aarch64-darwin" = pkgs.lib.fakeHash; # generate on an Apple Silicon Mac
+        };
+
         # Step 1: install frontend deps
         node_modules = pkgs.stdenv.mkDerivation {
           pname = "immich-kiosk-node_modules";
@@ -31,7 +38,7 @@
             cp -R ./node_modules $out
           '';
 
-          outputHash = "sha256-FNNWp3JtF4fGkWRRA0TolI97qBptmsOUNjbLuAmsZf0=";
+          outputHash     = nodeModulesHashes.${system} or (throw "Unsupported system: ${system}");
           outputHashAlgo = "sha256";
           outputHashMode = "recursive";
         };
@@ -75,7 +82,7 @@
             preBuild = ''
 
               # Satisfy go:embed frontend/public
-              mkdir -p frontend/public
+              mkdir -p frontend/public/assets
               cp -r ${frontend}/assets frontend/public/assets
 
               # Generate templ templates
