@@ -8,13 +8,13 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        version = "0.37.0"; # hard coded for now
+        version = "0.38.0"; # hard coded for now
 
         nodeModulesHashes = {
           "x86_64-linux"  = pkgs.lib.fakeHash; # generate on an x86_64-linux machine
           "aarch64-linux" = pkgs.lib.fakeHash; # generate on an aarch64-linux machine
           "x86_64-darwin" = pkgs.lib.fakeHash; # generate on an x86_64 Mac
-          "aarch64-darwin" = pkgs.lib.fakeHash; # generate on an Apple Silicon Mac
+          "aarch64-darwin" = "sha256-67fg+bPFMfUjCNbxUMkc8r2HDBK2g6aE6CaWoOnX/B4="; # generate on an Apple Silicon Mac
         };
 
         # Step 1: install frontend deps

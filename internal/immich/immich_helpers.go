@@ -736,7 +736,7 @@ func (a *Asset) hasValidFilterExcludeFaces(requestID, deviceID string) bool {
 		return true
 	}
 
-	if len(a.People) == 0 || len(a.UnassignedFaces) == 0 {
+	if len(a.People) == 0 {
 		a.CheckForFaces(requestID, deviceID)
 	}
 
