@@ -650,8 +650,9 @@ func (a *Asset) containsTag(tagValue string) bool {
 //   - bool: true if asset meets all criteria, false otherwise
 func (a *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
 	return a.hasValidBasicProperties(allowedTypes, wantedRatio) &&
-		a.hasValidDateFilter() &&
+		a.hasValidFilterDate() &&
 		a.hasValidPartners() &&
+		a.hasValidFilterExcludeFaces(requestID, deviceID) &&
 		a.hasValidAlbums(requestID, deviceID) &&
 		a.hasValidPeople(requestID, deviceID) &&
 		a.hasValidTags(requestID, deviceID)
@@ -707,12 +708,12 @@ func (a *Asset) isAnimatedGif() bool {
 	return totalSeconds > 0
 }
 
-// hasValidDateFilter validates if the asset's date matches the configured date filter criteria.
+// hasValidFilterDate validates if the asset's date matches the configured date filter criteria.
 // Assets from DateRange buckets bypass the date filter check.
 //
 // Returns:
 //   - bool: true if date is valid or no filter set, false if outside filter range
-func (a *Asset) hasValidDateFilter() bool {
+func (a *Asset) hasValidFilterDate() bool {
 	if a.requestConfig.FilterDate == "" || a.Bucket == kiosk.SourceDateRange {
 		return true
 	}
@@ -724,6 +725,22 @@ func (a *Asset) hasValidDateFilter() bool {
 	}
 
 	return utils.IsTimeBetween(a.LocalDateTime.Local(), dateStart, dateEnd)
+}
+
+// hasValidFilterExcludeFaces validates if the asset has no faces assigned.
+//
+// Returns:
+//   - bool: true if no faces are assigned or no filter set, false otherwise
+func (a *Asset) hasValidFilterExcludeFaces(requestID, deviceID string) bool {
+	if !a.requestConfig.FilterExcludeFaces {
+		return true
+	}
+
+	if len(a.People) == 0 {
+		a.CheckForFaces(requestID, deviceID)
+	}
+
+	return len(a.People) == 0 && len(a.UnassignedFaces) == 0
 }
 
 // hasValidAlbums checks if the asset belongs to any excluded albums.
