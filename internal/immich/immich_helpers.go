@@ -650,7 +650,7 @@ func (a *Asset) containsTag(tagValue string) bool {
 //   - bool: true if asset meets all criteria, false otherwise
 func (a *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
 	return a.hasValidBasicProperties(allowedTypes, wantedRatio) &&
-		a.hasValidFilterNoFaces(requestID, deviceID) &&
+		a.hasValidFilterExcludeFaces(requestID, deviceID) &&
 		a.hasValidFilterDate() &&
 		a.hasValidPartners() &&
 		a.hasValidAlbums(requestID, deviceID) &&
@@ -727,12 +727,12 @@ func (a *Asset) hasValidFilterDate() bool {
 	return utils.IsTimeBetween(a.LocalDateTime.Local(), dateStart, dateEnd)
 }
 
-// hasValidFilterNoFaces validates if the asset has no faces assigned.
+// hasValidFilterExcludeFaces validates if the asset has no faces assigned.
 //
 // Returns:
 //   - bool: true if no faces are assigned or no filter set, false otherwise
-func (a *Asset) hasValidFilterNoFaces(requestID, deviceID string) bool {
-	if !a.requestConfig.FilterNoFaces {
+func (a *Asset) hasValidFilterExcludeFaces(requestID, deviceID string) bool {
+	if !a.requestConfig.FilterExcludeFaces {
 		return true
 	}
 
