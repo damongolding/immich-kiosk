@@ -178,6 +178,9 @@ type Wind struct {
 func (w Wind) CompassDirection() string {
 	directions := []string{"N", "NE", "E", "SE", "S", "SW", "W", "NW"}
 	idx := int(math.Round(float64(w.Deg)/45)) % 8
+	if idx < 0 {
+		return "Var"
+	}
 	return directions[idx]
 }
 
