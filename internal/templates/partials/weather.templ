@@ -142,7 +142,11 @@ templ WeatherLocation(weatherData weather.Location, locationPos int, systemLang 
 								windUnit = "mph"
 							}
 						}}
-						{ weatherData.Wind.Deg }&deg;<span class="asset--metadata--exif--seperator">&#124;</span>{ weatherData.Wind.Speed }{ windUnit }
+						if weatherData.Show.WindDirection {
+							{ weatherData.Wind.CompassDirection() }<span class="asset--metadata--exif--seperator">&#124;</span>{ weatherData.Wind.Speed }{ windUnit }
+						} else {
+							{ weatherData.Wind.Deg }&deg;<span class="asset--metadata--exif--seperator">&#124;</span>{ weatherData.Wind.Speed }{ windUnit }
+						}
 					</div>
 					<div class="weather--stat--icon weather--wind--icon">
 						@weatherIcon(771)

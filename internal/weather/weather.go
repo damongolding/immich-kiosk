@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net"
 	"net/http"
 	"net/url"
@@ -172,6 +173,12 @@ type Wind struct {
 	Speed float64 `json:"speed"`
 	Deg   int     `json:"deg"`
 	Gust  float64 `json:"gust"`
+}
+
+func (w Wind) CompassDirection() string {
+	directions := []string{"N", "NE", "E", "SE", "S", "SW", "W", "NW"}
+	idx := int(math.Round(float64(w.Deg)/45)) % 8
+	return directions[idx]
 }
 
 type Clouds struct {
