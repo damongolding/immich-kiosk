@@ -175,15 +175,6 @@ type Wind struct {
 	Gust  float64 `json:"gust"`
 }
 
-func (w Wind) CompassDirection() string {
-	directions := []string{"N", "NE", "E", "SE", "S", "SW", "W", "NW"}
-	idx := int(math.Round(float64(w.Deg)/45)) % 8
-	if idx < 0 {
-		return "Var"
-	}
-	return directions[idx]
-}
-
 type Clouds struct {
 	All int `json:"all"`
 }
@@ -299,6 +290,17 @@ func AddWeatherLocation(ctx context.Context, location config.WeatherLocation) {
 // AddWeatherLocationWithForecast adds a new location and enables periodic forecast updates.
 func AddWeatherLocationWithForecast(ctx context.Context, location config.WeatherLocation) {
 	addWeatherLocation(ctx, location, true)
+}
+
+// CompassDirection converts the wind direction in degrees to a cardinal or intercardinal direction string (N, NE, E, SE, S, SW, W, NW).
+// Returns "Var" if the degree value is outside the 0–360 range.
+func (w Wind) CompassDirection() string {
+	if w.Deg < 0 || w.Deg > 360 {
+        return "Var"
+    }
+	directions := []string{"N", "NE", "E", "SE", "S", "SW", "W", "NW"}
+	idx := int(math.Round(float64(w.Deg)/45)) % 8
+	return directions[idx]
 }
 
 // CurrentWeather retrieves the current weather data for a given location name.
