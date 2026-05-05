@@ -99,7 +99,7 @@ templ renderLivePhoto(viewData common.ViewData, imageData common.ViewImageData) 
 		style="display: none"
 		hx-get={ "/live/" + imageData.ImmichAsset.LivePhotoVideoID }
 		hx-swap="outerHTML"
-		hx-trigger="load, every 1s"
+		hx-trigger="load, every 1s consume"
 		hx-request='{"timeout":5000}'
 	></div>
 }

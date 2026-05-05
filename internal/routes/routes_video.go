@@ -233,6 +233,8 @@ func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
 			videoOrientation = kiosk.PortraitOrientation
 		}
 
+		time.Sleep(time.Second * 30)
+
 		return Render(c, http.StatusOK, partials.LivePhoto(video.ID, video.ContentType, videoOrientation, password))
 	}
 
