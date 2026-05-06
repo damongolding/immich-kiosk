@@ -185,11 +185,11 @@ function initMenu(
 }
 
 export {
-    initMenu,
     disableAssetNavigationButtons,
     enableAssetNavigationButtons,
-    showAssetOverlay,
     hideAssetOverlay,
+    initMenu,
+    showAssetOverlay,
     toggleAssetOverlay,
     toggleRedirectsOverlay,
 };

@@ -12,8 +12,8 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
-	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v5"
 )
 
@@ -218,9 +218,27 @@ func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
 
 	return func(c *echo.Context) error {
 
+		const maxPollCount = 5
+
 		liveID := c.Param("liveID")
 		if liveID == "" {
-			return echo.NewHTTPError(http.StatusBadRequest, "Live photo ID is required")
+			log.Debug("Live photo ID is required")
+			return c.NoContent(kiosk.StatusStopHTMXPolling)
+		}
+
+		pollCount := 0
+		pollCountQuery := c.QueryParam("poll_count")
+		if pollCountQuery != "" {
+			var pollCountErr error
+			pollCount, pollCountErr = strconv.Atoi(pollCountQuery)
+			if pollCountErr != nil {
+				pollCount = 0
+			}
+		}
+
+		if pollCount > maxPollCount {
+			log.Error("Max retries reached for live photo", "ID", liveID)
+			return c.NoContent(kiosk.StatusStopHTMXPolling)
 		}
 
 		video, err := VideoManager.GetVideo(liveID)
@@ -233,9 +251,7 @@ func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
 			videoOrientation = kiosk.PortraitOrientation
 		}
 
-		time.Sleep(time.Second * 30)
-
-		return Render(c, http.StatusOK, partials.LivePhoto(video.ID, video.ContentType, videoOrientation, password))
+		return Render(c, kiosk.StatusStopHTMXPolling, partials.LivePhoto(video.ID, video.ContentType, videoOrientation, password))
 	}
 
 }

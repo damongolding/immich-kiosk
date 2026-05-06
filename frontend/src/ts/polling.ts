@@ -126,7 +126,6 @@ class PollingController {
      * Starts the polling process
      */
     startPolling = () => {
-    	console.log("Start Polling");
         this.progressBarElement?.classList.remove("progress--bar-paused");
         this.menuElement?.classList.add("navigation-hidden");
         this.lastPollTime = performance.now();

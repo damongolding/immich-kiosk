@@ -99,8 +99,10 @@ templ renderLivePhoto(viewData common.ViewData, imageData common.ViewImageData) 
 		style="display: none"
 		hx-get={ "/live/" + imageData.ImmichAsset.LivePhotoVideoID }
 		hx-swap="outerHTML"
-		hx-trigger="load, every 1s consume"
+		hx-trigger="load, every 1s"
 		hx-request='{"timeout":5000}'
+		hx-vals="js:{poll_count: parseInt(this.dataset.pollCount || 0)}"
+		hx-on::after-request="this.dataset.pollCount = parseInt(this.dataset.pollCount || 0) + 1"
 	></div>
 }
 
