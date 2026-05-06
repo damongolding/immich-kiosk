@@ -448,12 +448,12 @@
                   },
                   "wind": {
                     "type": "boolean",
-                    "description": "Show the current wind speed",
+                    "description": "Show the current wind speed and a compass heading (N, NE, E, etc.)",
                     "default": false
                   },
                   "wind_direction": {
                     "type": "boolean",
-                    "description": "Show wind direction as a compass heading (N, NE, E, etc.) instead of degrees",
+                    "description": "Show wind direction as degrees",
                     "default": false
                   },
                   "visibility": {
