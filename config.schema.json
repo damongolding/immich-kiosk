@@ -451,6 +451,11 @@
                     "description": "Show the current wind speed",
                     "default": false
                   },
+                  "wind_direction": {
+                    "type": "boolean",
+                    "description": "Show wind direction as a compass heading (N, NE, E, etc.) instead of degrees",
+                    "default": false
+                  },
                   "visibility": {
                     "type": "boolean",
                     "description": "Show the current visibility",

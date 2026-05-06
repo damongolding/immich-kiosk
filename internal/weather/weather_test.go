@@ -83,3 +83,35 @@ func TestComputeNext24hTempRange(t *testing.T) {
 		})
 	}
 }
+
+func TestWindCompassDirection(t *testing.T) {
+	tests := []struct {
+		name     string
+		degree   int
+		expected string
+	}{
+		{"North", 0, "N"},
+		{"NorthEast", 45, "NE"},
+		{"East", 90, "E"},
+		{"SouthEast", 135, "SE"},
+		{"South", 180, "S"},
+		{"SouthWest", 225, "SW"},
+		{"West", 270, "W"},
+		{"NorthWest", 315, "NW"},
+		{"North 360", 360, "N"},
+		{"North wrap", 338, "N"},
+		{"NW upper boundary", 337, "NW"},
+		{"Negative degree", -45, "Var"},
+		{"Overflow degree", 405, "Var"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := Wind{Deg: tt.degree}
+			result := w.CompassDirection()
+			if result != tt.expected {
+				t.Errorf("CompassDirection() = %q, want %q", result, tt.expected)
+			}
+		})
+	}
+}
