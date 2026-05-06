@@ -236,7 +236,7 @@ func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
 			}
 		}
 
-		if pollCount > maxPollCount {
+		if pollCount >= maxPollCount {
 			log.Error("Max retries reached for live photo", "ID", liveID)
 			return c.NoContent(kiosk.StatusStopHTMXPolling)
 		}
