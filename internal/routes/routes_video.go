@@ -231,8 +231,9 @@ func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
 		if pollCountQuery != "" {
 			var pollCountErr error
 			pollCount, pollCountErr = strconv.Atoi(pollCountQuery)
-			if pollCountErr != nil {
-				pollCount = 0
+			if pollCountErr != nil || pollCount < 0 {
+				log.Warn("Invalid poll_count for live photo", "ID", liveID, "poll_count", pollCountQuery)
+				return c.NoContent(kiosk.StatusStopHTMXPolling)
 			}
 		}
 
