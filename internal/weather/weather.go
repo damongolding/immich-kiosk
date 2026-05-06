@@ -26,6 +26,8 @@ const (
 	WeatherRotation      = "rotate"
 	WeatherParam         = "weather"
 	WeatherRotationParam = "weather_rotation"
+
+	VarCompassDirection = "Var"
 )
 
 var (
@@ -296,8 +298,8 @@ func AddWeatherLocationWithForecast(ctx context.Context, location config.Weather
 // Returns "Var" if the degree value is outside the 0–360 range.
 func (w Wind) CompassDirection() string {
 	if w.Deg < 0 || w.Deg > 360 {
-        return "Var"
-    }
+		return VarCompassDirection
+	}
 	directions := []string{"N", "NE", "E", "SE", "S", "SW", "W", "NW"}
 	idx := int(math.Round(float64(w.Deg)/45)) % 8
 	return directions[idx]

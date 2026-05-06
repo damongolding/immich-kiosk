@@ -22,6 +22,17 @@ func formatTemp(temp float64, roundTemp bool) string {
 	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
 }
 
+// formatWind formats a wind speed value
+func formatWind(wind float64, roundWind bool) string {
+	if roundWind {
+		return strconv.Itoa(int(math.Round(wind)))
+	}
+
+	// Use metric formatting for both metric, standard and invalid measurement systems
+	s := fmt.Sprintf("%.2f", wind)
+	return strings.TrimRight(strings.TrimRight(s, "0"), ".")
+}
+
 templ weatherIcon(ID int) {
 	switch ID {
 		case 801, 802, 803, 804:
@@ -138,14 +149,14 @@ templ WeatherLocation(weatherData weather.Location, locationPos int, systemLang 
 					<div class="weather--stat--value weather--wind--value">
 						{{
 							windUnit := "m/s"
-							if weatherData.Unit == "imperial" {
+							if strings.EqualFold(weatherData.Unit, "imperial") {
 								windUnit = "mph"
 							}
 						}}
 						if weatherData.Show.WindDirection {
 							{ weatherData.Wind.Deg }&deg;<span class="asset--metadata--exif--seperator">&#124;</span>
 						}
-						{ weatherData.Wind.CompassDirection() }<span class="asset--metadata--exif--seperator">&#124;</span>{ weatherData.Wind.Speed }{ windUnit }
+						{ weatherData.Wind.CompassDirection() }<span class="asset--metadata--exif--seperator">&#124;</span>{ formatWind(weatherData.Wind.Speed, false) }{ windUnit }
 					</div>
 					<div class="weather--stat--icon weather--wind--icon">
 						@weatherIcon(771)
