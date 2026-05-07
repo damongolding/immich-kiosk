@@ -100,3 +100,30 @@
     gap: 0.2rem;
     align-items: center;
 }
+
+.weather--temperature-range--value--high,
+.weather--temperature-range--value--low {
+    position: relative;
+}
+
+.weather--temperature-range--value--high::before {
+    position: absolute;
+    top: -0.0625rem;
+    left: 50%;
+    width: 0.5rem;
+    height: 0.0625rem;
+    content: "";
+    background-color: rgba(255, 255, 255, 0.5);
+    transform: translateX(-50%);
+}
+
+.weather--temperature-range--value--low::before {
+    position: absolute;
+    bottom: -0.125rem;
+    left: 50%;
+    width: 0.5rem;
+    height: 0.0625rem;
+    content: "";
+    background-color: rgba(255, 255, 255, 0.5);
+    transform: translateX(-50%);
+}
