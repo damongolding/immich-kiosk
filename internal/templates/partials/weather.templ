@@ -120,9 +120,13 @@ templ WeatherLocation(weatherData weather.Location, locationPos int, systemLang 
 			if weatherData.Show.TemperatureRange && len(weatherData.Forecast.Daily) > 0 {
 				<div class="weather--stat weather--temperature-range">
 					<div class="weather--stat--value weather--temperature-range--value">
-						{ formatTemp(weatherData.Forecast.Next24hHigh, weatherData.RoundTemp) }°
+						<span class="weather--temperature-range--value--high">
+							{ formatTemp(weatherData.Forecast.Next24hHigh, weatherData.RoundTemp) }
+						</span>°
 						<span class="asset--metadata--exif--seperator">&#124;</span>
-						{ formatTemp(weatherData.Forecast.Next24hLow, weatherData.RoundTemp) }°
+						<span class="weather--temperature-range--value--low">
+							{ formatTemp(weatherData.Forecast.Next24hLow, weatherData.RoundTemp) }
+						</span>°
 					</div>
 					<div class="weather--stat--icon weather--temperature-range--icon">
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="320" height="512">
