@@ -67,6 +67,8 @@ const (
 	MimeTypeWebp string = "image/webp"
 	MimeTypeAvif string = "image/avif" // currently unsupported
 	MimeTypeBmp  string = "image/bmp"  // currently unsupported
+
+	StatusStopHTMXPolling = 286
 )
 
 var (
