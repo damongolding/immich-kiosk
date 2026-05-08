@@ -391,6 +391,15 @@ function addEventListeners(): void {
         }
     });
 
+    htmx.on("htmx:afterRequest", (e: HTMXEvent) => {
+        const path = e.detail?.pathInfo?.requestPath || "";
+
+        // Only restart polling for asset endpoints
+        if (path.startsWith("/asset/")) {
+            startPolling();
+        }
+    });
+
     htmx.on("htmx:timeout", (e: HTMXEvent) => {
         let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
 
@@ -517,6 +526,13 @@ async function cleanupFrames(): Promise<void> {
  * @throws {Error} If request lock is already set
  */
 function setRequestLock(e: HTMXEvent): void {
+    const path = e.detail?.pathInfo?.requestPath || "";
+
+    // Do not lock for non-asset requests (e.g. GIFS, live photos)
+    if (!path.startsWith("/asset/")) {
+        return;
+    }
+
     if (requestInFlight) {
         e.preventDefault();
         return;

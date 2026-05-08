@@ -1,4 +1,6 @@
 :root {
+	color-scheme: only light !important;
+	
     /* colours */
     --light-grey: #f7f9f8;
     --mid-grey: #6d727a;

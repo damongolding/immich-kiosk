@@ -101,8 +101,8 @@ func TestWindCompassDirection(t *testing.T) {
 		{"North 360", 360, "N"},
 		{"North wrap", 338, "N"},
 		{"NW upper boundary", 337, "NW"},
-		{"Negative degree", -45, "Var"},
-		{"Overflow degree", 405, "Var"},
+		{"Negative degree", -45, VarCompassDirection},
+		{"Overflow degree", 405, VarCompassDirection},
 	}
 
 	for _, tt := range tests {
