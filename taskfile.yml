@@ -42,12 +42,13 @@ tasks:
     deps: [templ]
     cmds:
       - go test ./...
+      - cd frontend && npm run test
 
   lint:
     desc: Run linters
     cmds:
       - golangci-lint run
-      - cd frontend && bun run lint
+      - cd frontend && npm run lint
 
   # Build tasks
   build:

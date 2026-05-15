@@ -4,12 +4,12 @@
   "description": "",
   "main": "src/kiosk.ts",
   "scripts": {
-    "lint": "bunx --bun biome lint --write",
-    "js": "bunx --bun esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --minify --target=es6 --outfile=./public/assets/js/kiosk.js",
-    "css": "bunx --bun esbuild --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css && bun run css:postcss",
-    "css:postcss": "bunx --bun postcss ./public/assets/css/kiosk.css --no-map -o ./public/assets/css/kiosk.css",
-    "build": "bun run test && bun run css && bun run js && bun run url-builder",
-    "url-builder": "bunx --bun esbuild 'src/ts/url-builder.ts' --format=iife --global-name=urlBuilder --bundle --minify --target=es6 --outfile=./public/assets/js/url-builder.js",
+    "lint": "biome lint --write",
+    "js": "esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --minify --target=es6 --outfile=./public/assets/js/kiosk.js",
+    "css": "esbuild --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf 'src/css/kiosk.css' --outfile=./public/assets/css/kiosk.css && npm run css:postcss",
+    "css:postcss": "postcss ./public/assets/css/kiosk.css --no-map -o ./public/assets/css/kiosk.css",
+    "build": "npm run css & npm run js & npm run url-builder && wait",
+    "url-builder": "esbuild 'src/ts/url-builder.ts' --format=iife --global-name=urlBuilder --bundle --minify --target=es6 --outfile=./public/assets/js/url-builder.js",
     "test": "tsc --noEmit"
   },
   "keywords": [],
@@ -17,12 +17,11 @@
   "license": "AGPL-3.0-only",
   "devEngines": {
     "runtime": {
-      "name": "bun",
-      "version": "1.3.12"
+      "name": "node",
+      "version": ">=24"
     },
     "packageManager": {
-      "name": "bun",
-      "version": "1.3.12"
+      "name": "npm"
     }
   },
   "devDependencies": {
