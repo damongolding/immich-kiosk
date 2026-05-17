@@ -42,9 +42,9 @@ class FullyKiosk {
     private readonly preventSleepWhileScreenOff = "preventSleepWhileScreenOff";
     private readonly screensaverDaydream = "screensaverDaydream";
 
-    private initScreensaverBrightness: string;
-    private initScreensaverWallpaperURL: string;
-    private initScreensaverDaydream: boolean;
+    private initScreensaverBrightness!: string;
+    private initScreensaverWallpaperURL!: string;
+    private initScreensaverDaydream!: boolean;
 
     inSleepMode: boolean = false;
 

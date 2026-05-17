@@ -35,7 +35,6 @@ import { weatherRotationPosition } from "./weather";
 ("use strict");
 
 interface HTMXEvent extends Event {
-    preventDefault: () => void;
     detail: {
         successful: boolean;
         parameters: FormData;
@@ -377,7 +376,8 @@ function addEventListeners(): void {
     });
 
     // Server online check. Fires after every AJAX request.
-    htmx.on("htmx:afterRequest", (e: HTMXEvent) => {
+    htmx.on("htmx:afterRequest", (event: Event) => {
+        const e = event as HTMXEvent;
         if (!offlineSVG) {
             console.error("offline svg missing");
             return;
@@ -391,7 +391,8 @@ function addEventListeners(): void {
         }
     });
 
-    htmx.on("htmx:afterRequest", (e: HTMXEvent) => {
+    htmx.on("htmx:afterRequest", (event: Event) => {
+        const e = event as HTMXEvent;
         const path = e.detail?.pathInfo?.requestPath || "";
 
         // Only restart polling for asset endpoints
@@ -400,7 +401,9 @@ function addEventListeners(): void {
         }
     });
 
-    htmx.on("htmx:timeout", (e: HTMXEvent) => {
+    htmx.on("htmx:timeout", (event: Event) => {
+        const e = event as HTMXEvent;
+
         let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
 
         currentTimeout =
@@ -626,14 +629,16 @@ function clientData(): BrowserData {
 
 // Add kiosk query parameters to HTMX requests
 if (kioskQueries.length > 0) {
-    document.body.addEventListener("htmx:configRequest", (e: HTMXEvent) => {
+    document.body.addEventListener("htmx:configRequest", (event: Event) => {
+        const e = event as HTMXEvent;
+
         if (!e.detail?.parameters) {
             console.warn("Request parameters object not found");
             return;
         }
 
         try {
-            kioskQueries.forEach((q: HTMLInputElement) => {
+            kioskQueries.forEach((q: Element) => {
                 if (!(q instanceof HTMLInputElement)) {
                     console.warn(`Element ${q} is not an input`);
                     return;

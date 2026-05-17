@@ -68,10 +68,14 @@ function toggleFullscreen(
 ) {
     if (isFullscreen) {
         if (fullscreenAPI.exitFullscreen) {
-            (document as Document)[fullscreenAPI.exitFullscreen]();
+            // biome-ignore lint/suspicious/noExplicitAny: dynamic vendor-prefixed fullscreen API
+            (document as any)[fullscreenAPI.exitFullscreen]();
         }
     } else {
-        documentBody[fullscreenAPI.requestFullscreen as keyof Document]?.();
+        // biome-ignore lint/suspicious/noExplicitAny: dynamic vendor-prefixed fullscreen API
+        (documentBody as any)[
+            fullscreenAPI.requestFullscreen as keyof Document
+        ]?.();
     }
 
     isFullscreen = !isFullscreen;
@@ -83,8 +87,10 @@ function toggleFullscreen(
  */
 function addFullscreenEventListener(fullscreenButton: HTMLElement | null) {
     document.addEventListener("fullscreenchange", () => {
-        isFullscreen =
-            !!document[fullscreenAPI.fullscreenElement as keyof string];
+        // biome-ignore lint/suspicious/noExplicitAny: dynamic vendor-prefixed fullscreen API
+        isFullscreen = !!(document as any)[
+            fullscreenAPI.fullscreenElement as keyof string
+        ];
         fullscreenButton?.classList.toggle(
             "navigation--fullscreen-enabled",
             isFullscreen,
