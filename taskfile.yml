@@ -6,7 +6,6 @@ env:
 silent: true
 
 includes:
-
   frontend:
     taskfile: ./taskfile.frontend.yml
     flatten: true
@@ -14,6 +13,7 @@ includes:
   docker:
     taskfile: ./taskfile.docker.yml
     flatten: true
+
 tasks:
   # Development tasks
   default:
