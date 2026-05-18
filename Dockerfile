@@ -1,13 +1,12 @@
 # Frontend Base Image
-FROM oven/bun:1 AS frontend-base
+FROM node:26-alpine AS frontend-base
 
 COPY . /app
 WORKDIR /app/frontend
 
 FROM frontend-base AS frontend-build
-RUN bun install --frozen-lockfile
-RUN bun run css && bun run js && bun run url-builder
-
+RUN npm ci
+RUN npm run css & npm run js & npm run url-builder && wait
 
 # Go Builder
 FROM --platform=$BUILDPLATFORM golang:1.26.3-bookworm AS build
@@ -31,7 +30,6 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix c
 FROM alpine:3.22.2
 
 ENV TZ=Europe/London
-
 ENV TERM=xterm-256color
 ENV DEBUG_COLORS=true
 ENV COLORTERM=truecolor

@@ -1,16 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES6", // Compile to ES6
-    "lib": ["ES2015", "DOM"], // Include ES6 features and browser DOM APIs
-    "downlevelIteration": true, // Handle `for...of` loops in ES5
-    "strictNullChecks": true, // Ensure safer null/undefined handling
-    "esModuleInterop": true, // Handle ES module compatibility
-    "module": "ES6", // Set module system to ES6 (or "CommonJS" if using Node)
-    "outDir": "./public/assets/js", // Output directory for compiled files
-    "sourceMap": true, // Optional: generate source maps for debugging
+    "target": "ES2015",
+    "lib": ["ES2015", "DOM"],
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "module": "ES2015",
+    "moduleResolution": "Bundler",
     "allowJs": true,
     "checkJs": false,
-    "moduleResolution": "Node"
+    "noEmit": true
   },
   "include": ["src/**/*.ts"]
 }

@@ -1,4 +1,5 @@
 version: "3"
+
 env:
   VERSION: 0.38.1
 
@@ -20,7 +21,6 @@ tasks:
     deps: [build]
     cmds:
       - ./dist/kiosk
-
   dev:
     desc: Run kiosk in development mode
     cmds:
@@ -42,12 +42,13 @@ tasks:
     deps: [templ]
     cmds:
       - go test ./...
+      - task: frontend:typecheck
 
   lint:
     desc: Run linters
     cmds:
       - golangci-lint run
-      - cd frontend && bun run lint
+      - task: frontend:lint
 
   # Build tasks
   build:
@@ -65,7 +66,7 @@ tasks:
   # Maintenance tasks
   install:
     desc: Install development dependencies
-    deps: [frontend-install]
+    deps: [frontend:install]
     cmds:
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5
       - go mod tidy
@@ -77,10 +78,8 @@ tasks:
         GO_VERSION_FULL=$(go version | awk '{print $3}' | sed 's/go//')
         echo "📦 Updating go.mod to use Go $GO_VERSION_FULL"
         go mod edit -go=$GO_VERSION_FULL
-
         echo "🛠️  Updating Dockerfile to use Go $GO_VERSION_FULL"
         sed -i.bak -E "s|golang:[0-9]+\.[0-9]+(\.[0-9]+)?-[[:alnum:]-]+|golang:${GO_VERSION_FULL}-bookworm|g" Dockerfile
-
         echo "--- Dockerfile diff ---"
         diff Dockerfile.bak Dockerfile || true
         rm Dockerfile.bak
@@ -92,7 +91,7 @@ tasks:
 
   outdated:
     desc: Check for outdated Go and frontend dependencies
-    deps: [outdated-go, frontend-outdated]
+    deps: [outdated-go, frontend:outdated]
 
   update-go-deps:
     desc: Update Go dependencies
@@ -101,7 +100,7 @@ tasks:
 
   update-deps:
     desc: Update Go and frontend dependencies
-    deps: [update-go-deps, frontend-update]
+    deps: [update-go-deps, frontend:update]
     cmds:
       - go mod tidy
 
