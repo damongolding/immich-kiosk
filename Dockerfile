@@ -5,8 +5,10 @@ COPY . /app
 WORKDIR /app/frontend
 
 FROM frontend-base AS frontend-build
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/task/task/setup.alpine.sh' | sudo -E bash
+RUN apk add -y task
 RUN npm ci
-RUN npm run css & npm run js & npm run url-builder && wait
+RUN task frontend
 
 # Go Builder
 FROM --platform=$BUILDPLATFORM golang:1.26.3-bookworm AS build
