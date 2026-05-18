@@ -5,8 +5,7 @@ COPY . /app
 WORKDIR /app/frontend
 
 FROM frontend-base AS frontend-build
-RUN curl -1sLf 'https://dl.cloudsmith.io/public/task/task/setup.alpine.sh' | sudo -E bash
-RUN apk add -y task
+RUN npm install -g @go-task/cli
 RUN npm ci
 RUN task frontend
 
