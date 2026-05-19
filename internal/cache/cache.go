@@ -54,7 +54,7 @@ var (
 //
 // The expiration time determines when items are considered stale and should be removed.
 // The cleanup interval determines how frequently the cache is scanned to remove expired items.
-func Initialize(c context.Context, persistantCache bool) {
+func Initialize(c context.Context, persistentCache bool) {
 	// Setting up Immich api cache
 	if DemoMode {
 		kioskCache = gocache.New(time.Minute, 2*time.Minute)
@@ -63,7 +63,7 @@ func Initialize(c context.Context, persistantCache bool) {
 	}
 
 	wg.Add(1)
-	go saveCacheToDisk(c, persistantCache)
+	go saveCacheToDisk(c, persistentCache)
 
 }
 
@@ -75,10 +75,10 @@ func RegisterPersistence(
 	unmarshalFn = unmarshal
 }
 
-func saveCacheToDisk(c context.Context, persistedCache bool) {
+func saveCacheToDisk(c context.Context, persistentCache bool) {
 	defer wg.Done()
 
-	if !persistedCache {
+	if !persistentCache {
 		return
 	}
 
