@@ -27,6 +27,9 @@ func FlushCache(baseConfig *config.Config, com *common.Common) echo.HandlerFunc 
 		log.Info("Cache before flush", "cache_items", cache.ItemCount())
 
 		cache.Flush()
+		if baseConfig.Kiosk.PersistantCache {
+			cache.FlushDisk()
+		}
 
 		log.Info("Cache after flush ", "cache_items", cache.ItemCount())
 

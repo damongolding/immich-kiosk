@@ -310,6 +310,13 @@ func LoadFromDisk() {
 	}
 }
 
+func FlushDisk() {
+	err := os.Remove(PersistenceCacheFile)
+	if err != nil {
+		log.Error(err)
+	}
+}
+
 func Wait() {
 	wg.Wait()
 }
