@@ -103,7 +103,7 @@ func main() {
 		cache.DemoMode = true
 	}
 
-	cache.Initialize(c.Context(), baseConfig.Kiosk.PersistantCache)
+	cache.Initialize(c.Context(), baseConfig.Kiosk.PersistentCache)
 	cache.RegisterPersistence(
 		func(v any) ([]byte, error) {
 			switch val := v.(type) {
