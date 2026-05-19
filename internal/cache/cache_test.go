@@ -10,7 +10,7 @@ import (
 
 func TestMain(m *testing.M) {
 	ctx, cancel := context.WithCancel(context.Background())
-	Initialize(ctx)
+	Initialize(ctx, false)
 	code := m.Run()
 	Flush()
 	cancel()
