@@ -54,7 +54,7 @@ var (
 //
 // The expiration time determines when items are considered stale and should be removed.
 // The cleanup interval determines how frequently the cache is scanned to remove expired items.
-func Initialize(c context.Context) {
+func Initialize(c context.Context, persistantCache bool) {
 	// Setting up Immich api cache
 	if DemoMode {
 		kioskCache = gocache.New(time.Minute, 2*time.Minute)
@@ -62,10 +62,9 @@ func Initialize(c context.Context) {
 		kioskCache = gocache.New(defaultExpiration, cleanupInterval)
 	}
 
-	if _, err := os.Stat(PersistenceCacheDir); err == nil {
-		wg.Add(1)
-		go saveCacheToDisk(c)
-	}
+	wg.Add(1)
+	go saveCacheToDisk(c, persistantCache)
+
 }
 
 func RegisterPersistence(
@@ -76,19 +75,29 @@ func RegisterPersistence(
 	unmarshalFn = unmarshal
 }
 
-func saveCacheToDisk(c context.Context) {
+func saveCacheToDisk(c context.Context, persistedCache bool) {
+	defer wg.Done()
+
+	if !persistedCache {
+		return
+	}
+
+	if _, err := os.Stat(PersistenceCacheDir); err != nil {
+		log.Error("persistence cache directory does not exist. Not using persistence cache")
+		return
+	}
+
 	t := time.NewTicker(time.Minute)
 	defer t.Stop()
-	defer wg.Done()
 
 	for {
 		select {
 		case <-t.C:
 			log.Debug("saving cache to disk")
-			Save()
+			SaveToDisk()
 		case <-c.Done():
 			log.Debug("saving cache to disk before exit")
-			Save()
+			SaveToDisk()
 			return
 		}
 	}
@@ -211,7 +220,7 @@ func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID
 	Set(viewCacheKey, cachedViewData, requestConfig.Duration)
 }
 
-func Save() {
+func SaveToDisk() {
 	if marshalFn == nil {
 		return
 	}
@@ -251,7 +260,7 @@ func Save() {
 	}
 }
 
-func Load() {
+func LoadFromDisk() {
 	if unmarshalFn == nil {
 		return
 	}

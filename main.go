@@ -103,7 +103,7 @@ func main() {
 		cache.DemoMode = true
 	}
 
-	cache.Initialize(c.Context())
+	cache.Initialize(c.Context(), baseConfig.Kiosk.PersistantCache)
 	cache.RegisterPersistence(
 		func(v any) ([]byte, error) {
 			vd, ok := v.([]common.ViewData)
@@ -130,7 +130,7 @@ func main() {
 			return vd, nil
 		},
 	)
-	cache.Load()
+	cache.LoadFromDisk()
 
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
 
