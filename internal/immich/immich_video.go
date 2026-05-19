@@ -17,7 +17,7 @@ func (a *Asset) Video() ([]byte, string, error) {
 	var responseBody []byte
 	var contentType string
 
-	u, err := url.Parse(a.requestConfig.ImmichURL)
+	u, err := url.Parse(a.RequestConfig.ImmichURL)
 	if err != nil {
 		return responseBody, "", err
 	}
@@ -30,7 +30,7 @@ func (a *Asset) Video() ([]byte, string, error) {
 
 	octetStreamHeader := map[string]string{"Accept": "application/octet-stream"}
 
-	responseBody, contentType, _, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil, octetStreamHeader)
+	responseBody, contentType, _, err = a.immichAPICall(a.Ctx, http.MethodGet, apiURL.String(), nil, octetStreamHeader)
 	if err != nil {
 		return responseBody, contentType, err
 	}
@@ -61,7 +61,7 @@ func (a *Asset) durationCheck() bool {
 	}
 
 	// Check maximum duration if configured
-	if a.requestConfig.ExcludeVideosOver > 0 && totalSeconds > a.requestConfig.ExcludeVideosOver {
+	if a.RequestConfig.ExcludeVideosOver > 0 && totalSeconds > a.RequestConfig.ExcludeVideosOver {
 		return false
 	}
 

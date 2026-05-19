@@ -1,8 +1,13 @@
 package cache
 
 import (
+	"context"
 	"crypto/sha256"
+	"encoding/gob"
 	"fmt"
+	"os"
+	"path"
+	"sync"
 	"time"
 
 	"charm.land/log/v2"
@@ -12,21 +17,35 @@ import (
 	gocache "github.com/patrickmn/go-cache"
 )
 
+type persistedCache struct {
+	SavedAt time.Time
+	Items   map[string]gocache.Item
+}
+
 type Position string
 
 const (
 	PREPEND Position = "prepend"
 	APPEND  Position = "append"
+
+	PersistenceCacheDir = "cache"
 )
 
 // Package cache provides a simple in-memory cache implementation using github.com/patrickmn/go-cache
 var (
 	kioskCache *gocache.Cache
 
+	wg sync.WaitGroup
+
 	defaultExpiration = 5 * time.Minute
 	cleanupInterval   = 10 * time.Minute
 
 	DemoMode = false
+
+	PersistenceCacheFile = path.Join(PersistenceCacheDir, "cache.dat")
+
+	marshalFn   func(any) ([]byte, error)
+	unmarshalFn func([]byte) (any, error)
 )
 
 // initialize sets up the kiosk cache based on the current mode:
@@ -35,12 +54,43 @@ var (
 //
 // The expiration time determines when items are considered stale and should be removed.
 // The cleanup interval determines how frequently the cache is scanned to remove expired items.
-func Initialize() {
+func Initialize(c context.Context) {
 	// Setting up Immich api cache
 	if DemoMode {
 		kioskCache = gocache.New(time.Minute, 2*time.Minute)
 	} else {
 		kioskCache = gocache.New(defaultExpiration, cleanupInterval)
+	}
+
+	if _, err := os.Stat(PersistenceCacheDir); err == nil {
+		wg.Add(1)
+		go saveCacheToDisk(c)
+	}
+}
+
+func RegisterPersistence(
+	marshal func(any) ([]byte, error),
+	unmarshal func([]byte) (any, error),
+) {
+	marshalFn = marshal
+	unmarshalFn = unmarshal
+}
+
+func saveCacheToDisk(c context.Context) {
+	t := time.NewTicker(time.Minute)
+	defer t.Stop()
+	defer wg.Done()
+
+	for {
+		select {
+		case <-t.C:
+			log.Debug("saving cache to disk")
+			Save()
+		case <-c.Done():
+			log.Debug("saving cache to disk before exit")
+			Save()
+			return
+		}
 	}
 }
 
@@ -85,18 +135,18 @@ func Get(s string) (any, bool) {
 // If deviceDuration is less than the defaultExpiration, the default expiration is used.
 // Otherwise, the item expires after deviceDuration plus one extra minute.
 // If the key already exists, its value is replaced.
-func Set(key string, x any, deviceDuration int) {
+func Set(key string, value any, deviceDuration int) {
 	if deviceDuration < 0 {
 		log.Warn("Negative duration provided, using default expiration", "deviceDuration", deviceDuration)
-		kioskCache.Set(key, x, gocache.DefaultExpiration)
+		kioskCache.Set(key, value, gocache.DefaultExpiration)
 		return
 	}
 	deviceDurationPlusMin := (time.Duration(deviceDuration) * time.Second) + time.Minute
 	if deviceDurationPlusMin <= defaultExpiration {
-		kioskCache.Set(key, x, gocache.DefaultExpiration)
+		kioskCache.Set(key, value, gocache.DefaultExpiration)
 		return
 	}
-	SetWithExpiration(key, x, deviceDurationPlusMin)
+	SetWithExpiration(key, value, deviceDurationPlusMin)
 }
 
 // SetWithExpiration adds an item to the cache with the specified expiration duration.
@@ -159,4 +209,98 @@ func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID
 	}
 
 	Set(viewCacheKey, cachedViewData, requestConfig.Duration)
+}
+
+func Save() {
+	if marshalFn == nil {
+		return
+	}
+
+	items := kioskCache.Items()
+	persistItems := make(map[string]gocache.Item)
+
+	for k, v := range items {
+		b, err := marshalFn(v.Object)
+		if err != nil {
+			// not a marshalFn type, add as-is
+			persistItems[k] = v
+			continue
+		}
+		item := v
+		item.Object = b
+		persistItems[k] = item
+	}
+
+	if len(persistItems) == 0 {
+		return
+	}
+
+	f, err := os.Create(PersistenceCacheFile)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	defer f.Close()
+
+	data := persistedCache{
+		SavedAt: time.Now(),
+		Items:   persistItems,
+	}
+	if err = gob.NewEncoder(f).Encode(data); err != nil {
+		log.Error(err)
+	}
+}
+
+func Load() {
+	if unmarshalFn == nil {
+		return
+	}
+
+	f, err := os.Open(PersistenceCacheFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return
+		}
+		log.Error(err)
+		return
+	}
+	defer f.Close()
+
+	var data persistedCache
+	if err = gob.NewDecoder(f).Decode(&data); err != nil {
+		log.Error(err)
+		return
+	}
+
+	for k, v := range data.Items {
+		if v.Expiration > 0 {
+			remaining := time.Duration(v.Expiration - data.SavedAt.UnixNano())
+			if remaining <= 0 {
+				continue
+			}
+			v.Expiration = time.Now().Add(remaining).UnixNano()
+		}
+
+		if b, ok := v.Object.([]byte); ok {
+			val, unMarErr := unmarshalFn(b)
+			if unMarErr != nil {
+				// not a unmarshalFn type, add as-is
+				data.Items[k] = v
+				continue
+			}
+			item := v
+			item.Object = val
+			data.Items[k] = item
+		}
+	}
+
+	if DemoMode {
+		kioskCache = gocache.NewFrom(time.Minute, 2*time.Minute, data.Items)
+	} else {
+		kioskCache = gocache.NewFrom(defaultExpiration, cleanupInterval, data.Items)
+	}
+}
+
+func Wait() {
+	wg.Wait()
 }

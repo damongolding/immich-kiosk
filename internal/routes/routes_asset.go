@@ -27,7 +27,6 @@ import (
 // It manages image processing, caching, and prefetching based on the configuration.
 func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err

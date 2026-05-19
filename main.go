@@ -10,6 +10,7 @@ import (
 	"context"
 	"crypto/subtle"
 	"embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -102,7 +103,34 @@ func main() {
 		cache.DemoMode = true
 	}
 
-	cache.Initialize()
+	cache.Initialize(c.Context())
+	cache.RegisterPersistence(
+		func(v any) ([]byte, error) {
+			vd, ok := v.([]common.ViewData)
+			if !ok {
+				return nil, fmt.Errorf("unexpected type %T", v)
+			}
+			return json.Marshal(vd)
+		},
+		func(b []byte) (any, error) {
+			var vd []common.ViewData
+			if err := json.Unmarshal(b, &vd); err != nil {
+				return nil, err
+			}
+			ctx := c.Context()
+			for i, viewData := range vd {
+				viewData.Config = *baseConfig
+				for assetIndex, asset := range viewData.Assets {
+					asset.ImmichAsset.Ctx = ctx
+					asset.ImmichAsset.RequestConfig = *baseConfig
+					viewData.Assets[assetIndex] = asset
+				}
+				vd[i] = viewData
+			}
+			return vd, nil
+		},
+	)
+	cache.Load()
 
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
 
@@ -241,6 +269,7 @@ func main() {
 
 	// Shutting down, clean up
 	video.DeleteTmpDir()
+	cache.Wait()
 
 	fmt.Println("")
 	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {

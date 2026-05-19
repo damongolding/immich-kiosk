@@ -17,7 +17,7 @@ import (
 // Returns:
 //   - error - Returns an error if URL parsing fails, nil otherwise
 func (a *Asset) RemoveAssetCache(deviceID string) error {
-	u, err := url.Parse(a.requestConfig.ImmichURL)
+	u, err := url.Parse(a.RequestConfig.ImmichURL)
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func (a *Asset) RemoveAssetCache(deviceID string) error {
 		Path:   path.Join("api", "assets", a.ID),
 	}
 
-	cacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
+	cacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.RequestConfig.SelectedUser)
 	cache.Delete(cacheKey)
 
 	return nil
