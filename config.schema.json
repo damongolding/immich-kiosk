@@ -591,7 +591,7 @@
         "cache": {
           "type": "boolean"
         },
-        "persistant_cache": {
+        "persistent_cache": {
           "type": "boolean"
         },
         "prefetch": {

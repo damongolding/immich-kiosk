@@ -29,7 +29,7 @@ const (
 	APPEND  Position = "append"
 
 	PersistentCacheBaseDir = "data"
-	PersistantCacheFile    = "cache.dat"
+	PersistentCacheFile    = "cache.dat"
 )
 
 // Package cache provides a simple in-memory cache implementation using github.com/patrickmn/go-cache
@@ -44,7 +44,7 @@ var (
 	DemoMode = false
 
 	PersistentCacheDir      = path.Join(PersistentCacheBaseDir, "cache")
-	PersistantCacheFilePath = path.Join(PersistentCacheDir, PersistantCacheFile)
+	PersistentCacheFilePath = path.Join(PersistentCacheDir, PersistentCacheFile)
 
 	marshalFn   func(any) ([]byte, error)
 	unmarshalFn func([]byte) (any, error)
@@ -254,7 +254,7 @@ func SaveToDisk() {
 		return
 	}
 
-	f, err := os.Create(PersistantCacheFilePath)
+	f, err := os.Create(PersistentCacheFilePath)
 	if err != nil {
 		log.Error(err)
 		return
@@ -275,7 +275,7 @@ func LoadFromDisk() {
 		return
 	}
 
-	f, err := os.Open(PersistantCacheFilePath)
+	f, err := os.Open(PersistentCacheFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return
@@ -321,7 +321,7 @@ func LoadFromDisk() {
 }
 
 func FlushDisk() {
-	err := os.Remove(PersistantCacheFile)
+	err := os.Remove(PersistentCacheFile)
 	if err != nil {
 		log.Error(err)
 	}
