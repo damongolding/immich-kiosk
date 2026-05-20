@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 
 	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
@@ -52,68 +51,6 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 		http.ServeContent(c.Response(), c.Request(), vid.FilePath, info.ModTime(), f)
 		return nil
 	}
-}
-
-func parseRangeHeader(rangeHeader string, fileSize int64) (int64, int64, int, error) {
-	var start, end int64
-	var err error
-	statusCode := http.StatusOK
-
-	if rangeHeader == "" {
-		return start, end, statusCode, nil
-	}
-
-	if !strings.HasPrefix(rangeHeader, "bytes=") {
-		return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range format")
-	}
-
-	statusCode = http.StatusPartialContent
-	rangeStart, rangeEnd, ok := strings.Cut(strings.Replace(rangeHeader, "bytes=", "", 1), "-")
-	if !ok {
-		return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range format")
-	}
-
-	// Handle empty start range
-	if rangeStart == "" {
-		end, err = strconv.ParseInt(rangeEnd, 10, 64)
-		if err != nil {
-			return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range end")
-		}
-		start = max(0, fileSize-end)
-		end = fileSize - 1
-		return start, end, statusCode, nil
-	}
-
-	// Parse start range
-	start, err = strconv.ParseInt(rangeStart, 10, 64)
-	if err != nil {
-		return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range start")
-	}
-
-	// Handle empty end range
-	if rangeEnd == "" {
-		end = fileSize - 1
-	} else {
-		end, err = strconv.ParseInt(rangeEnd, 10, 64)
-		if err != nil {
-			return 0, 0, 0, echo.NewHTTPError(http.StatusBadRequest, "Invalid range end")
-		}
-	}
-
-	// Validate ranges
-	if start >= fileSize {
-		return 0, 0, 0, echo.NewHTTPError(http.StatusRequestedRangeNotSatisfiable, "Range start exceeds file size")
-	}
-
-	if end >= fileSize {
-		end = fileSize - 1
-	}
-
-	if start > end {
-		return 0, 0, 0, echo.NewHTTPError(http.StatusRequestedRangeNotSatisfiable, "Invalid range: start > end")
-	}
-
-	return start, end, statusCode, nil
 }
 
 func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
