@@ -97,6 +97,8 @@ func saveCacheToDisk(c context.Context, persistentCache bool) {
 		}
 	}
 
+	log.Info("Persistent cache enabled", "saving every", time.Minute)
+
 	t := time.NewTicker(time.Minute)
 	defer t.Stop()
 
@@ -318,6 +320,9 @@ func LoadFromDisk() {
 	} else {
 		kioskCache = gocache.NewFrom(defaultExpiration, cleanupInterval, data.Items)
 	}
+
+	log.Info("Persistent cache loaded", "items", len(data.Items))
+
 }
 
 func FlushDisk() {
