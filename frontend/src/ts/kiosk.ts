@@ -457,6 +457,10 @@ function addEventListeners(): void {
                 keyboardActionMute(e);
                 break;
 
+            case "KeyF":
+                handleCustomKeyboardAction(e, customKeyboardActions.FULLSCREEN);
+                break;
+
             case "ArrowUp":
                 handleCustomKeyboardAction(e, kioskData.upArrowAction);
                 break;
