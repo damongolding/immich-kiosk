@@ -3,7 +3,6 @@ package common
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"image/color"
 	"net/http"
@@ -102,15 +101,6 @@ type ViewData struct {
 	Queries       url.Values      // Queries contains the URL query parameters
 	CustomCSS     []byte          // CustomCSS contains custom CSS styling as bytes
 	config.Config                 // Config contains the instance configuration
-}
-
-func ViewDataToBytes(vd ViewData) ([]byte, error) {
-	return json.Marshal(vd)
-}
-
-func ViewDataFromBytes(b []byte) ([]ViewData, error) {
-	var vd []ViewData
-	return vd, json.Unmarshal(b, &vd)
 }
 
 type ViewImageDataOptions struct {
