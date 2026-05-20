@@ -544,7 +544,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.http_timeout", "KIOSK_HTTP_TIMEOUT"},
 		{"kiosk.password", "KIOSK_PASSWORD"},
 		{"kiosk.cache", "KIOSK_CACHE"},
-		{"kiosk.persistant_cache", "KIOSK_PERSISTANT_CACHE"},
+		{"kiosk.persistent_cache", "KIOSK_PERSISTENT_CACHE"},
 		{"kiosk.prefetch", "KIOSK_PREFETCH"},
 		{"kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING"},
 		{"kiosk.debug", "KIOSK_DEBUG"},
