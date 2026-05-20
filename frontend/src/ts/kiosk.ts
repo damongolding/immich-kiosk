@@ -460,6 +460,12 @@ function addEventListeners(): void {
                 keyboardActionMute(e);
                 break;
 
+            case "KeyF":
+                if (!e.ctrlKey && !e.metaKey) {
+                    keyboardActionFullscreen(e);
+                }
+                break;
+
             case "ArrowUp":
                 handleCustomKeyboardAction(e, kioskData.upArrowAction);
                 break;
