@@ -321,7 +321,7 @@ func LoadFromDisk() {
 }
 
 func FlushDisk() {
-	err := os.Remove(PersistentCacheFile)
+	err := os.Remove(PersistentCacheFilePath)
 	if err != nil {
 		log.Error(err)
 	}
