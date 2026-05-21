@@ -16,7 +16,6 @@ import (
 // Sleep returns an Echo HTTP handler that displays the sleep mode page, indicating whether the current time falls within the configured sleep period and applying the relevant sleep settings.
 func Sleep(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
@@ -55,6 +54,5 @@ func Sleep(baseConfig *config.Config) echo.HandlerFunc {
 		runningInImmichFrame := c.Request().Header.Get("X-Requested-With") == "com.immichframe.immichframe"
 
 		return Render(c, http.StatusOK, partials.SleepController(sleepTime, requestData.RequestConfig.SleepIcon, requestData.RequestConfig.SleepDimScreen, runningInImmichFrame))
-
 	}
 }

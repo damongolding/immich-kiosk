@@ -66,7 +66,6 @@ func Initialize(c context.Context, persistentCache bool) {
 
 	wg.Add(1)
 	go saveCacheToDisk(c, persistentCache)
-
 }
 
 func RegisterPersistence(
@@ -90,7 +89,7 @@ func saveCacheToDisk(c context.Context, persistentCache bool) {
 	}
 
 	if _, err := os.Stat(PersistentCacheDir); err != nil {
-		err = os.MkdirAll(PersistentCacheDir, 0755)
+		err = os.MkdirAll(PersistentCacheDir, 0o755)
 		if err != nil {
 			log.Error("failed to create persistence cache file", "err", err)
 			return
@@ -322,7 +321,6 @@ func LoadFromDisk() {
 	}
 
 	log.Info("Persistent cache loaded", "items", len(data.Items))
-
 }
 
 func FlushDisk() {

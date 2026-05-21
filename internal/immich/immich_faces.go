@@ -61,7 +61,6 @@ func convertFaceResponse(faceResponse []AssetFaceResponse) []Person {
 // unmarshaling the response into Face structs. Any errors are logged and will
 // abort the operation.
 func (a *Asset) CheckForFaces(requestID, deviceID string) {
-
 	var faceResponse []AssetFaceResponse
 
 	u, err := url.Parse(a.RequestConfig.ImmichURL)

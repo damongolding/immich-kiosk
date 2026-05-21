@@ -58,7 +58,6 @@ func init() {
 
 // main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
 func main() {
-
 	if len(os.Args) > 1 && os.Args[1] == "--healthcheck" {
 		healthCheck()
 	}
@@ -336,7 +335,6 @@ func NoCacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 // Middleware for static routes with access to baseConfig
 func StaticCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-
 		if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
 			return NoCacheMiddleware(next)
 		}
@@ -351,7 +349,6 @@ func StaticCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareF
 // Middleware for asset(s) routes with access to baseConfig
 func AssetCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-
 		if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
 			return NoCacheMiddleware(next)
 		}

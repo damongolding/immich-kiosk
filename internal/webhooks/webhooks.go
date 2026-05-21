@@ -77,7 +77,6 @@ func newHTTPClient(timeout time.Duration) *http.Client {
 // event specifies which webhook event (NewAsset, PreviousAsset, etc) triggered this webhook.
 // viewData contains the images and other view context for the current request.
 func Trigger(ctx context.Context, requestData *common.RouteRequestData, kioskVersion string, event WebhookEvent, viewData common.ViewData) {
-
 	if viewData.Kiosk.DemoMode {
 		return
 	}

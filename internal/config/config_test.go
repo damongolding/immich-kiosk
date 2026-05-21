@@ -17,7 +17,6 @@ import (
 
 // TestConfigWithOverrides testing whether ImmichURL and ImmichApiKey are immutable
 func TestImmichURLImmichApiKeyImmutability(t *testing.T) {
-
 	originalURL := "https://my-server.com"
 	originalAPI := "123456"
 	originalUsersAPIKeys := map[string]string{"default": "123456"}
@@ -76,8 +75,7 @@ func TestImmichURLImmichMultiplePerson(t *testing.T) {
 
 // TestMalformedURLs testing urls without scheme or ports
 func TestMalformedURLs(t *testing.T) {
-
-	var tests = []struct {
+	tests := []struct {
 		URL  string
 		Want string
 	}{
@@ -89,7 +87,6 @@ func TestMalformedURLs(t *testing.T) {
 	}
 
 	for _, test := range tests {
-
 		t.Run(test.URL, func(t *testing.T) {
 			t.Setenv("KIOSK_IMMICH_URL", test.URL)
 			t.Setenv("KIOSK_IMMICH_API_KEY", "12345")
@@ -106,7 +103,6 @@ func TestMalformedURLs(t *testing.T) {
 
 // TestImmichURLImmichMultipleAlbum tests the addition and overriding of multiple albums in the config
 func TestImmichURLImmichMultipleAlbum(t *testing.T) {
-
 	// configWithBase
 	configWithBase := New()
 	configWithBase.Albums = []string{"BASE_ALBUM"}

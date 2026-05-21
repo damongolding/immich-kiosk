@@ -15,5 +15,4 @@ func CreateDataTag(tags []immich.Tag) string {
 	}
 
 	return strings.Join(clean, " ")
-
 }

@@ -18,7 +18,6 @@ func TestMain(m *testing.M) {
 }
 
 func TestCacheSet(t *testing.T) {
-
 	tests := []struct {
 		name     string
 		duration int
@@ -58,7 +57,6 @@ func TestCacheSet(t *testing.T) {
 
 	for i, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			key := fmt.Sprintf("test_%d", i)
 
 			expected := time.Now().Add(tt.want)
@@ -74,10 +72,8 @@ func TestCacheSet(t *testing.T) {
 			if diff < -tolerance || diff > tolerance {
 				t.Errorf("expected expiration within %v of %v, got %v (diff %v)", tolerance, expected, expiration, diff)
 			}
-
 		})
 	}
-
 }
 
 // TestCacheExpirationScenario simulates the real-world scenario of the bug fix:

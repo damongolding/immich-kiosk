@@ -88,7 +88,6 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		}
 
 		return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
-
 	}
 }
 
@@ -96,7 +95,6 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 // It processes the image without any additional transformations and returns it as a blob.
 func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
@@ -158,7 +156,6 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 func ImageWithReload(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
@@ -189,7 +186,6 @@ func ImageWithReload(baseConfig *config.Config) echo.HandlerFunc {
 // Returns HTTP 400 if the image ID is missing or if the image cannot be retrieved.
 func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
@@ -236,7 +232,6 @@ func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 // Returns HTTP 200 on success or appropriate error codes if validation fails or tag addition fails.
 func TagAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
@@ -305,7 +300,6 @@ func TagAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 //   - Fresh like button HTML is returned regardless of success/failure
 func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bool) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
@@ -396,7 +390,6 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 //   - HTTP 500 if tag addition/removal fails
 func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err

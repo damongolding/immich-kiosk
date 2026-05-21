@@ -21,7 +21,6 @@ type Tags []Tag
 // Returns the matching Tag and nil error if found, or empty Tag and error if not found.
 // The tagValue parameter can be either the tag's text value or ID.
 func (t Tags) Get(tagValue string) (Tag, error) {
-
 	tagValue, err := url.PathUnescape(tagValue)
 	if err != nil {
 		return Tag{}, err
@@ -71,7 +70,6 @@ func (a *Asset) AllTags(requestID, deviceID string) (Tags, string, error) {
 // The tagID parameter is the unique identifier of the tag to count assets for.
 // The requestID and deviceID are used for caching and logging purposes.
 func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (int, error) {
-
 	var totalAssetsCount int
 
 	u, err := url.Parse(a.RequestConfig.ImmichURL)
@@ -114,7 +112,6 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 // The requestID and deviceID are used for caching and logging purposes.
 // It returns the list of assets, the API URL used, and any error encountered.
 func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset, string, error) {
-
 	requestBody := SearchRandomBody{
 		Type:       string(ImageType),
 		TagIDs:     []string{tagID},
@@ -146,7 +143,6 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 // The isPrefetch parameter indicates if this is a prefetch request.
 // The method updates the receiver Asset with the randomly selected asset's data.
 func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isPrefetch bool) error {
-
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset with tag", "ID", tagID)
 	} else {
@@ -266,7 +262,6 @@ func (a *Asset) RemoveTag(tag Tag) error {
 // It makes a PUT request to the tags API endpoint with the tag name.
 // Returns the created/existing tag and any error encountered.
 func (a *Asset) upsertTag(tag Tag) (Tag, error) {
-
 	var response UpsertTagResponse
 	var createdTag Tag
 

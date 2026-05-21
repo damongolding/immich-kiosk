@@ -45,7 +45,6 @@ func immichAPIFail[T APIResponse](value T, err error, body []byte, apiURL string
 // Returns an error if unmarshaling, marshaling, or cache operations fail.
 func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceID string, requestConfig config.Config, jsonShape T) apiCall {
 	return func(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, bool, error) {
-
 		usingCache := false
 
 		if !requestConfig.Kiosk.Cache {
@@ -102,7 +101,6 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 
 // immichAPICall bootstrap for immich api call
 func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, bool, error) {
-
 	var responseBody []byte
 	var lastErr error
 	var contentType string
@@ -232,7 +230,6 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 // FilterDate is applied here.
 // FilterNewest is applied here.
 func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandomBody) ([]Asset, url.URL, error) {
-
 	filterNewest := a.RequestConfig.FilterNewest > 0
 
 	var immichAssets []Asset
@@ -312,7 +309,6 @@ func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandom
 // - If RatioWanted is "landscape", returns true only if image is landscape
 // - Otherwise returns false if orientations don't match
 func (a *Asset) ratioCheck(wantedRatio ImageOrientation) bool {
-
 	a.AddRatio()
 
 	// specific ratio is not wanted
@@ -332,7 +328,6 @@ func (a *Asset) ratioCheck(wantedRatio ImageOrientation) bool {
 // It sets the Ratio field in ExifInfo and updates IsPortrait or IsLandscape accordingly.
 // For orientations 5, 6, 7, and 8, it considers the image rotated by 90 degrees.
 func (a *Asset) AddRatio() {
-
 	switch a.ExifInfo.Orientation {
 	case "5", "6", "7", "8":
 		// For these orientations, the image is rotated, so we invert the height/width comparison
@@ -370,7 +365,6 @@ func (a *Asset) AddRatio() {
 // Returns:
 //   - error: If any field in additionalInfo is invalid during the merge process
 func (a *Asset) mergeAssetInfo(additionalInfo Asset) error {
-
 	v := reflect.ValueOf(a).Elem()
 	d := reflect.ValueOf(additionalInfo)
 	t := v.Type()
@@ -412,7 +406,6 @@ func (a *Asset) mergeAssetInfo(additionalInfo Asset) error {
 
 // AssetInfo fetches the image information from Immich
 func (a *Asset) AssetInfo(requestID, deviceID string) error {
-
 	var immichAsset Asset
 
 	u, err := url.Parse(a.RequestConfig.ImmichURL)
@@ -444,7 +437,6 @@ func (a *Asset) AssetInfo(requestID, deviceID string) error {
 
 // ImagePreview fetches the raw image data from Immich
 func (a *Asset) ImagePreview() ([]byte, string, error) {
-
 	var bytes []byte
 
 	u, err := url.Parse(a.RequestConfig.ImmichURL)
@@ -840,7 +832,6 @@ func matchesTagPattern(value, pattern string) bool {
 // Returns:
 //   - bool: true if asset has no excluding tags (like "skip"), false if it should be excluded
 func (a *Asset) hasValidTags(requestID, deviceID string) bool {
-
 	if err := a.AssetInfo(requestID, deviceID); err != nil {
 		log.Error("Failed to get additional asset data", "error", err)
 	}

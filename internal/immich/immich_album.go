@@ -27,7 +27,6 @@ import (
 //   - AppearsIn field of the ImmichAsset is updated with list of albums
 //   - Any error during API call is logged but function does not return an error
 func (a *Asset) AlbumsThatContainAsset(requestID, deviceID string) {
-
 	var albumsContainingAsset Albums
 
 	albums, _, err := a.albums(requestID, deviceID, false, a.ID, false)
@@ -201,7 +200,6 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 		albums, albumsURL, err := a.allOwnedAlbums(requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("failed to get owned albums (%s) err=%w", albumsURL, err)
-
 		}
 		return countAssetsInAlbums(albums), nil
 
@@ -243,7 +241,6 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 //   - error: Any error encountered during the asset retrieval process, including when No viable assets are found
 //     after maximum retry attempts
 func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requestID, deviceID string) error {
-
 	filterNewest := a.RequestConfig.FilterNewest > 0
 
 	for range MaxRetries {
@@ -424,7 +421,6 @@ func (a *Albums) RemoveExcludedAlbums(exclude []string) {
 //   - Album: The found liked album
 //   - error: Error if album not found or API call fails
 func (a *Asset) kioskLikedAlbum(requestID, deviceID string) (Album, error) {
-
 	var album Album
 
 	albums, _, err := a.albums(requestID, deviceID, false, "", true)
@@ -454,7 +450,6 @@ func (a *Asset) kioskLikedAlbum(requestID, deviceID string) (Album, error) {
 //   - string: ID of created album
 //   - error: Error if creation fails
 func (a *Asset) createKioskLikedAlbum() (string, error) {
-
 	var res Album
 
 	u, err := url.Parse(a.RequestConfig.ImmichURL)

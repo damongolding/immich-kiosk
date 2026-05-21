@@ -38,17 +38,16 @@ type ValidateResponse struct {
 
 const demoImmichURL = "https://demo.immich.app"
 
-var demoTokenMutex sync.RWMutex
-var DemoToken string
-
 var (
-	httpClient = &http.Client{
-		Timeout: 30 * time.Second,
-	}
+	demoTokenMutex sync.RWMutex
+	DemoToken      string
 )
 
-func ValidateToken(ctx context.Context, token string) bool {
+var httpClient = &http.Client{
+	Timeout: 30 * time.Second,
+}
 
+func ValidateToken(ctx context.Context, token string) bool {
 	demoURL := demoImmichURL
 	if os.Getenv("KIOSK_IMMICH_URL") != "" {
 		demoURL = os.Getenv("KIOSK_IMMICH_URL")

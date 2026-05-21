@@ -27,7 +27,6 @@ import (
 // Returns an error if no suitable asset is found after retries or if there
 // are any issues with API calls, caching, or asset processing.
 func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
-
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset", true)
 	} else {

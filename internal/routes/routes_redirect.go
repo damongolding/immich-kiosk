@@ -19,9 +19,7 @@ import (
 // It manages redirect counts via cookies to prevent redirect loops, supports both internal and external redirects, and merges query parameters as needed.
 // If the redirect name is not found, it redirects to the root path. If the maximum number of redirects is exceeded, it returns HTTP 429.
 func Redirect(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
-
 	return func(c *echo.Context) error {
-
 		if baseConfig.Kiosk.DisableURLQueries {
 			log.Warn("URL query overrides disabled, redirecting to root")
 			homeURL, _ := url.Parse("/")
