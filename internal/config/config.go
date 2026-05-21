@@ -198,7 +198,6 @@ func (w Webhooks) ContainsEvent(event string) bool {
 
 // ClientData represents the client-specific dimensions received from the frontend.
 type ClientData struct {
-
 	// FullyVersion stores the version info for Fully Kiosk Browser
 	FullyVersion string `json:"fully_version" query:"fully_version" form:"fully_version"`
 	// FullyWebviewVersion stores the webview version for Fully Kiosk Browser
@@ -587,7 +586,6 @@ func isValidYAML(filename string) error {
 
 // load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
 func (c *Config) Load() error {
-
 	if bindErr := bindEnvironmentVariables(c.V); bindErr != nil {
 		log.Error("binding environment variables", "err", bindErr)
 	}
@@ -684,7 +682,6 @@ func getHistory(queries url.Values) []string {
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error {
-
 	if c.Kiosk.DisableURLQueries {
 		c.History = getHistory(queries)
 		return nil
@@ -752,7 +749,6 @@ func (c *Config) String() string {
 }
 
 func (c *Config) SanitizedYaml() string {
-
 	red := RedactedCopy(*c) // deep redacted clone
 	out, err := yaml.Marshal(red)
 	if err != nil {

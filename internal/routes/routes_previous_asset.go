@@ -249,7 +249,6 @@ func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID,
 // - string: The found history entry, or empty string if none found
 // - int: The index of the found entry
 func findHistoryEntry(history []string, useNextImage bool) (string, int) {
-
 	historyLen := len(history)
 	entry := ""
 	entryIndex := 0

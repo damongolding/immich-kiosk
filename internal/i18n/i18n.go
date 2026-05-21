@@ -41,7 +41,6 @@ func Init(systemLang string) error {
 
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}

@@ -19,9 +19,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
-var (
-	customTempVideoDir = filepath.Join(os.TempDir(), "immich-kiosk", "videos")
-)
+var customTempVideoDir = filepath.Join(os.TempDir(), "immich-kiosk", "videos")
 
 // Video represents a downloaded video file and its metadata
 type Video struct {
@@ -56,9 +54,8 @@ func New(ctx context.Context) (*Manager, error) {
 
 // initialise initializes the video temp directory
 func initialise() error {
-
 	// Create custom temp directory if it doesn't exist
-	err := os.MkdirAll(customTempVideoDir, 0755)
+	err := os.MkdirAll(customTempVideoDir, 0o755)
 	if err != nil {
 		log.Error("Error creating custom temp directory", "err", err)
 		return err
@@ -96,7 +93,6 @@ func DeleteTmpDir() {
 
 // RemoveVideo deletes a video file and removes it from the manager
 func (v *Manager) RemoveVideo(id string) {
-
 	for i, video := range v.Videos {
 		if video.ID == id {
 			filePath := filepath.Join(customTempVideoDir, video.FileName)
@@ -136,7 +132,6 @@ func (v *Manager) cleanup() {
 
 // IsDownloaded checks if a video has already been downloaded
 func (v *Manager) IsDownloaded(id string) bool {
-
 	if _, err := v.GetVideo(id); err == nil {
 		return true
 	}
@@ -221,7 +216,6 @@ func (v *Manager) addToQueue(id string) {
 
 // DownloadVideo downloads a video file and adds it to the cache
 func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.Config, deviceID string, requestURL string) {
-
 	videoID := immichAsset.ID
 
 	v.addToQueue(videoID)

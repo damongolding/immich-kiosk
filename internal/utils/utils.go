@@ -121,7 +121,6 @@ func DateToJavascriptLayout(input string) string {
 // It takes an image.Image as input and returns the encoded bytes and any error encountered.
 // The bytes can be used for further processing, transmission, or storage.
 func ImageToBytes(img image.Image) ([]byte, error) {
-
 	buf := new(bytes.Buffer)
 
 	err := imaging.Encode(buf, img, imaging.JPEG)
@@ -137,7 +136,6 @@ func ImageToBytes(img image.Image) ([]byte, error) {
 // It handles both WebP and other common image formats (JPEG, PNG, GIF) automatically
 // by detecting the MIME type and using the appropriate decoder.
 func BytesToImage(imgBytes []byte, isOriginal bool) (image.Image, string, error) {
-
 	var img image.Image
 	var err error
 
@@ -323,7 +321,6 @@ func ApplyExifOrientation(img image.Image, orient orientation) image.Image {
 
 // ImageToBase64 converts an image.Image to a base64 encoded data URI string with appropriate MIME type
 func ImageToBase64(img image.Image, mimeType string) (string, error) {
-
 	var buf bytes.Buffer
 
 	switch mimeType {
@@ -387,7 +384,6 @@ func ImageMimeType(r io.Reader) string {
 // BlurImage applies a Gaussian blur to an image with normalized sigma based on image dimensions.
 // It can optionally resize the image first based on client data dimensions.
 func BlurImage(img image.Image, blurrAmount int, isOptimized bool, clientWidth, clientHeight int) (image.Image, error) {
-
 	blurredImage := img
 
 	if clientWidth != 0 && clientHeight != 0 && !isOptimized {
@@ -405,7 +401,6 @@ func BlurImage(img image.Image, blurrAmount int, isOptimized bool, clientWidth, 
 // CombineQueries combines URL.Query() and Referer() queries into a single url.Values.
 // Referer query parameters will overwrite URL query parameters with the same names.
 func CombineQueries(urlQueries url.Values, refererURL string) (url.Values, error) {
-
 	queries := urlQueries
 
 	referer, err := url.Parse(refererURL)
@@ -475,7 +470,6 @@ func RandomItem[T any](s []T) T {
 }
 
 func assetWeight(a AssetWithWeighting) float64 {
-
 	weight := max(0, a.Weight)
 
 	// Base logarithmic weight
@@ -562,7 +556,6 @@ func StringToColor(inputString string) Color {
 // It generates a color based on the input string, determines the best contrasting text color,
 // and applies styling using lipgloss to create a visually distinct, colored representation of the request ID.
 func ColorizeRequestID(requestID string) string {
-
 	c := StringToColor(requestID)
 
 	textWhite := calculateContrastRatio(Color{R: 255, G: 255, B: 255}, c)
@@ -613,7 +606,6 @@ func linearize(value float64) float64 {
 // PickRandomImageType selects a random image type based on the given configuration and weightings.
 // It returns a WeightedAsset representing the picked image type.
 func PickRandomImageType(useWeighting bool, assetBuckets []AssetWithWeighting) WeightedAsset {
-
 	var pickedImage WeightedAsset
 
 	if useWeighting {
@@ -632,7 +624,6 @@ func PickRandomImageType(useWeighting bool, assetBuckets []AssetWithWeighting) W
 // parseTimeString parses a time string in various formats and returns a time.Time value.
 // It accepts formats like "1", "12", "130", "1430" and converts them to hours and minutes.
 func parseTimeString(timeStr string) (time.Time, error) {
-
 	// Trim whitespace and validate
 	timeStr = strings.TrimSpace(timeStr)
 	if timeStr == "" {
@@ -739,7 +730,6 @@ func FileExists(filename string) bool {
 // CreateQrCode generates a QR code for the given link and returns it as a base64 encoded string.
 // Returns an empty string and logs an error if generation fails.
 func CreateQrCode(link string) string {
-
 	if link == "" {
 		log.Error("QR code generation failed: empty link provided")
 		return ""
@@ -816,7 +806,6 @@ func abs(x int64) int64 {
 // OptimizeImage resizes an image to the specified dimensions while maintaining aspect ratio.
 // If width or height is 0, the image is returned unmodified.
 func OptimizeImage(img image.Image, width, height int) (image.Image, error) {
-
 	optimizedImage := img
 
 	if width != 0 && height != 0 {
@@ -896,7 +885,6 @@ func DaysInMonth(date time.Time) int {
 // ParseSize converts a human-readable size string (e.g., "10MB", "1GB") to bytes
 // using binary prefixes (1KB = 1024B, 1MB = 1024KB, etc.)
 func ParseSize(sizeStr string) (int64, error) {
-
 	if sizeStr == "0" {
 		return 0, nil
 	}
@@ -1013,7 +1001,7 @@ func hslToRgb(h, s, l float64) (uint8, uint8, uint8) {
 		return uint8(l * 255), uint8(l * 255), uint8(l * 255)
 	}
 
-	var hueToRgb = func(p, q, t float64) float64 {
+	hueToRgb := func(p, q, t float64) float64 {
 		if t < 0 {
 			t += 1
 		}
@@ -1076,7 +1064,6 @@ func ExtractDominantColor(img image.Image) (color.RGBA, error) {
 }
 
 func SanitizeClassName(s string) string {
-
 	allowed := regexp.MustCompile(`[^a-z0-9_/-]+`)
 
 	s = strings.ToLower(strings.TrimSpace(s))

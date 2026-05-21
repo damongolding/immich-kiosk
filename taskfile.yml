@@ -68,8 +68,12 @@ tasks:
     desc: Install development dependencies
     deps: [frontend:install]
     cmds:
-      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5
       - go mod tidy
+    preconditions:
+      - sh: golangci-lint --version
+        msg: golangci-lint is not installed. Please follow the instructions at https://golangci-lint.run/docs/welcome/install/local
+      - sh: gofumpt --version
+        msg: gofumpt is not installed. Please follow the instructions at https://github.com/mvdan/gofumpt
 
   update-go:
     desc: Sync local Go version with go.mod and Dockerfile

@@ -61,7 +61,6 @@ func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
 	}
 
 	return func(c *echo.Context) error {
-
 		const maxPollCount = 5
 
 		liveID := c.Param("liveID")
@@ -98,5 +97,4 @@ func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
 
 		return Render(c, kiosk.StatusStopHTMXPolling, partials.LivePhoto(video.ID, video.ContentType, videoOrientation, password))
 	}
-
 }

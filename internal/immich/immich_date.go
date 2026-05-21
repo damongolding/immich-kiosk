@@ -35,7 +35,6 @@ import (
 //
 // Returns an error if no valid assets are found after max retries
 func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, isPrefetch bool) error {
-
 	dateStart, dateEnd, dateErr := determineDateRange(dateRange)
 	if dateErr != nil {
 		return dateErr
@@ -215,7 +214,6 @@ func processTodayDateRange() (time.Time, time.Time) {
 //	"2023-01-01_to_today" -> Jan 1 2023 00:00:00 to current date 23:59:59.999999999
 //	"today_to_2023-12-31" -> current date 00:00:00 to Dec 31 2023 23:59:59.999999999
 func processDateRange(dateRange string) (time.Time, time.Time, error) {
-
 	var err error
 
 	dateStart, dateEnd := processTodayDateRange()
@@ -263,7 +261,6 @@ func extractDays(s string) (int, error) {
 // and returns a time range from X days ago to now.
 // Returns an error if the number of days cannot be extracted from the string.
 func processLastDays(dateRange string) (time.Time, time.Time, error) {
-
 	dateStart, dateEnd := processTodayDateRange()
 
 	days, err := extractDays(dateRange)

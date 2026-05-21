@@ -137,7 +137,6 @@ func (a *Asset) allPeopleAssetCount(requestID, deviceID string) (int, error) {
 
 // PersonAssetCount returns the number of assets associated with a specific person in Immich.
 func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, error) {
-
 	if personID == kiosk.PersonKeywordAll {
 		return a.allPeopleAssetCount(requestID, deviceID)
 	}
@@ -188,7 +187,6 @@ func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, err
 //
 // The function mutates the receiver (i *ImmichAsset) to store the selected asset if successful.
 func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPrefetch bool) error {
-
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random asset of", personID)
 	} else {
@@ -288,7 +286,6 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 //   - string: The ID of the randomly selected person
 //   - error: nil if successful, error if no people are found or if the API call fails
 func (a *Asset) RandomPersonFromAllPeople(requestID, deviceID string, knowPeopleOnly bool) (string, error) {
-
 	people, err := a.people(requestID, deviceID, knowPeopleOnly, false)
 	if err != nil {
 		return "", fmt.Errorf("failed to get people: %w", err)

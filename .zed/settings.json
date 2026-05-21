@@ -4,6 +4,11 @@
 // see the documentation: https://zed.dev/docs/configuring-zed#settings-files
 {
   "lsp": {
+    "gopls": {
+      "initialization_options": {
+        "gofumpt": true,
+      },
+    },
     "biome": {
       "settings": {
         "require_config_file": true,

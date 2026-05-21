@@ -227,7 +227,6 @@ func (a *Asset) MemoriesAssetsCount(requestID, deviceID string) int {
 // Returns:
 //   - error: Any error during cache update
 func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex int, apiCacheKey string, duration int) error {
-
 	// Deep copy the memories slice
 	assetsToCache := make(MemoriesResponse, len(memories))
 	for i, memory := range memories {
@@ -265,7 +264,6 @@ func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex 
 // Returns:
 //   - error: If unable to find valid image after max retries
 func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
-
 	for range MaxRetries {
 
 		var memories []Memory
@@ -352,7 +350,6 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 //   - Memory: the memory containing the asset (empty if not found)
 //   - int: the index of the asset within the memory (0 if not found)
 func (a *Asset) IsMemory() (bool, Memory, int) {
-
 	memLookUp := strconv.FormatInt(time.Now().Unix()/int64(5*60), 10)
 
 	var m []Memory

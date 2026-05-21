@@ -15,9 +15,7 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-var (
-	SchemaJSON string
-)
+var SchemaJSON string
 
 // IsSchemaLoaded returns true if the schema has been initialized
 func IsSchemaLoaded() bool {
@@ -104,7 +102,6 @@ func loadSecretFromFile(filePath string) (string, bool) {
 }
 
 func (c *Config) checkSecrets() {
-
 	apiKeyFile := os.Getenv(apiKeyFileEnv)
 	if apiKeyFile != "" {
 		apiKeyFile = filepath.Clean(apiKeyFile)
@@ -219,7 +216,6 @@ func (c *Config) cleanupSlice(slice []string, placeholders ...string) []string {
 // - Filtering out invalid date range formats
 // The cleaned lists are then stored back in their respective Config fields.
 func (c *Config) checkAssetBuckets() {
-
 	c.Albums = c.cleanupSlice(c.Albums, "ALBUM_ID")
 	c.ExcludedAlbums = c.cleanupSlice(c.ExcludedAlbums, "ALBUM_ID")
 

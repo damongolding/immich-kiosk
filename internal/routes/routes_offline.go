@@ -47,7 +47,6 @@ var ErrMaxStorageReached = errors.New("max offline storage size reached")
 // If no valid offline assets are available or assets have expired, it initiates an asynchronous download and displays a status page.
 func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
@@ -78,7 +77,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 		if _, err = os.Stat(OfflineAssetsPath); os.IsNotExist(err) {
 			log.Warn("creating offline assets directory - NOTE: If running in Docker, this data will not persist between container restarts")
-			err = os.MkdirAll(OfflineAssetsPath, 0755)
+			err = os.MkdirAll(OfflineAssetsPath, 0o755)
 			if err != nil {
 				log.Error("OfflineMode", "err", err)
 				return err
@@ -150,7 +149,6 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			Title:   "No offline assets found",
 			Message: "Check Kiosk logs for more information",
 		}))
-
 	}
 }
 
@@ -219,7 +217,6 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 
 	for range numberOfAssets {
 		eg.Go(func() error {
-
 			for range 3 {
 				if err := checkCanceled(egCtx); err != nil {
 					return err
@@ -284,7 +281,8 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 					once.Do(func() {
 						humanOfflineSize := humanize.Bytes(uint64(offlineSize.Load()))
 						humanMaxSize := humanize.Bytes(uint64(maxSize))
-						log.Info("Max offline storage size reached",
+						log.Info(
+							"Max offline storage size reached",
 							"total assets saved", humanOfflineSize,
 							"maxOfflineSize", humanMaxSize,
 						)
@@ -330,7 +328,6 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 // Returns an error if encoding, compression or file operations fail.
 // Returns ErrMaxStorageReached if adding the file would exceed the configured max size.
 func saveMsgpackZstd(ctx context.Context, filename string, data common.ViewData, offlineSize *atomic.Int64, maxSize int64, createdFiles *sync.Map) error {
-
 	defer func() {
 		createdFiles.Delete(filename)
 	}()
@@ -482,7 +479,8 @@ func handleNoOfflineAssets(c *echo.Context, requestConfig config.Config, com *co
 
 	t := i18n.T()
 
-	message := fmt.Sprintf(`
+	message := fmt.Sprintf(
+		`
 		<ul>
 			<li>%s: <strong>%v</strong> %s</li>
 			<li>%s: <strong>%s</strong></li>
