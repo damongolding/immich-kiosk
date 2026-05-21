@@ -68,8 +68,8 @@ tasks:
     desc: Install development dependencies
     deps: [frontend:install]
     cmds:
-      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.5
-      - go install mvdan.cc/gofumpt@latest
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@2.12.2
+      - go install mvdan.cc/gofumpt@0.10.0
       - go mod tidy
 
   update-go:
