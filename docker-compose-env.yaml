@@ -111,7 +111,7 @@ services:
       - 3000:3000
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "/kiosk", "--healthcheck"]
       interval: 30s
       timeout: 5s
       retries: 3

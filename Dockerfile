@@ -28,14 +28,12 @@ RUN go tool templ generate
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION} -s -w" -o dist/kiosk .
 
 # Release
-FROM alpine:3.22.2
+FROM gcr.io/distroless/static-debian13
 
 ENV TZ=Europe/London
 ENV TERM=xterm-256color
 ENV DEBUG_COLORS=true
 ENV COLORTERM=truecolor
-
-RUN apk add --no-cache tzdata ca-certificates curl && update-ca-certificates
 
 WORKDIR /
 
