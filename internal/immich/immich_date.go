@@ -54,7 +54,7 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 
 		var immichAssets []Asset
 
-		u, err := url.Parse(a.requestConfig.ImmichURL)
+		u, err := url.Parse(a.RequestConfig.ImmichURL)
 		if err != nil {
 			return fmt.Errorf("parsing url: %w", err)
 		}
@@ -65,15 +65,15 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 			TakenBefore: dateEnd.Format(time.RFC3339),
 			WithExif:    true,
 			WithPeople:  true,
-			Size:        a.requestConfig.Kiosk.FetchedAssetsSize,
+			Size:        a.RequestConfig.Kiosk.FetchedAssetsSize,
 		}
 
 		// Include videos if show videos is enabled
-		if a.requestConfig.ShowVideos {
+		if a.RequestConfig.ShowVideos {
 			requestBody.Type = ""
 		}
 
-		if a.requestConfig.ShowArchived {
+		if a.RequestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
 
@@ -92,8 +92,8 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 			return fmt.Errorf("marshaling request body: %w", marshalErr)
 		}
 
-		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAssets)
-		apiBody, _, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.RequestConfig, immichAssets)
+		apiBody, _, _, err := immichAPICall(a.Ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 			return err
@@ -105,7 +105,7 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 			return err
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.RequestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
@@ -114,21 +114,21 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 		}
 
 		wantedAssetType := ImageOnlyAssetTypes
-		if a.requestConfig.ShowVideos {
+		if a.RequestConfig.ShowVideos {
 			wantedAssetType = AllAssetTypes
 		}
 
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourceDateRange
-			asset.requestConfig = a.requestConfig
-			asset.ctx = a.ctx
+			asset.RequestConfig = a.RequestConfig
+			asset.Ctx = a.Ctx
 
 			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 
-			if a.requestConfig.Kiosk.Cache {
+			if a.RequestConfig.Kiosk.Cache {
 				// Remove the current asset from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
@@ -138,7 +138,7 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 				}
 
 				// replace cache with used asset(s) removed
-				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration)
 			}
 
 			asset.BucketID = dateRange

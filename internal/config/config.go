@@ -131,6 +131,9 @@ type KioskSettings struct {
 	// Cache enable/disable api call and image caching
 	Cache bool `json:"cache" yaml:"cache" mapstructure:"cache" default:"true"`
 
+	// PersistentCache enable/disable persisting cache to disk
+	PersistentCache bool `json:"persistentCache" yaml:"persistent_cache" mapstructure:"persistent_cache" default:"false"`
+
 	// PreFetch fetch and cache an image in the background
 	PreFetch bool `json:"preFetch" yaml:"prefetch" mapstructure:"prefetch" default:"true"`
 
@@ -541,6 +544,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.http_timeout", "KIOSK_HTTP_TIMEOUT"},
 		{"kiosk.password", "KIOSK_PASSWORD"},
 		{"kiosk.cache", "KIOSK_CACHE"},
+		{"kiosk.persistent_cache", "KIOSK_PERSISTENT_CACHE"},
 		{"kiosk.prefetch", "KIOSK_PREFETCH"},
 		{"kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING"},
 		{"kiosk.debug", "KIOSK_DEBUG"},

@@ -30,7 +30,7 @@ func (a *Asset) people(requestID, deviceID string, knowPeopleOnly bool, bypassCa
 
 		var allPeople AllPeopleResponse
 
-		u, err := url.Parse(a.requestConfig.ImmichURL)
+		u, err := url.Parse(a.RequestConfig.ImmichURL)
 		if err != nil {
 			_, _, err = immichAPIFail(allPeople, err, nil, "")
 			return people, err
@@ -46,14 +46,14 @@ func (a *Asset) people(requestID, deviceID string, knowPeopleOnly bool, bypassCa
 		var body []byte
 
 		if bypassCache {
-			body, _, _, err = a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+			body, _, _, err = a.immichAPICall(a.Ctx, http.MethodGet, apiURL.String(), nil)
 			if err != nil {
 				_, _, err = immichAPIFail(allPeople, err, body, apiURL.String())
 				return people, err
 			}
 		} else {
-			immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, allPeople)
-			body, _, _, err = immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+			immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.RequestConfig, allPeople)
+			body, _, _, err = immichAPICall(a.Ctx, http.MethodGet, apiURL.String(), nil)
 			if err != nil {
 				_, _, err = immichAPIFail(allPeople, err, body, apiURL.String())
 				return people, err
@@ -144,7 +144,7 @@ func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, err
 
 	var personStatistics PersonStatistics
 
-	u, err := url.Parse(a.requestConfig.ImmichURL)
+	u, err := url.Parse(a.RequestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(personStatistics, err, nil, "")
 		return 0, err
@@ -156,8 +156,8 @@ func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, err
 		Path:   path.Join("api", "people", personID, "statistics"),
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, personStatistics)
-	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.RequestConfig, personStatistics)
+	body, _, _, err := immichAPICall(a.Ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(personStatistics, err, body, apiURL.String())
 		return 0, err
@@ -202,20 +202,20 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 			Type:       string(ImageType),
 			WithExif:   true,
 			WithPeople: true,
-			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+			Size:       a.RequestConfig.Kiosk.FetchedAssetsSize,
 		}
 
 		// Include videos if show videos is enabled
-		if a.requestConfig.ShowVideos {
+		if a.RequestConfig.ShowVideos {
 			requestBody.Type = ""
 		}
 
-		if a.requestConfig.RequireAllPeople {
-			requestBody.PersonIDs = make([]string, len(a.requestConfig.People))
-			copy(requestBody.PersonIDs, a.requestConfig.People)
+		if a.RequestConfig.RequireAllPeople {
+			requestBody.PersonIDs = make([]string, len(a.RequestConfig.People))
+			copy(requestBody.PersonIDs, a.RequestConfig.People)
 		}
 
-		if a.requestConfig.ShowArchived {
+		if a.RequestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
 
@@ -224,7 +224,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 			return err
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.RequestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
@@ -233,21 +233,21 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 		}
 
 		wantedAssetType := ImageOnlyAssetTypes
-		if a.requestConfig.ShowVideos {
+		if a.RequestConfig.ShowVideos {
 			wantedAssetType = AllAssetTypes
 		}
 
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourcePerson
-			asset.requestConfig = a.requestConfig
-			asset.ctx = a.ctx
+			asset.RequestConfig = a.RequestConfig
+			asset.Ctx = a.Ctx
 
 			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 
-			if a.requestConfig.Kiosk.Cache {
+			if a.RequestConfig.Kiosk.Cache {
 				// Remove the current asset from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
@@ -257,12 +257,12 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 				}
 
 				// Replace cache with remaining assets after removing used asset(s)
-				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration)
 			}
 
 			asset.BucketID = personID
-			if asset.requestConfig.SelectedUser != "" {
-				asset.BucketID = fmt.Sprintf("%s@%s", personID, asset.requestConfig.SelectedUser)
+			if asset.RequestConfig.SelectedUser != "" {
+				asset.BucketID = fmt.Sprintf("%s@%s", personID, asset.RequestConfig.SelectedUser)
 			}
 
 			*a = asset
@@ -298,9 +298,9 @@ func (a *Asset) RandomPersonFromAllPeople(requestID, deviceID string, knowPeople
 		return "", errors.New("no valid people found with names")
 	}
 
-	if len(a.requestConfig.ExcludedPeople) > 0 {
+	if len(a.RequestConfig.ExcludedPeople) > 0 {
 		people = slices.DeleteFunc(people, func(person Person) bool {
-			return slices.Contains(a.requestConfig.ExcludedPeople, person.ID)
+			return slices.Contains(a.RequestConfig.ExcludedPeople, person.ID)
 		})
 	}
 

@@ -39,7 +39,7 @@ func TestRawImage(t *testing.T) {
 		t.Error("Failed to load config", "err", err)
 	}
 
-	cache.Initialize()
+	cache.Initialize(t.Context(), false)
 
 	prevVideoManager := VideoManager
 	videoManager, videoManagerErr := video.New(t.Context())

@@ -40,15 +40,15 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 			Type:       string(ImageType),
 			WithExif:   true,
 			WithPeople: true,
-			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+			Size:       a.RequestConfig.Kiosk.FetchedAssetsSize,
 		}
 
 		// Include videos if show videos is enabled
-		if a.requestConfig.ShowVideos {
+		if a.RequestConfig.ShowVideos {
 			requestBody.Type = ""
 		}
 
-		if a.requestConfig.ShowArchived {
+		if a.RequestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
 
@@ -57,7 +57,7 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 			return err
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.RequestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
@@ -66,21 +66,21 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 		}
 
 		wantedAssetType := ImageOnlyAssetTypes
-		if a.requestConfig.ShowVideos {
+		if a.RequestConfig.ShowVideos {
 			wantedAssetType = AllAssetTypes
 		}
 
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourceRandom
-			asset.requestConfig = a.requestConfig
-			asset.ctx = a.ctx
+			asset.RequestConfig = a.RequestConfig
+			asset.Ctx = a.Ctx
 
 			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 
-			if a.requestConfig.Kiosk.Cache {
+			if a.RequestConfig.Kiosk.Cache {
 				// Remove the current asset from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
@@ -90,7 +90,7 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 				}
 
 				// replace with cache minus used asset
-				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration)
 			}
 
 			asset.BucketID = string(kiosk.SourceRandom)

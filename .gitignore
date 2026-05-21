@@ -56,3 +56,5 @@ frontend/public/assets/js/*.js
 
 result
 result-*
+
+data/

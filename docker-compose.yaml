@@ -12,6 +12,7 @@ services:
       - ./config:/config
       # - ./custom.css:/custom.css
       # - ./offline-assets:/offline-assets
+      # - ./data:/data
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]

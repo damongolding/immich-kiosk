@@ -31,7 +31,7 @@ func (a *Asset) TotalAssetCount() int {
 func (a *Asset) assetsStatistics() (StatisticsResponse, error) {
 	var stats StatisticsResponse
 
-	u, err := url.Parse(a.requestConfig.ImmichURL)
+	u, err := url.Parse(a.RequestConfig.ImmichURL)
 	if err != nil {
 		return stats, err
 	}
@@ -43,8 +43,8 @@ func (a *Asset) assetsStatistics() (StatisticsResponse, error) {
 		RawQuery: "visibility=timeline",
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, kiosk.DebugID, kiosk.GlobalCache, a.requestConfig, stats)
-	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, kiosk.DebugID, kiosk.GlobalCache, a.RequestConfig, stats)
+	body, _, _, err := immichAPICall(a.Ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return stats, err
 	}
