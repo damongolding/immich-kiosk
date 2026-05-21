@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -57,6 +58,10 @@ func init() {
 
 // main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
 func main() {
+
+	if len(os.Args) > 1 && os.Args[1] == "--healthcheck" {
+		healthCheck()
+	}
 
 	var logLevel log.Level
 	setLogLevel(&logLevel)
@@ -393,4 +398,27 @@ func persistentCacheUnmarshal(baseConfig *config.Config, c *common.Common) func(
 		}
 		return raw, nil
 	}
+}
+
+func healthCheck() {
+	port := os.Getenv("KIOSK_PORT")
+	if port == "" {
+		port = "3000"
+	}
+	resp, err := http.Get(fmt.Sprintf("http://localhost:%s/health", port))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(string(body))
+	if resp.StatusCode != http.StatusOK {
+		os.Exit(1)
+	}
+	os.Exit(0)
 }

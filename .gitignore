@@ -58,3 +58,6 @@ result
 result-*
 
 data/
+
+
+docker-compose-local.yaml
