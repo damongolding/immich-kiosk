@@ -92,7 +92,7 @@ func saveCacheToDisk(c context.Context, persistentCache bool) {
 	if _, err := os.Stat(PersistentCacheDir); err != nil {
 		err = os.MkdirAll(PersistentCacheDir, 0755)
 		if err != nil {
-			log.Error("failed to create persistence cache file: %w", err)
+			log.Error("failed to create persistence cache file", "err", err)
 			return
 		}
 	}
