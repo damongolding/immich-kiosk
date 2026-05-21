@@ -59,7 +59,7 @@ func init() {
 // main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "--healthcheck" {
-		healthCheck()
+		os.Exit(healthCheck())
 	}
 
 	var logLevel log.Level
@@ -397,25 +397,40 @@ func persistentCacheUnmarshal(baseConfig *config.Config, c *common.Common) func(
 	}
 }
 
-func healthCheck() {
+func healthCheck() int {
 	port := os.Getenv("KIOSK_PORT")
 	if port == "" {
 		port = "3000"
 	}
-	resp, err := http.Get(fmt.Sprintf("http://localhost:%s/health", port))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://localhost:%s/health", port), nil)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Error("healthcheck NewRequestWithContext", "err", err)
+		return 1
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error("healthcheck client.Do", "err", err)
+		return 1
 	}
 	defer resp.Body.Close()
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Error("healthcheck io.ReadAll", "err", err)
+		return 1
 	}
+
 	fmt.Println(string(body))
+
 	if resp.StatusCode != http.StatusOK {
-		os.Exit(1)
+		return 1
 	}
-	os.Exit(0)
+
+	return 0
 }
