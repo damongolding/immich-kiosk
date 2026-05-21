@@ -61,7 +61,7 @@ func TestCacheSet(t *testing.T) {
 
 			expected := time.Now().Add(tt.want)
 
-			Set(key, key, tt.duration)
+			Set(key, key, tt.duration, 0)
 			_, expiration, found := kioskCache.GetWithExpiration(key)
 			if !found {
 				t.Errorf("Expected key '%s' to be found in cache", key)
@@ -96,7 +96,7 @@ func TestCacheExpirationScenario(t *testing.T) {
 	}
 
 	// Initial set
-	Set(key, album, duration)
+	Set(key, album, duration, 0)
 
 	startTime := time.Now()
 	initialExpected := startTime.Add(expectedExpiration)
@@ -138,7 +138,7 @@ func TestCacheExpirationScenario(t *testing.T) {
 		replaceTime := time.Now()
 		expectedAfterReplace := replaceTime.Add(expectedExpiration)
 
-		Set(key, currentAlbum, duration)
+		Set(key, currentAlbum, duration, 0)
 
 		// Verify expiration was properly extended
 		_, expiration, found := kioskCache.GetWithExpiration(key)
@@ -191,14 +191,14 @@ func TestOldBugBehavior(t *testing.T) {
 		longDuration := 720 // 12 minutes
 
 		// Set with long duration
-		Set(key, "initial", longDuration)
+		Set(key, "initial", longDuration, 0)
 
 		// Wait a moment
 		time.Sleep(10 * time.Millisecond)
 
 		// Update using Set - should maintain the long expiration calculation
 		beforeReplace := time.Now()
-		Set(key, "replaced", longDuration)
+		Set(key, "replaced", longDuration, 0)
 
 		_, expiration, found := kioskCache.GetWithExpiration(key)
 		if !found {

@@ -195,7 +195,7 @@ func (a *Asset) RandomAssetWithTag(tagID string, requestID, deviceID string, isP
 				}
 
 				// replace cache with used asset(s) removed
-				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration, a.RequestConfig.CacheDuration)
 			}
 
 			asset.BucketID = tagID

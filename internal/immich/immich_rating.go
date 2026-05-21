@@ -142,7 +142,7 @@ func (a *Asset) RandomAssetWithRating(ratingID string, requestID, deviceID strin
 				}
 
 				// replace cache with used asset(s) removed
-				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration, a.RequestConfig.CacheDuration)
 			}
 
 			asset.BucketID = fmt.Sprintf("rating-%.2f", rating)

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"slices"
 	"sync"
 	"time"
 
@@ -155,18 +156,23 @@ func Get(s string) (any, bool) {
 // If deviceDuration is less than the defaultExpiration, the default expiration is used.
 // Otherwise, the item expires after deviceDuration plus one extra minute.
 // If the key already exists, its value is replaced.
-func Set(key string, value any, deviceDuration int) {
-	if deviceDuration < 0 {
-		log.Warn("Negative duration provided, using default expiration", "deviceDuration", deviceDuration)
+func Set(key string, value any, deviceDuration, cacheDuration int) {
+	if deviceDuration < 0 || cacheDuration < 0 {
+		log.Warn("Negative duration or cache duration provided, using default expiration", "deviceDuration", deviceDuration, "cacheDuration", cacheDuration)
 		kioskCache.Set(key, value, gocache.DefaultExpiration)
 		return
 	}
+
 	deviceDurationPlusMin := (time.Duration(deviceDuration) * time.Second) + time.Minute
-	if deviceDurationPlusMin <= defaultExpiration {
-		kioskCache.Set(key, value, gocache.DefaultExpiration)
-		return
-	}
-	SetWithExpiration(key, value, deviceDurationPlusMin)
+	cacheDurationPlusMin := (time.Duration(cacheDuration) * time.Second) + time.Minute
+
+	durations := []time.Duration{deviceDurationPlusMin, cacheDurationPlusMin, defaultExpiration}
+
+	d := slices.Max(durations)
+
+	log.Warn("setting cache with", "duration", d)
+
+	kioskCache.Set(key, value, d)
 }
 
 // SetWithExpiration adds an item to the cache with the specified expiration duration.
@@ -228,7 +234,7 @@ func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID
 		cachedViewData = append([]T{viewDataToAdd}, cachedViewData...)
 	}
 
-	Set(viewCacheKey, cachedViewData, requestConfig.Duration)
+	Set(viewCacheKey, cachedViewData, requestConfig.Duration, requestConfig.CacheDuration)
 }
 
 func SaveToDisk() {

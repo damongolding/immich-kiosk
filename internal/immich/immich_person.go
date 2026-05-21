@@ -255,7 +255,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 				}
 
 				// Replace cache with remaining assets after removing used asset(s)
-				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration, a.RequestConfig.CacheDuration)
 			}
 
 			asset.BucketID = personID
