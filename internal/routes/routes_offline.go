@@ -76,12 +76,7 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		}
 
 		if _, err = os.Stat(OfflineAssetsPath); os.IsNotExist(err) {
-			log.Warn("creating offline assets directory - NOTE: If running in Docker, this data will not persist between container restarts")
-			err = os.MkdirAll(OfflineAssetsPath, 0o755)
-			if err != nil {
-				log.Error("OfflineMode", "err", err)
-				return err
-			}
+			return RenderError(c, err, "offline assets directory does not exist", requestConfig.Duration)
 		}
 
 		files, readDirErr := os.ReadDir(OfflineAssetsPath)
@@ -291,7 +286,7 @@ func downloadOfflineAssets(requestConfig config.Config, requestCtx common.Contex
 					return nil
 				}
 				if err != nil {
-					log.Error("SaveOfflineAsset: saveMsgpackZstd", "err", err)
+					log.Warn("SaveOfflineAsset: saveMsgpackZstd", "err", err)
 					continue
 				}
 				return nil

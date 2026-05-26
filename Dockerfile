@@ -17,8 +17,6 @@ ARG TARGETARCH
 
 WORKDIR /app
 
-RUN mkdir -p /app/offline-assets && chown 65532:65532 /app/offline-assets
-
 COPY . .
 COPY --from=frontend-build /app/frontend/public/assets/css /app/frontend/public/assets/css
 COPY --from=frontend-build /app/frontend/public/assets/js/ /app/frontend/public/assets/js/
@@ -40,7 +38,6 @@ WORKDIR /
 
 COPY --from=build /app/demo.config.yaml .
 COPY --from=build /app/dist/kiosk .
-COPY --from=build /app/offline-assets /offline-assets
 
 USER nonroot
 
