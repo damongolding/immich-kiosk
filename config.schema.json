@@ -536,7 +536,7 @@
           "type": "integer"
         },
         "max_size": {
-          "type": "string"
+          "type": ["string", "integer"]
         },
         "parallel_downloads": {
           "type": "integer"

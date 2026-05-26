@@ -1,10 +1,9 @@
 # Frontend Base Image
-FROM node:26-alpine AS frontend-base
+FROM node:26-alpine AS frontend-build
 
 COPY . /app
 WORKDIR /app/frontend
 
-FROM frontend-base AS frontend-build
 RUN npm install -g @go-task/cli
 RUN npm ci
 RUN task frontend
@@ -18,6 +17,8 @@ ARG TARGETARCH
 
 WORKDIR /app
 
+RUN mkdir -p /app/offline-assets && chown 65532:65532 /app/offline-assets
+
 COPY . .
 COPY --from=frontend-build /app/frontend/public/assets/css /app/frontend/public/assets/css
 COPY --from=frontend-build /app/frontend/public/assets/js/ /app/frontend/public/assets/js/
@@ -28,7 +29,7 @@ RUN go tool templ generate
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION} -s -w" -o dist/kiosk .
 
 # Release
-FROM gcr.io/distroless/static-debian13
+FROM gcr.io/distroless/static-debian13:nonroot
 
 ENV TZ=Europe/London
 ENV TERM=xterm-256color
@@ -39,5 +40,8 @@ WORKDIR /
 
 COPY --from=build /app/demo.config.yaml .
 COPY --from=build /app/dist/kiosk .
+COPY --from=build /app/offline-assets /offline-assets
+
+USER nonroot
 
 ENTRYPOINT ["/kiosk"]
