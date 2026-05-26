@@ -549,6 +549,11 @@
     "use_offline_mode": {
       "type": "boolean"
     },
+    "cache_duration": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Specified duration (in seconds) for which cache entries should be kept before expiring."
+    },
     "kiosk": {
       "type": "object",
       "additionalProperties": false,
