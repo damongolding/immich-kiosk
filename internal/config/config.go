@@ -167,7 +167,7 @@ type WeatherLocation struct {
 	Name      string                     `yaml:"name" mapstructure:"name" redact:"true"`
 	Lat       string                     `yaml:"lat" mapstructure:"lat" redact:"true"`
 	Lon       string                     `yaml:"lon" mapstructure:"lon" redact:"true"`
-	API       string                     `yaml:"api" mapstructure:"api" redact:"true"`
+	API       string                     `yaml:"api" mapstructure:"api" redact:"true" msgpack:"-"`
 	Unit      string                     `yaml:"unit" mapstructure:"unit" redact:"true"`
 	Lang      string                     `yaml:"lang" mapstructure:"lang" redact:"true"`
 	Show      WeatherLocationStatOptions `yaml:"show" mapstructure:"show" default:""`
@@ -247,7 +247,7 @@ type Config struct {
 	mu *sync.RWMutex `json:"-" yaml:"-"`
 
 	// ImmichUsersAPIKeys a map of usernames to their respective api keys for accessing Immich
-	ImmichUsersAPIKeys map[string]string `json:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}" redact:"true"`
+	ImmichUsersAPIKeys map[string]string `json:"-" msgpack:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}" redact:"true"`
 	// URLParamUsers the user(s) submitted via URL query parameter
 	URLParamUsers []string `json:"user" yaml:"-" mapstructure:"-" query:"user" form:"user" default:"[]" redact:"true"`
 	// ReloadTimeStamp timestamp for when the last client reload was called for
@@ -264,7 +264,7 @@ type Config struct {
 	ClientData ClientData `yaml:"-"`
 
 	// ImmichAPIKey Immich key to access assets
-	ImmichAPIKey string `json:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:"" redact:"true"`
+	ImmichAPIKey string `json:"-" msgpack:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:"" redact:"true"`
 	// ImmichURL Immuch base url
 	ImmichURL string `json:"-" yaml:"immich_url" mapstructure:"immich_url" default:"" redact:"true"`
 
@@ -543,7 +543,6 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"kiosk.http_timeout", "KIOSK_HTTP_TIMEOUT"},
 		{"kiosk.password", "KIOSK_PASSWORD"},
 		{"kiosk.cache", "KIOSK_CACHE"},
-		{"kiosk.persistent_cache", "KIOSK_PERSISTENT_CACHE"},
 		{"kiosk.prefetch", "KIOSK_PREFETCH"},
 		{"kiosk.asset_weighting", "KIOSK_ASSET_WEIGHTING"},
 		{"kiosk.debug", "KIOSK_DEBUG"},

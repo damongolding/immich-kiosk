@@ -59,8 +59,7 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 			log.Debug(strings.TrimSpace(requestID+" Cache hit"), "url", apiURL)
 			data, ok := apiData.([]byte)
 			if !ok {
-				log.Errorf("cache data type assertion failed: %T", data)
-				return nil, contentType, usingCache, errors.New("cache data type assertion failed")
+				return nil, contentType, usingCache, errors.New("withImmichAPICache: cache data type assertion failed")
 			}
 			usingCache = true
 			return data, contentType, usingCache, nil
