@@ -137,7 +137,7 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 				}
 
 				// replace cache with used asset(s) removed
-				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration, a.RequestConfig.CacheDuration)
 			}
 
 			asset.BucketID = dateRange

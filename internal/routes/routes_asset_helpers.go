@@ -786,7 +786,7 @@ func renderCachedViewData(c *echo.Context, cachedViewData []common.ViewData, req
 	viewDataToRender := cachedViewData[0]
 	viewDataToSave := cachedViewData[1:]
 
-	cache.Set(cacheKey, viewDataToSave, requestConfig.Duration)
+	cache.Set(cacheKey, viewDataToSave, requestConfig.Duration, requestConfig.CacheDuration)
 
 	// Update history which will be outdated in cache
 	utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)

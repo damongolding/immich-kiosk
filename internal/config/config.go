@@ -131,9 +131,6 @@ type KioskSettings struct {
 	// Cache enable/disable api call and image caching
 	Cache bool `json:"cache" yaml:"cache" mapstructure:"cache" default:"true"`
 
-	// PersistentCache enable/disable persisting cache to disk
-	PersistentCache bool `json:"persistentCache" yaml:"persistent_cache" mapstructure:"persistent_cache" default:"false"`
-
 	// PreFetch fetch and cache an image in the background
 	PreFetch bool `json:"preFetch" yaml:"prefetch" mapstructure:"prefetch" default:"true"`
 
@@ -492,6 +489,9 @@ type Config struct {
 
 	OfflineMode    OfflineMode `json:"offlineMode" yaml:"offline_mode" mapstructure:"offline_mode"`
 	UseOfflineMode bool        `json:"useOfflineMode" yaml:"use_offline_mode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
+
+	// CacheDuration user specified duration (in seconds) for which cache entries should be kept before expiring.
+	CacheDuration int `json:"cacheDuration" yaml:"cache_duration" mapstructure:"cache_duration" query:"cache_duration" form:"cache_duration" default:"0"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `json:"kiosk" yaml:"kiosk" mapstructure:"kiosk"`

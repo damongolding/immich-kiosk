@@ -7,9 +7,9 @@ tasks:
   docker-image:
     desc: Build docker image locally
     cmds:
-      - orb start
+      - cmd: orb start
+        if: "command -v orb >/dev/null 2>&1"
       - docker build --no-cache --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
-      - orb stop
 
   docker-buildx:
     desc: Create and install docker buildx builder

@@ -116,7 +116,7 @@ func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool
 		return memories, apiURL, marshalErr
 	}
 
-	cache.Set(cacheKey, b, a.RequestConfig.Duration)
+	cache.Set(cacheKey, b, a.RequestConfig.Duration, a.RequestConfig.CacheDuration)
 
 	return memories, apiURL, nil
 }
@@ -249,7 +249,7 @@ func updateMemoryCache(memories MemoriesResponse, pickedMemoryIndex, assetIndex 
 	}
 
 	// replace with cache minus used asset
-	cache.Set(apiCacheKey, jsonBytes, duration)
+	cache.Set(apiCacheKey, jsonBytes, duration, 0)
 
 	return nil
 }

@@ -308,7 +308,7 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 				}
 
 				// replace with cache minus used asset
-				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration, a.RequestConfig.CacheDuration)
 			}
 
 			asset.BucketID = album.ID

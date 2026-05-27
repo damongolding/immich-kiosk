@@ -161,7 +161,7 @@ type Asset struct {
 	StackCount     any       `json:"-"` // `json:"stackCount"`
 	DuplicateID    any       `json:"-"` // `json:"duplicateId"`
 
-	Ctx context.Context `json:"-"`
+	Ctx context.Context `json:"-" msgpack:"-"`
 
 	mu               *sync.Mutex
 	Owner            Owner     `json:"owner"`

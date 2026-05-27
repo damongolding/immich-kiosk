@@ -89,7 +89,7 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 				}
 
 				// replace with cache minus used asset
-				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration, a.RequestConfig.CacheDuration)
 			}
 
 			asset.BucketID = string(kiosk.SourceRandom)
