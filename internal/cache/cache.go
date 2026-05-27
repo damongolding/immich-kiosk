@@ -84,7 +84,7 @@ func Get(s string) (any, bool) {
 // Set stores a value in the cache under the given key, replacing any existing entry.
 // The expiration is determined by taking the larger of deviceDuration and cacheDuration
 // (each extended by one minute), with defaultExpiration used as a lower bound.
-// If either duration is negative, defaultExpiration is used and a warning is logged.
+// If either duration is negative, gocache.DefaultExpiration is used and a warning is logged.
 func Set(key string, value any, deviceDuration, cacheDuration int) {
 	if deviceDuration < 0 || cacheDuration < 0 {
 		log.Warn("Negative duration or cache duration provided, using default expiration", "deviceDuration", deviceDuration, "cacheDuration", cacheDuration)
