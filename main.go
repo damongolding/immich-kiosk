@@ -106,7 +106,7 @@ func main() {
 		cache.DemoMode = true
 	}
 
-	cache.Initialize(c.Context())
+	cache.Initialize()
 
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
 

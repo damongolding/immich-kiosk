@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -9,11 +8,9 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	ctx, cancel := context.WithCancel(context.Background())
-	Initialize(ctx)
+	Initialize()
 	code := m.Run()
 	Flush()
-	cancel()
 	os.Exit(code)
 }
 

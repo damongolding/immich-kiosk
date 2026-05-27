@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"context"
 	"crypto/sha256"
 	"fmt"
 	"time"
@@ -36,7 +35,7 @@ var (
 //
 // The expiration time determines when items are considered stale and should be removed.
 // The cleanup interval determines how frequently the cache is scanned to remove expired items.
-func Initialize(c context.Context) {
+func Initialize() {
 	// Setting up Immich api cache
 	if DemoMode {
 		kioskCache = gocache.New(time.Minute, 2*time.Minute)
