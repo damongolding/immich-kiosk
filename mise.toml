@@ -1,0 +1,6 @@
+[tools]
+node = "26"
+go = "1.26"
+task = "latest"
+golangci-lint = "2"
+gofumpt = "latest"
