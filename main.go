@@ -10,7 +10,6 @@ import (
 	"context"
 	"crypto/subtle"
 	"embed"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -107,9 +106,7 @@ func main() {
 		cache.DemoMode = true
 	}
 
-	cache.Initialize(c.Context(), baseConfig.Kiosk.PersistentCache)
-	cache.RegisterPersistence(persistentCacheMarshel, persistentCacheUnmarshal(baseConfig, c))
-	cache.LoadFromDisk()
+	cache.Initialize(c.Context())
 
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
 
@@ -248,7 +245,6 @@ func main() {
 
 	// Shutting down, clean up
 	video.DeleteTmpDir()
-	cache.Wait()
 
 	fmt.Println("")
 	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {
@@ -357,43 +353,6 @@ func AssetCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFu
 			c.Response().Header().Set("Cache-Control", "private, max-age=86400, no-transform")
 			return next(c)
 		}
-	}
-}
-
-func persistentCacheMarshel(v any) ([]byte, error) {
-	switch val := v.(type) {
-	case []common.ViewData:
-		return json.Marshal(val)
-	case []byte:
-		return json.Marshal(val)
-	default:
-		return nil, fmt.Errorf("unexpected type %T", v)
-	}
-}
-
-func persistentCacheUnmarshal(baseConfig *config.Config, c *common.Common) func([]byte) (any, error) {
-	return func(b []byte) (any, error) {
-		var vd []common.ViewData
-		if err := json.Unmarshal(b, &vd); err == nil && len(vd) > 0 {
-			ctx := c.Context()
-			for i, viewData := range vd {
-				viewData.Config = *baseConfig
-				for j, asset := range viewData.Assets {
-					asset.ImmichAsset.Ctx = ctx
-					asset.ImmichAsset.RequestConfig = *baseConfig
-					viewData.Assets[j] = asset
-				}
-				vd[i] = viewData
-			}
-
-			return vd, nil
-		}
-		// fall back to []byte
-		var raw []byte
-		if err := json.Unmarshal(b, &raw); err != nil {
-			return nil, err
-		}
-		return raw, nil
 	}
 }
 

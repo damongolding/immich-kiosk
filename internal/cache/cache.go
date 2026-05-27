@@ -3,11 +3,7 @@ package cache
 import (
 	"context"
 	"crypto/sha256"
-	"encoding/gob"
 	"fmt"
-	"os"
-	"path"
-	"sync"
 	"time"
 
 	"charm.land/log/v2"
@@ -17,37 +13,21 @@ import (
 	gocache "github.com/patrickmn/go-cache"
 )
 
-type persistedCache struct {
-	SavedAt time.Time
-	Items   map[string]gocache.Item
-}
-
 type Position string
 
 const (
 	PREPEND Position = "prepend"
 	APPEND  Position = "append"
-
-	PersistentCacheBaseDir = "data"
-	PersistentCacheFile    = "cache.dat"
 )
 
 // Package cache provides a simple in-memory cache implementation using github.com/patrickmn/go-cache
 var (
 	kioskCache *gocache.Cache
 
-	wg sync.WaitGroup
-
 	defaultExpiration = 5 * time.Minute
 	cleanupInterval   = 10 * time.Minute
 
 	DemoMode = false
-
-	PersistentCacheDir      = path.Join(PersistentCacheBaseDir, "cache")
-	PersistentCacheFilePath = path.Join(PersistentCacheDir, PersistentCacheFile)
-
-	marshalFn   func(any) ([]byte, error)
-	unmarshalFn func([]byte) (any, error)
 )
 
 // initialize sets up the kiosk cache based on the current mode:
@@ -56,61 +36,12 @@ var (
 //
 // The expiration time determines when items are considered stale and should be removed.
 // The cleanup interval determines how frequently the cache is scanned to remove expired items.
-func Initialize(c context.Context, persistentCache bool) {
+func Initialize(c context.Context) {
 	// Setting up Immich api cache
 	if DemoMode {
 		kioskCache = gocache.New(time.Minute, 2*time.Minute)
 	} else {
 		kioskCache = gocache.New(defaultExpiration, cleanupInterval)
-	}
-
-	wg.Add(1)
-	go saveCacheToDisk(c, persistentCache)
-}
-
-func RegisterPersistence(
-	marshal func(any) ([]byte, error),
-	unmarshal func([]byte) (any, error),
-) {
-	marshalFn = marshal
-	unmarshalFn = unmarshal
-}
-
-func saveCacheToDisk(c context.Context, persistentCache bool) {
-	defer wg.Done()
-
-	if !persistentCache {
-		return
-	}
-
-	if _, err := os.Stat(PersistentCacheBaseDir); err != nil {
-		log.Error("persistence cache directory does not exist. Not using persistence cache")
-		return
-	}
-
-	if _, err := os.Stat(PersistentCacheDir); err != nil {
-		err = os.MkdirAll(PersistentCacheDir, 0o755)
-		if err != nil {
-			log.Error("failed to create persistence cache file", "err", err)
-			return
-		}
-	}
-
-	log.Info("Persistent cache enabled", "saving every", time.Minute)
-
-	t := time.NewTicker(time.Minute)
-	defer t.Stop()
-
-	for {
-		select {
-		case <-t.C:
-			log.Debug("saving cache to disk")
-			SaveToDisk()
-		case <-c.Done():
-			log.Debug("saving cache to disk before exit")
-			SaveToDisk()
-			return
-		}
 	}
 }
 
@@ -230,107 +161,4 @@ func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID
 	}
 
 	Set(viewCacheKey, cachedViewData, requestConfig.Duration, requestConfig.CacheDuration)
-}
-
-func SaveToDisk() {
-	if marshalFn == nil {
-		return
-	}
-
-	items := kioskCache.Items()
-	persistItems := make(map[string]gocache.Item)
-
-	for k, v := range items {
-		b, err := marshalFn(v.Object)
-		if err != nil {
-			// not a marshalFn type, add as-is
-			persistItems[k] = v
-			continue
-		}
-		item := v
-		item.Object = b
-		persistItems[k] = item
-	}
-
-	if len(persistItems) == 0 {
-		return
-	}
-
-	f, err := os.Create(PersistentCacheFilePath)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-	defer f.Close()
-
-	data := persistedCache{
-		SavedAt: time.Now(),
-		Items:   persistItems,
-	}
-	if err = gob.NewEncoder(f).Encode(data); err != nil {
-		log.Error(err)
-	}
-}
-
-func LoadFromDisk() {
-	if unmarshalFn == nil {
-		return
-	}
-
-	f, err := os.Open(PersistentCacheFilePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return
-		}
-		log.Error(err)
-		return
-	}
-	defer f.Close()
-
-	var data persistedCache
-	if err = gob.NewDecoder(f).Decode(&data); err != nil {
-		log.Error(err)
-		return
-	}
-
-	for k, v := range data.Items {
-		if v.Expiration > 0 {
-			remaining := time.Duration(v.Expiration - data.SavedAt.UnixNano())
-			if remaining <= 0 {
-				continue
-			}
-			v.Expiration = time.Now().Add(remaining).UnixNano()
-		}
-
-		if b, ok := v.Object.([]byte); ok {
-			val, unMarErr := unmarshalFn(b)
-			if unMarErr != nil {
-				// not a unmarshalFn type, add as-is
-				data.Items[k] = v
-				continue
-			}
-			item := v
-			item.Object = val
-			data.Items[k] = item
-		}
-	}
-
-	if DemoMode {
-		kioskCache = gocache.NewFrom(time.Minute, 2*time.Minute, data.Items)
-	} else {
-		kioskCache = gocache.NewFrom(defaultExpiration, cleanupInterval, data.Items)
-	}
-
-	log.Info("Persistent cache loaded", "items", len(data.Items))
-}
-
-func FlushDisk() {
-	err := os.Remove(PersistentCacheFilePath)
-	if err != nil {
-		log.Error(err)
-	}
-}
-
-func Wait() {
-	wg.Wait()
 }

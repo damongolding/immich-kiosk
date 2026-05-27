@@ -131,9 +131,6 @@ type KioskSettings struct {
 	// Cache enable/disable api call and image caching
 	Cache bool `json:"cache" yaml:"cache" mapstructure:"cache" default:"true"`
 
-	// PersistentCache enable/disable persisting cache to disk
-	PersistentCache bool `json:"persistentCache" yaml:"persistent_cache" mapstructure:"persistent_cache" default:"false"`
-
 	// PreFetch fetch and cache an image in the background
 	PreFetch bool `json:"preFetch" yaml:"prefetch" mapstructure:"prefetch" default:"true"`
 
