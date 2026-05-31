@@ -1,0 +1,87 @@
+#davening-times {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: var(--z-clock);
+    min-width: 13rem;
+    padding: 0.85rem 1rem;
+    color: #fff;
+    text-shadow: 0 0 1rem rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.42);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 1rem;
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(0.75rem);
+    transition: opacity var(--burn-in-fade) ease-in-out;
+}
+
+.burn-in-dim #davening-times {
+    opacity: var(--burn-in-opacity);
+}
+
+.polling-paused.more-info,
+.polling-paused.redirects-open {
+    #davening-times {
+        opacity: 0.2;
+    }
+}
+
+.davening-times__title {
+    margin: 0 0 0.45rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    opacity: 0.86;
+}
+
+.davening-times__list {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0;
+}
+
+.davening-times__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.davening-times__row dt,
+.davening-times__row dd {
+    margin: 0;
+}
+
+.davening-times__row dt {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.davening-times__row dd {
+    font-size: 1.1rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+@media screen and (max-width: 31.25rem) {
+    #davening-times {
+        right: 0.5rem;
+        bottom: 0.5rem;
+        min-width: 11.5rem;
+        padding: 0.7rem 0.8rem;
+    }
+
+    .davening-times__title {
+        font-size: 0.7rem;
+    }
+
+    .davening-times__row dt {
+        font-size: 0.9rem;
+    }
+
+    .davening-times__row dd {
+        font-size: 1rem;
+    }
+}

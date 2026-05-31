@@ -1,7 +1,10 @@
 package partials
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/damongolding/immich-kiosk/internal/immich"
@@ -121,5 +124,30 @@ func TestTrimFloatToString(t *testing.T) {
 				t.Errorf("trimFloatToString(%f) = %s; expected %s", test.input, result, test.expected)
 			}
 		})
+	}
+}
+
+func TestDaveningTimesRendersHardcodedSchedule(t *testing.T) {
+	var rendered bytes.Buffer
+
+	err := DaveningTimes().Render(context.Background(), &rendered)
+	if err != nil {
+		t.Fatalf("DaveningTimes render failed: %v", err)
+	}
+
+	html := rendered.String()
+	for _, want := range []string{
+		`id="davening-times"`,
+		"Davening Times",
+		"Shachris",
+		"8:00 AM",
+		"Mincha",
+		"8:30 PM",
+		"Maariv",
+		"9:00 PM",
+	} {
+		if !strings.Contains(html, want) {
+			t.Fatalf("DaveningTimes() output missing %q in %s", want, html)
+		}
 	}
 }
