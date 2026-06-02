@@ -161,7 +161,7 @@ type Asset struct {
 	StackCount     any       `json:"-"` // `json:"stackCount"`
 	DuplicateID    any       `json:"-"` // `json:"duplicateId"`
 
-	Ctx context.Context `json:"-" msgpack:"-"`
+	ctx context.Context `json:"-" msgpack:"-"`
 
 	mu               *sync.Mutex
 	Owner            Owner     `json:"owner"`
@@ -192,7 +192,7 @@ type Asset struct {
 	AppearsIn       Albums   `json:"kioskAppearsIn"`
 	ExifInfo        ExifInfo `json:"exifInfo"`
 
-	RequestConfig config.Config `json:"-"`
+	requestConfig config.Config `json:"-"`
 	IsEdited      bool          `json:"isEdited"`
 	IsFavorite    bool          `json:"isFavorite"`
 	IsArchived    bool          `json:"isArchived"`
@@ -402,8 +402,8 @@ type APIResponse interface {
 // New returns a new asset instance
 func New(ctx context.Context, base config.Config) Asset {
 	return Asset{
-		RequestConfig: base,
+		requestConfig: base,
 		mu:            &sync.Mutex{},
-		Ctx:           ctx,
+		ctx:           ctx,
 	}
 }

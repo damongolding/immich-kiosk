@@ -125,9 +125,9 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 		req.Header.Set("Accept", "application/json")
 
-		switch a.RequestConfig.Kiosk.DemoMode {
+		switch a.requestConfig.Kiosk.DemoMode {
 		case true:
-			token, demoLoginErr := demo.Login(a.Ctx, false)
+			token, demoLoginErr := demo.Login(a.ctx, false)
 			if demoLoginErr != nil {
 				log.Error(demoLoginErr)
 				return responseBody, contentType, false, demoLoginErr
@@ -135,12 +135,12 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			req.Header.Set("Authorization", "Bearer "+token)
 
 		default:
-			apiKey := a.RequestConfig.ImmichAPIKey
-			if a.RequestConfig.SelectedUser != "" {
-				if key, ok := a.RequestConfig.ImmichUsersAPIKeys[a.RequestConfig.SelectedUser]; ok {
+			apiKey := a.requestConfig.ImmichAPIKey
+			if a.requestConfig.SelectedUser != "" {
+				if key, ok := a.requestConfig.ImmichUsersAPIKeys[a.requestConfig.SelectedUser]; ok {
 					apiKey = key
 				} else {
-					return responseBody, contentType, false, fmt.Errorf("no API key found for user %s in the config", a.RequestConfig.SelectedUser)
+					return responseBody, contentType, false, fmt.Errorf("no API key found for user %s in the config", a.requestConfig.SelectedUser)
 				}
 			}
 
@@ -188,10 +188,10 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		contentType = res.Header.Get("Content-Type")
 
 		// in demo mode and unauthorized, attempt to login again
-		if res.StatusCode == http.StatusUnauthorized && a.RequestConfig.Kiosk.DemoMode {
+		if res.StatusCode == http.StatusUnauthorized && a.requestConfig.Kiosk.DemoMode {
 			_, _ = io.Copy(io.Discard, res.Body)
-			if !demo.ValidateToken(a.Ctx, demo.DemoToken) {
-				_, err = demo.Login(a.Ctx, true)
+			if !demo.ValidateToken(a.ctx, demo.DemoToken) {
+				_, err = demo.Login(a.ctx, true)
 				if err != nil {
 					return responseBody, contentType, false, err
 				}
@@ -229,20 +229,20 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 // FilterDate is applied here.
 // FilterNewest is applied here.
 func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandomBody) ([]Asset, url.URL, error) {
-	filterNewest := a.RequestConfig.FilterNewest > 0
+	filterNewest := a.requestConfig.FilterNewest > 0
 
 	var immichAssets []Asset
 
-	u, err := url.Parse(a.RequestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAssets, err, nil, "")
 		return nil, url.URL{}, err
 	}
 
-	FilterDate(&requestBody, a.RequestConfig.FilterDate)
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 	if filterNewest {
-		requestBody.Size = a.RequestConfig.FilterNewest
+		requestBody.Size = a.requestConfig.FilterNewest
 	}
 
 	queries, _ := query.Values(requestBody)
@@ -267,12 +267,12 @@ func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandom
 
 	var immichAPICall apiCall
 	if filterNewest {
-		immichAPICall = withImmichAPICache(a.immichAPICall, requestID, deviceID, a.RequestConfig, SearchMetadataResponse{})
+		immichAPICall = withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, SearchMetadataResponse{})
 	} else {
-		immichAPICall = withImmichAPICache(a.immichAPICall, requestID, deviceID, a.RequestConfig, []Asset{})
+		immichAPICall = withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, []Asset{})
 	}
 
-	apiBody, _, usingCache, err := immichAPICall(a.Ctx, http.MethodPost, apiURL.String(), jsonBody)
+	apiBody, _, usingCache, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 		return nil, url.URL{}, err
@@ -407,7 +407,7 @@ func (a *Asset) mergeAssetInfo(additionalInfo Asset) error {
 func (a *Asset) AssetInfo(requestID, deviceID string) error {
 	var immichAsset Asset
 
-	u, err := url.Parse(a.RequestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		return err
 	}
@@ -418,8 +418,8 @@ func (a *Asset) AssetInfo(requestID, deviceID string) error {
 		Path:   path.Join("api", "assets", a.ID),
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.RequestConfig, immichAsset)
-	body, _, _, err := immichAPICall(a.Ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, immichAsset)
+	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAsset, err, body, apiURL.String())
 		return fmt.Errorf("fetching asset info, err=%w", err)
@@ -438,14 +438,14 @@ func (a *Asset) AssetInfo(requestID, deviceID string) error {
 func (a *Asset) ImagePreview() ([]byte, string, error) {
 	var bytes []byte
 
-	u, err := url.Parse(a.RequestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		log.Error(err)
 		return bytes, "", err
 	}
 
 	assetSize := AssetSizeThumbnail
-	if a.RequestConfig.UseOriginalImage && slices.Contains(kiosk.SupportedImageMimeTypes, a.OriginalMimeType) {
+	if a.requestConfig.UseOriginalImage && slices.Contains(kiosk.SupportedImageMimeTypes, a.OriginalMimeType) {
 		assetSize = AssetSizeOriginal
 	}
 
@@ -456,11 +456,11 @@ func (a *Asset) ImagePreview() ([]byte, string, error) {
 		RawQuery: "size=preview",
 	}
 
-	if !a.RequestConfig.UseOriginalImage {
+	if !a.requestConfig.UseOriginalImage {
 		apiURL.RawQuery += "&edited=true"
 	}
 
-	b, s, _, e := a.immichAPICall(a.Ctx, http.MethodGet, apiURL.String(), nil)
+	b, s, _, e := a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 
 	return b, s, e
 }
@@ -663,7 +663,7 @@ func (a *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio Im
 	if !slices.Contains(allowedTypes, a.Type) {
 		return false
 	}
-	if !a.RequestConfig.ShowAnimatedGifs && a.isAnimatedGif() {
+	if !a.requestConfig.ShowAnimatedGifs && a.isAnimatedGif() {
 		return false
 	}
 	if a.Type == VideoType && !a.durationCheck() {
@@ -672,13 +672,13 @@ func (a *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio Im
 	if a.IsTrashed {
 		return false
 	}
-	if a.IsArchived && !a.RequestConfig.ShowArchived {
+	if a.IsArchived && !a.requestConfig.ShowArchived {
 		return false
 	}
 	if !a.ratioCheck(wantedRatio) {
 		return false
 	}
-	if slices.Contains(a.RequestConfig.Blacklist, a.ID) {
+	if slices.Contains(a.requestConfig.Blacklist, a.ID) {
 		return false
 	}
 	return true
@@ -706,11 +706,11 @@ func (a *Asset) isAnimatedGif() bool {
 // Returns:
 //   - bool: true if date is valid or no filter set, false if outside filter range
 func (a *Asset) hasValidFilterDate() bool {
-	if a.RequestConfig.FilterDate == "" || a.Bucket == kiosk.SourceDateRange {
+	if a.requestConfig.FilterDate == "" || a.Bucket == kiosk.SourceDateRange {
 		return true
 	}
 
-	dateStart, dateEnd, err := determineDateRange(a.RequestConfig.FilterDate)
+	dateStart, dateEnd, err := determineDateRange(a.requestConfig.FilterDate)
 	if err != nil {
 		log.Error("malformed filter", "err", err)
 		return true // Continue processing if date filter is malformed
@@ -724,7 +724,7 @@ func (a *Asset) hasValidFilterDate() bool {
 // Returns:
 //   - bool: true if no faces are assigned or no filter set, false otherwise
 func (a *Asset) hasValidFilterExcludeFaces(requestID, deviceID string) bool {
-	if !a.RequestConfig.FilterExcludeFaces {
+	if !a.requestConfig.FilterExcludeFaces {
 		return true
 	}
 
@@ -750,7 +750,7 @@ func (a *Asset) hasValidAlbums(requestID, deviceID string) bool {
 	}
 
 	return !slices.ContainsFunc(a.AppearsIn, func(album Album) bool {
-		return slices.Contains(a.RequestConfig.ExcludedAlbums, album.ID)
+		return slices.Contains(a.requestConfig.ExcludedAlbums, album.ID)
 	})
 }
 
@@ -764,17 +764,17 @@ func (a *Asset) hasValidAlbums(requestID, deviceID string) bool {
 // Returns:
 //   - bool: true if asset contains no excluded people, false otherwise
 func (a *Asset) hasValidPeople(requestID, deviceID string) bool {
-	if len(a.RequestConfig.ExcludedPeople) > 0 && len(a.People) == 0 {
+	if len(a.requestConfig.ExcludedPeople) > 0 && len(a.People) == 0 {
 		a.CheckForFaces(requestID, deviceID)
 	}
 
 	return !slices.ContainsFunc(a.People, func(person Person) bool {
-		return slices.Contains(a.RequestConfig.ExcludedPeople, person.ID)
+		return slices.Contains(a.requestConfig.ExcludedPeople, person.ID)
 	})
 }
 
 func (a *Asset) hasValidPartners() bool {
-	return !slices.Contains(a.RequestConfig.ExcludedPartners, a.Owner.ID)
+	return !slices.Contains(a.requestConfig.ExcludedPartners, a.Owner.ID)
 }
 
 // matchesTagPattern checks if a tag matches a given pattern using glob-style matching.
@@ -843,7 +843,7 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 	}
 
 	return !slices.ContainsFunc(a.Tags, func(assetTag Tag) bool {
-		return slices.ContainsFunc(a.RequestConfig.ExcludedTags, func(excluded string) bool {
+		return slices.ContainsFunc(a.requestConfig.ExcludedTags, func(excluded string) bool {
 			return matchesTagPattern(assetTag.Value, excluded)
 		})
 	})
@@ -877,8 +877,8 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 			return totalCount, err
 		}
 
-		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.RequestConfig, response)
-		apiBody, _, _, err := immichAPICall(a.Ctx, http.MethodPost, apiURL.String(), jsonBody)
+		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, response)
+		apiBody, _, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
 			return totalCount, err
@@ -908,7 +908,7 @@ func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error 
 
 	var res Asset
 
-	u, err := url.Parse(a.RequestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(res, err, nil, "")
 		return err
@@ -925,7 +925,7 @@ func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error 
 		return fmt.Errorf("marshaling request body: %w", marshalErr)
 	}
 
-	apiBody, _, _, err := a.immichAPICall(a.Ctx, http.MethodPut, apiURL.String(), jsonBody)
+	apiBody, _, _, err := a.immichAPICall(a.ctx, http.MethodPut, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, err = immichAPIFail(res, err, apiBody, apiURL.String())
 		return err

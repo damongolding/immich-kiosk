@@ -13,7 +13,7 @@ import (
 func (a *Asset) Me(requestID, deviceID string) (UserResponse, error) {
 	var user UserResponse
 
-	u, err := url.Parse(a.RequestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		return user, err
 	}
@@ -24,14 +24,14 @@ func (a *Asset) Me(requestID, deviceID string) (UserResponse, error) {
 		Path:   "api/users/me",
 	}
 
-	if a.RequestConfig.SelectedUser != "" {
+	if a.requestConfig.SelectedUser != "" {
 		q := apiURL.Query()
-		q.Set("user", a.RequestConfig.SelectedUser)
+		q.Set("user", a.requestConfig.SelectedUser)
 		apiURL.RawQuery = q.Encode()
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.RequestConfig, user)
-	body, _, _, err := immichAPICall(a.Ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, user)
+	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return user, err
 	}
@@ -61,21 +61,21 @@ func (a *Asset) ApplyUserFromAssetID(assetID string) (string, string) {
 	// assetID has @user
 	id, user, ok := strings.Cut(assetID, "@")
 	if ok {
-		if userAPI, userFound = a.RequestConfig.ImmichUsersAPIKeys[user]; userFound {
-			a.RequestConfig.SelectedUser = user
-			a.RequestConfig.ImmichAPIKey = userAPI
+		if userAPI, userFound = a.requestConfig.ImmichUsersAPIKeys[user]; userFound {
+			a.requestConfig.SelectedUser = user
+			a.requestConfig.ImmichAPIKey = userAPI
 			return id, user
 		}
 		log.Warn("User from assetID not found in API keys")
 	}
 
 	// User provided via URL query parameter
-	if len(a.RequestConfig.URLParamUsers) > 0 {
-		randomIndex := rand.IntN(len(a.RequestConfig.URLParamUsers))
-		selectedUser := a.RequestConfig.URLParamUsers[randomIndex]
-		if userAPI, userFound = a.RequestConfig.ImmichUsersAPIKeys[selectedUser]; userFound {
-			a.RequestConfig.SelectedUser = selectedUser
-			a.RequestConfig.ImmichAPIKey = userAPI
+	if len(a.requestConfig.URLParamUsers) > 0 {
+		randomIndex := rand.IntN(len(a.requestConfig.URLParamUsers))
+		selectedUser := a.requestConfig.URLParamUsers[randomIndex]
+		if userAPI, userFound = a.requestConfig.ImmichUsersAPIKeys[selectedUser]; userFound {
+			a.requestConfig.SelectedUser = selectedUser
+			a.requestConfig.ImmichAPIKey = userAPI
 			return id, selectedUser
 		}
 		log.Warn("User from URL query parameter not found in API keys")
@@ -88,14 +88,14 @@ func (a *Asset) ApplyUserFromAssetID(assetID string) (string, string) {
 }
 
 func (a *Asset) ApplyDefaultUser() {
-	if defaultAPI, apiFound := a.RequestConfig.ImmichUsersAPIKeys["default"]; apiFound {
-		a.RequestConfig.SelectedUser = ""
-		a.RequestConfig.ImmichAPIKey = defaultAPI
+	if defaultAPI, apiFound := a.requestConfig.ImmichUsersAPIKeys["default"]; apiFound {
+		a.requestConfig.SelectedUser = ""
+		a.requestConfig.ImmichAPIKey = defaultAPI
 	} else {
 		log.Error("Default user not found in API keys")
 	}
 }
 
 func (a *Asset) SelectedUser() string {
-	return a.RequestConfig.SelectedUser
+	return a.requestConfig.SelectedUser
 }

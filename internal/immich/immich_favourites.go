@@ -13,7 +13,7 @@ import (
 
 // favouriteAssetsCount retrieves the total count of favorite assets from the Immich server.
 func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
-	u, err := url.Parse(a.RequestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(0, err, nil, "")
 		return 0, err
@@ -24,19 +24,19 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 		IsFavorite: true,
 		WithPeople: false,
 		WithExif:   false,
-		Size:       a.RequestConfig.Kiosk.FetchedAssetsSize,
+		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	// Include videos if show videos is enabled
-	if a.RequestConfig.ShowVideos {
+	if a.requestConfig.ShowVideos {
 		requestBody.Type = ""
 	}
 
-	if a.RequestConfig.ShowArchived {
+	if a.requestConfig.ShowArchived {
 		requestBody.WithArchived = true
 	}
 
-	FilterDate(&requestBody, a.RequestConfig.FilterDate)
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 	return a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 }
@@ -80,15 +80,15 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 			IsFavorite: true,
 			WithExif:   true,
 			WithPeople: true,
-			Size:       a.RequestConfig.Kiosk.FetchedAssetsSize,
+			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
 		// Include videos if show videos is enabled
-		if a.RequestConfig.ShowVideos {
+		if a.requestConfig.ShowVideos {
 			requestBody.Type = ""
 		}
 
-		if a.RequestConfig.ShowArchived {
+		if a.requestConfig.ShowArchived {
 			requestBody.WithArchived = true
 		}
 
@@ -97,7 +97,7 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 			return err
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.RequestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(assets) == 0 {
 			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
@@ -106,21 +106,21 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 		}
 
 		wantedAssetType := ImageOnlyAssetTypes
-		if a.RequestConfig.ShowVideos {
+		if a.requestConfig.ShowVideos {
 			wantedAssetType = AllAssetTypes
 		}
 
 		for assetIndex, asset := range assets {
 
 			asset.Bucket = kiosk.SourceAlbum
-			asset.RequestConfig = a.RequestConfig
-			asset.Ctx = a.Ctx
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
 
 			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 
-			if a.RequestConfig.Kiosk.Cache {
+			if a.requestConfig.Kiosk.Cache {
 				// Remove the current image from the slice
 				assetsToCache := slices.Delete(assets, assetIndex, assetIndex+1)
 				jsonBytes, marshalErr := json.Marshal(assetsToCache)
@@ -130,7 +130,7 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 				}
 
 				// replace cache minus used image
-				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration, a.RequestConfig.CacheDuration)
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 			}
 
 			asset.BucketID = kiosk.AlbumKeywordFavourites

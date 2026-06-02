@@ -16,7 +16,7 @@ import (
 func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string) (int, error) {
 	var totalAssetsCount int
 
-	u, err := url.Parse(a.RequestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(totalAssetsCount, err, nil, "")
 		return totalAssetsCount, err
@@ -27,19 +27,19 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 		Rating:     &rating,
 		WithPeople: false,
 		WithExif:   false,
-		Size:       a.RequestConfig.Kiosk.FetchedAssetsSize,
+		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	// Include videos if show videos is enabled
-	if a.RequestConfig.ShowVideos {
+	if a.requestConfig.ShowVideos {
 		requestBody.Type = ""
 	}
 
-	if a.RequestConfig.ShowArchived {
+	if a.requestConfig.ShowArchived {
 		requestBody.WithArchived = true
 	}
 
-	FilterDate(&requestBody, a.RequestConfig.FilterDate)
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
 
 	allAssetsCount, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {
@@ -57,15 +57,15 @@ func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]
 		Rating:     &rating,
 		WithExif:   true,
 		WithPeople: true,
-		Size:       a.RequestConfig.Kiosk.FetchedAssetsSize,
+		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	// Include videos if show videos is enabled
-	if a.RequestConfig.ShowVideos {
+	if a.requestConfig.ShowVideos {
 		requestBody.Type = ""
 	}
 
-	if a.RequestConfig.ShowArchived {
+	if a.requestConfig.ShowArchived {
 		requestBody.WithArchived = true
 	}
 
@@ -103,7 +103,7 @@ func (a *Asset) RandomAssetWithRating(ratingID string, requestID, deviceID strin
 			return immichAssetsErr
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.RequestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
 			log.Debug(requestID + " No assets left in cache. Refreshing and trying again")
@@ -118,21 +118,21 @@ func (a *Asset) RandomAssetWithRating(ratingID string, requestID, deviceID strin
 		}
 
 		wantedAssetType := ImageOnlyAssetTypes
-		if a.RequestConfig.ShowVideos {
+		if a.requestConfig.ShowVideos {
 			wantedAssetType = AllAssetTypes
 		}
 
 		for immichAssetIndex, asset := range immichAssets {
 
 			asset.Bucket = kiosk.SourceRating
-			asset.RequestConfig = a.RequestConfig
-			asset.Ctx = a.Ctx
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
 
 			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
 				continue
 			}
 
-			if a.RequestConfig.Kiosk.Cache {
+			if a.requestConfig.Kiosk.Cache {
 				// Remove the current asset from the slice
 				immichAssetsToCache := slices.Delete(immichAssets, immichAssetIndex, immichAssetIndex+1)
 				jsonBytes, cacheMarshalErr := json.Marshal(immichAssetsToCache)
@@ -142,7 +142,7 @@ func (a *Asset) RandomAssetWithRating(ratingID string, requestID, deviceID strin
 				}
 
 				// replace cache with used asset(s) removed
-				cache.Set(apiCacheKey, jsonBytes, a.RequestConfig.Duration, a.RequestConfig.CacheDuration)
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 			}
 
 			asset.BucketID = fmt.Sprintf("rating-%.2f", rating)

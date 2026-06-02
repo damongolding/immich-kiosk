@@ -62,7 +62,7 @@ func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool
 		log.Warn("past memory days exceeds maximum, capping", "requested", days, "max", MaxPastMemoryDays)
 	}
 
-	u, err := url.Parse(a.RequestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		return immichAPIFail(memories, err, nil, "")
 	}
@@ -84,7 +84,7 @@ func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool
 
 	apiURL := apiURLRaw.String()
 
-	cacheKey := cache.APICacheKey(apiURL, deviceID, a.RequestConfig.SelectedUser)
+	cacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 	if apiData, found := cache.Get(cacheKey); found {
 		log.Debug(requestID+" Cache hit", "url", apiURL)
@@ -116,7 +116,7 @@ func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool
 		return memories, apiURL, marshalErr
 	}
 
-	cache.Set(cacheKey, b, a.RequestConfig.Duration, a.RequestConfig.CacheDuration)
+	cache.Set(cacheKey, b, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 
 	return memories, apiURL, nil
 }
@@ -139,7 +139,7 @@ func (a *Asset) Memories(requestID, deviceID string) (MemoriesResponse, string, 
 func (a *Asset) memories(requestID, deviceID string, assetCount bool, days int) (MemoriesResponse, string, error) {
 	var memories MemoriesResponse
 
-	u, err := url.Parse(a.RequestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		return immichAPIFail(memories, err, nil, "")
 	}
@@ -163,8 +163,8 @@ func (a *Asset) memories(requestID, deviceID string, assetCount bool, days int) 
 		apiURL.RawQuery += "&count=true"
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.RequestConfig, memories)
-	body, _, _, err := immichAPICall(a.Ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, memories)
+	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		return immichAPIFail(memories, err, body, apiURL.String())
 	}
@@ -200,7 +200,7 @@ func memoriesCount(memories MemoriesResponse) int {
 func (a *Asset) MemoriesAssetsCount(requestID, deviceID string) int {
 	var m MemoriesResponse
 	var err error
-	pastDays := max(a.RequestConfig.PastMemoryDays, 0)
+	pastDays := max(a.requestConfig.PastMemoryDays, 0)
 
 	if pastDays > 0 {
 		m, _, err = a.memoriesWithPastDays(requestID, deviceID, true, pastDays)
@@ -270,8 +270,8 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 		var apiURL string
 		var err error
 
-		if a.RequestConfig.PastMemoryDays > 0 {
-			memories, apiURL, err = a.MemoriesWithPastDays(requestID, deviceID, a.RequestConfig.PastMemoryDays)
+		if a.requestConfig.PastMemoryDays > 0 {
+			memories, apiURL, err = a.MemoriesWithPastDays(requestID, deviceID, a.requestConfig.PastMemoryDays)
 		} else {
 			memories, apiURL, err = a.Memories(requestID, deviceID)
 		}
@@ -279,7 +279,7 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 			return err
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.RequestConfig.SelectedUser)
+		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 		if len(memories) == 0 {
 			log.Debug(requestID + " No assets left in cache. Refreshing and trying again for memories")
@@ -294,15 +294,15 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 		})
 
 		wantedAssetType := ImageOnlyAssetTypes
-		if a.RequestConfig.ShowVideos {
+		if a.requestConfig.ShowVideos {
 			wantedAssetType = AllAssetTypes
 		}
 
 		for assetIndex, asset := range memories[pickedMemoryIndex].Assets {
 
 			asset.Bucket = kiosk.SourceMemories
-			asset.RequestConfig = a.RequestConfig
-			asset.Ctx = a.Ctx
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
 
 			// temp fix for memories not being supplied with EXIF
 			infoErr := asset.AssetInfo(requestID, deviceID)
@@ -315,8 +315,8 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 				continue
 			}
 
-			if a.RequestConfig.Kiosk.Cache {
-				if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, assetIndex, apiCacheKey, a.RequestConfig.Duration); cacheErr != nil {
+			if a.requestConfig.Kiosk.Cache {
+				if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, assetIndex, apiCacheKey, a.requestConfig.Duration); cacheErr != nil {
 					return cacheErr
 				}
 			}
@@ -334,7 +334,7 @@ func (a *Asset) RandomMemoryAsset(requestID, deviceID string) error {
 
 		// no viable assets left in memories
 		memories[pickedMemoryIndex].Assets = make([]Asset, 1)
-		if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, 0, apiCacheKey, a.RequestConfig.Duration); cacheErr != nil {
+		if cacheErr := updateMemoryCache(memories, pickedMemoryIndex, 0, apiCacheKey, a.requestConfig.Duration); cacheErr != nil {
 			return cacheErr
 		}
 
@@ -355,8 +355,8 @@ func (a *Asset) IsMemory() (bool, Memory, int) {
 	var m []Memory
 	var err error
 
-	if a.RequestConfig.PastMemoryDays > 0 {
-		m, _, err = a.MemoriesWithPastDays(kiosk.GlobalCache, memLookUp, a.RequestConfig.PastMemoryDays)
+	if a.requestConfig.PastMemoryDays > 0 {
+		m, _, err = a.MemoriesWithPastDays(kiosk.GlobalCache, memLookUp, a.requestConfig.PastMemoryDays)
 	} else {
 		m, _, err = a.Memories(kiosk.GlobalCache, memLookUp)
 	}

@@ -63,7 +63,7 @@ func convertFaceResponse(faceResponse []AssetFaceResponse) []Person {
 func (a *Asset) CheckForFaces(requestID, deviceID string) {
 	var faceResponse []AssetFaceResponse
 
-	u, err := url.Parse(a.RequestConfig.ImmichURL)
+	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(faceResponse, err, nil, "")
 		log.Error("parsing faces url", "err", err)
@@ -77,8 +77,8 @@ func (a *Asset) CheckForFaces(requestID, deviceID string) {
 		RawQuery: "id=" + a.ID,
 	}
 
-	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.RequestConfig, faceResponse)
-	body, _, _, err := immichAPICall(a.Ctx, http.MethodGet, apiURL.String(), nil)
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, faceResponse)
+	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
 		_, _, err = immichAPIFail(faceResponse, err, body, apiURL.String())
 		log.Error("adding faces", "err", err)
