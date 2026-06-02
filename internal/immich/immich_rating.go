@@ -14,7 +14,6 @@ import (
 )
 
 func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string) (int, error) {
-
 	var totalAssetsCount int
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
@@ -53,7 +52,6 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 }
 
 func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]Asset, string, error) {
-
 	requestBody := SearchRandomBody{
 		Type:       string(ImageType),
 		Rating:     &rating,
@@ -80,7 +78,6 @@ func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]
 }
 
 func (a *Asset) RandomAssetWithRating(ratingID string, requestID, deviceID string, isPrefetch bool) error {
-
 	_, ratingStr, ok := strings.Cut(ratingID, "-")
 	if !ok {
 		return fmt.Errorf("invalid rating format (cut): %s", ratingID)
@@ -145,7 +142,7 @@ func (a *Asset) RandomAssetWithRating(ratingID string, requestID, deviceID strin
 				}
 
 				// replace cache with used asset(s) removed
-				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 			}
 
 			asset.BucketID = fmt.Sprintf("rating-%.2f", rating)

@@ -43,7 +43,6 @@ func New() *Common {
 // initializeSecret generates and sets a secret token that is shared between application components
 // this shared secret is used for secure communication and authentication between services
 func (c *Common) initializeSecret() error {
-
 	secret, err := utils.GenerateSharedSecret()
 	if err != nil {
 		return fmt.Errorf("failed to generate shared secret: %w", err)
@@ -121,7 +120,6 @@ type ContextCopy struct {
 // This allows preserving context information without maintaining a reference to the original context
 // Returns a ContextCopy containing the URL and header information
 func CopyContext(c *echo.Context) ContextCopy {
-
 	ctxCopy := ContextCopy{
 		URL:            *c.Request().URL,
 		RequestHeader:  c.Request().Header.Clone(),

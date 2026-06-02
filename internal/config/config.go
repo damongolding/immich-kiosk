@@ -167,7 +167,7 @@ type WeatherLocation struct {
 	Name      string                     `yaml:"name" mapstructure:"name" redact:"true"`
 	Lat       string                     `yaml:"lat" mapstructure:"lat" redact:"true"`
 	Lon       string                     `yaml:"lon" mapstructure:"lon" redact:"true"`
-	API       string                     `yaml:"api" mapstructure:"api" redact:"true"`
+	API       string                     `yaml:"api" mapstructure:"api" redact:"true" msgpack:"-"`
 	Unit      string                     `yaml:"unit" mapstructure:"unit" redact:"true"`
 	Lang      string                     `yaml:"lang" mapstructure:"lang" redact:"true"`
 	Show      WeatherLocationStatOptions `yaml:"show" mapstructure:"show" default:""`
@@ -195,7 +195,6 @@ func (w Webhooks) ContainsEvent(event string) bool {
 
 // ClientData represents the client-specific dimensions received from the frontend.
 type ClientData struct {
-
 	// FullyVersion stores the version info for Fully Kiosk Browser
 	FullyVersion string `json:"fully_version" query:"fully_version" form:"fully_version"`
 	// FullyWebviewVersion stores the webview version for Fully Kiosk Browser
@@ -248,7 +247,7 @@ type Config struct {
 	mu *sync.RWMutex `json:"-" yaml:"-"`
 
 	// ImmichUsersAPIKeys a map of usernames to their respective api keys for accessing Immich
-	ImmichUsersAPIKeys map[string]string `json:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}" redact:"true"`
+	ImmichUsersAPIKeys map[string]string `json:"-" msgpack:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}" redact:"true"`
 	// URLParamUsers the user(s) submitted via URL query parameter
 	URLParamUsers []string `json:"user" yaml:"-" mapstructure:"-" query:"user" form:"user" default:"[]" redact:"true"`
 	// ReloadTimeStamp timestamp for when the last client reload was called for
@@ -265,7 +264,7 @@ type Config struct {
 	ClientData ClientData `yaml:"-"`
 
 	// ImmichAPIKey Immich key to access assets
-	ImmichAPIKey string `json:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:"" redact:"true"`
+	ImmichAPIKey string `json:"-" msgpack:"-" yaml:"immich_api_key" mapstructure:"immich_api_key" default:"" redact:"true"`
 	// ImmichURL Immuch base url
 	ImmichURL string `json:"-" yaml:"immich_url" mapstructure:"immich_url" default:"" redact:"true"`
 
@@ -491,6 +490,9 @@ type Config struct {
 	OfflineMode    OfflineMode `json:"offlineMode" yaml:"offline_mode" mapstructure:"offline_mode"`
 	UseOfflineMode bool        `json:"useOfflineMode" yaml:"use_offline_mode" mapstructure:"use_offline_mode" query:"use_offline_mode" form:"use_offline_mode" default:"false"`
 
+	// CacheDuration user specified duration (in seconds) for which cache entries should be kept before expiring.
+	CacheDuration int `json:"cacheDuration" yaml:"cache_duration" mapstructure:"cache_duration" query:"cache_duration" form:"cache_duration" default:"0"`
+
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `json:"kiosk" yaml:"kiosk" mapstructure:"kiosk"`
 }
@@ -583,7 +585,6 @@ func isValidYAML(filename string) error {
 
 // load loads yaml config file into memory, then loads ENV vars. ENV vars overwrites yaml settings.
 func (c *Config) Load() error {
-
 	if bindErr := bindEnvironmentVariables(c.V); bindErr != nil {
 		log.Error("binding environment variables", "err", bindErr)
 	}
@@ -680,7 +681,6 @@ func getHistory(queries url.Values) []string {
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error {
-
 	if c.Kiosk.DisableURLQueries {
 		c.History = getHistory(queries)
 		return nil
@@ -748,7 +748,6 @@ func (c *Config) String() string {
 }
 
 func (c *Config) SanitizedYaml() string {
-
 	red := RedactedCopy(*c) // deep redacted clone
 	out, err := yaml.Marshal(red)
 	if err != nil {

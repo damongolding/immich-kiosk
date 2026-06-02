@@ -12,6 +12,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -56,6 +57,9 @@ func init() {
 
 // main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "--healthcheck" {
+		os.Exit(healthCheck())
+	}
 
 	var logLevel log.Level
 	setLogLevel(&logLevel)
@@ -327,7 +331,6 @@ func NoCacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 // Middleware for static routes with access to baseConfig
 func StaticCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-
 		if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
 			return NoCacheMiddleware(next)
 		}
@@ -342,7 +345,6 @@ func StaticCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareF
 // Middleware for asset(s) routes with access to baseConfig
 func AssetCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-
 		if baseConfig.Kiosk.Debug || baseConfig.Kiosk.DebugVerbose {
 			return NoCacheMiddleware(next)
 		}
@@ -352,4 +354,42 @@ func AssetCacheMiddlewareWithConfig(baseConfig *config.Config) echo.MiddlewareFu
 			return next(c)
 		}
 	}
+}
+
+func healthCheck() int {
+	port := os.Getenv("KIOSK_PORT")
+	if port == "" {
+		port = "3000"
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://localhost:%s/health", port), nil)
+	if err != nil {
+		log.Error("healthcheck NewRequestWithContext", "err", err)
+		return 1
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error("healthcheck client.Do", "err", err)
+		return 1
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("healthcheck io.ReadAll", "err", err)
+		return 1
+	}
+
+	fmt.Println(string(body))
+
+	if resp.StatusCode != http.StatusOK {
+		return 1
+	}
+
+	return 0
 }

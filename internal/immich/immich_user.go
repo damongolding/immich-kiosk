@@ -45,7 +45,6 @@ func (a *Asset) Me(requestID, deviceID string) (UserResponse, error) {
 }
 
 func (a *Asset) UserOwnsAsset(requestID, deviceID string) bool {
-
 	me, meErr := a.Me(requestID, deviceID)
 	if meErr != nil {
 		log.Error("Error getting user", "error", meErr)
@@ -56,7 +55,6 @@ func (a *Asset) UserOwnsAsset(requestID, deviceID string) bool {
 }
 
 func (a *Asset) ApplyUserFromAssetID(assetID string) (string, string) {
-
 	var userAPI string
 	var userFound bool
 

@@ -26,7 +26,7 @@ class PollingController {
     private menuElement: HTMLElement | null = null;
     private currentProgressSource: ProgressSource | null = null;
     private video: HTMLVideoElement | null = null;
-    private playTimeout: number | null;
+    private playTimeout!: number | null;
 
     private constructor() {
         // Private constructor to enforce singleton pattern

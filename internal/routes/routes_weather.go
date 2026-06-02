@@ -15,7 +15,6 @@ import (
 
 func Weather(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err

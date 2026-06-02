@@ -60,7 +60,6 @@ var errVideoNotReady = errors.New("video not ready")
 //   - A slice of AssetWithWeighting containing the weightings for each asset source
 //   - An error if any database queries fail
 func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string) ([]utils.AssetWithWeighting, error) {
-
 	assets := []utils.AssetWithWeighting{}
 
 	filterNewest := requestConfig.FilterNewest > 0
@@ -243,7 +242,6 @@ func gatherDates(d *gatherData) {
 			Weight: dateWeight,
 		})
 	}
-
 }
 
 func gatherRatedAssets(d *gatherData) error {
@@ -311,7 +309,6 @@ func isSleepMode(requestConfig config.Config) bool {
 // retrieveImage fetches a random image based on the picked image type.
 // It returns an error if the image retrieval fails.
 func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
-
 	switch pickedAsset.Type {
 	case kiosk.SourceAlbum:
 		switch pickedAsset.ID {
@@ -375,7 +372,6 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 	default:
 		return immichAsset.RandomAsset(requestID, deviceID, isPrefetch)
 	}
-
 }
 
 // fetchImagePreview retrieves and decodes an image preview from the given Immich asset, optionally applying EXIF orientation correction.
@@ -405,7 +401,6 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 // processAsset handles the entire process of selecting and retrieving an image.
 // It returns the image bytes and an error if any step fails.
 func processAsset(asset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
-
 	var err error
 
 	assets, assetsErr := gatherAssetBuckets(asset, requestConfig, requestID, deviceID)
@@ -443,7 +438,6 @@ func processAsset(asset *immich.Asset, requestConfig config.Config, requestID st
 	}
 
 	return nil, fmt.Errorf("%w: max retries exceeded", err)
-
 }
 
 // processVideo handles retrieving and processing video assets.
@@ -469,7 +463,6 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview
 func processImage(immichAsset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
-
 	if requestConfig.LivePhotos && immichAsset.LivePhotoVideoID != "" {
 
 		isDownloaded := VideoManager.IsDownloaded(immichAsset.LivePhotoVideoID)
@@ -560,7 +553,6 @@ func logImageProcessing(verboseLogging bool, requestID, deviceID string, isPrefe
 
 // DrawFaceOnImage draws bounding boxes around detected faces in an image
 func DrawFaceOnImage(img image.Image, i *immich.Asset) image.Image {
-
 	if len(i.People) == 0 && len(i.UnassignedFaces) == 0 {
 		log.Debug("no people found")
 		return img
@@ -596,7 +588,6 @@ func DrawFaceOnImage(img image.Image, i *immich.Asset) image.Image {
 	dc.Fill()
 
 	return dc.Image()
-
 }
 
 // processViewImageData processes an image request and returns view data for display.
@@ -676,7 +667,6 @@ func setupImmichAsset(config config.Config, orientation immich.ImageOrientation)
 // handleRelativeAssetConfig updates the config buckets based on the relative asset options.
 // Resets existing buckets and configures the appropriate bucket based on the asset source type.
 func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDataOptions) {
-
 	config.ResetBuckets()
 	config.Memories = false
 
@@ -714,7 +704,6 @@ func handleFaceProcessing(img image.Image, asset *immich.Asset, config config.Co
 // convertImages converts the provided image to base64 strings for both normal and blurred versions.
 // Returns the base64 encoded normal image, blurred image, and any error that occurred.
 func convertImages(img image.Image, assetType immich.AssetType, mimeType string, config config.Config, metadata requestMetadata, isPrefetch bool) (string, string, color.RGBA, error) {
-
 	var dominantColor color.RGBA
 
 	imgString, err := imageToBase64(img, mimeType, config.Kiosk.DebugVerbose, metadata.requestID, metadata.deviceID, "Converted", isPrefetch)
@@ -748,7 +737,6 @@ func ProcessViewImageDataWithOptions(requestConfig config.Config, c common.Conte
 
 // assetToCache stores view data in the cache and triggers prefetch webhooks
 func assetToCache(ctx context.Context, viewDataToAdd common.ViewData, requestConfig *config.Config, deviceID string, requestData *common.RouteRequestData, c common.ContextCopy) {
-
 	cache.AssetToCache(viewDataToAdd, requestConfig, deviceID, c.URL.String())
 
 	go webhooks.Trigger(ctx, requestData, KioskVersion, webhooks.PrefetchAsset, viewDataToAdd)
@@ -756,7 +744,6 @@ func assetToCache(ctx context.Context, viewDataToAdd common.ViewData, requestCon
 
 // assetPreFetch handles prefetching assets for the current request
 func assetPreFetch(common *common.Common, requestData *common.RouteRequestData, c common.ContextCopy) {
-
 	requestConfig := requestData.RequestConfig
 	requestID := requestData.RequestID
 	deviceID := requestData.DeviceID
@@ -792,13 +779,14 @@ func fromCache(urlString string, deviceID string) []common.ViewData {
 
 // renderCachedViewData renders cached page data and updates the cache.
 func renderCachedViewData(c *echo.Context, cachedViewData []common.ViewData, requestConfig *config.Config, requestID, deviceID, secret string) error {
-
 	log.Debug(requestID, "deviceID", deviceID, "cache hit for new image", true)
 
 	cacheKey := cache.ViewCacheKey(c.Request().URL.String(), deviceID)
 
 	viewDataToRender := cachedViewData[0]
-	cache.Set(cacheKey, cachedViewData[1:], requestConfig.Duration)
+	viewDataToSave := cachedViewData[1:]
+
+	cache.Set(cacheKey, viewDataToSave, requestConfig.Duration, requestConfig.CacheDuration)
 
 	// Update history which will be outdated in cache
 	utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
@@ -843,7 +831,6 @@ func determineLayoutMode(layout string, clientHeight, clientWidth int) string {
 // generateViewData prepares view data for a kiosk page request based on the specified layout and client display dimensions.
 // It selects and processes one or two assets as needed for the layout, handling orientation and split view logic, and returns the resulting ViewData or an error.
 func generateViewData(requestConfig config.Config, c common.ContextCopy, requestID, deviceID string, isPrefetch bool) (common.ViewData, error) {
-
 	viewData := common.ViewData{
 		RequestID: requestID,
 		DeviceID:  deviceID,

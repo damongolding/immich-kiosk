@@ -15,52 +15,69 @@ func TestMain(m *testing.M) {
 }
 
 func TestCacheSet(t *testing.T) {
-
 	tests := []struct {
-		name     string
-		duration int
-		want     time.Duration
+		name           string
+		deviceDuration int
+		cacheDuration  int
+		want           time.Duration
 	}{
 		{
-			name:     "Zero duration",
-			duration: 0,
-			want:     defaultExpiration,
+			name:           "Zero duration",
+			deviceDuration: 0,
+			cacheDuration:  0,
+			want:           defaultExpiration,
 		},
 		{
-			name:     "Less than default expiration",
-			duration: 10,
-			want:     defaultExpiration,
+			name:           "Less than default expiration",
+			deviceDuration: 10,
+			cacheDuration:  0,
+			want:           defaultExpiration,
 		},
 		{
-			name:     "More than default expiration",
-			duration: 360, // 6 minutes
-			want:     (6 * time.Minute) + time.Minute,
+			name:           "More than default expiration",
+			deviceDuration: 360, // 6 minutes
+			cacheDuration:  0,
+			want:           (6 * time.Minute) + time.Minute,
 		},
 		{
-			name:     "30 minutes. More than default expiration",
-			duration: 1800, // 30 minutes
-			want:     (30 * time.Minute) + time.Minute,
+			name:           "30 minutes. More than default expiration",
+			deviceDuration: 1800, // 30 minutes
+			cacheDuration:  0,
+			want:           (30 * time.Minute) + time.Minute,
 		},
 		{
-			name:     "Negative duration",
-			duration: -10,
-			want:     defaultExpiration,
+			name:           "Negative duration",
+			deviceDuration: -10,
+			cacheDuration:  0,
+			want:           defaultExpiration,
 		},
 		{
-			name:     "Exactly default expiration",
-			duration: 300,
-			want:     defaultExpiration + time.Minute,
+			name:           "Exactly default expiration",
+			deviceDuration: 300,
+			cacheDuration:  0,
+			want:           defaultExpiration + time.Minute,
+		},
+		{
+			name:           "Cache duration wins",
+			deviceDuration: 60,
+			cacheDuration:  600,
+			want:           (10 * time.Minute) + time.Minute,
+		},
+		{
+			name:           "Negative cache duration falls back",
+			deviceDuration: 360,
+			cacheDuration:  -1,
+			want:           defaultExpiration,
 		},
 	}
 
 	for i, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			key := fmt.Sprintf("test_%d", i)
 
 			expected := time.Now().Add(tt.want)
 
-			Set(key, key, tt.duration)
+			Set(key, key, tt.deviceDuration, tt.cacheDuration)
 			_, expiration, found := kioskCache.GetWithExpiration(key)
 			if !found {
 				t.Errorf("Expected key '%s' to be found in cache", key)
@@ -71,10 +88,8 @@ func TestCacheSet(t *testing.T) {
 			if diff < -tolerance || diff > tolerance {
 				t.Errorf("expected expiration within %v of %v, got %v (diff %v)", tolerance, expected, expiration, diff)
 			}
-
 		})
 	}
-
 }
 
 // TestCacheExpirationScenario simulates the real-world scenario of the bug fix:
@@ -97,7 +112,7 @@ func TestCacheExpirationScenario(t *testing.T) {
 	}
 
 	// Initial set
-	Set(key, album, duration)
+	Set(key, album, duration, 0)
 
 	startTime := time.Now()
 	initialExpected := startTime.Add(expectedExpiration)
@@ -139,7 +154,7 @@ func TestCacheExpirationScenario(t *testing.T) {
 		replaceTime := time.Now()
 		expectedAfterReplace := replaceTime.Add(expectedExpiration)
 
-		Set(key, currentAlbum, duration)
+		Set(key, currentAlbum, duration, 0)
 
 		// Verify expiration was properly extended
 		_, expiration, found := kioskCache.GetWithExpiration(key)
@@ -192,14 +207,14 @@ func TestOldBugBehavior(t *testing.T) {
 		longDuration := 720 // 12 minutes
 
 		// Set with long duration
-		Set(key, "initial", longDuration)
+		Set(key, "initial", longDuration, 0)
 
 		// Wait a moment
 		time.Sleep(10 * time.Millisecond)
 
 		// Update using Set - should maintain the long expiration calculation
 		beforeReplace := time.Now()
-		Set(key, "replaced", longDuration)
+		Set(key, "replaced", longDuration, 0)
 
 		_, expiration, found := kioskCache.GetWithExpiration(key)
 		if !found {

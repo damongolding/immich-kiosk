@@ -6,11 +6,10 @@ tasks:
   # Docker tasks
   docker-image:
     desc: Build docker image locally
-    deps: [build]
     cmds:
-      - orb start
+      - cmd: orb start
+        if: "command -v orb >/dev/null 2>&1"
       - docker build --no-cache --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
-      - orb stop
 
   docker-buildx:
     desc: Create and install docker buildx builder
@@ -19,7 +18,6 @@ tasks:
 
   dev-push:
     desc: Build and push development multi-arch docker image
-    deps: [build]
     cmds:
       - cmd: orb start
         if: "command -v orb >/dev/null 2>&1"
@@ -29,6 +27,5 @@ tasks:
 
   push:
     desc: Build and push development multi-arch docker image
-    deps: [build]
     cmds:
       - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t ghcr.io/damongolding/immich-kiosk:{{.VERSION}} -t ghcr.io/damongolding/immich-kiosk:latest .

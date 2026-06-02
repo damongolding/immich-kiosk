@@ -5,56 +5,58 @@ silent: true
 tasks:
   # Frontend tasks
   frontend:
-    deps: [frontend-test, frontend-css, frontend-js, frontend-url-builder]
-    dir: ./frontend
-    desc: Run frontend linting
-    cmds:
-      - bun run lint
+    deps: [frontend:typecheck, frontend:css, frontend:js, frontend:url-builder]
+    desc: Build all frontend assets
 
-  frontend-install:
+  frontend:install:
     dir: ./frontend
     desc: Install frontend dependencies
     cmds:
-      - bun install
+      - npm ci
 
-  frontend-build:
+  frontend:build:
     dir: ./frontend
     desc: Build frontend assets
-    cmds:
-      - bun run build
+    deps: [frontend:typecheck, frontend:css, frontend:js, frontend:url-builder]
 
-  frontend-test:
+  frontend:typecheck:
     dir: ./frontend
-    desc: Run frontend tests
+    desc: Type check TypeScript
     cmds:
-      - bun run test
+      - node_modules/.bin/tsc --noEmit
 
-  frontend-css:
+  frontend:lint:
+    dir: ./frontend
+    desc: Lint frontend assets
+    cmds:
+      - node_modules/.bin/biome lint --write
+
+  frontend:css:
     dir: ./frontend
     desc: Compile and minify CSS assets
     cmds:
-      - bun run css
+      - node_modules/.bin/esbuild --minify --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf --target=chrome106,edge106,firefox107,safari16.1,opera92 src/css/kiosk.css --outfile=./public/assets/css/kiosk.css
 
-  frontend-js:
+  frontend:js:
     dir: ./frontend
     desc: Build JavaScript assets
     cmds:
-      - bun run js
+      - node_modules/.bin/esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --minify --target=es6 --outfile=./public/assets/js/kiosk.js
 
-  frontend-url-builder:
+  frontend:url-builder:
     dir: ./frontend
     desc: Build URL builder assets
     cmds:
-      - bun run url-builder
+      - node_modules/.bin/esbuild 'src/ts/url-builder.ts' --format=iife --global-name=urlBuilder --bundle --minify --target=es6 --outfile=./public/assets/js/url-builder.js
 
-  frontend-outdated:
+  frontend:outdated:
     dir: ./frontend
     desc: Check for outdated frontend dependencies
     cmds:
-      - bun outdated || true
+      - npm outdated || true
 
-  frontend-update:
+  frontend:update:
     dir: ./frontend
     desc: Update frontend dependencies
     cmds:
-      - bun update
+      - npm update

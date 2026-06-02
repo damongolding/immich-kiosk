@@ -67,12 +67,10 @@ func TestRandomMutate(t *testing.T) {
 	RandomItem(original)
 
 	assert.Equal(t, originalCopy, original, "RandomItem should not mutate the original slice")
-
 }
 
 // TestRandomStruct get out what we expect
 func TestRandomStruct(t *testing.T) {
-
 	type RendomStructDemo struct {
 		name string
 		age  int
@@ -90,7 +88,6 @@ func TestRandomStruct(t *testing.T) {
 	assert.Contains(t, s, out, "RandomItem should return an item from the input slice")
 
 	assert.NotNil(t, out, "RandomItem should not return nil for a non-empty slice")
-
 }
 
 // TestDateToLayout tests the DateToLayout function with various input formats.
@@ -224,7 +221,7 @@ func TestIsSleepTime(t *testing.T) {
 			name:           "overnight: in sleep time",
 			sleepStartTime: "22",
 			sleepEndTime:   "7",
-			currentTime:    time.Date(2023, 1, 2, 2, 00, 0, 0, time.UTC), // 02:00
+			currentTime:    time.Date(2023, 1, 2, 2, 0o0, 0, 0, time.UTC), // 02:00
 			want:           true,
 			wantErr:        false,
 		},
@@ -233,7 +230,7 @@ func TestIsSleepTime(t *testing.T) {
 			name:           "overnight: out of sleep time",
 			sleepStartTime: "22",
 			sleepEndTime:   "7",
-			currentTime:    time.Date(2023, 1, 2, 8, 00, 0, 0, time.UTC), // 08:00
+			currentTime:    time.Date(2023, 1, 2, 8, 0o0, 0, 0, time.UTC), // 08:00
 			want:           false,
 			wantErr:        false,
 		},
@@ -757,7 +754,6 @@ func TestSanitizeClassName(t *testing.T) {
 }
 
 func TestContainsWholeWord(t *testing.T) {
-
 	tests := []struct {
 		name string
 		a    string
@@ -864,7 +860,6 @@ func TestContainsWholeWord(t *testing.T) {
 					"ContainsWholeWord(%q, %q) = %v, want %v",
 					tt.a, tt.b, got, tt.want,
 				)
-
 			}
 		})
 	}

@@ -13,7 +13,6 @@ import (
 
 func FlushCache(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err

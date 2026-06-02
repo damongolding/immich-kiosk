@@ -56,3 +56,8 @@ frontend/public/assets/js/*.js
 
 result
 result-*
+
+data/
+
+
+docker-compose-local.yaml

@@ -18,9 +18,11 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
-type ImageOrientation string
-type AssetType string
-type AssetOrder string
+type (
+	ImageOrientation string
+	AssetType        string
+	AssetOrder       string
+)
 
 const (
 	MaxRetries = 3
@@ -159,7 +161,7 @@ type Asset struct {
 	StackCount     any       `json:"-"` // `json:"stackCount"`
 	DuplicateID    any       `json:"-"` // `json:"duplicateId"`
 
-	ctx context.Context `json:"-"`
+	ctx context.Context `json:"-" msgpack:"-"`
 
 	mu               *sync.Mutex
 	Owner            Owner     `json:"owner"`

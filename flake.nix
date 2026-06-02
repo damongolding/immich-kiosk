@@ -17,7 +17,7 @@
             gotools
             go-task
             golangci-lint
-            bun
+            nodejs
           ];
           shellHook = ''
             echo "immich-kiosk development environment"

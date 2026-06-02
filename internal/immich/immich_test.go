@@ -10,7 +10,6 @@ import (
 
 // TestArchiveLogic tests the handling of archived and trashed assets
 func TestArchiveLogic(t *testing.T) {
-
 	tests := []struct {
 		Type                  string
 		IsTrashed             bool
@@ -59,7 +58,6 @@ func TestArchiveLogic(t *testing.T) {
 
 // TestFacesCenterPoint tests the calculation of the center point between detected faces in an asset
 func TestFacesCenterPoint(t *testing.T) {
-
 	tests := []struct {
 		name  string
 		asset Asset
@@ -561,7 +559,6 @@ func TestTagMatches(t *testing.T) {
 }
 
 func TestExpandTags(t *testing.T) {
-
 	tests := []struct {
 		name     string
 		tag      string
@@ -594,7 +591,6 @@ func TestExpandTags(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			expandedTags := []string{}
 
 			expandedTags = addRecursiveTags(tt.tag, expandedTags, allTags)

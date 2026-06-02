@@ -13,7 +13,6 @@ import (
 // Returns the video data as a byte slice, the contentType, and any error encountered.
 // The video is returned in octet-stream format.
 func (a *Asset) Video() ([]byte, string, error) {
-
 	var responseBody []byte
 	var contentType string
 
@@ -45,7 +44,6 @@ func (a *Asset) Video() ([]byte, string, error) {
 //
 // The duration string is expected to be in the format "HH:MM:SS".
 func (a *Asset) durationCheck() bool {
-
 	// Parse HH:MM:SS format
 	var hours, minutes, seconds int
 	_, err := fmt.Sscanf(a.Duration, "%d:%d:%d", &hours, &minutes, &seconds)

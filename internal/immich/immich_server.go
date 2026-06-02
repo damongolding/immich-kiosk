@@ -35,7 +35,6 @@ type ServerAboutResponse struct {
 }
 
 func (a *Asset) AboutInfo() (ServerAboutResponse, error) {
-
 	var serverAboutResponse ServerAboutResponse
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
@@ -67,7 +66,6 @@ type ServerPingResponse struct {
 }
 
 func IsOnline(ctx context.Context, immichURL string) bool {
-
 	var pong ServerPingResponse
 
 	u, err := url.Parse(immichURL)

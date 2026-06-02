@@ -13,7 +13,6 @@ import (
 
 // favouriteAssetsCount retrieves the total count of favorite assets from the Immich server.
 func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
-
 	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(0, err, nil, "")
@@ -68,7 +67,6 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 //   - error: Any error encountered during the operation, including API failures,
 //     marshaling errors, cache operations, or when max retries are reached with No viable assets found
 func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch bool) error {
-
 	if isPrefetch {
 		log.Debug(requestID, "PREFETCH", deviceID, "Getting Random favourite asset", true)
 	} else {
@@ -132,7 +130,7 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 				}
 
 				// replace cache minus used image
-				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration)
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 			}
 
 			asset.BucketID = kiosk.AlbumKeywordFavourites
@@ -150,7 +148,6 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 }
 
 func (a *Asset) FavouriteStatus(deviceID string, favourite bool) error {
-
 	body := UpdateAssetBody{
 		IsFavorite: favourite,
 		IsArchived: a.IsArchived,

@@ -81,22 +81,23 @@ func Get(s string) (any, bool) {
 	return kioskCache.Get(s)
 }
 
-// Set stores a value in the cache under the given key.
-// If deviceDuration is less than the defaultExpiration, the default expiration is used.
-// Otherwise, the item expires after deviceDuration plus one extra minute.
-// If the key already exists, its value is replaced.
-func Set(key string, x any, deviceDuration int) {
-	if deviceDuration < 0 {
-		log.Warn("Negative duration provided, using default expiration", "deviceDuration", deviceDuration)
-		kioskCache.Set(key, x, gocache.DefaultExpiration)
+// Set stores a value in the cache under the given key, replacing any existing entry.
+// The expiration is determined by taking the larger of deviceDuration and cacheDuration
+// (each extended by one minute), with defaultExpiration used as a lower bound.
+// If either duration is negative, gocache.DefaultExpiration is used and a warning is logged.
+func Set(key string, value any, deviceDuration, cacheDuration int) {
+	if deviceDuration < 0 || cacheDuration < 0 {
+		log.Warn("Negative duration or cache duration provided, using default expiration", "deviceDuration", deviceDuration, "cacheDuration", cacheDuration)
+		kioskCache.Set(key, value, gocache.DefaultExpiration)
 		return
 	}
+
 	deviceDurationPlusMin := (time.Duration(deviceDuration) * time.Second) + time.Minute
-	if deviceDurationPlusMin <= defaultExpiration {
-		kioskCache.Set(key, x, gocache.DefaultExpiration)
-		return
-	}
-	SetWithExpiration(key, x, deviceDurationPlusMin)
+	cacheDurationPlusMin := (time.Duration(cacheDuration) * time.Second) + time.Minute
+
+	d := max(deviceDurationPlusMin, cacheDurationPlusMin, defaultExpiration)
+
+	kioskCache.Set(key, value, d)
 }
 
 // SetWithExpiration adds an item to the cache with the specified expiration duration.
@@ -158,5 +159,5 @@ func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID
 		cachedViewData = append([]T{viewDataToAdd}, cachedViewData...)
 	}
 
-	Set(viewCacheKey, cachedViewData, requestConfig.Duration)
+	Set(viewCacheKey, cachedViewData, requestConfig.Duration, requestConfig.CacheDuration)
 }

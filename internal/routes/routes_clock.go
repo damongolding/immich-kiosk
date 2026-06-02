@@ -13,7 +13,6 @@ import (
 // Clock clock endpoint
 func Clock(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c *echo.Context) error {
-
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
