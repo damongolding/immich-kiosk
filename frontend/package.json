@@ -35,5 +35,8 @@
     "and_chr >= 106",
     "firefox >= 107",
     "safari >= 16.1"
-  ]
+  ],
+  "allowScripts": {
+    "esbuild@0.28.0": true
+  }
 }
