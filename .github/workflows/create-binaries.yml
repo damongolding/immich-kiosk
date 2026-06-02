@@ -14,14 +14,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install bun
-        uses: oven-sh/setup-bun@v2
+      - uses: jdx/mise-action@v4
+        with:
+          install: true
 
-      - name: Install dependencies
-        run: cd frontend && bun install --frozen-lockfile
-
-      - name: Build frontend
-        run: cd frontend && bun run css && bun run js && bun run url-builder
+      - run: task frontend:install
+      - run: task frontend:build
 
       - name: Set up Go
         uses: actions/setup-go@v6
