@@ -12,7 +12,6 @@ services:
       - ./config:/config
       # - ./custom.css:/custom.css
       # - ./offline-assets:/offline-assets
-      # - ./data:/data
     restart: always
     healthcheck:
       test: ["CMD", "/kiosk", "--healthcheck"]
