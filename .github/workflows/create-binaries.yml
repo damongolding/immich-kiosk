@@ -17,6 +17,7 @@ jobs:
       - uses: jdx/mise-action@v4
         with:
           install: true
+          cache: false
 
       - run: task frontend:install
       - run: task frontend:build
