@@ -6,6 +6,9 @@ labels: ''
 assignees: ''
 ---
 
+> [!TIP]
+> If something is no longer working as expected, check the release notes for known issues or breaking changes.
+
 ### Describe the bug
 A clear and concise description of what the bug is.
 
