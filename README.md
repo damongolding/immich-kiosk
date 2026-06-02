@@ -65,6 +65,10 @@ If you'd like to chat or need some informal help, feel free to find me in the Ki
 
 ------
 
+## AI usage
+ImmichKiosk is hand-curated without any direct AI assistance.
+
+We use CodeRabbit to review code changes but it's mainly used to provide feedback (which is oftern ignored), catch bugs and fix my many many typos.
 
 <!-- LINKS & IMAGES -->
 [immich-github-url]: https://github.com/immich-app/immich
