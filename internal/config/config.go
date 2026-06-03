@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
 	"net/url"
 	"os"
 	"reflect"
@@ -611,8 +612,18 @@ func (c *Config) Load() error {
 		switch {
 		case errors.As(readInConfigErr, &configFileNotFoundErr):
 			log.Info("Not using config.yaml")
+
+		case errors.Is(readInConfigErr, fs.ErrPermission):
+			fileInfo, err := os.Stat(c.V.ConfigFileUsed())
+			if err != nil {
+				return fmt.Errorf("getting config file info: %w", err)
+			}
+
+			mode := fmt.Sprintf("%o", fileInfo.Mode().Perm())
+			return fmt.Errorf("config file permission is %s, it should be %o: %w", mode, os.FileMode(0o644), readInConfigErr)
+
 		case isValidYAML(c.V.ConfigFileUsed()) != nil:
-			log.Fatal(readInConfigErr)
+			return fmt.Errorf("invalid YAML: %w", readInConfigErr)
 		}
 	} else {
 		level := strings.ToLower(strings.TrimSpace(c.V.GetString("kiosk.config_validation_level")))
