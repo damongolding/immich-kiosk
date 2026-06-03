@@ -161,6 +161,10 @@
       "maximum": 1000,
       "description": "Filter to limit assets to the newest X"
     },
+    "filter_exclude_faces": {
+      "type": "boolean",
+      "description": "Exclude assets where Immich has detected a face"
+    },
     "show_videos": {
       "type": "boolean"
     },
