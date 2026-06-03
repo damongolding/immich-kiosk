@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
 	"net/url"
 	"os"
 	"reflect"
@@ -611,6 +612,17 @@ func (c *Config) Load() error {
 		switch {
 		case errors.As(readInConfigErr, &configFileNotFoundErr):
 			log.Info("Not using config.yaml")
+
+		case errors.Is(readInConfigErr, fs.ErrPermission):
+			fileInfo, err := os.Stat(c.V.ConfigFileUsed())
+			if err != nil {
+				log.Fatal("Error getting config file info: ", err)
+			}
+
+			mode := fmt.Sprintf("%o", fileInfo.Mode().Perm())
+			es := fmt.Sprintf("Config file permission is %s, it should be %o", mode, os.FileMode(0o644))
+			log.Fatal(es, "err", readInConfigErr)
+
 		case isValidYAML(c.V.ConfigFileUsed()) != nil:
 			log.Fatal(readInConfigErr)
 		}
