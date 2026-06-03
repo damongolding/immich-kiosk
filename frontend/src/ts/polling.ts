@@ -179,7 +179,10 @@ class PollingController {
         if (!this.isPaused || this.animationFrameId !== null) return;
 
         if (this.currentProgressSource?.type === "video" && this.video) {
-            this.video.play();
+            this.video.play().catch((error) => {
+                console.error("Video playback error on resume:", error);
+                this.handleVideoError(error);
+            });
         } else {
             this.currentProgressSource = {
                 type: "image",
