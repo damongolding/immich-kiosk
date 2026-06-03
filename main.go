@@ -98,7 +98,7 @@ func main() {
 
 	configErr := baseConfig.Load()
 	if configErr != nil {
-		log.Error("Failed to load config", "err", configErr)
+		log.Fatal("Failed to load config", "err", configErr)
 	}
 
 	if baseConfig.Kiosk.DemoMode {

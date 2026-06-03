@@ -616,15 +616,14 @@ func (c *Config) Load() error {
 		case errors.Is(readInConfigErr, fs.ErrPermission):
 			fileInfo, err := os.Stat(c.V.ConfigFileUsed())
 			if err != nil {
-				log.Fatal("Error getting config file info: ", err)
+				return fmt.Errorf("getting config file info: %w", err)
 			}
 
 			mode := fmt.Sprintf("%o", fileInfo.Mode().Perm())
-			es := fmt.Sprintf("Config file permission is %s, it should be %o", mode, os.FileMode(0o644))
-			log.Fatal(es, "err", readInConfigErr)
+			return fmt.Errorf("config file permission is %s, it should be %o: %w", mode, os.FileMode(0o644), readInConfigErr)
 
 		case isValidYAML(c.V.ConfigFileUsed()) != nil:
-			log.Fatal(readInConfigErr)
+			return fmt.Errorf("invalid YAML: %w", readInConfigErr)
 		}
 	} else {
 		level := strings.ToLower(strings.TrimSpace(c.V.GetString("kiosk.config_validation_level")))
