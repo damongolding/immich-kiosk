@@ -9,6 +9,7 @@ import (
 	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/weather"
 	"github.com/labstack/echo/v5"
 )
@@ -26,8 +27,14 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 		}
 
 		requestID := requestData.RequestID
+		formParams, err := c.FormValues()
+		if err != nil {
+			log.Error("weather display overrides", "error", err, "path", c.Request().URL.Path)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to process request")
+		}
+		requestParams := utils.MergeQueries(c.QueryParams(), formParams)
 
-		locationName := c.FormValue(weather.WeatherParam)
+		locationName := requestParams.Get(weather.WeatherParam)
 		// Enable weather rotation in demo mode
 		if baseConfig.Kiosk.DemoMode {
 			locationName = weather.WeatherRotation
@@ -43,7 +50,7 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 
 		// handle weather rotation
 		if locationName == weather.WeatherRotation {
-			currentWeatherRotation, cwrErr := strconv.Atoi(c.FormValue(weather.WeatherRotationParam))
+			currentWeatherRotation, cwrErr := strconv.Atoi(requestParams.Get(weather.WeatherRotationParam))
 			if cwrErr != nil {
 				log.Warn("Could not parse weather location position", "error", cwrErr)
 				return c.NoContent(http.StatusNoContent)
@@ -76,6 +83,9 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 					"location", locationName)
 				time.Sleep(time.Duration(1<<attempts) * time.Second)
 				continue
+			}
+			if !requestData.RequestConfig.Kiosk.DisableURLQueries {
+				weatherLocation = weather.ApplyDisplayOverrides(weatherLocation, requestParams)
 			}
 			return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation, nextWeatherRotation, baseConfig.SystemLang))
 

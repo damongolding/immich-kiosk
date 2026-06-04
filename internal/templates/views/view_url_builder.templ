@@ -139,6 +139,19 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						@URLBuilderText("Date format", "date_format", "The format in which the date will be displayed.", c.DateFormat)
 						@URLBuilderRadio("Clock source", "clock_source", "The source of the clock.", "Client", "client", "Server", "server")
 					}
+					if extended {
+						// Weather
+						<h2>Weather</h2>
+						@URLBuilderText("Weather location", "weather", "The configured weather location name, or rotate to cycle through configured locations.", "")
+						@URLBuilderNumber("Weather rotation interval", "rotation_interval", "The interval in seconds to rotate weather locations.", 10, 0, strconv.FormatInt(int64(c.Weather.RotationInterval), 10))
+						@URLBuilderRadio("Show forecast", "weather_show_forecast", "Display the weather forecast when forecast data is configured for the selected location.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show humidity", "weather_show_humidity", "Display the humidity stat.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show wind", "weather_show_wind", "Display the wind stat.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show wind direction", "weather_show_wind_direction", "Display degrees for wind direction.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show visibility", "weather_show_visibility", "Display the visibility stat.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show temperature range", "weather_show_temperature_range", "Display the next 24 hour high and low when forecast data is configured for the selected location.", "true", "true", "false", "false")
+						@URLBuilderRadio("Round temperature", "weather_round_temperature", "Round displayed temperatures to whole numbers.", "true", "true", "false", "false")
+					}
 					// UI
 					<h2>User Interface</h2>
 					if extended {
