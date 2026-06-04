@@ -288,7 +288,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 func (a *Asset) RandomPersonFromAllPeople(requestID, deviceID string, knowPeopleOnly bool) (string, error) {
 	people, err := a.people(requestID, deviceID, knowPeopleOnly, false)
 	if err != nil {
-		return "", fmt.Errorf("failed to get people: %w", err)
+		return "", fmt.Errorf("get people: %w", err)
 	}
 
 	if len(people) == 0 {

@@ -30,7 +30,7 @@ func validateConfigFile(path string) error {
 		return nil
 	}
 	if fileInfo.IsDir() {
-		return fmt.Errorf("Config file is a directory: %s", path)
+		return fmt.Errorf("config file is a directory: %s", path)
 	}
 	return nil
 }

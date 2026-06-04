@@ -573,7 +573,7 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 func isValidYAML(filename string) error {
 	content, err := os.ReadFile(filename)
 	if err != nil {
-		return fmt.Errorf("error reading file: %w", err)
+		return fmt.Errorf("reading file: %w", err)
 	}
 
 	var data any
@@ -581,6 +581,52 @@ func isValidYAML(filename string) error {
 		return fmt.Errorf("invalid YAML: %w", err)
 	}
 
+	return nil
+}
+
+func configErrCheck(readInConfigErr error, configFileUsed string) error {
+	if readInConfigErr == nil {
+		return nil
+	}
+
+	var configFileNotFoundErr viper.ConfigFileNotFoundError
+	switch {
+	case errors.As(readInConfigErr, &configFileNotFoundErr):
+		err := configDirPermCheck()
+		if err != nil {
+			return errors.Join(err, configFileNotFoundErr)
+		}
+
+		log.Info("Not using config.yaml")
+
+	case errors.Is(readInConfigErr, fs.ErrPermission):
+		fileInfo, err := os.Stat(configFileUsed)
+		if err != nil {
+			return fmt.Errorf("getting config file info: %w", err)
+		}
+
+		mode := fmt.Sprintf("%o", fileInfo.Mode().Perm())
+		return fmt.Errorf("config file permission is %s, it should be %o: %w", mode, os.FileMode(0o644), readInConfigErr)
+
+	case isValidYAML(configFileUsed) != nil:
+		return fmt.Errorf("invalid YAML: %w", readInConfigErr)
+	}
+
+	return nil
+}
+
+func configDirPermCheck() error {
+	dirInfo, err := os.Stat("./config")
+	if err != nil {
+		return fmt.Errorf("getting config dir info: %w", err)
+	}
+	if dirInfo.IsDir() {
+		mode := fmt.Sprintf("%o", dirInfo.Mode().Perm())
+		if mode != "755" {
+			return fmt.Errorf("config directory permission is %s, it should be %o", mode, os.FileMode(0o755))
+		}
+		return nil
+	}
 	return nil
 }
 
@@ -607,34 +653,19 @@ func (c *Config) Load() error {
 	c.V.AutomaticEnv()
 
 	readInConfigErr := c.V.ReadInConfig()
+	readInConfigErr = configErrCheck(readInConfigErr, c.V.ConfigFileUsed())
 	if readInConfigErr != nil {
-		var configFileNotFoundErr viper.ConfigFileNotFoundError
-		switch {
-		case errors.As(readInConfigErr, &configFileNotFoundErr):
-			log.Info("Not using config.yaml")
+		return readInConfigErr
+	}
 
-		case errors.Is(readInConfigErr, fs.ErrPermission):
-			fileInfo, err := os.Stat(c.V.ConfigFileUsed())
-			if err != nil {
-				return fmt.Errorf("getting config file info: %w", err)
-			}
+	level := strings.ToLower(strings.TrimSpace(c.V.GetString("kiosk.config_validation_level")))
+	if level != kiosk.ConfigValidationWarning && level != kiosk.ConfigValidationError && level != kiosk.ConfigValidationOff {
+		level = kiosk.ConfigValidationError
+	}
 
-			mode := fmt.Sprintf("%o", fileInfo.Mode().Perm())
-			return fmt.Errorf("config file permission is %s, it should be %o: %w", mode, os.FileMode(0o644), readInConfigErr)
-
-		case isValidYAML(c.V.ConfigFileUsed()) != nil:
-			return fmt.Errorf("invalid YAML: %w", readInConfigErr)
-		}
-	} else {
-		level := strings.ToLower(strings.TrimSpace(c.V.GetString("kiosk.config_validation_level")))
-		if level != kiosk.ConfigValidationWarning && level != kiosk.ConfigValidationError && level != kiosk.ConfigValidationOff {
-			level = kiosk.ConfigValidationError
-		}
-
-		valid := checkSchema(c.V.AllSettings(), level)
-		if !valid && level != kiosk.ConfigValidationWarning {
-			log.Fatal("Invalid configuration")
-		}
+	valid := checkSchema(c.V.AllSettings(), level)
+	if !valid && level != kiosk.ConfigValidationWarning {
+		log.Fatal("Invalid configuration")
 	}
 
 	if err := c.V.Unmarshal(c); err != nil {

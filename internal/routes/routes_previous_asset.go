@@ -175,7 +175,7 @@ func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID,
 		}
 
 		if assetInfoErr := asset.AssetInfo(requestID, deviceID); assetInfoErr != nil {
-			log.Error(fmt.Errorf("failed to get asset info: %w", assetInfoErr))
+			log.Error(fmt.Errorf("get asset info: %w", assetInfoErr))
 		}
 
 		asset.AddRatio()
