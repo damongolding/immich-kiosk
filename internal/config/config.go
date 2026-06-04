@@ -594,7 +594,8 @@ func configErrCheck(readInConfigErr error, configFileUsed string) error {
 	case errors.As(readInConfigErr, &configFileNotFoundErr):
 		err := configDirPermCheck()
 		if err != nil {
-			return errors.Join(err, configFileNotFoundErr)
+			lowerErr := strings.ToLower(configFileNotFoundErr.Error())
+			return errors.Join(err, errors.New(lowerErr))
 		}
 
 		log.Info("Not using config.yaml")
