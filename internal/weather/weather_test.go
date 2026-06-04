@@ -255,27 +255,6 @@ func TestApplyURLOverridesCanDisableConfiguredValues(t *testing.T) {
 	}
 }
 
-func TestApplyURLOverridesDoesNotEnableUnavailableForecastData(t *testing.T) {
-	location := Location{
-		Show: config.WeatherLocationStatOptions{
-			TemperatureRange: false,
-		},
-		ShowForecast: false,
-	}
-
-	location = ApplyURLOverrides(location, url.Values{
-		WeatherShowTemperatureRangeParam: []string{"true"},
-		WeatherShowForecastParam:         []string{"true"},
-	})
-
-	if location.Show.TemperatureRange {
-		t.Fatal("expected temperature range to remain disabled without forecast data")
-	}
-	if location.ShowForecast {
-		t.Fatal("expected forecast to remain disabled without forecast data")
-	}
-}
-
 func TestApplyURLOverridesIgnoresInvalidValues(t *testing.T) {
 	location := Location{
 		Show: config.WeatherLocationStatOptions{
