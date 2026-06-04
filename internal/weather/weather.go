@@ -542,7 +542,7 @@ func computeNext24hTempRange(forecast Forecast) (float64, float64) {
 // ApplyDisplayOverrides applies per-request weather display options without
 // changing the stored weather data or the global configuration.
 func ApplyDisplayOverrides(location Location, values url.Values) Location {
-	applyBool := func(key string, field *bool, canEnable bool) {
+	applyBool := func(key string, field *bool) {
 		param := values.Get(key)
 		if param == "" {
 			return
@@ -552,21 +552,17 @@ func ApplyDisplayOverrides(location Location, values url.Values) Location {
 		if err != nil {
 			return
 		}
-		if value && !canEnable {
-			return
-		}
 
 		*field = value
 	}
 
-	forecastAvailable := len(location.Forecast.Daily) > 0
-	applyBool(WeatherShowHumidityParam, &location.Show.Humidity, true)
-	applyBool(WeatherShowWindParam, &location.Show.Wind, true)
-	applyBool(WeatherShowWindDirectionParam, &location.Show.WindDirection, true)
-	applyBool(WeatherShowVisibilityParam, &location.Show.Visibility, true)
-	applyBool(WeatherShowTemperatureRangeParam, &location.Show.TemperatureRange, forecastAvailable)
-	applyBool(WeatherShowForecastParam, &location.ShowForecast, forecastAvailable)
-	applyBool(WeatherRoundTemperatureParam, &location.RoundTemp, true)
+	applyBool(WeatherShowHumidityParam, &location.Show.Humidity)
+	applyBool(WeatherShowWindParam, &location.Show.Wind)
+	applyBool(WeatherShowWindDirectionParam, &location.Show.WindDirection)
+	applyBool(WeatherShowVisibilityParam, &location.Show.Visibility)
+	applyBool(WeatherShowTemperatureRangeParam, &location.Show.TemperatureRange)
+	applyBool(WeatherShowForecastParam, &location.ShowForecast)
+	applyBool(WeatherRoundTemperatureParam, &location.RoundTemp)
 
 	return location
 }
