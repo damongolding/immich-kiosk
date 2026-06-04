@@ -216,7 +216,6 @@ templ Weather(theme string, rotatingLocations bool, weatherRotationInterval int)
 		id="weather-container"
 		class={ fmt.Sprintf("weather--theme-%s", theme) }
 		hx-post="/weather"
-		hx-include=".kiosk-param"
 		if rotatingLocations {
 			hx-swap="innerHTML swap:1s"
 			hx-vals={ fmt.Sprintf("js:{\"%s\": kiosk.weatherRotationPosition()}", weather.WeatherRotationParam) }

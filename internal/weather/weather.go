@@ -20,12 +20,13 @@ import (
 )
 
 const (
-	MetricSystem         = "metric"
-	ImperialSystem       = "imperial"
-	APINameKeyword       = "-api"
-	WeatherRotation      = "rotate"
-	WeatherParam         = "weather"
-	WeatherRotationParam = "weather_rotation"
+	MetricSystem                 = "metric"
+	ImperialSystem               = "imperial"
+	APINameKeyword               = "-api"
+	WeatherRotation              = "rotate"
+	WeatherParam                 = "weather"
+	WeatherRotationParam         = "weather_rotation"
+	WeatherRotationIntervalParam = "rotation_interval"
 
 	VarCompassDirection = "Var"
 )

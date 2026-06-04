@@ -18,54 +18,31 @@ const (
 // ApplyDisplayOverrides applies per-request weather display options without
 // changing the stored weather data or the global configuration.
 func ApplyDisplayOverrides(location Location, values url.Values) Location {
-	applyBool := func(key string, setter func(bool)) {
-		raw, ok := firstValue(values, key)
-		if !ok {
+	applyBool := func(key string, field *bool, canEnable bool) {
+		param := values.Get(key)
+		if param == "" {
 			return
 		}
 
-		value, err := strconv.ParseBool(raw)
+		value, err := strconv.ParseBool(param)
 		if err != nil {
 			return
 		}
+		if value && !canEnable {
+			return
+		}
 
-		setter(value)
+		*field = value
 	}
 
-	applyBool(WeatherShowHumidityParam, func(value bool) {
-		location.Show.Humidity = value
-	})
-	applyBool(WeatherShowWindParam, func(value bool) {
-		location.Show.Wind = value
-	})
-	applyBool(WeatherShowWindDirectionParam, func(value bool) {
-		location.Show.WindDirection = value
-	})
-	applyBool(WeatherShowVisibilityParam, func(value bool) {
-		location.Show.Visibility = value
-	})
-	applyBool(WeatherShowTemperatureRangeParam, func(value bool) {
-		location.Show.TemperatureRange = value
-	})
-	applyBool(WeatherShowForecastParam, func(value bool) {
-		location.ShowForecast = value
-	})
-	applyBool(WeatherRoundTemperatureParam, func(value bool) {
-		location.RoundTemp = value
-	})
+	forecastAvailable := len(location.Forecast.Daily) > 0
+	applyBool(WeatherShowHumidityParam, &location.Show.Humidity, true)
+	applyBool(WeatherShowWindParam, &location.Show.Wind, true)
+	applyBool(WeatherShowWindDirectionParam, &location.Show.WindDirection, true)
+	applyBool(WeatherShowVisibilityParam, &location.Show.Visibility, true)
+	applyBool(WeatherShowTemperatureRangeParam, &location.Show.TemperatureRange, forecastAvailable)
+	applyBool(WeatherShowForecastParam, &location.ShowForecast, forecastAvailable)
+	applyBool(WeatherRoundTemperatureParam, &location.RoundTemp, true)
 
 	return location
-}
-
-func firstValue(values url.Values, key string) (string, bool) {
-	if values == nil {
-		return "", false
-	}
-
-	raw, ok := values[key]
-	if !ok || len(raw) == 0 {
-		return "", false
-	}
-
-	return raw[0], true
 }

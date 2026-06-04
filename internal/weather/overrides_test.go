@@ -18,6 +18,9 @@ func TestApplyDisplayOverrides(t *testing.T) {
 		},
 		ShowForecast: false,
 		RoundTemp:    false,
+		Forecast: ForecastData{
+			Daily: []DailySummary{{DateStr: "2026-06-04"}},
+		},
 	}
 
 	location = ApplyDisplayOverrides(location, url.Values{
@@ -91,6 +94,73 @@ func TestApplyDisplayOverridesOnlyChangesProvidedValues(t *testing.T) {
 	}
 	if !location.RoundTemp {
 		t.Fatal("expected round temperature to keep its configured value")
+	}
+}
+
+func TestApplyDisplayOverridesCanDisableConfiguredValues(t *testing.T) {
+	location := Location{
+		Show: config.WeatherLocationStatOptions{
+			Humidity:         true,
+			Wind:             true,
+			WindDirection:    true,
+			Visibility:       true,
+			TemperatureRange: true,
+		},
+		ShowForecast: true,
+		RoundTemp:    true,
+	}
+
+	location = ApplyDisplayOverrides(location, url.Values{
+		WeatherShowHumidityParam:         []string{"false"},
+		WeatherShowWindParam:             []string{"false"},
+		WeatherShowWindDirectionParam:    []string{"false"},
+		WeatherShowVisibilityParam:       []string{"false"},
+		WeatherShowTemperatureRangeParam: []string{"false"},
+		WeatherShowForecastParam:         []string{"false"},
+		WeatherRoundTemperatureParam:     []string{"false"},
+	})
+
+	if location.Show.Humidity {
+		t.Fatal("expected humidity to be disabled")
+	}
+	if location.Show.Wind {
+		t.Fatal("expected wind to be disabled")
+	}
+	if location.Show.WindDirection {
+		t.Fatal("expected wind direction to be disabled")
+	}
+	if location.Show.Visibility {
+		t.Fatal("expected visibility to be disabled")
+	}
+	if location.Show.TemperatureRange {
+		t.Fatal("expected temperature range to be disabled")
+	}
+	if location.ShowForecast {
+		t.Fatal("expected forecast to be disabled")
+	}
+	if location.RoundTemp {
+		t.Fatal("expected round temperature to be disabled")
+	}
+}
+
+func TestApplyDisplayOverridesDoesNotEnableUnavailableForecastData(t *testing.T) {
+	location := Location{
+		Show: config.WeatherLocationStatOptions{
+			TemperatureRange: false,
+		},
+		ShowForecast: false,
+	}
+
+	location = ApplyDisplayOverrides(location, url.Values{
+		WeatherShowTemperatureRangeParam: []string{"true"},
+		WeatherShowForecastParam:         []string{"true"},
+	})
+
+	if location.Show.TemperatureRange {
+		t.Fatal("expected temperature range to remain disabled without forecast data")
+	}
+	if location.ShowForecast {
+		t.Fatal("expected forecast to remain disabled without forecast data")
 	}
 }
 

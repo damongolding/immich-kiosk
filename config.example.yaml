@@ -125,10 +125,6 @@ like_button_action: favorite # album, favorite or both [album, favorite]
 hide_button_action: tag # tag, archive, or both [tag, archive]
 
 ## Weather feature - you’ll need an API key from OpenWeatherMap
-## Weather display options can also be overridden per URL with:
-## weather_show_forecast, weather_show_humidity, weather_show_wind,
-## weather_show_wind_direction, weather_show_visibility,
-## weather_show_temperature_range, and weather_round_temperature.
 # weather:
 #   rotation_interval: 60 # in seconds (minimum: 10); rotation must be enabled via URL parameter
 #   locations:

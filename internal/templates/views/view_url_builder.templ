@@ -8,6 +8,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/damongolding/immich-kiosk/internal/weather"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"strconv"
@@ -15,6 +16,18 @@ import (
 )
 
 type ChoicesOptions map[string]any
+
+func weatherLocationOptions(locations []config.WeatherLocation) []string {
+	options := []string{"Rotate", weather.WeatherRotation}
+	for _, location := range locations {
+		name := strings.TrimSpace(location.Name)
+		if name == "" {
+			continue
+		}
+		options = append(options, name, name)
+	}
+	return options
+}
 
 templ URLBuilder(viewData common.ViewData, urlData common.URLViewData, extended bool) {
 	@HTMLTag(viewData.SystemLang) {
@@ -142,15 +155,15 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 					if extended {
 						// Weather
 						<h2>Weather</h2>
-						@URLBuilderText("Weather location", "weather", "The configured weather location name, or rotate to cycle through configured locations.", "")
-						@URLBuilderNumber("Weather rotation interval", "rotation_interval", "The interval in seconds to rotate weather locations.", 10, 0, strconv.FormatInt(int64(c.Weather.RotationInterval), 10))
-						@URLBuilderRadio("Show forecast", "weather_show_forecast", "Display the weather forecast when forecast data is configured for the selected location.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show humidity", "weather_show_humidity", "Display the humidity stat.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show wind", "weather_show_wind", "Display the wind stat.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show wind direction", "weather_show_wind_direction", "Display degrees for wind direction.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show visibility", "weather_show_visibility", "Display the visibility stat.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show temperature range", "weather_show_temperature_range", "Display the next 24 hour high and low when forecast data is configured for the selected location.", "true", "true", "false", "false")
-						@URLBuilderRadio("Round temperature", "weather_round_temperature", "Round displayed temperatures to whole numbers.", "true", "true", "false", "false")
+						@URLBuilderSelect("Weather location", weather.WeatherParam, "The configured weather location name, or rotate to cycle through configured locations.", weatherLocationOptions(c.Weather.Locations)...)
+						@URLBuilderNumber("Weather rotation interval", weather.WeatherRotationIntervalParam, "The interval in seconds to rotate weather locations.", 10, 0, strconv.FormatInt(int64(c.Weather.RotationInterval), 10))
+						@URLBuilderRadio("Show forecast", weather.WeatherShowForecastParam, "Display the weather forecast when forecast data is configured for the selected location at startup.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show humidity", weather.WeatherShowHumidityParam, "Display the humidity stat.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show wind", weather.WeatherShowWindParam, "Display the wind stat.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show wind direction", weather.WeatherShowWindDirectionParam, "Display degrees for wind direction.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show visibility", weather.WeatherShowVisibilityParam, "Display the visibility stat.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show temperature range", weather.WeatherShowTemperatureRangeParam, "Display the next 24 hour high and low when forecast data is configured for the selected location at startup.", "true", "true", "false", "false")
+						@URLBuilderRadio("Round temperature", weather.WeatherRoundTemperatureParam, "Round displayed temperatures to whole numbers.", "true", "true", "false", "false")
 					}
 					// UI
 					<h2>User Interface</h2>
