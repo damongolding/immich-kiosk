@@ -300,7 +300,7 @@ func (a *Asset) upsertTag(tag Tag) (Tag, error) {
 
 	if len(response) == 0 || (len(response) > 0 && response[0].ID == "") {
 		log.Error("failed to create tag", "response", response, "error", err)
-		return createdTag, errors.New("failed to create tag")
+		return createdTag, errors.New("create tag")
 	}
 
 	createdTag = Tag{
@@ -361,11 +361,11 @@ func (a *Asset) modifyTagAsset(tag Tag, assetID string, method string, action st
 	}
 
 	if len(response) == 0 {
-		return fmt.Errorf("failed to "+action+" tag from asset: %s", tag.ID)
+		return fmt.Errorf(action+" tag from asset: %s", tag.ID)
 	}
 
 	if !response[0].Success {
-		return fmt.Errorf("failed to "+action+" tag from asset: %s", response[0].Error)
+		return fmt.Errorf(action+" tag from asset: %s", response[0].Error)
 	}
 
 	// remove asset data from cache as we've changed its tags
