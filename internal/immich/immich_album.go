@@ -192,35 +192,35 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 	case kiosk.AlbumKeywordAll:
 		albums, albumsURL, err := a.allAlbums(requestID, deviceID)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get all albums (%s) err=%w", albumsURL, err)
+			return 0, fmt.Errorf("get all albums (%s) err=%w", albumsURL, err)
 		}
 		return countAssetsInAlbums(albums), nil
 
 	case kiosk.AlbumKeywordOwned:
 		albums, albumsURL, err := a.allOwnedAlbums(requestID, deviceID)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get owned albums (%s) err=%w", albumsURL, err)
+			return 0, fmt.Errorf("get owned albums (%s) err=%w", albumsURL, err)
 		}
 		return countAssetsInAlbums(albums), nil
 
 	case kiosk.AlbumKeywordShared:
 		albums, albumsURL, err := a.allSharedAlbums(requestID, deviceID)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get shared albums (%s) err=%w", albumsURL, err)
+			return 0, fmt.Errorf("get shared albums (%s) err=%w", albumsURL, err)
 		}
 		return countAssetsInAlbums(albums), nil
 
 	case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
 		favouriteAssetCount, err := a.favouriteAssetsCount(requestID, deviceID)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get favorite assets: %w", err)
+			return 0, fmt.Errorf("get favorite assets: %w", err)
 		}
 		return favouriteAssetCount, nil
 
 	default:
 		album, _, err := a.albumAssets(albumID, requestID, deviceID)
 		if err != nil {
-			return 0, fmt.Errorf("failed to get album assets for album %s: %w", albumID, err)
+			return 0, fmt.Errorf("get album assets for album %s: %w", albumID, err)
 		}
 		return album.AssetCount, nil
 	}
@@ -425,7 +425,7 @@ func (a *Asset) kioskLikedAlbum(requestID, deviceID string) (Album, error) {
 
 	albums, _, err := a.albums(requestID, deviceID, false, "", true)
 	if err != nil {
-		return album, fmt.Errorf("failed to fetch albums: %w", err)
+		return album, fmt.Errorf("fetch albums: %w", err)
 	}
 
 	if len(albums) == 0 {
@@ -503,7 +503,7 @@ func (a *Asset) AddToKioskLikedAlbum(requestID, deviceID string) error {
 	if err != nil {
 		album.ID, err = a.createKioskLikedAlbum()
 		if err != nil {
-			return fmt.Errorf("failed to create kiosk liked album: %w", err)
+			return fmt.Errorf("create kiosk liked album: %w", err)
 		}
 		log.Debug(requestID+" Created", "albumName", kiosk.FavoriteAlbumName, "albumID", album.ID)
 	}
@@ -517,7 +517,7 @@ func (a *Asset) RemoveFromKioskLikedAlbum(requestID, deviceID string) error {
 
 	album, err := a.kioskLikedAlbum(requestID, deviceID)
 	if err != nil {
-		return fmt.Errorf("failed to get kiosk liked album: %w", err)
+		return fmt.Errorf("get kiosk liked album: %w", err)
 	}
 
 	if album.ID == "" {
