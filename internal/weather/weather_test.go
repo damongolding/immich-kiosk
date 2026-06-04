@@ -119,7 +119,7 @@ func TestWindCompassDirection(t *testing.T) {
 	}
 }
 
-func TestApplyDisplayOverrides(t *testing.T) {
+func TestApplyURLOverrides(t *testing.T) {
 	location := Location{
 		Show: config.WeatherLocationStatOptions{
 			Humidity:         false,
@@ -135,7 +135,7 @@ func TestApplyDisplayOverrides(t *testing.T) {
 		},
 	}
 
-	location = ApplyDisplayOverrides(location, url.Values{
+	location = ApplyURLOverrides(location, url.Values{
 		WeatherShowHumidityParam:         []string{"true"},
 		WeatherShowWindParam:             []string{"true"},
 		WeatherShowWindDirectionParam:    []string{"true"},
@@ -168,7 +168,7 @@ func TestApplyDisplayOverrides(t *testing.T) {
 	}
 }
 
-func TestApplyDisplayOverridesOnlyChangesProvidedValues(t *testing.T) {
+func TestApplyURLOverridesOnlyChangesProvidedValues(t *testing.T) {
 	location := Location{
 		Show: config.WeatherLocationStatOptions{
 			Humidity:         true,
@@ -181,7 +181,7 @@ func TestApplyDisplayOverridesOnlyChangesProvidedValues(t *testing.T) {
 		RoundTemp:    true,
 	}
 
-	location = ApplyDisplayOverrides(location, url.Values{
+	location = ApplyURLOverrides(location, url.Values{
 		WeatherShowWindParam: []string{"false"},
 		"unknown":            []string{"false"},
 	})
@@ -209,7 +209,7 @@ func TestApplyDisplayOverridesOnlyChangesProvidedValues(t *testing.T) {
 	}
 }
 
-func TestApplyDisplayOverridesCanDisableConfiguredValues(t *testing.T) {
+func TestApplyURLOverridesCanDisableConfiguredValues(t *testing.T) {
 	location := Location{
 		Show: config.WeatherLocationStatOptions{
 			Humidity:         true,
@@ -222,7 +222,7 @@ func TestApplyDisplayOverridesCanDisableConfiguredValues(t *testing.T) {
 		RoundTemp:    true,
 	}
 
-	location = ApplyDisplayOverrides(location, url.Values{
+	location = ApplyURLOverrides(location, url.Values{
 		WeatherShowHumidityParam:         []string{"false"},
 		WeatherShowWindParam:             []string{"false"},
 		WeatherShowWindDirectionParam:    []string{"false"},
@@ -255,7 +255,7 @@ func TestApplyDisplayOverridesCanDisableConfiguredValues(t *testing.T) {
 	}
 }
 
-func TestApplyDisplayOverridesDoesNotEnableUnavailableForecastData(t *testing.T) {
+func TestApplyURLOverridesDoesNotEnableUnavailableForecastData(t *testing.T) {
 	location := Location{
 		Show: config.WeatherLocationStatOptions{
 			TemperatureRange: false,
@@ -263,7 +263,7 @@ func TestApplyDisplayOverridesDoesNotEnableUnavailableForecastData(t *testing.T)
 		ShowForecast: false,
 	}
 
-	location = ApplyDisplayOverrides(location, url.Values{
+	location = ApplyURLOverrides(location, url.Values{
 		WeatherShowTemperatureRangeParam: []string{"true"},
 		WeatherShowForecastParam:         []string{"true"},
 	})
@@ -276,14 +276,14 @@ func TestApplyDisplayOverridesDoesNotEnableUnavailableForecastData(t *testing.T)
 	}
 }
 
-func TestApplyDisplayOverridesIgnoresInvalidValues(t *testing.T) {
+func TestApplyURLOverridesIgnoresInvalidValues(t *testing.T) {
 	location := Location{
 		Show: config.WeatherLocationStatOptions{
 			Humidity: true,
 		},
 	}
 
-	location = ApplyDisplayOverrides(location, url.Values{
+	location = ApplyURLOverrides(location, url.Values{
 		WeatherShowHumidityParam: []string{"maybe"},
 	})
 

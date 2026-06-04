@@ -539,9 +539,9 @@ func computeNext24hTempRange(forecast Forecast) (float64, float64) {
 	return high, low
 }
 
-// ApplyDisplayOverrides applies per-request weather display options without
+// ApplyURLOverrides applies per-request weather display options without
 // changing the stored weather data or the global configuration.
-func ApplyDisplayOverrides(location Location, values url.Values) Location {
+func ApplyURLOverrides(location Location, values url.Values) Location {
 	applyBool := func(key string, field *bool) {
 		param := values.Get(key)
 		if param == "" {

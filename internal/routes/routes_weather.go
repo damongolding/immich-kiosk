@@ -85,7 +85,7 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 				continue
 			}
 			if !requestData.RequestConfig.Kiosk.DisableURLQueries {
-				weatherLocation = weather.ApplyDisplayOverrides(weatherLocation, requestParams)
+				weatherLocation = weather.ApplyURLOverrides(weatherLocation, requestParams)
 			}
 			return Render(c, http.StatusOK, partials.WeatherLocation(weatherLocation, nextWeatherRotation, baseConfig.SystemLang))
 
