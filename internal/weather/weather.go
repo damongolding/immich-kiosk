@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -20,13 +21,20 @@ import (
 )
 
 const (
-	MetricSystem                 = "metric"
-	ImperialSystem               = "imperial"
-	APINameKeyword               = "-api"
-	WeatherRotation              = "rotate"
-	WeatherParam                 = "weather"
-	WeatherRotationParam         = "weather_rotation"
-	WeatherRotationIntervalParam = "rotation_interval"
+	MetricSystem                     = "metric"
+	ImperialSystem                   = "imperial"
+	APINameKeyword                   = "-api"
+	WeatherRotation                  = "rotate"
+	WeatherParam                     = "weather"
+	WeatherRotationParam             = "weather_rotation"
+	WeatherRotationIntervalParam     = "rotation_interval"
+	WeatherShowHumidityParam         = "weather_show_humidity"
+	WeatherShowWindParam             = "weather_show_wind"
+	WeatherShowWindDirectionParam    = "weather_show_wind_direction"
+	WeatherShowVisibilityParam       = "weather_show_visibility"
+	WeatherShowTemperatureRangeParam = "weather_show_temperature_range"
+	WeatherShowForecastParam         = "weather_show_forecast"
+	WeatherRoundTemperatureParam     = "weather_round_temperature"
 
 	VarCompassDirection = "Var"
 )
@@ -529,4 +537,36 @@ func computeNext24hTempRange(forecast Forecast) (float64, float64) {
 		}
 	}
 	return high, low
+}
+
+// ApplyDisplayOverrides applies per-request weather display options without
+// changing the stored weather data or the global configuration.
+func ApplyDisplayOverrides(location Location, values url.Values) Location {
+	applyBool := func(key string, field *bool, canEnable bool) {
+		param := values.Get(key)
+		if param == "" {
+			return
+		}
+
+		value, err := strconv.ParseBool(param)
+		if err != nil {
+			return
+		}
+		if value && !canEnable {
+			return
+		}
+
+		*field = value
+	}
+
+	forecastAvailable := len(location.Forecast.Daily) > 0
+	applyBool(WeatherShowHumidityParam, &location.Show.Humidity, true)
+	applyBool(WeatherShowWindParam, &location.Show.Wind, true)
+	applyBool(WeatherShowWindDirectionParam, &location.Show.WindDirection, true)
+	applyBool(WeatherShowVisibilityParam, &location.Show.Visibility, true)
+	applyBool(WeatherShowTemperatureRangeParam, &location.Show.TemperatureRange, forecastAvailable)
+	applyBool(WeatherShowForecastParam, &location.ShowForecast, forecastAvailable)
+	applyBool(WeatherRoundTemperatureParam, &location.RoundTemp, true)
+
+	return location
 }
