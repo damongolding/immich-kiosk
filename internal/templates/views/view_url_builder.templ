@@ -18,7 +18,6 @@ import (
 type ChoicesOptions map[string]any
 
 func weatherLocationOptions(locations []config.WeatherLocation) []string {
-
 	var options []string
 
 	if len(locations) > 1 {
@@ -34,7 +33,6 @@ func weatherLocationOptions(locations []config.WeatherLocation) []string {
 		options = append(options, name, name)
 	}
 	return options
-
 }
 
 templ URLBuilder(viewData common.ViewData, urlData common.URLViewData, extended bool) {
@@ -211,18 +209,24 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						</div>
 						@URLBuilderRadio("Show image QR", "show_image_qr", "Display a QR code linking to the original image (in Immich).", "true", "true", "false", "false")
 						@URLBuilderRadio("Show image ID", "show_image_id", "Display the Immich ID of the image.", "true", "true", "false", "false")
-						if extended && len(c.Weather.Locations) > 0 {
+						if extended {
 							// Weather
 							<h2>Weather</h2>
-							@URLBuilderSelect("Weather location", weather.WeatherParam, "The configured weather location name, or rotate to cycle through configured locations.", weatherLocationOptions(c.Weather.Locations)...)
-							@URLBuilderNumber("Weather rotation interval", weather.WeatherRotationIntervalParam, "The interval in seconds to rotate weather locations.", 10, 0, strconv.FormatInt(int64(c.Weather.RotationInterval), 10))
-							@URLBuilderRadio("Show forecast", weather.WeatherShowForecastParam, "Display the weather forecast when forecast data is configured for the selected location at startup.", "true", "true", "false", "false")
-							@URLBuilderRadio("Show humidity", weather.WeatherShowHumidityParam, "Display the humidity stat.", "true", "true", "false", "false")
-							@URLBuilderRadio("Show wind", weather.WeatherShowWindParam, "Display the wind stat.", "true", "true", "false", "false")
-							@URLBuilderRadio("Show wind direction", weather.WeatherShowWindDirectionParam, "Display degrees for wind direction.", "true", "true", "false", "false")
-							@URLBuilderRadio("Show visibility", weather.WeatherShowVisibilityParam, "Display the visibility stat.", "true", "true", "false", "false")
-							@URLBuilderRadio("Show temperature range", weather.WeatherShowTemperatureRangeParam, "Display the next 24 hour high and low when forecast data is configured for the selected location at startup.", "true", "true", "false", "false")
-							@URLBuilderRadio("Round temperature", weather.WeatherRoundTemperatureParam, "Round displayed temperatures to whole numbers.", "true", "true", "false", "false")
+							if len(c.Weather.Locations) > 0 {
+								@URLBuilderSelect("Weather location", weather.WeatherParam, "The configured weather location name, or rotate to cycle through configured locations.", weatherLocationOptions(c.Weather.Locations)...)
+								@URLBuilderNumber("Weather rotation interval", weather.WeatherRotationIntervalParam, "The interval in seconds to rotate weather locations.", 10, 0, strconv.FormatInt(int64(c.Weather.RotationInterval), 10))
+								@URLBuilderRadio("Show forecast", weather.WeatherShowForecastParam, "Display the weather forecast when forecast data is configured for the selected location at startup.", "true", "true", "false", "false")
+								@URLBuilderRadio("Show humidity", weather.WeatherShowHumidityParam, "Display the humidity stat.", "true", "true", "false", "false")
+								@URLBuilderRadio("Show wind", weather.WeatherShowWindParam, "Display the wind stat.", "true", "true", "false", "false")
+								@URLBuilderRadio("Show wind direction", weather.WeatherShowWindDirectionParam, "Display degrees for wind direction.", "true", "true", "false", "false")
+								@URLBuilderRadio("Show visibility", weather.WeatherShowVisibilityParam, "Display the visibility stat.", "true", "true", "false", "false")
+								@URLBuilderRadio("Show temperature range", weather.WeatherShowTemperatureRangeParam, "Display the next 24 hour high and low when forecast data is configured for the selected location at startup.", "true", "true", "false", "false")
+								@URLBuilderRadio("Round temperature", weather.WeatherRoundTemperatureParam, "Round displayed temperatures to whole numbers.", "true", "true", "false", "false")
+							} else {
+								<div class="form-group">
+									<span>No weather locations configured.</span>
+								</div>
+							}
 						}
 						// More information
 						<h2>More Information Overlay</h2>
