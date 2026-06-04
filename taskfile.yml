@@ -93,9 +93,15 @@ tasks:
     cmds:
       - (printf "Module\tCurrent\tLatest\n" && go list -u -m -json all | jq -r 'select(.Main or .Indirect | not) | select(.Update) | [.Path, .Version, .Update.Version] | @tsv') | column -t -s $'\t'
 
+  mise-outdated:
+    desc: Check for outdated Mise dependencies
+    cmds:
+      - cmd: mise outdated --bump
+        if: command -v mise >/dev/null 2>&1
+
   outdated:
     desc: Check for outdated Go and frontend dependencies
-    deps: [outdated-go, frontend:outdated]
+    deps: [outdated-go, frontend:outdated, mise-outdated]
 
   update-go-deps:
     desc: Update Go dependencies
