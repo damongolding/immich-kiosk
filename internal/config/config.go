@@ -618,15 +618,21 @@ func configErrCheck(readInConfigErr error, configFileUsed string) error {
 func configDirPermCheck() error {
 	dirInfo, err := os.Stat("./config")
 	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil
+		}
 		return fmt.Errorf("getting config dir info: %w", err)
 	}
-	if dirInfo.IsDir() {
-		mode := fmt.Sprintf("%o", dirInfo.Mode().Perm())
-		if mode != "755" {
-			return fmt.Errorf("config directory permission is %s, it should be %o", mode, os.FileMode(0o755))
-		}
-		return nil
+
+	if !dirInfo.IsDir() {
+		return fmt.Errorf("./config exists but is not a directory")
 	}
+
+	mode := fmt.Sprintf("%o", dirInfo.Mode().Perm())
+	if mode != "755" {
+		return fmt.Errorf("config directory permission is %s, it should be %o", mode, os.FileMode(0o755))
+	}
+
 	return nil
 }
 
