@@ -626,7 +626,7 @@ func configDirPermCheck() error {
 	}
 
 	if !dirInfo.IsDir() {
-		return fmt.Errorf("./config exists but is not a directory")
+		return errors.New("./config exists but is not a directory")
 	}
 
 	mode := fmt.Sprintf("%o", dirInfo.Mode().Perm())
