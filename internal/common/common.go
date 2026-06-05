@@ -45,7 +45,7 @@ func New() *Common {
 func (c *Common) initializeSecret() error {
 	secret, err := utils.GenerateSharedSecret()
 	if err != nil {
-		return fmt.Errorf("failed to generate shared secret: %w", err)
+		return fmt.Errorf("generating shared secret: %w", err)
 	}
 	c.secret = secret
 
