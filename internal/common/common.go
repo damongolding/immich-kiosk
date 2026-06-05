@@ -45,7 +45,7 @@ func New() *Common {
 func (c *Common) initializeSecret() error {
 	secret, err := utils.GenerateSharedSecret()
 	if err != nil {
-		return fmt.Errorf("failed to generate shared secret: %w", err)
+		return fmt.Errorf("generating shared secret: %w", err)
 	}
 	c.secret = secret
 
@@ -171,6 +171,17 @@ type URLBuilderRequest struct {
 	ShowDate    *bool   `form:"show_date" url:"show_date,omitempty"`
 	DateFormat  *string `form:"date_format" url:"date_format,omitempty"`
 	ClockSource *string `form:"clock_source" url:"clock_source,omitempty"`
+
+	// Weather
+	Weather                     *string `form:"weather" url:"weather,omitempty"`
+	WeatherRotationInterval     *uint64 `form:"rotation_interval" url:"rotation_interval,omitempty"`
+	WeatherShowForecast         *bool   `form:"weather_show_forecast" url:"weather_show_forecast,omitempty"`
+	WeatherShowHumidity         *bool   `form:"weather_show_humidity" url:"weather_show_humidity,omitempty"`
+	WeatherShowWind             *bool   `form:"weather_show_wind" url:"weather_show_wind,omitempty"`
+	WeatherShowWindDirection    *bool   `form:"weather_show_wind_direction" url:"weather_show_wind_direction,omitempty"`
+	WeatherShowVisibility       *bool   `form:"weather_show_visibility" url:"weather_show_visibility,omitempty"`
+	WeatherShowTemperatureRange *bool   `form:"weather_show_temperature_range" url:"weather_show_temperature_range,omitempty"`
+	WeatherRoundTemperature     *bool   `form:"weather_round_temperature" url:"weather_round_temperature,omitempty"`
 
 	// UI
 	ShowClearCacheButton *bool   `form:"show_clear_cache_button" url:"show_clear_cache_button,omitempty"`

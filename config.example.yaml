@@ -139,6 +139,7 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 #       show:
 #         humidity: false
 #         wind: false
+#         wind_direction: false
 #         visibility: false
 #         temperature_range: false
 

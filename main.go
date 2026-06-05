@@ -216,11 +216,7 @@ func main() {
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 
 	for _, w := range baseConfig.Weather.Locations {
-		if w.Forecast || w.Show.TemperatureRange {
-			go weather.AddWeatherLocationWithForecast(c.Context(), w)
-		} else {
-			go weather.AddWeatherLocation(c.Context(), w)
-		}
+		go weather.AddWeatherLocationWithForecast(c.Context(), w)
 	}
 
 	if logLevel == log.ErrorLevel || logLevel == log.WarnLevel {
@@ -367,21 +363,26 @@ func healthCheck() int {
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://localhost:%s/health", port), nil)
 	if err != nil {
-		log.Error("healthcheck NewRequestWithContext", "err", err)
+		fmt.Fprintln(os.Stderr, "FAIL")
 		return 1
 	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Error("healthcheck client.Do", "err", err)
+		fmt.Fprintln(os.Stderr, "FAIL")
 		return 1
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Error("healthcheck io.ReadAll", "err", err)
+		fmt.Fprintln(os.Stderr, "FAIL")
+		return 1
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Fprintln(os.Stderr, "FAIL")
 		return 1
 	}
 
