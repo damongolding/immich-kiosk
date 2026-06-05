@@ -367,7 +367,7 @@ func healthCheck() int {
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://localhost:%s/health", port), nil)
 	if err != nil {
-		log.Error("healthcheck NewRequestWithContext", "err", err)
+		fmt.Fprintln(os.Stderr, "FAIL")
 		return 1
 	}
 
@@ -381,6 +381,11 @@ func healthCheck() int {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		fmt.Fprintln(os.Stderr, "FAIL")
+		return 1
+	}
+
+	if resp.StatusCode != http.StatusOK {
 		fmt.Fprintln(os.Stderr, "FAIL")
 		return 1
 	}
