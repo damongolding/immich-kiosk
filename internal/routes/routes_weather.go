@@ -56,7 +56,7 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 				return c.NoContent(http.StatusNoContent)
 			}
 			nextWeatherRotation, locationName = weather.LocationRotator.Next(currentWeatherRotation)
-			log.Info("Rotating weather location", "location", locationName, "position", nextWeatherRotation)
+			log.Debug("Rotating weather location", "location", locationName, "position", nextWeatherRotation)
 		}
 
 		if locationName == "" {
