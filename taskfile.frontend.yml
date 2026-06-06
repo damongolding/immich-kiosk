@@ -35,7 +35,7 @@ tasks:
     dir: ./frontend
     desc: Compile and minify CSS assets
     cmds:
-      - node_modules/.bin/esbuild --minify --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf --target=chrome106,edge106,firefox107,safari16.1,opera92 src/css/kiosk.css --outfile=./public/assets/css/kiosk.css
+      - node_modules/.bin/esbuild --minify --bundle --loader:.css=css --external:*.woff --external:*.woff2 --external:*.ttf --target=chrome106,edge106,firefox107,safari12.1,opera92 src/css/kiosk.css --outfile=./public/assets/css/kiosk.css
 
   frontend:js:
     dir: ./frontend
