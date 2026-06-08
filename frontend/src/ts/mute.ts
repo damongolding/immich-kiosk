@@ -61,9 +61,9 @@ function getMuteState(): boolean {
  * Returns the current mute preference and the active video element's mute state.
  */
 function getMuteStatus(): VideoMuteStatus {
-    const currentVideo = document.querySelector("video") as
-        | HTMLVideoElement
-        | null;
+    const currentVideo = document.querySelector(
+        "video",
+    ) as HTMLVideoElement | null;
 
     return {
         muted: getMuteState(),
@@ -74,7 +74,7 @@ function getMuteStatus(): VideoMuteStatus {
 }
 
 /**
- * Exposes a small browser API for external kiosk controllers.
+ * Registers the video mute API on the window object.
  */
 function registerVideoMuteApi() {
     window.immichKiosk = {
@@ -90,10 +90,10 @@ function registerVideoMuteApi() {
 }
 
 export {
-    toggleMute,
     getMuteState,
     getMuteStatus,
     registerVideoMuteApi,
     setMuteState,
+    toggleMute,
     unmute,
 };
