@@ -17,7 +17,7 @@ import {
     toggleAssetOverlay,
     toggleRedirectsOverlay,
 } from "./menu";
-import { toggleMute } from "./mute";
+import { registerVideoMuteApi, toggleMute } from "./mute";
 import {
     initPolling,
     pausePolling,
@@ -150,6 +150,8 @@ async function init(): Promise<void> {
     if (kioskData.debugVerbose) {
         htmx.logAll();
     }
+
+    registerVideoMuteApi();
 
     const MILLISECONDS_PER_SECOND = 1000;
     const TIMEOUT_GRACE_FACTOR = 3;

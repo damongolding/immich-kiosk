@@ -7,6 +7,13 @@ let isMuted = true;
 
 const muteButton = htmx.find(".navigation--mute") as HTMLElement | null;
 
+export type VideoMuteStatus = {
+    muted: boolean;
+    currentVideoMuted: boolean | null;
+    hasCurrentVideo: boolean;
+    userActivated: boolean | null;
+};
+
 /**
  * Mutes video audio globally and updates the mute button UI state.
  */
@@ -28,10 +35,18 @@ function unmute() {
 }
 
 /**
+ * Sets the global mute state and returns the resulting state.
+ */
+function setMuteState(muted: boolean): boolean {
+    muted ? mute() : unmute();
+    return getMuteState();
+}
+
+/**
  * Toggles the global mute state and updates all video elements and the button icon.
  */
-function toggleMute() {
-    isMuted ? unmute() : mute();
+function toggleMute(): boolean {
+    return setMuteState(!isMuted);
 }
 
 /**
@@ -42,4 +57,43 @@ function getMuteState(): boolean {
     return isMuted;
 }
 
-export { toggleMute, getMuteState, unmute };
+/**
+ * Returns the current mute preference and the active video element's mute state.
+ */
+function getMuteStatus(): VideoMuteStatus {
+    const currentVideo = document.querySelector(
+        "video",
+    ) as HTMLVideoElement | null;
+
+    return {
+        muted: getMuteState(),
+        currentVideoMuted: currentVideo?.muted ?? null,
+        hasCurrentVideo: currentVideo !== null,
+        userActivated: navigator.userActivation?.hasBeenActive ?? null,
+    };
+}
+
+/**
+ * Registers the video mute API on the window object.
+ */
+function registerVideoMuteApi() {
+    window.immichKiosk = {
+        ...window.immichKiosk,
+        video: {
+            ...window.immichKiosk?.video,
+            getStatus: getMuteStatus,
+            getMuted: getMuteState,
+            setMuted: setMuteState,
+            toggleMuted: toggleMute,
+        },
+    };
+}
+
+export {
+    getMuteState,
+    getMuteStatus,
+    registerVideoMuteApi,
+    setMuteState,
+    toggleMute,
+    unmute,
+};
