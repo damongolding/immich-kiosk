@@ -7,27 +7,12 @@ let isMuted = true;
 
 const muteButton = htmx.find(".navigation--mute") as HTMLElement | null;
 
-type VideoMuteStatus = {
+export type VideoMuteStatus = {
     muted: boolean;
     currentVideoMuted: boolean | null;
     hasCurrentVideo: boolean;
     userActivated: boolean | null;
 };
-
-type ImmichKioskBrowserApi = {
-    video?: {
-        getStatus?: () => VideoMuteStatus;
-        getMuted?: () => boolean;
-        setMuted?: (muted: boolean) => boolean;
-        toggleMuted?: () => boolean;
-    };
-};
-
-declare global {
-    interface Window {
-        immichKiosk?: ImmichKioskBrowserApi;
-    }
-}
 
 /**
  * Mutes video audio globally and updates the mute button UI state.
