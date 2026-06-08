@@ -6,6 +6,8 @@
 // middleware, and serving both dynamic content and static assets.
 package main
 
+// CLOSE ME
+
 import (
 	"context"
 	"crypto/subtle"
