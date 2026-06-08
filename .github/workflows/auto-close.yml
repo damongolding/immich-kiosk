@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Comment and close
         env:
-          GH_TOKEN: ${{ github.GORELEASER }}
+          GH_TOKEN: ${{ github.token }}
           NODE_ID: ${{ github.event.pull_request.node_id }}
         run: |
           gh api graphql \
