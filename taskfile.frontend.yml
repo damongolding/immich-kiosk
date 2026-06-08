@@ -31,6 +31,12 @@ tasks:
     cmds:
       - node_modules/.bin/biome lint --write
 
+  frontend:fmt:
+    dir: ./frontend
+    desc: Format frontend assets
+    cmds:
+      - node_modules/.bin/biome format --write
+
   frontend:css:
     dir: ./frontend
     desc: Compile and minify CSS assets
