@@ -308,9 +308,11 @@ func isSleepMode(requestConfig config.Config) bool {
 
 // retrieveImage fetches a random image based on the picked image type.
 // It returns an error if the image retrieval fails.
-func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
+func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, albumOrder string, filterFavorites bool, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
 	switch pickedAsset.Type {
 	case kiosk.SourceAlbum:
+		useFilterFavorites := filterFavorites
+
 		switch pickedAsset.ID {
 		case kiosk.AlbumKeywordAll:
 			pickedAlbumID, err := immichAsset.RandomAlbumFromAllAlbums(requestID, deviceID, excludedAlbums)
@@ -331,15 +333,25 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 			}
 			pickedAsset.ID = pickedAlbumID
 		case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
+			useFilterFavorites = false
 			return immichAsset.RandomAssetFromFavourites(requestID, deviceID, isPrefetch)
 		}
 
 		switch strings.ToLower(albumOrder) {
 		case config.AlbumOrderDescending, config.AlbumOrderDesc, config.AlbumOrderNewest:
+			if useFilterFavorites {
+				return immichAsset.AssetFromAlbumSearch(pickedAsset.ID, immich.Desc, requestID, deviceID)
+			}
 			return immichAsset.AssetFromAlbum(pickedAsset.ID, immich.Desc, requestID, deviceID)
 		case config.AlbumOrderAscending, config.AlbumOrderAsc, config.AlbumOrderOldest:
+			if useFilterFavorites {
+				return immichAsset.AssetFromAlbumSearch(pickedAsset.ID, immich.Asc, requestID, deviceID)
+			}
 			return immichAsset.AssetFromAlbum(pickedAsset.ID, immich.Asc, requestID, deviceID)
 		default:
+			if useFilterFavorites {
+				return immichAsset.AssetFromAlbumSearch(pickedAsset.ID, immich.Rand, requestID, deviceID)
+			}
 			return immichAsset.AssetFromAlbum(pickedAsset.ID, immich.Rand, requestID, deviceID)
 		}
 
@@ -414,7 +426,7 @@ func processAsset(asset *immich.Asset, requestConfig config.Config, requestID st
 
 		pickedAsset.ID, _ = asset.ApplyUserFromAssetID(pickedAsset.ID)
 
-		err = retrieveImage(asset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
+		err = retrieveImage(asset, pickedAsset, requestConfig.AlbumOrder, requestConfig.FilterFavorites, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
 		if err != nil {
 			continue
 		}

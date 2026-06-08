@@ -344,6 +344,8 @@ type Config struct {
 
 	// FilterDate filter certain asset bucket assets by date range
 	FilterDate string `json:"filterDate" yaml:"filter_date" mapstructure:"filter_date" query:"filter_date" form:"filter_date" default:""`
+	// FilterFavorites filters asset buckets to favorite assets.
+	FilterFavorites bool `json:"filterFavorites" yaml:"filter_favorites" mapstructure:"filter_favorites" query:"filter_favorites" form:"filter_favorites" default:"false"`
 	// FilterNewest filter certain asset bucket assets by the newest X assets
 	FilterNewest int `json:"filterNewest" yaml:"filter_newest" mapstructure:"filter_newest" query:"filter_newest" form:"filter_newest" default:"0"`
 	// FilterExcludeFaces filter certain asset bucket assets by the presence of faces

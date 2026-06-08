@@ -149,6 +149,7 @@ type URLBuilderRequest struct {
 	ExcludedPeople   []string `form:"excluded_people" url:"exclude_person,omitempty"`
 	Albums           []string `form:"albums" url:"album,omitempty"`
 	AlbumOrder       *string  `form:"album_order" url:"album_order,omitempty"`
+	FilterFavorites  *bool    `form:"filter_favorites" url:"filter_favorites,omitempty"`
 	ExcludedAlbums   []string `form:"excluded_albums" url:"exclude_album,omitempty"`
 	Tags             []string `form:"tags" url:"tag,omitempty"`
 	ExcludedTags     []string `form:"excluded_tags" url:"exclude_tag,omitempty"`

@@ -230,6 +230,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 // FilterNewest is applied here.
 func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandomBody) ([]Asset, url.URL, error) {
 	filterNewest := a.requestConfig.FilterNewest > 0
+	useMetadataSearch := filterNewest || requestBody.Order != ""
 
 	var immichAssets []Asset
 
@@ -240,6 +241,7 @@ func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandom
 	}
 
 	FilterDate(&requestBody, a.requestConfig.FilterDate)
+	FilterFavorites(&requestBody, a.requestConfig.FilterFavorites)
 
 	if filterNewest {
 		requestBody.Size = a.requestConfig.FilterNewest
@@ -248,7 +250,7 @@ func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandom
 	queries, _ := query.Values(requestBody)
 
 	apiPath := "api/search/random"
-	if filterNewest {
+	if useMetadataSearch {
 		apiPath = "api/search/metadata"
 	}
 
@@ -266,19 +268,19 @@ func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandom
 	}
 
 	var immichAPICall apiCall
-	if filterNewest {
+	if useMetadataSearch {
 		immichAPICall = withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, SearchMetadataResponse{})
 	} else {
 		immichAPICall = withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, []Asset{})
 	}
 
-	apiBody, _, usingCache, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+	apiBody, _, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, err = immichAPIFail(immichAssets, err, apiBody, apiURL.String())
 		return nil, url.URL{}, err
 	}
 
-	if filterNewest && !usingCache {
+	if useMetadataSearch {
 		var searchMetadataResponse SearchMetadataResponse
 		if err = json.Unmarshal(apiBody, &searchMetadataResponse); err != nil {
 			log.Error("failed Unmarshal", "err", err)
@@ -643,6 +645,7 @@ func (a *Asset) containsTag(tagValue string) bool {
 func (a *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
 	return a.hasValidBasicProperties(allowedTypes, wantedRatio) &&
 		a.hasValidFilterDate() &&
+		a.hasValidFilterFavorites(requestID, deviceID) &&
 		a.hasValidPartners() &&
 		a.hasValidFilterExcludeFaces(requestID, deviceID) &&
 		a.hasValidAlbums(requestID, deviceID) &&
@@ -682,6 +685,23 @@ func (a *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio Im
 		return false
 	}
 	return true
+}
+
+// hasValidFilterFavorites validates favorite-only filtering for assets from any source.
+func (a *Asset) hasValidFilterFavorites(requestID, deviceID string) bool {
+	if !a.requestConfig.FilterFavorites {
+		return true
+	}
+
+	if a.IsFavorite {
+		return true
+	}
+
+	if err := a.AssetInfo(requestID, deviceID); err != nil {
+		log.Error("Failed to get additional asset data", "error", err)
+	}
+
+	return a.IsFavorite
 }
 
 func (a *Asset) isAnimatedGif() bool {
@@ -851,6 +871,9 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 
 func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string) (int, error) {
 	var totalCount int
+
+	FilterDate(&requestBody, a.requestConfig.FilterDate)
+	FilterFavorites(&requestBody, a.requestConfig.FilterFavorites)
 
 	for {
 

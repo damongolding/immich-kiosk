@@ -41,6 +41,42 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 	return a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 }
 
+// albumSearchAssetsCount counts assets in an album using the search API.
+func (a *Asset) albumSearchAssetsCount(albumID, requestID, deviceID string) (int, error) {
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		_, _, err = immichAPIFail(0, err, nil, "")
+		return 0, err
+	}
+
+	requestBody := a.albumSearchBody(albumID)
+	requestBody.WithPeople = false
+	requestBody.WithExif = false
+
+	return a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
+}
+
+// albumSearchBody builds a reusable search request scoped to a single album.
+func (a *Asset) albumSearchBody(albumID string) SearchRandomBody {
+	requestBody := SearchRandomBody{
+		AlbumIDs:   []string{albumID},
+		Type:       string(ImageType),
+		WithExif:   true,
+		WithPeople: true,
+		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+	}
+
+	if a.requestConfig.ShowVideos {
+		requestBody.Type = ""
+	}
+
+	if a.requestConfig.ShowArchived {
+		requestBody.WithArchived = true
+	}
+
+	return requestBody
+}
+
 // RandomAssetFromFavourites retrieves a random favorite asset from the Immich server.
 // It makes an API request to get random favorite assets and caches them for future use.
 // The function includes retries if No viable assets are found and handles caching of
@@ -145,6 +181,74 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 	}
 
 	return errors.New("no assets found for favourites. Max retries reached")
+}
+
+// AssetFromAlbumSearch retrieves an album asset using search-backed filters and ordering.
+func (a *Asset) AssetFromAlbumSearch(albumID string, albumAssetsOrder AssetOrder, requestID, deviceID string) error {
+	for range MaxRetries {
+		requestBody := a.albumSearchBody(albumID)
+
+		switch albumAssetsOrder {
+		case Asc:
+			requestBody.Order = string(Asc)
+		case Desc:
+			requestBody.Order = string(Desc)
+		case Rand:
+		}
+
+		assets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)
+		if err != nil {
+			return err
+		}
+
+		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
+
+		if len(assets) == 0 {
+			log.Debug(requestID + " No filtered assets left in album cache. Refreshing and trying again")
+			cache.Delete(apiCacheKey)
+			continue
+		}
+
+		wantedAssetType := ImageOnlyAssetTypes
+		if a.requestConfig.ShowVideos {
+			wantedAssetType = AllAssetTypes
+		}
+
+		for assetIndex, asset := range assets {
+			asset.Bucket = kiosk.SourceAlbum
+			asset.requestConfig = a.requestConfig
+			asset.ctx = a.ctx
+
+			if !asset.isValidAsset(requestID, deviceID, wantedAssetType, a.RatioWanted) {
+				continue
+			}
+
+			if a.requestConfig.Kiosk.Cache {
+				assetsToCache := slices.Delete(assets, assetIndex, assetIndex+1)
+				jsonBytes, marshalErr := json.Marshal(assetsToCache)
+				if marshalErr != nil {
+					log.Error("Failed to marshal assetsToCache", "error", marshalErr)
+					return marshalErr
+				}
+
+				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
+			}
+
+			asset.BucketID = albumID
+			if asset.requestConfig.SelectedUser != "" {
+				asset.BucketID = albumID + "@" + asset.requestConfig.SelectedUser
+			}
+
+			*a = asset
+
+			return nil
+		}
+
+		log.Debug(requestID + " No viable filtered assets left in album cache. Refreshing and trying again")
+		cache.Delete(apiCacheKey)
+	}
+
+	return errors.New("no filtered assets found for album. Max retries reached")
 }
 
 func (a *Asset) FavouriteStatus(deviceID string, favourite bool) error {

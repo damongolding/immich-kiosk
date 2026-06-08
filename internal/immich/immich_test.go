@@ -4,6 +4,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/stretchr/testify/assert"
 )
@@ -54,6 +55,52 @@ func TestArchiveLogic(t *testing.T) {
 			assert.Equal(t, test.WantSimulatedContinue, simulatedContinueTriggered, "Unexpected simulatedContinueTriggered value")
 		})
 	}
+}
+
+func TestFilterFavorites(t *testing.T) {
+	requestBody := SearchRandomBody{}
+
+	FilterFavorites(&requestBody, true)
+
+	assert.True(t, requestBody.IsFavorite)
+}
+
+func TestAlbumSearchBody(t *testing.T) {
+	asset := Asset{
+		requestConfig: config.Config{
+			Kiosk: config.KioskSettings{
+				FetchedAssetsSize: 42,
+			},
+		},
+	}
+
+	requestBody := asset.albumSearchBody("album-id")
+
+	assert.Equal(t, []string{"album-id"}, requestBody.AlbumIDs)
+	assert.Equal(t, string(ImageType), requestBody.Type)
+	assert.False(t, requestBody.IsFavorite)
+	assert.True(t, requestBody.WithExif)
+	assert.True(t, requestBody.WithPeople)
+	assert.Equal(t, 42, requestBody.Size)
+	assert.False(t, requestBody.WithArchived)
+}
+
+func TestAlbumSearchBodyWithVideosAndArchived(t *testing.T) {
+	asset := Asset{
+		requestConfig: config.Config{
+			ShowVideos:   true,
+			ShowArchived: true,
+			Kiosk: config.KioskSettings{
+				FetchedAssetsSize: 100,
+			},
+		},
+	}
+
+	requestBody := asset.albumSearchBody("album-id")
+
+	assert.Empty(t, requestBody.Type)
+	assert.True(t, requestBody.WithArchived)
+	assert.False(t, requestBody.IsFavorite)
 }
 
 // TestFacesCenterPoint tests the calculation of the center point between detected faces in an asset

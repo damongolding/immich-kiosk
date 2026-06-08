@@ -172,6 +172,23 @@ func TestImmichURLImmichMultipleAlbum(t *testing.T) {
 	assert.Contains(t, configWithBaseOnly.Albums, "BASE_ALBUM_2", "BASE_ALBUM_2 should be present")
 }
 
+func TestFilterFavoritesURLOverride(t *testing.T) {
+	c := New()
+
+	e := echo.New()
+	q := make(url.Values)
+	q.Add("album", "ALBUM_1")
+	q.Add("filter_favorites", "true")
+
+	req := httptest.NewRequest(http.MethodGet, "/?"+q.Encode(), nil)
+	rec := httptest.NewRecorder()
+	echoContenx := e.NewContext(req, rec)
+
+	err := c.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
+	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
+	assert.True(t, c.FilterFavorites, "Expected filter_favorites to enable favorite filtering")
+}
+
 func TestAlbumAndPerson(t *testing.T) {
 	testCases := []struct {
 		name           string

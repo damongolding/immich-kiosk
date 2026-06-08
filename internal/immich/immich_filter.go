@@ -23,3 +23,10 @@ func FilterDate(requestBody *SearchRandomBody, dateFilter string) {
 		requestBody.TakenBefore = dateEnd.Format(time.RFC3339)
 	}
 }
+
+// FilterFavorites applies favorite filtering to the search request body.
+func FilterFavorites(requestBody *SearchRandomBody, filterFavorites bool) {
+	if filterFavorites {
+		requestBody.IsFavorite = true
+	}
+}

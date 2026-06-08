@@ -35,6 +35,21 @@ func TestURLBuilderRequestEncodesWeatherFields(t *testing.T) {
 	assertQueryValue(t, values.Get("weather_round_temperature"), "true")
 }
 
+func TestURLBuilderRequestEncodesFilterFavorites(t *testing.T) {
+	req := URLBuilderRequest{
+		Albums:          []string{"album-1"},
+		FilterFavorites: ptr(true),
+	}
+
+	values, err := query.Values(req)
+	if err != nil {
+		t.Fatalf("encoding URL builder request: %v", err)
+	}
+
+	assertQueryValue(t, values.Get("album"), "album-1")
+	assertQueryValue(t, values.Get("filter_favorites"), "true")
+}
+
 func assertQueryValue(t *testing.T, actual string, expected string) {
 	t.Helper()
 	if actual != expected {

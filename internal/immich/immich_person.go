@@ -141,6 +141,10 @@ func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, err
 		return a.allPeopleAssetCount(requestID, deviceID)
 	}
 
+	if a.requestConfig.FilterFavorites {
+		return a.personSearchAssetCount(personID, requestID, deviceID)
+	}
+
 	var personStatistics PersonStatistics
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
@@ -169,6 +173,38 @@ func (a *Asset) PersonAssetCount(personID, requestID, deviceID string) (int, err
 	}
 
 	return personStatistics.Assets, nil
+}
+
+// personSearchAssetCount counts person assets using the search API when filters are active.
+func (a *Asset) personSearchAssetCount(personID, requestID, deviceID string) (int, error) {
+	u, err := url.Parse(a.requestConfig.ImmichURL)
+	if err != nil {
+		_, _, err = immichAPIFail(0, err, nil, "")
+		return 0, err
+	}
+
+	requestBody := SearchRandomBody{
+		PersonIDs:  []string{personID},
+		Type:       string(ImageType),
+		WithPeople: false,
+		WithExif:   false,
+		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+	}
+
+	if a.requestConfig.ShowVideos {
+		requestBody.Type = ""
+	}
+
+	if a.requestConfig.RequireAllPeople {
+		requestBody.PersonIDs = make([]string, len(a.requestConfig.People))
+		copy(requestBody.PersonIDs, a.requestConfig.People)
+	}
+
+	if a.requestConfig.ShowArchived {
+		requestBody.WithArchived = true
+	}
+
+	return a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 }
 
 // RandomAssetOfPerson retrieves a random asset for a given person from the Immich API.

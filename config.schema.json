@@ -155,6 +155,10 @@
       "type": "string",
       "description": "Filter to limit assets to a certain date range"
     },
+    "filter_favorites": {
+      "type": "boolean",
+      "description": "Filter to limit assets to favorites"
+    },
     "filter_newest": {
       "type": "integer",
       "minimum": 0,

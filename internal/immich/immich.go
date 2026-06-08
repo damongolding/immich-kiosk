@@ -225,6 +225,7 @@ type SearchRandomBody struct {
 	Make          string   `url:"make,omitempty" json:"make,omitempty"`
 	Model         string   `url:"model,omitempty" json:"model,omitempty"`
 	Ocr           string   `url:"ocr,omitempty" json:"ocr,omitempty"`
+	Order         string   `url:"order,omitempty" json:"order,omitempty"`
 	State         string   `url:"state,omitempty" json:"state,omitempty"`
 	TakenAfter    string   `url:"takenAfter,omitempty" json:"takenAfter,omitempty"`
 	TakenBefore   string   `url:"takenBefore,omitempty" json:"takenBefore,omitempty"`

@@ -178,6 +178,24 @@ func countAssetsInAlbums(albums Albums) int {
 	return total
 }
 
+// countAssetsInAlbums returns album asset counts, applying search-backed filters when needed.
+func (a *Asset) countAssetsInAlbums(albums Albums, requestID, deviceID string) (int, error) {
+	if !a.requestConfig.FilterFavorites {
+		return countAssetsInAlbums(albums), nil
+	}
+
+	total := 0
+	for _, album := range albums {
+		count, err := a.albumSearchAssetsCount(album.ID, requestID, deviceID)
+		if err != nil {
+			return 0, err
+		}
+		total += count
+	}
+
+	return total, nil
+}
+
 // AlbumImageCount retrieves the number of images in a specific album from Immich.
 // Parameters:
 //   - albumID: ID of the album to count images from, can be a special keyword
@@ -194,21 +212,21 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 		if err != nil {
 			return 0, fmt.Errorf("get all albums (%s) err=%w", albumsURL, err)
 		}
-		return countAssetsInAlbums(albums), nil
+		return a.countAssetsInAlbums(albums, requestID, deviceID)
 
 	case kiosk.AlbumKeywordOwned:
 		albums, albumsURL, err := a.allOwnedAlbums(requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("get owned albums (%s) err=%w", albumsURL, err)
 		}
-		return countAssetsInAlbums(albums), nil
+		return a.countAssetsInAlbums(albums, requestID, deviceID)
 
 	case kiosk.AlbumKeywordShared:
 		albums, albumsURL, err := a.allSharedAlbums(requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("get shared albums (%s) err=%w", albumsURL, err)
 		}
-		return countAssetsInAlbums(albums), nil
+		return a.countAssetsInAlbums(albums, requestID, deviceID)
 
 	case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
 		favouriteAssetCount, err := a.favouriteAssetsCount(requestID, deviceID)
@@ -218,6 +236,14 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 		return favouriteAssetCount, nil
 
 	default:
+		if a.requestConfig.FilterFavorites {
+			filteredAssetCount, err := a.albumSearchAssetsCount(albumID, requestID, deviceID)
+			if err != nil {
+				return 0, fmt.Errorf("get filtered album assets for album %s: %w", albumID, err)
+			}
+			return filteredAssetCount, nil
+		}
+
 		album, _, err := a.albumAssets(albumID, requestID, deviceID)
 		if err != nil {
 			return 0, fmt.Errorf("get album assets for album %s: %w", albumID, err)
@@ -334,7 +360,7 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 // Parameters:
 //   - albums: List of albums to select from
 //   - excludedAlbums: List of album IDs to exclude from selection
-func (a *Asset) selectRandomAlbum(albums Albums, excludedAlbums []string) (string, error) {
+func (a *Asset) selectRandomAlbum(albums Albums, excludedAlbums []string, requestID, deviceID string) (string, error) {
 	albums.RemoveExcludedAlbums(excludedAlbums)
 	if len(albums) == 0 {
 		return "", errors.New("no albums available after applying exclusions")
@@ -342,10 +368,27 @@ func (a *Asset) selectRandomAlbum(albums Albums, excludedAlbums []string) (strin
 
 	albumsWithWeighting := []utils.AssetWithWeighting{}
 	for _, album := range albums {
+		weight := album.AssetCount
+		if a.requestConfig.FilterFavorites {
+			count, err := a.albumSearchAssetsCount(album.ID, requestID, deviceID)
+			if err != nil {
+				return "", err
+			}
+			weight = count
+		}
+
+		if weight == 0 {
+			continue
+		}
+
 		albumsWithWeighting = append(albumsWithWeighting, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceAlbum, ID: album.ID},
-			Weight: album.AssetCount,
+			Weight: weight,
 		})
+	}
+
+	if len(albumsWithWeighting) == 0 {
+		return "", errors.New("no albums available after applying filters")
 	}
 
 	pickedAlbum := utils.PickRandomImageType(a.requestConfig.Kiosk.AssetWeighting, albumsWithWeighting)
@@ -362,7 +405,7 @@ func (a *Asset) RandomAlbumFromSharedAlbums(requestID, deviceID string, excluded
 		return "", err
 	}
 
-	return a.selectRandomAlbum(albums, excludedAlbums)
+	return a.selectRandomAlbum(albums, excludedAlbums, requestID, deviceID)
 }
 
 // RandomAlbumFromAllAlbums returns a random album ID from all albums.
@@ -375,7 +418,7 @@ func (a *Asset) RandomAlbumFromAllAlbums(requestID, deviceID string, excludedAlb
 		return "", err
 	}
 
-	return a.selectRandomAlbum(albums, excludedAlbums)
+	return a.selectRandomAlbum(albums, excludedAlbums, requestID, deviceID)
 }
 
 // RandomAlbumFromOwnedAlbums returns a random album ID from owned albums.
@@ -388,7 +431,7 @@ func (a *Asset) RandomAlbumFromOwnedAlbums(requestID, deviceID string, excludedA
 		return "", err
 	}
 
-	return a.selectRandomAlbum(albums, excludedAlbums)
+	return a.selectRandomAlbum(albums, excludedAlbums, requestID, deviceID)
 }
 
 // RemoveExcludedAlbums filters out albums whose IDs are in the exclude slice.
