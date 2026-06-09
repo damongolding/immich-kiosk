@@ -134,7 +134,6 @@ func gatherPeopleAlbums(d *gatherData, config gatherPeopleAlbumsConfig) error {
 		}
 
 		if assetCount == 0 {
-			log.Error("HERE")
 			log.Error("No assets found for", config.notFoundMsg, itemTmp)
 			continue
 		}
