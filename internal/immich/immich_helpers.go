@@ -228,6 +228,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 // fetchAssets handles the API call and unmarshalling for both random and metadata endpoints.
 // FilterDate is applied here.
 // FilterNewest is applied here.
+// filterFavorites is applied here.
 func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandomBody) ([]Asset, url.URL, error) {
 	filterNewest := a.requestConfig.FilterNewest > 0
 
