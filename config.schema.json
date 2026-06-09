@@ -165,6 +165,10 @@
       "type": "boolean",
       "description": "Exclude assets where Immich has detected a face"
     },
+    "filter_favorites": {
+      "type": "boolean",
+      "description": "Filter to only show favorite assets"
+    },
     "show_videos": {
       "type": "boolean"
     },

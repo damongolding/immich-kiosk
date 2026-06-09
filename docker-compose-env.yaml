@@ -43,6 +43,7 @@ services:
       KIOSK_FILTER_DATE: ""
       KIOSK_FILTER_NEWEST: 0
       KIOSK_FILTER_EXCLUDE_FACES: false
+      KIOSK_FILTER_FAVORITES: false
       # UI
       KIOSK_SHOW_PROGRESS_BAR: false
       KIOSK_DISABLE_NAVIGATION: false
