@@ -30,8 +30,11 @@ This section is used to generate the UnRaid template.
 | excluded_tags                     | KIOSK_EXCLUDED_TAGS     | []string                   | []          | The tag or tags you want to exclude. |
 | memories                          | KIOSK_MEMORIES          | bool                       | false       | Display memories. |
 | blacklist                         | KIOSK_BLACKLIST         | []string                   | []          | The ID(s) of any specific assets you want Kiosk to skip/exclude from displaying. |
-| date_filter                       | KIOSK_DATE_FILTER       | string                     | ""          | Filter person and random assets by date. |
-| disable_navigation               | KIOSK_DISABLE_NAVIGATION | bool                       | false       | Disable all Kiosk's navigation (touch/click, keyboard and menu).    |
+| filter_date                       | KIOSK_FILTER_DATE       | string                     | ""          | Filter person and random assets by date. |
+| filter_newest                     | KIOSK_FILTER_NEWEST     | int                        | 0           | Filter certain asset bucket assets by the newest X assets. |
+| filter_exclude_faces              | KIOSK_FILTER_EXCLUDE_FACES | bool                    | false       | Filter certain asset bucket assets by the presence of faces. |
+| filter_favorites                  | KIOSK_FILTER_FAVORITES  | bool                       | false       | Filter to only show favorite assets. |
+| disable_navigation                | KIOSK_DISABLE_NAVIGATION | bool                      | false       | Disable all Kiosk's navigation (touch/click, keyboard and menu).    |
 | disable_ui                        | KIOSK_DISABLE_UI        | bool                       | false       | A shortcut to set show_time, show_date, show_image_time and show_image_date to false. |
 | menu_position                     | KIOSK_MENU_POSITION     | top \| bottom              | top         | Sets the position of the menu bar.    |
 | frameless                         | KIOSK_FRAMELESS         | bool                       | false       | Remove borders and rounded corners on images.                                              |
