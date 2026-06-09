@@ -250,7 +250,7 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 //     after maximum retry attempts
 func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requestID, deviceID string) error {
 	filterNewest := a.requestConfig.FilterNewest > 0
-	filterFavourites := a.requestConfig.FilterFavourites || a.requestConfig.FilterFavorites
+	filterFavourites := a.requestConfig.FilterFavorites
 	var apiCacheKey string
 
 	for range MaxRetries {

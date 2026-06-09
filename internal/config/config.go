@@ -348,9 +348,8 @@ type Config struct {
 	FilterNewest int `json:"filterNewest" yaml:"filter_newest" mapstructure:"filter_newest" query:"filter_newest" form:"filter_newest" default:"0"`
 	// FilterExcludeFaces filter certain asset bucket assets by the presence of faces
 	FilterExcludeFaces bool `json:"filterExcludeFaces" yaml:"filter_exclude_faces" mapstructure:"filter_exclude_faces" query:"filter_exclude_faces" form:"filter_exclude_faces" default:"false"`
-	// FilterFavourites filter certain asset bucket assets to only favourites
-	FilterFavourites bool `json:"filterFavourites" yaml:"filter_favourites" mapstructure:"filter_favourites" query:"filter_favourites" form:"filter_favourites" default:"false"`
-	FilterFavorites  bool `json:"filterFavorites" yaml:"filter_favorites" mapstructure:"filter_favorites" query:"filter_favorites" form:"filter_favorites" default:"false"`
+	// FilterFavorites filter certain asset bucket assets to only favourites
+	FilterFavorites bool `json:"filterFavorites" yaml:"filter_favorites" mapstructure:"filter_favorites" query:"filter_favorites" form:"filter_favorites" default:"false"`
 
 	// ShowClearCacheButton display a button to clear cache
 	ShowClearCacheButton bool `json:"showClearCacheButton" yaml:"show_clear_cache_button" mapstructure:"show_clear_cache_button" query:"show_clear_cache_button" form:"show_clear_cache_button" default:"false"`
