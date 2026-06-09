@@ -260,7 +260,6 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 			return err
 		}
 
-		log.Info("AssetFromAlbum", "l", len(album.Assets))
 		if apiCacheKey == "" {
 			apiCacheKey = cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 		}
