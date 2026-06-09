@@ -28,8 +28,8 @@ templ Head(viewData common.ViewData) {
 	<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png"/>
 	if viewData.HideCursor {
 		<style>
-			html, body {
-			    cursor: none;
+			* {
+			    cursor: none !important;
 			}
 		</style>
 	}

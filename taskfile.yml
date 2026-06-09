@@ -29,7 +29,7 @@ tasks:
   verbose:
     desc: Run kiosk in verbose debug mode
     cmds:
-      - go tool air -build.cmd="task build-verbose" -build.full_bin="KIOSK_DEBUG_VERBOSE=true ./dist/kiosk"
+      - go tool air -build.cmd="task build:verbose" -build.full_bin="KIOSK_DEBUG_VERBOSE=true ./dist/kiosk"
 
   # Backend tasks
   templ:
@@ -57,7 +57,7 @@ tasks:
     cmds:
       - CGO_ENABLED=0 go build -installsuffix cgo -ldflags "-X main.version={{.VERSION}} -s -w" -o dist/kiosk .
 
-  build-verbose:
+  build:verbose:
     desc: Build kiosk with face detection debugging enabled
     deps: [frontend, templ]
     cmds:
@@ -75,7 +75,7 @@ tasks:
       - sh: gofumpt --version
         msg: gofumpt is not installed. Please follow the instructions at https://github.com/mvdan/gofumpt
 
-  update-go:
+  go:update:
     desc: Sync local Go version with go.mod and Dockerfile
     cmds:
       - |
@@ -88,29 +88,40 @@ tasks:
         diff Dockerfile.bak Dockerfile || true
         rm Dockerfile.bak
 
-  outdated-go:
+  go:outdated:
     desc: Check for outdated Go dependencies
     cmds:
       - (printf "Module\tCurrent\tLatest\n" && go list -u -m -json all | jq -r 'select(.Main or .Indirect | not) | select(.Update) | [.Path, .Version, .Update.Version] | @tsv') | column -t -s $'\t'
 
-  mise-outdated:
+  mise:outdated:
     desc: Check for outdated Mise dependencies
     cmds:
       - cmd: mise outdated --bump
         if: command -v mise >/dev/null 2>&1
 
-  outdated:
-    desc: Check for outdated Go and frontend dependencies
-    deps: [outdated-go, frontend:outdated, mise-outdated]
-
-  update-go-deps:
+  go:update-deps:
     desc: Update Go dependencies
     cmds:
       - eval $(go list -u -m -json all | jq -rs '[.[] | select(.Main or .Indirect | not) | select(.Update) | .Path + "@latest"] | "go get " + join(" ")')
 
-  update-deps:
+  go:fmt:
+    desc: Run gofumpt on the codebase
+    cmds:
+      - go fmt ./...
+      - cmd: gofumpt -w .
+        if: command -v gofumpt >/dev/null 2>&1
+
+  fmt:
+    desc: Run formatters on the codebase
+    deps: [go:fmt, frontend:fmt]
+
+  outdated:
+    desc: Check for outdated Go and frontend dependencies
+    deps: [go:outdated, frontend:outdated, mise:outdated]
+
+  deps:update:
     desc: Update Go and frontend dependencies
-    deps: [update-go-deps, frontend:update]
+    deps: [go:update-deps, frontend:update]
     cmds:
       - go mod tidy
 

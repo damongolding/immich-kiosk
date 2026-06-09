@@ -4,19 +4,19 @@ silent: true
 
 tasks:
   # Docker tasks
-  docker-image:
+  docker:build:
     desc: Build docker image locally
     cmds:
       - cmd: orb start
         if: "command -v orb >/dev/null 2>&1"
       - docker build --no-cache --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
 
-  docker-buildx:
+  docker:buildx:
     desc: Create and install docker buildx builder
     cmds:
       - docker buildx create --name multiplatform --driver docker-container --use
 
-  dev-push:
+  docker:dev-push:
     desc: Build and push development multi-arch docker image
     cmds:
       - cmd: orb start
@@ -25,7 +25,7 @@ tasks:
       - cmd: orb stop
         if: "command -v orb >/dev/null 2>&1"
 
-  push:
+  docker:push:
     desc: Build and push development multi-arch docker image
     cmds:
       - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t ghcr.io/damongolding/immich-kiosk:{{.VERSION}} -t ghcr.io/damongolding/immich-kiosk:latest .
