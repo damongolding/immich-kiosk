@@ -239,7 +239,8 @@ func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandom
 		return nil, url.URL{}, err
 	}
 
-	FilterDate(&requestBody, a.requestConfig.FilterDate)
+	filterDate(&requestBody, a.requestConfig.FilterDate)
+	filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
 
 	if filterNewest {
 		requestBody.Size = a.requestConfig.FilterNewest

@@ -113,8 +113,8 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 	return assets, nil
 }
 
-func gatherPeopleAlbums(d *gatherData, cfg gatherPeopleAlbumsConfig) error {
-	for _, item := range cfg.items {
+func gatherPeopleAlbums(d *gatherData, config gatherPeopleAlbumsConfig) error {
+	for _, item := range config.items {
 		if item == "" || strings.EqualFold(item, "none") {
 			continue
 		}
@@ -124,22 +124,23 @@ func gatherPeopleAlbums(d *gatherData, cfg gatherPeopleAlbumsConfig) error {
 		assetCount := d.requestConfig.FilterNewest
 		if !d.filterNewest {
 			var countErr error
-			assetCount, countErr = cfg.countFn(itemTmp, d.requestID, d.deviceID)
+			assetCount, countErr = config.countFn(itemTmp, d.requestID, d.deviceID)
 			if countErr != nil {
 				if d.immichAsset.SelectedUser() != "" {
-					return fmt.Errorf(cfg.userErrorFmt, d.immichAsset.SelectedUser(), itemTmp, countErr)
+					return fmt.Errorf(config.userErrorFmt, d.immichAsset.SelectedUser(), itemTmp, countErr)
 				}
-				return fmt.Errorf(cfg.countErrorFmt, countErr)
+				return fmt.Errorf(config.countErrorFmt, countErr)
 			}
 		}
 
 		if assetCount == 0 {
-			log.Error("No assets found for", cfg.notFoundMsg, itemTmp)
+			log.Error("HERE")
+			log.Error("No assets found for", config.notFoundMsg, itemTmp)
 			continue
 		}
 
 		*d.assets = append(*d.assets, utils.AssetWithWeighting{
-			Asset:  utils.WeightedAsset{Type: cfg.sourceType, ID: item},
+			Asset:  utils.WeightedAsset{Type: config.sourceType, ID: item},
 			Weight: assetCount,
 		})
 	}

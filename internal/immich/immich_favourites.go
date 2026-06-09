@@ -36,7 +36,7 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 		requestBody.WithArchived = true
 	}
 
-	FilterDate(&requestBody, a.requestConfig.FilterDate)
+	filterDate(&requestBody, a.requestConfig.FilterDate)
 
 	return a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 }
