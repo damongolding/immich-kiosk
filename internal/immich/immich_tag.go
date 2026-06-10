@@ -95,7 +95,8 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 		requestBody.WithArchived = true
 	}
 
-	FilterDate(&requestBody, a.requestConfig.FilterDate)
+	filterDate(&requestBody, a.requestConfig.FilterDate)
+	filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
 
 	allAssetsCount, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {
@@ -128,6 +129,9 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 	if a.requestConfig.ShowArchived {
 		requestBody.WithArchived = true
 	}
+
+	filterDate(&requestBody, a.requestConfig.FilterDate)
+	filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
 
 	immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)
 	if err != nil {

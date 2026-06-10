@@ -6,11 +6,11 @@ import (
 	"charm.land/log/v2"
 )
 
-// FilterDate applies date filtering to the search request body based on the configured date filter.
+// filterDate applies date filtering to the search request body based on the configured date filter.
 // It sets the TakenAfter and TakenBefore fields of the request body to filter photos
 // within the determined date range. If no date filter is configured, it returns without
 // modifying the request body.
-func FilterDate(requestBody *SearchRandomBody, dateFilter string) {
+func filterDate(requestBody *SearchRandomBody, dateFilter string) {
 	if dateFilter == "" {
 		return
 	}
@@ -22,4 +22,12 @@ func FilterDate(requestBody *SearchRandomBody, dateFilter string) {
 		requestBody.TakenAfter = dateStart.Format(time.RFC3339)
 		requestBody.TakenBefore = dateEnd.Format(time.RFC3339)
 	}
+}
+
+func filterFavorites(requestBody *SearchRandomBody, use bool) {
+	if !use {
+		return
+	}
+
+	requestBody.IsFavorite = true
 }

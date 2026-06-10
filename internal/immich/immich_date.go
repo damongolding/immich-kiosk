@@ -76,6 +76,8 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 			requestBody.WithArchived = true
 		}
 
+		filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
+
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
 

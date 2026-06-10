@@ -136,7 +136,7 @@ func (a *Asset) allOwnedAlbums(requestID, deviceID string) (Albums, string, erro
 //   - ImmichAlbum: The album details and associated assets
 //   - string: The API URL that was called
 //   - error: Any error encountered during the request
-func (a *Asset) albumAssets(albumID, requestID, deviceID string) (Album, string, error) {
+func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly bool) (Album, string, error) {
 	var album Album
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
@@ -150,6 +150,10 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string) (Album, string,
 		Path:   path.Join("api", "albums", albumID),
 	}
 
+	if favoritesOnly {
+		apiURL.RawQuery = "favorites=true"
+	}
+
 	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, album)
 	body, _, _, err := immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
@@ -159,6 +163,10 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string) (Album, string,
 	err = json.Unmarshal(body, &album)
 	if err != nil {
 		return immichAPIFail(album, err, body, apiURL.String())
+	}
+
+	if favoritesOnly {
+		album = extractFavoritedAssets(album)
 	}
 
 	return album, apiURL.String(), nil
@@ -218,7 +226,7 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 		return favouriteAssetCount, nil
 
 	default:
-		album, _, err := a.albumAssets(albumID, requestID, deviceID)
+		album, _, err := a.albumAssets(albumID, requestID, deviceID, false)
 		if err != nil {
 			return 0, fmt.Errorf("get album assets for album %s: %w", albumID, err)
 		}
@@ -242,22 +250,26 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 //     after maximum retry attempts
 func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requestID, deviceID string) error {
 	filterNewest := a.requestConfig.FilterNewest > 0
+	filterFavourites := a.requestConfig.FilterFavorites
+	var apiCacheKey string
 
 	for range MaxRetries {
 
-		album, apiURL, err := a.albumAssets(albumID, requestID, deviceID)
+		album, apiURL, err := a.albumAssets(albumID, requestID, deviceID, filterFavourites)
 		if err != nil {
 			return err
 		}
 
-		apiCacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
+		if apiCacheKey == "" {
+			apiCacheKey = cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
+		}
 
 		if len(album.Assets) == 0 {
 			log.Debug(requestID+" No assets left in cache. Refreshing and trying again for album", albumID)
 			cache.Delete(apiCacheKey)
 
-			al, _, retryErr := a.albumAssets(albumID, requestID, deviceID)
-			if retryErr != nil || len(al.Assets) == 0 {
+			album, _, err = a.albumAssets(albumID, requestID, deviceID, filterFavourites)
+			if err != nil || len(album.Assets) == 0 {
 				return fmt.Errorf("no assets found for album %s after refresh", albumID)
 			}
 
@@ -410,6 +422,22 @@ func (a *Albums) RemoveExcludedAlbums(exclude []string) {
 	})
 
 	*a = withRemoved
+}
+
+func extractFavoritedAssets(album Album) Album {
+	favoritedAssets := make([]Asset, 0, len(album.Assets))
+	for _, asset := range album.Assets {
+		if asset.IsFavorite {
+			favoritedAssets = append(favoritedAssets, asset)
+		}
+	}
+	return Album{
+		ID:            album.ID,
+		AlbumName:     album.AlbumName,
+		Assets:        favoritedAssets,
+		AssetCount:    len(favoritedAssets),
+		AssetsOrdered: album.AssetsOrdered,
+	}
 }
 
 // kioskLikedAlbum looks for and returns the kiosk "liked" album from all available albums.

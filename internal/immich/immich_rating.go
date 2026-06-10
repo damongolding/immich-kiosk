@@ -39,7 +39,8 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 		requestBody.WithArchived = true
 	}
 
-	FilterDate(&requestBody, a.requestConfig.FilterDate)
+	filterDate(&requestBody, a.requestConfig.FilterDate)
+	filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
 
 	allAssetsCount, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {

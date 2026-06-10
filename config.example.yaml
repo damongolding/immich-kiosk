@@ -62,6 +62,7 @@ memories: false # show memories
 # filter_date: last-30-days # Limit assets from sources to a given date range
 # filter_newest: 0 # Limit asset sources to only the newest X assets.
 # filter_exclude_faces: false # Excludes assets where Immich has detected a face
+# filter_favorites: false # Filter to only show favorite assets
 
 ## UI
 show_clear_cache_button: false # Show a menu button to clear the Kiosk server cache
