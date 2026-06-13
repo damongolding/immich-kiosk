@@ -1,5 +1,6 @@
 import fullyKiosk from "./fullykiosk";
 import immichFrame from "./immichframe";
+import { triggerNewAsset } from "./polling";
 
 /**
  * Enables or disables UI sleep mode and optionally controls the device screensaver state.
@@ -21,6 +22,7 @@ function sleepMode(
         document.body.classList.add("sleep");
     } else {
         document.body.classList.remove("sleep");
+        triggerNewAsset();
     }
 
     if (screensaver) {
