@@ -39,7 +39,7 @@
       "complexity": {
         "noImportantStyles": "off"
       },
-      "recommended": true
+      "preset": "recommended"
     }
   },
   "javascript": {
