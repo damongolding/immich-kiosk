@@ -691,6 +691,7 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 // Returns the processed image.
 func handleFaceProcessing(img image.Image, asset *immich.Asset, config config.Config, metadata requestMetadata) image.Image {
 	if strings.EqualFold(config.ImageEffect, "smart-zoom") && len(asset.People)+len(asset.UnassignedFaces) == 0 {
+		log.Info("handleFaceProcessing: checking for faces")
 		asset.CheckForFaces(metadata.requestID, metadata.deviceID)
 	}
 
