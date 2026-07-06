@@ -94,7 +94,5 @@ func (a *Asset) AddFaces(requestID, deviceID string) {
 
 	people := convertFaceResponse(faceResponse)
 
-	log.Info("faces", "fr", faceResponse, "b", string(body))
-
 	a.People = people
 }
