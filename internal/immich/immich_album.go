@@ -14,6 +14,7 @@ import (
 	"charm.land/log/v2"
 
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
@@ -282,7 +283,7 @@ func (a *Asset) AssetFromAlbum(albumID string, requestID, deviceID string) error
 			album.Assets = album.Assets[:a.requestConfig.FilterNewest]
 		}
 
-		if strings.EqualFold(a.requestConfig.AlbumOrder, string(Rand)) {
+		if strings.EqualFold(a.requestConfig.AlbumOrder, config.AlbumOrderRandom) {
 			rand.Shuffle(len(album.Assets), func(i, j int) {
 				album.Assets[i], album.Assets[j] = album.Assets[j], album.Assets[i]
 			})
