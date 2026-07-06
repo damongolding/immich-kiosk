@@ -308,7 +308,7 @@ func isSleepMode(requestConfig config.Config) bool {
 
 // retrieveImage fetches a random image based on the picked image type.
 // It returns an error if the image retrieval fails.
-func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, albumOrder string, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
+func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
 	switch pickedAsset.Type {
 	case kiosk.SourceAlbum:
 		switch pickedAsset.ID {
@@ -334,14 +334,7 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, a
 			return immichAsset.RandomAssetFromFavourites(requestID, deviceID, isPrefetch)
 		}
 
-		switch strings.ToLower(albumOrder) {
-		case config.AlbumOrderDescending, config.AlbumOrderDesc, config.AlbumOrderNewest:
-			return immichAsset.AssetFromAlbum(pickedAsset.ID, immich.Desc, requestID, deviceID)
-		case config.AlbumOrderAscending, config.AlbumOrderAsc, config.AlbumOrderOldest:
-			return immichAsset.AssetFromAlbum(pickedAsset.ID, immich.Asc, requestID, deviceID)
-		default:
-			return immichAsset.AssetFromAlbum(pickedAsset.ID, immich.Rand, requestID, deviceID)
-		}
+		return immichAsset.AssetFromAlbum(pickedAsset.ID, requestID, deviceID)
 
 	case kiosk.SourceDateRange:
 		return immichAsset.RandomAssetInDateRange(pickedAsset.ID, requestID, deviceID, isPrefetch)
@@ -414,7 +407,7 @@ func processAsset(asset *immich.Asset, requestConfig config.Config, requestID st
 
 		pickedAsset.ID, _ = asset.ApplyUserFromAssetID(pickedAsset.ID)
 
-		err = retrieveImage(asset, pickedAsset, requestConfig.AlbumOrder, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
+		err = retrieveImage(asset, pickedAsset, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
 		if err != nil {
 			continue
 		}

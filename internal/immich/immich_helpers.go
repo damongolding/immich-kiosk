@@ -1024,3 +1024,14 @@ func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error 
 
 	return nil
 }
+
+func AlbumOrder(albumAssetsOrder string) AssetOrder {
+	switch albumAssetsOrder {
+	case config.AlbumOrderDescending, config.AlbumOrderDesc, config.AlbumOrderNewest:
+		return Desc
+	case config.AlbumOrderAscending, config.AlbumOrderAsc, config.AlbumOrderOldest:
+		return Asc
+	default:
+		return Rand
+	}
+}
