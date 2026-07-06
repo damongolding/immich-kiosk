@@ -55,12 +55,12 @@ func convertFaceResponse(faceResponse []AssetFaceResponse) []Person {
 	return people
 }
 
-// CheckForFaces queries the Immich API to detect faces in the asset and adds them
+// AddFaces queries the Immich API to detect faces in the asset and adds them
 // to the asset's People slice. It takes requestID and deviceID parameters for API
 // call tracking. The function handles URL parsing, making the API request, and
 // unmarshaling the response into Face structs. Any errors are logged and will
 // abort the operation.
-func (a *Asset) CheckForFaces(requestID, deviceID string) {
+func (a *Asset) AddFaces(requestID, deviceID string) {
 	var faceResponse []AssetFaceResponse
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)

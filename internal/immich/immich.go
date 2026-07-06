@@ -334,9 +334,9 @@ type AssetFaceResponse struct {
 }
 
 type TagAssetsResponse []struct {
-	Error   immich_open_api.BulkIdResponseDtoError `json:"error"`
-	ID      string                                 `json:"id"`
-	Success bool                                   `json:"success"`
+	Error   string `json:"error"`
+	ID      string `json:"id"`
+	Success bool   `json:"success"`
 }
 
 type AlbumCreateResponse TagAssetsResponse
