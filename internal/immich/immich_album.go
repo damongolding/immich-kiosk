@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"path"
 	"slices"
+	"strings"
 
 	"charm.land/log/v2"
 
@@ -252,7 +253,6 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 func (a *Asset) AssetFromAlbum(albumID string, requestID, deviceID string) error {
 	filterNewest := a.requestConfig.FilterNewest > 0
 	filterFavourites := a.requestConfig.FilterFavorites
-	albumAssetsOrder := AlbumOrder(a.requestConfig.AlbumOrder)
 	var apiCacheKey string
 
 	for range MaxRetries {
@@ -282,7 +282,7 @@ func (a *Asset) AssetFromAlbum(albumID string, requestID, deviceID string) error
 			album.Assets = album.Assets[:a.requestConfig.FilterNewest]
 		}
 
-		if albumAssetsOrder == Rand {
+		if strings.EqualFold(a.requestConfig.AlbumOrder, string(Rand)) {
 			rand.Shuffle(len(album.Assets), func(i, j int) {
 				album.Assets[i], album.Assets[j] = album.Assets[j], album.Assets[i]
 			})
