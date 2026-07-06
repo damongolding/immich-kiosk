@@ -228,8 +228,7 @@ type Album struct {
 	LastModifiedAssetTimestamp string       `json:"lastModifiedAssetTimestamp"`
 
 	// Kiosk specific fields
-	Assets        []Asset `json:"assets"`
-	AssetsOrdered bool    `json:"assetsOrdered"`
+	Assets []Asset `json:"assets"`
 }
 
 type Albums []Album
