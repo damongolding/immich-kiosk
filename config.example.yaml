@@ -125,11 +125,19 @@ show_more_info_qr_code: true
 like_button_action: favorite # album, favorite or both [album, favorite]
 hide_button_action: tag # tag, archive, or both [tag, archive]
 
-## Weather feature - you’ll need an API key from OpenWeatherMap
+## Weather feature - you’ll need an API key from OpenWeatherMap, or, for a Tempest
+## (WeatherFlow) personal weather station, a personal access token.
+## To get a Tempest access token: sign in at https://tempestwx.com, go to
+## Settings -> Data Authorizations -> Create Token. Your station_id can be found
+## in the Tempest app/website under your station's settings, or via the
+## /stations API endpoint (see https://apidocs.tempestwx.com).
+## Note: Tempest stations don't report visibility, so show.visibility has no
+## effect on tempest locations.
 # weather:
 #   rotation_interval: 60 # in seconds (minimum: 10); rotation must be enabled via URL parameter
 #   locations:
 #     - name: london
+#       type: openweathermap # openweathermap (default) or tempest
 #       lat: 51.5285262
 #       lon: -0.2663999
 #       api: ""
@@ -142,6 +150,18 @@ hide_button_action: tag # tag, archive, or both [tag, archive]
 #         wind: false
 #         wind_direction: false
 #         visibility: false
+#         temperature_range: false
+#     - name: home
+#       type: tempest
+#       station_id: ""
+#       api: "" # Tempest personal access token
+#       unit: metric
+#       forecast: false
+#       default: false
+#       show:
+#         humidity: false
+#         wind: false
+#         wind_direction: false
 #         temperature_range: false
 
 ## Add iframes into Kiosk - you can use local files or remote URLs

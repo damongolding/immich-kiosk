@@ -311,14 +311,23 @@ func (c *Config) checkWeatherLocations() {
 		if w.Name == "" {
 			missingFields = append(missingFields, "name")
 		}
-		if w.Lat == "" {
-			missingFields = append(missingFields, "latitude")
-		}
-		if w.Lon == "" {
-			missingFields = append(missingFields, "longitude")
-		}
-		if w.API == "" {
-			missingFields = append(missingFields, "API key")
+		if w.Type == weatherProviderTempest {
+			if w.StationID == "" {
+				missingFields = append(missingFields, "station ID")
+			}
+			if w.API == "" {
+				missingFields = append(missingFields, "access token")
+			}
+		} else {
+			if w.Lat == "" {
+				missingFields = append(missingFields, "latitude")
+			}
+			if w.Lon == "" {
+				missingFields = append(missingFields, "longitude")
+			}
+			if w.API == "" {
+				missingFields = append(missingFields, "API key")
+			}
 		}
 		if w.Default {
 			if c.Weather.HasDefault {

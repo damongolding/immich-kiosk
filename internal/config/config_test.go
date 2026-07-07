@@ -298,6 +298,39 @@ func TestCheckWeatherLocations(t *testing.T) {
 			},
 			expected: "Weather location is missing required fields: latitude, longitude, API key",
 		},
+		{
+			name: "Tempest all fields present",
+			config: &Config{
+				Weather: WeatherConfig{
+					Locations: []WeatherLocation{
+						{Type: weatherProviderTempest, Name: "Home", StationID: "1234", API: "token123"},
+					},
+				},
+			},
+			expected: "",
+		},
+		{
+			name: "Tempest missing station ID",
+			config: &Config{
+				Weather: WeatherConfig{
+					Locations: []WeatherLocation{
+						{Type: weatherProviderTempest, Name: "Home", API: "token123"},
+					},
+				},
+			},
+			expected: "Weather location is missing required fields: station ID",
+		},
+		{
+			name: "Tempest missing access token",
+			config: &Config{
+				Weather: WeatherConfig{
+					Locations: []WeatherLocation{
+						{Type: weatherProviderTempest, Name: "Home", StationID: "1234"},
+					},
+				},
+			},
+			expected: "Weather location is missing required fields: access token",
+		},
 	}
 
 	for _, tt := range tests {

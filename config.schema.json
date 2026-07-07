@@ -417,17 +417,30 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["openweathermap", "tempest"],
+                "default": "openweathermap",
+                "description": "The weather data provider. 'tempest' requires station_id instead of lat/lon."
+              },
               "name": {
                 "type": "string"
               },
               "lat": {
-                "type": ["number", "string"]
+                "type": ["number", "string"],
+                "description": "Required when type is 'openweathermap' (or unset)"
               },
               "lon": {
-                "type": ["number", "string"]
+                "type": ["number", "string"],
+                "description": "Required when type is 'openweathermap' (or unset)"
+              },
+              "station_id": {
+                "type": "string",
+                "description": "Tempest station ID. Required when type is 'tempest'"
               },
               "api": {
-                "type": ["string", "null"]
+                "type": ["string", "null"],
+                "description": "OpenWeatherMap API key, or Tempest personal access token when type is 'tempest'"
               },
               "unit": {
                 "type": "string"
@@ -480,7 +493,7 @@
                 "type": "boolean"
               }
             },
-            "required": ["name", "lat", "lon"]
+            "required": ["name"]
           }
         }
       },

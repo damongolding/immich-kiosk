@@ -66,6 +66,9 @@ const (
 	apiKeyFileEnv        = "KIOSK_IMMICH_API_KEY_FILE"
 	passwordFileEnv      = "KIOSK_PASSWORD_FILE"
 	weatherAPIKeyFileEnv = "KIOSK_WEATHER_API_KEY_FILE"
+
+	// weatherProviderTempest is the WeatherLocation.Type value for Tempest (WeatherFlow) stations.
+	weatherProviderTempest = "tempest"
 )
 
 type OfflineMode struct {
@@ -164,10 +167,16 @@ type WeatherLocationStatOptions struct {
 	TemperatureRange bool `yaml:"temperature_range" mapstructure:"temperature_range" default:"false"`
 }
 
+// WeatherLocation configures a single weather data source. Type selects the provider
+// ("openweathermap", the default, or "tempest"). OpenWeatherMap locations use Lat/Lon
+// and API (the API key); Tempest locations use StationID and API (the personal access
+// token) instead.
 type WeatherLocation struct {
+	Type      string                     `yaml:"type" mapstructure:"type"`
 	Name      string                     `yaml:"name" mapstructure:"name" redact:"true"`
 	Lat       string                     `yaml:"lat" mapstructure:"lat" redact:"true"`
 	Lon       string                     `yaml:"lon" mapstructure:"lon" redact:"true"`
+	StationID string                     `yaml:"station_id" mapstructure:"station_id" redact:"true"`
 	API       string                     `yaml:"api" mapstructure:"api" redact:"true" msgpack:"-"`
 	Unit      string                     `yaml:"unit" mapstructure:"unit" redact:"true"`
 	Lang      string                     `yaml:"lang" mapstructure:"lang" redact:"true"`

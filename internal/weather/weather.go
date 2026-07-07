@@ -24,6 +24,8 @@ const (
 	MetricSystem                     = "metric"
 	ImperialSystem                   = "imperial"
 	APINameKeyword                   = "-api"
+	ProviderOpenWeatherMap           = "openweathermap"
+	ProviderTempest                  = "tempest"
 	WeatherRotation                  = "rotate"
 	WeatherParam                     = "weather"
 	WeatherRotationParam             = "weather_rotation"
@@ -117,9 +119,11 @@ type ForecastData struct {
 }
 
 type Location struct {
+	Type         string
 	Name         string
 	Lat          string
 	Lon          string
+	StationID    string
 	API          string
 	Unit         string
 	Lang         string
@@ -228,9 +232,11 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 	}
 
 	w := &Location{
+		Type:         location.Type,
 		Name:         location.Name,
 		Lat:          location.Lat,
 		Lon:          location.Lon,
+		StationID:    location.StationID,
 		API:          location.API,
 		Unit:         location.Unit,
 		Lang:         location.Lang,
@@ -407,9 +413,18 @@ func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, result
 	return nil
 }
 
-// updateWeather fetches new weather data from the OpenWeatherMap API for this location.
+// updateWeather fetches new current-conditions data for this location from its configured provider.
 // Returns the updated Location and any error that occurred.
 func (w *Location) updateWeather(ctx context.Context) (Location, error) {
+	if w.Type == ProviderTempest {
+		tempestResp, err := w.fetchTempestData(ctx)
+		if err != nil {
+			return *w, err
+		}
+		w.Weather = mapTempestCurrent(tempestResp)
+		return *w, nil
+	}
+
 	var newWeather Weather
 	err := w.fetchWeatherData(ctx, "weather", &newWeather)
 	if err != nil {
@@ -419,9 +434,18 @@ func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 	return *w, nil
 }
 
-// updateForecast fetches new forecast data from the OpenWeatherMap API for this location.
+// updateForecast fetches new forecast data for this location from its configured provider.
 // Returns the updated Location and any error that occurred.
 func (w *Location) updateForecast(ctx context.Context) (Location, error) {
+	if w.Type == ProviderTempest {
+		tempestResp, err := w.fetchTempestData(ctx)
+		if err != nil {
+			return *w, err
+		}
+		w.Forecast = mapTempestForecast(tempestResp)
+		return *w, nil
+	}
+
 	var newForecast Forecast
 	err := w.fetchWeatherData(ctx, "forecast", &newForecast)
 	if err != nil {
