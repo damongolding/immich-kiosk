@@ -112,31 +112,13 @@ func main() {
 		cache.DemoMode = true
 	}
 
-	immichVersion, immichVersionErr := immich.Version(c.Context(), baseConfig.ImmichURL)
-	if immichVersionErr != nil {
-		log.Warn("Failed to get Immich version. Skipping version check.", "err", immichVersionErr)
-	} else {
-		sv := fmt.Sprintf("%d.%d.%d", supportedImmichVersionMajor, supportedImmichVersionMinor, supportedImmichVersionPatch)
-		iv := fmt.Sprintf("%d.%d.%d", immichVersion.Major, immichVersion.Minor, immichVersion.Patch)
-
-		switch {
-		case immichVersion.Major < supportedImmichVersionMajor:
-			log.Error("Immich version not supported", "Immich version", iv, "supported version", sv)
-			os.Exit(1)
-
-		case immichVersion.Minor < supportedImmichVersionMinor:
-			log.Error("Immich version not supported", "Immich version", iv, "supported version", sv)
-			os.Exit(1)
-
-		case immichVersion.Patch < supportedImmichVersionPatch:
-			log.Error("Immich version not supported", "Immich version", iv, "supported version", sv)
-			os.Exit(1)
-		}
+	if !versionCheck(c.Context(), baseConfig.ImmichURL) {
+		os.Exit(1)
 	}
 
-	cache.Initialize()
-
 	immich.HTTPClient.Timeout = time.Second * time.Duration(baseConfig.Kiosk.HTTPTimeout)
+
+	cache.Initialize()
 
 	videoManager, videoManagerErr := video.New(c.Context())
 	if videoManagerErr != nil {
@@ -424,4 +406,26 @@ func healthCheck() int {
 	}
 
 	return 0
+}
+
+func versionCheck(c context.Context, immichURL string) bool {
+	immich.HTTPClient.Timeout = time.Second * 20
+	immichVersion, immichVersionErr := immich.Version(c, immichURL)
+	if immichVersionErr != nil {
+		log.Error("Failed to get Immich version. Skipping version check.", "err", immichVersionErr)
+	} else {
+		sv := fmt.Sprintf("%d.%d.%d", supportedImmichVersionMajor, supportedImmichVersionMinor, supportedImmichVersionPatch)
+		iv := fmt.Sprintf("%d.%d.%d", immichVersion.Major, immichVersion.Minor, immichVersion.Patch)
+
+		unsupported := immichVersion.Major < supportedImmichVersionMajor ||
+			(immichVersion.Major == supportedImmichVersionMajor && immichVersion.Minor < supportedImmichVersionMinor) ||
+			(immichVersion.Major == supportedImmichVersionMajor && immichVersion.Minor == supportedImmichVersionMinor && immichVersion.Patch < supportedImmichVersionPatch)
+
+		if unsupported {
+			log.Error("Immich version not supported", "Immich version", iv, "supported version", sv)
+			return false
+		}
+	}
+
+	return true
 }
