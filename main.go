@@ -49,6 +49,12 @@ var localeFS embed.FS
 //go:embed config.schema.json
 var SchemaJSON string
 
+const (
+	supportedImmichVersionMajor = 3
+	supportedImmichVersionMinor = 0
+	supportedImmichVersionPatch = 0
+)
+
 func init() {
 	routes.KioskVersion = version
 	config.SchemaJSON = SchemaJSON
@@ -104,6 +110,28 @@ func main() {
 	if baseConfig.Kiosk.DemoMode {
 		log.Info("Demo mode enabled")
 		cache.DemoMode = true
+	}
+
+	immichVersion, immichVersionErr := immich.Version(c.Context(), baseConfig.ImmichURL)
+	if immichVersionErr != nil {
+		log.Warn("Failed to get Immich version. Skipping version check.", "err", immichVersionErr)
+	} else {
+		sv := fmt.Sprintf("%d.%d.%d", supportedImmichVersionMajor, supportedImmichVersionMinor, supportedImmichVersionPatch)
+		iv := fmt.Sprintf("%d.%d.%d", immichVersion.Major, immichVersion.Minor, immichVersion.Patch)
+
+		switch {
+		case immichVersion.Major < supportedImmichVersionMajor:
+			log.Error("Immich version not supported", "Immich version", iv, "supported version", sv)
+			os.Exit(1)
+
+		case immichVersion.Minor < supportedImmichVersionMinor:
+			log.Error("Immich version not supported", "Immich version", iv, "supported version", sv)
+			os.Exit(1)
+
+		case immichVersion.Patch < supportedImmichVersionPatch:
+			log.Error("Immich version not supported", "Immich version", iv, "supported version", sv)
+			os.Exit(1)
+		}
 	}
 
 	cache.Initialize()
