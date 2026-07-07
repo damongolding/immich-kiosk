@@ -9,10 +9,12 @@ import (
 	"net/url"
 	"path"
 	"slices"
+	"strings"
 
 	"charm.land/log/v2"
 
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
@@ -144,6 +146,11 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly b
 		Size:         a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
+	assetOrder := AlbumOrder(a.requestConfig.AlbumOrder)
+	if assetOrder != Rand {
+		requestBody.Order = string(assetOrder)
+	}
+
 	// Include videos if show videos is enabled
 	if a.requestConfig.ShowVideos {
 		requestBody.Type = ""
@@ -244,7 +251,7 @@ func (a *Asset) AlbumImageCount(albumID string, requestID, deviceID string) (int
 // Returns:
 //   - error: Any error encountered during the asset retrieval process, including when No viable assets are found
 //     after maximum retry attempts
-func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requestID, deviceID string) error {
+func (a *Asset) AssetFromAlbum(albumID string, requestID, deviceID string) error {
 	filterNewest := a.requestConfig.FilterNewest > 0
 	filterFavourites := a.requestConfig.FilterFavorites
 	var apiCacheKey string
@@ -276,17 +283,10 @@ func (a *Asset) AssetFromAlbum(albumID string, albumAssetsOrder AssetOrder, requ
 			album.Assets = album.Assets[:a.requestConfig.FilterNewest]
 		}
 
-		switch albumAssetsOrder {
-		case Rand:
+		if strings.EqualFold(a.requestConfig.AlbumOrder, config.AlbumOrderRandom) {
 			rand.Shuffle(len(album.Assets), func(i, j int) {
 				album.Assets[i], album.Assets[j] = album.Assets[j], album.Assets[i]
 			})
-		case Asc:
-			if !album.AssetsOrdered {
-				slices.Reverse(album.Assets)
-				album.AssetsOrdered = true
-			}
-		case Desc:
 		}
 
 		allowedTypes := ImageOnlyAssetTypes

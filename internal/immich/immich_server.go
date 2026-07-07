@@ -3,6 +3,7 @@ package immich
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -32,6 +33,20 @@ type ServerAboutResponse struct {
 	Version                    string  `json:"version"`
 	VersionURL                 string  `json:"versionUrl"`
 	Licensed                   bool    `json:"licensed"`
+}
+
+type ServerVersionResponse struct {
+	// Major Major version number
+	Major int `json:"major"`
+
+	// Minor Minor version number
+	Minor int `json:"minor"`
+
+	// Patch Patch version number
+	Patch int `json:"patch"`
+
+	// Prerelease Pre-release version number
+	Prerelease *int `json:"prerelease"`
 }
 
 func (a *Asset) AboutInfo() (ServerAboutResponse, error) {
@@ -110,4 +125,48 @@ func IsOnline(ctx context.Context, immichURL string) bool {
 	}
 
 	return pong.Res == "pong"
+}
+
+func Version(ctx context.Context, immichURL string) (ServerVersionResponse, error) {
+	var serverVersionResponse ServerVersionResponse
+
+	u, err := url.Parse(immichURL)
+	if err != nil {
+		return serverVersionResponse, err
+	}
+
+	apiURL := url.URL{
+		Scheme: u.Scheme,
+		Host:   u.Host,
+		Path:   "api/server/version",
+	}
+
+	req, reqErr := http.NewRequestWithContext(ctx, http.MethodGet, apiURL.String(), nil)
+	if reqErr != nil {
+		return serverVersionResponse, reqErr
+	}
+
+	req.Header.Set("Accept", "application/json")
+
+	res, resErr := HTTPClient.Do(req)
+	if resErr != nil {
+		return serverVersionResponse, resErr
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return serverVersionResponse, fmt.Errorf("status code: %d", res.StatusCode)
+	}
+
+	responseBody, responseBodyErr := io.ReadAll(res.Body)
+	if responseBodyErr != nil {
+		return serverVersionResponse, responseBodyErr
+	}
+
+	err = json.Unmarshal(responseBody, &serverVersionResponse)
+	if err != nil {
+		return serverVersionResponse, err
+	}
+
+	return serverVersionResponse, nil
 }

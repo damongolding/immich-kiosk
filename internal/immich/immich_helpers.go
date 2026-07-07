@@ -727,7 +727,7 @@ func (a *Asset) hasValidFilterExcludeFaces(requestID, deviceID string) bool {
 	}
 
 	if len(a.People) == 0 {
-		a.CheckForFaces(requestID, deviceID)
+		a.AddFaces(requestID, deviceID)
 	}
 
 	return len(a.People) == 0 && len(a.UnassignedFaces) == 0
@@ -763,7 +763,7 @@ func (a *Asset) hasValidAlbums(requestID, deviceID string) bool {
 //   - bool: true if asset contains no excluded people, false otherwise
 func (a *Asset) hasValidPeople(requestID, deviceID string) bool {
 	if len(a.requestConfig.ExcludedPeople) > 0 && len(a.People) == 0 {
-		a.CheckForFaces(requestID, deviceID)
+		a.AddFaces(requestID, deviceID)
 	}
 
 	return !slices.ContainsFunc(a.People, func(person Person) bool {
@@ -1023,4 +1023,15 @@ func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error 
 	}
 
 	return nil
+}
+
+func AlbumOrder(albumAssetsOrder string) AssetOrder {
+	switch albumAssetsOrder {
+	case config.AlbumOrderDescending, config.AlbumOrderDesc, config.AlbumOrderNewest:
+		return Desc
+	case config.AlbumOrderAscending, config.AlbumOrderAsc, config.AlbumOrderOldest:
+		return Asc
+	default:
+		return Rand
+	}
 }

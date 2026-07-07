@@ -228,8 +228,7 @@ type Album struct {
 	LastModifiedAssetTimestamp string       `json:"lastModifiedAssetTimestamp"`
 
 	// Kiosk specific fields
-	Assets        []Asset `json:"assets"`
-	AssetsOrdered bool    `json:"assetsOrdered"`
+	Assets []Asset `json:"assets"`
 }
 
 type Albums []Album
@@ -246,6 +245,7 @@ type SearchRandomBody struct {
 	Make          string   `url:"make,omitempty" json:"make,omitempty"`
 	Model         string   `url:"model,omitempty" json:"model,omitempty"`
 	Ocr           string   `url:"ocr,omitempty" json:"ocr,omitempty"`
+	Order         string   `url:"order,omitempty" json:"order,omitempty"`
 	State         string   `url:"state,omitempty" json:"state,omitempty"`
 	TakenAfter    string   `url:"takenAfter,omitempty" json:"takenAfter,omitempty"`
 	TakenBefore   string   `url:"takenBefore,omitempty" json:"takenBefore,omitempty"`
@@ -334,9 +334,9 @@ type AssetFaceResponse struct {
 }
 
 type TagAssetsResponse []struct {
-	Error   immich_open_api.BulkIdResponseDtoError `json:"error"`
-	ID      string                                 `json:"id"`
-	Success bool                                   `json:"success"`
+	Error   string `json:"error"`
+	ID      string `json:"id"`
+	Success bool   `json:"success"`
 }
 
 type AlbumCreateResponse TagAssetsResponse

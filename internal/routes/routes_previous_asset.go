@@ -217,6 +217,11 @@ func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID,
 			return byteErr
 		}
 
+		img = handleFaceProcessing(img, &asset, requestConfig, requestMetadata{
+			requestID: requestID,
+			deviceID:  deviceID,
+		})
+
 		imgString, base64Err := imageToBase64(img, mimeType, requestConfig.Kiosk.DebugVerbose, requestID, deviceID, "Converted", false)
 		if base64Err != nil {
 			return fmt.Errorf("converting image to base64: %w", base64Err)
