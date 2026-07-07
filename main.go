@@ -37,6 +37,12 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/weather"
 )
 
+const (
+	supportedImmichVersionMajor = 3
+	supportedImmichVersionMinor = 0
+	supportedImmichVersionPatch = 0
+)
+
 // version current build version number
 var version string
 
@@ -48,12 +54,6 @@ var localeFS embed.FS
 
 //go:embed config.schema.json
 var SchemaJSON string
-
-const (
-	supportedImmichVersionMajor = 3
-	supportedImmichVersionMinor = 0
-	supportedImmichVersionPatch = 0
-)
 
 func init() {
 	routes.KioskVersion = version
