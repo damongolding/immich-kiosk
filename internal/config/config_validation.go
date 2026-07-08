@@ -307,17 +307,19 @@ func (c *Config) checkWeatherLocations() {
 	var validLocations []WeatherLocation
 
 	for _, w := range c.Weather.Locations {
+		usingCustomWeatherURL := strings.TrimSpace(w.CustomWeatherURL) != ""
+
 		missingFields := []string{}
 		if w.Name == "" {
 			missingFields = append(missingFields, "name")
 		}
-		if w.Lat == "" && w.CustomWeatherURL == "" {
+		if w.Lat == "" && !usingCustomWeatherURL {
 			missingFields = append(missingFields, "latitude")
 		}
-		if w.Lon == "" && w.CustomWeatherURL == "" {
+		if w.Lon == "" && !usingCustomWeatherURL {
 			missingFields = append(missingFields, "longitude")
 		}
-		if w.API == "" && w.CustomWeatherURL == "" {
+		if w.API == "" && !usingCustomWeatherURL {
 			missingFields = append(missingFields, "API key")
 		}
 		if w.Default {

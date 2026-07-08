@@ -443,7 +443,8 @@
               "custom_weather_url": {
                 "type": ["string", "null"],
                 "default": null,
-                "description": "URL of a custom weather API to use instead of OpenWeatherMap"
+                "description": "URL of a custom weather API to use instead of OpenWeatherMap",
+                "format": "uri"
               },
               "forecast": {
                 "type": "boolean",
