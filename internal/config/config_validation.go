@@ -311,13 +311,13 @@ func (c *Config) checkWeatherLocations() {
 		if w.Name == "" {
 			missingFields = append(missingFields, "name")
 		}
-		if w.Lat == "" {
+		if w.Lat == "" && w.CustomWeatherURL == "" {
 			missingFields = append(missingFields, "latitude")
 		}
-		if w.Lon == "" {
+		if w.Lon == "" && w.CustomWeatherURL == "" {
 			missingFields = append(missingFields, "longitude")
 		}
-		if w.API == "" {
+		if w.API == "" && w.CustomWeatherURL == "" {
 			missingFields = append(missingFields, "API key")
 		}
 		if w.Default {

@@ -1,6 +1,6 @@
 module github.com/damongolding/immich-kiosk
 
-go 1.26.5
+go 1.26.4
 
 require (
 	charm.land/lipgloss/v2 v2.0.5

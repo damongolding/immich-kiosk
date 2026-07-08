@@ -165,16 +165,17 @@ type WeatherLocationStatOptions struct {
 }
 
 type WeatherLocation struct {
-	Name      string                     `yaml:"name" mapstructure:"name" redact:"true"`
-	Lat       string                     `yaml:"lat" mapstructure:"lat" redact:"true"`
-	Lon       string                     `yaml:"lon" mapstructure:"lon" redact:"true"`
-	API       string                     `yaml:"api" mapstructure:"api" redact:"true" msgpack:"-"`
-	Unit      string                     `yaml:"unit" mapstructure:"unit" redact:"true"`
-	Lang      string                     `yaml:"lang" mapstructure:"lang" redact:"true"`
-	Show      WeatherLocationStatOptions `yaml:"show" mapstructure:"show" default:""`
-	Forecast  bool                       `yaml:"forecast" mapstructure:"forecast" default:"false"`
-	RoundTemp bool                       `yaml:"round_temperature" mapstructure:"round_temperature" default:"false"`
-	Default   bool                       `yaml:"default" mapstructure:"default"`
+	Name             string                     `yaml:"name" mapstructure:"name" redact:"true"`
+	Lat              string                     `yaml:"lat" mapstructure:"lat" redact:"true"`
+	Lon              string                     `yaml:"lon" mapstructure:"lon" redact:"true"`
+	API              string                     `yaml:"api" mapstructure:"api" redact:"true" msgpack:"-"`
+	Unit             string                     `yaml:"unit" mapstructure:"unit" redact:"true"`
+	Lang             string                     `yaml:"lang" mapstructure:"lang" redact:"true"`
+	Show             WeatherLocationStatOptions `yaml:"show" mapstructure:"show" default:""`
+	Forecast         bool                       `yaml:"forecast" mapstructure:"forecast" default:"false"`
+	RoundTemp        bool                       `yaml:"round_temperature" mapstructure:"round_temperature" default:"false"`
+	CustomWeatherURL string                     `yaml:"custom_weather_url" mapstructure:"custom_weather_url" redact:"false"`
+	Default          bool                       `yaml:"default" mapstructure:"default"`
 }
 
 type Webhook struct {
