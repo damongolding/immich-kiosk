@@ -485,7 +485,7 @@
                 "type": "boolean"
               }
             },
-            "required": ["name", "lat", "lon"]
+            "required": ["name"]
           }
         }
       },

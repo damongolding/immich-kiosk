@@ -174,7 +174,7 @@ type WeatherLocation struct {
 	Show             WeatherLocationStatOptions `yaml:"show" mapstructure:"show" default:""`
 	Forecast         bool                       `yaml:"forecast" mapstructure:"forecast" default:"false"`
 	RoundTemp        bool                       `yaml:"round_temperature" mapstructure:"round_temperature" default:"false"`
-	CustomWeatherURL string                     `yaml:"custom_weather_url" mapstructure:"custom_weather_url" redact:"false"`
+	CustomWeatherURL string                     `yaml:"custom_weather_url" mapstructure:"custom_weather_url" redact:"true"`
 	Default          bool                       `yaml:"default" mapstructure:"default"`
 }
 

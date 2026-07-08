@@ -245,7 +245,7 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 	LocationRotator.Append(w.Name)
 
 	// Run once immediately
-	log.Debug("Getting initial weather for", "name", w.Name, "custom weather", w.CustomWeatherURL != "", "custom weather URL", w.CustomWeatherURL)
+	log.Debug("Getting initial weather for", "name", w.Name)
 	newWeatherInit, newWeatherInitErr := w.updateWeather(ctx)
 	if newWeatherInitErr != nil {
 		log.Error("Failed to update initial weather", "name", w.Name, "error", newWeatherInitErr)
