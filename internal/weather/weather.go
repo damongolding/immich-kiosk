@@ -117,16 +117,17 @@ type ForecastData struct {
 }
 
 type Location struct {
-	Name         string
-	Lat          string
-	Lon          string
-	API          string
-	Unit         string
-	Lang         string
-	Show         config.WeatherLocationStatOptions
-	ShowForecast bool
-	Forecast     ForecastData
-	RoundTemp    bool
+	Name             string
+	Lat              string
+	Lon              string
+	API              string
+	Unit             string
+	Lang             string
+	Show             config.WeatherLocationStatOptions
+	ShowForecast     bool
+	Forecast         ForecastData
+	RoundTemp        bool
+	CustomWeatherURL string
 	Weather
 }
 
@@ -228,15 +229,16 @@ func addWeatherLocation(ctx context.Context, location config.WeatherLocation, wi
 	}
 
 	w := &Location{
-		Name:         location.Name,
-		Lat:          location.Lat,
-		Lon:          location.Lon,
-		API:          location.API,
-		Unit:         location.Unit,
-		Lang:         location.Lang,
-		RoundTemp:    location.RoundTemp,
-		ShowForecast: location.Forecast,
-		Show:         location.Show,
+		Name:             location.Name,
+		Lat:              location.Lat,
+		Lon:              location.Lon,
+		API:              location.API,
+		Unit:             location.Unit,
+		Lang:             location.Lang,
+		RoundTemp:        location.RoundTemp,
+		CustomWeatherURL: location.CustomWeatherURL,
+		ShowForecast:     location.Forecast,
+		Show:             location.Show,
 	}
 
 	weatherDataStore.Store(strings.ToLower(w.Name), *w)
@@ -407,10 +409,74 @@ func (w *Location) fetchWeatherData(ctx context.Context, endpoint string, result
 	return nil
 }
 
+func (w *Location) fetchCustomWeatherData(ctx context.Context, customURL string, result any) error {
+	client := httpClient
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, customURL, nil)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	req.Header.Add("Accept", "application/json")
+
+	var res *http.Response
+	for attempt := range 3 {
+		res, err = client.Do(req)
+		if err == nil {
+			break
+		}
+		// Log attempts as 1-based for clarity
+		log.Error("Request failed, retrying", "attempt", attempt+1, "url", customURL, "err", err)
+
+		backoff := time.Duration(1<<attempt) * time.Second
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(backoff):
+		}
+	}
+
+	if err != nil {
+		log.Error("Request failed after retries", "url", customURL, "err", err)
+		return err
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		bodyPreview, _ := io.ReadAll(io.LimitReader(res.Body, 1024))
+		err = fmt.Errorf("unexpected status code: %d, body: %s",
+			res.StatusCode, strings.TrimSpace(string(bodyPreview)))
+		log.Error("Custom API error",
+			"url", customURL,
+			"status", res.StatusCode,
+			"body", string(bodyPreview))
+		return err
+	}
+
+	decErr := json.NewDecoder(res.Body).Decode(result)
+	if decErr != nil {
+		log.Error("fetchCustomWeatherData", "err", decErr)
+		return decErr
+	}
+
+	return nil
+}
+
 // updateWeather fetches new weather data from the OpenWeatherMap API for this location.
 // Returns the updated Location and any error that occurred.
 func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 	var newWeather Weather
+
+	if w.CustomWeatherURL != "" {
+		err := w.fetchCustomWeatherData(ctx, w.CustomWeatherURL, &newWeather)
+		if err != nil {
+			return *w, err
+		}
+		w.Weather = newWeather
+		return *w, nil
+	}
+
 	err := w.fetchWeatherData(ctx, "weather", &newWeather)
 	if err != nil {
 		return *w, err
@@ -423,6 +489,16 @@ func (w *Location) updateWeather(ctx context.Context) (Location, error) {
 // Returns the updated Location and any error that occurred.
 func (w *Location) updateForecast(ctx context.Context) (Location, error) {
 	var newForecast Forecast
+
+	if w.CustomWeatherURL != "" {
+		err := w.fetchCustomWeatherData(ctx, w.CustomWeatherURL, &newForecast)
+		if err != nil {
+			return *w, err
+		}
+		w.Forecast = processForecast(newForecast, w.Timezone)
+		return *w, nil
+	}
+
 	err := w.fetchWeatherData(ctx, "forecast", &newForecast)
 	if err != nil {
 		return *w, err

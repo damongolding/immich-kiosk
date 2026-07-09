@@ -440,6 +440,12 @@
                 "default": false,
                 "description": "Whether to round temperature values to the nearest integer"
               },
+              "custom_weather_url": {
+                "type": ["string", "null"],
+                "default": null,
+                "description": "URL of a custom weather API to use instead of OpenWeatherMap",
+                "format": "uri"
+              },
               "forecast": {
                 "type": "boolean",
                 "default": false,
@@ -480,7 +486,7 @@
                 "type": "boolean"
               }
             },
-            "required": ["name", "lat", "lon"]
+            "required": ["name"]
           }
         }
       },
