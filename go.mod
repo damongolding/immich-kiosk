@@ -26,9 +26,9 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.yaml.in/yaml/v3 v3.0.4
-	golang.org/x/image v0.43.0
-	golang.org/x/sync v0.21.0
-	golang.org/x/text v0.39.0
+	golang.org/x/image v0.44.0
+	golang.org/x/sync v0.22.0
+	golang.org/x/text v0.40.0
 	golang.org/x/time v0.15.0
 )
 
