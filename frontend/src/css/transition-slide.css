@@ -1,0 +1,89 @@
+.transition-slide {
+    .frame.htmx-added {
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        animation-fill-mode: forwards;
+        will-change: transform;
+    }
+
+    &.transition-slide-random {
+        .transition-slide-right.frame.htmx-added {
+            animation-name: slide-right;
+        }
+
+        .transition-slide-left.frame.htmx-added {
+            animation-name: slide-left;
+        }
+
+        .transition-slide-up.frame.htmx-added {
+            animation-name: slide-up;
+        }
+
+        .transition-slide-down.frame.htmx-added {
+            animation-name: slide-down;
+        }
+    }
+
+    &.transition-slide-right {
+        .frame.htmx-added {
+            animation-name: slide-right;
+        }
+    }
+
+    &.transition-slide-left {
+        .frame.htmx-added {
+            animation-name: slide-left;
+        }
+    }
+
+    &.transition-slide-up {
+        .frame.htmx-added {
+            animation-name: slide-up;
+        }
+    }
+
+    &.transition-slide-down {
+        .frame.htmx-added {
+            animation-name: slide-down;
+        }
+    }
+}
+
+@keyframes slide-right {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-left {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-down {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
