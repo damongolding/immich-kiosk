@@ -395,7 +395,7 @@ type Config struct {
 	// SleepDisable disable sleep via url queries
 	DisableSleep bool `json:"disableSleep" yaml:"disable_sleep" query:"disable_sleep" form:"disable_sleep" default:"false"`
 
-	// Transition which transition to use none|fade|cross-fade
+	// Transition which transition to use none|fade|cross-fade|slide-(up|right|down|left|random)|push-(up|right|down|left|random)
 	Transition string `json:"transition" yaml:"transition" mapstructure:"transition" query:"transition" form:"transition" default:"" lowercase:"true"`
 	// FadeTransitionDuration sets the length of the fade transition
 	FadeTransitionDuration float32 `json:"fadeTransitionDuration" yaml:"fade_transition_duration" mapstructure:"fade_transition_duration" query:"fade_transition_duration" form:"fade_transition_duration" default:"1"`
