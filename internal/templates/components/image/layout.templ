@@ -8,7 +8,6 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/templates/components"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
-	"math/rand/v2"
 	"strings"
 
 )
@@ -34,9 +33,15 @@ func slideRandom(transition string) (string, bool) {
 		return "", false
 	}
 
-	slides := []string{"transition-slide-left", "transition-slide-right", "transition-slide-up", "transition-slide-down"}
-	slide := slides[rand.IntN(len(slides))]
-	return slide, true
+	return utils.RandomItem([]string{"transition-slide-left", "transition-slide-right", "transition-slide-up", "transition-slide-down"}), true
+}
+
+func pushRandom(transition string) (string, bool) {
+	if transition == "" || !strings.EqualFold(transition, "push-random") {
+		return "", false
+	}
+
+	return utils.RandomItem([]string{"transition-push-left", "transition-push-right", "transition-push-up", "transition-push-down"}), true
 }
 
 // layoutView renders the layout for either a single image or multiple images.
@@ -47,9 +52,11 @@ func slideRandom(transition string) (string, bool) {
 //   - isSingle: A boolean indicating whether this is a single image layout.
 templ layoutView(viewData common.ViewData, isSingle bool) {
 	{{
-		slide, ok := slideRandom(viewData.Transition)
+		slide, okSlide := slideRandom(viewData.Transition)
+		push, okPush := pushRandom(viewData.Transition)
+
 	}}
-	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur), templ.KV(slide, ok) }>
+	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur), templ.KV(slide, okSlide), templ.KV(push, okPush) }>
 		if isSingle {
 			if len(viewData.Assets) > 0 {
 				@renderSingleImage(viewData, viewData.Assets[0], 0)

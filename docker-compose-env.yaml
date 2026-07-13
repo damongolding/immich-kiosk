@@ -60,7 +60,7 @@ services:
       # KIOSK_SLEEP_START: 22
       # KIOSK_SLEEP_END: 7
       # KIOSK_SLEEP_DIM_SCREEN: false
-      # Transistion options
+      # Transition options
       KIOSK_TRANSITION: none
       KIOSK_FADE_TRANSITION_DURATION: 1
       KIOSK_CROSS_FADE_TRANSITION_DURATION: 1

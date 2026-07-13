@@ -518,8 +518,11 @@ async function cleanupFrames(): Promise<void> {
     }
 
     if (frames.length > MAX_FRAMES) {
+        const toRemove = kioskData.transition.startsWith("push")
+            ? frames.length - 1
+            : 0;
         try {
-            htmx.remove(frames[0]);
+            htmx.remove(frames[toRemove]);
         } catch (error) {
             console.error("Failed to remove frame:", error);
         }
