@@ -30,7 +30,7 @@ templ layoutSplitView(viewData common.ViewData) {
 }
 
 func slideRandom(transition string) (string, bool) {
-	if transition == "" || !strings.Contains(transition, "slide") {
+	if transition == "" || !strings.EqualFold(transition, "slide-random") {
 		return "", false
 	}
 
