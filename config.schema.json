@@ -260,6 +260,10 @@
       "type": "number",
       "minimum": 0
     },
+    "slide_transition_duration": {
+      "type": "number",
+      "minimum": 0
+    },
     "show_clear_cache_button": {
       "type": "boolean"
     },
