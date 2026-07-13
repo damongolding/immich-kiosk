@@ -37,7 +37,7 @@ func slideDurationCSS(slideDuration float32) string {
 	`, slideDuration)
 }
 
-func pushDurationCSS(slideDuration float32) string {
+func pushDurationCSS(pushDuration float32) string {
 	return fmt.Sprintf(`
 	    <style>
 			.transition-push .frame.htmx-added,
@@ -45,7 +45,7 @@ func pushDurationCSS(slideDuration float32) string {
 				animation-duration: %.1fs;
 			}
 		</style>
-	`, slideDuration)
+	`, pushDuration)
 }
 
 templ KioskContainer(viewData common.ViewData, secret string) {
@@ -83,11 +83,11 @@ templ KioskContainer(viewData common.ViewData, secret string) {
 		case "push-right", "push-left", "push-up", "push-down", "push-random":
 			<div
 				id="kiosk-container"
-				hx-swap={ fmt.Sprintf("afterbegin settle:%.1fs", viewData.SlideTransitionDuration) }
+				hx-swap={ fmt.Sprintf("afterbegin settle:%.1fs", viewData.PushTransitionDuration) }
 				class={ fmt.Sprintf("transition-push transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
 				{ webhookAttributes(viewData, "", secret)... }
 			>
-				@templ.Raw(pushDurationCSS(viewData.SlideTransitionDuration))
+				@templ.Raw(pushDurationCSS(viewData.PushTransitionDuration))
 				{ children... }
 			</div>
 		default:

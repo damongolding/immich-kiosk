@@ -402,7 +402,9 @@ type Config struct {
 	// CrossFadeTransitionDuration sets the length of the cross-fade transition
 	CrossFadeTransitionDuration float32 `json:"crossFadeTransitionDuration" yaml:"cross_fade_transition_duration" mapstructure:"cross_fade_transition_duration" query:"cross_fade_transition_duration" form:"cross_fade_transition_duration" default:"1"`
 	// SlideTransitionDuration sets the length of the slide transition
-	SlideTransitionDuration float32 `json:"slideTransitionDuration" yaml:"slide_transition_duration" mapstructure:"slide_transition_duration" query:"slide_transition_duration" form:"slide_transition_duration" default:"3"`
+	SlideTransitionDuration float32 `json:"slideTransitionDuration" yaml:"slide_transition_duration" mapstructure:"slide_transition_duration" query:"slide_transition_duration" form:"slide_transition_duration" default:"2"`
+	// PushTransitionDuration sets the length of the push transition
+	PushTransitionDuration float32 `json:"pushTransitionDuration" yaml:"push_transition_duration" mapstructure:"push_transition_duration" query:"push_transition_duration" form:"push_transition_duration" default:"3"`
 
 	// ImageFit the fit style for main image
 	ImageFit string `json:"imageFit" yaml:"image_fit" mapstructure:"image_fit" query:"image_fit" form:"image_fit" default:"contain" lowercase:"true"`
