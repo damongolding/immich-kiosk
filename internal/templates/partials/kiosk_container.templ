@@ -30,7 +30,7 @@ func fadeDurationCSS(fadeDuration float32) string {
 func slideDurationCSS(slideDuration float32) string {
 	return fmt.Sprintf(`
 	    <style>
-			.transition-slide .frame.htmx-added {
+			.transition-slide .frame {
 				animation-duration: %.1fs;
 			}
 		</style>
