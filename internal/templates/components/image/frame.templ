@@ -52,6 +52,20 @@ func smartZoom(image immich.Asset) templ.CSSClass {
 	return transformOrigin(fmt.Sprintf("%f%% %f%%", x, y))
 }
 
+func smartCover(image immich.Asset) templ.CSSClass {
+	if len(image.People) == 0 && len(image.UnassignedFaces) == 0 {
+		return transformOrigin("center")
+	}
+
+	x, y := image.FacesCenterPoint()
+
+	if x == 0 || y == 0 {
+		return transformOrigin("center")
+	}
+
+	return transformOrigin(fmt.Sprintf("%f%% %f%%", x, y))
+}
+
 // frameWithZoom is a template function that renders a frame with zoom effect for an image.
 // It takes the duration interval, image effect type, and the image asset as parameters.
 // Depending on the image effect, it applies different CSS classes for zooming.

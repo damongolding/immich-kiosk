@@ -9,7 +9,6 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"strings"
-
 )
 
 // layoutSingleView renders a single image layout.
@@ -54,7 +53,6 @@ templ layoutView(viewData common.ViewData, isSingle bool) {
 	{{
 		slide, okSlide := slideRandom(viewData.Transition)
 		push, okPush := pushRandom(viewData.Transition)
-
 	}}
 	<div class={ "frame", templ.KV("frame-black-bg", !viewData.BackgroundBlur), templ.KV(slide, okSlide), templ.KV(push, okPush) }>
 		if isSingle {
@@ -103,7 +101,7 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData, tags
 	switch viewData.ImageEffect {
 		case "zoom":
 			@frameWithZoom(viewData.Duration, viewData.ImageEffect, imageData.ImmichAsset) {
-				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation, tags...)
+				@renderImageFit(imageData.ImmichAsset, imageData.ImageData, viewData.ImageFit, viewData.ImageEffect, imageOrientation, tags...)
 			}
 		case "smart-zoom":
 			@frameWithZoom(viewData.Duration, viewData.ImageEffect, imageData.ImmichAsset) {
@@ -111,7 +109,7 @@ templ renderImage(viewData common.ViewData, imageData common.ViewImageData, tags
 			}
 		default:
 			@frame() {
-				@renderImageFit(imageData.ImageData, viewData.ImageFit, imageOrientation, tags...)
+				@renderImageFit(imageData.ImmichAsset, imageData.ImageData, viewData.ImageFit, viewData.ImageEffect, imageOrientation, tags...)
 			}
 	}
 }
@@ -172,10 +170,14 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 //   - "cover": Uses RenderImageWithCoverFit
 //   - "none": Uses RenderImageWithoutFit
 //   - Any other value: Uses RenderImageWithContainFit (default behavior)
-templ renderImageFit(imageData, imageFit, imageOrientation string, tags ...immich.Tag) {
+templ renderImageFit(asset immich.Asset, imageData, imageFit, imageEffect, imageOrientation string, tags ...immich.Tag) {
 	switch imageFit {
 		case "cover":
-			@RenderImageWithCoverFit(imageData, imageOrientation, tags...)
+			if strings.EqualFold(imageEffect, "zoom") {
+				@RenderImageWithCoverFit(imageData, imageOrientation, tags...)
+			} else {
+				@RenderImageWithSmartCoverFit(asset, imageData, imageOrientation, tags...)
+			}
 		case "none":
 			@RenderImageWithoutFit(imageData, imageOrientation, tags...)
 		default:
@@ -195,6 +197,17 @@ templ RenderImageWithCoverFit(ImageData, imageOrientation string, tags ...immich
 			data-tags={ components.CreateDataTag(tags) }
 		}
 		src={ ImageData }
+		alt="Main image"
+	/>
+}
+
+templ RenderImageWithSmartCoverFit(asset immich.Asset, imageData, imageOrientation string, tags ...immich.Tag) {
+	<img
+		class={ "frame--image-fit-smart-cover", "frame--image--"+imageOrientation, smartCover(asset) }
+		if len(tags) > 0 {
+			data-tags={ components.CreateDataTag(tags) }
+		}
+		src={ imageData }
 		alt="Main image"
 	/>
 }
