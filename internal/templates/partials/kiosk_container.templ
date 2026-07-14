@@ -30,11 +30,22 @@ func fadeDurationCSS(fadeDuration float32) string {
 func slideDurationCSS(slideDuration float32) string {
 	return fmt.Sprintf(`
 	    <style>
-			.transition-slide .frame.htmx-added {
+			.transition-slide .frame {
 				animation-duration: %.1fs;
 			}
 		</style>
 	`, slideDuration)
+}
+
+func pushDurationCSS(pushDuration float32) string {
+	return fmt.Sprintf(`
+	    <style>
+			.transition-push .frame.htmx-added,
+		    .transition-push .frame.htmx-added ~ .frame {
+				animation-duration: %.1fs;
+			}
+		</style>
+	`, pushDuration)
 }
 
 templ KioskContainer(viewData common.ViewData, secret string) {
@@ -49,7 +60,6 @@ templ KioskContainer(viewData common.ViewData, secret string) {
 				@templ.Raw(crossFadeDurationCSS(viewData.CrossFadeTransitionDuration))
 				{ children... }
 			</div>
-
 		case "fade":
 			<div
 				id="kiosk-container"
@@ -60,7 +70,6 @@ templ KioskContainer(viewData common.ViewData, secret string) {
 				@templ.Raw(fadeDurationCSS(viewData.FadeTransitionDuration))
 				{ children... }
 			</div>
-
 		case "slide-right", "slide-left", "slide-up", "slide-down", "slide-random":
 			<div
 				id="kiosk-container"
@@ -71,7 +80,16 @@ templ KioskContainer(viewData common.ViewData, secret string) {
 				@templ.Raw(slideDurationCSS(viewData.SlideTransitionDuration))
 				{ children... }
 			</div>
-
+		case "push-right", "push-left", "push-up", "push-down", "push-random":
+			<div
+				id="kiosk-container"
+				hx-swap={ fmt.Sprintf("afterbegin settle:%.1fs", viewData.PushTransitionDuration) }
+				class={ fmt.Sprintf("transition-push transition-%s", viewData.Transition), fmt.Sprintf("layout-%s", viewData.Layout), templ.KV("frameless", viewData.Frameless), viewData.CustomCSSClass }
+				{ webhookAttributes(viewData, "", secret)... }
+			>
+				@templ.Raw(pushDurationCSS(viewData.PushTransitionDuration))
+				{ children... }
+			</div>
 		default:
 			<div
 				id="kiosk-container"

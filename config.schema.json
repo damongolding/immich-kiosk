@@ -262,7 +262,13 @@
     },
     "slide_transition_duration": {
       "type": "number",
-      "minimum": 0
+      "minimum": 0,
+      "default": 2
+    },
+    "push_transition_duration": {
+      "type": "number",
+      "minimum": 0,
+      "default": 3
     },
     "show_clear_cache_button": {
       "type": "boolean"

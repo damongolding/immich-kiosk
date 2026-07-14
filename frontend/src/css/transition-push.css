@@ -1,0 +1,160 @@
+.transition-push {
+    .frame {
+        animation-timing-function: cubic-bezier(0.78, 0, 0.22, 1);
+        animation-fill-mode: forwards;
+        will-change: transform;
+        &:first-child {
+            z-index: 1;
+        }
+    }
+
+    &.transition-push-random {
+        .transition-push-right.frame.htmx-added {
+            animation-name: push-right-in;
+        }
+        .transition-push-right.frame.htmx-added ~ .frame {
+            animation-name: push-right-out;
+        }
+
+        .transition-push-left.frame.htmx-added {
+            animation-name: push-left-in;
+        }
+        .transition-push-left.frame.htmx-added ~ .frame {
+            animation-name: push-left-out;
+        }
+
+        .transition-push-up.frame.htmx-added {
+            animation-name: push-up-in;
+        }
+        .transition-push-up.frame.htmx-added ~ .frame {
+            animation-name: push-up-out;
+        }
+
+        .transition-push-down.frame.htmx-added {
+            animation-name: push-down-in;
+        }
+        .transition-push-down.frame.htmx-added ~ .frame {
+            animation-name: push-down-out;
+        }
+    }
+
+    &.transition-push-right {
+        .frame.htmx-added {
+            animation-name: push-right-in;
+        }
+
+        .frame.htmx-added ~ .frame {
+            animation-name: push-right-out;
+        }
+    }
+
+    &.transition-push-left {
+        .frame.htmx-added {
+            animation-name: push-left-in;
+        }
+
+        .frame.htmx-added ~ .frame {
+            animation-name: push-left-out;
+        }
+    }
+
+    &.transition-push-up {
+        .frame.htmx-added {
+            animation-name: push-up-in;
+        }
+
+        .frame.htmx-added ~ .frame {
+            animation-name: push-up-out;
+        }
+    }
+
+    &.transition-push-down {
+        .frame.htmx-added {
+            animation-name: push-down-in;
+        }
+
+        .frame.htmx-added ~ .frame {
+            animation-name: push-down-out;
+        }
+    }
+}
+
+@keyframes push-right-in {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes push-right-out {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes push-left-in {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes push-left-out {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes push-up-in {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes push-up-out {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-100%);
+    }
+}
+
+@keyframes push-down-in {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes push-down-out {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(100%);
+    }
+}
