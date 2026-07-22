@@ -285,7 +285,7 @@ func findHistoryEntry(history []string, useNextImage bool) (string, int) {
 }
 
 // parseHistoryAssetID parses a history entry of the form "id:user" or "id:user:server".
-// Returns ok=false when the entry does not contain at least an id and user field.
+// Returns ok=false when the entry does not contain at least a non-empty id and a user field.
 func parseHistoryAssetID(entry string) (id, user, server string, ok bool) {
 	parts := strings.SplitN(entry, ":", 3)
 	if len(parts) < 2 {
@@ -293,6 +293,9 @@ func parseHistoryAssetID(entry string) (id, user, server string, ok bool) {
 	}
 	id = parts[0]
 	user = parts[1]
+	if id == "" {
+		return "", "", "", false
+	}
 	if len(parts) == 3 {
 		server = parts[2]
 	}

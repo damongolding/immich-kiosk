@@ -15,6 +15,10 @@
     },
     "immich_servers": {
       "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[^,]+$"
+      },
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,
@@ -26,7 +30,11 @@
             "type": "string"
           },
           "external_url": {
-            "type": "string"
+            "type": "string",
+            "anyOf": [
+              { "const": "" },
+              { "format": "uri" }
+            ]
           }
         },
         "required": ["url", "api_key"]

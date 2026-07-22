@@ -79,12 +79,32 @@ func TestApplyServerExternalURL(t *testing.T) {
 	cfg := config.New()
 	cfg.ImmichExternalURL = "https://fallback.example"
 	cfg.ImmichServers = map[string]config.ImmichServer{
-		"home": {URL: "http://home:2283", APIKey: "home-key", ExternalURL: "https://photos.home"},
+		"home":  {URL: "http://home:2283", APIKey: "home-key", ExternalURL: "https://photos.home"},
+		"cabin": {URL: "http://cabin:2283", APIKey: "cabin-key"},
 	}
 	cfg.SelectedServer = "home"
 
 	asset := New(context.Background(), *cfg)
 	asset.ApplyServer(false)
-
 	assert.Equal(t, "https://photos.home", asset.ImmichExternalURL())
+
+	asset.requestConfig.SelectedServer = "cabin"
+	asset.ApplyServer(false)
+	assert.Equal(t, "", asset.ImmichExternalURL())
 }
+
+func TestApplyServerFiltersUnknownURLParams(t *testing.T) {
+	cfg := config.New()
+	cfg.ImmichServers = map[string]config.ImmichServer{
+		"home": {URL: "http://home:2283", APIKey: "home-key"},
+	}
+	cfg.URLParamServers = []string{"unknown", "home", "also-missing"}
+
+	for range 20 {
+		asset := New(context.Background(), *cfg)
+		asset.ApplyServer(true)
+		assert.Equal(t, "home", asset.SelectedServer())
+		assert.Equal(t, "http://home:2283", asset.ImmichURL())
+	}
+}
+

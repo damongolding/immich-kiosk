@@ -112,14 +112,13 @@ func main() {
 		cache.DemoMode = true
 	}
 
-	immichURL := baseConfig.ImmichURL
-	if immichURL == "" {
-		for _, server := range baseConfig.ImmichServers {
-			immichURL = server.URL
-			break
+	if len(baseConfig.ImmichServers) > 0 {
+		for name, server := range baseConfig.ImmichServers {
+			if !versionCheck(c.Context(), server.URL, name) {
+				os.Exit(1)
+			}
 		}
-	}
-	if !versionCheck(c.Context(), immichURL) {
+	} else if !versionCheck(c.Context(), baseConfig.ImmichURL, "") {
 		os.Exit(1)
 	}
 
@@ -415,11 +414,15 @@ func healthCheck() int {
 	return 0
 }
 
-func versionCheck(c context.Context, immichURL string) bool {
+func versionCheck(c context.Context, immichURL, serverName string) bool {
 	immich.HTTPClient.Timeout = time.Second * 20
 	immichVersion, immichVersionErr := immich.Version(c, immichURL)
 	if immichVersionErr != nil {
-		log.Error("Failed to get Immich version. Skipping version check.", "err", immichVersionErr)
+		if serverName != "" {
+			log.Error("Failed to get Immich version. Skipping version check.", "server", serverName, "err", immichVersionErr)
+		} else {
+			log.Error("Failed to get Immich version. Skipping version check.", "err", immichVersionErr)
+		}
 	} else {
 		sv := fmt.Sprintf("%d.%d.%d", supportedImmichVersionMajor, supportedImmichVersionMinor, supportedImmichVersionPatch)
 		iv := fmt.Sprintf("%d.%d.%d", immichVersion.Major, immichVersion.Minor, immichVersion.Patch)
@@ -429,7 +432,11 @@ func versionCheck(c context.Context, immichURL string) bool {
 			(immichVersion.Major == supportedImmichVersionMajor && immichVersion.Minor == supportedImmichVersionMinor && immichVersion.Patch < supportedImmichVersionPatch)
 
 		if unsupported {
-			log.Error("Immich version not supported", "Immich version", iv, "supported version", sv)
+			if serverName != "" {
+				log.Error("Immich version not supported", "server", serverName, "Immich version", iv, "supported version", sv)
+			} else {
+				log.Error("Immich version not supported", "Immich version", iv, "supported version", sv)
+			}
 			return false
 		}
 	}

@@ -464,15 +464,15 @@ func processImage(immichAsset *immich.Asset, requestConfig config.Config, reques
 		isDownloading := VideoManager.IsDownloading(immichAsset.LivePhotoVideoID)
 
 		if !isDownloaded && !isDownloading {
-
-			livePhoto := immich.New(context.TODO(), requestConfig)
+			liveConfig := immichAsset.RequestConfig()
+			livePhoto := immich.New(context.TODO(), liveConfig)
 			livePhoto.ID = immichAsset.LivePhotoVideoID
 			err := livePhoto.AssetInfo(requestID, deviceID)
 			if err != nil {
 				return nil, err
 			}
 
-			go VideoManager.DownloadVideo(livePhoto, requestConfig, deviceID, "")
+			go VideoManager.DownloadVideo(livePhoto, liveConfig, deviceID, "")
 		}
 	}
 

@@ -3,6 +3,7 @@ package partials
 import (
 	"charm.land/log/v2"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/demo"
@@ -104,6 +105,11 @@ templ LikeButton(ID, selectedUser, selectedServer string, isLiked bool, liked bo
 		if isLiked {
 			webhook = webhooks.UserUnlikeInfoOverlay
 		}
+		vals, _ := json.Marshal(map[string]string{
+			"assetID": ID,
+			"user":    selectedUser,
+			"server":  selectedServer,
+		})
 	}}
 	<button
 		if isLiked {
@@ -115,7 +121,7 @@ templ LikeButton(ID, selectedUser, selectedServer string, isLiked bool, liked bo
 		}
 		class={ "more-info--like-asset", templ.KV("is-liked", isLiked) }
 		hx-trigger="click throttle:2s"
-		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "user": "%s", "server": "%s"}`, ID, selectedUser, selectedServer) }
+		hx-vals={ string(vals) }
 		hx-swap="outerHTML"
 		disabled?={ !isButtonEnabled }
 	>
@@ -166,6 +172,12 @@ templ HideButton(ID, selectedUser, selectedServer string, isHidden bool, isButto
 		if isHidden {
 			webhook = webhooks.UserUnhideInfoOverlay
 		}
+		vals, _ := json.Marshal(map[string]string{
+			"assetID": ID,
+			"tagName": kiosk.TagSkip,
+			"user":    selectedUser,
+			"server":  selectedServer,
+		})
 	}}
 	<button
 		class={ "more-info--hide-asset", templ.KV("hidden", isHidden) }
@@ -177,7 +189,7 @@ templ HideButton(ID, selectedUser, selectedServer string, isHidden bool, isButto
 			title={ t("unhide_asset") }
 		}
 		hx-trigger="click throttle:2s"
-		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "tagName": "%s", "user": "%s", "server": "%s"}`, ID, kiosk.TagSkip, selectedUser, selectedServer) }
+		hx-vals={ string(vals) }
 		hx-swap="outerHTML"
 		disabled?={ !isButtonEnabled }
 	>

@@ -618,6 +618,9 @@ func (c *Config) checkImmichServers() {
 	}
 
 	for name, server := range c.ImmichServers {
+		if strings.Contains(name, ",") {
+			log.Fatal("Immich server name cannot contain commas", "server", name)
+		}
 		server.URL = ensureURLScheme(strings.TrimSpace(server.URL))
 		server.ExternalURL = strings.TrimSpace(server.ExternalURL)
 		server.APIKey = strings.TrimSpace(server.APIKey)

@@ -29,6 +29,8 @@ func TestParseHistoryAssetID(t *testing.T) {
 		{name: "with server", entry: "asset-1:john:home", wantID: "asset-1", wantUser: "john", wantServer: "home", wantOK: true},
 		{name: "empty user with server", entry: "asset-1::home", wantID: "asset-1", wantUser: "", wantServer: "home", wantOK: true},
 		{name: "invalid", entry: "asset-1", wantOK: false},
+		{name: "empty asset id", entry: ":john", wantOK: false},
+		{name: "empty asset id with server", entry: ":john:home", wantOK: false},
 	}
 
 	for _, tc := range tests {

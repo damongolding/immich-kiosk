@@ -4,6 +4,7 @@ import (
 	"math/rand/v2"
 
 	"charm.land/log/v2"
+	"github.com/damongolding/immich-kiosk/internal/config"
 )
 
 // ApplyServer selects an Immich server for this asset request.
@@ -27,15 +28,9 @@ func (a *Asset) ApplyServer(pickRandom bool) {
 		return
 	}
 
-	candidates := a.requestConfig.URLParamServers
+	candidates := a.serverCandidates()
 	if len(candidates) == 0 {
-		candidates = make([]string, 0, len(a.requestConfig.ImmichServers))
-		for name := range a.requestConfig.ImmichServers {
-			candidates = append(candidates, name)
-		}
-	}
-
-	if len(candidates) == 0 {
+		log.Warn("No valid Immich servers found for selection")
 		return
 	}
 
@@ -45,7 +40,29 @@ func (a *Asset) ApplyServer(pickRandom bool) {
 	}
 }
 
-// applyNamedServer applies the Immich URL, API key, and optional external URL
+// serverCandidates returns Immich server names available for random selection.
+// When URLParamServers is set, only known names from that list are returned.
+func (a *Asset) serverCandidates() []string {
+	if len(a.requestConfig.URLParamServers) > 0 {
+		candidates := make([]string, 0, len(a.requestConfig.URLParamServers))
+		for _, name := range a.requestConfig.URLParamServers {
+			if _, ok := a.requestConfig.ImmichServers[name]; ok {
+				candidates = append(candidates, name)
+				continue
+			}
+			log.Warn("Server from URL query parameter not found in config", "server", name)
+		}
+		return candidates
+	}
+
+	candidates := make([]string, 0, len(a.requestConfig.ImmichServers))
+	for name := range a.requestConfig.ImmichServers {
+		candidates = append(candidates, name)
+	}
+	return candidates
+}
+
+// applyNamedServer applies the Immich URL, API key, and external URL
 // for the named server on this asset's request config.
 // Returns false if the server name is not present in ImmichServers.
 func (a *Asset) applyNamedServer(name string) bool {
@@ -57,9 +74,7 @@ func (a *Asset) applyNamedServer(name string) bool {
 	a.requestConfig.SelectedServer = name
 	a.requestConfig.ImmichURL = server.URL
 	a.requestConfig.ImmichAPIKey = server.APIKey
-	if server.ExternalURL != "" {
-		a.requestConfig.ImmichExternalURL = server.ExternalURL
-	}
+	a.requestConfig.ImmichExternalURL = server.ExternalURL
 
 	if a.requestConfig.ImmichUsersAPIKeys == nil {
 		a.requestConfig.ImmichUsersAPIKeys = make(map[string]string)
@@ -82,4 +97,9 @@ func (a *Asset) ImmichURL() string {
 // ImmichExternalURL returns the external Immich URL currently applied to this asset request.
 func (a *Asset) ImmichExternalURL() string {
 	return a.requestConfig.ImmichExternalURL
+}
+
+// RequestConfig returns the request configuration currently applied to this asset.
+func (a *Asset) RequestConfig() config.Config {
+	return a.requestConfig
 }
