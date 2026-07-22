@@ -39,15 +39,19 @@ func validateConfigFile(path string) error {
 // The function checks for http:// and https:// prefixes in a case-insensitive way.
 // If neither prefix is found, it prepends the default scheme (http://).
 func (c *Config) checkURLScheme() {
-	// check for correct scheme
-	switch {
-	case strings.HasPrefix(strings.ToLower(c.ImmichURL), "http://"):
-		break
-	case strings.HasPrefix(strings.ToLower(c.ImmichURL), "https://"):
-		break
-	default:
-		c.ImmichURL = defaultScheme + c.ImmichURL
+	c.ImmichURL = ensureURLScheme(c.ImmichURL)
+}
+
+// ensureURLScheme prepends http:// when the URL has no http(s) scheme.
+func ensureURLScheme(raw string) string {
+	if raw == "" {
+		return raw
 	}
+	lower := strings.ToLower(raw)
+	if strings.HasPrefix(lower, "http://") || strings.HasPrefix(lower, "https://") {
+		return raw
+	}
+	return defaultScheme + raw
 }
 
 // checkLowercaseTaggedFields processes struct fields tagged with `lowercase:"true"`.
@@ -165,11 +169,21 @@ func (c *Config) checkSecrets() {
 }
 
 // checkRequiredFields verifies that all required configuration fields are set.
-// Currently checks for:
-// - ImmichUrl: The base URL for the Immich server
-// - ImmichApiKey: The API key for authentication
+// Requires either ImmichURL + ImmichAPIKey, or a non-empty ImmichServers map.
 // If any required field is missing, the function logs a fatal error and exits.
 func (c *Config) checkRequiredFields() {
+	if len(c.ImmichServers) > 0 {
+		for name, server := range c.ImmichServers {
+			if strings.TrimSpace(server.URL) == "" {
+				log.Fatal("Immich server URL is missing", "server", name)
+			}
+			if strings.TrimSpace(server.APIKey) == "" {
+				log.Fatal("Immich server API key is missing", "server", name)
+			}
+		}
+		return
+	}
+
 	switch {
 	case c.ImmichURL == "":
 		log.Fatal("Immich URL is missing")
@@ -590,6 +604,20 @@ func (c *Config) checkUsersAPIKeys() {
 		c.ImmichUsersAPIKeys = make(map[string]string)
 	}
 	c.ImmichUsersAPIKeys["default"] = c.ImmichAPIKey
+}
+
+func (c *Config) checkImmichServers() {
+	if c.ImmichServers == nil {
+		c.ImmichServers = make(map[string]ImmichServer)
+		return
+	}
+
+	for name, server := range c.ImmichServers {
+		server.URL = ensureURLScheme(strings.TrimSpace(server.URL))
+		server.ExternalURL = strings.TrimSpace(server.ExternalURL)
+		server.APIKey = strings.TrimSpace(server.APIKey)
+		c.ImmichServers[name] = server
+	}
 }
 
 func ConfigTypes(settings map[string]any, cfgStruct any) map[string]any {

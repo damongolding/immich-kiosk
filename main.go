@@ -112,7 +112,14 @@ func main() {
 		cache.DemoMode = true
 	}
 
-	if !versionCheck(c.Context(), baseConfig.ImmichURL) {
+	immichURL := baseConfig.ImmichURL
+	if immichURL == "" {
+		for _, server := range baseConfig.ImmichServers {
+			immichURL = server.URL
+			break
+		}
+	}
+	if !versionCheck(c.Context(), immichURL) {
 		os.Exit(1)
 	}
 

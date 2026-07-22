@@ -38,6 +38,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 							@LikeButton(
 								img.ImmichAsset.ID,
 								img.ImmichAsset.SelectedUser(),
+								img.ImmichAsset.SelectedServer(),
 								img.ImmichAsset.IsFavorite,
 								false,
 								img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
@@ -46,13 +47,14 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 							@HideButton(
 								img.ImmichAsset.ID,
 								img.ImmichAsset.SelectedUser(),
+								img.ImmichAsset.SelectedServer(),
 								img.ImmichAsset.HasTag(kiosk.TagSkip),
 								img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
 								secret,
 							)
 						</div>
 					}
-					@rating(img.ImmichAsset.ID, img.ImmichAsset.SelectedUser(), img.ImmichAsset.ExifInfo.Rating, viewData.UseOfflineMode)
+					@rating(img.ImmichAsset.ID, img.ImmichAsset.SelectedUser(), img.ImmichAsset.SelectedServer(), img.ImmichAsset.ExifInfo.Rating, viewData.UseOfflineMode)
 					@originalImageTimeLocation(viewData, i)
 					@cameraData(img.ImmichAsset.ExifInfo)
 					@originalAssetData(img.ImmichAsset)
@@ -60,7 +62,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 					@tags(img.ImmichAsset.Tags)
 					<div class="more-info--button-group">
 						if viewData.ShowMoreInfoImageLink {
-							<a class="more-info--image-link" href={ templ.SafeURL(ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID, viewData.ButtonOpenInApp, viewData.Kiosk.DemoMode)) } target="_blank">
+							<a class="more-info--image-link" href={ templ.SafeURL(ImmichAssetUrl(img.ImmichAsset.ImmichURL(), img.ImmichAsset.ImmichExternalURL(), img.ImmichAsset.ID, viewData.ButtonOpenInApp, viewData.Kiosk.DemoMode)) } target="_blank">
 								{ t("immich_link_btn") }
 							</a>
 						}
@@ -80,7 +82,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 				</div>
 				if viewData.ShowMoreInfoQrCode {
 					<div class="more-info--image--qr-code">
-						<img src={ utils.CreateQrCode(ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID, viewData.QrCodeOpenInApp, viewData.Kiosk.DemoMode)) }/>
+						<img src={ utils.CreateQrCode(ImmichAssetUrl(img.ImmichAsset.ImmichURL(), img.ImmichAsset.ImmichExternalURL(), img.ImmichAsset.ID, viewData.QrCodeOpenInApp, viewData.Kiosk.DemoMode)) }/>
 					</div>
 				}
 			</div>
@@ -95,7 +97,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 //   - liked: Whether to show the liked animation
 //   - isButtonEnabled: Whether the button should be enabled
 //   - secret: Secret key for webhook signatures
-templ LikeButton(ID, selectedUser string, isLiked bool, liked bool, isButtonEnabled bool, secret string) {
+templ LikeButton(ID, selectedUser, selectedServer string, isLiked bool, liked bool, isButtonEnabled bool, secret string) {
 	{{
 		t := i18n.T()
 		webhook := webhooks.UserLikeInfoOverlay
@@ -113,7 +115,7 @@ templ LikeButton(ID, selectedUser string, isLiked bool, liked bool, isButtonEnab
 		}
 		class={ "more-info--like-asset", templ.KV("is-liked", isLiked) }
 		hx-trigger="click throttle:2s"
-		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "user": "%s"}`, ID, selectedUser) }
+		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "user": "%s", "server": "%s"}`, ID, selectedUser, selectedServer) }
 		hx-swap="outerHTML"
 		disabled?={ !isButtonEnabled }
 	>
@@ -157,7 +159,7 @@ templ LikeButton(ID, selectedUser string, isLiked bool, liked bool, isButtonEnab
 //   - isHidden: Whether the asset is currently hidden
 //   - isButtonEnabled: Whether the button is enabled
 //   - secret: Secret key for webhook signatures
-templ HideButton(ID, selectedUser string, isHidden bool, isButtonEnabled bool, secret string) {
+templ HideButton(ID, selectedUser, selectedServer string, isHidden bool, isButtonEnabled bool, secret string) {
 	{{
 		t := i18n.T()
 		webhook := webhooks.UserHideInfoOverlay
@@ -175,7 +177,7 @@ templ HideButton(ID, selectedUser string, isHidden bool, isButtonEnabled bool, s
 			title={ t("unhide_asset") }
 		}
 		hx-trigger="click throttle:2s"
-		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "tagName": "%s", "user": "%s"}`, ID, kiosk.TagSkip, selectedUser) }
+		hx-vals={ fmt.Sprintf(`{"assetID": "%s", "tagName": "%s", "user": "%s", "server": "%s"}`, ID, kiosk.TagSkip, selectedUser, selectedServer) }
 		hx-swap="outerHTML"
 		disabled?={ !isButtonEnabled }
 	>
@@ -244,7 +246,7 @@ templ originalAssetData(img immich.Asset) {
 	</div>
 }
 
-templ rating(assetID, selectedUser string, rating int, offlineMode bool) {
+templ rating(assetID, selectedUser, selectedServer string, rating int, offlineMode bool) {
 	<div class="more-info--rating">
 		{{
 			editable := true
@@ -252,7 +254,7 @@ templ rating(assetID, selectedUser string, rating int, offlineMode bool) {
 				editable = false
 			}
 		}}
-		@RatingStars(assetID, selectedUser, rating, editable, false)
+		@RatingStars(assetID, selectedUser, selectedServer, rating, editable, false)
 	</div>
 }
 

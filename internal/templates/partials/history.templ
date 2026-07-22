@@ -74,7 +74,7 @@ templ renderEntries(viewData common.ViewData) {
 }
 
 // newHistoryEntry creates a new comma-separated history entry string from a slice of images
-// It takes a slice of ViewImageData and returns a history string in the format "*id1:user1,id2:user2".
+// It takes a slice of ViewImageData and returns a history string in the format "*id1:user1:server1,id2:user2:server2".
 // Each image entry is HTML escaped and prefixed with * to indicate it's new. Returns empty string if
 // no images provided.
 //
@@ -91,7 +91,7 @@ func newHistoryEntry(images []common.ViewImageData) string {
 	}
 	newImages := make([]string, len(images))
 	for i, entry := range images {
-		assetHistory := fmt.Sprintf("%s:%s", entry.ImmichAsset.ID, entry.User)
+		assetHistory := fmt.Sprintf("%s:%s:%s", entry.ImmichAsset.ID, entry.User, entry.Server)
 		sanitisedID := template.HTMLEscapeString(assetHistory)
 		newImages[i] = sanitisedID
 	}

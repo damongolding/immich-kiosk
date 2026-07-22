@@ -186,7 +186,7 @@ templ memoryIcon(data string) {
 	</div>
 }
 
-templ RatingStars(assetID, selectedUser string, rating int, allowEdit bool, oob bool) {
+templ RatingStars(assetID, selectedUser, selectedServer string, rating int, allowEdit bool, oob bool) {
 	{{
 		t := i18n.T()
 		ID := uuid.New().String()
@@ -207,6 +207,7 @@ templ RatingStars(assetID, selectedUser string, rating int, allowEdit bool, oob 
 						vals, _ := json.Marshal(map[string]string{
 							"assetID":   assetID,
 							"user":      selectedUser,
+							"server":    selectedServer,
 							"rating":    fmt.Sprintf("%d", i+1),
 							"allowEdit": fmt.Sprintf("%v", allowEdit),
 						})
@@ -236,6 +237,7 @@ templ RatingStars(assetID, selectedUser string, rating int, allowEdit bool, oob 
 				vals, _ := json.Marshal(map[string]string{
 					"assetID":   assetID,
 					"user":      selectedUser,
+					"server":    selectedServer,
 					"allowEdit": fmt.Sprintf("%v", allowEdit),
 				})
 			}}

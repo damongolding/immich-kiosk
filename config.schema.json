@@ -13,6 +13,25 @@
       "type": "string",
       "format": "uri"
     },
+    "immich_servers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "api_key": {
+            "type": "string"
+          },
+          "external_url": {
+            "type": "string"
+          }
+        },
+        "required": ["url", "api_key"]
+      }
+    },
     "show_time": {
       "type": "boolean"
     },
@@ -657,5 +676,8 @@
       "required": []
     }
   },
-  "required": ["immich_api_key", "immich_url"]
+  "anyOf": [
+    { "required": ["immich_api_key", "immich_url"] },
+    { "required": ["immich_servers"] }
+  ]
 }

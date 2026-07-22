@@ -127,14 +127,14 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c *echo.Context
 
 	for i, assetID := range wantedAssets {
 
-		currentAssetID, selectedUser, ok := strings.Cut(assetID, ":")
+		currentAssetID, selectedUser, selectedServer, ok := parseHistoryAssetID(assetID)
 		if !ok {
 			return fmt.Errorf("invalid history entry format: %s", assetID)
 		}
 
 		prevAssetsID := i
 
-		g.Go(getHistoryAsset(requestConfig, com, requestID, deviceID, selectedUser, &viewData, prevAssetsID, currentAssetID))
+		g.Go(getHistoryAsset(requestConfig, com, requestID, deviceID, selectedUser, selectedServer, &viewData, prevAssetsID, currentAssetID))
 	}
 
 	// Wait for all goroutines to complete and check for errors
@@ -161,11 +161,13 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c *echo.Context
 // getHistoryAsset returns a function that processes a single asset from the navigation history.
 // It fetches asset metadata, album details (if configured), and generates regular and blurred preview images.
 // The function is intended to be run as a goroutine (via errgroup) for each asset in the history entry.
-func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID, deviceID, selectedUser string, viewData *common.ViewData, prevAssetsID int, currentAssetID string) func() error {
+func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID, deviceID, selectedUser, selectedServer string, viewData *common.ViewData, prevAssetsID int, currentAssetID string) func() error {
 	return func() error {
 		requestConfig.SelectedUser = selectedUser
+		requestConfig.SelectedServer = selectedServer
 
 		asset := immich.New(com.Context(), requestConfig)
+		asset.ApplyServer(false)
 		asset.ID = currentAssetID
 		if requestConfig.Memories {
 			if ok, memory, assetIndex := asset.IsMemory(); ok {
@@ -196,6 +198,7 @@ func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID,
 				ImageBlurData:      imgBlurString,
 				ImageDominantColor: dominantColor,
 				User:               selectedUser,
+				Server:             asset.SelectedServer(),
 			}
 		}()
 
@@ -279,6 +282,20 @@ func findHistoryEntry(history []string, useNextImage bool) (string, int) {
 	}
 
 	return entry, entryIndex
+}
+
+// parseHistoryAssetID parses a history entry of the form "id:user" or "id:user:server".
+func parseHistoryAssetID(entry string) (id, user, server string, ok bool) {
+	parts := strings.SplitN(entry, ":", 3)
+	if len(parts) < 2 {
+		return "", "", "", false
+	}
+	id = parts[0]
+	user = parts[1]
+	if len(parts) == 3 {
+		server = parts[2]
+	}
+	return id, user, server, true
 }
 
 // historyAssetOffline handles displaying assets when in offline mode by loading
