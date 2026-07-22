@@ -93,8 +93,11 @@ type Redirect struct {
 
 // ImmichServer is a named Immich instance (url + api key pair).
 type ImmichServer struct {
-	URL         string `yaml:"url" mapstructure:"url" redact:"true"`
-	APIKey      string `yaml:"api_key" mapstructure:"api_key" redact:"true"`
+	// URL is the base URL of the Immich server.
+	URL string `yaml:"url" mapstructure:"url" redact:"true"`
+	// APIKey is the API key used to authenticate with this Immich server.
+	APIKey string `yaml:"api_key" mapstructure:"api_key" redact:"true"`
+	// ExternalURL is an optional public URL used for links and QR codes.
 	ExternalURL string `yaml:"external_url" mapstructure:"external_url" default:"" redact:"true"`
 }
 

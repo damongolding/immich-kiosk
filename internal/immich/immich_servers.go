@@ -45,6 +45,9 @@ func (a *Asset) ApplyServer(pickRandom bool) {
 	}
 }
 
+// applyNamedServer applies the Immich URL, API key, and optional external URL
+// for the named server on this asset's request config.
+// Returns false if the server name is not present in ImmichServers.
 func (a *Asset) applyNamedServer(name string) bool {
 	server, ok := a.requestConfig.ImmichServers[name]
 	if !ok {
@@ -66,14 +69,17 @@ func (a *Asset) applyNamedServer(name string) bool {
 	return true
 }
 
+// SelectedServer returns the Immich server name selected for this asset request.
 func (a *Asset) SelectedServer() string {
 	return a.requestConfig.SelectedServer
 }
 
+// ImmichURL returns the Immich base URL currently applied to this asset request.
 func (a *Asset) ImmichURL() string {
 	return a.requestConfig.ImmichURL
 }
 
+// ImmichExternalURL returns the external Immich URL currently applied to this asset request.
 func (a *Asset) ImmichExternalURL() string {
 	return a.requestConfig.ImmichExternalURL
 }

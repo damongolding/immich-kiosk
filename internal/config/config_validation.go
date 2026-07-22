@@ -42,7 +42,8 @@ func (c *Config) checkURLScheme() {
 	c.ImmichURL = ensureURLScheme(c.ImmichURL)
 }
 
-// ensureURLScheme prepends http:// when the URL has no http(s) scheme.
+// ensureURLScheme prepends the default http:// scheme when the given URL
+// does not already start with http:// or https://. Empty strings are returned unchanged.
 func ensureURLScheme(raw string) string {
 	if raw == "" {
 		return raw
@@ -599,6 +600,8 @@ func (c *Config) checkBurnIn() {
 	}
 }
 
+// checkUsersAPIKeys ensures ImmichUsersAPIKeys is initialized and sets the
+// "default" entry to the global ImmichAPIKey.
 func (c *Config) checkUsersAPIKeys() {
 	if c.ImmichUsersAPIKeys == nil {
 		c.ImmichUsersAPIKeys = make(map[string]string)
@@ -606,6 +609,8 @@ func (c *Config) checkUsersAPIKeys() {
 	c.ImmichUsersAPIKeys["default"] = c.ImmichAPIKey
 }
 
+// checkImmichServers initializes ImmichServers if needed and normalizes each
+// server's URL scheme, external URL, and API key values.
 func (c *Config) checkImmichServers() {
 	if c.ImmichServers == nil {
 		c.ImmichServers = make(map[string]ImmichServer)
