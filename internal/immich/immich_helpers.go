@@ -772,7 +772,7 @@ func (a *Asset) hasValidPeople(requestID, deviceID string) bool {
 }
 
 func (a *Asset) hasValidPartners() bool {
-	return !slices.Contains(a.requestConfig.ExcludedPartners, a.Owner.ID)
+	return !slices.Contains(a.requestConfig.ExcludedPartners, a.OwnerID)
 }
 
 // matchesTagPattern checks if a tag matches a given pattern using glob-style matching.
