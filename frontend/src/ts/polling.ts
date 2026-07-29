@@ -99,7 +99,6 @@ class PollingController {
 
         if (this.progressBarElement) {
             this.progressBarElement.style.transform = `scaleX(${progress}) translateZ(0)`;
-            // this.progressBarElement.style.width = `${progress}%`;
         }
 
         this.animationFrameId = requestAnimationFrame(this.updateProgress);
