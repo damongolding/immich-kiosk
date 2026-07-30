@@ -16,17 +16,21 @@ interface ProgressSource {
 class PollingController {
     private static instance: PollingController;
 
-    private animationFrameId: number | null = null;
-    private progressBarElement: HTMLElement | null = null;
-    private lastPollTime: number | null = null;
-    private pausedTime: number | null = null;
     private isPaused: boolean = false;
+    private currentProgressSource: ProgressSource | null = null;
+    private playTimeout!: number | null;
     private pollInterval: number = 0;
+
+    private animationFrameId: number | null = null;
+    private lastPollTime: number | null = null;
+    private pollingFPS: number = 0;
+    private pausedTime: number | null = null;
+    private lastFrameTime = 0;
+
+    private progressBarElement: HTMLElement | null = null;
     private kioskElement: HTMLElement | null = null;
     private menuElement: HTMLElement | null = null;
-    private currentProgressSource: ProgressSource | null = null;
     private video: HTMLVideoElement | null = null;
-    private playTimeout!: number | null;
 
     private constructor() {
         // Private constructor to enforce singleton pattern
@@ -50,6 +54,7 @@ class PollingController {
      */
     init(
         interval: number,
+        fps: number,
         kiosk: HTMLElement | null,
         menu: HTMLElement | null,
     ) {
@@ -57,6 +62,7 @@ class PollingController {
             throw new Error("PollingController: Missing required parameters");
         }
         this.pollInterval = interval;
+        this.pollingFPS = 1000 / fps;
         this.kioskElement = kiosk;
         this.menuElement = menu;
         this.progressBarElement = htmx.find(
@@ -71,12 +77,23 @@ class PollingController {
     private updateProgress = (timestamp: number) => {
         if (!this.currentProgressSource) return;
 
+        this.animationFrameId = requestAnimationFrame(this.updateProgress);
+
         if (this.pausedTime !== null) {
             if (this.lastPollTime !== null) {
                 this.lastPollTime += timestamp - this.pausedTime;
             }
             this.pausedTime = null;
+            this.lastFrameTime = 0;
+            return;
         }
+
+        // Skip this frame if we haven't hit the fps interval yet
+        if (timestamp - this.lastFrameTime < this.pollingFPS) {
+            return;
+        }
+
+        this.lastFrameTime = timestamp;
 
         let progress: number;
 
@@ -100,8 +117,6 @@ class PollingController {
         if (this.progressBarElement) {
             this.progressBarElement.style.transform = `scaleX(${progress}) translateZ(0)`;
         }
-
-        this.animationFrameId = requestAnimationFrame(this.updateProgress);
     };
 
     /**
@@ -369,9 +384,10 @@ const pollingController = PollingController.getInstance();
 
 export const initPolling = (
     interval: number,
+    fps: number,
     kiosk: HTMLElement | null,
     menu: HTMLElement | null,
-) => pollingController.init(interval, kiosk, menu);
+) => pollingController.init(interval, fps, kiosk, menu);
 
 export const startPolling = () => pollingController.startPolling();
 export const pausePolling = (showMenu?: boolean) =>

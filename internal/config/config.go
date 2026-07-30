@@ -303,6 +303,8 @@ type Config struct {
 	OptimizeImages bool `json:"optimize_images" yaml:"optimize_images" mapstructure:"optimize_images" query:"optimize_images" form:"optimize_images" default:"false"`
 	// UseGpu tells Kiosk to use GPU where possible
 	UseGpu bool `json:"useGpu" yaml:"use_gpu" mapstructure:"use_gpu" query:"use_gpu" form:"use_gpu" default:"true"`
+	// PollingFPS controls how often the polling controller updates
+	PollingFPS int `json:"pollingFPS" yaml:"polling_fps" mapstructure:"polling_fps" query:"polling_fps" form:"polling_fps" default:"30"`
 	// BurnInInterval specifies (in minutes) the interval between burn-in cycles. 0 disables.
 	BurnInInterval int `json:"burnInInterval" yaml:"burn_in_interval" mapstructure:"burn_in_interval" query:"burn_in_interval" form:"burn_in_interval" default:"0"`
 	// BurnInDuration specifies how long (in seconds) the burn-in effect lasts

@@ -82,6 +82,7 @@ type KioskData = {
     httpTimeout: number;
     upArrowAction: string;
     downArrowAction: string;
+    pollingFPS: number;
 };
 
 const MAX_FRAMES: number = 2 as const;
@@ -201,7 +202,7 @@ async function init(): Promise<void> {
     }
 
     if (pollInterval) {
-        initPolling(pollInterval, kiosk, menu);
+        initPolling(pollInterval, kioskData.pollingFPS, kiosk, menu);
     } else {
         console.error("Could not start polling");
     }

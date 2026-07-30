@@ -114,6 +114,7 @@ templ Home(viewData common.ViewData, secret string) {
 					"httpTimeout":        viewData.Kiosk.HTTPTimeout,
 					"upArrowAction":      viewData.UpArrowAction,
 					"downArrowAction":    viewData.DownArrowAction,
+					"pollingFPS":         viewData.PollingFPS,
 				})
 				<script src={ string(templ.URL(fmt.Sprintf("/assets/js/kiosk.%s.js", viewData.KioskVersion))) }></script>
 			}
