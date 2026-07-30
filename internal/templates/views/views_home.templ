@@ -9,6 +9,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/weather"
+	"github.com/damongolding/immich-kiosk/internal/config"
 	"html"
 	"net/url"
 	"os"
@@ -35,7 +36,7 @@ templ Home(viewData common.ViewData, secret string) {
 						hx-post="/asset/new"
 					}
 					hx-include=".kiosk-history--entry"
-					hx-trigger={ triggers(viewData.DisableNavigation) }
+					hx-trigger={ triggers(viewData.Config) }
 					hx-on::before-send="kiosk.setRequestLock(event)"
 					hx-on::after-swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames()"
 				>
@@ -190,17 +191,28 @@ func isIframeUrl(iframeURL string) (bool, string) {
 // - Click triggers for next asset navigation controls (if navigation enabled)
 // - Keyboard right arrow trigger (if navigation enabled)
 // - Custom "kiosk-new-asset" event trigger
-func triggers(disableNav bool) string {
+func triggers(c config.Config) string {
+
+	var throttle float32
+
+	switch c.Transition {
+		case "push-right", "push-left", "push-down", "push-up", "push-random":
+			throttle = c.PushTransitionDuration
+		case "slide-right", "slide-left", "slide-down", "slide-up", "slide-random":
+			throttle = c.SlideTransitionDuration
+		default:
+			throttle = 1.0
+	}
 
 	var b strings.Builder
 
 	b.WriteString("load,")
-	if !disableNav {
-		b.WriteString(`
-		click from:#navigation-interaction-area--next-asset throttle:1s,
-		click from:.navigation--next-asset throttle:1s,
-		keyup[key=='ArrowRight'] from:body throttle:1s,
-		`)
+	if !c.DisableNavigation {
+		b.WriteString(fmt.Sprintf(`
+		click from:#navigation-interaction-area--next-asset throttle:%fs,
+		click from:.navigation--next-asset throttle:%fs,
+		keyup[key=='ArrowRight'] from:body throttle:%fs,
+		`, throttle, throttle, throttle))
 	}
 	b.WriteString(`
 		kiosk-new-asset throttle:1s,
