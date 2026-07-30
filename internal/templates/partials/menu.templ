@@ -62,7 +62,6 @@ templ Menu(viewData common.ViewData, queries url.Values, secret string) {
 			  kiosk-prev-asset throttle:1s
 			"
 			hx-on::before-request="kiosk.checkHistoryExists(event)"
-			hx-on::after-request="kiosk.startPolling()"
 			hx-on::after-swap="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
 		></div>
 		<div id="navigation-interaction-area--menu" class={ "navigation-interaction-area--menu-" + viewData.MenuPosition, templ.KV("has-custom-navigation", hasCustomNavigation) }></div>
