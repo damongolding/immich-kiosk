@@ -49,6 +49,7 @@ class PollingController {
     /**
      * Initializes the polling controller with required parameters
      * @param interval - The polling interval in milliseconds
+     * @param fps - The polling frame rate in seconds
      * @param kiosk - The kiosk element to control
      * @param menu - The menu element to control
      */

@@ -709,6 +709,7 @@ func (c *Config) Load() error {
 	c.checkOffline()
 	c.checkBurnIn()
 	c.checkFilterNewest()
+	c.checkPollingFPS()
 
 	return nil
 }
@@ -770,6 +771,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 
 	c.checkFilterNewest()
 	c.checkExcludedAlbums()
+	c.checkPollingFPS()
 
 	// Disabled features in demo mode
 	if c.Kiosk.DemoMode {

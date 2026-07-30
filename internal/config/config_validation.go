@@ -689,3 +689,10 @@ func (c *Config) checkFilterNewest() {
 		c.FilterNewest = 1000
 	}
 }
+
+func (c *Config) checkPollingFPS() {
+	if c.PollingFPS < 1 {
+		log.Warn("PollingFPS must be 1 or greater; setting to 1", "value", c.PollingFPS)
+		c.PollingFPS = 1
+	}
+}
