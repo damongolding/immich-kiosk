@@ -23,7 +23,7 @@ func modifyGIFAssets(viewData *common.ViewData) {
 // Parameters:
 //   - viewData: ViewData containing all necessary information for rendering the images.
 //   - secret: The secret key used for generating the signature.
-templ Image(viewData common.ViewData, secret string) {
+templ Image(viewData common.ViewData, secret string, JSFuncs ...string) {
 	{{ modifyGIFAssets(&viewData) }}
 	if len(viewData.Assets) < 2 {
 		@layoutSingleView(viewData)
@@ -33,5 +33,9 @@ templ Image(viewData common.ViewData, secret string) {
 	@partials.RenderHistory(viewData)
 	if viewData.ShowMoreInfo {
 		@partials.RenderMoreInfo(viewData, secret)
+	}
+
+	for _, f := range JSFunc {
+		<div htmx ></div>
 	}
 }
