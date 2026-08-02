@@ -638,6 +638,11 @@ function clientData(): BrowserData {
     return data;
 }
 
+function kioskClass(classOn: string | null = null, classOff: string | null = null): void {
+	if (classOff) kiosk.classList.remove(classOff);
+	if (classOn) kiosk.classList.add(classOn);
+}
+
 // Add kiosk query parameters to HTMX requests
 if (kioskQueries.length > 0) {
     document.body.addEventListener("htmx:configRequest", (event: Event) => {
@@ -679,6 +684,7 @@ export {
     checkHistoryExists,
     cleanupFrames,
     clientData,
+    kioskClass,
     releaseRequestLock,
     setRequestLock,
     sleepMode,
