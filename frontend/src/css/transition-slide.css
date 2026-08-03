@@ -28,7 +28,7 @@
             animation-name: slide-right;
         }
 
-        .frame:has(+ .htmx-added) {
+        .frame:has(+ div.htmx-added) {
             animation-name: slide-right-out;
         }
     }
@@ -37,7 +37,7 @@
         .frame.htmx-added {
             animation-name: slide-left;
         }
-        .frame:has(+ .htmx-added) {
+        .frame:has(+ div.htmx-added) {
             animation-name: slide-left-out;
         }
     }
@@ -46,7 +46,7 @@
         .frame.htmx-added {
             animation-name: slide-up;
         }
-        .frame:has(+ .htmx-added) {
+        .frame:has(+ div.htmx-added) {
             animation-name: slide-up-out;
         }
     }
@@ -55,7 +55,7 @@
         .frame.htmx-added {
             animation-name: slide-down;
         }
-        .frame:has(+ .htmx-added) {
+        .frame:has(+ div.htmx-added) {
             animation-name: slide-down-out;
         }
     }

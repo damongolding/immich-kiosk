@@ -5,6 +5,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/damongolding/immich-kiosk/internal/templates/components"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ func modifyGIFAssets(viewData *common.ViewData) {
 // Parameters:
 //   - viewData: ViewData containing all necessary information for rendering the images.
 //   - secret: The secret key used for generating the signature.
-templ Image(viewData common.ViewData, secret string) {
+templ Image(viewData common.ViewData, secret string, JSScripts ...components.AssetScript) {
 	{{ modifyGIFAssets(&viewData) }}
 	if len(viewData.Assets) < 2 {
 		@layoutSingleView(viewData)
@@ -33,5 +34,9 @@ templ Image(viewData common.ViewData, secret string) {
 	@partials.RenderHistory(viewData)
 	if viewData.ShowMoreInfo {
 		@partials.RenderMoreInfo(viewData, secret)
+	}
+
+	for _, s := range JSScripts {
+		@templ.JSFuncCall(s.FuncName, s.Args...)
 	}
 }
