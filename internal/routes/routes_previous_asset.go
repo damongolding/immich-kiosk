@@ -17,6 +17,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/templates/components"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	videoComponent "github.com/damongolding/immich-kiosk/internal/templates/components/video"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -151,11 +152,56 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c *echo.Context
 
 	go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhookEvent, viewData)
 
+	s := transitionHandler(useNextImage, requestConfig.Transition)
+
 	if len(viewData.Assets) > 0 && requestConfig.ShowVideos && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
-		return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret()))
+		return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret(), s...))
 	}
 
-	return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
+	return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret(), s...))
+}
+
+func transitionHandler(useNextImage bool, transition string) []components.AssetScript {
+	var s []components.AssetScript
+
+	fmt.Println("transition", transition)
+
+	if !strings.Contains(transition, "push") && !strings.Contains(transition, "slide") || strings.Contains(transition, "random") {
+		return s
+	}
+
+	parts := strings.Split(transition, "-")
+	if len(parts) < 2 {
+		return s
+	}
+
+	transitionType := parts[0]
+	transitionDir := parts[1]
+	var t string
+	switch transitionDir {
+	case "left":
+		t = "right"
+	case "right":
+		t = "left"
+	case "up":
+		t = "down"
+	case "down":
+		t = "up"
+	}
+
+	if useNextImage {
+		s = append(s, components.AssetScript{
+			FuncName: "kiosk.kioskClass",
+			Args:     []any{fmt.Sprintf("transition-%s-%s", transitionType, transitionDir), fmt.Sprintf("transition-%s-%s", transitionType, t)},
+		})
+	} else {
+		s = append(s, components.AssetScript{
+			FuncName: "kiosk.kioskClass",
+			Args:     []any{fmt.Sprintf("transition-%s-%s", transitionType, t), fmt.Sprintf("transition-%s-%s", transitionType, transitionDir)},
+		})
+	}
+
+	return s
 }
 
 // getHistoryAsset returns a function that processes a single asset from the navigation history.

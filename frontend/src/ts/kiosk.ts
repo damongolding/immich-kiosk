@@ -105,6 +105,7 @@ const fullscreenButton = htmx.find(
 const fullScreenButtonSeperator = htmx.find(
     ".navigation--fullscreen-separator",
 ) as HTMLElement | null;
+const kioskContainer = htmx.find("#kiosk-container") as HTMLElement | null;
 const kiosk = htmx.find("#kiosk") as HTMLElement | null;
 const kioskQueries = htmx.findAll(".kiosk-param");
 const menu = htmx.find(".navigation") as HTMLElement | null;
@@ -639,8 +640,9 @@ function clientData(): BrowserData {
 }
 
 function kioskClass(classOn: string | null = null, classOff: string | null = null): void {
-	if (classOff) kiosk.classList.remove(classOff);
-	if (classOn) kiosk.classList.add(classOn);
+  console.log("classing", classOn, classOff);
+  if (classOff) kioskContainer?.classList.remove(classOff);
+	if (classOn) kioskContainer?.classList.add(classOn);
 }
 
 // Add kiosk query parameters to HTMX requests

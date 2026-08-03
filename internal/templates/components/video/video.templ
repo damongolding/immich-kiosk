@@ -16,7 +16,7 @@ script videoHandler(id string) {
 	kiosk.videoHandler(id);
 }
 
-templ Video(viewData common.ViewData, secret string) {
+templ Video(viewData common.ViewData, secret string, JSScripts ...components.AssetScript) {
 	{{ ID := uuid.New().String() }}
 	{{ video := viewData.Assets[0] }}
 	{{
@@ -71,5 +71,9 @@ templ Video(viewData common.ViewData, secret string) {
 	@partials.RenderHistory(viewData)
 	if viewData.ShowMoreInfo {
 		@partials.RenderMoreInfo(viewData, secret)
+	}
+
+	for _, s := range JSScripts {
+		@templ.JSFuncCall(s.FuncName, s.Args...)
 	}
 }
