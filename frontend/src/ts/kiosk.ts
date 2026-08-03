@@ -640,7 +640,6 @@ function clientData(): BrowserData {
 }
 
 function kioskClass(classOn: string | null = null, classOff: string | null = null): void {
-  console.log("classing", classOn, classOff);
   if (classOff) kioskContainer?.classList.remove(classOff);
 	if (classOn) kioskContainer?.classList.add(classOn);
 }

@@ -161,47 +161,54 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c *echo.Context
 	return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret(), s...))
 }
 
+var oppositeDirection = map[string]string{
+	"left":  "right",
+	"right": "left",
+	"up":    "down",
+	"down":  "up",
+}
+
 func transitionHandler(useNextImage bool, transition string) []components.AssetScript {
-	var s []components.AssetScript
-
-	fmt.Println("transition", transition)
-
-	if !strings.Contains(transition, "push") && !strings.Contains(transition, "slide") || strings.Contains(transition, "random") {
-		return s
+	if !isSlideOrPushTransition(transition) {
+		return nil
 	}
 
+	transitionType, direction, ok := splitTransition(transition)
+	if !ok {
+		return nil
+	}
+
+	opposite := oppositeDirection[direction]
+
+	from := fmt.Sprintf("transition-%s-%s", transitionType, direction)
+	to := fmt.Sprintf("transition-%s-%s", transitionType, opposite)
+
+	if !useNextImage {
+		// user wants a previous image, so the transition should go from the opposite direction
+		from, to = to, from
+	}
+
+	return []components.AssetScript{
+		{
+			FuncName: "kiosk.kioskClass",
+			Args:     []any{from, to},
+		},
+	}
+}
+
+func isSlideOrPushTransition(transition string) bool {
+	if strings.Contains(transition, "random") {
+		return false
+	}
+	return strings.Contains(transition, "push") || strings.Contains(transition, "slide")
+}
+
+func splitTransition(transition string) (transitionType, direction string, ok bool) {
 	parts := strings.Split(transition, "-")
 	if len(parts) < 2 {
-		return s
+		return "", "", false
 	}
-
-	transitionType := parts[0]
-	transitionDir := parts[1]
-	var t string
-	switch transitionDir {
-	case "left":
-		t = "right"
-	case "right":
-		t = "left"
-	case "up":
-		t = "down"
-	case "down":
-		t = "up"
-	}
-
-	if useNextImage {
-		s = append(s, components.AssetScript{
-			FuncName: "kiosk.kioskClass",
-			Args:     []any{fmt.Sprintf("transition-%s-%s", transitionType, transitionDir), fmt.Sprintf("transition-%s-%s", transitionType, t)},
-		})
-	} else {
-		s = append(s, components.AssetScript{
-			FuncName: "kiosk.kioskClass",
-			Args:     []any{fmt.Sprintf("transition-%s-%s", transitionType, t), fmt.Sprintf("transition-%s-%s", transitionType, transitionDir)},
-		})
-	}
-
-	return s
+	return parts[0], parts[1], true
 }
 
 // getHistoryAsset returns a function that processes a single asset from the navigation history.
