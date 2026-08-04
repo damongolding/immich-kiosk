@@ -203,7 +203,7 @@ func isSlideOrPushTransition(transition string) bool {
 	return strings.Contains(transition, "push") || strings.Contains(transition, "slide")
 }
 
-func splitTransition(transition string) (transitionType, direction string, ok bool) {
+func splitTransition(transition string) (string, string, bool) {
 	parts := strings.Split(transition, "-")
 	if len(parts) < 2 {
 		return "", "", false
