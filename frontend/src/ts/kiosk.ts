@@ -35,12 +35,15 @@ import { weatherRotationPosition } from "./weather";
 ("use strict");
 
 interface HTMXEvent extends Event {
-    detail: {
-        successful: boolean;
-        parameters: FormData;
-        method: string;
-        pathInfo: {
-            requestPath: string;
+  detail: {
+    ctx: {
+      request: {
+        action: string;
+        form: FormData;
+      };
+      response: {
+        status: number;
+            };
         };
     };
 }
@@ -148,8 +151,11 @@ let burnInTimerId: number | null = null;
  * @returns {Promise<void>} Promise that resolves when initialization is complete
  */
 async function init(): Promise<void> {
+
+  htmx.config.implicitInheritance = true;
+
     if (kioskData.debugVerbose) {
-        htmx.logAll();
+        htmx.config.logAll = true;
     }
 
     registerVideoMuteApi();
@@ -158,9 +164,9 @@ async function init(): Promise<void> {
     const TIMEOUT_GRACE_FACTOR = 3;
 
     if (kioskData.httpTimeout <= 0) {
-        htmx.config.timeout = 0;
+        htmx.config.defaultTimeout = 0;
     } else {
-        htmx.config.timeout =
+        htmx.config.defaultTimeout =
             kioskData.httpTimeout *
             MILLISECONDS_PER_SECOND *
             TIMEOUT_GRACE_FACTOR;
@@ -197,8 +203,8 @@ async function init(): Promise<void> {
     }
 
     if (!fullscreenAPI.requestFullscreen) {
-        fullscreenButton && htmx.remove(fullscreenButton);
-        fullScreenButtonSeperator && htmx.remove(fullScreenButtonSeperator);
+        fullscreenButton?.remove();
+        fullScreenButtonSeperator?.remove();
     }
 
     if (pollInterval) {
@@ -367,7 +373,7 @@ function handleCustomKeyboardAction(
  */
 function addEventListeners(): void {
     // Unable to send ajax. probably offline.
-    htmx.on("htmx:sendError", () => {
+    htmx.on("htmx:error", () => {
         releaseRequestLock();
 
         if (!offlineSVG) {
@@ -375,28 +381,29 @@ function addEventListeners(): void {
             return;
         }
 
-        htmx.addClass(offlineSVG, "offline");
+        offlineSVG.classList.add("offline");
     });
 
     // Server online check. Fires after every AJAX request.
-    htmx.on("htmx:afterRequest", (event: Event) => {
+  htmx.on("htmx:after:request", (event: Event) => {
+    console.log("htmx:after:request", event);
         const e = event as HTMXEvent;
         if (!offlineSVG) {
             console.error("offline svg missing");
             return;
         }
 
-        if (e.detail.successful) {
-            htmx.removeClass(offlineSVG, "offline");
-            timeouts[e.detail.pathInfo.requestPath] = 0;
+        if (e.detail.ctx.response.status === 200) {
+            offlineSVG.classList.remove("offline");
+            timeouts[e.detail.ctx.request.action] = 0;
         } else {
-            htmx.addClass(offlineSVG, "offline");
+            offlineSVG.classList.add("offline");
         }
     });
 
-    htmx.on("htmx:afterRequest", (event: Event) => {
+    htmx.on("htmx:after:request", (event: Event) => {
         const e = event as HTMXEvent;
-        const path = e.detail?.pathInfo?.requestPath || "";
+        const path = e.detail?.ctx?.request?.action || "";
 
         // Only restart polling for asset endpoints (new|offlie|previous)
         if (/^\/asset\/(new|offline|previous)$/.test(path)) {
@@ -404,22 +411,24 @@ function addEventListeners(): void {
         }
     });
 
-    htmx.on("htmx:timeout", (event: Event) => {
-        const e = event as HTMXEvent;
+    // htmx.on("htmx:error", (event: Event) => {
+    //   const e = event as HTMXEvent;
 
-        let currentTimeout = timeouts[e.detail.pathInfo.requestPath];
+    //   console.log("error", e);
 
-        currentTimeout =
-            currentTimeout === undefined || Number.isNaN(currentTimeout)
-                ? 1
-                : currentTimeout + 1;
+    //     let currentTimeout = timeouts[e.detail.ctx.request.action];
 
-        timeouts[e.detail.pathInfo.requestPath] = currentTimeout;
+    //     currentTimeout =
+    //         currentTimeout === undefined || Number.isNaN(currentTimeout)
+    //             ? 1
+    //             : currentTimeout + 1;
 
-        if (currentTimeout > TIMEOUT_RETRIES) {
-            window.location.reload();
-        }
-    });
+    //     timeouts[e.detail.ctx.request.action] = currentTimeout;
+
+    //     if (currentTimeout > TIMEOUT_RETRIES) {
+    //         window.location.reload();
+    //     }
+    // });
 
     if (kioskData.disableNavigation) {
         console.log("Navigation disabled");
@@ -508,7 +517,7 @@ async function cleanupFrames(): Promise<void> {
     const kioskScripts = htmx.findAll(kiosk as HTMLElement, "script");
     if (kioskScripts?.length) {
         kioskScripts.forEach((s) => {
-            htmx.remove(s, 1000);
+            setTimeout(() => s.remove(), 1000);
         });
     }
 
@@ -523,7 +532,7 @@ async function cleanupFrames(): Promise<void> {
             ? frames.length - 1
             : 0;
         try {
-            htmx.remove(frames[toRemove]);
+            frames[toRemove].remove();
         } catch (error) {
             console.error("Failed to remove frame:", error);
         }
@@ -541,7 +550,7 @@ async function cleanupFrames(): Promise<void> {
  * @throws {Error} If request lock is already set
  */
 function setRequestLock(e: HTMXEvent): void {
-    const path = e.detail?.pathInfo?.requestPath || "";
+    const path = e.detail?.ctx?.request?.action || "";
 
     // Do not lock for non-asset requests (new|offline|previous)
     if (!/^\/asset\/(new|offline|previous)$/.test(path)) {
@@ -582,13 +591,12 @@ function releaseRequestLock(): void {
  * - Sets request lock when navigation is permitted
  */
 function checkHistoryExists(e: HTMXEvent): void {
-    const historyItems = htmx.findAll(
-        ".kiosk-history--entry",
-    ) as NodeListOf<HTMLInputElement>;
+    const historyItems = htmx.findAll(".kiosk-history--entry");
     if (
         requestInFlight ||
         historyItems.length < 2 ||
-        (historyItems.length > 0 && historyItems[0].value[0] === "*")
+        (historyItems.length > 0 &&
+            (historyItems[0] as HTMLInputElement).value[0] === "*")
     ) {
         e.preventDefault();
         return;
@@ -649,10 +657,13 @@ function kioskClass(
 
 // Add kiosk query parameters to HTMX requests
 if (kioskQueries.length > 0) {
-    document.body.addEventListener("htmx:configRequest", (event: Event) => {
-        const e = event as HTMXEvent;
+    document.body.addEventListener("htmx:config:request", (event: Event) => {
+      const e = event as HTMXEvent;
 
-        if (!e.detail?.parameters) {
+      console.log("foo", kioskQueries, e);
+      console.log(e.detail?.ctx?.request);
+
+        if (!e.detail?.ctx?.request?.form) {
             console.warn("Request parameters object not found");
             return;
         }
@@ -671,7 +682,7 @@ if (kioskQueries.length > 0) {
 
                 const sanitizedValue = DOMPurify.sanitize(q.value);
 
-                e.detail.parameters.append(q.name, sanitizedValue);
+                e.detail.ctx.request.form.append(q.name, sanitizedValue);
             });
         } catch (error) {
             console.error("Error processing parameters:", error);

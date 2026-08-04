@@ -47,7 +47,7 @@ tasks:
     dir: ./frontend
     desc: Build JavaScript assets
     cmds:
-      - node_modules/.bin/esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --minify --target=es6 --outfile=./public/assets/js/kiosk.js
+      - node_modules/.bin/esbuild 'src/ts/kiosk.ts' --format=iife --global-name=kiosk --bundle --outfile=./public/assets/js/kiosk.js
 
   frontend:url-builder:
     dir: ./frontend
