@@ -639,9 +639,12 @@ function clientData(): BrowserData {
     return data;
 }
 
-function kioskClass(classOn: string | null = null, classOff: string | null = null): void {
-  if (classOff) kioskContainer?.classList.remove(classOff);
-	if (classOn) kioskContainer?.classList.add(classOn);
+function kioskClass(
+    classOn: string | null = null,
+    classOff: string | null = null,
+): void {
+    if (classOff) kioskContainer?.classList.remove(classOff);
+    if (classOn) kioskContainer?.classList.add(classOn);
 }
 
 // Add kiosk query parameters to HTMX requests
