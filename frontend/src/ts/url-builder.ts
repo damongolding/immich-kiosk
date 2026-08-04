@@ -1,5 +1,4 @@
 import Choices from "choices.js";
-import "htmx.org";
 
 type choicesOptions = Record<string, unknown>;
 

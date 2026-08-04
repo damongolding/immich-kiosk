@@ -1,11 +1,9 @@
-import htmx from "htmx.org";
-
 import { muteVideo, unmuteVideo } from "./polling";
 import { storageUtils } from "./storage";
 
 let isMuted = true;
 
-const muteButton = htmx.find(".navigation--mute") as HTMLElement | null;
+const muteButton = document.querySelector(".navigation--mute");
 
 export type VideoMuteStatus = {
     muted: boolean;
