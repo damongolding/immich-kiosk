@@ -143,6 +143,15 @@ const (
 	Srgb Colorspace = "srgb"
 )
 
+// Defines values for HlsVideoResolution.
+const (
+	N1080 HlsVideoResolution = 1080
+	N1440 HlsVideoResolution = 1440
+	N2160 HlsVideoResolution = 2160
+	N480  HlsVideoResolution = 480
+	N720  HlsVideoResolution = 720
+)
+
 // Defines values for ImageFormat.
 const (
 	Jpeg ImageFormat = "jpeg"
@@ -1966,6 +1975,9 @@ type FoldersUpdate struct {
 	// SidebarWeb Whether folders appear in web sidebar
 	SidebarWeb *bool `json:"sidebarWeb,omitempty"`
 }
+
+// HlsVideoResolution HLS video resolution
+type HlsVideoResolution int
 
 // ImageFormat Image format
 type ImageFormat string
@@ -4128,6 +4140,12 @@ type SystemConfigFFmpegDto struct {
 type SystemConfigFFmpegRealtimeDto struct {
 	// Enabled Enable real-time HLS transcoding (alpha)
 	Enabled bool `json:"enabled"`
+
+	// Resolutions Resolutions to use for real-time HLS transcoding
+	Resolutions []HlsVideoResolution `json:"resolutions"`
+
+	// VideoCodecs Video codecs to use for real-time HLS transcoding
+	VideoCodecs []VideoCodec `json:"videoCodecs"`
 }
 
 // SystemConfigFacesDto defines model for SystemConfigFacesDto.
@@ -4199,7 +4217,7 @@ type SystemConfigIntegrityChecksumJob struct {
 	Enabled bool `json:"enabled"`
 
 	// PercentageLimit Percentage limit of the integrity checksum job
-	PercentageLimit int `json:"percentageLimit"`
+	PercentageLimit float64 `json:"percentageLimit"`
 
 	// TimeLimit How long the integrity checksum job may run for
 	TimeLimit int `json:"timeLimit"`
@@ -5392,7 +5410,7 @@ type ReverseGeocodeParams struct {
 // SearchMemoriesParams defines parameters for SearchMemories.
 type SearchMemoriesParams struct {
 	// For Filter by date
-	For *time.Time `form:"for,omitempty" json:"for,omitempty"`
+	For *openapi_types.Date `form:"for,omitempty" json:"for,omitempty"`
 
 	// IsSaved Filter by saved status
 	IsSaved *bool `form:"isSaved,omitempty" json:"isSaved,omitempty"`
@@ -5409,7 +5427,7 @@ type SearchMemoriesParams struct {
 // MemoriesStatisticsParams defines parameters for MemoriesStatistics.
 type MemoriesStatisticsParams struct {
 	// For Filter by date
-	For *time.Time `form:"for,omitempty" json:"for,omitempty"`
+	For *openapi_types.Date `form:"for,omitempty" json:"for,omitempty"`
 
 	// IsSaved Filter by saved status
 	IsSaved *bool `form:"isSaved,omitempty" json:"isSaved,omitempty"`
@@ -5592,6 +5610,12 @@ type SearchLargeAssetsParams struct {
 
 	// WithExif Include EXIF data in response
 	WithExif *bool `form:"withExif,omitempty" json:"withExif,omitempty"`
+}
+
+// SearchAssetsParams defines parameters for SearchAssets.
+type SearchAssetsParams struct {
+	Key  *string `form:"key,omitempty" json:"key,omitempty"`
+	Slug *string `form:"slug,omitempty" json:"slug,omitempty"`
 }
 
 // SearchPersonParams defines parameters for SearchPerson.
@@ -6970,9 +6994,9 @@ type ClientInterface interface {
 	SearchLargeAssets(ctx context.Context, params *SearchLargeAssetsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SearchAssetsWithBody request with any body
-	SearchAssetsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchAssetsWithBody(ctx context.Context, params *SearchAssetsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SearchAssets(ctx context.Context, body SearchAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SearchAssets(ctx context.Context, params *SearchAssetsParams, body SearchAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SearchPerson request
 	SearchPerson(ctx context.Context, params *SearchPersonParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -10078,8 +10102,8 @@ func (c *Client) SearchLargeAssets(ctx context.Context, params *SearchLargeAsset
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchAssetsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchAssetsRequestWithBody(c.Server, contentType, body)
+func (c *Client) SearchAssetsWithBody(ctx context.Context, params *SearchAssetsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchAssetsRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10090,8 +10114,8 @@ func (c *Client) SearchAssetsWithBody(ctx context.Context, contentType string, b
 	return c.Client.Do(req)
 }
 
-func (c *Client) SearchAssets(ctx context.Context, body SearchAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSearchAssetsRequest(c.Server, body)
+func (c *Client) SearchAssets(ctx context.Context, params *SearchAssetsParams, body SearchAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchAssetsRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -19789,18 +19813,18 @@ func NewSearchLargeAssetsRequest(server string, params *SearchLargeAssetsParams)
 }
 
 // NewSearchAssetsRequest calls the generic SearchAssets builder with application/json body
-func NewSearchAssetsRequest(server string, body SearchAssetsJSONRequestBody) (*http.Request, error) {
+func NewSearchAssetsRequest(server string, params *SearchAssetsParams, body SearchAssetsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewSearchAssetsRequestWithBody(server, "application/json", bodyReader)
+	return NewSearchAssetsRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewSearchAssetsRequestWithBody generates requests for SearchAssets with any type of body
-func NewSearchAssetsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewSearchAssetsRequestWithBody(server string, params *SearchAssetsParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -19816,6 +19840,44 @@ func NewSearchAssetsRequestWithBody(server string, contentType string, body io.R
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Key != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "key", runtime.ParamLocationQuery, *params.Key); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Slug != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "slug", runtime.ParamLocationQuery, *params.Slug); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
@@ -24553,9 +24615,9 @@ type ClientWithResponsesInterface interface {
 	SearchLargeAssetsWithResponse(ctx context.Context, params *SearchLargeAssetsParams, reqEditors ...RequestEditorFn) (*SearchLargeAssetsResponse, error)
 
 	// SearchAssetsWithBodyWithResponse request with any body
-	SearchAssetsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchAssetsResponse, error)
+	SearchAssetsWithBodyWithResponse(ctx context.Context, params *SearchAssetsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchAssetsResponse, error)
 
-	SearchAssetsWithResponse(ctx context.Context, body SearchAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchAssetsResponse, error)
+	SearchAssetsWithResponse(ctx context.Context, params *SearchAssetsParams, body SearchAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchAssetsResponse, error)
 
 	// SearchPersonWithResponse request
 	SearchPersonWithResponse(ctx context.Context, params *SearchPersonParams, reqEditors ...RequestEditorFn) (*SearchPersonResponse, error)
@@ -32421,16 +32483,16 @@ func (c *ClientWithResponses) SearchLargeAssetsWithResponse(ctx context.Context,
 }
 
 // SearchAssetsWithBodyWithResponse request with arbitrary body returning *SearchAssetsResponse
-func (c *ClientWithResponses) SearchAssetsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchAssetsResponse, error) {
-	rsp, err := c.SearchAssetsWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) SearchAssetsWithBodyWithResponse(ctx context.Context, params *SearchAssetsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SearchAssetsResponse, error) {
+	rsp, err := c.SearchAssetsWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseSearchAssetsResponse(rsp)
 }
 
-func (c *ClientWithResponses) SearchAssetsWithResponse(ctx context.Context, body SearchAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchAssetsResponse, error) {
-	rsp, err := c.SearchAssets(ctx, body, reqEditors...)
+func (c *ClientWithResponses) SearchAssetsWithResponse(ctx context.Context, params *SearchAssetsParams, body SearchAssetsJSONRequestBody, reqEditors ...RequestEditorFn) (*SearchAssetsResponse, error) {
+	rsp, err := c.SearchAssets(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

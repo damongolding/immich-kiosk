@@ -1,0 +1,142 @@
+.transition-slide {
+    .frame {
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        animation-fill-mode: forwards;
+        will-change: transform;
+    }
+
+    &.transition-slide-random {
+        .transition-slide-right.frame.htmx-added {
+            animation-name: slide-right;
+        }
+
+        .transition-slide-left.frame.htmx-added {
+            animation-name: slide-left;
+        }
+
+        .transition-slide-up.frame.htmx-added {
+            animation-name: slide-up;
+        }
+
+        .transition-slide-down.frame.htmx-added {
+            animation-name: slide-down;
+        }
+    }
+
+    &.transition-slide-right {
+        .frame.htmx-added {
+            animation-name: slide-right;
+        }
+
+        .frame:has(+ div.htmx-added) {
+            animation-name: slide-right-out;
+        }
+    }
+
+    &.transition-slide-left {
+        .frame.htmx-added {
+            animation-name: slide-left;
+        }
+        .frame:has(+ div.htmx-added) {
+            animation-name: slide-left-out;
+        }
+    }
+
+    &.transition-slide-up {
+        .frame.htmx-added {
+            animation-name: slide-up;
+        }
+        .frame:has(+ div.htmx-added) {
+            animation-name: slide-up-out;
+        }
+    }
+
+    &.transition-slide-down {
+        .frame.htmx-added {
+            animation-name: slide-down;
+        }
+        .frame:has(+ div.htmx-added) {
+            animation-name: slide-down-out;
+        }
+    }
+}
+
+@keyframes slide-right {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-right-out {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(15%);
+    }
+}
+
+@keyframes slide-left {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-left-out {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-15%);
+    }
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-up-out {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-15%);
+    }
+}
+
+@keyframes slide-down {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-down-out {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(15%);
+    }
+}

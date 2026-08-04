@@ -22,8 +22,8 @@
     transform: scaleX(0) translateZ(0);
     transform-origin: left;
     -webkit-perspective: 1000;
+    perspective: 1000;
     backface-visibility: hidden;
-    transition: transform 0.05s linear;
+    /*transition: transform 0.05s linear;*/
     will-change: transform;
-    /* border-radius: 0 1rem 1rem 0; */
 }

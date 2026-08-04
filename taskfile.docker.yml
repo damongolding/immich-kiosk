@@ -16,7 +16,7 @@ tasks:
     cmds:
       - docker buildx create --name multiplatform --driver docker-container --use
 
-  docker:dev-push:
+  docker:dev-push-orb:
     desc: Build and push development multi-arch docker image
     cmds:
       - cmd: orb start
@@ -24,6 +24,11 @@ tasks:
       - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t ghcr.io/damongolding/immich-kiosk-development:{{.VERSION}} -t ghcr.io/damongolding/immich-kiosk-development:latest .
       - cmd: orb stop
         if: "command -v orb >/dev/null 2>&1"
+
+  docker:dev-push:
+    desc: Build and push development multi-arch docker image
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}}-DEVELOPMENT --platform linux/amd64,linux/arm64 --push -t ghcr.io/damongolding/immich-kiosk-development:{{.VERSION}} -t ghcr.io/damongolding/immich-kiosk-development:latest .
 
   docker:push:
     desc: Build and push development multi-arch docker image

@@ -4,10 +4,12 @@ import (
 	"charm.land/log/v2"
 	"encoding/json"
 	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/webhooks"
 	"net/url"
 	"time"
+	"fmt"
 )
 
 func webhookAttributes(viewData common.ViewData, event, secret string) templ.Attributes {
@@ -46,23 +48,40 @@ func webhookAttributes(viewData common.ViewData, event, secret string) templ.Att
 	return attr
 }
 
+func prevAssetTrigger(c config.Config) string {
+
+	var throttle float32
+
+	switch c.Transition {
+		case "push-right", "push-left", "push-down", "push-up", "push-random":
+			throttle = c.PushTransitionDuration
+		case "slide-right", "slide-left", "slide-down", "slide-up", "slide-random":
+			throttle = c.SlideTransitionDuration
+		default:
+			throttle = 1.0
+	}
+
+	return fmt.Sprintf(`
+	 click throttle:%fs,
+	 click from:.navigation--prev-asset throttle:%fs,
+	 keyup[key=='ArrowLeft'] from:body throttle:%fs,
+	 kiosk-prev-asset throttle:%fs
+	`, throttle, throttle, throttle, throttle)
+}
+
 templ Menu(viewData common.ViewData, queries url.Values, secret string) {
-	{{ t := i18n.T() }}
-	{{ hasCustomNavigation := viewData.Webhooks.ContainsEvent(webhooks.UserNavigationCustom.String()) }}
+	{{
+		t := i18n.T()
+		hasCustomNavigation := viewData.Webhooks.ContainsEvent(webhooks.UserNavigationCustom.String())
+	}}
 	<nav id={ "navigation-interaction-area" }>
 		<div
 			id="navigation-interaction-area--previous-asset"
 			hx-post="/asset/previous"
 			hx-target="#kiosk"
 			hx-include=".kiosk-history--entry"
-			hx-trigger="
-			  click throttle:1s,
-			  click from:.navigation--prev-asset throttle:1s,
-			  keyup[key=='ArrowLeft'] from:body throttle:1s,
-			  kiosk-prev-asset throttle:1s
-			"
+			hx-trigger={ prevAssetTrigger(viewData.Config) }
 			hx-on::before-request="kiosk.checkHistoryExists(event)"
-			hx-on::after-request="kiosk.startPolling()"
 			hx-on::after-swap="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
 		></div>
 		<div id="navigation-interaction-area--menu" class={ "navigation-interaction-area--menu-" + viewData.MenuPosition, templ.KV("has-custom-navigation", hasCustomNavigation) }></div>

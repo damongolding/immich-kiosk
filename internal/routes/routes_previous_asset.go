@@ -17,6 +17,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/templates/components"
 	imageComponent "github.com/damongolding/immich-kiosk/internal/templates/components/image"
 	videoComponent "github.com/damongolding/immich-kiosk/internal/templates/components/video"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -151,11 +152,63 @@ func historyAsset(baseConfig *config.Config, com *common.Common, c *echo.Context
 
 	go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhookEvent, viewData)
 
+	s := transitionHandler(useNextImage, requestConfig.Transition)
+
 	if len(viewData.Assets) > 0 && requestConfig.ShowVideos && viewData.Assets[0].ImmichAsset.Type == immich.VideoType {
-		return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret()))
+		return Render(c, http.StatusOK, videoComponent.Video(viewData, com.Secret(), s...))
 	}
 
-	return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret()))
+	return Render(c, http.StatusOK, imageComponent.Image(viewData, com.Secret(), s...))
+}
+
+var oppositeDirection = map[string]string{
+	"left":  "right",
+	"right": "left",
+	"up":    "down",
+	"down":  "up",
+}
+
+func transitionHandler(useNextImage bool, transition string) []components.AssetScript {
+	if !isSlideOrPushTransition(transition) {
+		return nil
+	}
+
+	transitionType, direction, ok := splitTransition(transition)
+	if !ok {
+		return nil
+	}
+
+	opposite := oppositeDirection[direction]
+
+	from := fmt.Sprintf("transition-%s-%s", transitionType, direction)
+	to := fmt.Sprintf("transition-%s-%s", transitionType, opposite)
+
+	if !useNextImage {
+		// user wants a previous image, so the transition should go from the opposite direction
+		from, to = to, from
+	}
+
+	return []components.AssetScript{
+		{
+			FuncName: "kiosk.kioskClass",
+			Args:     []any{from, to},
+		},
+	}
+}
+
+func isSlideOrPushTransition(transition string) bool {
+	if strings.Contains(transition, "random") {
+		return false
+	}
+	return strings.Contains(transition, "push") || strings.Contains(transition, "slide")
+}
+
+func splitTransition(transition string) (string, string, bool) {
+	parts := strings.Split(transition, "-")
+	if len(parts) < 2 {
+		return "", "", false
+	}
+	return parts[0], parts[1], true
 }
 
 // getHistoryAsset returns a function that processes a single asset from the navigation history.

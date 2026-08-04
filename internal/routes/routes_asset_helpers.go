@@ -683,7 +683,7 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 // Checks for faces if smart-zoom is enabled and draws faces if configured.
 // Returns the processed image.
 func handleFaceProcessing(img image.Image, asset *immich.Asset, config config.Config, metadata requestMetadata) image.Image {
-	if strings.EqualFold(config.ImageEffect, "smart-zoom") && len(asset.People) > 0 {
+	if strings.EqualFold(config.ImageEffect, "smart-zoom") || (strings.EqualFold(config.ImageFit, "cover") && !strings.EqualFold(config.ImageEffect, "zoom")) {
 		asset.AddFaces(metadata.requestID, metadata.deviceID)
 	}
 

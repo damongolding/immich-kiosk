@@ -73,7 +73,7 @@ func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     path.Join("api", "memories"),
-		RawQuery: fmt.Sprintf("for=%s&pastDays=%d", url.PathEscape(startOfDay.Format("2006-01-02T15:04:05.000Z")), days),
+		RawQuery: fmt.Sprintf("for=%s&pastDays=%d", url.PathEscape(startOfDay.Format("2006-01-02")), days),
 	}
 
 	// If we want the memories assets count we will use a separate cache entry
@@ -154,7 +154,7 @@ func (a *Asset) memories(requestID, deviceID string, assetCount bool, days int) 
 		Scheme:   u.Scheme,
 		Host:     u.Host,
 		Path:     path.Join("api", "memories"),
-		RawQuery: fmt.Sprintf("for=%s", url.PathEscape(startOfDay.Format("2006-01-02T15:04:05.000Z"))),
+		RawQuery: fmt.Sprintf("for=%s", url.PathEscape(startOfDay.Format("2006-01-02"))),
 	}
 
 	// If we want the memories assets count we will use a separate cache entry
