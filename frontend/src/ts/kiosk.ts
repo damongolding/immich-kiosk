@@ -152,7 +152,8 @@ let burnInTimerId: number | null = null;
  */
 async function init(): Promise<void> {
 
-  htmx.config.implicitInheritance = true;
+  // htmx.config.implicitInheritance = true;
+  htmx.config.noSwap = [204, 304];
 
     if (kioskData.debugVerbose) {
         htmx.config.logAll = true;
@@ -393,7 +394,7 @@ function addEventListeners(): void {
             return;
         }
 
-        if (e.detail.ctx.response.status === 200) {
+        if (e.detail.ctx.response.status === 200 || e.detail.ctx.response.status === 204) {
             offlineSVG.classList.remove("offline");
             timeouts[e.detail.ctx.request.action] = 0;
         } else {
@@ -411,24 +412,24 @@ function addEventListeners(): void {
         }
     });
 
-    // htmx.on("htmx:error", (event: Event) => {
-    //   const e = event as HTMXEvent;
+    htmx.on("htmx:error", (event: Event) => {
+      const e = event as HTMXEvent;
 
-    //   console.log("error", e);
+      console.log("error", e);
 
-    //     let currentTimeout = timeouts[e.detail.ctx.request.action];
+        let currentTimeout = timeouts[e.detail.ctx.request.action];
 
-    //     currentTimeout =
-    //         currentTimeout === undefined || Number.isNaN(currentTimeout)
-    //             ? 1
-    //             : currentTimeout + 1;
+        currentTimeout =
+            currentTimeout === undefined || Number.isNaN(currentTimeout)
+                ? 1
+                : currentTimeout + 1;
 
-    //     timeouts[e.detail.ctx.request.action] = currentTimeout;
+        timeouts[e.detail.ctx.request.action] = currentTimeout;
 
-    //     if (currentTimeout > TIMEOUT_RETRIES) {
-    //         window.location.reload();
-    //     }
-    // });
+        if (currentTimeout > TIMEOUT_RETRIES) {
+            window.location.reload();
+        }
+    });
 
     if (kioskData.disableNavigation) {
         console.log("Navigation disabled");
