@@ -8,15 +8,15 @@ import (
 
 func TestURLBuilderRequestEncodesWeatherFields(t *testing.T) {
 	req := URLBuilderRequest{
-		Weather:                     ptr("london"),
-		WeatherRotationInterval:     ptr(uint64(30)),
-		WeatherShowForecast:         ptr(true),
-		WeatherShowHumidity:         ptr(false),
-		WeatherShowWind:             ptr(true),
-		WeatherShowWindDirection:    ptr(false),
-		WeatherShowVisibility:       ptr(true),
-		WeatherShowTemperatureRange: ptr(false),
-		WeatherRoundTemperature:     ptr(true),
+		Weather:                     new("london"),
+		WeatherRotationInterval:     new(uint64(30)),
+		WeatherShowForecast:         new(true),
+		WeatherShowHumidity:         new(false),
+		WeatherShowWind:             new(true),
+		WeatherShowWindDirection:    new(false),
+		WeatherShowVisibility:       new(true),
+		WeatherShowTemperatureRange: new(false),
+		WeatherRoundTemperature:     new(true),
 	}
 
 	values, err := query.Values(req)
@@ -40,8 +40,4 @@ func assertQueryValue(t *testing.T, actual string, expected string) {
 	if actual != expected {
 		t.Fatalf("expected %q, got %q", expected, actual)
 	}
-}
-
-func ptr[T any](value T) *T {
-	return &value
 }
