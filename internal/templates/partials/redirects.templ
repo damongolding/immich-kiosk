@@ -17,23 +17,72 @@ func checkAuthParam(queries url.Values) (bool, string, string) {
 	return false, "", ""
 }
 
+type RedirectGroup struct {
+	Category  string
+	Redirects []config.Redirect
+}
+
+func groupRedirects(redirects []config.Redirect) []RedirectGroup {
+	var groups []RedirectGroup
+	categoryMap := make(map[string]int)
+
+	noCategoryGroup := RedirectGroup{Category: ""}
+
+	for _, r := range redirects {
+		if r.Category == "" {
+			noCategoryGroup.Redirects = append(noCategoryGroup.Redirects, r)
+		} else {
+			idx, exists := categoryMap[r.Category]
+			if !exists {
+				groups = append(groups, RedirectGroup{
+					Category:  r.Category,
+					Redirects: []config.Redirect{r},
+				})
+				categoryMap[r.Category] = len(groups) - 1
+			} else {
+				groups[idx].Redirects = append(groups[idx].Redirects, r)
+			}
+		}
+	}
+
+	if len(noCategoryGroup.Redirects) > 0 {
+		return append([]RedirectGroup{noCategoryGroup}, groups...)
+	}
+
+	return groups
+}
+
+templ RedirectList(redirects []config.Redirect, hasPassword bool, password, paramType string) {
+    for _, redirect := range redirects {
+        {{ redirectName, _ := strings.CutPrefix(redirect.Name, "/") }}
+        if hasPassword {
+            <a href={ templ.SafeURL(fmt.Sprintf("/%s?%s=%s", redirectName, paramType, password)) }>{ redirectName }</a>
+        } else {
+            <a href={ templ.SafeURL(fmt.Sprintf("/%s", redirectName)) }>{ redirectName }</a>
+        }
+    }
+}
+
 templ Redirects(redirects []config.Redirect, queries url.Values) {
-	{{ hasPassword, password, paramType := checkAuthParam(queries) }}
-	<div id="redirects-container">
-		<div class="redirects">
-			<div class="redirects--shadow">
-				if hasPassword {
-					<a href={ templ.SafeURL("/?" + paramType + "=" + password) }>Home</a>
-				}
-				for _ , redirect := range redirects {
-					{{ redirectName, _ := strings.CutPrefix(redirect.Name, "/") }}
-					if hasPassword {
-						<a href={ templ.SafeURL(fmt.Sprintf("/%s?%s=%s", redirectName, paramType, password)) }>{ redirectName }</a>
-					} else {
-						<a href={ templ.SafeURL(fmt.Sprintf("/%s", redirectName)) }>{ redirectName }</a>
-					}
-				}
-			</div>
-		</div>
-	</div>
+    {{ hasPassword, password, paramType := checkAuthParam(queries) }}
+    {{ groupedRedirects := groupRedirects(redirects) }}
+    <div id="redirects-container">
+        <div class="redirects">
+            <div class="redirects--shadow">
+                if hasPassword {
+                    <a href={ templ.SafeURL("/?" + paramType + "=" + password) }>Home</a>
+                }
+                for _, group := range groupedRedirects {
+                    if group.Category == "" {
+                        @RedirectList(group.Redirects, hasPassword, password, paramType)
+                    } else {
+                        <div class="redirect-category">
+                            <h3 class="category-title">{ group.Category }</h3>
+                            @RedirectList(group.Redirects, hasPassword, password, paramType)
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
 }

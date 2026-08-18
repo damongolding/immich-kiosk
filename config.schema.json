@@ -647,6 +647,9 @@
               "url": {
                 "type": "string"
               },
+              "category": {
+                "type": "string"
+              },
               "type": {
                 "type": "string"
               }
