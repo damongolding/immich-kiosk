@@ -84,6 +84,28 @@
         color: var(--cool-grey);
         background-color: var(--mint-green);
     }
+
+    .redirect-category {
+        margin-top: 1.5rem;
+    }
+
+    .category-title {
+        margin: 0;
+        margin-bottom: 0.5rem;
+        padding: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .redirect-category a {
+        padding-left: 3rem;
+        @media (max-width: 768px) {
+            padding-left: 1rem;
+        }
+    }
 }
 
 /* .frameless */

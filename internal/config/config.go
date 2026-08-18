@@ -89,6 +89,8 @@ type Redirect struct {
 	URL string `yaml:"url" mapstructure:"url" redact:"true"`
 	// Type specifies the redirect behaviour (e.g., "internal", "external")
 	Type string `yaml:"type" mapstructure:"type"`
+	// Category: an optional category for grouping redirects
+	Category string `yaml:"category" mapstructure:"category"`
 }
 
 type KioskSettings struct {
