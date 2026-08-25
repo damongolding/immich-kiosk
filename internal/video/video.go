@@ -123,9 +123,9 @@ func (v *Manager) cleanup() {
 
 	now := time.Now()
 
-	for i := len(v.Videos) - 1; i >= 0; i-- {
-		if now.Sub(v.Videos[i].LastAccessed) > v.MaxAge {
-			v.RemoveVideo(v.Videos[i].ID)
+	for _, v0 := range slices.Backward(v.Videos) {
+		if now.Sub(v0.LastAccessed) > v.MaxAge {
+			v.RemoveVideo(v0.ID)
 		}
 	}
 }
@@ -231,7 +231,7 @@ func (v *Manager) DownloadVideo(immichAsset immich.Asset, requestConfig config.C
 	ext := filepath.Ext(immichAsset.OriginalFileName)
 	if strings.HasPrefix(contentType, "video/") {
 		immichAsset.ServedMimeType = contentType
-		mediaType := strings.Split(contentType, ";")[0]
+		mediaType, _, _ := strings.Cut(contentType, ";")
 		parts := strings.Split(mediaType, "/")
 		if len(parts) == 2 && parts[1] != "" {
 			ext = "." + parts[1]
