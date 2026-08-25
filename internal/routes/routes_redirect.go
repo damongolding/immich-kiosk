@@ -61,7 +61,7 @@ func Redirect(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Redirect name is required")
 		}
 
-		if redirectItem, exists := baseConfig.Kiosk.RedirectsMap[redirectName]; exists {
+		if redirectItem, exists := baseConfig.RedirectsMap[redirectName]; exists {
 
 			if strings.EqualFold(redirectItem.Type, kiosk.RedirectExternal) {
 				c.SetCookie(&http.Cookie{
@@ -118,7 +118,7 @@ func Redirect(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 // 1. Extracts queries from both the request and redirect URL
 // 2. Merges them using utils.MergeQueries
 // 3. Updates the redirect URL with the combined query string
-func mergeRequestQueries(requestQueries url.Values, redirectItem config.Redirect) config.Redirect {
+func mergeRequestQueries(requestQueries url.Values, redirectItem config.RedirectItem) config.RedirectItem {
 	redirectURL, err := url.Parse(redirectItem.URL)
 	if err != nil {
 		log.Error("parse redirect URL", "url", redirectItem.URL, "err", err)

@@ -95,8 +95,8 @@ templ Menu(viewData common.ViewData, queries url.Values, secret string) {
 		<div id="navigation-interaction-area--next-asset"></div>
 	</nav>
 	<div id="more-info" hx-swap-oob="true"></div>
-	if len(viewData.Kiosk.Redirects) > 0 {
-		@Redirects(viewData.Kiosk.Redirects, queries)
+	if len(viewData.Redirects.Items) > 0 {
+		@Redirects(viewData.Config , viewData.Redirects, queries)
 	}
 	<nav class={ "navigation navigation-hidden", "navigation-"+viewData.MenuPosition }>
 		<div class="navigation--media-buttons rounded">
@@ -142,7 +142,7 @@ templ Menu(viewData common.ViewData, queries url.Values, secret string) {
 				</svg>
 			</div>
 		}
-		if len(viewData.Kiosk.Redirects) > 0 {
+		if len(viewData.Redirects.Items) > 0 {
 			<div
 				class="navigation--item navigation--links rounded"
 				role="navigation"

@@ -81,8 +81,13 @@ type OfflineMode struct {
 	Enabled bool `yaml:"enabled" mapstructure:"enabled" default:"false"`
 }
 
-// Redirect represents a URL redirection configuration with a friendly name.
-type Redirect struct {
+type Redirects struct {
+	ShowAlbums bool           `yaml:"show_albums" mapstructure:"show_albums" default:"false"`
+	Items      []RedirectItem `yaml:"items" mapstructure:"items" default:"[]"`
+}
+
+// RedirectItem represents a URL redirection configuration with a friendly name.
+type RedirectItem struct {
 	// Name is the friendly identifier used to access the redirect
 	Name string `yaml:"name" mapstructure:"name" redact:"true"`
 	// URL is the destination address for the redirect
@@ -94,9 +99,6 @@ type Redirect struct {
 }
 
 type KioskSettings struct {
-	// RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
-	RedirectsMap map[string]Redirect `json:"-" yaml:"-"`
-
 	// Version
 	Version string `json:"version" yaml:"version"`
 
@@ -105,8 +107,7 @@ type KioskSettings struct {
 	// Password the password used to add authentication to the frontend
 	Password string `json:"-" yaml:"password" mapstructure:"password" default:"" redact:"true"`
 
-	// Redirects defines a list of URL redirections with friendly names
-	Redirects []Redirect `yaml:"redirects" mapstructure:"redirects" default:"[]"`
+	RedirectsDeprecated []RedirectItem `json:"redirects" yaml:"redirects" mapstructure:"redirects"`
 
 	// Port which port to use
 	Port int `json:"port" yaml:"port" mapstructure:"port" default:"3000"`
@@ -483,6 +484,11 @@ type Config struct {
 	QrCodeOpenInApp bool `json:"qrCodeOpenInApp" yaml:"qr_code_open_in_app" mapstructure:"qr_code_open_in_app" query:"qr_code_open_in_app" form:"qr_code_open_in_app" default:"true"`
 
 	Weather WeatherConfig `json:"weather" yaml:"weather" mapstructure:"weather"`
+
+	// RedirectsMap provides O(1) lookup of redirect URLs by their friendly name
+	RedirectsMap map[string]RedirectItem `json:"-" yaml:"-"`
+	// Redirects defines a list of URL redirections with friendly names
+	Redirects Redirects `yaml:"redirects" mapstructure:"redirects" default:"[]"`
 
 	Iframe []string `json:"iframe" yaml:"iframe" mapstructure:"iframe" query:"iframe" form:"iframe" default:"[]"`
 

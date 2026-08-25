@@ -393,10 +393,16 @@ func (c *Config) checkFetchedAssetsSize() {
 // The function updates the Config's RedirectsMap field with valid redirects.
 // Invalid redirects are logged as warnings and excluded from the final map.
 func (c *Config) checkRedirects() {
-	redirects := make(map[string]Redirect)
+	redirects := make(map[string]RedirectItem)
 	seen := make(map[string]bool)
 
-	for _, r := range c.Kiosk.Redirects {
+	if len(c.Kiosk.RedirectsDeprecated) > 0 && len(c.Redirects.Items) == 0 {
+		log.Warn("Redirects in the kiosk object are deprecated. See https://docs.immichkiosk.app/configuration/redirects for new configuration details.")
+		c.Redirects.Items = c.Kiosk.RedirectsDeprecated
+		c.Kiosk.RedirectsDeprecated = nil
+	}
+
+	for _, r := range c.Redirects.Items {
 		if r.Name == "" {
 			log.Warn("Skipping redirect with empty name", "url", r.URL)
 			continue
@@ -419,7 +425,7 @@ func (c *Config) checkRedirects() {
 		if strings.HasPrefix(r.URL, "?") {
 			r.URL = "/" + r.URL
 		}
-		redirects[r.Name] = Redirect{
+		redirects[r.Name] = RedirectItem{
 			URL:  r.URL,
 			Type: r.Type,
 		}
@@ -460,7 +466,7 @@ func (c *Config) checkRedirects() {
 		}
 	}
 
-	c.Kiosk.RedirectsMap = redirects
+	c.RedirectsMap = redirects
 }
 
 // checkAlbumOrder validates the album order value and sets it to the default if invalid.

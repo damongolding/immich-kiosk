@@ -502,6 +502,35 @@
       },
       "required": ["locations"]
     },
+    "redirects": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "show_albums": {
+          "type": "boolean",
+          "default": false
+        },
+        "items": {
+          "type": "array",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "category": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "required": ["name", "url"]
+        }
+      }
+    },
     "webhooks": {
       "type": "array",
       "items": {
@@ -634,28 +663,6 @@
         },
         "enable_url_builder": {
           "type": "boolean"
-        },
-        "redirects": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "url": {
-                "type": "string"
-              },
-              "category": {
-                "type": "string"
-              },
-              "type": {
-                "type": "string"
-              }
-            },
-            "required": ["name", "url"]
-          }
         },
         "demo_mode": {
           "type": "boolean"
