@@ -2,6 +2,7 @@ package views
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -16,6 +17,16 @@ import (
 )
 
 type ChoicesOptions map[string]any
+
+// urlBuilderNavLink returns path unchanged if no password is set, otherwise
+// appends the password as a query param so navigating between the basic and
+// extended url-builder pages doesn't drop authentication.
+func urlBuilderNavLink(path, password string) string {
+	if password == "" {
+		return path
+	}
+	return path + "?password=" + url.QueryEscape(password)
+}
 
 func weatherLocationOptions(locations []config.WeatherLocation) []string {
 	var options []string
@@ -56,9 +67,9 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 			<div class="content">
 				<h1>{ t("url_builder") }</h1>
 				if !extended {
-					<a href="/url-builder/extended" class="extended-link">{ t("extended_options") }</a>
+					<a href={ templ.SafeURL(urlBuilderNavLink("/url-builder/extended", c.Kiosk.Password)) } class="extended-link">{ t("extended_options") }</a>
 				} else {
-					<a href="/url-builder" class="extended-link">{ t("basic_options") }</a>
+					<a href={ templ.SafeURL(urlBuilderNavLink("/url-builder", c.Kiosk.Password)) } class="extended-link">{ t("basic_options") }</a>
 				}
 				<form
 					id="url-builder-form"
