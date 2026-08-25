@@ -31,18 +31,20 @@ func groupRedirects(redirects []config.Redirect) []RedirectGroup {
 	for _, r := range redirects {
 		if r.Category == "" {
 			noCategoryGroup.Redirects = append(noCategoryGroup.Redirects, r)
-		} else {
-			idx, exists := categoryMap[r.Category]
-			if !exists {
-				groups = append(groups, RedirectGroup{
-					Category:  r.Category,
-					Redirects: []config.Redirect{r},
-				})
-				categoryMap[r.Category] = len(groups) - 1
-			} else {
-				groups[idx].Redirects = append(groups[idx].Redirects, r)
-			}
+			continue
 		}
+
+		idx, exists := categoryMap[r.Category]
+		if !exists {
+			groups = append(groups, RedirectGroup{
+				Category:  r.Category,
+				Redirects: []config.Redirect{r},
+			})
+			categoryMap[r.Category] = len(groups) - 1
+		} else {
+			groups[idx].Redirects = append(groups[idx].Redirects, r)
+		}
+
 	}
 
 	if len(noCategoryGroup.Redirects) > 0 {
