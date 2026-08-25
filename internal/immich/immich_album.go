@@ -309,10 +309,9 @@ func (a *Asset) AssetFromAlbum(albumID string, requestID, deviceID string) error
 				// from Immich V3 album assets use the PaginatedMetadataResponse type
 				assetsToCache := PaginatedMetadataResponse{
 					URL: apiURL,
+					// Remove the current image from the slice
+					Assets: slices.Delete(album.Assets, assetIndex, assetIndex+1),
 				}
-
-				// Remove the current image from the slice
-				assetsToCache.Assets = slices.Delete(album.Assets, assetIndex, assetIndex+1)
 
 				jsonBytes, marshalErr := json.Marshal(assetsToCache)
 				if marshalErr != nil {

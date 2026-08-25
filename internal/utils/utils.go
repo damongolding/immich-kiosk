@@ -849,7 +849,7 @@ func calculateNormalizedSigma(baseSigma int, width, height int, constant float64
 func SystemLanguage() string {
 	for _, envVar := range []string{"LANG", "LC_ALL", "LC_MESSAGES"} {
 		if lang := os.Getenv(envVar); lang != "" {
-			if parts := strings.Split(lang, ".")[0]; parts != "" {
+			if parts, _, _ := strings.Cut(lang, "."); parts != "" {
 				if code := strings.Split(parts, "_"); len(code) == 2 {
 					return strings.ToLower(code[0]) + "_" + strings.ToUpper(code[1])
 				}
