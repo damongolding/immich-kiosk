@@ -105,7 +105,7 @@ templ Home(viewData common.ViewData, secret string) {
 					"clockSource":        viewData.ClockSource,
 					"transition":         viewData.Transition,
 					"showMoreInfo":       viewData.ShowMoreInfo,
-					"showRedirects":      len(viewData.Kiosk.Redirects) > 0,
+					"showRedirects":      len(viewData.Redirects.Items) > 0,
 					"livePhotos":         viewData.LivePhotos,
 					"livePhotoLoopDelay": viewData.LivePhotoLoopDelay * 1000,
 					"burnInInterval":     viewData.BurnInInterval * 60,
