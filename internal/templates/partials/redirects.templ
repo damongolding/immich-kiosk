@@ -1,10 +1,15 @@
 package partials
 
 import (
+	"context"
 	"fmt"
-	"github.com/damongolding/immich-kiosk/internal/config"
 	"net/url"
 	"strings"
+	"charm.land/log/v2"
+
+	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/immich"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 func checkAuthParam(queries url.Values) (bool, string, string) {
@@ -19,10 +24,10 @@ func checkAuthParam(queries url.Values) (bool, string, string) {
 
 type RedirectGroup struct {
 	Category  string
-	Redirects []config.Redirect
+	Redirects []config.RedirectItem
 }
 
-func groupRedirects(redirects []config.Redirect) []RedirectGroup {
+func groupRedirects(redirects []config.RedirectItem) []RedirectGroup {
 	var groups []RedirectGroup
 	categoryMap := make(map[string]int)
 
@@ -38,7 +43,7 @@ func groupRedirects(redirects []config.Redirect) []RedirectGroup {
 		if !exists {
 			groups = append(groups, RedirectGroup{
 				Category:  r.Category,
-				Redirects: []config.Redirect{r},
+				Redirects: []config.RedirectItem{r},
 			})
 			categoryMap[r.Category] = len(groups) - 1
 		} else {
@@ -54,7 +59,7 @@ func groupRedirects(redirects []config.Redirect) []RedirectGroup {
 	return groups
 }
 
-templ RedirectList(redirects []config.Redirect, hasPassword bool, password, paramType string) {
+templ RedirectList(redirects []config.RedirectItem, hasPassword bool, password, paramType string) {
     for _, redirect := range redirects {
         {{ redirectName, _ := strings.CutPrefix(redirect.Name, "/") }}
         if hasPassword {
@@ -65,9 +70,33 @@ templ RedirectList(redirects []config.Redirect, hasPassword bool, password, para
     }
 }
 
-templ Redirects(redirects []config.Redirect, queries url.Values) {
-    {{ hasPassword, password, paramType := checkAuthParam(queries) }}
-    {{ groupedRedirects := groupRedirects(redirects) }}
+func albumRedirects(c config.Config) []config.RedirectItem {
+    var albumRedirects []config.RedirectItem
+
+    a := immich.New(context.TODO(), c)
+
+    albums, err := a.AllAlbums(kiosk.GlobalCache, a.DeviceID)
+    if err != nil {
+        return albumRedirects
+    }
+
+    for _, album := range albums {
+        albumRedirects = append(albumRedirects, config.RedirectItem{
+            Name: album.AlbumName,
+            URL:  "/?album=" + album.ID,
+            Type: "external",
+        })
+    }
+
+    return albumRedirects
+}
+
+templ Redirects(c config.Config, redirects config.Redirects, queries url.Values) {
+    {{
+    	hasPassword, password, paramType := checkAuthParam(queries)
+     	groupedRedirects := groupRedirects(redirects.Items)
+      	log.Info("Redirects")
+    }}
     <div id="redirects-container">
         <div class="redirects">
             <div class="redirects--shadow">
@@ -83,6 +112,13 @@ templ Redirects(redirects []config.Redirect, queries url.Values) {
                             @RedirectList(group.Redirects, hasPassword, password, paramType)
                         </div>
                     }
+                }
+                if redirects.ShowAlbums {
+	                <div class="redirect-category">
+	                    <h3 class="category-title">Albums</h3>
+	                    {{ albumRedirects := albumRedirects(c) }}
+	                    @RedirectList(albumRedirects, hasPassword, password, paramType)
+	                </div>
                 }
             </div>
         </div>
