@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
+
 	"charm.land/log/v2"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -84,7 +86,11 @@ templ AlbumRedirectList(redirects []config.RedirectItem, hasPassword bool, passw
 func albumRedirects(c config.Config) []config.RedirectItem {
     var albumRedirects []config.RedirectItem
 
-    a := immich.New(context.TODO(), c)
+    to := time.Second * time.Duration(c.Kiosk.HTTPTimeout)
+    ctx, cancel := context.WithTimeout(context.Background(), to)
+    defer cancel()
+
+    a := immich.New(ctx, c)
 
     albums, err := a.AllAlbums(kiosk.GlobalCache, a.DeviceID)
     if err != nil {
