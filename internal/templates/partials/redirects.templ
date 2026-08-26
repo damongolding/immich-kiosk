@@ -112,14 +112,11 @@ templ Redirects(c config.Config, redirects config.Redirects, queries url.Values)
     {{
     	hasPassword, password, paramType := checkAuthParam(queries)
      	groupedRedirects := groupRedirects(redirects.Items)
-      	log.Info("Redirects")
     }}
+
     <div id="redirects-container">
         <div class="redirects">
             <div class="redirects--shadow">
-                if hasPassword {
-                    <a href={ templ.SafeURL("/?" + paramType + "=" + password) }>Home</a>
-                }
                 for _, group := range groupedRedirects {
                     if group.Category == "" {
                         @RedirectList(group.Redirects, hasPassword, password, paramType)
