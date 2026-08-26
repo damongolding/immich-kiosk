@@ -1,5 +1,5 @@
 [tools]
-node = "26"
+node = "26.7"
 go = "1.27"
 task = "latest"
 golangci-lint = "2"
