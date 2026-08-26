@@ -672,6 +672,29 @@
           "items": {
             "type": "string"
           }
+        },
+        "redirects": {
+          "type": "array",
+          "description": "DEPRECATED. See https://docs.immichkiosk.app/configuration/redirects.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "url"]
+          }
         }
       },
       "required": []
