@@ -70,6 +70,17 @@ templ RedirectList(redirects []config.RedirectItem, hasPassword bool, password, 
     }
 }
 
+templ AlbumRedirectList(redirects []config.RedirectItem, hasPassword bool, password, paramType string) {
+    for _, redirect := range redirects {
+        {{ redirectURL, _ := strings.CutPrefix(redirect.URL, "/") }}
+        if hasPassword {
+            <a href={ templ.SafeURL(fmt.Sprintf("/%s?%s=%s", redirectURL, paramType, password)) }>{ redirect.Name }</a>
+        } else {
+            <a href={ templ.SafeURL(fmt.Sprintf("/%s", redirectURL)) }>{ redirect.Name }</a>
+        }
+    }
+}
+
 func albumRedirects(c config.Config) []config.RedirectItem {
     var albumRedirects []config.RedirectItem
 
@@ -117,7 +128,7 @@ templ Redirects(c config.Config, redirects config.Redirects, queries url.Values)
 	                <div class="redirect-category">
 	                    <h3 class="category-title">Albums</h3>
 	                    {{ albumRedirects := albumRedirects(c) }}
-	                    @RedirectList(albumRedirects, hasPassword, password, paramType)
+	                    @AlbumRedirectList(albumRedirects, hasPassword, password, paramType)
 	                </div>
                 }
             </div>
