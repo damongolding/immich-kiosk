@@ -55,11 +55,9 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		requestID := requestData.RequestID
 		deviceID := requestData.DeviceID
 
-		requestConfig := *baseConfig
-		requestConfig.History = requestData.RequestConfig.History
+		requestConfig := requestData.RequestConfig
 		requestConfig.Memories = false
 		requestConfig.ShowVideos = false
-		requestConfig.Theme = requestData.RequestConfig.Theme
 
 		if len(requestConfig.History) > 1 && !strings.HasPrefix(requestConfig.History[len(requestConfig.History)-1], "*") {
 			return NextHistoryAsset(baseConfig, com, c)
@@ -127,13 +125,13 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 				continue
 			}
 
+			viewData.Config = requestConfig
+
 			viewData.KioskVersion = KioskVersion
 			viewData.RequestID = requestID
 			viewData.DeviceID = deviceID
 			utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
 			viewData.History = requestConfig.History
-			viewData.Theme = requestConfig.Theme
-			viewData.Kiosk.DemoMode = requestConfig.Kiosk.DemoMode
 
 			go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NewOfflineAsset, viewData)
 
