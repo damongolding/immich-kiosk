@@ -217,7 +217,7 @@ templ RatingStars(assetID, selectedUser string, rating int, allowEdit bool, oob 
 						if allowEdit {
 							hx-post="/asset/rating"
 							hx-trigger="click throttle:2s"
-							hx-vals={ vals }
+							hx-vals={ string(vals) }
 						}
 					>
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="576" height="512" class={ templ.KV("is-filled", filled), "star-filled" }>
