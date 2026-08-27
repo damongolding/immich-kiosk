@@ -80,25 +80,28 @@ offline_mode:
   max_size: 1gb
   expiration_hours: 0
 
-kiosk:
-  port: 3000
-
-  disable_config_endpoint: true
-
-  http_timeout: -1
-
-  redirects:
+redirects:
+  items:
     - name: curated
       url: /?weather=rotate
 
     - name: bubble-theme
       url: /?weather=rotate&theme=bubble
+      category: themes
 
     - name: solid-theme
       url: /?weather=rotate&theme=solid
+      category: themes
 
     - name: random
       url: /?album=none&use_offline_mode=false&image_effect_amount=200
 
     - name: simple
       url: /?image_effect=none&layout=single&image_fit=contain&transition=none&disable_ui=true&show_more_info=false&use_offline_mode=false
+
+kiosk:
+  port: 3000
+
+  disable_config_endpoint: true
+
+  http_timeout: -1
