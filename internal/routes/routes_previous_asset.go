@@ -371,12 +371,11 @@ func historyAssetOffline(c *echo.Context, requestData *common.RouteRequestData, 
 		return loadMsgpackErr
 	}
 
+	viewData.Config = requestConfig
+
 	viewData.KioskVersion = KioskVersion
 	viewData.RequestID = requestData.RequestID
 	viewData.DeviceID = requestData.DeviceID
-	viewData.History = requestConfig.History
-	viewData.Theme = requestConfig.Theme
-	viewData.Kiosk.DemoMode = requestConfig.Kiosk.DemoMode
 
 	go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhookEvent, viewData)
 
