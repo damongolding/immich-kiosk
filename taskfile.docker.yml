@@ -7,6 +7,11 @@ tasks:
   docker:build:
     desc: Build docker image locally
     cmds:
+      - docker build --no-cache --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
+
+  docker:build-orb:
+    desc: Build docker image locally
+    cmds:
       - cmd: orb start
         if: "command -v orb >/dev/null 2>&1"
       - docker build --no-cache --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .

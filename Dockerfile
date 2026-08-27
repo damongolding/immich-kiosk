@@ -24,7 +24,7 @@ COPY --from=frontend-build /app/frontend/public/assets/js/ /app/frontend/public/
 RUN go mod download
 RUN go tool templ generate
 
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION} -s -w" -o dist/kiosk .
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION} -X github.com/damongolding/immich-kiosk/internal/utils.runningInContainer=true -s -w" -o dist/kiosk .
 
 # Release
 FROM gcr.io/distroless/static-debian13:nonroot

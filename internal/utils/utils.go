@@ -66,6 +66,8 @@ const (
 	orientationRotate90    = 8
 )
 
+var runningInContainer string
+
 type orientation int
 
 // WeightedAsset represents an asset with a type and ID
@@ -1087,4 +1089,8 @@ func ContainsWholeWord(a, b string) bool {
 
 	re := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(a) + `\b`)
 	return re.MatchString(b)
+}
+
+func RunningInContainer() bool {
+	return runningInContainer == "true"
 }

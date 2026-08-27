@@ -74,7 +74,17 @@ func OfflineMode(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		}
 
 		if _, err = os.Stat(OfflineAssetsPath); os.IsNotExist(err) {
-			return RenderError(c, err, "offline assets directory does not exist", requestConfig.Duration)
+
+			if utils.RunningInContainer() {
+				s := "offline assets directory does not exist. Please mount a volume at " + OfflineAssetsPath + "."
+				log.Error(s)
+				return RenderError(c, err, s, requestConfig.Duration)
+			}
+
+			err = os.MkdirAll(OfflineAssetsPath, 0o755)
+			if err != nil {
+				return RenderError(c, err, "offline assets directory does not exist", requestConfig.Duration)
+			}
 		}
 
 		files, readDirErr := os.ReadDir(OfflineAssetsPath)
