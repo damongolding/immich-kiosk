@@ -89,6 +89,8 @@ func (c *Config) reloadConfig(reason string) {
 
 	newConfig := New()
 
+	newConfig.SystemLang = c.SystemLang
+
 	if err := newConfig.Load(); err != nil {
 		log.Error("Reloading config:", err)
 		return
