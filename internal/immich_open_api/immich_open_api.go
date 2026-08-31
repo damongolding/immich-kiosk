@@ -38,6 +38,15 @@ const (
 	Rotate AssetEditAction = "rotate"
 )
 
+// Defines values for AssetFileType.
+const (
+	AssetFileTypeEncodedVideo AssetFileType = "encoded_video"
+	AssetFileTypeFullsize     AssetFileType = "fullsize"
+	AssetFileTypePreview      AssetFileType = "preview"
+	AssetFileTypeSidecar      AssetFileType = "sidecar"
+	AssetFileTypeThumbnail    AssetFileType = "thumbnail"
+)
+
 // Defines values for AssetIdErrorReason.
 const (
 	AssetIdErrorReasonDuplicate    AssetIdErrorReason = "duplicate"
@@ -55,10 +64,10 @@ const (
 
 // Defines values for AssetMediaSize.
 const (
-	Fullsize  AssetMediaSize = "fullsize"
-	Original  AssetMediaSize = "original"
-	Preview   AssetMediaSize = "preview"
-	Thumbnail AssetMediaSize = "thumbnail"
+	AssetMediaSizeFullsize  AssetMediaSize = "fullsize"
+	AssetMediaSizeOriginal  AssetMediaSize = "original"
+	AssetMediaSizePreview   AssetMediaSize = "preview"
+	AssetMediaSizeThumbnail AssetMediaSize = "thumbnail"
 )
 
 // Defines values for AssetMediaStatus.
@@ -300,12 +309,13 @@ const (
 
 // Defines values for NotificationType.
 const (
-	NotificationTypeAlbumInvite   NotificationType = "AlbumInvite"
-	NotificationTypeAlbumUpdate   NotificationType = "AlbumUpdate"
-	NotificationTypeBackupFailed  NotificationType = "BackupFailed"
-	NotificationTypeCustom        NotificationType = "Custom"
-	NotificationTypeJobFailed     NotificationType = "JobFailed"
-	NotificationTypeSystemMessage NotificationType = "SystemMessage"
+	NotificationTypeAlbumInvite         NotificationType = "AlbumInvite"
+	NotificationTypeAlbumUpdate         NotificationType = "AlbumUpdate"
+	NotificationTypeBackupFailed        NotificationType = "BackupFailed"
+	NotificationTypeClusterGroupRequest NotificationType = "ClusterGroupRequest"
+	NotificationTypeCustom              NotificationType = "Custom"
+	NotificationTypeJobFailed           NotificationType = "JobFailed"
+	NotificationTypeSystemMessage       NotificationType = "SystemMessage"
 )
 
 // Defines values for OAuthTokenEndpointAuthMethod.
@@ -322,161 +332,174 @@ const (
 
 // Defines values for Permission.
 const (
-	PermissionActivityCreate         Permission = "activity.create"
-	PermissionActivityDelete         Permission = "activity.delete"
-	PermissionActivityRead           Permission = "activity.read"
-	PermissionActivityStatistics     Permission = "activity.statistics"
-	PermissionActivityUpdate         Permission = "activity.update"
-	PermissionAdminAuthUnlinkAll     Permission = "adminAuth.unlinkAll"
-	PermissionAdminSessionRead       Permission = "adminSession.read"
-	PermissionAdminUserCreate        Permission = "adminUser.create"
-	PermissionAdminUserDelete        Permission = "adminUser.delete"
-	PermissionAdminUserRead          Permission = "adminUser.read"
-	PermissionAdminUserUpdate        Permission = "adminUser.update"
-	PermissionAlbumAssetCreate       Permission = "albumAsset.create"
-	PermissionAlbumAssetDelete       Permission = "albumAsset.delete"
-	PermissionAlbumCreate            Permission = "album.create"
-	PermissionAlbumDelete            Permission = "album.delete"
-	PermissionAlbumDownload          Permission = "album.download"
-	PermissionAlbumRead              Permission = "album.read"
-	PermissionAlbumShare             Permission = "album.share"
-	PermissionAlbumStatistics        Permission = "album.statistics"
-	PermissionAlbumUpdate            Permission = "album.update"
-	PermissionAlbumUserCreate        Permission = "albumUser.create"
-	PermissionAlbumUserDelete        Permission = "albumUser.delete"
-	PermissionAlbumUserUpdate        Permission = "albumUser.update"
-	PermissionAll                    Permission = "all"
-	PermissionApiKeyCreate           Permission = "apiKey.create"
-	PermissionApiKeyDelete           Permission = "apiKey.delete"
-	PermissionApiKeyRead             Permission = "apiKey.read"
-	PermissionApiKeyUpdate           Permission = "apiKey.update"
-	PermissionArchiveRead            Permission = "archive.read"
-	PermissionAssetCopy              Permission = "asset.copy"
-	PermissionAssetDelete            Permission = "asset.delete"
-	PermissionAssetDerive            Permission = "asset.derive"
-	PermissionAssetDownload          Permission = "asset.download"
-	PermissionAssetEditCreate        Permission = "asset.edit.create"
-	PermissionAssetEditDelete        Permission = "asset.edit.delete"
-	PermissionAssetEditGet           Permission = "asset.edit.get"
-	PermissionAssetRead              Permission = "asset.read"
-	PermissionAssetShare             Permission = "asset.share"
-	PermissionAssetStatistics        Permission = "asset.statistics"
-	PermissionAssetUpdate            Permission = "asset.update"
-	PermissionAssetUpload            Permission = "asset.upload"
-	PermissionAssetView              Permission = "asset.view"
-	PermissionAuthChangePassword     Permission = "auth.changePassword"
-	PermissionAuthDeviceDelete       Permission = "authDevice.delete"
-	PermissionBackupDelete           Permission = "backup.delete"
-	PermissionBackupDownload         Permission = "backup.download"
-	PermissionBackupList             Permission = "backup.list"
-	PermissionBackupUpload           Permission = "backup.upload"
-	PermissionDuplicateDelete        Permission = "duplicate.delete"
-	PermissionDuplicateRead          Permission = "duplicate.read"
-	PermissionFaceCreate             Permission = "face.create"
-	PermissionFaceDelete             Permission = "face.delete"
-	PermissionFaceRead               Permission = "face.read"
-	PermissionFaceUpdate             Permission = "face.update"
-	PermissionFolderRead             Permission = "folder.read"
-	PermissionJobCreate              Permission = "job.create"
-	PermissionJobRead                Permission = "job.read"
-	PermissionLibraryCreate          Permission = "library.create"
-	PermissionLibraryDelete          Permission = "library.delete"
-	PermissionLibraryRead            Permission = "library.read"
-	PermissionLibraryStatistics      Permission = "library.statistics"
-	PermissionLibraryUpdate          Permission = "library.update"
-	PermissionMaintenance            Permission = "maintenance"
-	PermissionMapRead                Permission = "map.read"
-	PermissionMapSearch              Permission = "map.search"
-	PermissionMemoryAssetCreate      Permission = "memoryAsset.create"
-	PermissionMemoryAssetDelete      Permission = "memoryAsset.delete"
-	PermissionMemoryCreate           Permission = "memory.create"
-	PermissionMemoryDelete           Permission = "memory.delete"
-	PermissionMemoryRead             Permission = "memory.read"
-	PermissionMemoryStatistics       Permission = "memory.statistics"
-	PermissionMemoryUpdate           Permission = "memory.update"
-	PermissionNotificationCreate     Permission = "notification.create"
-	PermissionNotificationDelete     Permission = "notification.delete"
-	PermissionNotificationRead       Permission = "notification.read"
-	PermissionNotificationUpdate     Permission = "notification.update"
-	PermissionPartnerCreate          Permission = "partner.create"
-	PermissionPartnerDelete          Permission = "partner.delete"
-	PermissionPartnerRead            Permission = "partner.read"
-	PermissionPartnerUpdate          Permission = "partner.update"
-	PermissionPersonCreate           Permission = "person.create"
-	PermissionPersonDelete           Permission = "person.delete"
-	PermissionPersonMerge            Permission = "person.merge"
-	PermissionPersonRead             Permission = "person.read"
-	PermissionPersonReassign         Permission = "person.reassign"
-	PermissionPersonStatistics       Permission = "person.statistics"
-	PermissionPersonUpdate           Permission = "person.update"
-	PermissionPinCodeCreate          Permission = "pinCode.create"
-	PermissionPinCodeDelete          Permission = "pinCode.delete"
-	PermissionPinCodeUpdate          Permission = "pinCode.update"
-	PermissionPluginCreate           Permission = "plugin.create"
-	PermissionPluginDelete           Permission = "plugin.delete"
-	PermissionPluginRead             Permission = "plugin.read"
-	PermissionPluginUpdate           Permission = "plugin.update"
-	PermissionQueueJobCreate         Permission = "queueJob.create"
-	PermissionQueueJobDelete         Permission = "queueJob.delete"
-	PermissionQueueJobRead           Permission = "queueJob.read"
-	PermissionQueueJobUpdate         Permission = "queueJob.update"
-	PermissionQueueRead              Permission = "queue.read"
-	PermissionQueueUpdate            Permission = "queue.update"
-	PermissionServerAbout            Permission = "server.about"
-	PermissionServerApkLinks         Permission = "server.apkLinks"
-	PermissionServerLicenseDelete    Permission = "serverLicense.delete"
-	PermissionServerLicenseRead      Permission = "serverLicense.read"
-	PermissionServerLicenseUpdate    Permission = "serverLicense.update"
-	PermissionServerStatistics       Permission = "server.statistics"
-	PermissionServerStorage          Permission = "server.storage"
-	PermissionServerVersionCheck     Permission = "server.versionCheck"
-	PermissionSessionCreate          Permission = "session.create"
-	PermissionSessionDelete          Permission = "session.delete"
-	PermissionSessionLock            Permission = "session.lock"
-	PermissionSessionRead            Permission = "session.read"
-	PermissionSessionUpdate          Permission = "session.update"
-	PermissionSharedLinkCreate       Permission = "sharedLink.create"
-	PermissionSharedLinkDelete       Permission = "sharedLink.delete"
-	PermissionSharedLinkRead         Permission = "sharedLink.read"
-	PermissionSharedLinkUpdate       Permission = "sharedLink.update"
-	PermissionStackCreate            Permission = "stack.create"
-	PermissionStackDelete            Permission = "stack.delete"
-	PermissionStackRead              Permission = "stack.read"
-	PermissionStackUpdate            Permission = "stack.update"
-	PermissionSyncCheckpointDelete   Permission = "syncCheckpoint.delete"
-	PermissionSyncCheckpointRead     Permission = "syncCheckpoint.read"
-	PermissionSyncCheckpointUpdate   Permission = "syncCheckpoint.update"
-	PermissionSyncStream             Permission = "sync.stream"
-	PermissionSystemConfigRead       Permission = "systemConfig.read"
-	PermissionSystemConfigUpdate     Permission = "systemConfig.update"
-	PermissionSystemMetadataRead     Permission = "systemMetadata.read"
-	PermissionSystemMetadataUpdate   Permission = "systemMetadata.update"
-	PermissionTagAsset               Permission = "tag.asset"
-	PermissionTagCreate              Permission = "tag.create"
-	PermissionTagDelete              Permission = "tag.delete"
-	PermissionTagRead                Permission = "tag.read"
-	PermissionTagUpdate              Permission = "tag.update"
-	PermissionTimelineDownload       Permission = "timeline.download"
-	PermissionTimelineRead           Permission = "timeline.read"
-	PermissionUserLicenseCreate      Permission = "userLicense.create"
-	PermissionUserLicenseDelete      Permission = "userLicense.delete"
-	PermissionUserLicenseRead        Permission = "userLicense.read"
-	PermissionUserLicenseUpdate      Permission = "userLicense.update"
-	PermissionUserOnboardingDelete   Permission = "userOnboarding.delete"
-	PermissionUserOnboardingRead     Permission = "userOnboarding.read"
-	PermissionUserOnboardingUpdate   Permission = "userOnboarding.update"
-	PermissionUserPreferenceRead     Permission = "userPreference.read"
-	PermissionUserPreferenceUpdate   Permission = "userPreference.update"
-	PermissionUserProfileImageCreate Permission = "userProfileImage.create"
-	PermissionUserProfileImageDelete Permission = "userProfileImage.delete"
-	PermissionUserProfileImageRead   Permission = "userProfileImage.read"
-	PermissionUserProfileImageUpdate Permission = "userProfileImage.update"
-	PermissionUserRead               Permission = "user.read"
-	PermissionUserUpdate             Permission = "user.update"
-	PermissionWorkflowCreate         Permission = "workflow.create"
-	PermissionWorkflowDelete         Permission = "workflow.delete"
-	PermissionWorkflowRead           Permission = "workflow.read"
-	PermissionWorkflowUpdate         Permission = "workflow.update"
+	PermissionActivityCreate            Permission = "activity.create"
+	PermissionActivityDelete            Permission = "activity.delete"
+	PermissionActivityRead              Permission = "activity.read"
+	PermissionActivityStatistics        Permission = "activity.statistics"
+	PermissionActivityUpdate            Permission = "activity.update"
+	PermissionAdminAuthUnlinkAll        Permission = "adminAuth.unlinkAll"
+	PermissionAdminConfigRead           Permission = "adminConfig.read"
+	PermissionAdminConfigUpdate         Permission = "adminConfig.update"
+	PermissionAdminSessionRead          Permission = "adminSession.read"
+	PermissionAdminUserCreate           Permission = "adminUser.create"
+	PermissionAdminUserDelete           Permission = "adminUser.delete"
+	PermissionAdminUserRead             Permission = "adminUser.read"
+	PermissionAdminUserUpdate           Permission = "adminUser.update"
+	PermissionAlbumAssetCreate          Permission = "albumAsset.create"
+	PermissionAlbumAssetDelete          Permission = "albumAsset.delete"
+	PermissionAlbumCreate               Permission = "album.create"
+	PermissionAlbumDelete               Permission = "album.delete"
+	PermissionAlbumDownload             Permission = "album.download"
+	PermissionAlbumRead                 Permission = "album.read"
+	PermissionAlbumShare                Permission = "album.share"
+	PermissionAlbumStatistics           Permission = "album.statistics"
+	PermissionAlbumUpdate               Permission = "album.update"
+	PermissionAlbumUserCreate           Permission = "albumUser.create"
+	PermissionAlbumUserDelete           Permission = "albumUser.delete"
+	PermissionAlbumUserUpdate           Permission = "albumUser.update"
+	PermissionAll                       Permission = "all"
+	PermissionApiKeyCreate              Permission = "apiKey.create"
+	PermissionApiKeyDelete              Permission = "apiKey.delete"
+	PermissionApiKeyRead                Permission = "apiKey.read"
+	PermissionApiKeyRotate              Permission = "apiKey.rotate"
+	PermissionApiKeyUpdate              Permission = "apiKey.update"
+	PermissionArchiveRead               Permission = "archive.read"
+	PermissionAssetCopy                 Permission = "asset.copy"
+	PermissionAssetDelete               Permission = "asset.delete"
+	PermissionAssetDerive               Permission = "asset.derive"
+	PermissionAssetDownload             Permission = "asset.download"
+	PermissionAssetEditCreate           Permission = "asset.edit.create"
+	PermissionAssetEditDelete           Permission = "asset.edit.delete"
+	PermissionAssetEditGet              Permission = "asset.edit.get"
+	PermissionAssetFileDelete           Permission = "assetFile.delete"
+	PermissionAssetFileDownload         Permission = "assetFile.download"
+	PermissionAssetFileRead             Permission = "assetFile.read"
+	PermissionAssetRead                 Permission = "asset.read"
+	PermissionAssetShare                Permission = "asset.share"
+	PermissionAssetStatistics           Permission = "asset.statistics"
+	PermissionAssetUpdate               Permission = "asset.update"
+	PermissionAssetUpload               Permission = "asset.upload"
+	PermissionAssetView                 Permission = "asset.view"
+	PermissionAuthChangePassword        Permission = "auth.changePassword"
+	PermissionAuthDeviceDelete          Permission = "authDevice.delete"
+	PermissionBackupDelete              Permission = "backup.delete"
+	PermissionBackupDownload            Permission = "backup.download"
+	PermissionBackupList                Permission = "backup.list"
+	PermissionBackupUpload              Permission = "backup.upload"
+	PermissionClusterGroupLeave         Permission = "clusterGroup.leave"
+	PermissionClusterGroupRead          Permission = "clusterGroup.read"
+	PermissionClusterGroupRequestCreate Permission = "clusterGroupRequest.create"
+	PermissionClusterGroupRequestDelete Permission = "clusterGroupRequest.delete"
+	PermissionClusterGroupRequestRead   Permission = "clusterGroupRequest.read"
+	PermissionDuplicateDelete           Permission = "duplicate.delete"
+	PermissionDuplicateRead             Permission = "duplicate.read"
+	PermissionFaceCreate                Permission = "face.create"
+	PermissionFaceDelete                Permission = "face.delete"
+	PermissionFaceRead                  Permission = "face.read"
+	PermissionFaceUpdate                Permission = "face.update"
+	PermissionFolderRead                Permission = "folder.read"
+	PermissionJobCreate                 Permission = "job.create"
+	PermissionJobRead                   Permission = "job.read"
+	PermissionLibraryCreate             Permission = "library.create"
+	PermissionLibraryDelete             Permission = "library.delete"
+	PermissionLibraryRead               Permission = "library.read"
+	PermissionLibraryStatistics         Permission = "library.statistics"
+	PermissionLibraryUpdate             Permission = "library.update"
+	PermissionMaintenance               Permission = "maintenance"
+	PermissionMapRead                   Permission = "map.read"
+	PermissionMapSearch                 Permission = "map.search"
+	PermissionMemoryAssetCreate         Permission = "memoryAsset.create"
+	PermissionMemoryAssetDelete         Permission = "memoryAsset.delete"
+	PermissionMemoryCreate              Permission = "memory.create"
+	PermissionMemoryDelete              Permission = "memory.delete"
+	PermissionMemoryRead                Permission = "memory.read"
+	PermissionMemoryStatistics          Permission = "memory.statistics"
+	PermissionMemoryUpdate              Permission = "memory.update"
+	PermissionNotificationCreate        Permission = "notification.create"
+	PermissionNotificationDelete        Permission = "notification.delete"
+	PermissionNotificationRead          Permission = "notification.read"
+	PermissionNotificationUpdate        Permission = "notification.update"
+	PermissionPartnerCreate             Permission = "partner.create"
+	PermissionPartnerDelete             Permission = "partner.delete"
+	PermissionPartnerRead               Permission = "partner.read"
+	PermissionPartnerUpdate             Permission = "partner.update"
+	PermissionPersonCreate              Permission = "person.create"
+	PermissionPersonDelete              Permission = "person.delete"
+	PermissionPersonMerge               Permission = "person.merge"
+	PermissionPersonRead                Permission = "person.read"
+	PermissionPersonReassign            Permission = "person.reassign"
+	PermissionPersonStatistics          Permission = "person.statistics"
+	PermissionPersonUpdate              Permission = "person.update"
+	PermissionPinCodeCreate             Permission = "pinCode.create"
+	PermissionPinCodeDelete             Permission = "pinCode.delete"
+	PermissionPinCodeUpdate             Permission = "pinCode.update"
+	PermissionPluginCreate              Permission = "plugin.create"
+	PermissionPluginDelete              Permission = "plugin.delete"
+	PermissionPluginRead                Permission = "plugin.read"
+	PermissionPluginUpdate              Permission = "plugin.update"
+	PermissionQueueJobCreate            Permission = "queueJob.create"
+	PermissionQueueJobDelete            Permission = "queueJob.delete"
+	PermissionQueueJobRead              Permission = "queueJob.read"
+	PermissionQueueJobUpdate            Permission = "queueJob.update"
+	PermissionQueueRead                 Permission = "queue.read"
+	PermissionQueueUpdate               Permission = "queue.update"
+	PermissionServerAbout               Permission = "server.about"
+	PermissionServerApkLinks            Permission = "server.apkLinks"
+	PermissionServerLicenseDelete       Permission = "serverLicense.delete"
+	PermissionServerLicenseRead         Permission = "serverLicense.read"
+	PermissionServerLicenseUpdate       Permission = "serverLicense.update"
+	PermissionServerStatistics          Permission = "server.statistics"
+	PermissionServerStorage             Permission = "server.storage"
+	PermissionServerVersionCheck        Permission = "server.versionCheck"
+	PermissionSessionCreate             Permission = "session.create"
+	PermissionSessionDelete             Permission = "session.delete"
+	PermissionSessionLock               Permission = "session.lock"
+	PermissionSessionRead               Permission = "session.read"
+	PermissionSessionUpdate             Permission = "session.update"
+	PermissionSharedLinkCreate          Permission = "sharedLink.create"
+	PermissionSharedLinkDelete          Permission = "sharedLink.delete"
+	PermissionSharedLinkRead            Permission = "sharedLink.read"
+	PermissionSharedLinkUpdate          Permission = "sharedLink.update"
+	PermissionStackCreate               Permission = "stack.create"
+	PermissionStackDelete               Permission = "stack.delete"
+	PermissionStackRead                 Permission = "stack.read"
+	PermissionStackUpdate               Permission = "stack.update"
+	PermissionSyncCheckpointDelete      Permission = "syncCheckpoint.delete"
+	PermissionSyncCheckpointRead        Permission = "syncCheckpoint.read"
+	PermissionSyncCheckpointUpdate      Permission = "syncCheckpoint.update"
+	PermissionSyncStream                Permission = "sync.stream"
+	PermissionSystemConfigRead          Permission = "systemConfig.read"
+	PermissionSystemConfigUpdate        Permission = "systemConfig.update"
+	PermissionSystemMetadataRead        Permission = "systemMetadata.read"
+	PermissionSystemMetadataUpdate      Permission = "systemMetadata.update"
+	PermissionTagAsset                  Permission = "tag.asset"
+	PermissionTagCreate                 Permission = "tag.create"
+	PermissionTagDelete                 Permission = "tag.delete"
+	PermissionTagRead                   Permission = "tag.read"
+	PermissionTagUpdate                 Permission = "tag.update"
+	PermissionTimelineDownload          Permission = "timeline.download"
+	PermissionTimelineRead              Permission = "timeline.read"
+	PermissionUserConfigRead            Permission = "userConfig.read"
+	PermissionUserLicenseCreate         Permission = "userLicense.create"
+	PermissionUserLicenseDelete         Permission = "userLicense.delete"
+	PermissionUserLicenseRead           Permission = "userLicense.read"
+	PermissionUserLicenseUpdate         Permission = "userLicense.update"
+	PermissionUserOnboardingDelete      Permission = "userOnboarding.delete"
+	PermissionUserOnboardingRead        Permission = "userOnboarding.read"
+	PermissionUserOnboardingUpdate      Permission = "userOnboarding.update"
+	PermissionUserPreferenceRead        Permission = "userPreference.read"
+	PermissionUserPreferenceUpdate      Permission = "userPreference.update"
+	PermissionUserProfileImageCreate    Permission = "userProfileImage.create"
+	PermissionUserProfileImageDelete    Permission = "userProfileImage.delete"
+	PermissionUserProfileImageRead      Permission = "userProfileImage.read"
+	PermissionUserProfileImageUpdate    Permission = "userProfileImage.update"
+	PermissionUserRead                  Permission = "user.read"
+	PermissionUserUpdate                Permission = "user.update"
+	PermissionWorkflowCreate            Permission = "workflow.create"
+	PermissionWorkflowDelete            Permission = "workflow.delete"
+	PermissionWorkflowLogs              Permission = "workflow.logs"
+	PermissionWorkflowRead              Permission = "workflow.read"
+	PermissionWorkflowUpdate            Permission = "workflow.update"
 )
 
 // Defines values for QueueCommand.
@@ -537,6 +560,14 @@ const (
 const (
 	ReleaseCandidate ReleaseChannel = "releaseCandidate"
 	Stable           ReleaseChannel = "stable"
+)
+
+// Defines values for SearchOrderField.
+const (
+	FileCreatedAt   SearchOrderField = "fileCreatedAt"
+	FileSizeInBytes SearchOrderField = "fileSizeInBytes"
+	LocalDateTime   SearchOrderField = "localDateTime"
+	Rating          SearchOrderField = "rating"
 )
 
 // Defines values for SearchSuggestionType.
@@ -729,10 +760,18 @@ const (
 	Webm VideoContainer = "webm"
 )
 
+// Defines values for WorkflowResult.
+const (
+	Completed WorkflowResult = "completed"
+	Error     WorkflowResult = "error"
+	Halted    WorkflowResult = "halted"
+)
+
 // Defines values for WorkflowTrigger.
 const (
 	AssetCreate             WorkflowTrigger = "AssetCreate"
 	AssetMetadataExtraction WorkflowTrigger = "AssetMetadataExtraction"
+	AssetTagged             WorkflowTrigger = "AssetTagged"
 )
 
 // Defines values for WorkflowType.
@@ -787,6 +826,575 @@ type ActivityStatisticsResponseDto struct {
 type AddUsersDto struct {
 	// AlbumUsers Album users to add
 	AlbumUsers []AlbumUserAddDto `json:"albumUsers"`
+}
+
+// AdminConfigBackupsDto defines model for AdminConfigBackupsDto.
+type AdminConfigBackupsDto struct {
+	Database AdminConfigDatabaseBackupDto `json:"database"`
+}
+
+// AdminConfigClipDto defines model for AdminConfigClipDto.
+type AdminConfigClipDto struct {
+	// Enabled Whether the task is enabled
+	Enabled bool `json:"enabled"`
+
+	// ModelName Name of the model to use
+	ModelName string `json:"modelName"`
+}
+
+// AdminConfigDatabaseBackupDto defines model for AdminConfigDatabaseBackupDto.
+type AdminConfigDatabaseBackupDto struct {
+	// CronExpression Cron expression
+	CronExpression string `json:"cronExpression"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+
+	// KeepLastAmount Keep last amount
+	KeepLastAmount int `json:"keepLastAmount"`
+}
+
+// AdminConfigDto Configuration properties that are visible to the admin
+type AdminConfigDto struct {
+	Backup AdminConfigBackupsDto `json:"backup"`
+	Ffmpeg AdminConfigFFmpegDto  `json:"ffmpeg"`
+	Image  AdminConfigImageDto   `json:"image"`
+
+	// IntegrityChecks Integrity checks config
+	IntegrityChecks  AdminConfigIntegrityChecksDto  `json:"integrityChecks"`
+	Job              AdminConfigJobDto              `json:"job"`
+	Library          AdminConfigLibraryDto          `json:"library"`
+	Logging          AdminConfigLoggingDto          `json:"logging"`
+	MachineLearning  AdminConfigMachineLearningDto  `json:"machineLearning"`
+	Map              AdminConfigMapDto              `json:"map"`
+	Metadata         AdminConfigMetadataDto         `json:"metadata"`
+	NewVersionCheck  AdminConfigNewVersionCheckDto  `json:"newVersionCheck"`
+	NightlyTasks     AdminConfigNightlyTasksDto     `json:"nightlyTasks"`
+	Notifications    AdminConfigNotificationsDto    `json:"notifications"`
+	Oauth            AdminConfigOAuthDto            `json:"oauth"`
+	PasswordLogin    AdminConfigPasswordLoginDto    `json:"passwordLogin"`
+	ReverseGeocoding AdminConfigReverseGeocodingDto `json:"reverseGeocoding"`
+	Server           AdminConfigServerDto           `json:"server"`
+	StorageTemplate  AdminConfigStorageTemplateDto  `json:"storageTemplate"`
+	Templates        AdminConfigTemplatesDto        `json:"templates"`
+	Theme            AdminConfigThemeDto            `json:"theme"`
+	Trash            AdminConfigTrashDto            `json:"trash"`
+	User             AdminConfigUserDto             `json:"user"`
+}
+
+// AdminConfigDuplicateDetectionDto defines model for AdminConfigDuplicateDetectionDto.
+type AdminConfigDuplicateDetectionDto struct {
+	// Enabled Whether the task is enabled
+	Enabled bool `json:"enabled"`
+
+	// MaxDistance Maximum distance threshold for duplicate detection
+	MaxDistance float64 `json:"maxDistance"`
+}
+
+// AdminConfigFFmpegDto defines model for AdminConfigFFmpegDto.
+type AdminConfigFFmpegDto struct {
+	// Accel Transcode hardware acceleration
+	Accel TranscodeHWAccel `json:"accel"`
+
+	// AccelDecode Accelerated decode
+	AccelDecode bool `json:"accelDecode"`
+
+	// AcceptedAudioCodecs Accepted audio codecs
+	AcceptedAudioCodecs []AudioCodec `json:"acceptedAudioCodecs"`
+
+	// AcceptedContainers Accepted containers
+	AcceptedContainers []VideoContainer `json:"acceptedContainers"`
+
+	// AcceptedVideoCodecs Accepted video codecs
+	AcceptedVideoCodecs []VideoCodec `json:"acceptedVideoCodecs"`
+
+	// Bframes B-frames
+	Bframes int `json:"bframes"`
+
+	// CqMode CQ mode
+	CqMode CQMode `json:"cqMode"`
+
+	// Crf CRF
+	Crf int `json:"crf"`
+
+	// GopSize GOP size
+	GopSize int `json:"gopSize"`
+
+	// MaxBitrate Max bitrate
+	MaxBitrate string `json:"maxBitrate"`
+
+	// PreferredHwDevice Preferred hardware device
+	PreferredHwDevice string `json:"preferredHwDevice"`
+
+	// Preset Preset
+	Preset   string                       `json:"preset"`
+	Realtime AdminConfigFFmpegRealtimeDto `json:"realtime"`
+
+	// Refs References
+	Refs int `json:"refs"`
+
+	// TargetAudioCodec Target audio codec
+	TargetAudioCodec AudioCodec `json:"targetAudioCodec"`
+
+	// TargetResolution Target resolution
+	TargetResolution string `json:"targetResolution"`
+
+	// TargetVideoCodec Target video codec
+	TargetVideoCodec VideoCodec `json:"targetVideoCodec"`
+
+	// TemporalAQ Temporal AQ
+	TemporalAQ bool `json:"temporalAQ"`
+
+	// Threads Threads
+	Threads int `json:"threads"`
+
+	// Tonemap Tone mapping
+	Tonemap ToneMapping `json:"tonemap"`
+
+	// Transcode Transcode policy
+	Transcode TranscodePolicy `json:"transcode"`
+
+	// TwoPass Two pass
+	TwoPass bool `json:"twoPass"`
+}
+
+// AdminConfigFFmpegRealtimeDto defines model for AdminConfigFFmpegRealtimeDto.
+type AdminConfigFFmpegRealtimeDto struct {
+	// Enabled Enable real-time HLS transcoding (alpha)
+	Enabled bool `json:"enabled"`
+
+	// Resolutions Resolutions to use for real-time HLS transcoding
+	Resolutions []HlsVideoResolution `json:"resolutions"`
+
+	// VideoCodecs Video codecs to use for real-time HLS transcoding
+	VideoCodecs []VideoCodec `json:"videoCodecs"`
+}
+
+// AdminConfigFacesDto defines model for AdminConfigFacesDto.
+type AdminConfigFacesDto struct {
+	// Import Import
+	Import bool `json:"import"`
+}
+
+// AdminConfigFacialRecognitionDto defines model for AdminConfigFacialRecognitionDto.
+type AdminConfigFacialRecognitionDto struct {
+	// Enabled Whether the task is enabled
+	Enabled bool `json:"enabled"`
+
+	// MaxDistance Maximum distance threshold for face recognition
+	MaxDistance float64 `json:"maxDistance"`
+
+	// MinFaces Minimum number of faces required for recognition
+	MinFaces int `json:"minFaces"`
+
+	// MinScore Minimum confidence score for face detection
+	MinScore float64 `json:"minScore"`
+
+	// ModelName Name of the model to use
+	ModelName string `json:"modelName"`
+}
+
+// AdminConfigGeneratedFullsizeImageDto defines model for AdminConfigGeneratedFullsizeImageDto.
+type AdminConfigGeneratedFullsizeImageDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+
+	// Format Image format
+	Format ImageFormat `json:"format"`
+
+	// Progressive Progressive
+	Progressive *bool `json:"progressive,omitempty"`
+
+	// Quality Quality
+	Quality int `json:"quality"`
+}
+
+// AdminConfigGeneratedImageDto defines model for AdminConfigGeneratedImageDto.
+type AdminConfigGeneratedImageDto struct {
+	// Format Image format
+	Format ImageFormat `json:"format"`
+
+	// Progressive Progressive
+	Progressive *bool `json:"progressive,omitempty"`
+
+	// Quality Quality
+	Quality int `json:"quality"`
+
+	// Size Size
+	Size int `json:"size"`
+}
+
+// AdminConfigImageDto defines model for AdminConfigImageDto.
+type AdminConfigImageDto struct {
+	// Colorspace Colorspace
+	Colorspace Colorspace `json:"colorspace"`
+
+	// ExtractEmbedded Extract embedded
+	ExtractEmbedded bool                                 `json:"extractEmbedded"`
+	Fullsize        AdminConfigGeneratedFullsizeImageDto `json:"fullsize"`
+	Preview         AdminConfigGeneratedImageDto         `json:"preview"`
+	Thumbnail       AdminConfigGeneratedImageDto         `json:"thumbnail"`
+}
+
+// AdminConfigIntegrityChecksDto Integrity checks config
+type AdminConfigIntegrityChecksDto struct {
+	// ChecksumFiles Integrity checksum job config
+	ChecksumFiles AdminConfigIntegrityChecksumJobDto `json:"checksumFiles"`
+
+	// MissingFiles Integrity job config
+	MissingFiles AdminConfigIntegrityJobDto `json:"missingFiles"`
+
+	// UntrackedFiles Integrity job config
+	UntrackedFiles AdminConfigIntegrityJobDto `json:"untrackedFiles"`
+}
+
+// AdminConfigIntegrityChecksumJobDto Integrity checksum job config
+type AdminConfigIntegrityChecksumJobDto struct {
+	// CronExpression Cron expression for when the integrity check should run
+	CronExpression string `json:"cronExpression"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+
+	// PercentageLimit Percentage limit of the integrity checksum job
+	PercentageLimit float64 `json:"percentageLimit"`
+
+	// TimeLimit How long the integrity checksum job may run for
+	TimeLimit int `json:"timeLimit"`
+}
+
+// AdminConfigIntegrityJobDto Integrity job config
+type AdminConfigIntegrityJobDto struct {
+	// CronExpression Cron expression for when the integrity check should run
+	CronExpression string `json:"cronExpression"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// AdminConfigJobDto defines model for AdminConfigJobDto.
+type AdminConfigJobDto struct {
+	BackgroundTask      AdminConfigJobSettingsDto `json:"backgroundTask"`
+	Editor              AdminConfigJobSettingsDto `json:"editor"`
+	FaceDetection       AdminConfigJobSettingsDto `json:"faceDetection"`
+	IntegrityCheck      AdminConfigJobSettingsDto `json:"integrityCheck"`
+	Library             AdminConfigJobSettingsDto `json:"library"`
+	MetadataExtraction  AdminConfigJobSettingsDto `json:"metadataExtraction"`
+	Migration           AdminConfigJobSettingsDto `json:"migration"`
+	Notifications       AdminConfigJobSettingsDto `json:"notifications"`
+	Ocr                 AdminConfigJobSettingsDto `json:"ocr"`
+	Search              AdminConfigJobSettingsDto `json:"search"`
+	Sidecar             AdminConfigJobSettingsDto `json:"sidecar"`
+	SmartSearch         AdminConfigJobSettingsDto `json:"smartSearch"`
+	ThumbnailGeneration AdminConfigJobSettingsDto `json:"thumbnailGeneration"`
+	VideoConversion     AdminConfigJobSettingsDto `json:"videoConversion"`
+	Workflow            AdminConfigJobSettingsDto `json:"workflow"`
+}
+
+// AdminConfigJobSettingsDto defines model for AdminConfigJobSettingsDto.
+type AdminConfigJobSettingsDto struct {
+	// Concurrency Concurrency
+	Concurrency int `json:"concurrency"`
+}
+
+// AdminConfigLibraryDto defines model for AdminConfigLibraryDto.
+type AdminConfigLibraryDto struct {
+	Scan  AdminConfigLibraryScanDto  `json:"scan"`
+	Watch AdminConfigLibraryWatchDto `json:"watch"`
+}
+
+// AdminConfigLibraryScanDto defines model for AdminConfigLibraryScanDto.
+type AdminConfigLibraryScanDto struct {
+	// CronExpression Cron expression
+	CronExpression string `json:"cronExpression"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// AdminConfigLibraryWatchDto defines model for AdminConfigLibraryWatchDto.
+type AdminConfigLibraryWatchDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// AdminConfigLoggingDto defines model for AdminConfigLoggingDto.
+type AdminConfigLoggingDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+
+	// Level Log level
+	Level LogLevel `json:"level"`
+}
+
+// AdminConfigMachineLearningAvailabilityChecksDto defines model for AdminConfigMachineLearningAvailabilityChecksDto.
+type AdminConfigMachineLearningAvailabilityChecksDto struct {
+	// Enabled Enabled
+	Enabled  bool `json:"enabled"`
+	Interval int  `json:"interval"`
+	Timeout  int  `json:"timeout"`
+}
+
+// AdminConfigMachineLearningDto defines model for AdminConfigMachineLearningDto.
+type AdminConfigMachineLearningDto struct {
+	AvailabilityChecks AdminConfigMachineLearningAvailabilityChecksDto `json:"availabilityChecks"`
+	Clip               AdminConfigClipDto                              `json:"clip"`
+	DuplicateDetection AdminConfigDuplicateDetectionDto                `json:"duplicateDetection"`
+
+	// Enabled Enabled
+	Enabled           bool                            `json:"enabled"`
+	FacialRecognition AdminConfigFacialRecognitionDto `json:"facialRecognition"`
+	Ocr               AdminConfigOcrDto               `json:"ocr"`
+
+	// Urls ML service URLs
+	Urls []string `json:"urls"`
+}
+
+// AdminConfigMapDto defines model for AdminConfigMapDto.
+type AdminConfigMapDto struct {
+	// DarkStyle Dark map style URL
+	DarkStyle string `json:"darkStyle"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+
+	// LightStyle Light map style URL
+	LightStyle string `json:"lightStyle"`
+}
+
+// AdminConfigMetadataDto defines model for AdminConfigMetadataDto.
+type AdminConfigMetadataDto struct {
+	Faces AdminConfigFacesDto `json:"faces"`
+}
+
+// AdminConfigNewVersionCheckDto defines model for AdminConfigNewVersionCheckDto.
+type AdminConfigNewVersionCheckDto struct {
+	// Channel Release channel
+	Channel ReleaseChannel `json:"channel"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// AdminConfigNightlyTasksDto defines model for AdminConfigNightlyTasksDto.
+type AdminConfigNightlyTasksDto struct {
+	// ClusterNewFaces Cluster new faces
+	ClusterNewFaces bool `json:"clusterNewFaces"`
+
+	// DatabaseCleanup Database cleanup
+	DatabaseCleanup bool `json:"databaseCleanup"`
+
+	// GenerateMemories Generate memories
+	GenerateMemories bool `json:"generateMemories"`
+
+	// MissingThumbnails Missing thumbnails
+	MissingThumbnails bool `json:"missingThumbnails"`
+
+	// StartTime Start time (HH:MM)
+	StartTime string `json:"startTime"`
+
+	// SyncQuotaUsage Sync quota usage
+	SyncQuotaUsage bool `json:"syncQuotaUsage"`
+}
+
+// AdminConfigNotificationsDto defines model for AdminConfigNotificationsDto.
+type AdminConfigNotificationsDto struct {
+	Smtp AdminConfigSmtpDto `json:"smtp"`
+}
+
+// AdminConfigOAuthDto defines model for AdminConfigOAuthDto.
+type AdminConfigOAuthDto struct {
+	// AccountManagementUrl Account management URL
+	AccountManagementUrl *string `json:"accountManagementUrl,omitempty"`
+
+	// AllowInsecureRequests Allow insecure requests
+	AllowInsecureRequests bool `json:"allowInsecureRequests"`
+
+	// AutoLaunch Auto launch
+	AutoLaunch bool `json:"autoLaunch"`
+
+	// AutoRegister Auto register
+	AutoRegister bool `json:"autoRegister"`
+
+	// ButtonText Button text
+	ButtonText string `json:"buttonText"`
+
+	// ClientId Client ID
+	ClientId string `json:"clientId"`
+
+	// ClientSecret Client secret
+	ClientSecret string `json:"clientSecret"`
+
+	// DefaultStorageQuota Default storage quota
+	DefaultStorageQuota *int `json:"defaultStorageQuota"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+
+	// EndSessionEndpoint End session endpoint
+	EndSessionEndpoint string `json:"endSessionEndpoint"`
+
+	// IssuerUrl Issuer URL
+	IssuerUrl string `json:"issuerUrl"`
+
+	// MobileOverrideEnabled Mobile override enabled
+	MobileOverrideEnabled bool `json:"mobileOverrideEnabled"`
+
+	// MobileRedirectUri Mobile redirect URI (set to empty string to disable)
+	MobileRedirectUri string `json:"mobileRedirectUri"`
+
+	// ProfileSigningAlgorithm Profile signing algorithm
+	ProfileSigningAlgorithm string `json:"profileSigningAlgorithm"`
+
+	// Prompt OAuth prompt parameter (e.g. select_account, login, consent)
+	Prompt string `json:"prompt"`
+
+	// RoleClaim Role claim
+	RoleClaim string `json:"roleClaim"`
+
+	// Scope Scope
+	Scope string `json:"scope"`
+
+	// SigningAlgorithm Signing algorithm
+	SigningAlgorithm string `json:"signingAlgorithm"`
+
+	// StorageLabelClaim Storage label claim
+	StorageLabelClaim string `json:"storageLabelClaim"`
+
+	// StorageQuotaClaim Storage quota claim
+	StorageQuotaClaim string `json:"storageQuotaClaim"`
+
+	// Timeout Timeout
+	Timeout int `json:"timeout"`
+
+	// TokenEndpointAuthMethod OAuth token endpoint auth method
+	TokenEndpointAuthMethod OAuthTokenEndpointAuthMethod `json:"tokenEndpointAuthMethod"`
+}
+
+// AdminConfigOcrDto defines model for AdminConfigOcrDto.
+type AdminConfigOcrDto struct {
+	// Enabled Whether the task is enabled
+	Enabled bool `json:"enabled"`
+
+	// MaxResolution Maximum resolution for OCR processing
+	MaxResolution int `json:"maxResolution"`
+
+	// MinDetectionScore Minimum confidence score for text detection
+	MinDetectionScore float64 `json:"minDetectionScore"`
+
+	// MinRecognitionScore Minimum confidence score for text recognition
+	MinRecognitionScore float64 `json:"minRecognitionScore"`
+
+	// ModelName Name of the model to use
+	ModelName string `json:"modelName"`
+}
+
+// AdminConfigPasswordLoginDto defines model for AdminConfigPasswordLoginDto.
+type AdminConfigPasswordLoginDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// AdminConfigReverseGeocodingDto defines model for AdminConfigReverseGeocodingDto.
+type AdminConfigReverseGeocodingDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// AdminConfigServerDto defines model for AdminConfigServerDto.
+type AdminConfigServerDto struct {
+	// ExternalDomain External domain
+	ExternalDomain string `json:"externalDomain"`
+
+	// LoginPageMessage Login page message
+	LoginPageMessage string `json:"loginPageMessage"`
+
+	// PublicUsers Public users
+	PublicUsers bool `json:"publicUsers"`
+}
+
+// AdminConfigSmtpDto defines model for AdminConfigSmtpDto.
+type AdminConfigSmtpDto struct {
+	// Enabled Whether SMTP email notifications are enabled
+	Enabled bool `json:"enabled"`
+
+	// From Email address to send from
+	From string `json:"from"`
+
+	// ReplyTo Email address for replies
+	ReplyTo   string                      `json:"replyTo"`
+	Transport AdminConfigSmtpTransportDto `json:"transport"`
+}
+
+// AdminConfigSmtpTransportDto defines model for AdminConfigSmtpTransportDto.
+type AdminConfigSmtpTransportDto struct {
+	// Host SMTP server hostname
+	Host string `json:"host"`
+
+	// IgnoreCert Whether to ignore SSL certificate errors
+	IgnoreCert bool `json:"ignoreCert"`
+
+	// Password SMTP password
+	Password string `json:"password"`
+
+	// Port SMTP server port
+	Port int `json:"port"`
+
+	// Secure Whether to use secure connection (TLS/SSL)
+	Secure bool `json:"secure"`
+
+	// Username SMTP username
+	Username string `json:"username"`
+}
+
+// AdminConfigStorageTemplateDto defines model for AdminConfigStorageTemplateDto.
+type AdminConfigStorageTemplateDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+
+	// HashVerificationEnabled Hash verification enabled
+	HashVerificationEnabled bool `json:"hashVerificationEnabled"`
+
+	// Template Template
+	Template string `json:"template"`
+}
+
+// AdminConfigTemplateEmailsDto defines model for AdminConfigTemplateEmailsDto.
+type AdminConfigTemplateEmailsDto struct {
+	// AlbumInviteTemplate Album invite template
+	AlbumInviteTemplate string `json:"albumInviteTemplate"`
+
+	// AlbumUpdateTemplate Album update template
+	AlbumUpdateTemplate string `json:"albumUpdateTemplate"`
+
+	// WelcomeTemplate Welcome template
+	WelcomeTemplate string `json:"welcomeTemplate"`
+}
+
+// AdminConfigTemplatesDto defines model for AdminConfigTemplatesDto.
+type AdminConfigTemplatesDto struct {
+	Email AdminConfigTemplateEmailsDto `json:"email"`
+}
+
+// AdminConfigThemeDto defines model for AdminConfigThemeDto.
+type AdminConfigThemeDto struct {
+	// CustomCss Custom CSS for theming
+	CustomCss string `json:"customCss"`
+}
+
+// AdminConfigTrashDto defines model for AdminConfigTrashDto.
+type AdminConfigTrashDto struct {
+	// Days Days
+	Days int `json:"days"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// AdminConfigUserDto defines model for AdminConfigUserDto.
+type AdminConfigUserDto struct {
+	// DeleteDelay Delete delay
+	DeleteDelay int `json:"deleteDelay"`
 }
 
 // AdminOnboardingUpdateDto defines model for AdminOnboardingUpdateDto.
@@ -927,8 +1535,23 @@ type ApiKeyCreateDto struct {
 type ApiKeyCreateResponseDto struct {
 	ApiKey ApiKeyResponseDto `json:"apiKey"`
 
+	// CreatedAt Creation date
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Id API key ID
+	Id openapi_types.UUID `json:"id"`
+
+	// Name API key name
+	Name string `json:"name"`
+
+	// Permissions List of permissions
+	Permissions []Permission `json:"permissions"`
+
 	// Secret API key secret (only shown once)
 	Secret string `json:"secret"`
+
+	// UpdatedAt Last update date
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // ApiKeyResponseDto defines model for ApiKeyResponseDto.
@@ -1190,6 +1813,36 @@ type AssetFaceUpdateItem struct {
 	// PersonId Person ID
 	PersonId openapi_types.UUID `json:"personId"`
 }
+
+// AssetFileResponseDto defines model for AssetFileResponseDto.
+type AssetFileResponseDto struct {
+	// CreatedAt Creation date
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Id Asset file ID
+	Id openapi_types.UUID `json:"id"`
+
+	// IsEdited The file was generated from an edit
+	IsEdited bool `json:"isEdited"`
+
+	// IsProgressive The file is a progressively encoded JPEG
+	IsProgressive bool `json:"isProgressive"`
+
+	// IsTransparent The file is transparent
+	IsTransparent bool `json:"isTransparent"`
+
+	// Path File path
+	Path string `json:"path"`
+
+	// Type Type of file
+	Type AssetFileType `json:"type"`
+
+	// UpdatedAt Update date
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// AssetFileType Type of file
+type AssetFileType string
 
 // AssetIdErrorReason Error reason if failed
 type AssetIdErrorReason string
@@ -1546,6 +2199,11 @@ type AvatarUpdate struct {
 	Color *UserAvatarColor `json:"color,omitempty"`
 }
 
+// BoolFilter defines model for BoolFilter.
+type BoolFilter struct {
+	Eq bool `json:"eq"`
+}
+
 // BulkIdErrorReason Error reason
 type BulkIdErrorReason string
 
@@ -1566,15 +2224,6 @@ type BulkIdResponseDto struct {
 type BulkIdsDto struct {
 	// Ids IDs to process
 	Ids []openapi_types.UUID `json:"ids"`
-}
-
-// CLIPConfig defines model for CLIPConfig.
-type CLIPConfig struct {
-	// Enabled Whether the task is enabled
-	Enabled bool `json:"enabled"`
-
-	// ModelName Name of the model to use
-	ModelName string `json:"modelName"`
 }
 
 // CQMode CQ mode
@@ -1626,6 +2275,27 @@ type ChangePasswordDto struct {
 	Password string `json:"password"`
 }
 
+// ClusterGroupRequestCreateDto defines model for ClusterGroupRequestCreateDto.
+type ClusterGroupRequestCreateDto struct {
+	// UserId User to invite into the cluster group
+	UserId openapi_types.UUID `json:"userId"`
+}
+
+// ClusterGroupRequestResponseDto defines model for ClusterGroupRequestResponseDto.
+type ClusterGroupRequestResponseDto struct {
+	// ClusterGroupId Cluster group the user is invited to join
+	ClusterGroupId openapi_types.UUID `json:"clusterGroupId"`
+
+	// CreatedAt Creation date
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Id Request ID
+	Id openapi_types.UUID `json:"id"`
+
+	// UserId User the request was created for
+	UserId openapi_types.UUID `json:"userId"`
+}
+
 // Colorspace Colorspace
 type Colorspace string
 
@@ -1650,7 +2320,7 @@ type CreateAlbumDto struct {
 	AssetIds *[]openapi_types.UUID `json:"assetIds,omitempty"`
 
 	// Description Album description
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description"`
 }
 
 // CreateLibraryDto defines model for CreateLibraryDto.
@@ -1701,18 +2371,6 @@ type CropParameters struct {
 	Y int `json:"y"`
 }
 
-// DatabaseBackupConfig defines model for DatabaseBackupConfig.
-type DatabaseBackupConfig struct {
-	// CronExpression Cron expression
-	CronExpression string `json:"cronExpression"`
-
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-
-	// KeepLastAmount Keep last amount
-	KeepLastAmount int `json:"keepLastAmount"`
-}
-
 // DatabaseBackupDeleteDto defines model for DatabaseBackupDeleteDto.
 type DatabaseBackupDeleteDto struct {
 	// Backups Backup filenames to delete
@@ -1743,8 +2401,31 @@ type DatabaseBackupUploadDto struct {
 	File *openapi_types.File `json:"file,omitempty"`
 }
 
+// DateFilter defines model for DateFilter.
+type DateFilter struct {
+	Eq  *time.Time `json:"eq,omitempty"`
+	Gt  *time.Time `json:"gt,omitempty"`
+	Gte *time.Time `json:"gte,omitempty"`
+	Lt  *time.Time `json:"lt,omitempty"`
+	Lte *time.Time `json:"lte,omitempty"`
+	Ne  *time.Time `json:"ne,omitempty"`
+}
+
+// DateFilterNullable defines model for DateFilterNullable.
+type DateFilterNullable struct {
+	Eq  *time.Time `json:"eq"`
+	Gt  *time.Time `json:"gt,omitempty"`
+	Gte *time.Time `json:"gte,omitempty"`
+	Lt  *time.Time `json:"lt,omitempty"`
+	Lte *time.Time `json:"lte,omitempty"`
+	Ne  *time.Time `json:"ne"`
+}
+
 // DownloadArchiveDto defines model for DownloadArchiveDto.
 type DownloadArchiveDto struct {
+	// ArchiveName The name of the archive to download, without extension
+	ArchiveName *string `json:"archiveName,omitempty"`
+
 	// AssetIds Asset IDs
 	AssetIds []openapi_types.UUID `json:"assetIds"`
 
@@ -1803,15 +2484,6 @@ type DownloadUpdate struct {
 	IncludeEmbeddedVideos *bool `json:"includeEmbeddedVideos,omitempty"`
 }
 
-// DuplicateDetectionConfig defines model for DuplicateDetectionConfig.
-type DuplicateDetectionConfig struct {
-	// Enabled Whether the task is enabled
-	Enabled bool `json:"enabled"`
-
-	// MaxDistance Maximum distance threshold for duplicate detection
-	MaxDistance float64 `json:"maxDistance"`
-}
-
 // DuplicateResolveDto defines model for DuplicateResolveDto.
 type DuplicateResolveDto struct {
 	// Groups List of duplicate groups to resolve
@@ -1863,6 +2535,28 @@ type EmailNotificationsUpdate struct {
 
 	// Enabled Whether email notifications are enabled
 	Enabled *bool `json:"enabled,omitempty"`
+}
+
+// EnumFilterAssetType defines model for EnumFilterAssetType.
+type EnumFilterAssetType struct {
+	// Eq Asset type
+	Eq *AssetTypeEnum   `json:"eq,omitempty"`
+	In *[]AssetTypeEnum `json:"in,omitempty"`
+
+	// Ne Asset type
+	Ne    *AssetTypeEnum   `json:"ne,omitempty"`
+	NotIn *[]AssetTypeEnum `json:"notIn,omitempty"`
+}
+
+// EnumFilterAssetVisibility defines model for EnumFilterAssetVisibility.
+type EnumFilterAssetVisibility struct {
+	// Eq Asset visibility
+	Eq *AssetVisibility   `json:"eq,omitempty"`
+	In *[]AssetVisibility `json:"in,omitempty"`
+
+	// Ne Asset visibility
+	Ne    *AssetVisibility   `json:"ne,omitempty"`
+	NotIn *[]AssetVisibility `json:"notIn,omitempty"`
 }
 
 // ExifResponseDto EXIF response
@@ -1940,24 +2634,6 @@ type FaceDto struct {
 	Id openapi_types.UUID `json:"id"`
 }
 
-// FacialRecognitionConfig defines model for FacialRecognitionConfig.
-type FacialRecognitionConfig struct {
-	// Enabled Whether the task is enabled
-	Enabled bool `json:"enabled"`
-
-	// MaxDistance Maximum distance threshold for face recognition
-	MaxDistance float64 `json:"maxDistance"`
-
-	// MinFaces Minimum number of faces required for recognition
-	MinFaces int `json:"minFaces"`
-
-	// MinScore Minimum confidence score for face detection
-	MinScore float64 `json:"minScore"`
-
-	// ModelName Name of the model to use
-	ModelName string `json:"modelName"`
-}
-
 // FoldersResponse defines model for FoldersResponse.
 type FoldersResponse struct {
 	// Enabled Whether folders are enabled
@@ -1978,6 +2654,25 @@ type FoldersUpdate struct {
 
 // HlsVideoResolution HLS video resolution
 type HlsVideoResolution int
+
+// IdFilter defines model for IdFilter.
+type IdFilter struct {
+	Eq *openapi_types.UUID `json:"eq,omitempty"`
+	Ne *openapi_types.UUID `json:"ne,omitempty"`
+}
+
+// IdFilterNullable defines model for IdFilterNullable.
+type IdFilterNullable struct {
+	Eq *openapi_types.UUID `json:"eq"`
+	Ne *openapi_types.UUID `json:"ne"`
+}
+
+// IdsFilter defines model for IdsFilter.
+type IdsFilter struct {
+	All  *[]openapi_types.UUID `json:"all,omitempty"`
+	Any  *[]openapi_types.UUID `json:"any,omitempty"`
+	None *[]openapi_types.UUID `json:"none,omitempty"`
+}
 
 // ImageFormat Image format
 type ImageFormat string
@@ -2015,12 +2710,6 @@ type JobCreateDto struct {
 
 // JobName Job name
 type JobName string
-
-// JobSettingsDto defines model for JobSettingsDto.
-type JobSettingsDto struct {
-	// Concurrency Concurrency
-	Concurrency int `json:"concurrency"`
-}
 
 // LibraryResponseDto defines model for LibraryResponseDto.
 type LibraryResponseDto struct {
@@ -2127,14 +2816,6 @@ type LogoutResponseDto struct {
 	Successful bool `json:"successful"`
 }
 
-// MachineLearningAvailabilityChecksDto defines model for MachineLearningAvailabilityChecksDto.
-type MachineLearningAvailabilityChecksDto struct {
-	// Enabled Enabled
-	Enabled  bool `json:"enabled"`
-	Interval int  `json:"interval"`
-	Timeout  int  `json:"timeout"`
-}
-
 // MaintenanceAction Maintenance action
 type MaintenanceAction string
 
@@ -2223,6 +2904,9 @@ type MemoriesResponse struct {
 
 	// Enabled Whether memories are enabled
 	Enabled bool `json:"enabled"`
+
+	// SidebarWeb Whether memories appear in web sidebar
+	SidebarWeb bool `json:"sidebarWeb"`
 }
 
 // MemoriesUpdate defines model for MemoriesUpdate.
@@ -2232,6 +2916,9 @@ type MemoriesUpdate struct {
 
 	// Enabled Whether memories are enabled
 	Enabled *bool `json:"enabled,omitempty"`
+
+	// SidebarWeb Whether memories appear in web sidebar
+	SidebarWeb *bool `json:"sidebarWeb,omitempty"`
 }
 
 // MemoryCreateDto defines model for MemoryCreateDto.
@@ -2331,120 +3018,160 @@ type MergePersonDto struct {
 // MetadataSearchDto defines model for MetadataSearchDto.
 type MetadataSearchDto struct {
 	// AlbumIds Filter by album IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	AlbumIds *[]openapi_types.UUID `json:"albumIds,omitempty"`
 
 	// Checksum Filter by file checksum
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Checksum *string `json:"checksum,omitempty"`
 
 	// City Filter by city name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	City *string `json:"city"`
 
 	// Country Filter by country name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Country *string `json:"country"`
 
 	// CreatedAfter Filter by creation date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	CreatedAfter *time.Time `json:"createdAfter,omitempty"`
 
 	// CreatedBefore Filter by creation date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	CreatedBefore *time.Time `json:"createdBefore,omitempty"`
 
+	// Cursor Cursor for the next page of results
+	Cursor *string `json:"cursor,omitempty"`
+
 	// Description Filter by description text
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Description *string `json:"description,omitempty"`
 
 	// EncodedVideoPath Filter by encoded video file path
-	EncodedVideoPath *string `json:"encodedVideoPath,omitempty"`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	EncodedVideoPath *string       `json:"encodedVideoPath,omitempty"`
+	Filter           *SearchFilter `json:"filter,omitempty"`
 
 	// Id Filter by asset ID
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Id *openapi_types.UUID `json:"id,omitempty"`
 
 	// IsEncoded Filter by encoded status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsEncoded *bool `json:"isEncoded,omitempty"`
 
 	// IsFavorite Filter by favorite status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsFavorite *bool `json:"isFavorite,omitempty"`
 
 	// IsMotion Filter by motion photo status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsMotion *bool `json:"isMotion,omitempty"`
 
 	// IsNotInAlbum Filter assets not in any album
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsNotInAlbum *bool `json:"isNotInAlbum,omitempty"`
 
 	// IsOffline Filter by offline status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsOffline *bool `json:"isOffline,omitempty"`
 
 	// LensModel Filter by lens model
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	LensModel *string `json:"lensModel"`
 
 	// LibraryId Library ID to filter by
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	LibraryId *openapi_types.UUID `json:"libraryId"`
 
 	// Make Filter by camera make
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Make *string `json:"make"`
 
 	// Model Filter by camera model
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Model *string `json:"model"`
 
 	// Ocr Filter by OCR text content
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Ocr *string `json:"ocr,omitempty"`
 
 	// Order Asset sort order
-	Order *AssetOrder `json:"order,omitempty"`
+	Order   *AssetOrder  `json:"order,omitempty"`
+	OrderBy *SearchOrder `json:"orderBy,omitempty"`
 
 	// OriginalFileName Filter by original file name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	OriginalFileName *string `json:"originalFileName,omitempty"`
 
 	// OriginalPath Filter by original file path
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	OriginalPath *string `json:"originalPath,omitempty"`
 
 	// Page Page number
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Page *int `json:"page,omitempty"`
 
 	// PersonIds Filter by person IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	PersonIds *[]openapi_types.UUID `json:"personIds,omitempty"`
 
 	// PreviewPath Filter by preview file path
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	PreviewPath *string `json:"previewPath,omitempty"`
 
 	// Rating Filter by rating [1-5], or null for unrated
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Rating *int `json:"rating"`
 
 	// Size Number of results to return
 	Size *int `json:"size,omitempty"`
 
 	// State Filter by state/province name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	State *string `json:"state"`
 
 	// TagIds Filter by tag IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TagIds *[]openapi_types.UUID `json:"tagIds"`
 
 	// TakenAfter Filter by taken date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TakenAfter *time.Time `json:"takenAfter,omitempty"`
 
 	// TakenBefore Filter by taken date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TakenBefore *time.Time `json:"takenBefore,omitempty"`
 
 	// ThumbnailPath Filter by thumbnail file path
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	ThumbnailPath *string `json:"thumbnailPath,omitempty"`
 
 	// TrashedAfter Filter by trash date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TrashedAfter *time.Time `json:"trashedAfter,omitempty"`
 
 	// TrashedBefore Filter by trash date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TrashedBefore *time.Time `json:"trashedBefore,omitempty"`
 
 	// Type Asset type
 	Type *AssetTypeEnum `json:"type,omitempty"`
 
 	// UpdatedAfter Filter by update date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	UpdatedAfter *time.Time `json:"updatedAfter,omitempty"`
 
 	// UpdatedBefore Filter by update date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	UpdatedBefore *time.Time `json:"updatedBefore,omitempty"`
 
 	// Visibility Asset visibility
 	Visibility *AssetVisibility `json:"visibility,omitempty"`
 
 	// WithDeleted Include deleted assets
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	WithDeleted *bool `json:"withDeleted,omitempty"`
 
 	// WithExif Include EXIF data in response
@@ -2544,6 +3271,30 @@ type NotificationUpdateDto struct {
 	ReadAt *time.Time `json:"readAt"`
 }
 
+// NumberFilter defines model for NumberFilter.
+type NumberFilter struct {
+	Eq    *float32   `json:"eq,omitempty"`
+	Gt    *float32   `json:"gt,omitempty"`
+	Gte   *float32   `json:"gte,omitempty"`
+	In    *[]float32 `json:"in,omitempty"`
+	Lt    *float32   `json:"lt,omitempty"`
+	Lte   *float32   `json:"lte,omitempty"`
+	Ne    *float32   `json:"ne,omitempty"`
+	NotIn *[]float32 `json:"notIn,omitempty"`
+}
+
+// NumberFilterNullable defines model for NumberFilterNullable.
+type NumberFilterNullable struct {
+	Eq    *float32   `json:"eq"`
+	Gt    *float32   `json:"gt,omitempty"`
+	Gte   *float32   `json:"gte,omitempty"`
+	In    *[]float32 `json:"in,omitempty"`
+	Lt    *float32   `json:"lt,omitempty"`
+	Lte   *float32   `json:"lte,omitempty"`
+	Ne    *float32   `json:"ne"`
+	NotIn *[]float32 `json:"notIn,omitempty"`
+}
+
 // OAuthAuthorizeResponseDto defines model for OAuthAuthorizeResponseDto.
 type OAuthAuthorizeResponseDto struct {
 	// Url OAuth authorization URL
@@ -2582,24 +3333,6 @@ type OAuthConfigDto struct {
 
 // OAuthTokenEndpointAuthMethod OAuth token endpoint auth method
 type OAuthTokenEndpointAuthMethod string
-
-// OcrConfig defines model for OcrConfig.
-type OcrConfig struct {
-	// Enabled Whether the task is enabled
-	Enabled bool `json:"enabled"`
-
-	// MaxResolution Maximum resolution for OCR processing
-	MaxResolution int `json:"maxResolution"`
-
-	// MinDetectionScore Minimum confidence score for text detection
-	MinDetectionScore float64 `json:"minDetectionScore"`
-
-	// MinRecognitionScore Minimum confidence score for text recognition
-	MinRecognitionScore float64 `json:"minRecognitionScore"`
-
-	// ModelName Name of the model to use
-	ModelName string `json:"modelName"`
-}
 
 // OnThisDayDto defines model for OnThisDayDto.
 type OnThisDayDto struct {
@@ -2931,6 +3664,44 @@ type PluginTemplateStepResponseDto struct {
 	Method string `json:"method"`
 }
 
+// PublicConfigDto Configuration properties that are visible to everyone
+type PublicConfigDto struct {
+	Oauth         PublicConfigOAuthDto         `json:"oauth"`
+	PasswordLogin PublicConfigPasswordLoginDto `json:"passwordLogin"`
+	Server        PublicConfigServerDto        `json:"server"`
+	Theme         PublicConfigThemeDto         `json:"theme"`
+}
+
+// PublicConfigOAuthDto defines model for PublicConfigOAuthDto.
+type PublicConfigOAuthDto struct {
+	// AutoLaunch Auto launch
+	AutoLaunch bool `json:"autoLaunch"`
+
+	// ButtonText Button text
+	ButtonText string `json:"buttonText"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// PublicConfigPasswordLoginDto defines model for PublicConfigPasswordLoginDto.
+type PublicConfigPasswordLoginDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// PublicConfigServerDto defines model for PublicConfigServerDto.
+type PublicConfigServerDto struct {
+	// LoginPageMessage Login page message
+	LoginPageMessage string `json:"loginPageMessage"`
+}
+
+// PublicConfigThemeDto defines model for PublicConfigThemeDto.
+type PublicConfigThemeDto struct {
+	// CustomCss Custom CSS for theming
+	CustomCss string `json:"customCss"`
+}
+
 // PurchaseResponse defines model for PurchaseResponse.
 type PurchaseResponse struct {
 	// HideBuyButtonUntil Date until which to hide buy button
@@ -3066,90 +3837,117 @@ type QueuesResponseLegacyDto struct {
 // RandomSearchDto defines model for RandomSearchDto.
 type RandomSearchDto struct {
 	// AlbumIds Filter by album IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	AlbumIds *[]openapi_types.UUID `json:"albumIds,omitempty"`
 
 	// City Filter by city name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	City *string `json:"city"`
 
 	// Country Filter by country name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Country *string `json:"country"`
 
 	// CreatedAfter Filter by creation date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	CreatedAfter *time.Time `json:"createdAfter,omitempty"`
 
 	// CreatedBefore Filter by creation date (before)
-	CreatedBefore *time.Time `json:"createdBefore,omitempty"`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	CreatedBefore *time.Time    `json:"createdBefore,omitempty"`
+	Filter        *SearchFilter `json:"filter,omitempty"`
 
 	// IsEncoded Filter by encoded status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsEncoded *bool `json:"isEncoded,omitempty"`
 
 	// IsFavorite Filter by favorite status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsFavorite *bool `json:"isFavorite,omitempty"`
 
 	// IsMotion Filter by motion photo status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsMotion *bool `json:"isMotion,omitempty"`
 
 	// IsNotInAlbum Filter assets not in any album
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsNotInAlbum *bool `json:"isNotInAlbum,omitempty"`
 
 	// IsOffline Filter by offline status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsOffline *bool `json:"isOffline,omitempty"`
 
 	// LensModel Filter by lens model
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	LensModel *string `json:"lensModel"`
 
 	// LibraryId Library ID to filter by
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	LibraryId *openapi_types.UUID `json:"libraryId"`
 
 	// Make Filter by camera make
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Make *string `json:"make"`
 
 	// Model Filter by camera model
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Model *string `json:"model"`
 
 	// Ocr Filter by OCR text content
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Ocr *string `json:"ocr,omitempty"`
 
 	// PersonIds Filter by person IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	PersonIds *[]openapi_types.UUID `json:"personIds,omitempty"`
 
 	// Rating Filter by rating [1-5], or null for unrated
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Rating *int `json:"rating"`
 
 	// Size Number of results to return
 	Size *int `json:"size,omitempty"`
 
 	// State Filter by state/province name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	State *string `json:"state"`
 
 	// TagIds Filter by tag IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TagIds *[]openapi_types.UUID `json:"tagIds"`
 
 	// TakenAfter Filter by taken date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TakenAfter *time.Time `json:"takenAfter,omitempty"`
 
 	// TakenBefore Filter by taken date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TakenBefore *time.Time `json:"takenBefore,omitempty"`
 
 	// TrashedAfter Filter by trash date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TrashedAfter *time.Time `json:"trashedAfter,omitempty"`
 
 	// TrashedBefore Filter by trash date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TrashedBefore *time.Time `json:"trashedBefore,omitempty"`
 
 	// Type Asset type
 	Type *AssetTypeEnum `json:"type,omitempty"`
 
 	// UpdatedAfter Filter by update date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	UpdatedAfter *time.Time `json:"updatedAfter,omitempty"`
 
 	// UpdatedBefore Filter by update date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	UpdatedBefore *time.Time `json:"updatedBefore,omitempty"`
 
 	// Visibility Asset visibility
 	Visibility *AssetVisibility `json:"visibility,omitempty"`
 
 	// WithDeleted Include deleted assets
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	WithDeleted *bool `json:"withDeleted,omitempty"`
 
 	// WithExif Include EXIF data in response
@@ -3228,7 +4026,11 @@ type SearchAssetResponseDto struct {
 	Facets []SearchFacetResponseDto `json:"facets"`
 	Items  []AssetResponseDto       `json:"items"`
 
+	// NextCursor Cursor for the next page of results
+	NextCursor *string `json:"nextCursor"`
+
 	// NextPage Next page token
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	NextPage *string `json:"nextPage"`
 
 	// Total Total number of matching assets
@@ -3266,6 +4068,89 @@ type SearchFacetResponseDto struct {
 	// FieldName Facet field name
 	FieldName string `json:"fieldName"`
 }
+
+// SearchFilter defines model for SearchFilter.
+type SearchFilter struct {
+	AlbumIds         *IdsFilter                 `json:"albumIds,omitempty"`
+	Checksum         *StringFilter              `json:"checksum,omitempty"`
+	City             *StringFilterNullable      `json:"city,omitempty"`
+	Country          *StringFilterNullable      `json:"country,omitempty"`
+	CreatedAt        *DateFilter                `json:"createdAt,omitempty"`
+	Description      *StringPatternFilter       `json:"description,omitempty"`
+	EncodedVideoPath *StringFilter              `json:"encodedVideoPath,omitempty"`
+	FileSizeInBytes  *NumberFilter              `json:"fileSizeInBytes,omitempty"`
+	HasAlbums        *BoolFilter                `json:"hasAlbums,omitempty"`
+	HasPeople        *BoolFilter                `json:"hasPeople,omitempty"`
+	HasTags          *BoolFilter                `json:"hasTags,omitempty"`
+	Id               *IdFilter                  `json:"id,omitempty"`
+	IsEncoded        *BoolFilter                `json:"isEncoded,omitempty"`
+	IsFavorite       *BoolFilter                `json:"isFavorite,omitempty"`
+	IsMotion         *BoolFilter                `json:"isMotion,omitempty"`
+	IsOffline        *BoolFilter                `json:"isOffline,omitempty"`
+	LensModel        *StringFilterNullable      `json:"lensModel,omitempty"`
+	LibraryId        *IdFilterNullable          `json:"libraryId,omitempty"`
+	Make             *StringFilterNullable      `json:"make,omitempty"`
+	Model            *StringFilterNullable      `json:"model,omitempty"`
+	Ocr              *StringSimilarityFilter    `json:"ocr,omitempty"`
+	Or               *[]SearchFilterBranch      `json:"or,omitempty"`
+	OriginalFileName *StringPatternFilter       `json:"originalFileName,omitempty"`
+	OriginalPath     *StringPatternFilter       `json:"originalPath,omitempty"`
+	PersonIds        *IdsFilter                 `json:"personIds,omitempty"`
+	Rating           *NumberFilterNullable      `json:"rating,omitempty"`
+	State            *StringFilterNullable      `json:"state,omitempty"`
+	TagIds           *IdsFilter                 `json:"tagIds,omitempty"`
+	TakenAt          *DateFilter                `json:"takenAt,omitempty"`
+	TrashedAt        *DateFilterNullable        `json:"trashedAt,omitempty"`
+	Type             *EnumFilterAssetType       `json:"type,omitempty"`
+	UpdatedAt        *DateFilter                `json:"updatedAt,omitempty"`
+	Visibility       *EnumFilterAssetVisibility `json:"visibility,omitempty"`
+}
+
+// SearchFilterBranch defines model for SearchFilterBranch.
+type SearchFilterBranch struct {
+	AlbumIds         *IdsFilter                 `json:"albumIds,omitempty"`
+	Checksum         *StringFilter              `json:"checksum,omitempty"`
+	City             *StringFilterNullable      `json:"city,omitempty"`
+	Country          *StringFilterNullable      `json:"country,omitempty"`
+	CreatedAt        *DateFilter                `json:"createdAt,omitempty"`
+	Description      *StringPatternFilter       `json:"description,omitempty"`
+	EncodedVideoPath *StringFilter              `json:"encodedVideoPath,omitempty"`
+	FileSizeInBytes  *NumberFilter              `json:"fileSizeInBytes,omitempty"`
+	HasAlbums        *BoolFilter                `json:"hasAlbums,omitempty"`
+	HasPeople        *BoolFilter                `json:"hasPeople,omitempty"`
+	HasTags          *BoolFilter                `json:"hasTags,omitempty"`
+	Id               *IdFilter                  `json:"id,omitempty"`
+	IsEncoded        *BoolFilter                `json:"isEncoded,omitempty"`
+	IsFavorite       *BoolFilter                `json:"isFavorite,omitempty"`
+	IsMotion         *BoolFilter                `json:"isMotion,omitempty"`
+	IsOffline        *BoolFilter                `json:"isOffline,omitempty"`
+	LensModel        *StringFilterNullable      `json:"lensModel,omitempty"`
+	LibraryId        *IdFilterNullable          `json:"libraryId,omitempty"`
+	Make             *StringFilterNullable      `json:"make,omitempty"`
+	Model            *StringFilterNullable      `json:"model,omitempty"`
+	Ocr              *StringSimilarityFilter    `json:"ocr,omitempty"`
+	OriginalFileName *StringPatternFilter       `json:"originalFileName,omitempty"`
+	OriginalPath     *StringPatternFilter       `json:"originalPath,omitempty"`
+	PersonIds        *IdsFilter                 `json:"personIds,omitempty"`
+	Rating           *NumberFilterNullable      `json:"rating,omitempty"`
+	State            *StringFilterNullable      `json:"state,omitempty"`
+	TagIds           *IdsFilter                 `json:"tagIds,omitempty"`
+	TakenAt          *DateFilter                `json:"takenAt,omitempty"`
+	TrashedAt        *DateFilterNullable        `json:"trashedAt,omitempty"`
+	Type             *EnumFilterAssetType       `json:"type,omitempty"`
+	UpdatedAt        *DateFilter                `json:"updatedAt,omitempty"`
+	Visibility       *EnumFilterAssetVisibility `json:"visibility,omitempty"`
+}
+
+// SearchOrder defines model for SearchOrder.
+type SearchOrder struct {
+	// Direction Asset sort order
+	Direction *AssetOrder       `json:"direction,omitempty"`
+	Field     *SearchOrderField `json:"field,omitempty"`
+}
+
+// SearchOrderField defines model for SearchOrderField.
+type SearchOrderField string
 
 // SearchResponseDto defines model for SearchResponseDto.
 type SearchResponseDto struct {
@@ -3388,6 +4273,9 @@ type ServerConfigDto struct {
 
 	// MinFaces People min faces server default
 	MinFaces int `json:"minFaces"`
+
+	// OauthAccountManagementUrl OAuth account management URL
+	OauthAccountManagementUrl *string `json:"oauthAccountManagementUrl,omitempty"`
 
 	// OauthButtonText OAuth button text
 	OauthButtonText string `json:"oauthButtonText"`
@@ -3782,57 +4670,75 @@ type SignUpDto struct {
 // SmartSearchDto defines model for SmartSearchDto.
 type SmartSearchDto struct {
 	// AlbumIds Filter by album IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	AlbumIds *[]openapi_types.UUID `json:"albumIds,omitempty"`
 
 	// City Filter by city name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	City *string `json:"city"`
 
 	// Country Filter by country name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Country *string `json:"country"`
 
 	// CreatedAfter Filter by creation date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	CreatedAfter *time.Time `json:"createdAfter,omitempty"`
 
 	// CreatedBefore Filter by creation date (before)
-	CreatedBefore *time.Time `json:"createdBefore,omitempty"`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	CreatedBefore *time.Time    `json:"createdBefore,omitempty"`
+	Filter        *SearchFilter `json:"filter,omitempty"`
 
 	// IsEncoded Filter by encoded status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsEncoded *bool `json:"isEncoded,omitempty"`
 
 	// IsFavorite Filter by favorite status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsFavorite *bool `json:"isFavorite,omitempty"`
 
 	// IsMotion Filter by motion photo status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsMotion *bool `json:"isMotion,omitempty"`
 
 	// IsNotInAlbum Filter assets not in any album
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsNotInAlbum *bool `json:"isNotInAlbum,omitempty"`
 
 	// IsOffline Filter by offline status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsOffline *bool `json:"isOffline,omitempty"`
 
 	// Language Search language code
 	Language *string `json:"language,omitempty"`
 
 	// LensModel Filter by lens model
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	LensModel *string `json:"lensModel"`
 
 	// LibraryId Library ID to filter by
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	LibraryId *openapi_types.UUID `json:"libraryId"`
 
 	// Make Filter by camera make
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Make *string `json:"make"`
 
 	// Model Filter by camera model
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Model *string `json:"model"`
 
 	// Ocr Filter by OCR text content
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Ocr *string `json:"ocr,omitempty"`
 
 	// Page Page number
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Page *int `json:"page,omitempty"`
 
 	// PersonIds Filter by person IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	PersonIds *[]openapi_types.UUID `json:"personIds,omitempty"`
 
 	// Query Natural language search query
@@ -3842,42 +4748,52 @@ type SmartSearchDto struct {
 	QueryAssetId *openapi_types.UUID `json:"queryAssetId,omitempty"`
 
 	// Rating Filter by rating [1-5], or null for unrated
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Rating *int `json:"rating"`
 
 	// Size Number of results to return
 	Size *int `json:"size,omitempty"`
 
 	// State Filter by state/province name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	State *string `json:"state"`
 
 	// TagIds Filter by tag IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TagIds *[]openapi_types.UUID `json:"tagIds"`
 
 	// TakenAfter Filter by taken date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TakenAfter *time.Time `json:"takenAfter,omitempty"`
 
 	// TakenBefore Filter by taken date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TakenBefore *time.Time `json:"takenBefore,omitempty"`
 
 	// TrashedAfter Filter by trash date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TrashedAfter *time.Time `json:"trashedAfter,omitempty"`
 
 	// TrashedBefore Filter by trash date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TrashedBefore *time.Time `json:"trashedBefore,omitempty"`
 
 	// Type Asset type
 	Type *AssetTypeEnum `json:"type,omitempty"`
 
 	// UpdatedAfter Filter by update date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	UpdatedAfter *time.Time `json:"updatedAfter,omitempty"`
 
 	// UpdatedBefore Filter by update date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	UpdatedBefore *time.Time `json:"updatedBefore,omitempty"`
 
 	// Visibility Asset visibility
 	Visibility *AssetVisibility `json:"visibility,omitempty"`
 
 	// WithDeleted Include deleted assets
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	WithDeleted *bool `json:"withDeleted,omitempty"`
 
 	// WithExif Include EXIF data in response
@@ -3913,84 +4829,111 @@ type StackUpdateDto struct {
 // StatisticsSearchDto defines model for StatisticsSearchDto.
 type StatisticsSearchDto struct {
 	// AlbumIds Filter by album IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	AlbumIds *[]openapi_types.UUID `json:"albumIds,omitempty"`
 
 	// City Filter by city name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	City *string `json:"city"`
 
 	// Country Filter by country name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Country *string `json:"country"`
 
 	// CreatedAfter Filter by creation date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	CreatedAfter *time.Time `json:"createdAfter,omitempty"`
 
 	// CreatedBefore Filter by creation date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	CreatedBefore *time.Time `json:"createdBefore,omitempty"`
 
 	// Description Filter by description text
-	Description *string `json:"description,omitempty"`
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	Description *string       `json:"description,omitempty"`
+	Filter      *SearchFilter `json:"filter,omitempty"`
 
 	// IsEncoded Filter by encoded status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsEncoded *bool `json:"isEncoded,omitempty"`
 
 	// IsFavorite Filter by favorite status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsFavorite *bool `json:"isFavorite,omitempty"`
 
 	// IsMotion Filter by motion photo status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsMotion *bool `json:"isMotion,omitempty"`
 
 	// IsNotInAlbum Filter assets not in any album
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsNotInAlbum *bool `json:"isNotInAlbum,omitempty"`
 
 	// IsOffline Filter by offline status
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	IsOffline *bool `json:"isOffline,omitempty"`
 
 	// LensModel Filter by lens model
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	LensModel *string `json:"lensModel"`
 
 	// LibraryId Library ID to filter by
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	LibraryId *openapi_types.UUID `json:"libraryId"`
 
 	// Make Filter by camera make
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Make *string `json:"make"`
 
 	// Model Filter by camera model
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Model *string `json:"model"`
 
 	// Ocr Filter by OCR text content
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Ocr *string `json:"ocr,omitempty"`
 
 	// PersonIds Filter by person IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	PersonIds *[]openapi_types.UUID `json:"personIds,omitempty"`
 
 	// Rating Filter by rating [1-5], or null for unrated
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	Rating *int `json:"rating"`
 
 	// State Filter by state/province name
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	State *string `json:"state"`
 
 	// TagIds Filter by tag IDs
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TagIds *[]openapi_types.UUID `json:"tagIds"`
 
 	// TakenAfter Filter by taken date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TakenAfter *time.Time `json:"takenAfter,omitempty"`
 
 	// TakenBefore Filter by taken date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TakenBefore *time.Time `json:"takenBefore,omitempty"`
 
 	// TrashedAfter Filter by trash date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TrashedAfter *time.Time `json:"trashedAfter,omitempty"`
 
 	// TrashedBefore Filter by trash date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	TrashedBefore *time.Time `json:"trashedBefore,omitempty"`
 
 	// Type Asset type
 	Type *AssetTypeEnum `json:"type,omitempty"`
 
 	// UpdatedAfter Filter by update date (after)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	UpdatedAfter *time.Time `json:"updatedAfter,omitempty"`
 
 	// UpdatedBefore Filter by update date (before)
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	UpdatedBefore *time.Time `json:"updatedBefore,omitempty"`
 
 	// Visibility Asset visibility
@@ -3999,6 +4942,39 @@ type StatisticsSearchDto struct {
 
 // StorageFolder Storage folder
 type StorageFolder string
+
+// StringFilter defines model for StringFilter.
+type StringFilter struct {
+	Eq    *string   `json:"eq,omitempty"`
+	In    *[]string `json:"in,omitempty"`
+	Ne    *string   `json:"ne,omitempty"`
+	NotIn *[]string `json:"notIn,omitempty"`
+}
+
+// StringFilterNullable defines model for StringFilterNullable.
+type StringFilterNullable struct {
+	Eq    *string   `json:"eq"`
+	In    *[]string `json:"in,omitempty"`
+	Ne    *string   `json:"ne"`
+	NotIn *[]string `json:"notIn,omitempty"`
+}
+
+// StringPatternFilter defines model for StringPatternFilter.
+type StringPatternFilter struct {
+	EndsWith   *string   `json:"endsWith,omitempty"`
+	Eq         *string   `json:"eq"`
+	In         *[]string `json:"in,omitempty"`
+	Like       *string   `json:"like,omitempty"`
+	Ne         *string   `json:"ne"`
+	NotIn      *[]string `json:"notIn,omitempty"`
+	NotLike    *string   `json:"notLike,omitempty"`
+	StartsWith *string   `json:"startsWith,omitempty"`
+}
+
+// StringSimilarityFilter defines model for StringSimilarityFilter.
+type StringSimilarityFilter struct {
+	Matches string `json:"matches"`
+}
 
 // SyncAckDeleteDto defines model for SyncAckDeleteDto.
 type SyncAckDeleteDto struct {
@@ -4036,466 +5012,6 @@ type SyncStreamDto struct {
 	Types []SyncRequestType `json:"types"`
 }
 
-// SystemConfigBackupsDto defines model for SystemConfigBackupsDto.
-type SystemConfigBackupsDto struct {
-	Database DatabaseBackupConfig `json:"database"`
-}
-
-// SystemConfigDto System configuration
-type SystemConfigDto struct {
-	Backup SystemConfigBackupsDto `json:"backup"`
-	Ffmpeg SystemConfigFFmpegDto  `json:"ffmpeg"`
-	Image  SystemConfigImageDto   `json:"image"`
-
-	// IntegrityChecks Integrity checks config
-	IntegrityChecks  SystemConfigIntegrityChecks     `json:"integrityChecks"`
-	Job              SystemConfigJobDto              `json:"job"`
-	Library          SystemConfigLibraryDto          `json:"library"`
-	Logging          SystemConfigLoggingDto          `json:"logging"`
-	MachineLearning  SystemConfigMachineLearningDto  `json:"machineLearning"`
-	Map              SystemConfigMapDto              `json:"map"`
-	Metadata         SystemConfigMetadataDto         `json:"metadata"`
-	NewVersionCheck  SystemConfigNewVersionCheckDto  `json:"newVersionCheck"`
-	NightlyTasks     SystemConfigNightlyTasksDto     `json:"nightlyTasks"`
-	Notifications    SystemConfigNotificationsDto    `json:"notifications"`
-	Oauth            SystemConfigOAuthDto            `json:"oauth"`
-	PasswordLogin    SystemConfigPasswordLoginDto    `json:"passwordLogin"`
-	ReverseGeocoding SystemConfigReverseGeocodingDto `json:"reverseGeocoding"`
-	Server           SystemConfigServerDto           `json:"server"`
-	StorageTemplate  SystemConfigStorageTemplateDto  `json:"storageTemplate"`
-	Templates        SystemConfigTemplatesDto        `json:"templates"`
-	Theme            SystemConfigThemeDto            `json:"theme"`
-	Trash            SystemConfigTrashDto            `json:"trash"`
-	User             SystemConfigUserDto             `json:"user"`
-}
-
-// SystemConfigFFmpegDto defines model for SystemConfigFFmpegDto.
-type SystemConfigFFmpegDto struct {
-	// Accel Transcode hardware acceleration
-	Accel TranscodeHWAccel `json:"accel"`
-
-	// AccelDecode Accelerated decode
-	AccelDecode bool `json:"accelDecode"`
-
-	// AcceptedAudioCodecs Accepted audio codecs
-	AcceptedAudioCodecs []AudioCodec `json:"acceptedAudioCodecs"`
-
-	// AcceptedContainers Accepted containers
-	AcceptedContainers []VideoContainer `json:"acceptedContainers"`
-
-	// AcceptedVideoCodecs Accepted video codecs
-	AcceptedVideoCodecs []VideoCodec `json:"acceptedVideoCodecs"`
-
-	// Bframes B-frames
-	Bframes int `json:"bframes"`
-
-	// CqMode CQ mode
-	CqMode CQMode `json:"cqMode"`
-
-	// Crf CRF
-	Crf int `json:"crf"`
-
-	// GopSize GOP size
-	GopSize int `json:"gopSize"`
-
-	// MaxBitrate Max bitrate
-	MaxBitrate string `json:"maxBitrate"`
-
-	// PreferredHwDevice Preferred hardware device
-	PreferredHwDevice string `json:"preferredHwDevice"`
-
-	// Preset Preset
-	Preset   string                        `json:"preset"`
-	Realtime SystemConfigFFmpegRealtimeDto `json:"realtime"`
-
-	// Refs References
-	Refs int `json:"refs"`
-
-	// TargetAudioCodec Target audio codec
-	TargetAudioCodec AudioCodec `json:"targetAudioCodec"`
-
-	// TargetResolution Target resolution
-	TargetResolution string `json:"targetResolution"`
-
-	// TargetVideoCodec Target video codec
-	TargetVideoCodec VideoCodec `json:"targetVideoCodec"`
-
-	// TemporalAQ Temporal AQ
-	TemporalAQ bool `json:"temporalAQ"`
-
-	// Threads Threads
-	Threads int `json:"threads"`
-
-	// Tonemap Tone mapping
-	Tonemap ToneMapping `json:"tonemap"`
-
-	// Transcode Transcode policy
-	Transcode TranscodePolicy `json:"transcode"`
-
-	// TwoPass Two pass
-	TwoPass bool `json:"twoPass"`
-}
-
-// SystemConfigFFmpegRealtimeDto defines model for SystemConfigFFmpegRealtimeDto.
-type SystemConfigFFmpegRealtimeDto struct {
-	// Enabled Enable real-time HLS transcoding (alpha)
-	Enabled bool `json:"enabled"`
-
-	// Resolutions Resolutions to use for real-time HLS transcoding
-	Resolutions []HlsVideoResolution `json:"resolutions"`
-
-	// VideoCodecs Video codecs to use for real-time HLS transcoding
-	VideoCodecs []VideoCodec `json:"videoCodecs"`
-}
-
-// SystemConfigFacesDto defines model for SystemConfigFacesDto.
-type SystemConfigFacesDto struct {
-	// Import Import
-	Import bool `json:"import"`
-}
-
-// SystemConfigGeneratedFullsizeImageDto defines model for SystemConfigGeneratedFullsizeImageDto.
-type SystemConfigGeneratedFullsizeImageDto struct {
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-
-	// Format Image format
-	Format ImageFormat `json:"format"`
-
-	// Progressive Progressive
-	Progressive *bool `json:"progressive,omitempty"`
-
-	// Quality Quality
-	Quality int `json:"quality"`
-}
-
-// SystemConfigGeneratedImageDto defines model for SystemConfigGeneratedImageDto.
-type SystemConfigGeneratedImageDto struct {
-	// Format Image format
-	Format ImageFormat `json:"format"`
-
-	// Progressive Progressive
-	Progressive *bool `json:"progressive,omitempty"`
-
-	// Quality Quality
-	Quality int `json:"quality"`
-
-	// Size Size
-	Size int `json:"size"`
-}
-
-// SystemConfigImageDto defines model for SystemConfigImageDto.
-type SystemConfigImageDto struct {
-	// Colorspace Colorspace
-	Colorspace Colorspace `json:"colorspace"`
-
-	// ExtractEmbedded Extract embedded
-	ExtractEmbedded bool                                  `json:"extractEmbedded"`
-	Fullsize        SystemConfigGeneratedFullsizeImageDto `json:"fullsize"`
-	Preview         SystemConfigGeneratedImageDto         `json:"preview"`
-	Thumbnail       SystemConfigGeneratedImageDto         `json:"thumbnail"`
-}
-
-// SystemConfigIntegrityChecks Integrity checks config
-type SystemConfigIntegrityChecks struct {
-	// ChecksumFiles Integrity checksum job config
-	ChecksumFiles SystemConfigIntegrityChecksumJob `json:"checksumFiles"`
-
-	// MissingFiles Integrity job config
-	MissingFiles SystemConfigIntegrityJob `json:"missingFiles"`
-
-	// UntrackedFiles Integrity job config
-	UntrackedFiles SystemConfigIntegrityJob `json:"untrackedFiles"`
-}
-
-// SystemConfigIntegrityChecksumJob Integrity checksum job config
-type SystemConfigIntegrityChecksumJob struct {
-	// CronExpression Cron expression for when the integrity check should run
-	CronExpression string `json:"cronExpression"`
-
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-
-	// PercentageLimit Percentage limit of the integrity checksum job
-	PercentageLimit float64 `json:"percentageLimit"`
-
-	// TimeLimit How long the integrity checksum job may run for
-	TimeLimit int `json:"timeLimit"`
-}
-
-// SystemConfigIntegrityJob Integrity job config
-type SystemConfigIntegrityJob struct {
-	// CronExpression Cron expression for when the integrity check should run
-	CronExpression string `json:"cronExpression"`
-
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-}
-
-// SystemConfigJobDto defines model for SystemConfigJobDto.
-type SystemConfigJobDto struct {
-	BackgroundTask      JobSettingsDto `json:"backgroundTask"`
-	Editor              JobSettingsDto `json:"editor"`
-	FaceDetection       JobSettingsDto `json:"faceDetection"`
-	IntegrityCheck      JobSettingsDto `json:"integrityCheck"`
-	Library             JobSettingsDto `json:"library"`
-	MetadataExtraction  JobSettingsDto `json:"metadataExtraction"`
-	Migration           JobSettingsDto `json:"migration"`
-	Notifications       JobSettingsDto `json:"notifications"`
-	Ocr                 JobSettingsDto `json:"ocr"`
-	Search              JobSettingsDto `json:"search"`
-	Sidecar             JobSettingsDto `json:"sidecar"`
-	SmartSearch         JobSettingsDto `json:"smartSearch"`
-	ThumbnailGeneration JobSettingsDto `json:"thumbnailGeneration"`
-	VideoConversion     JobSettingsDto `json:"videoConversion"`
-	Workflow            JobSettingsDto `json:"workflow"`
-}
-
-// SystemConfigLibraryDto defines model for SystemConfigLibraryDto.
-type SystemConfigLibraryDto struct {
-	Scan  SystemConfigLibraryScanDto  `json:"scan"`
-	Watch SystemConfigLibraryWatchDto `json:"watch"`
-}
-
-// SystemConfigLibraryScanDto defines model for SystemConfigLibraryScanDto.
-type SystemConfigLibraryScanDto struct {
-	// CronExpression Cron expression
-	CronExpression string `json:"cronExpression"`
-
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-}
-
-// SystemConfigLibraryWatchDto defines model for SystemConfigLibraryWatchDto.
-type SystemConfigLibraryWatchDto struct {
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-}
-
-// SystemConfigLoggingDto defines model for SystemConfigLoggingDto.
-type SystemConfigLoggingDto struct {
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-
-	// Level Log level
-	Level LogLevel `json:"level"`
-}
-
-// SystemConfigMachineLearningDto defines model for SystemConfigMachineLearningDto.
-type SystemConfigMachineLearningDto struct {
-	AvailabilityChecks MachineLearningAvailabilityChecksDto `json:"availabilityChecks"`
-	Clip               CLIPConfig                           `json:"clip"`
-	DuplicateDetection DuplicateDetectionConfig             `json:"duplicateDetection"`
-
-	// Enabled Enabled
-	Enabled           bool                    `json:"enabled"`
-	FacialRecognition FacialRecognitionConfig `json:"facialRecognition"`
-	Ocr               OcrConfig               `json:"ocr"`
-
-	// Urls ML service URLs
-	Urls []string `json:"urls"`
-}
-
-// SystemConfigMapDto defines model for SystemConfigMapDto.
-type SystemConfigMapDto struct {
-	// DarkStyle Dark map style URL
-	DarkStyle string `json:"darkStyle"`
-
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-
-	// LightStyle Light map style URL
-	LightStyle string `json:"lightStyle"`
-}
-
-// SystemConfigMetadataDto defines model for SystemConfigMetadataDto.
-type SystemConfigMetadataDto struct {
-	Faces SystemConfigFacesDto `json:"faces"`
-}
-
-// SystemConfigNewVersionCheckDto defines model for SystemConfigNewVersionCheckDto.
-type SystemConfigNewVersionCheckDto struct {
-	// Channel Release channel
-	Channel ReleaseChannel `json:"channel"`
-
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-}
-
-// SystemConfigNightlyTasksDto defines model for SystemConfigNightlyTasksDto.
-type SystemConfigNightlyTasksDto struct {
-	// ClusterNewFaces Cluster new faces
-	ClusterNewFaces bool `json:"clusterNewFaces"`
-
-	// DatabaseCleanup Database cleanup
-	DatabaseCleanup bool `json:"databaseCleanup"`
-
-	// GenerateMemories Generate memories
-	GenerateMemories bool `json:"generateMemories"`
-
-	// MissingThumbnails Missing thumbnails
-	MissingThumbnails bool `json:"missingThumbnails"`
-
-	// StartTime Start time (HH:MM)
-	StartTime string `json:"startTime"`
-
-	// SyncQuotaUsage Sync quota usage
-	SyncQuotaUsage bool `json:"syncQuotaUsage"`
-}
-
-// SystemConfigNotificationsDto defines model for SystemConfigNotificationsDto.
-type SystemConfigNotificationsDto struct {
-	Smtp SystemConfigSmtpDto `json:"smtp"`
-}
-
-// SystemConfigOAuthDto defines model for SystemConfigOAuthDto.
-type SystemConfigOAuthDto struct {
-	// AllowInsecureRequests Allow insecure requests
-	AllowInsecureRequests bool `json:"allowInsecureRequests"`
-
-	// AutoLaunch Auto launch
-	AutoLaunch bool `json:"autoLaunch"`
-
-	// AutoRegister Auto register
-	AutoRegister bool `json:"autoRegister"`
-
-	// ButtonText Button text
-	ButtonText string `json:"buttonText"`
-
-	// ClientId Client ID
-	ClientId string `json:"clientId"`
-
-	// ClientSecret Client secret
-	ClientSecret string `json:"clientSecret"`
-
-	// DefaultStorageQuota Default storage quota
-	DefaultStorageQuota *int `json:"defaultStorageQuota"`
-
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-
-	// EndSessionEndpoint End session endpoint
-	EndSessionEndpoint string `json:"endSessionEndpoint"`
-
-	// IssuerUrl Issuer URL
-	IssuerUrl string `json:"issuerUrl"`
-
-	// MobileOverrideEnabled Mobile override enabled
-	MobileOverrideEnabled bool `json:"mobileOverrideEnabled"`
-
-	// MobileRedirectUri Mobile redirect URI (set to empty string to disable)
-	MobileRedirectUri string `json:"mobileRedirectUri"`
-
-	// ProfileSigningAlgorithm Profile signing algorithm
-	ProfileSigningAlgorithm string `json:"profileSigningAlgorithm"`
-
-	// Prompt OAuth prompt parameter (e.g. select_account, login, consent)
-	Prompt string `json:"prompt"`
-
-	// RoleClaim Role claim
-	RoleClaim string `json:"roleClaim"`
-
-	// Scope Scope
-	Scope string `json:"scope"`
-
-	// SigningAlgorithm Signing algorithm
-	SigningAlgorithm string `json:"signingAlgorithm"`
-
-	// StorageLabelClaim Storage label claim
-	StorageLabelClaim string `json:"storageLabelClaim"`
-
-	// StorageQuotaClaim Storage quota claim
-	StorageQuotaClaim string `json:"storageQuotaClaim"`
-
-	// Timeout Timeout
-	Timeout int `json:"timeout"`
-
-	// TokenEndpointAuthMethod OAuth token endpoint auth method
-	TokenEndpointAuthMethod OAuthTokenEndpointAuthMethod `json:"tokenEndpointAuthMethod"`
-}
-
-// SystemConfigPasswordLoginDto defines model for SystemConfigPasswordLoginDto.
-type SystemConfigPasswordLoginDto struct {
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-}
-
-// SystemConfigReverseGeocodingDto defines model for SystemConfigReverseGeocodingDto.
-type SystemConfigReverseGeocodingDto struct {
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-}
-
-// SystemConfigServerDto defines model for SystemConfigServerDto.
-type SystemConfigServerDto struct {
-	// ExternalDomain External domain
-	ExternalDomain string `json:"externalDomain"`
-
-	// LoginPageMessage Login page message
-	LoginPageMessage string `json:"loginPageMessage"`
-
-	// PublicUsers Public users
-	PublicUsers bool `json:"publicUsers"`
-}
-
-// SystemConfigSmtpDto defines model for SystemConfigSmtpDto.
-type SystemConfigSmtpDto struct {
-	// Enabled Whether SMTP email notifications are enabled
-	Enabled bool `json:"enabled"`
-
-	// From Email address to send from
-	From string `json:"from"`
-
-	// ReplyTo Email address for replies
-	ReplyTo   string                       `json:"replyTo"`
-	Transport SystemConfigSmtpTransportDto `json:"transport"`
-}
-
-// SystemConfigSmtpTransportDto defines model for SystemConfigSmtpTransportDto.
-type SystemConfigSmtpTransportDto struct {
-	// Host SMTP server hostname
-	Host string `json:"host"`
-
-	// IgnoreCert Whether to ignore SSL certificate errors
-	IgnoreCert bool `json:"ignoreCert"`
-
-	// Password SMTP password
-	Password string `json:"password"`
-
-	// Port SMTP server port
-	Port int `json:"port"`
-
-	// Secure Whether to use secure connection (TLS/SSL)
-	Secure bool `json:"secure"`
-
-	// Username SMTP username
-	Username string `json:"username"`
-}
-
-// SystemConfigStorageTemplateDto defines model for SystemConfigStorageTemplateDto.
-type SystemConfigStorageTemplateDto struct {
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-
-	// HashVerificationEnabled Hash verification enabled
-	HashVerificationEnabled bool `json:"hashVerificationEnabled"`
-
-	// Template Template
-	Template string `json:"template"`
-}
-
-// SystemConfigTemplateEmailsDto defines model for SystemConfigTemplateEmailsDto.
-type SystemConfigTemplateEmailsDto struct {
-	// AlbumInviteTemplate Album invite template
-	AlbumInviteTemplate string `json:"albumInviteTemplate"`
-
-	// AlbumUpdateTemplate Album update template
-	AlbumUpdateTemplate string `json:"albumUpdateTemplate"`
-
-	// WelcomeTemplate Welcome template
-	WelcomeTemplate string `json:"welcomeTemplate"`
-}
-
 // SystemConfigTemplateStorageOptionDto defines model for SystemConfigTemplateStorageOptionDto.
 type SystemConfigTemplateStorageOptionDto struct {
 	// DayOptions Available day format options for storage template
@@ -4521,32 +5037,6 @@ type SystemConfigTemplateStorageOptionDto struct {
 
 	// YearOptions Available year format options for storage template
 	YearOptions []string `json:"yearOptions"`
-}
-
-// SystemConfigTemplatesDto defines model for SystemConfigTemplatesDto.
-type SystemConfigTemplatesDto struct {
-	Email SystemConfigTemplateEmailsDto `json:"email"`
-}
-
-// SystemConfigThemeDto defines model for SystemConfigThemeDto.
-type SystemConfigThemeDto struct {
-	// CustomCss Custom CSS for theming
-	CustomCss string `json:"customCss"`
-}
-
-// SystemConfigTrashDto defines model for SystemConfigTrashDto.
-type SystemConfigTrashDto struct {
-	// Days Days
-	Days int `json:"days"`
-
-	// Enabled Enabled
-	Enabled bool `json:"enabled"`
-}
-
-// SystemConfigUserDto defines model for SystemConfigUserDto.
-type SystemConfigUserDto struct {
-	// DeleteDelay Delete delay
-	DeleteDelay int `json:"deleteDelay"`
 }
 
 // TagBulkAssetsDto defines model for TagBulkAssetsDto.
@@ -4604,6 +5094,9 @@ type TagResponseDto struct {
 type TagUpdateDto struct {
 	// Color Tag color (hex)
 	Color *string `json:"color"`
+
+	// Name Tag name
+	Name *string `json:"name,omitempty"`
 }
 
 // TagUpsertDto defines model for TagUpsertDto.
@@ -4744,7 +5237,7 @@ type UpdateAlbumDto struct {
 	AlbumThumbnailAssetId *openapi_types.UUID `json:"albumThumbnailAssetId,omitempty"`
 
 	// Description Album description
-	Description *string `json:"description,omitempty"`
+	Description *string `json:"description"`
 
 	// IsActivityEnabled Enable activity feed
 	IsActivityEnabled *bool `json:"isActivityEnabled,omitempty"`
@@ -4868,6 +5361,9 @@ type UserAdminResponseDto struct {
 	// AvatarColor User avatar color
 	AvatarColor UserAvatarColor `json:"avatarColor"`
 
+	// ClusterGroupId Cluster group the user is a member of
+	ClusterGroupId openapi_types.UUID `json:"clusterGroupId"`
+
 	// CreatedAt Creation date
 	CreatedAt time.Time `json:"createdAt"`
 
@@ -4946,6 +5442,164 @@ type UserAdminUpdateDto struct {
 
 // UserAvatarColor User avatar color
 type UserAvatarColor string
+
+// UserConfigClipDto defines model for UserConfigClipDto.
+type UserConfigClipDto struct {
+	// Enabled Whether the task is enabled
+	Enabled bool `json:"enabled"`
+}
+
+// UserConfigDto Configuration properties that are visible to a logged user
+type UserConfigDto struct {
+	Ffmpeg           UserConfigFFmpegDto           `json:"ffmpeg"`
+	Image            UserConfigImageDto            `json:"image"`
+	MachineLearning  UserConfigMachineLearningDto  `json:"machineLearning"`
+	Map              UserConfigMapDto              `json:"map"`
+	Oauth            UserConfigOAuthDto            `json:"oauth"`
+	PasswordLogin    UserConfigPasswordLoginDto    `json:"passwordLogin"`
+	ReverseGeocoding UserConfigReverseGeocodingDto `json:"reverseGeocoding"`
+	Server           UserConfigServerDto           `json:"server"`
+	Theme            UserConfigThemeDto            `json:"theme"`
+	Trash            UserConfigTrashDto            `json:"trash"`
+	User             UserConfigUserDto             `json:"user"`
+}
+
+// UserConfigDuplicateDetectionDto defines model for UserConfigDuplicateDetectionDto.
+type UserConfigDuplicateDetectionDto struct {
+	// Enabled Whether the task is enabled
+	Enabled bool `json:"enabled"`
+}
+
+// UserConfigFFmpegDto defines model for UserConfigFFmpegDto.
+type UserConfigFFmpegDto struct {
+	Realtime UserConfigFFmpegRealtimeDto `json:"realtime"`
+}
+
+// UserConfigFFmpegRealtimeDto defines model for UserConfigFFmpegRealtimeDto.
+type UserConfigFFmpegRealtimeDto struct {
+	// Enabled Enable real-time HLS transcoding (alpha)
+	Enabled bool `json:"enabled"`
+
+	// Resolutions Resolutions to use for real-time HLS transcoding
+	Resolutions []HlsVideoResolution `json:"resolutions"`
+
+	// VideoCodecs Video codecs to use for real-time HLS transcoding
+	VideoCodecs []VideoCodec `json:"videoCodecs"`
+}
+
+// UserConfigFacialRecognitionDto defines model for UserConfigFacialRecognitionDto.
+type UserConfigFacialRecognitionDto struct {
+	// Enabled Whether the task is enabled
+	Enabled bool `json:"enabled"`
+
+	// MinFaces Minimum number of faces required for recognition
+	MinFaces int `json:"minFaces"`
+}
+
+// UserConfigGeneratedFullsizeImageDto defines model for UserConfigGeneratedFullsizeImageDto.
+type UserConfigGeneratedFullsizeImageDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// UserConfigGeneratedImageDto defines model for UserConfigGeneratedImageDto.
+type UserConfigGeneratedImageDto struct {
+	// Size Size
+	Size int `json:"size"`
+}
+
+// UserConfigImageDto defines model for UserConfigImageDto.
+type UserConfigImageDto struct {
+	Fullsize  UserConfigGeneratedFullsizeImageDto `json:"fullsize"`
+	Preview   UserConfigGeneratedImageDto         `json:"preview"`
+	Thumbnail UserConfigGeneratedImageDto         `json:"thumbnail"`
+}
+
+// UserConfigMachineLearningDto defines model for UserConfigMachineLearningDto.
+type UserConfigMachineLearningDto struct {
+	Clip               UserConfigClipDto               `json:"clip"`
+	DuplicateDetection UserConfigDuplicateDetectionDto `json:"duplicateDetection"`
+
+	// Enabled Enabled
+	Enabled           bool                           `json:"enabled"`
+	FacialRecognition UserConfigFacialRecognitionDto `json:"facialRecognition"`
+	Ocr               UserConfigOcrDto               `json:"ocr"`
+}
+
+// UserConfigMapDto defines model for UserConfigMapDto.
+type UserConfigMapDto struct {
+	// DarkStyle Dark map style URL
+	DarkStyle string `json:"darkStyle"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+
+	// LightStyle Light map style URL
+	LightStyle string `json:"lightStyle"`
+}
+
+// UserConfigOAuthDto defines model for UserConfigOAuthDto.
+type UserConfigOAuthDto struct {
+	// AutoLaunch Auto launch
+	AutoLaunch bool `json:"autoLaunch"`
+
+	// ButtonText Button text
+	ButtonText string `json:"buttonText"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// UserConfigOcrDto defines model for UserConfigOcrDto.
+type UserConfigOcrDto struct {
+	// Enabled Whether the task is enabled
+	Enabled bool `json:"enabled"`
+}
+
+// UserConfigPasswordLoginDto defines model for UserConfigPasswordLoginDto.
+type UserConfigPasswordLoginDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// UserConfigReverseGeocodingDto defines model for UserConfigReverseGeocodingDto.
+type UserConfigReverseGeocodingDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// UserConfigServerDto defines model for UserConfigServerDto.
+type UserConfigServerDto struct {
+	// ExternalDomain External domain
+	ExternalDomain string `json:"externalDomain"`
+
+	// LoginPageMessage Login page message
+	LoginPageMessage string `json:"loginPageMessage"`
+
+	// PublicUsers Public users
+	PublicUsers bool `json:"publicUsers"`
+}
+
+// UserConfigThemeDto defines model for UserConfigThemeDto.
+type UserConfigThemeDto struct {
+	// CustomCss Custom CSS for theming
+	CustomCss string `json:"customCss"`
+}
+
+// UserConfigTrashDto defines model for UserConfigTrashDto.
+type UserConfigTrashDto struct {
+	// Days Days
+	Days int `json:"days"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
+// UserConfigUserDto defines model for UserConfigUserDto.
+type UserConfigUserDto struct {
+	// DeleteDelay Delete delay
+	DeleteDelay int `json:"deleteDelay"`
+}
 
 // UserLicense defines model for UserLicense.
 type UserLicense struct {
@@ -5088,12 +5742,39 @@ type WorkflowCreateDto struct {
 	// Enabled Workflow enabled
 	Enabled *bool `json:"enabled,omitempty"`
 
+	// Logging Workflow logs run results
+	Logging *bool `json:"logging,omitempty"`
+
 	// Name Workflow name
 	Name  *string            `json:"name"`
 	Steps *[]WorkflowStepDto `json:"steps,omitempty"`
 
 	// Trigger Plugin trigger type
 	Trigger WorkflowTrigger `json:"trigger"`
+}
+
+// WorkflowLogEntryDto defines model for WorkflowLogEntryDto.
+type WorkflowLogEntryDto struct {
+	// At Workflow run date/time
+	At time.Time `json:"at"`
+
+	// Id Workflow log entry ID
+	Id openapi_types.UUID `json:"id"`
+
+	// LastStep Last step ran, if the workflow ended early
+	LastStep *struct {
+		// Index Index of the step in the workflow
+		Index int `json:"index"`
+
+		// Method Method of the step
+		Method string `json:"method"`
+	} `json:"lastStep,omitempty"`
+
+	// Result Workflow run result
+	Result WorkflowResult `json:"result"`
+
+	// TriggerDataId Workflow trigger data ID
+	TriggerDataId *openapi_types.UUID `json:"triggerDataId,omitempty"`
 }
 
 // WorkflowResponseDto defines model for WorkflowResponseDto.
@@ -5110,6 +5791,9 @@ type WorkflowResponseDto struct {
 	// Id Workflow ID
 	Id openapi_types.UUID `json:"id"`
 
+	// Logging Workflow logs run results
+	Logging bool `json:"logging"`
+
 	// Name Workflow name
 	Name *string `json:"name"`
 
@@ -5122,6 +5806,9 @@ type WorkflowResponseDto struct {
 	// UpdatedAt Update date
 	UpdatedAt string `json:"updatedAt"`
 }
+
+// WorkflowResult Workflow run result
+type WorkflowResult string
 
 // WorkflowShareResponseDto defines model for WorkflowShareResponseDto.
 type WorkflowShareResponseDto struct {
@@ -5184,6 +5871,9 @@ type WorkflowUpdateDto struct {
 
 	// Enabled Workflow enabled
 	Enabled *bool `json:"enabled,omitempty"`
+
+	// Logging Workflow logs run results
+	Logging *bool `json:"logging,omitempty"`
 
 	// Name Workflow name
 	Name  *string            `json:"name"`
@@ -5283,6 +5973,24 @@ type GetAlbumInfoParams struct {
 type GetAlbumMapMarkersParams struct {
 	Key  *string `form:"key,omitempty" json:"key,omitempty"`
 	Slug *string `form:"slug,omitempty" json:"slug,omitempty"`
+}
+
+// SearchAssetFilesParams defines parameters for SearchAssetFiles.
+type SearchAssetFilesParams struct {
+	// AssetId Asset ID to filter files by
+	AssetId openapi_types.UUID `form:"assetId" json:"assetId"`
+
+	// IsEdited The file was generated from an edit
+	IsEdited *bool `form:"isEdited,omitempty" json:"isEdited,omitempty"`
+
+	// IsProgressive The file is a progressively encoded JPEG
+	IsProgressive *bool `form:"isProgressive,omitempty" json:"isProgressive,omitempty"`
+
+	// IsTransparent The file is transparent
+	IsTransparent *bool `form:"isTransparent,omitempty" json:"isTransparent,omitempty"`
+
+	// Type Filter by type of file
+	Type *AssetFileType `form:"type,omitempty" json:"type,omitempty"`
 }
 
 // UploadAssetParams defines parameters for UploadAsset.
@@ -5412,12 +6120,21 @@ type SearchMemoriesParams struct {
 	// For Filter by date
 	For *openapi_types.Date `form:"for,omitempty" json:"for,omitempty"`
 
+	// Id Memory ID
+	Id *openapi_types.UUID `form:"id,omitempty" json:"id,omitempty"`
+
 	// IsSaved Filter by saved status
 	IsSaved *bool `form:"isSaved,omitempty" json:"isSaved,omitempty"`
 
 	// IsTrashed Include trashed memories
-	IsTrashed *bool              `form:"isTrashed,omitempty" json:"isTrashed,omitempty"`
-	Order     *MemorySearchOrder `form:"order,omitempty" json:"order,omitempty"`
+	IsTrashed *bool `form:"isTrashed,omitempty" json:"isTrashed,omitempty"`
+
+	// IsUpcoming Filter by memories that have not been shown yet
+	IsUpcoming *bool              `form:"isUpcoming,omitempty" json:"isUpcoming,omitempty"`
+	Order      *MemorySearchOrder `form:"order,omitempty" json:"order,omitempty"`
+
+	// Page Page number
+	Page *int `form:"page,omitempty" json:"page,omitempty"`
 
 	// Size Number of memories to return
 	Size *int        `form:"size,omitempty" json:"size,omitempty"`
@@ -5429,12 +6146,21 @@ type MemoriesStatisticsParams struct {
 	// For Filter by date
 	For *openapi_types.Date `form:"for,omitempty" json:"for,omitempty"`
 
+	// Id Memory ID
+	Id *openapi_types.UUID `form:"id,omitempty" json:"id,omitempty"`
+
 	// IsSaved Filter by saved status
 	IsSaved *bool `form:"isSaved,omitempty" json:"isSaved,omitempty"`
 
 	// IsTrashed Include trashed memories
-	IsTrashed *bool              `form:"isTrashed,omitempty" json:"isTrashed,omitempty"`
-	Order     *MemorySearchOrder `form:"order,omitempty" json:"order,omitempty"`
+	IsTrashed *bool `form:"isTrashed,omitempty" json:"isTrashed,omitempty"`
+
+	// IsUpcoming Filter by memories that have not been shown yet
+	IsUpcoming *bool              `form:"isUpcoming,omitempty" json:"isUpcoming,omitempty"`
+	Order      *MemorySearchOrder `form:"order,omitempty" json:"order,omitempty"`
+
+	// Page Page number
+	Page *int `form:"page,omitempty" json:"page,omitempty"`
 
 	// Size Number of memories to return
 	Size *int        `form:"size,omitempty" json:"size,omitempty"`
@@ -5799,6 +6525,9 @@ type SearchWorkflowsParams struct {
 	// Id Workflow ID
 	Id *openapi_types.UUID `form:"id,omitempty" json:"id,omitempty"`
 
+	// Logging Workflow logs run results
+	Logging *bool `form:"logging,omitempty" json:"logging,omitempty"`
+
 	// Name Workflow name
 	Name *string `form:"name,omitempty" json:"name,omitempty"`
 
@@ -5806,8 +6535,23 @@ type SearchWorkflowsParams struct {
 	Trigger *WorkflowTrigger `form:"trigger,omitempty" json:"trigger,omitempty"`
 }
 
+// GetWorkflowLogsParams defines parameters for GetWorkflowLogs.
+type GetWorkflowLogsParams struct {
+	// Before Filter by runs before a date/time
+	Before *time.Time `form:"before,omitempty" json:"before,omitempty"`
+
+	// Limit Maximum number of logs
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Result Filter by run result
+	Result *WorkflowResult `form:"result,omitempty" json:"result,omitempty"`
+}
+
 // CreateActivityJSONRequestBody defines body for CreateActivity for application/json ContentType.
 type CreateActivityJSONRequestBody = ActivityCreateDto
+
+// UpdateAdminConfigJSONRequestBody defines body for UpdateAdminConfig for application/json ContentType.
+type UpdateAdminConfigJSONRequestBody = AdminConfigDto
 
 // DeleteDatabaseBackupJSONRequestBody defines body for DeleteDatabaseBackup for application/json ContentType.
 type DeleteDatabaseBackupJSONRequestBody = DatabaseBackupDeleteDto
@@ -5828,7 +6572,7 @@ type CreateNotificationJSONRequestBody = NotificationCreateDto
 type GetNotificationTemplateAdminJSONRequestBody = TemplateDto
 
 // SendTestEmailAdminJSONRequestBody defines body for SendTestEmailAdmin for application/json ContentType.
-type SendTestEmailAdminJSONRequestBody = SystemConfigSmtpDto
+type SendTestEmailAdminJSONRequestBody = AdminConfigSmtpDto
 
 // CreateUserAdminJSONRequestBody defines body for CreateUserAdmin for application/json ContentType.
 type CreateUserAdminJSONRequestBody = UserAdminCreateDto
@@ -5922,6 +6666,9 @@ type ChangePinCodeJSONRequestBody = PinCodeChangeDto
 
 // UnlockAuthSessionJSONRequestBody defines body for UnlockAuthSession for application/json ContentType.
 type UnlockAuthSessionJSONRequestBody = SessionUnlockDto
+
+// CreateClusterGroupRequestJSONRequestBody defines body for CreateClusterGroupRequest for application/json ContentType.
+type CreateClusterGroupRequestJSONRequestBody = ClusterGroupRequestCreateDto
 
 // DownloadArchiveJSONRequestBody defines body for DownloadArchive for application/json ContentType.
 type DownloadArchiveJSONRequestBody = DownloadArchiveDto
@@ -6077,7 +6824,7 @@ type SendSyncAckJSONRequestBody = SyncAckSetDto
 type GetSyncStreamJSONRequestBody = SyncStreamDto
 
 // UpdateConfigJSONRequestBody defines body for UpdateConfig for application/json ContentType.
-type UpdateConfigJSONRequestBody = SystemConfigDto
+type UpdateConfigJSONRequestBody = AdminConfigDto
 
 // UpdateAdminOnboardingJSONRequestBody defines body for UpdateAdminOnboarding for application/json ContentType.
 type UpdateAdminOnboardingJSONRequestBody = AdminOnboardingUpdateDto
@@ -6390,6 +7137,17 @@ type ClientInterface interface {
 	// UnlinkAllOAuthAccountsAdmin request
 	UnlinkAllOAuthAccountsAdmin(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetAdminConfig request
+	GetAdminConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateAdminConfigWithBody request with any body
+	UpdateAdminConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateAdminConfig(ctx context.Context, body UpdateAdminConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAdminConfigDefaults request
+	GetAdminConfigDefaults(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteDatabaseBackupWithBody request with any body
 	DeleteDatabaseBackupWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -6569,6 +7327,21 @@ type ClientInterface interface {
 
 	UpdateApiKey(ctx context.Context, id openapi_types.UUID, body UpdateApiKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RotateApiKey request
+	RotateApiKey(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SearchAssetFiles request
+	SearchAssetFiles(ctx context.Context, params *SearchAssetFilesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteAssetFile request
+	DeleteAssetFile(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAssetFile request
+	GetAssetFile(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DownloadAssetFile request
+	DownloadAssetFile(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteAssetsWithBody request with any body
 	DeleteAssetsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -6713,6 +7486,38 @@ type ClientInterface interface {
 
 	// ValidateAccessToken request
 	ValidateAccessToken(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetClusterGroupRequests request
+	GetClusterGroupRequests(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteClusterGroupRequest request
+	DeleteClusterGroupRequest(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AcceptClusterGroupRequest request
+	AcceptClusterGroupRequest(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// LeaveClusterGroup request
+	LeaveClusterGroup(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ClusterGroupRegeneratePeople request
+	ClusterGroupRegeneratePeople(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetClusterGroupRequestsForGroup request
+	GetClusterGroupRequestsForGroup(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateClusterGroupRequestWithBody request with any body
+	CreateClusterGroupRequestWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateClusterGroupRequest(ctx context.Context, id openapi_types.UUID, body CreateClusterGroupRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetClusterGroupUsers request
+	GetClusterGroupUsers(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetUserConfig request
+	GetUserConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetUserConfigDefaults request
+	GetUserConfigDefaults(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DownloadArchiveWithBody request with any body
 	DownloadArchiveWithBody(ctx context.Context, params *DownloadArchiveParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6964,6 +7769,12 @@ type ClientInterface interface {
 
 	// GetPlugin request
 	GetPlugin(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPublicConfig request
+	GetPublicConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPublicConfigDefaults request
+	GetPublicConfigDefaults(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetQueues request
 	GetQueues(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -7338,6 +8149,9 @@ type ClientInterface interface {
 
 	UpdateWorkflow(ctx context.Context, id openapi_types.UUID, body UpdateWorkflowJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetWorkflowLogs request
+	GetWorkflowLogs(ctx context.Context, id openapi_types.UUID, params *GetWorkflowLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetWorkflowForShare request
 	GetWorkflowForShare(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
@@ -7404,6 +8218,54 @@ func (c *Client) DeleteActivity(ctx context.Context, id openapi_types.UUID, reqE
 
 func (c *Client) UnlinkAllOAuthAccountsAdmin(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUnlinkAllOAuthAccountsAdminRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAdminConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAdminConfigRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAdminConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAdminConfigRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAdminConfig(ctx context.Context, body UpdateAdminConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAdminConfigRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAdminConfigDefaults(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAdminConfigDefaultsRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -8206,6 +9068,66 @@ func (c *Client) UpdateApiKey(ctx context.Context, id openapi_types.UUID, body U
 	return c.Client.Do(req)
 }
 
+func (c *Client) RotateApiKey(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRotateApiKeyRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SearchAssetFiles(ctx context.Context, params *SearchAssetFilesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchAssetFilesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteAssetFile(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteAssetFileRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAssetFile(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAssetFileRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DownloadAssetFile(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDownloadAssetFileRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) DeleteAssetsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteAssetsRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -8844,6 +9766,138 @@ func (c *Client) GetAuthStatus(ctx context.Context, reqEditors ...RequestEditorF
 
 func (c *Client) ValidateAccessToken(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewValidateAccessTokenRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetClusterGroupRequests(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetClusterGroupRequestsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteClusterGroupRequest(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteClusterGroupRequestRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AcceptClusterGroupRequest(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAcceptClusterGroupRequestRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) LeaveClusterGroup(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewLeaveClusterGroupRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ClusterGroupRegeneratePeople(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewClusterGroupRegeneratePeopleRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetClusterGroupRequestsForGroup(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetClusterGroupRequestsForGroupRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateClusterGroupRequestWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateClusterGroupRequestRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateClusterGroupRequest(ctx context.Context, id openapi_types.UUID, body CreateClusterGroupRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateClusterGroupRequestRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetClusterGroupUsers(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetClusterGroupUsersRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetUserConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetUserConfigRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetUserConfigDefaults(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetUserConfigDefaultsRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -9972,6 +11026,30 @@ func (c *Client) SearchPluginTemplates(ctx context.Context, reqEditors ...Reques
 
 func (c *Client) GetPlugin(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetPluginRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetPublicConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPublicConfigRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetPublicConfigDefaults(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPublicConfigDefaultsRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -11614,6 +12692,18 @@ func (c *Client) UpdateWorkflow(ctx context.Context, id openapi_types.UUID, body
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetWorkflowLogs(ctx context.Context, id openapi_types.UUID, params *GetWorkflowLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWorkflowLogsRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetWorkflowForShare(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetWorkflowForShareRequest(c.Server, id)
 	if err != nil {
@@ -11890,6 +12980,100 @@ func NewUnlinkAllOAuthAccountsAdminRequest(server string) (*http.Request, error)
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetAdminConfigRequest generates requests for GetAdminConfig
+func NewGetAdminConfigRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateAdminConfigRequest calls the generic UpdateAdminConfig builder with application/json body
+func NewUpdateAdminConfigRequest(server string, body UpdateAdminConfigJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateAdminConfigRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateAdminConfigRequestWithBody generates requests for UpdateAdminConfig with any type of body
+func NewUpdateAdminConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAdminConfigDefaultsRequest generates requests for GetAdminConfigDefaults
+func NewGetAdminConfigDefaultsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/admin/config/defaults")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -13969,6 +15153,251 @@ func NewUpdateApiKeyRequestWithBody(server string, id openapi_types.UUID, conten
 	return req, nil
 }
 
+// NewRotateApiKeyRequest generates requests for RotateApiKey
+func NewRotateApiKeyRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api-keys/%s/rotate", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSearchAssetFilesRequest generates requests for SearchAssetFiles
+func NewSearchAssetFilesRequest(server string, params *SearchAssetFilesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/asset-files")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "assetId", runtime.ParamLocationQuery, params.AssetId); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if params.IsEdited != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isEdited", runtime.ParamLocationQuery, *params.IsEdited); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.IsProgressive != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isProgressive", runtime.ParamLocationQuery, *params.IsProgressive); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.IsTransparent != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isTransparent", runtime.ParamLocationQuery, *params.IsTransparent); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Type != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type", runtime.ParamLocationQuery, *params.Type); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteAssetFileRequest generates requests for DeleteAssetFile
+func NewDeleteAssetFileRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/asset-files/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetAssetFileRequest generates requests for GetAssetFile
+func NewGetAssetFileRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/asset-files/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDownloadAssetFileRequest generates requests for DownloadAssetFile
+func NewDownloadAssetFileRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/asset-files/%s/download", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewDeleteAssetsRequest calls the generic DeleteAssets builder with application/json body
 func NewDeleteAssetsRequest(server string, body DeleteAssetsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -15855,6 +17284,338 @@ func NewValidateAccessTokenRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewGetClusterGroupRequestsRequest generates requests for GetClusterGroupRequests
+func NewGetClusterGroupRequestsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/cluster-groups/requests")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteClusterGroupRequestRequest generates requests for DeleteClusterGroupRequest
+func NewDeleteClusterGroupRequestRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/cluster-groups/requests/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAcceptClusterGroupRequestRequest generates requests for AcceptClusterGroupRequest
+func NewAcceptClusterGroupRequestRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/cluster-groups/requests/%s/accept", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewLeaveClusterGroupRequest generates requests for LeaveClusterGroup
+func NewLeaveClusterGroupRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/cluster-groups/%s/leave", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewClusterGroupRegeneratePeopleRequest generates requests for ClusterGroupRegeneratePeople
+func NewClusterGroupRegeneratePeopleRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/cluster-groups/%s/regenerate-people", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetClusterGroupRequestsForGroupRequest generates requests for GetClusterGroupRequestsForGroup
+func NewGetClusterGroupRequestsForGroupRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/cluster-groups/%s/requests", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateClusterGroupRequestRequest calls the generic CreateClusterGroupRequest builder with application/json body
+func NewCreateClusterGroupRequestRequest(server string, id openapi_types.UUID, body CreateClusterGroupRequestJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateClusterGroupRequestRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewCreateClusterGroupRequestRequestWithBody generates requests for CreateClusterGroupRequest with any type of body
+func NewCreateClusterGroupRequestRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/cluster-groups/%s/requests", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetClusterGroupUsersRequest generates requests for GetClusterGroupUsers
+func NewGetClusterGroupUsersRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/cluster-groups/%s/users", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetUserConfigRequest generates requests for GetUserConfig
+func NewGetUserConfigRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetUserConfigDefaultsRequest generates requests for GetUserConfigDefaults
+func NewGetUserConfigDefaultsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/config/defaults")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewDownloadArchiveRequest calls the generic DownloadArchive builder with application/json body
 func NewDownloadArchiveRequest(server string, params *DownloadArchiveParams, body DownloadArchiveJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -16966,6 +18727,22 @@ func NewSearchMemoriesRequest(server string, params *SearchMemoriesParams) (*htt
 
 		}
 
+		if params.Id != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "id", runtime.ParamLocationQuery, *params.Id); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.IsSaved != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isSaved", runtime.ParamLocationQuery, *params.IsSaved); err != nil {
@@ -16998,9 +18775,41 @@ func NewSearchMemoriesRequest(server string, params *SearchMemoriesParams) (*htt
 
 		}
 
+		if params.IsUpcoming != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isUpcoming", runtime.ParamLocationQuery, *params.IsUpcoming); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.Order != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "order", runtime.ParamLocationQuery, *params.Order); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Page != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "page", runtime.ParamLocationQuery, *params.Page); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -17135,6 +18944,22 @@ func NewMemoriesStatisticsRequest(server string, params *MemoriesStatisticsParam
 
 		}
 
+		if params.Id != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "id", runtime.ParamLocationQuery, *params.Id); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.IsSaved != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isSaved", runtime.ParamLocationQuery, *params.IsSaved); err != nil {
@@ -17167,9 +18992,41 @@ func NewMemoriesStatisticsRequest(server string, params *MemoriesStatisticsParam
 
 		}
 
+		if params.IsUpcoming != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isUpcoming", runtime.ParamLocationQuery, *params.IsUpcoming); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.Order != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "order", runtime.ParamLocationQuery, *params.Order); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Page != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "page", runtime.ParamLocationQuery, *params.Page); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -19001,6 +20858,60 @@ func NewGetPluginRequest(server string, id openapi_types.UUID) (*http.Request, e
 	}
 
 	operationPath := fmt.Sprintf("/plugins/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetPublicConfigRequest generates requests for GetPublicConfig
+func NewGetPublicConfigRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/public/config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetPublicConfigDefaultsRequest generates requests for GetPublicConfigDefaults
+func NewGetPublicConfigDefaultsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/public/config/defaults")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -23692,6 +25603,22 @@ func NewSearchWorkflowsRequest(server string, params *SearchWorkflowsParams) (*h
 
 		}
 
+		if params.Logging != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "logging", runtime.ParamLocationQuery, *params.Logging); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.Name != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name", runtime.ParamLocationQuery, *params.Name); err != nil {
@@ -23917,6 +25844,94 @@ func NewUpdateWorkflowRequestWithBody(server string, id openapi_types.UUID, cont
 	return req, nil
 }
 
+// NewGetWorkflowLogsRequest generates requests for GetWorkflowLogs
+func NewGetWorkflowLogsRequest(server string, id openapi_types.UUID, params *GetWorkflowLogsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/workflows/%s/logs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Before != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "before", runtime.ParamLocationQuery, *params.Before); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Result != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "result", runtime.ParamLocationQuery, *params.Result); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetWorkflowForShareRequest generates requests for GetWorkflowForShare
 func NewGetWorkflowForShareRequest(server string, id openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -24010,6 +26025,17 @@ type ClientWithResponsesInterface interface {
 
 	// UnlinkAllOAuthAccountsAdminWithResponse request
 	UnlinkAllOAuthAccountsAdminWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*UnlinkAllOAuthAccountsAdminResponse, error)
+
+	// GetAdminConfigWithResponse request
+	GetAdminConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminConfigResponse, error)
+
+	// UpdateAdminConfigWithBodyWithResponse request with any body
+	UpdateAdminConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAdminConfigResponse, error)
+
+	UpdateAdminConfigWithResponse(ctx context.Context, body UpdateAdminConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAdminConfigResponse, error)
+
+	// GetAdminConfigDefaultsWithResponse request
+	GetAdminConfigDefaultsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminConfigDefaultsResponse, error)
 
 	// DeleteDatabaseBackupWithBodyWithResponse request with any body
 	DeleteDatabaseBackupWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteDatabaseBackupResponse, error)
@@ -24190,6 +26216,21 @@ type ClientWithResponsesInterface interface {
 
 	UpdateApiKeyWithResponse(ctx context.Context, id openapi_types.UUID, body UpdateApiKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateApiKeyResponse, error)
 
+	// RotateApiKeyWithResponse request
+	RotateApiKeyWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RotateApiKeyResponse, error)
+
+	// SearchAssetFilesWithResponse request
+	SearchAssetFilesWithResponse(ctx context.Context, params *SearchAssetFilesParams, reqEditors ...RequestEditorFn) (*SearchAssetFilesResponse, error)
+
+	// DeleteAssetFileWithResponse request
+	DeleteAssetFileWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteAssetFileResponse, error)
+
+	// GetAssetFileWithResponse request
+	GetAssetFileWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAssetFileResponse, error)
+
+	// DownloadAssetFileWithResponse request
+	DownloadAssetFileWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DownloadAssetFileResponse, error)
+
 	// DeleteAssetsWithBodyWithResponse request with any body
 	DeleteAssetsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteAssetsResponse, error)
 
@@ -24334,6 +26375,38 @@ type ClientWithResponsesInterface interface {
 
 	// ValidateAccessTokenWithResponse request
 	ValidateAccessTokenWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ValidateAccessTokenResponse, error)
+
+	// GetClusterGroupRequestsWithResponse request
+	GetClusterGroupRequestsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClusterGroupRequestsResponse, error)
+
+	// DeleteClusterGroupRequestWithResponse request
+	DeleteClusterGroupRequestWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteClusterGroupRequestResponse, error)
+
+	// AcceptClusterGroupRequestWithResponse request
+	AcceptClusterGroupRequestWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*AcceptClusterGroupRequestResponse, error)
+
+	// LeaveClusterGroupWithResponse request
+	LeaveClusterGroupWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*LeaveClusterGroupResponse, error)
+
+	// ClusterGroupRegeneratePeopleWithResponse request
+	ClusterGroupRegeneratePeopleWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ClusterGroupRegeneratePeopleResponse, error)
+
+	// GetClusterGroupRequestsForGroupWithResponse request
+	GetClusterGroupRequestsForGroupWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetClusterGroupRequestsForGroupResponse, error)
+
+	// CreateClusterGroupRequestWithBodyWithResponse request with any body
+	CreateClusterGroupRequestWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterGroupRequestResponse, error)
+
+	CreateClusterGroupRequestWithResponse(ctx context.Context, id openapi_types.UUID, body CreateClusterGroupRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterGroupRequestResponse, error)
+
+	// GetClusterGroupUsersWithResponse request
+	GetClusterGroupUsersWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetClusterGroupUsersResponse, error)
+
+	// GetUserConfigWithResponse request
+	GetUserConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetUserConfigResponse, error)
+
+	// GetUserConfigDefaultsWithResponse request
+	GetUserConfigDefaultsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetUserConfigDefaultsResponse, error)
 
 	// DownloadArchiveWithBodyWithResponse request with any body
 	DownloadArchiveWithBodyWithResponse(ctx context.Context, params *DownloadArchiveParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DownloadArchiveResponse, error)
@@ -24585,6 +26658,12 @@ type ClientWithResponsesInterface interface {
 
 	// GetPluginWithResponse request
 	GetPluginWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetPluginResponse, error)
+
+	// GetPublicConfigWithResponse request
+	GetPublicConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPublicConfigResponse, error)
+
+	// GetPublicConfigDefaultsWithResponse request
+	GetPublicConfigDefaultsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPublicConfigDefaultsResponse, error)
 
 	// GetQueuesWithResponse request
 	GetQueuesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetQueuesResponse, error)
@@ -24959,6 +27038,9 @@ type ClientWithResponsesInterface interface {
 
 	UpdateWorkflowWithResponse(ctx context.Context, id openapi_types.UUID, body UpdateWorkflowJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateWorkflowResponse, error)
 
+	// GetWorkflowLogsWithResponse request
+	GetWorkflowLogsWithResponse(ctx context.Context, id openapi_types.UUID, params *GetWorkflowLogsParams, reqEditors ...RequestEditorFn) (*GetWorkflowLogsResponse, error)
+
 	// GetWorkflowForShareWithResponse request
 	GetWorkflowForShareWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetWorkflowForShareResponse, error)
 }
@@ -25065,6 +27147,72 @@ func (r UnlinkAllOAuthAccountsAdminResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UnlinkAllOAuthAccountsAdminResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAdminConfigResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AdminConfigDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAdminConfigResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAdminConfigResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateAdminConfigResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AdminConfigDto
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateAdminConfigResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateAdminConfigResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAdminConfigDefaultsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AdminConfigDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAdminConfigDefaultsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAdminConfigDefaultsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -26093,6 +28241,114 @@ func (r UpdateApiKeyResponse) StatusCode() int {
 	return 0
 }
 
+type RotateApiKeyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *ApiKeyCreateResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r RotateApiKeyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RotateApiKeyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SearchAssetFilesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]AssetFileResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r SearchAssetFilesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SearchAssetFilesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteAssetFileResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteAssetFileResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteAssetFileResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAssetFileResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AssetFileResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAssetFileResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAssetFileResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DownloadAssetFileResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DownloadAssetFileResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DownloadAssetFileResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type DeleteAssetsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -26883,6 +29139,222 @@ func (r ValidateAccessTokenResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ValidateAccessTokenResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetClusterGroupRequestsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]ClusterGroupRequestResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetClusterGroupRequestsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetClusterGroupRequestsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteClusterGroupRequestResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteClusterGroupRequestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteClusterGroupRequestResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AcceptClusterGroupRequestResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r AcceptClusterGroupRequestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AcceptClusterGroupRequestResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type LeaveClusterGroupResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r LeaveClusterGroupResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r LeaveClusterGroupResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ClusterGroupRegeneratePeopleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r ClusterGroupRegeneratePeopleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ClusterGroupRegeneratePeopleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetClusterGroupRequestsForGroupResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]ClusterGroupRequestResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetClusterGroupRequestsForGroupResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetClusterGroupRequestsForGroupResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateClusterGroupRequestResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ClusterGroupRequestResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateClusterGroupRequestResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateClusterGroupRequestResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetClusterGroupUsersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]UserResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetClusterGroupUsersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetClusterGroupUsersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetUserConfigResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *UserConfigDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetUserConfigResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetUserConfigResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetUserConfigDefaultsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *UserConfigDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetUserConfigDefaultsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetUserConfigDefaultsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -28257,6 +30729,50 @@ func (r GetPluginResponse) StatusCode() int {
 	return 0
 }
 
+type GetPublicConfigResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PublicConfigDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPublicConfigResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPublicConfigResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPublicConfigDefaultsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PublicConfigDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPublicConfigDefaultsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPublicConfigDefaultsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetQueuesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -29458,7 +31974,7 @@ func (r GetSyncStreamResponse) StatusCode() int {
 type GetConfigResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *SystemConfigDto
+	JSON200      *AdminConfigDto
 }
 
 // Status returns HTTPResponse.Status
@@ -29480,7 +31996,7 @@ func (r GetConfigResponse) StatusCode() int {
 type UpdateConfigResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *SystemConfigDto
+	JSON200      *AdminConfigDto
 }
 
 // Status returns HTTPResponse.Status
@@ -29502,7 +32018,7 @@ func (r UpdateConfigResponse) StatusCode() int {
 type GetConfigDefaultsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *SystemConfigDto
+	JSON200      *AdminConfigDto
 }
 
 // Status returns HTTPResponse.Status
@@ -30460,6 +32976,28 @@ func (r UpdateWorkflowResponse) StatusCode() int {
 	return 0
 }
 
+type GetWorkflowLogsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]WorkflowLogEntryDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWorkflowLogsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWorkflowLogsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetWorkflowForShareResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30533,6 +33071,41 @@ func (c *ClientWithResponses) UnlinkAllOAuthAccountsAdminWithResponse(ctx contex
 		return nil, err
 	}
 	return ParseUnlinkAllOAuthAccountsAdminResponse(rsp)
+}
+
+// GetAdminConfigWithResponse request returning *GetAdminConfigResponse
+func (c *ClientWithResponses) GetAdminConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminConfigResponse, error) {
+	rsp, err := c.GetAdminConfig(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAdminConfigResponse(rsp)
+}
+
+// UpdateAdminConfigWithBodyWithResponse request with arbitrary body returning *UpdateAdminConfigResponse
+func (c *ClientWithResponses) UpdateAdminConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAdminConfigResponse, error) {
+	rsp, err := c.UpdateAdminConfigWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAdminConfigResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateAdminConfigWithResponse(ctx context.Context, body UpdateAdminConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAdminConfigResponse, error) {
+	rsp, err := c.UpdateAdminConfig(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAdminConfigResponse(rsp)
+}
+
+// GetAdminConfigDefaultsWithResponse request returning *GetAdminConfigDefaultsResponse
+func (c *ClientWithResponses) GetAdminConfigDefaultsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAdminConfigDefaultsResponse, error) {
+	rsp, err := c.GetAdminConfigDefaults(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAdminConfigDefaultsResponse(rsp)
 }
 
 // DeleteDatabaseBackupWithBodyWithResponse request with arbitrary body returning *DeleteDatabaseBackupResponse
@@ -31110,6 +33683,51 @@ func (c *ClientWithResponses) UpdateApiKeyWithResponse(ctx context.Context, id o
 	return ParseUpdateApiKeyResponse(rsp)
 }
 
+// RotateApiKeyWithResponse request returning *RotateApiKeyResponse
+func (c *ClientWithResponses) RotateApiKeyWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RotateApiKeyResponse, error) {
+	rsp, err := c.RotateApiKey(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRotateApiKeyResponse(rsp)
+}
+
+// SearchAssetFilesWithResponse request returning *SearchAssetFilesResponse
+func (c *ClientWithResponses) SearchAssetFilesWithResponse(ctx context.Context, params *SearchAssetFilesParams, reqEditors ...RequestEditorFn) (*SearchAssetFilesResponse, error) {
+	rsp, err := c.SearchAssetFiles(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchAssetFilesResponse(rsp)
+}
+
+// DeleteAssetFileWithResponse request returning *DeleteAssetFileResponse
+func (c *ClientWithResponses) DeleteAssetFileWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteAssetFileResponse, error) {
+	rsp, err := c.DeleteAssetFile(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteAssetFileResponse(rsp)
+}
+
+// GetAssetFileWithResponse request returning *GetAssetFileResponse
+func (c *ClientWithResponses) GetAssetFileWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAssetFileResponse, error) {
+	rsp, err := c.GetAssetFile(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAssetFileResponse(rsp)
+}
+
+// DownloadAssetFileWithResponse request returning *DownloadAssetFileResponse
+func (c *ClientWithResponses) DownloadAssetFileWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DownloadAssetFileResponse, error) {
+	rsp, err := c.DownloadAssetFile(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDownloadAssetFileResponse(rsp)
+}
+
 // DeleteAssetsWithBodyWithResponse request with arbitrary body returning *DeleteAssetsResponse
 func (c *ClientWithResponses) DeleteAssetsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeleteAssetsResponse, error) {
 	rsp, err := c.DeleteAssetsWithBody(ctx, contentType, body, reqEditors...)
@@ -31577,6 +34195,104 @@ func (c *ClientWithResponses) ValidateAccessTokenWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseValidateAccessTokenResponse(rsp)
+}
+
+// GetClusterGroupRequestsWithResponse request returning *GetClusterGroupRequestsResponse
+func (c *ClientWithResponses) GetClusterGroupRequestsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClusterGroupRequestsResponse, error) {
+	rsp, err := c.GetClusterGroupRequests(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetClusterGroupRequestsResponse(rsp)
+}
+
+// DeleteClusterGroupRequestWithResponse request returning *DeleteClusterGroupRequestResponse
+func (c *ClientWithResponses) DeleteClusterGroupRequestWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteClusterGroupRequestResponse, error) {
+	rsp, err := c.DeleteClusterGroupRequest(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteClusterGroupRequestResponse(rsp)
+}
+
+// AcceptClusterGroupRequestWithResponse request returning *AcceptClusterGroupRequestResponse
+func (c *ClientWithResponses) AcceptClusterGroupRequestWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*AcceptClusterGroupRequestResponse, error) {
+	rsp, err := c.AcceptClusterGroupRequest(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAcceptClusterGroupRequestResponse(rsp)
+}
+
+// LeaveClusterGroupWithResponse request returning *LeaveClusterGroupResponse
+func (c *ClientWithResponses) LeaveClusterGroupWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*LeaveClusterGroupResponse, error) {
+	rsp, err := c.LeaveClusterGroup(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseLeaveClusterGroupResponse(rsp)
+}
+
+// ClusterGroupRegeneratePeopleWithResponse request returning *ClusterGroupRegeneratePeopleResponse
+func (c *ClientWithResponses) ClusterGroupRegeneratePeopleWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*ClusterGroupRegeneratePeopleResponse, error) {
+	rsp, err := c.ClusterGroupRegeneratePeople(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseClusterGroupRegeneratePeopleResponse(rsp)
+}
+
+// GetClusterGroupRequestsForGroupWithResponse request returning *GetClusterGroupRequestsForGroupResponse
+func (c *ClientWithResponses) GetClusterGroupRequestsForGroupWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetClusterGroupRequestsForGroupResponse, error) {
+	rsp, err := c.GetClusterGroupRequestsForGroup(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetClusterGroupRequestsForGroupResponse(rsp)
+}
+
+// CreateClusterGroupRequestWithBodyWithResponse request with arbitrary body returning *CreateClusterGroupRequestResponse
+func (c *ClientWithResponses) CreateClusterGroupRequestWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateClusterGroupRequestResponse, error) {
+	rsp, err := c.CreateClusterGroupRequestWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateClusterGroupRequestResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateClusterGroupRequestWithResponse(ctx context.Context, id openapi_types.UUID, body CreateClusterGroupRequestJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateClusterGroupRequestResponse, error) {
+	rsp, err := c.CreateClusterGroupRequest(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateClusterGroupRequestResponse(rsp)
+}
+
+// GetClusterGroupUsersWithResponse request returning *GetClusterGroupUsersResponse
+func (c *ClientWithResponses) GetClusterGroupUsersWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetClusterGroupUsersResponse, error) {
+	rsp, err := c.GetClusterGroupUsers(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetClusterGroupUsersResponse(rsp)
+}
+
+// GetUserConfigWithResponse request returning *GetUserConfigResponse
+func (c *ClientWithResponses) GetUserConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetUserConfigResponse, error) {
+	rsp, err := c.GetUserConfig(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetUserConfigResponse(rsp)
+}
+
+// GetUserConfigDefaultsWithResponse request returning *GetUserConfigDefaultsResponse
+func (c *ClientWithResponses) GetUserConfigDefaultsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetUserConfigDefaultsResponse, error) {
+	rsp, err := c.GetUserConfigDefaults(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetUserConfigDefaultsResponse(rsp)
 }
 
 // DownloadArchiveWithBodyWithResponse request with arbitrary body returning *DownloadArchiveResponse
@@ -32392,6 +35108,24 @@ func (c *ClientWithResponses) GetPluginWithResponse(ctx context.Context, id open
 		return nil, err
 	}
 	return ParseGetPluginResponse(rsp)
+}
+
+// GetPublicConfigWithResponse request returning *GetPublicConfigResponse
+func (c *ClientWithResponses) GetPublicConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPublicConfigResponse, error) {
+	rsp, err := c.GetPublicConfig(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPublicConfigResponse(rsp)
+}
+
+// GetPublicConfigDefaultsWithResponse request returning *GetPublicConfigDefaultsResponse
+func (c *ClientWithResponses) GetPublicConfigDefaultsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPublicConfigDefaultsResponse, error) {
+	rsp, err := c.GetPublicConfigDefaults(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPublicConfigDefaultsResponse(rsp)
 }
 
 // GetQueuesWithResponse request returning *GetQueuesResponse
@@ -33583,6 +36317,15 @@ func (c *ClientWithResponses) UpdateWorkflowWithResponse(ctx context.Context, id
 	return ParseUpdateWorkflowResponse(rsp)
 }
 
+// GetWorkflowLogsWithResponse request returning *GetWorkflowLogsResponse
+func (c *ClientWithResponses) GetWorkflowLogsWithResponse(ctx context.Context, id openapi_types.UUID, params *GetWorkflowLogsParams, reqEditors ...RequestEditorFn) (*GetWorkflowLogsResponse, error) {
+	rsp, err := c.GetWorkflowLogs(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWorkflowLogsResponse(rsp)
+}
+
 // GetWorkflowForShareWithResponse request returning *GetWorkflowForShareResponse
 func (c *ClientWithResponses) GetWorkflowForShareWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetWorkflowForShareResponse, error) {
 	rsp, err := c.GetWorkflowForShare(ctx, id, reqEditors...)
@@ -33697,6 +36440,84 @@ func ParseUnlinkAllOAuthAccountsAdminResponse(rsp *http.Response) (*UnlinkAllOAu
 	response := &UnlinkAllOAuthAccountsAdminResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetAdminConfigResponse parses an HTTP response from a GetAdminConfigWithResponse call
+func ParseGetAdminConfigResponse(rsp *http.Response) (*GetAdminConfigResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAdminConfigResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AdminConfigDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateAdminConfigResponse parses an HTTP response from a UpdateAdminConfigWithResponse call
+func ParseUpdateAdminConfigResponse(rsp *http.Response) (*UpdateAdminConfigResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateAdminConfigResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AdminConfigDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAdminConfigDefaultsResponse parses an HTTP response from a GetAdminConfigDefaultsWithResponse call
+func ParseGetAdminConfigDefaultsResponse(rsp *http.Response) (*GetAdminConfigDefaultsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAdminConfigDefaultsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AdminConfigDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil
@@ -34804,6 +37625,116 @@ func ParseUpdateApiKeyResponse(rsp *http.Response) (*UpdateApiKeyResponse, error
 	return response, nil
 }
 
+// ParseRotateApiKeyResponse parses an HTTP response from a RotateApiKeyWithResponse call
+func ParseRotateApiKeyResponse(rsp *http.Response) (*RotateApiKeyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RotateApiKeyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest ApiKeyCreateResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSearchAssetFilesResponse parses an HTTP response from a SearchAssetFilesWithResponse call
+func ParseSearchAssetFilesResponse(rsp *http.Response) (*SearchAssetFilesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SearchAssetFilesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AssetFileResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteAssetFileResponse parses an HTTP response from a DeleteAssetFileWithResponse call
+func ParseDeleteAssetFileResponse(rsp *http.Response) (*DeleteAssetFileResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteAssetFileResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetAssetFileResponse parses an HTTP response from a GetAssetFileWithResponse call
+func ParseGetAssetFileResponse(rsp *http.Response) (*GetAssetFileResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAssetFileResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AssetFileResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDownloadAssetFileResponse parses an HTTP response from a DownloadAssetFileWithResponse call
+func ParseDownloadAssetFileResponse(rsp *http.Response) (*DownloadAssetFileResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DownloadAssetFileResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParseDeleteAssetsResponse parses an HTTP response from a DeleteAssetsWithResponse call
 func ParseDeleteAssetsResponse(rsp *http.Response) (*DeleteAssetsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -35573,6 +38504,226 @@ func ParseValidateAccessTokenResponse(rsp *http.Response) (*ValidateAccessTokenR
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest ValidateAccessTokenResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetClusterGroupRequestsResponse parses an HTTP response from a GetClusterGroupRequestsWithResponse call
+func ParseGetClusterGroupRequestsResponse(rsp *http.Response) (*GetClusterGroupRequestsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetClusterGroupRequestsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []ClusterGroupRequestResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteClusterGroupRequestResponse parses an HTTP response from a DeleteClusterGroupRequestWithResponse call
+func ParseDeleteClusterGroupRequestResponse(rsp *http.Response) (*DeleteClusterGroupRequestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteClusterGroupRequestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseAcceptClusterGroupRequestResponse parses an HTTP response from a AcceptClusterGroupRequestWithResponse call
+func ParseAcceptClusterGroupRequestResponse(rsp *http.Response) (*AcceptClusterGroupRequestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AcceptClusterGroupRequestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseLeaveClusterGroupResponse parses an HTTP response from a LeaveClusterGroupWithResponse call
+func ParseLeaveClusterGroupResponse(rsp *http.Response) (*LeaveClusterGroupResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &LeaveClusterGroupResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseClusterGroupRegeneratePeopleResponse parses an HTTP response from a ClusterGroupRegeneratePeopleWithResponse call
+func ParseClusterGroupRegeneratePeopleResponse(rsp *http.Response) (*ClusterGroupRegeneratePeopleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ClusterGroupRegeneratePeopleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetClusterGroupRequestsForGroupResponse parses an HTTP response from a GetClusterGroupRequestsForGroupWithResponse call
+func ParseGetClusterGroupRequestsForGroupResponse(rsp *http.Response) (*GetClusterGroupRequestsForGroupResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetClusterGroupRequestsForGroupResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []ClusterGroupRequestResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateClusterGroupRequestResponse parses an HTTP response from a CreateClusterGroupRequestWithResponse call
+func ParseCreateClusterGroupRequestResponse(rsp *http.Response) (*CreateClusterGroupRequestResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateClusterGroupRequestResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ClusterGroupRequestResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetClusterGroupUsersResponse parses an HTTP response from a GetClusterGroupUsersWithResponse call
+func ParseGetClusterGroupUsersResponse(rsp *http.Response) (*GetClusterGroupUsersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetClusterGroupUsersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []UserResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetUserConfigResponse parses an HTTP response from a GetUserConfigWithResponse call
+func ParseGetUserConfigResponse(rsp *http.Response) (*GetUserConfigResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetUserConfigResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest UserConfigDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetUserConfigDefaultsResponse parses an HTTP response from a GetUserConfigDefaultsWithResponse call
+func ParseGetUserConfigDefaultsResponse(rsp *http.Response) (*GetUserConfigDefaultsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetUserConfigDefaultsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest UserConfigDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -37041,6 +40192,58 @@ func ParseGetPluginResponse(rsp *http.Response) (*GetPluginResponse, error) {
 	return response, nil
 }
 
+// ParseGetPublicConfigResponse parses an HTTP response from a GetPublicConfigWithResponse call
+func ParseGetPublicConfigResponse(rsp *http.Response) (*GetPublicConfigResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPublicConfigResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PublicConfigDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetPublicConfigDefaultsResponse parses an HTTP response from a GetPublicConfigDefaultsWithResponse call
+func ParseGetPublicConfigDefaultsResponse(rsp *http.Response) (*GetPublicConfigDefaultsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPublicConfigDefaultsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PublicConfigDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetQueuesResponse parses an HTTP response from a GetQueuesWithResponse call
 func ParseGetQueuesResponse(rsp *http.Response) (*GetQueuesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -38366,7 +41569,7 @@ func ParseGetConfigResponse(rsp *http.Response) (*GetConfigResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest SystemConfigDto
+		var dest AdminConfigDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -38392,7 +41595,7 @@ func ParseUpdateConfigResponse(rsp *http.Response) (*UpdateConfigResponse, error
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest SystemConfigDto
+		var dest AdminConfigDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -38418,7 +41621,7 @@ func ParseGetConfigDefaultsResponse(rsp *http.Response) (*GetConfigDefaultsRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest SystemConfigDto
+		var dest AdminConfigDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -39467,6 +42670,32 @@ func ParseUpdateWorkflowResponse(rsp *http.Response) (*UpdateWorkflowResponse, e
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest WorkflowResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetWorkflowLogsResponse parses an HTTP response from a GetWorkflowLogsWithResponse call
+func ParseGetWorkflowLogsResponse(rsp *http.Response) (*GetWorkflowLogsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWorkflowLogsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []WorkflowLogEntryDto
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

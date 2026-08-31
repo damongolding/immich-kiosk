@@ -187,7 +187,7 @@ type Asset struct {
 	Thumbhash        string    `json:"-"` // `json:"thumbhash"`
 	Type             AssetType `json:"type"`
 	UpdatedAt        time.Time `json:"-"` // `json:"updatedAt"`
-	Visibility       string    `json:"-"` // `json:"visibility"`
+	Visibility       string    `json:"visibility"`
 
 	// Kiosk specific fields
 	AppearsIn       Albums          `json:"kioskAppearsIn"`
