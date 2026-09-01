@@ -137,7 +137,7 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly b
 	}
 
 	requestBody := SearchRandomBody{
-		Visibility: []AssetVisibility{Timeline},
+		Visibility: Timeline,
 		Type:       string(ImageType),
 		AlbumIDs:   []string{albumID},
 		WithPeople: true,
@@ -147,7 +147,7 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly b
 	}
 
 	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = append(requestBody.Visibility, Archive)
+		requestBody.Visibility = ""
 	}
 
 	assetOrder := AlbumOrder(a.requestConfig.AlbumOrder)

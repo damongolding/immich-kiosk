@@ -23,7 +23,7 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 	}
 
 	requestBody := SearchRandomBody{
-		Visibility: []AssetVisibility{Timeline},
+		Visibility: Timeline,
 		Type:       string(ImageType),
 		Rating:     &rating,
 		WithPeople: false,
@@ -37,7 +37,7 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 	}
 
 	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = append(requestBody.Visibility, Archive)
+		requestBody.Visibility = ""
 	}
 
 	filterDate(&requestBody, a.requestConfig.FilterDate)
@@ -55,7 +55,7 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 
 func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]Asset, string, error) {
 	requestBody := SearchRandomBody{
-		Visibility: []AssetVisibility{Timeline},
+		Visibility: Timeline,
 		Type:       string(ImageType),
 		Rating:     &rating,
 		WithExif:   true,
@@ -69,7 +69,7 @@ func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]
 	}
 
 	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = append(requestBody.Visibility, Archive)
+		requestBody.Visibility = ""
 	}
 
 	immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)
