@@ -79,6 +79,7 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 	}
 
 	requestBody := SearchRandomBody{
+		Visibility: []AssetVisibility{Timeline},
 		Type:       string(ImageType),
 		TagIDs:     []string{tagID},
 		WithPeople: false,
@@ -92,7 +93,7 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 	}
 
 	if a.requestConfig.ShowArchived {
-		requestBody.WithArchived = true
+		requestBody.Visibility = append(requestBody.Visibility, Archive)
 	}
 
 	filterDate(&requestBody, a.requestConfig.FilterDate)
@@ -114,6 +115,7 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 // It returns the list of assets, the API URL used, and any error encountered.
 func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset, string, error) {
 	requestBody := SearchRandomBody{
+		Visibility: []AssetVisibility{Timeline},
 		Type:       string(ImageType),
 		TagIDs:     []string{tagID},
 		WithExif:   true,
@@ -127,7 +129,7 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 	}
 
 	if a.requestConfig.ShowArchived {
-		requestBody.WithArchived = true
+		requestBody.Visibility = append(requestBody.Visibility, Archive)
 	}
 
 	filterDate(&requestBody, a.requestConfig.FilterDate)
