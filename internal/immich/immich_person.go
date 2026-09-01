@@ -196,6 +196,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 	for range MaxRetries {
 
 		requestBody := SearchRandomBody{
+			Visibility: []AssetVisibility{Timeline},
 			PersonIDs:  []string{personID},
 			Type:       string(ImageType),
 			WithExif:   true,
@@ -214,7 +215,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 		}
 
 		if a.requestConfig.ShowArchived {
-			requestBody.WithArchived = true
+			requestBody.Visibility = append(requestBody.Visibility, Archive)
 		}
 
 		immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)

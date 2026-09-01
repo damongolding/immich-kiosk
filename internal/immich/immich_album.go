@@ -137,13 +137,17 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly b
 	}
 
 	requestBody := SearchRandomBody{
-		Type:         string(ImageType),
-		AlbumIDs:     []string{albumID},
-		WithPeople:   true,
-		WithExif:     true,
-		IsFavorite:   favoritesOnly,
-		WithArchived: a.requestConfig.ShowArchived,
-		Size:         a.requestConfig.Kiosk.FetchedAssetsSize,
+		Visibility: []AssetVisibility{Timeline},
+		Type:       string(ImageType),
+		AlbumIDs:   []string{albumID},
+		WithPeople: true,
+		WithExif:   true,
+		IsFavorite: favoritesOnly,
+		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+	}
+
+	if a.requestConfig.ShowArchived {
+		requestBody.Visibility = append(requestBody.Visibility, Archive)
 	}
 
 	assetOrder := AlbumOrder(a.requestConfig.AlbumOrder)
