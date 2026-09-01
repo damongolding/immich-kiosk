@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich"
@@ -60,14 +59,14 @@ func groupRedirects(redirects []config.RedirectItem) []RedirectGroup {
 }
 
 templ RedirectList(redirects []config.RedirectItem, hasPassword bool, password, paramType string) {
-    for _, redirect := range redirects {
-        {{ redirectName, _ := strings.CutPrefix(redirect.Name, "/") }}
-        if hasPassword {
-            <a href={ templ.SafeURL(fmt.Sprintf("/%s?%s=%s", redirectName, paramType, password)) }>{ redirectName }</a>
-        } else {
-            <a href={ templ.SafeURL(fmt.Sprintf("/%s", redirectName)) }>{ redirectName }</a>
-        }
-    }
+	for _, redirect := range redirects {
+		{{ redirectName, _ := strings.CutPrefix(redirect.Name, "/") }}
+		if hasPassword {
+			<a href={ templ.SafeURL(fmt.Sprintf("/%s?%s=%s", redirectName, paramType, password)) }>{ redirectName }</a>
+		} else {
+			<a href={ templ.SafeURL(fmt.Sprintf("/%s", redirectName)) }>{ redirectName }</a>
+		}
+	}
 }
 
 func albumRedirectURL(rawURL, paramType, password string) string {
@@ -84,68 +83,74 @@ func albumRedirectURL(rawURL, paramType, password string) string {
 }
 
 templ AlbumRedirectList(redirects []config.RedirectItem, hasPassword bool, password, paramType string) {
-    for _, redirect := range redirects {
-        if hasPassword {
-        	<a href={ templ.SafeURL(albumRedirectURL(redirect.URL, paramType, password)) }>{ redirect.Name }</a>
-        } else {
-            <a href={ templ.SafeURL(redirect.URL) }>{ redirect.Name }</a>
-        }
-    }
+	for _, redirect := range redirects {
+		if hasPassword {
+			<a href={ templ.SafeURL(albumRedirectURL(redirect.URL, paramType, password)) }>{ redirect.Name }</a>
+		} else {
+			<a href={ templ.SafeURL(redirect.URL) }>{ redirect.Name }</a>
+		}
+	}
 }
 
-func albumRedirects(c config.Config) []config.RedirectItem {
-    var albumRedirects []config.RedirectItem
+func albumRedirects(ctx context.Context, c config.Config) []config.RedirectItem {
+	var albumRedirects []config.RedirectItem
 
-    to := time.Second * time.Duration(c.Kiosk.HTTPTimeout)
-    ctx, cancel := context.WithTimeout(context.Background(), to)
-    defer cancel()
+	a := immich.New(ctx, c)
 
-    a := immich.New(ctx, c)
+	albums, err := a.AllAlbums(kiosk.GlobalCache, a.DeviceID)
+	if err != nil {
+		return albumRedirects
+	}
 
-    albums, err := a.AllAlbums(kiosk.GlobalCache, a.DeviceID)
-    if err != nil {
-        return albumRedirects
-    }
+	for _, album := range albums {
+		albumRedirects = append(albumRedirects, config.RedirectItem{
+			Name: album.AlbumName,
+			URL:  "/?album=" + album.ID,
+			Type: "external",
+		})
+	}
 
-    for _, album := range albums {
-        albumRedirects = append(albumRedirects, config.RedirectItem{
-            Name: album.AlbumName,
-            URL:  "/?album=" + album.ID,
-            Type: "external",
-        })
-    }
-
-    return albumRedirects
+	return albumRedirects
 }
-
 
 templ Redirects(c config.Config, redirects config.Redirects, queries url.Values) {
-    {{
-    	hasPassword, password, paramType := checkAuthParam(queries)
-     	groupedRedirects := groupRedirects(redirects.Items)
-    }}
+	{{
+	hasPassword, password, paramType := checkAuthParam(queries)
+	groupedRedirects := groupRedirects(redirects.Items)
+	}}
+	<div id="redirects-container">
+		<div class="redirects">
+			<div class="redirects--shadow">
+				for _, group := range groupedRedirects {
+					if group.Category == "" {
+						@RedirectList(group.Redirects, hasPassword, password, paramType)
+					} else {
+						<div class="redirect-category">
+							<h3 class="category-title">{ group.Category }</h3>
+							@RedirectList(group.Redirects, hasPassword, password, paramType)
+						</div>
+					}
+				}
+				if redirects.ShowAlbums {
+					<div
+						class="redirect-category"
+						hx-get={ fmt.Sprintf("/redirects/albums?%s", queries.Encode()) }
+						hx-trigger="load"
+						hx-swap="outerHTML"
+					></div>
+				}
+			</div>
+		</div>
+	</div>
+}
 
-    <div id="redirects-container">
-        <div class="redirects">
-            <div class="redirects--shadow">
-                for _, group := range groupedRedirects {
-                    if group.Category == "" {
-                        @RedirectList(group.Redirects, hasPassword, password, paramType)
-                    } else {
-                        <div class="redirect-category">
-                            <h3 class="category-title">{ group.Category }</h3>
-                            @RedirectList(group.Redirects, hasPassword, password, paramType)
-                        </div>
-                    }
-                }
-                if redirects.ShowAlbums {
-	                <div class="redirect-category">
-	                    <h3 class="category-title">Albums</h3>
-	                    {{ albumRedirects := albumRedirects(c) }}
-	                    @AlbumRedirectList(albumRedirects, hasPassword, password, paramType)
-	                </div>
-                }
-            </div>
-        </div>
-    </div>
+templ AlbumRedirectsFragment(c config.Config, queries url.Values, ctx context.Context) {
+	{{
+	hasPassword, password, paramType := checkAuthParam(queries)
+	albumRedirects := albumRedirects(ctx, c)
+	}}
+	<div class="redirect-category">
+		<h3 class="category-title">Albums</h3>
+		@AlbumRedirectList(albumRedirects, hasPassword, password, paramType)
+	</div>
 }

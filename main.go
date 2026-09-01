@@ -227,6 +227,7 @@ func main() {
 	e.GET("/video/:videoID", routes.NewVideo(baseConfig.Kiosk.DemoMode), AssetCacheMiddlewareWithConfig(baseConfig))
 
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
+	e.GET("/redirects/albums", routes.AlbumRedirects(baseConfig, c))
 
 	for _, w := range baseConfig.Weather.Locations {
 		go weather.AddWeatherLocationWithForecast(c.Context(), w)
