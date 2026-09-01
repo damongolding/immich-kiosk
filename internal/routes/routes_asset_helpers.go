@@ -396,6 +396,8 @@ func fetchImagePreview(immichAsset *immich.Asset, isOriginal bool, requestID, de
 func processAsset(asset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, requestURL string, isPrefetch bool) (image.Image, error) {
 	var err error
 
+	asset.ApplyServer(true)
+
 	assets, assetsErr := gatherAssetBuckets(asset, requestConfig, requestID, deviceID)
 	if assetsErr != nil {
 		return nil, assetsErr
@@ -462,15 +464,15 @@ func processImage(immichAsset *immich.Asset, requestConfig config.Config, reques
 		isDownloading := VideoManager.IsDownloading(immichAsset.LivePhotoVideoID)
 
 		if !isDownloaded && !isDownloading {
-
-			livePhoto := immich.New(context.TODO(), requestConfig)
+			liveConfig := immichAsset.RequestConfig()
+			livePhoto := immich.New(context.TODO(), liveConfig)
 			livePhoto.ID = immichAsset.LivePhotoVideoID
 			err := livePhoto.AssetInfo(requestID, deviceID)
 			if err != nil {
 				return nil, err
 			}
 
-			go VideoManager.DownloadVideo(livePhoto, requestConfig, deviceID, "")
+			go VideoManager.DownloadVideo(livePhoto, liveConfig, deviceID, "")
 		}
 	}
 
@@ -644,6 +646,7 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		ImageBlurData:      imgBlurString,
 		ImageDominantColor: dominantColor,
 		User:               immichAsset.SelectedUser(),
+		Server:             immichAsset.SelectedServer(),
 	}, nil
 }
 

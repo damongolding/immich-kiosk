@@ -107,16 +107,20 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 			for i, id := range prevImages {
 
-				imageID, _, ok := strings.Cut(id, ":")
+				imageID, selectedUser, selectedServer, ok := parseHistoryAssetID(id)
 				if !ok {
 					return fmt.Errorf("invalid history entry format: %s", id)
 				}
 
 				currentAssetID := strings.Replace(imageID, kiosk.HistoryIndicator, "", 1)
 
-				g.Go(func(currentAssetID string) func() error {
+				g.Go(func(currentAssetID, selectedUser, selectedServer string) func() error {
 					return func() error {
-						image := immich.New(com.Context(), requestConfig)
+						cfg := requestConfig
+						cfg.SelectedUser = selectedUser
+						cfg.SelectedServer = selectedServer
+						image := immich.New(com.Context(), cfg)
+						image.ApplyServer(false)
 						image.ID = currentAssetID
 
 						assetInfoErr := image.AssetInfo(requestID, deviceID)
@@ -127,10 +131,12 @@ func Webhooks(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 						viewData.Assets[i] = common.ViewImageData{
 							ImmichAsset: image,
+							User:        selectedUser,
+							Server:      image.SelectedServer(),
 						}
 						return nil
 					}
-				}(currentAssetID))
+				}(currentAssetID, selectedUser, selectedServer))
 			}
 
 			// Wait for all goroutines to complete and check for errors
