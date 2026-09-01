@@ -662,7 +662,7 @@ func (a *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetTyp
 // Returns:
 //   - bool: true if basic properties are valid, false otherwise
 func (a *Asset) hasValidBasicProperties(allowedTypes []AssetType, wantedRatio ImageOrientation) bool {
-	if a.Visibility == "hidden" || a.Visibility == "locked" {
+	if a.Visibility == Hidden || a.Visibility == Locked {
 		return false
 	}
 	if !slices.Contains(allowedTypes, a.Type) {

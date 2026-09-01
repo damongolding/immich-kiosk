@@ -166,34 +166,34 @@ type Face struct {
 }
 
 type Asset struct {
-	Checksum         string    `json:"checksum"`
-	DuplicateID      any       `json:"-"`        // `json:"duplicateId"`
-	Duration         int64     `json:"duration"` // milliseconds
-	ExifInfo         ExifInfo  `json:"exifInfo"`
-	FileCreatedAt    time.Time `json:"-"` // `json:"fileCreatedAt"`
-	FileModifiedAt   time.Time `json:"-"` // `json:"fileModifiedAt"`
-	HasMetadata      bool      `json:"-"` // `json:"hasMetadata"`
-	ID               string    `json:"id"`
-	IsArchived       bool      `json:"isArchived"`
-	IsEdited         bool      `json:"isEdited"`
-	IsFavorite       bool      `json:"isFavorite"`
-	IsOffline        bool      `json:"-"` // `json:"isOffline"`
-	IsTrashed        bool      `json:"isTrashed"`
-	LibraryID        string    `json:"-"` // `json:"libraryId"`
-	LivePhotoVideoID string    `json:"livePhotoVideoId"`
-	LocalDateTime    time.Time `json:"localDateTime"`
-	OriginalFileName string    `json:"originalFileName"`
-	OriginalMimeType string    `json:"originalMimeType"`
-	OriginalPath     string    `json:"-"` // `json:"originalPath"`
-	Owner            Owner     `json:"owner"`
-	OwnerID          string    `json:"ownerId"`
-	People           []Person  `json:"people"`
-	StackCount       any       `json:"-"` // `json:"stackCount"`
-	Tags             Tags      `json:"tags"`
-	Thumbhash        string    `json:"-"` // `json:"thumbhash"`
-	Type             AssetType `json:"type"`
-	UpdatedAt        time.Time `json:"-"` // `json:"updatedAt"`
-	Visibility       string    `json:"visibility"`
+	Checksum         string          `json:"checksum"`
+	DuplicateID      any             `json:"-"`        // `json:"duplicateId"`
+	Duration         int64           `json:"duration"` // milliseconds
+	ExifInfo         ExifInfo        `json:"exifInfo"`
+	FileCreatedAt    time.Time       `json:"-"` // `json:"fileCreatedAt"`
+	FileModifiedAt   time.Time       `json:"-"` // `json:"fileModifiedAt"`
+	HasMetadata      bool            `json:"-"` // `json:"hasMetadata"`
+	ID               string          `json:"id"`
+	IsArchived       bool            `json:"isArchived"`
+	IsEdited         bool            `json:"isEdited"`
+	IsFavorite       bool            `json:"isFavorite"`
+	IsOffline        bool            `json:"-"` // `json:"isOffline"`
+	IsTrashed        bool            `json:"isTrashed"`
+	LibraryID        string          `json:"-"` // `json:"libraryId"`
+	LivePhotoVideoID string          `json:"livePhotoVideoId"`
+	LocalDateTime    time.Time       `json:"localDateTime"`
+	OriginalFileName string          `json:"originalFileName"`
+	OriginalMimeType string          `json:"originalMimeType"`
+	OriginalPath     string          `json:"-"` // `json:"originalPath"`
+	Owner            Owner           `json:"owner"`
+	OwnerID          string          `json:"ownerId"`
+	People           []Person        `json:"people"`
+	StackCount       any             `json:"-"` // `json:"stackCount"`
+	Tags             Tags            `json:"tags"`
+	Thumbhash        string          `json:"-"` // `json:"thumbhash"`
+	Type             AssetType       `json:"type"`
+	UpdatedAt        time.Time       `json:"-"` // `json:"updatedAt"`
+	Visibility       AssetVisibility `json:"visibility"`
 
 	// Kiosk specific fields
 	AppearsIn       Albums          `json:"kioskAppearsIn"`
