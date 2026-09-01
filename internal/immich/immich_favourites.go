@@ -20,7 +20,7 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 	}
 
 	requestBody := SearchRandomBody{
-		Visibility: []AssetVisibility{Timeline},
+		Visibility: Timeline,
 		Type:       string(ImageType),
 		IsFavorite: true,
 		WithPeople: false,
@@ -29,7 +29,7 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 	}
 
 	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = append(requestBody.Visibility, Archive)
+		requestBody.Visibility = ""
 	}
 
 	// Include videos if show videos is enabled
@@ -82,7 +82,7 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 	for range MaxRetries {
 
 		requestBody := SearchRandomBody{
-			Visibility: []AssetVisibility{Timeline},
+			Visibility: Timeline,
 			Type:       string(ImageType),
 			IsFavorite: true,
 			WithExif:   true,
@@ -96,7 +96,7 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 		}
 
 		if a.requestConfig.ShowArchived {
-			requestBody.Visibility = append(requestBody.Visibility, Archive)
+			requestBody.Visibility = ""
 		}
 
 		assets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)

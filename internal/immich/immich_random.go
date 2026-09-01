@@ -36,7 +36,7 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 	for range MaxRetries {
 
 		requestBody := SearchRandomBody{
-			Visibility: []AssetVisibility{Timeline},
+			Visibility: Timeline,
 			Type:       string(ImageType),
 			WithExif:   true,
 			WithPeople: true,
@@ -49,7 +49,7 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 		}
 
 		if a.requestConfig.ShowArchived {
-			requestBody.Visibility = append(requestBody.Visibility, Archive)
+			requestBody.Visibility = ""
 		}
 
 		immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)
