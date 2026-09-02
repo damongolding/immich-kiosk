@@ -120,7 +120,7 @@ func gatherPeopleAlbums(d *gatherData, config gatherPeopleAlbumsConfig) error {
 		}
 
 		// Readd user to item if asset has a selected user (a fix for second splitview items)
-		if d.immichAsset.SelectedUser() != "" {
+		if d.immichAsset.SelectedUser() != "" && !strings.Contains(item, "@") {
 			item = fmt.Sprintf("%s@%s", item, d.immichAsset.SelectedUser())
 		}
 
