@@ -340,7 +340,7 @@ func (a *Asset) AssetFromAlbum(albumID string, requestID, deviceID string) error
 
 			asset.BucketID = album.ID
 			if asset.requestConfig.SelectedUser != "" {
-				asset.BucketID = fmt.Sprintf("%s@%s", album.ID, asset.requestConfig.SelectedUser)
+				asset.BucketID = fmt.Sprintf("%s%s%s", album.ID, kiosk.MultipleUserIndicator, asset.requestConfig.SelectedUser)
 			}
 
 			*a = asset

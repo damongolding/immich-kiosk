@@ -261,7 +261,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 
 			asset.BucketID = personID
 			if asset.requestConfig.SelectedUser != "" {
-				asset.BucketID = fmt.Sprintf("%s@%s", personID, asset.requestConfig.SelectedUser)
+				asset.BucketID = fmt.Sprintf("%s%s%s", personID, kiosk.MultipleUserIndicator, asset.requestConfig.SelectedUser)
 			}
 
 			*a = asset
