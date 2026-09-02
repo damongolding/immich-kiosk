@@ -119,6 +119,11 @@ func gatherPeopleAlbums(d *gatherData, config gatherPeopleAlbumsConfig) error {
 			continue
 		}
 
+		// Readd user to item if asset has a selected user (a fix for second splitview items)
+		if d.immichAsset.SelectedUser() != "" {
+			item = fmt.Sprintf("%s@%s", item, d.immichAsset.SelectedUser())
+		}
+
 		itemTmp, _ := d.immichAsset.ApplyUserFromAssetID(item)
 
 		assetCount := d.requestConfig.FilterNewest
@@ -797,10 +802,17 @@ func renderCachedViewData(c *echo.Context, cachedViewData []common.ViewData, req
 func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView common.ViewImageData, requestConfig config.Config, c common.ContextCopy, isPrefetch bool, options common.ViewImageDataOptions) error {
 	const maxImageRetrievalAttempts = 3
 
+	// This stops second splitview assets being from a different user
+	requestConfig.SelectedUser = viewDataSplitView.User
+
 	for range maxImageRetrievalAttempts {
 		viewDataSplitViewSecond, err := ProcessViewImageDataWithOptions(requestConfig, c, isPrefetch, options)
 		if err != nil {
 			return err
+		}
+
+		if options.RelativeAssetWanted && viewDataSplitViewSecond.ImmichAsset.Bucket != options.RelativeAssetBucket {
+			continue
 		}
 
 		if viewDataSplitView.ImmichAsset.ID != viewDataSplitViewSecond.ImmichAsset.ID {
@@ -808,6 +820,7 @@ func fetchSecondSplitViewAsset(viewData *common.ViewData, viewDataSplitView comm
 			return nil
 		}
 	}
+
 	return nil
 }
 
