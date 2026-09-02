@@ -120,8 +120,8 @@ func gatherPeopleAlbums(d *gatherData, config gatherPeopleAlbumsConfig) error {
 		}
 
 		// Readd user to item if asset has a selected user (a fix for second splitview items)
-		if d.immichAsset.SelectedUser() != "" && !strings.Contains(item, "@") {
-			item = fmt.Sprintf("%s@%s", item, d.immichAsset.SelectedUser())
+		if d.immichAsset.SelectedUser() != "" && !strings.Contains(item, kiosk.MultipleUserIndicator) {
+			item = fmt.Sprintf("%s%s%s", item, kiosk.MultipleUserIndicator, d.immichAsset.SelectedUser())
 		}
 
 		itemTmp, _ := d.immichAsset.ApplyUserFromAssetID(item)
@@ -181,9 +181,9 @@ func gatherTags(d *gatherData) error {
 			continue
 		}
 
-		if strings.Contains(tag, "@") {
+		if strings.Contains(tag, kiosk.MultipleUserIndicator) {
 			log.Warn("Tags with multi user information are not currently supported")
-			tag, _, _ = strings.Cut(tag, "@")
+			tag, _, _ = strings.Cut(tag, kiosk.MultipleUserIndicator)
 		}
 
 		tags, _, tagsErr := d.immichAsset.AllTags(d.requestID, d.deviceID)
@@ -231,9 +231,9 @@ func gatherDates(d *gatherData) {
 			continue
 		}
 
-		if strings.Contains(date, "@") {
+		if strings.Contains(date, kiosk.MultipleUserIndicator) {
 			log.Warn("Dates with multi user information are not currently supported")
-			date, _, _ = strings.Cut(date, "@")
+			date, _, _ = strings.Cut(date, kiosk.MultipleUserIndicator)
 		}
 
 		dateWeight := d.requestConfig.Kiosk.FetchedAssetsSize
