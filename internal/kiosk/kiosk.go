@@ -52,6 +52,8 @@ const (
 	HistoryIndicator string = "*"
 	HistoryLimit     int    = 20
 
+	MultipleUserIndicator string = "@"
+
 	ThemeFade   string = "fade"
 	ThemeSolid  string = "solid"
 	ThemeBubble string = "bubble"
