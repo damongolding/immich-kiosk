@@ -31,7 +31,7 @@ import (
 func (a *Asset) AlbumsThatContainAsset(requestID, deviceID string) {
 	var albumsContainingAsset Albums
 
-	albums, _, err := a.albums(requestID, deviceID, false, a.ID, false)
+	albums, _, err := a.albums(requestID, deviceID, true, true, a.ID, false)
 	if err != nil {
 		log.Error("Failed to get albums containing asset", "err", err)
 		return
@@ -44,7 +44,7 @@ func (a *Asset) AlbumsThatContainAsset(requestID, deviceID string) {
 
 // albums retrieves albums from Immich based on the shared parameter.
 // It constructs the API URL, makes the API call, and returns the albums.
-func (a *Asset) albums(requestID, deviceID string, shared bool, contains string, bypassCache bool) (Albums, string, error) {
+func (a *Asset) albums(requestID, deviceID string, withOwned, withShared bool, contains string, bypassCache bool) (Albums, string, error) {
 	var albums Albums
 
 	u, err := url.Parse(a.requestConfig.ImmichURL)
@@ -60,8 +60,15 @@ func (a *Asset) albums(requestID, deviceID string, shared bool, contains string,
 
 	queryParams := url.Values{}
 
-	if shared {
+	switch {
+	case withOwned && withShared:
+		// All albums
+	case withShared:
+		// Only shared albums
 		queryParams.Set("isShared", "true")
+	case withOwned:
+		// Only owned albums
+		queryParams.Set("isOwned", "true")
 	}
 
 	if contains != "" {
@@ -95,37 +102,41 @@ func (a *Asset) albums(requestID, deviceID string, shared bool, contains string,
 
 // allSharedAlbums retrieves all shared albums from Immich.
 func (a *Asset) allSharedAlbums(requestID, deviceID string) (Albums, string, error) {
-	return a.albums(requestID, deviceID, true, "", false)
+	return a.albums(requestID, deviceID, false, true, "", false)
 }
 
-// allAlbums retrieves all albums (owned and shared) from Immich.
+// // allAlbums retrieves all albums (owned and shared) from Immich.
+// func (a *Asset) allAlbums(requestID, deviceID string) (Albums, string, error) {
+// 	owned, ownedURL, ownedErr := a.albums(requestID, deviceID, false, "", false)
+// 	shared, sharedURL, sharedErr := a.albums(requestID, deviceID, true, "", false)
+// 	all := make(Albums, len(owned)+len(shared))
+// 	copy(all, owned)
+// 	copy(all[len(owned):], shared)
+
+// 	var err error
+// 	if ownedErr != nil {
+// 		err = errors.Join(err, ownedErr)
+// 	}
+
+// 	if sharedErr != nil {
+// 		err = errors.Join(err, sharedErr)
+// 	}
+
+// 	return all, ownedURL + " && " + sharedURL, err
+// }
+
 func (a *Asset) allAlbums(requestID, deviceID string) (Albums, string, error) {
-	owned, ownedURL, ownedErr := a.albums(requestID, deviceID, false, "", false)
-	shared, sharedURL, sharedErr := a.albums(requestID, deviceID, true, "", false)
-	all := make(Albums, len(owned)+len(shared))
-	copy(all, owned)
-	copy(all[len(owned):], shared)
-
-	var err error
-	if ownedErr != nil {
-		err = errors.Join(err, ownedErr)
-	}
-
-	if sharedErr != nil {
-		err = errors.Join(err, sharedErr)
-	}
-
-	return all, ownedURL + " && " + sharedURL, err
+	return a.albums(requestID, deviceID, true, true, "", false)
 }
 
 func (a *Asset) AllAlbums(requestID, deviceID string) (Albums, error) {
-	all, _, err := a.allAlbums(requestID, deviceID)
+	all, _, err := a.albums(requestID, deviceID, true, true, "", false)
 	return all, err
 }
 
 // allOwnedAlbums retrieves all non-shared albums from Immich.
 func (a *Asset) allOwnedAlbums(requestID, deviceID string) (Albums, string, error) {
-	return a.albums(requestID, deviceID, false, "", false)
+	return a.albums(requestID, deviceID, true, false, "", false)
 }
 
 func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly bool) (Album, string, error) {
@@ -329,7 +340,7 @@ func (a *Asset) AssetFromAlbum(albumID string, requestID, deviceID string) error
 
 			asset.BucketID = album.ID
 			if asset.requestConfig.SelectedUser != "" {
-				asset.BucketID = fmt.Sprintf("%s@%s", album.ID, asset.requestConfig.SelectedUser)
+				asset.BucketID = fmt.Sprintf("%s%s%s", album.ID, kiosk.MultipleUserIndicator, asset.requestConfig.SelectedUser)
 			}
 
 			*a = asset
@@ -439,7 +450,7 @@ func (a *Albums) RemoveExcludedAlbums(exclude []string) {
 func (a *Asset) kioskLikedAlbum(requestID, deviceID string) (Album, error) {
 	var album Album
 
-	albums, _, err := a.albums(requestID, deviceID, false, "", true)
+	albums, _, err := a.albums(requestID, deviceID, true, false, "", true)
 	if err != nil {
 		return album, fmt.Errorf("fetch albums: %w", err)
 	}

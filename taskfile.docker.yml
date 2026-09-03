@@ -9,6 +9,17 @@ tasks:
     cmds:
       - docker build --no-cache --build-arg VERSION={{.VERSION}} --load -t damongolding/immich-kiosk:{{.VERSION}} -t damongolding/immich-kiosk:latest .
 
+  docker:start:
+    desc: Start colima. I can never remember the name
+    cmds:
+      - colima start
+
+  docker:stop:
+    desc: Stop colima. I can never remember the name
+    cmds:
+      - colima stop
+
+      -
   docker:build-orb:
     desc: Build docker image locally
     cmds:

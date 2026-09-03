@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"charm.land/log/v2"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 func (a *Asset) Me(requestID, deviceID string) (UserResponse, error) {
@@ -59,7 +60,7 @@ func (a *Asset) ApplyUserFromAssetID(assetID string) (string, string) {
 	var userFound bool
 
 	// assetID has @user
-	id, user, ok := strings.Cut(assetID, "@")
+	id, user, ok := strings.Cut(assetID, kiosk.MultipleUserIndicator)
 	if ok {
 		if userAPI, userFound = a.requestConfig.ImmichUsersAPIKeys[user]; userFound {
 			a.requestConfig.SelectedUser = user

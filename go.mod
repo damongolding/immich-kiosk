@@ -4,7 +4,7 @@ go 1.27.0
 
 require (
 	charm.land/lipgloss/v2 v2.0.6
-	charm.land/log/v2 v2.0.0
+	charm.land/log/v2 v2.0.1
 	github.com/EdlinOrg/prominentcolor v1.0.0
 	github.com/a-h/templ v0.3.1020
 	github.com/disintegration/imaging v1.6.2
@@ -13,7 +13,7 @@ require (
 	github.com/goodsign/monday v1.0.2
 	github.com/google/go-querystring v1.2.0
 	github.com/google/uuid v1.6.0
-	github.com/klauspost/compress v1.19.2
+	github.com/klauspost/compress v1.20.0
 	github.com/labstack/echo/v5 v5.3.1
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/nicksnyder/go-i18n/v2 v2.6.1
