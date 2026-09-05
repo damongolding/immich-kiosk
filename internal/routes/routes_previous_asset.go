@@ -234,7 +234,9 @@ func getHistoryAsset(requestConfig config.Config, com *common.Common, requestID,
 		asset.AddRatio()
 
 		if requestConfig.ShowAlbumName {
-			asset.AlbumsThatContainAsset(requestID, deviceID)
+			if membershipErr := asset.AlbumsThatContainAsset(requestID, deviceID); membershipErr != nil {
+				log.Error(fmt.Errorf("get albums containing asset: %w", membershipErr))
+			}
 		}
 
 		var imgString, imgBlurString string

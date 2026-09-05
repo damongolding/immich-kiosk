@@ -27,24 +27,33 @@ import (
 //   - deviceID: ID of device making the request
 //
 // Results:
-//   - AppearsIn field of the ImmichAsset is updated with list of albums
-//   - Any error during API calls is logged but function does not return an error
-func (a *Asset) AlbumsThatContainAsset(requestID, deviceID string) {
+//   - AppearsIn field of the ImmichAsset is updated with whatever album
+//     memberships were successfully retrieved
+//   - error: any error(s) encountered fetching owned or shared memberships,
+//     joined together. Callers that rely on AppearsIn being complete (e.g.
+//     album exclusion checks) must treat a non-nil error as membership being
+//     unknown, since AppearsIn may be missing owned and/or shared albums.
+func (a *Asset) AlbumsThatContainAsset(requestID, deviceID string) error {
 	var albumsContainingAsset Albums
+	var errs error
 
 	owned, _, ownedErr := a.albums(requestID, deviceID, false, a.ID, false)
 	if ownedErr != nil {
 		log.Error("Failed to get owned albums containing asset", "err", ownedErr)
+		errs = errors.Join(errs, fmt.Errorf("get owned albums containing asset: %w", ownedErr))
 	}
 	albumsContainingAsset = append(albumsContainingAsset, owned...)
 
 	shared, _, sharedErr := a.albums(requestID, deviceID, true, a.ID, false)
 	if sharedErr != nil {
 		log.Error("Failed to get shared albums containing asset", "err", sharedErr)
+		errs = errors.Join(errs, fmt.Errorf("get shared albums containing asset: %w", sharedErr))
 	}
 	albumsContainingAsset = append(albumsContainingAsset, shared...)
 
 	a.AppearsIn = albumsContainingAsset
+
+	return errs
 }
 
 // albums retrieves albums from Immich based on the shared parameter.

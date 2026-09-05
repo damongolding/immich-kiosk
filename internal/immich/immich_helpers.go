@@ -754,12 +754,21 @@ func (a *Asset) hasValidAlbums(requestID, deviceID string) bool {
 	}
 
 	if len(a.AppearsIn) == 0 {
-		a.AlbumsThatContainAsset(requestID, deviceID)
+		if membershipErr := a.AlbumsThatContainAsset(requestID, deviceID); membershipErr != nil {
+			// AppearsIn may be missing owned and/or shared memberships, so we
+			// can't safely say the asset isn't in an excluded album. Fail
+			// closed rather than risk leaking an excluded asset through.
+			log.Error("determining album membership for exclusion check", "err", membershipErr)
+			return false
+		}
 	}
 
 	excludedAlbumIDs, err := a.ExcludedAlbumIDs(requestID, deviceID)
 	if err != nil {
+		// Same reasoning: an incomplete excluded-album list could wrongly
+		// allow an asset through, so fail closed here too.
 		log.Error("resolving excluded album keywords", "err", err)
+		return false
 	}
 
 	return !slices.ContainsFunc(a.AppearsIn, func(album Album) bool {

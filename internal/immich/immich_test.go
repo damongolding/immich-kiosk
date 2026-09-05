@@ -334,9 +334,39 @@ func TestAlbumsThatContainAsset_SharedOnlyMembership(t *testing.T) {
 		},
 	}
 
-	asset.AlbumsThatContainAsset("requestID", "deviceID")
+	err := asset.AlbumsThatContainAsset("requestID", "deviceID")
+	assert.NoError(t, err)
 
 	assert.ElementsMatch(t, Albums{sharedAlbum}, asset.AppearsIn, "AlbumsThatContainAsset should include shared-only album membership")
+}
+
+// TestHasValidAlbums_FailsClosedOnMembershipLookupError tests that an asset
+// is treated as excluded (rather than let through) when part of its album
+// membership can't be determined, so a transient API error can't be used to
+// bypass exclude_album.
+func TestHasValidAlbums_FailsClosedOnMembershipLookupError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Query().Get("isShared") == "true" {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(Albums{})
+		assert.NoError(t, err)
+	}))
+	defer server.Close()
+
+	asset := &Asset{
+		ID:  "asset-1",
+		ctx: context.Background(),
+		requestConfig: config.Config{
+			ImmichURL:      server.URL,
+			ExcludedAlbums: []string{"some-album"},
+		},
+	}
+
+	assert.False(t, asset.hasValidAlbums("requestID", "deviceID"), "hasValidAlbums should fail closed when album membership can't be fully determined")
 }
 
 func TestExtractDays(t *testing.T) {
