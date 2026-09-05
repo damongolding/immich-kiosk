@@ -307,6 +307,38 @@ func TestExcludedAlbumIDs(t *testing.T) {
 	}
 }
 
+// TestAlbumsThatContainAsset_SharedOnlyMembership tests that AppearsIn is
+// populated from shared albums even when the asset has no owned album
+// memberships. This ensures per-asset filtering (e.g. exclude_album=shared
+// or exclude_album=all) can see shared-only album membership.
+func TestAlbumsThatContainAsset_SharedOnlyMembership(t *testing.T) {
+	sharedAlbum := Album{ID: "shared-album-1"}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		albums := Albums{}
+		if r.URL.Query().Get("isShared") == "true" {
+			albums = Albums{sharedAlbum}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(albums)
+		assert.NoError(t, err)
+	}))
+	defer server.Close()
+
+	asset := &Asset{
+		ID:  "asset-1",
+		ctx: context.Background(),
+		requestConfig: config.Config{
+			ImmichURL: server.URL,
+		},
+	}
+
+	asset.AlbumsThatContainAsset("requestID", "deviceID")
+
+	assert.ElementsMatch(t, Albums{sharedAlbum}, asset.AppearsIn, "AlbumsThatContainAsset should include shared-only album membership")
+}
+
 func TestExtractDays(t *testing.T) {
 	tests := []struct {
 		name    string

@@ -19,25 +19,30 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
-// AlbumsThatContainAsset finds all albums that contain this asset and updates
-// the AppearsIn field with the list of albums. The asset must have its ID set.
+// AlbumsThatContainAsset finds all albums that contain this asset, both owned
+// and shared, and updates the AppearsIn field with the combined list of
+// albums. The asset must have its ID set.
 // Parameters:
 //   - requestID: ID used for tracking API call chain
 //   - deviceID: ID of device making the request
 //
 // Results:
 //   - AppearsIn field of the ImmichAsset is updated with list of albums
-//   - Any error during API call is logged but function does not return an error
+//   - Any error during API calls is logged but function does not return an error
 func (a *Asset) AlbumsThatContainAsset(requestID, deviceID string) {
 	var albumsContainingAsset Albums
 
-	albums, _, err := a.albums(requestID, deviceID, false, a.ID, false)
-	if err != nil {
-		log.Error("Failed to get albums containing asset", "err", err)
-		return
+	owned, _, ownedErr := a.albums(requestID, deviceID, false, a.ID, false)
+	if ownedErr != nil {
+		log.Error("Failed to get owned albums containing asset", "err", ownedErr)
 	}
+	albumsContainingAsset = append(albumsContainingAsset, owned...)
 
-	albumsContainingAsset = append(albumsContainingAsset, albums...)
+	shared, _, sharedErr := a.albums(requestID, deviceID, true, a.ID, false)
+	if sharedErr != nil {
+		log.Error("Failed to get shared albums containing asset", "err", sharedErr)
+	}
+	albumsContainingAsset = append(albumsContainingAsset, shared...)
 
 	a.AppearsIn = albumsContainingAsset
 }
