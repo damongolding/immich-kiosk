@@ -407,6 +407,71 @@ func (a *Asset) RandomAlbumFromOwnedAlbums(requestID, deviceID string, excludedA
 	return a.selectRandomAlbum(albums, excludedAlbums)
 }
 
+// ExcludedAlbumIDs resolves the configured ExcludedAlbums list, expanding any
+// special keywords ("all", "owned", "shared") into the concrete IDs of the
+// albums they represent. Literal album IDs are passed through unchanged.
+// The "favorites"/"favourites" keyword is not an album and is dropped here;
+// it is handled separately via per-asset favorite filtering.
+//
+// Parameters:
+//   - requestID: ID used for tracking API call chain
+//   - deviceID: ID of device making the request
+//
+// Returns:
+//   - []string: resolved list of excluded album IDs
+//   - error: any error encountered while expanding keywords
+func (a *Asset) ExcludedAlbumIDs(requestID, deviceID string) ([]string, error) {
+	excluded := a.requestConfig.ExcludedAlbums
+	if len(excluded) == 0 {
+		return excluded, nil
+	}
+
+	resolved := make([]string, 0, len(excluded))
+	var errs error
+
+	for _, id := range excluded {
+		switch id {
+		case kiosk.AlbumKeywordAll:
+			albums, albumsURL, err := a.allAlbums(requestID, deviceID)
+			if err != nil {
+				errs = errors.Join(errs, fmt.Errorf("expand excluded album keyword 'all' (%s): %w", albumsURL, err))
+				continue
+			}
+			for _, album := range albums {
+				resolved = append(resolved, album.ID)
+			}
+
+		case kiosk.AlbumKeywordOwned:
+			albums, albumsURL, err := a.allOwnedAlbums(requestID, deviceID)
+			if err != nil {
+				errs = errors.Join(errs, fmt.Errorf("expand excluded album keyword 'owned' (%s): %w", albumsURL, err))
+				continue
+			}
+			for _, album := range albums {
+				resolved = append(resolved, album.ID)
+			}
+
+		case kiosk.AlbumKeywordShared:
+			albums, albumsURL, err := a.allSharedAlbums(requestID, deviceID)
+			if err != nil {
+				errs = errors.Join(errs, fmt.Errorf("expand excluded album keyword 'shared' (%s): %w", albumsURL, err))
+				continue
+			}
+			for _, album := range albums {
+				resolved = append(resolved, album.ID)
+			}
+
+		case kiosk.AlbumKeywordFavourites, kiosk.AlbumKeywordFavorites:
+			continue
+
+		default:
+			resolved = append(resolved, id)
+		}
+	}
+
+	return resolved, errs
+}
+
 // RemoveExcludedAlbums filters out albums whose IDs are in the exclude slice.
 func (a *Albums) RemoveExcludedAlbums(exclude []string) {
 	if len(exclude) == 0 {

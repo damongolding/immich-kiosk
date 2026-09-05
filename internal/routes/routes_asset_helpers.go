@@ -407,7 +407,12 @@ func processAsset(asset *immich.Asset, requestConfig config.Config, requestID st
 
 		pickedAsset.ID, _ = asset.ApplyUserFromAssetID(pickedAsset.ID)
 
-		err = retrieveImage(asset, pickedAsset, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
+		excludedAlbumIDs, excludedAlbumsErr := asset.ExcludedAlbumIDs(requestID, deviceID)
+		if excludedAlbumsErr != nil {
+			log.Error(requestID+" resolving excluded album keywords", "err", excludedAlbumsErr)
+		}
+
+		err = retrieveImage(asset, pickedAsset, excludedAlbumIDs, requestID, deviceID, isPrefetch)
 		if err != nil {
 			continue
 		}

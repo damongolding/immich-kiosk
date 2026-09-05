@@ -647,6 +647,7 @@ func (a *Asset) isValidAsset(requestID, deviceID string, allowedTypes []AssetTyp
 		a.hasValidFilterDate() &&
 		a.hasValidPartners() &&
 		a.hasValidFilterExcludeFaces(requestID, deviceID) &&
+		a.hasValidExcludedFavorites() &&
 		a.hasValidAlbums(requestID, deviceID) &&
 		a.hasValidPeople(requestID, deviceID) &&
 		a.hasValidTags(requestID, deviceID)
@@ -737,7 +738,9 @@ func (a *Asset) hasValidFilterExcludeFaces(requestID, deviceID string) bool {
 }
 
 // hasValidAlbums checks if the asset belongs to any excluded albums.
-// If album data is missing, it fetches it first.
+// If album data is missing, it fetches it first. Special keywords in
+// ExcludedAlbums (e.g. "all", "owned", "shared") are expanded to their
+// underlying album IDs before the check is made.
 //
 // Parameters:
 //   - requestID: Unique identifier for the request
@@ -746,12 +749,37 @@ func (a *Asset) hasValidFilterExcludeFaces(requestID, deviceID string) bool {
 // Returns:
 //   - bool: true if asset is not in any excluded albums, false otherwise
 func (a *Asset) hasValidAlbums(requestID, deviceID string) bool {
+	if len(a.requestConfig.ExcludedAlbums) == 0 {
+		return true
+	}
+
 	if len(a.AppearsIn) == 0 {
 		a.AlbumsThatContainAsset(requestID, deviceID)
 	}
 
+	excludedAlbumIDs, err := a.ExcludedAlbumIDs(requestID, deviceID)
+	if err != nil {
+		log.Error("resolving excluded album keywords", "err", err)
+	}
+
 	return !slices.ContainsFunc(a.AppearsIn, func(album Album) bool {
-		return slices.Contains(a.requestConfig.ExcludedAlbums, album.ID)
+		return slices.Contains(excludedAlbumIDs, album.ID)
+	})
+}
+
+// hasValidExcludedFavorites checks if the asset should be excluded because
+// ExcludedAlbums contains the "favorites"/"favourites" keyword and the asset
+// is marked as a favorite.
+//
+// Returns:
+//   - bool: true if the asset is not a favorite, or favorites are not excluded
+func (a *Asset) hasValidExcludedFavorites() bool {
+	if !a.IsFavorite {
+		return true
+	}
+
+	return !slices.ContainsFunc(a.requestConfig.ExcludedAlbums, func(id string) bool {
+		return id == kiosk.AlbumKeywordFavourites || id == kiosk.AlbumKeywordFavorites
 	})
 }
 

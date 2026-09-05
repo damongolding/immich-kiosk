@@ -37,6 +37,8 @@ albums:
 album_order: random # random | newest | oldest
 # Album IDs to exclude from being shown. Albums in this list will be filtered from
 # appearing in the frame even if they are included in the 'album' list.
+# Also supports the special keywords "all", "owned", "shared" and "favorites"/"favourites"
+# to exclude entire categories of albums/assets, in addition to specific album IDs.
 excluded_albums:
   - "ALBUM_ID"
 

@@ -1,9 +1,14 @@
 package immich
 
 import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"slices"
 	"testing"
 
+	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/stretchr/testify/assert"
 )
@@ -215,6 +220,89 @@ func TestRemoveExcludedAlbums(t *testing.T) {
 			albums := tt.albums
 			albums.RemoveExcludedAlbums(tt.exclude)
 			assert.Equal(t, tt.expected, albums, "RemoveExcludedAlbums returned unexpected result")
+		})
+	}
+}
+
+// TestExcludedAlbumIDs tests that special keywords in ExcludedAlbums ("all",
+// "owned", "shared", "favorites"/"favourites") are correctly expanded into
+// concrete album IDs, while literal album IDs are passed through unchanged.
+func TestExcludedAlbumIDs(t *testing.T) {
+	ownedAlbums := Albums{{ID: "owned-1"}, {ID: "owned-2"}}
+	sharedAlbums := Albums{{ID: "shared-1"}}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var albums Albums
+		if r.URL.Query().Get("isShared") == "true" {
+			albums = sharedAlbums
+		} else {
+			albums = ownedAlbums
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(albums)
+		assert.NoError(t, err)
+	}))
+	defer server.Close()
+
+	newAsset := func(excludedAlbums []string) *Asset {
+		return &Asset{
+			ctx: context.Background(),
+			requestConfig: config.Config{
+				ImmichURL:      server.URL,
+				ExcludedAlbums: excludedAlbums,
+			},
+		}
+	}
+
+	tests := []struct {
+		name     string
+		exclude  []string
+		expected []string
+	}{
+		{
+			name:     "empty list",
+			exclude:  []string{},
+			expected: []string{},
+		},
+		{
+			name:     "literal album IDs pass through",
+			exclude:  []string{"literal-1", "literal-2"},
+			expected: []string{"literal-1", "literal-2"},
+		},
+		{
+			name:     "owned keyword expands to owned album IDs",
+			exclude:  []string{kiosk.AlbumKeywordOwned},
+			expected: []string{"owned-1", "owned-2"},
+		},
+		{
+			name:     "shared keyword expands to shared album IDs",
+			exclude:  []string{kiosk.AlbumKeywordShared},
+			expected: []string{"shared-1"},
+		},
+		{
+			name:     "all keyword expands to owned and shared album IDs",
+			exclude:  []string{kiosk.AlbumKeywordAll},
+			expected: []string{"owned-1", "owned-2", "shared-1"},
+		},
+		{
+			name:     "favorites and favourites keywords are dropped",
+			exclude:  []string{kiosk.AlbumKeywordFavorites, kiosk.AlbumKeywordFavourites},
+			expected: []string{},
+		},
+		{
+			name:     "keywords and literal IDs can be combined",
+			exclude:  []string{"literal-1", kiosk.AlbumKeywordShared},
+			expected: []string{"literal-1", "shared-1"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			asset := newAsset(tt.exclude)
+			got, err := asset.ExcludedAlbumIDs("requestID", "deviceID")
+			assert.NoError(t, err)
+			assert.ElementsMatch(t, tt.expected, got, "ExcludedAlbumIDs returned unexpected result")
 		})
 	}
 }
