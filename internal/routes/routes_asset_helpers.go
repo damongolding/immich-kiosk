@@ -119,7 +119,7 @@ func gatherPeopleAlbums(d *gatherData, config gatherPeopleAlbumsConfig) error {
 			continue
 		}
 
-		// Readd user to item if asset has a selected user (a fix for second splitview items)
+		// Read user to see if asset has a selected user (a fix for second splitview items)
 		if d.immichAsset.SelectedUser() != "" && !strings.Contains(item, kiosk.MultipleUserIndicator) {
 			item = fmt.Sprintf("%s%s%s", item, kiosk.MultipleUserIndicator, d.immichAsset.SelectedUser())
 		}
