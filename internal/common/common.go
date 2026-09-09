@@ -227,7 +227,7 @@ type URLBuilderRequest struct {
 	MoreInfoHideButtonAction []string `form:"more_info_hide_button_action" url:"more_info_hide_button_action,omitempty"`
 
 	MoreInfoShowAssetLink  *bool `form:"more_info_show_asset_link" url:"more_info_show_asset_link,omitempty"`
-	MoreInfoShowQRCode     *bool `form:"more_info_show_qrcode" url:"more_info_show_qrcode,omitempty"`
+	MoreInfoShowQRCode     *bool `form:"more_info_show_qr_code" url:"more_info_show_qr_code,omitempty"`
 	MoreInfoRating         *bool `form:"more_info_show_rating" url:"more_info_show_rating,omitempty"`
 	MoreInfoShowLikeButton *bool `form:"more_info_show_like_button" url:"more_info_show_like_button,omitempty"`
 	MoreInfoShowHideButton *bool `form:"more_info_show_hide_button" url:"more_info_show_hide_button,omitempty"`
