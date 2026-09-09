@@ -341,6 +341,10 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 
 		var eg error
 
+		if slices.Contains(requestConfig.MoreInfo.LikeButtonAction, kiosk.ButtonActionBoth) {
+			requestConfig.MoreInfo.LikeButtonAction = []string{kiosk.LikeButtonActionAlbum, kiosk.LikeButtonActionFavorite}
+		}
+
 		// Favourite Asset
 		if slices.Contains(requestConfig.MoreInfo.LikeButtonAction, kiosk.LikeButtonActionFavorite) {
 			favouriteErr := immichAsset.FavouriteStatus(requestData.DeviceID, setAssetAsLiked)
@@ -436,6 +440,10 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		var eg error
+
+		if slices.Contains(requestConfig.MoreInfo.HideButtonAction, kiosk.ButtonActionBoth) {
+			requestConfig.MoreInfo.HideButtonAction = []string{kiosk.HideButtonActionTag, kiosk.HideButtonActionArchive}
+		}
 
 		if slices.Contains(requestConfig.MoreInfo.HideButtonAction, kiosk.HideButtonActionTag) {
 			tag := immich.Tag{
