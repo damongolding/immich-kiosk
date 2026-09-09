@@ -222,9 +222,13 @@ type URLBuilderRequest struct {
 	ShowImageID              *bool   `form:"show_image_id" url:"show_image_id,omitempty"`
 
 	// Show more overlay
-	ShowMoreInfo          *bool    `form:"show_more_info" url:"show_more_info,omitempty"`
-	ShowMoreInfoImageLink *bool    `form:"show_more_info_image_link" url:"show_more_info_image_link,omitempty"`
-	ShowMoreInfoQRCode    *bool    `form:"show_more_info_qr_code" url:"show_more_info_qr_code,omitempty"`
-	LikeButtonAction      []string `form:"like_button_action" url:"like_button_action,omitempty"`
-	HideButtonAction      []string `form:"hide_button_action" url:"hide_button_action,omitempty"`
+	MoreInfoDisplay          *bool    `form:"more_info_display" url:"more_info_display,omitempty"`
+	MoreInfoLikeButtonAction []string `form:"more_info_like_button_action" url:"more_info_like_button_action,omitempty"`
+	MoreInfoHideButtonAction []string `form:"more_info_hide_button_action" url:"more_info_hide_button_action,omitempty"`
+
+	MoreInfoShowAssetLink  *bool `form:"more_info_show_asset_link" url:"more_info_show_asset_link,omitempty"`
+	MoreInfoShowQRCode     *bool `form:"more_info_show_qrcode" url:"more_info_show_qrcode,omitempty"`
+	MoreInfoRating         *bool `form:"more_info_show_rating" url:"more_info_show_rating,omitempty"`
+	MoreInfoShowLikeButton *bool `form:"more_info_show_like_button" url:"more_info_show_like_button,omitempty"`
+	MoreInfoShowHideButton *bool `form:"more_info_show_hide_button" url:"more_info_show_hide_button,omitempty"`
 }
