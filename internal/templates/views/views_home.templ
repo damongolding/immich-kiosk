@@ -104,7 +104,7 @@ templ Home(viewData common.ViewData, secret string) {
 					"showAmPm":           viewData.ShowAmPm,
 					"clockSource":        viewData.ClockSource,
 					"transition":         viewData.Transition,
-					"showMoreInfo":       viewData.ShowMoreInfo,
+					"showMoreInfo":       viewData.MoreInfo.Display,
 					"showRedirects":      len(viewData.Redirects.Items) > 0 || viewData.Redirects.ShowAlbums,
 					"livePhotos":         viewData.LivePhotos,
 					"livePhotoLoopDelay": viewData.LivePhotoLoopDelay * 1000,

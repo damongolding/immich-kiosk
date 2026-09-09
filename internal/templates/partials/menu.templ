@@ -134,7 +134,7 @@ templ Menu(viewData common.ViewData, queries url.Values, secret string) {
 				</svg>
 			</div>
 		}
-		if viewData.ShowMoreInfo {
+		if viewData.MoreInfo.Display {
 			<div class="navigation--item navigation--more-info rounded" title={ t("more_info") }>
 				<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512" width="192" height="512">
 					<!--!Font Awesome Free 6.7.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->

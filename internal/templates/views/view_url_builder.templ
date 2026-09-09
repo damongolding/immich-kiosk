@@ -241,14 +241,17 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 						}
 						// More information
 						<h2>More Information Overlay</h2>
-						@URLBuilderRadio("Show more info", "show_more_info", "Enable the more information overlay.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show more info image link", "show_more_info_image_link", "Display a link to the image in the more info overlay.", "true", "true", "false", "false")
-						@URLBuilderRadio("Show more info QR code", "show_more_info_qr_code", "Display a QR code in the more info overlay.", "true", "true", "false", "false")
-						@URLBuilderMultiSelect("Like button action", "like_button_action", "Action(s) to perform when the like button is clicked.") {
+						@URLBuilderRadio("Display overlay", "more_info_display", "Enable the more information overlay.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show asset link", "more_info_show_asset_link", "Display a link to the asset in the more info overlay.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show QR code", "more_info_show_qrcode", "Display a QR code that links to the asset in the more info overlay.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show rating", "more_info_show_rating", "Display the asset rating in the more info overlay.", "true", "true", "false", "false")
+						@URLBuilderRadio("Show like button", "more_info_show_like_button", "Display the like button in the more info overlay.", "true", "true", "false", "false")
+						@URLBuilderMultiSelect("Like button action", "more_info_like_button_action", "Action(s) to perform when the like button is clicked.") {
 							<option value="favorite">Favorite</option>
 							<option value="album">Album</option>
 						}
-						@URLBuilderMultiSelect("Hide button action", "hide_button_action", "Action(s) to perform when the hide button is clicked.") {
+						@URLBuilderRadio("Show hide button", "more_info_show_hide_button", "Display the hide button in the more info overlay.", "true", "true", "false", "false")
+						@URLBuilderMultiSelect("Hide button action", "more_info_hide_button_action", "Action(s) to perform when the hide button is clicked.") {
 							<option value="tag">Tag</option>
 							<option value="archive">Archive</option>
 						}
