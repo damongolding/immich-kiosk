@@ -377,28 +377,36 @@
     "show_image_id": {
       "type": "boolean"
     },
-    "show_more_info": {
-      "type": "boolean"
-    },
-    "show_more_info_image_link": {
-      "type": "boolean"
-    },
-    "show_more_info_qr_code": {
-      "type": "boolean"
-    },
-    "like_button_action": {
-      "type": ["string", "array"],
-      "items": {
-        "type": "string"
-      },
-      "uniqueItems": true
-    },
-    "hide_button_action": {
-      "type": ["string", "array"],
-      "items": {
-        "type": "string"
-      },
-      "uniqueItems": true
+    "more_info": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "display": {
+          "type": "boolean",
+          "description": "Show the more info overlay"
+        },
+        "like_button_action": {
+          "type": "string",
+          "enum": ["album", "favorite", "both"],
+          "description": "Action performed by the like button"
+        },
+        "hide_button_action": {
+          "type": "string",
+          "enum": ["tag", "archive", "both"],
+          "description": "Action performed by the hide button"
+        },
+        "show": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "asset_link": { "type": "boolean" },
+            "qr_code": { "type": "boolean" },
+            "rating": { "type": "boolean" },
+            "like_button": { "type": "boolean" },
+            "hide_button": { "type": "boolean" }
+          }
+        }
+      }
     },
     "qr_code_open_in_app": {
       "type": "boolean",

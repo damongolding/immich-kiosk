@@ -342,7 +342,7 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 		var eg error
 
 		// Favourite Asset
-		if slices.Contains(requestConfig.LikeButtonAction, kiosk.LikeButtonActionFavorite) {
+		if slices.Contains(requestConfig.MoreInfo.LikeButtonAction, kiosk.LikeButtonActionFavorite) {
 			favouriteErr := immichAsset.FavouriteStatus(requestData.DeviceID, setAssetAsLiked)
 			if favouriteErr != nil {
 				log.Error("favouriting asset", "assetID", assetID, "error", favouriteErr)
@@ -351,7 +351,7 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 		}
 
 		// add asset to kiosk liked album
-		if slices.Contains(requestConfig.LikeButtonAction, kiosk.LikeButtonActionAlbum) {
+		if slices.Contains(requestConfig.MoreInfo.LikeButtonAction, kiosk.LikeButtonActionAlbum) {
 			switch setAssetAsLiked {
 			case true:
 				addErr := immichAsset.AddToKioskLikedAlbum(requestID, requestData.DeviceID)
@@ -437,7 +437,7 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 
 		var eg error
 
-		if slices.Contains(requestConfig.HideButtonAction, kiosk.HideButtonActionTag) {
+		if slices.Contains(requestConfig.MoreInfo.HideButtonAction, kiosk.HideButtonActionTag) {
 			tag := immich.Tag{
 				Name: tagName,
 			}
@@ -458,7 +458,7 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 			}
 		}
 
-		if slices.Contains(requestConfig.HideButtonAction, kiosk.HideButtonActionArchive) {
+		if slices.Contains(requestConfig.MoreInfo.HideButtonAction, kiosk.HideButtonActionArchive) {
 			archivedErr := immichAsset.ArchiveStatus(requestData.DeviceID, hideAsset)
 			if archivedErr != nil {
 				log.Error("archiving asset", "assetID", assetID, "error", archivedErr)

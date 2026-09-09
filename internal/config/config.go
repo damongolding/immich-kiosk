@@ -485,18 +485,6 @@ type Config struct {
 	// ShowUser whether to display user
 	ShowUser bool `json:"showUser" yaml:"show_user" mapstructure:"show_user" query:"show_user" form:"show_user" default:"false"`
 
-	// ShowMoreInfo enables the display of additional information about the current image
-	ShowMoreInfo bool `json:"showMoreInfo" yaml:"show_more_info" mapstructure:"show_more_info" query:"show_more_info" form:"show_more_info" default:"true"`
-	// ShowMoreInfoImageLink shows a link to the original image in the additional information panel
-	ShowMoreInfoImageLink bool `json:"showMoreInfoImageLink" yaml:"show_more_info_image_link" mapstructure:"show_more_info_image_link" query:"show_more_info_image_link" form:"show_more_info_image_link" default:"true"`
-	// ShowMoreInfoQrCode displays a QR code linking to the original image in the additional information panel
-	ShowMoreInfoQrCode bool `json:"showMoreInfoQrCode" yaml:"show_more_info_qr_code" mapstructure:"show_more_info_qr_code" query:"show_more_info_qr_code" form:"show_more_info_qr_code" default:"true"`
-
-	// LikeButtonAction indicates the action to take when the like button is clicked
-	LikeButtonAction []string `json:"likeButtonAction" yaml:"like_button_action" mapstructure:"like_button_action" query:"like_button_action" form:"like_button_action" default:"[favorite]"`
-	// HideButtonAction indicates the action to take when the hide button is clicked
-	HideButtonAction []string `json:"hideButtonAction" yaml:"hide_button_action" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
-
 	MoreInfo MoreInfo `json:"moreInfo" yaml:"more_info" mapstructure:"more_info"`
 
 	ButtonOpenInApp bool `json:"buttonOpenInApp" yaml:"button_open_in_app" mapstructure:"button_open_in_app" query:"button_open_in_app" form:"button_open_in_app" default:"false"`
@@ -568,6 +556,14 @@ func bindEnvironmentVariables(v *viper.Viper) error {
 		{"image_location.hide_city", "KIOSK_IMAGE_LOCATION_HIDE_CITY"},
 		{"image_location.hide_state", "KIOSK_IMAGE_LOCATION_HIDE_STATE"},
 		{"image_location.hide_country", "KIOSK_IMAGE_LOCATION_HIDE_COUNTRY"},
+		{"more_info.display", "KIOSK_MORE_INFO_DISPLAY"},
+		{"more_info.like_button_action", "KIOSK_MORE_INFO_LIKE_BUTTON_ACTION"},
+		{"more_info.hide_button_action", "KIOSK_MORE_INFO_HIDE_BUTTON_ACTION"},
+		{"more_info.show.asset_link", "KIOSK_MORE_INFO_SHOW_ASSET_LINK"},
+		{"more_info.show.qr_code", "KIOSK_MORE_INFO_SHOW_QR_CODE"},
+		{"more_info.show.rating", "KIOSK_MORE_INFO_SHOW_RATING"},
+		{"more_info.show.like_button", "KIOSK_MORE_INFO_SHOW_LIKE_BUTTON"},
+		{"more_info.show.hide_button", "KIOSK_MORE_INFO_SHOW_HIDE_BUTTON"},
 		{"kiosk.port", "KIOSK_PORT"},
 		{"kiosk.behind_proxy", "KIOSK_BEHIND_PROXY"},
 		{"kiosk.watch_config", "KIOSK_WATCH_CONFIG"},
