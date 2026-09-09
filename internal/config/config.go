@@ -98,6 +98,23 @@ type RedirectItem struct {
 	Category string `yaml:"category" mapstructure:"category" redact:"true"`
 }
 
+type MoreInfoShowOptions struct {
+	AssetLink  bool `yaml:"asset_link" mapstructure:"asset_link" query:"more_info_show_asset_link" form:"more_info_show_asset_link" default:"true"`
+	QRCode     bool `yaml:"qrcode" mapstructure:"qrcode" query:"more_info_show_qrcode" form:"more_info_show_qrcode" default:"true"`
+	Rating     bool `yaml:"rating" mapstructure:"rating" query:"more_info_show_rating" form:"more_info_show_rating" default:"true"`
+	LikeButton bool `yaml:"like_button" mapstructure:"like_button" query:"more_info_show_like_button" form:"more_info_show_like_button" default:"true"`
+	HideButton bool `yaml:"hide_button" mapstructure:"hide_button" query:"more_info_show_hide_button" form:"more_info_show_hide_button" default:"true"`
+}
+
+type MoreInfo struct {
+	Display bool `yaml:"display" mapstructure:"display" query:"more_info_display" form:"more_info_display" default:"true"`
+	// LikeButtonAction indicates the action to take when the like button is clicked
+	LikeButtonAction []string `json:"likeButtonAction" yaml:"like_button_action" mapstructure:"like_button_action" query:"more_info_like_button_action" form:"more_info_like_button_action" default:"[favorite]"`
+	// HideButtonAction indicates the action to take when the hide button is clicked
+	HideButtonAction []string            `json:"hideButtonAction" yaml:"hide_button_action" mapstructure:"hide_button_action" query:"more_info_hide_button_action" form:"more_info_hide_button_action" default:"[tag]"`
+	Show             MoreInfoShowOptions `yaml:"show" mapstructure:"show"`
+}
+
 type KioskSettings struct {
 	// Version
 	Version string `json:"version" yaml:"version"`
@@ -479,6 +496,8 @@ type Config struct {
 	LikeButtonAction []string `json:"likeButtonAction" yaml:"like_button_action" mapstructure:"like_button_action" query:"like_button_action" form:"like_button_action" default:"[favorite]"`
 	// HideButtonAction indicates the action to take when the hide button is clicked
 	HideButtonAction []string `json:"hideButtonAction" yaml:"hide_button_action" mapstructure:"hide_button_action" query:"hide_button_action" form:"hide_button_action" default:"[tag]"`
+
+	MoreInfo MoreInfo `json:"moreInfo" yaml:"more_info" mapstructure:"more_info"`
 
 	ButtonOpenInApp bool `json:"buttonOpenInApp" yaml:"button_open_in_app" mapstructure:"button_open_in_app" query:"button_open_in_app" form:"button_open_in_app" default:"false"`
 	QrCodeOpenInApp bool `json:"qrCodeOpenInApp" yaml:"qr_code_open_in_app" mapstructure:"qr_code_open_in_app" query:"qr_code_open_in_app" form:"qr_code_open_in_app" default:"true"`
