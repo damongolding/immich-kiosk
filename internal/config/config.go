@@ -98,6 +98,16 @@ type RedirectItem struct {
 	Category string `yaml:"category" mapstructure:"category" redact:"true"`
 }
 
+// ImmichServer is a named Immich instance (url + api key pair).
+type ImmichServer struct {
+	// URL is the base URL of the Immich server.
+	URL string `yaml:"url" mapstructure:"url" redact:"true"`
+	// APIKey is the API key used to authenticate with this Immich server.
+	APIKey string `yaml:"api_key" mapstructure:"api_key" redact:"true"`
+	// ExternalURL is an optional public URL used for links and QR codes.
+	ExternalURL string `yaml:"external_url" mapstructure:"external_url" default:"" redact:"true"`
+}
+
 type KioskSettings struct {
 	// Version
 	Version string `json:"version" yaml:"version"`
@@ -255,6 +265,11 @@ type Config struct {
 	ImmichUsersAPIKeys map[string]string `json:"-" msgpack:"-" yaml:"immich_users_api_keys" mapstructure:"immich_users_api_keys" default:"{}" redact:"true"`
 	// URLParamUsers the user(s) submitted via URL query parameter
 	URLParamUsers []string `json:"user" yaml:"-" mapstructure:"-" query:"user" form:"user" default:"[]" redact:"true"`
+	// ImmichServers named Immich instances. When set, Kiosk picks one at random per asset
+	// (or uses ?server= / SelectedServer). Config.yaml only.
+	ImmichServers map[string]ImmichServer `json:"-" msgpack:"-" yaml:"immich_servers" mapstructure:"immich_servers" default:"{}" redact:"true"`
+	// URLParamServers the server name(s) submitted via URL query parameter
+	URLParamServers []string `json:"server" yaml:"-" mapstructure:"-" query:"server" form:"server" default:"[]" redact:"true"`
 	// ReloadTimeStamp timestamp for when the last client reload was called for
 	ReloadTimeStamp string `json:"-" yaml:"-"`
 	// configHash stores the SHA-256 hash of the configuration file
@@ -300,6 +315,8 @@ type Config struct {
 
 	// SelectedUser selected user from User for the specific request
 	SelectedUser string `json:"selectedUser" yaml:"-" default:""`
+	// SelectedServer selected Immich server name for the specific request
+	SelectedServer string `json:"selectedServer" yaml:"-" default:""`
 	// MenuPosition position of menu
 	MenuPosition string `json:"menuPosition" yaml:"menu_position" mapstructure:"menu_position" query:"menu_position" form:"menu_position" default:"top"`
 	// OptimizeImages tells Kiosk to optimize images
@@ -698,6 +715,7 @@ func (c *Config) Load() error {
 	c.checkSecrets()
 	c.checkRequiredFields()
 	c.checkUsersAPIKeys()
+	c.checkImmichServers()
 	c.checkLowercaseTaggedFields()
 	c.checkAssetBuckets()
 	c.checkAlbumOrder()

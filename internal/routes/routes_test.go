@@ -16,6 +16,34 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestParseHistoryAssetID(t *testing.T) {
+	tests := []struct {
+		name           string
+		entry          string
+		wantID         string
+		wantUser       string
+		wantServer     string
+		wantOK         bool
+	}{
+		{name: "legacy user only", entry: "asset-1:john", wantID: "asset-1", wantUser: "john", wantServer: "", wantOK: true},
+		{name: "with server", entry: "asset-1:john:home", wantID: "asset-1", wantUser: "john", wantServer: "home", wantOK: true},
+		{name: "empty user with server", entry: "asset-1::home", wantID: "asset-1", wantUser: "", wantServer: "home", wantOK: true},
+		{name: "invalid", entry: "asset-1", wantOK: false},
+		{name: "empty asset id", entry: ":john", wantOK: false},
+		{name: "empty asset id with server", entry: ":john:home", wantOK: false},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			id, user, server, ok := parseHistoryAssetID(tc.entry)
+			assert.Equal(t, tc.wantOK, ok)
+			assert.Equal(t, tc.wantID, id)
+			assert.Equal(t, tc.wantUser, user)
+			assert.Equal(t, tc.wantServer, server)
+		})
+	}
+}
+
 // TestRawImage tests the NewRawImage handler function.
 // It skips the test in CI environments, sets up a test HTTP request,
 // loads the configuration, and asserts that the handler responds

@@ -318,8 +318,12 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 
 		assetID := c.FormValue("assetID")
 		user := strings.TrimSpace(c.FormValue("user"))
+		server := strings.TrimSpace(c.FormValue("server"))
 		if user != "" {
 			requestConfig.SelectedUser = user
+		}
+		if server != "" {
+			requestConfig.SelectedServer = server
 		}
 
 		if assetID == "" {
@@ -328,10 +332,11 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 		}
 
 		if baseConfig.Kiosk.DemoMode {
-			return Render(c, http.StatusOK, partials.LikeButton(assetID, user, true, true, true, com.Secret()))
+			return Render(c, http.StatusOK, partials.LikeButton(assetID, user, server, true, true, true, com.Secret()))
 		}
 
 		immichAsset := immich.New(com.Context(), requestConfig)
+		immichAsset.ApplyServer(false)
 		immichAsset.ID = assetID
 		infoErr := immichAsset.AssetInfo(requestID, requestData.DeviceID)
 		if infoErr != nil {
@@ -370,10 +375,10 @@ func LikeAsset(baseConfig *config.Config, com *common.Common, setAssetAsLiked bo
 
 		// handle error
 		if eg != nil {
-			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, user, !setAssetAsLiked, false, true, com.Secret()))
+			return Render(c, http.StatusInternalServerError, partials.LikeButton(assetID, user, server, !setAssetAsLiked, false, true, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, partials.LikeButton(assetID, user, setAssetAsLiked, setAssetAsLiked, true, com.Secret()))
+		return Render(c, http.StatusOK, partials.LikeButton(assetID, user, server, setAssetAsLiked, setAssetAsLiked, true, com.Secret()))
 	}
 }
 
@@ -409,8 +414,12 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		assetID := c.FormValue("assetID")
 		tagName := c.FormValue("tagName")
 		user := strings.TrimSpace(c.FormValue("user"))
+		server := strings.TrimSpace(c.FormValue("server"))
 		if user != "" {
 			requestConfig.SelectedUser = user
+		}
+		if server != "" {
+			requestConfig.SelectedServer = server
 		}
 
 		if assetID == "" {
@@ -424,10 +433,11 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		if baseConfig.Kiosk.DemoMode {
-			return Render(c, http.StatusOK, partials.HideButton(assetID, user, !hideAsset, true, com.Secret()))
+			return Render(c, http.StatusOK, partials.HideButton(assetID, user, server, !hideAsset, true, com.Secret()))
 		}
 
 		immichAsset := immich.New(com.Context(), requestConfig)
+		immichAsset.ApplyServer(false)
 		immichAsset.ID = assetID
 		infoErr := immichAsset.AssetInfo(requestID, requestData.DeviceID)
 		if infoErr != nil {
@@ -467,10 +477,10 @@ func HideAsset(baseConfig *config.Config, com *common.Common, hideAsset bool) ec
 		}
 
 		if eg != nil {
-			return Render(c, http.StatusOK, partials.HideButton(assetID, user, !hideAsset, true, com.Secret()))
+			return Render(c, http.StatusOK, partials.HideButton(assetID, user, server, !hideAsset, true, com.Secret()))
 		}
 
-		return Render(c, http.StatusOK, partials.HideButton(assetID, user, hideAsset, true, com.Secret()))
+		return Render(c, http.StatusOK, partials.HideButton(assetID, user, server, hideAsset, true, com.Secret()))
 	}
 }
 
@@ -499,8 +509,12 @@ func RatingAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		ratingStr := c.FormValue("rating")
 		allowEdit, _ := strconv.ParseBool(c.FormValue("allowEdit"))
 		user := strings.TrimSpace(c.FormValue("user"))
+		server := strings.TrimSpace(c.FormValue("server"))
 		if user != "" {
 			requestConfig.SelectedUser = user
+		}
+		if server != "" {
+			requestConfig.SelectedServer = server
 		}
 
 		if assetID == "" {
@@ -525,6 +539,7 @@ func RatingAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 		}
 
 		immichAsset := immich.New(com.Context(), requestConfig)
+		immichAsset.ApplyServer(false)
 		immichAsset.ID = assetID
 		infoErr := immichAsset.AssetInfo(requestID, requestData.DeviceID)
 		if infoErr != nil {
@@ -539,7 +554,7 @@ func RatingAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 			return nil
 		}
 
-		return Render(c, http.StatusOK, partials.RatingStars(assetID, user, rating, allowEdit, true))
+		return Render(c, http.StatusOK, partials.RatingStars(assetID, user, server, rating, allowEdit, true))
 	}
 }
 
@@ -567,8 +582,12 @@ func ClearRatingAsset(baseConfig *config.Config, com *common.Common) echo.Handle
 		assetID := c.FormValue("assetID")
 		allowEdit, _ := strconv.ParseBool(c.FormValue("allowEdit"))
 		user := strings.TrimSpace(c.FormValue("user"))
+		server := strings.TrimSpace(c.FormValue("server"))
 		if user != "" {
 			requestConfig.SelectedUser = user
+		}
+		if server != "" {
+			requestConfig.SelectedServer = server
 		}
 
 		if assetID == "" {
@@ -577,6 +596,7 @@ func ClearRatingAsset(baseConfig *config.Config, com *common.Common) echo.Handle
 		}
 
 		immichAsset := immich.New(com.Context(), requestConfig)
+		immichAsset.ApplyServer(false)
 		immichAsset.ID = assetID
 		infoErr := immichAsset.AssetInfo(requestID, requestData.DeviceID)
 		if infoErr != nil {
@@ -598,6 +618,6 @@ func ClearRatingAsset(baseConfig *config.Config, com *common.Common) echo.Handle
 			return nil
 		}
 
-		return Render(c, http.StatusOK, partials.RatingStars(assetID, user, 0, allowEdit, true))
+		return Render(c, http.StatusOK, partials.RatingStars(assetID, user, server, 0, allowEdit, true))
 	}
 }

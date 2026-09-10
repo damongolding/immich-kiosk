@@ -20,11 +20,15 @@ func TestImmichURLImmichApiKeyImmutability(t *testing.T) {
 	originalURL := "https://my-server.com"
 	originalAPI := "123456"
 	originalUsersAPIKeys := map[string]string{"default": "123456"}
+	originalServers := map[string]ImmichServer{
+		"home": {URL: "https://home.example", APIKey: "home-key"},
+	}
 
 	c := New()
 	c.ImmichURL = originalURL
 	c.ImmichAPIKey = originalAPI
 	c.ImmichUsersAPIKeys = originalUsersAPIKeys
+	c.ImmichServers = originalServers
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -33,6 +37,7 @@ func TestImmichURLImmichApiKeyImmutability(t *testing.T) {
 	q.Add("immich_url", "https://my-new-server.com")
 	q.Add("immich_api_key", "9999")
 	q.Add("immich_users_api_keys", "{\"user1\": \"9999\"}")
+	q.Add("immich_servers", "{\"hack\":{\"url\":\"https://evil\",\"api_key\":\"x\"}}")
 
 	req.URL.RawQuery = q.Encode()
 
@@ -46,6 +51,7 @@ func TestImmichURLImmichApiKeyImmutability(t *testing.T) {
 	assert.Equal(t, originalURL, c.ImmichURL, "ImmichURL field was allowed to be changed")
 	assert.Equal(t, originalAPI, c.ImmichAPIKey, "ImmichAPIKey field was allowed to be changed")
 	assert.Equal(t, originalUsersAPIKeys, c.ImmichUsersAPIKeys, "ImmichUsersAPIKeys field was allowed to be changed")
+	assert.Equal(t, originalServers, c.ImmichServers, "ImmichServers field was allowed to be changed")
 }
 
 // TestImmichURLImmichMultiplePerson tests the addition of multiple persons to the config

@@ -87,6 +87,7 @@ type ViewImageData struct {
 	ImageBlurData      string       // ImageBlurData contains the blurred image as base64 data
 	ImageDate          string       // ImageDate contains the date of the image
 	User               string       // User the user api key used
+	Server             string       // Server the Immich server name used
 	ImmichAsset        immich.Asset // ImmichAsset contains immich asset data
 	ImageDominantColor color.RGBA   // ImageDominantColor contains the dominant color of the image
 }

@@ -4,6 +4,17 @@
 immich_api_key: ""
 immich_url: ""
 
+## Multiple Immich servers (optional). When set, Kiosk picks one at random per asset.
+## Use ?server=home or ?server=home&server=cabin to limit/select by name.
+# immich_servers:
+#   home:
+#     url: "http://192.168.1.10:2283"
+#     api_key: ""
+#     external_url: ""
+#   cabin:
+#     url: "http://192.168.1.20:2283"
+#     api_key: ""
+
 ## Clock
 show_time: false
 time_format: 24 # 12 or 24
