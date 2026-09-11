@@ -148,27 +148,43 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly b
 	}
 
 	requestBody := SearchRandomBody{
-		Visibility: Timeline,
-		Type:       string(ImageType),
-		AlbumIDs:   []string{albumID},
+		Filter: SearchFilter{
+			AlbumIds: IdsFilter{
+				Any: []string{albumID},
+			},
+			Visibility: FilterAssetVisibility{
+				Eq: Timeline,
+			},
+			Type: FilterAssetType{
+				Eq: ImageType,
+			},
+			IsFavorite: BoolFilter{
+				Eq: favoritesOnly,
+			},
+		},
 		WithPeople: true,
 		WithExif:   true,
-		IsFavorite: favoritesOnly,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = ""
+		requestBody.Filter.Visibility = FilterAssetVisibility{
+			In: []AssetVisibility{Timeline, Archive},
+		}
 	}
 
 	assetOrder := AlbumOrder(a.requestConfig.AlbumOrder)
 	if assetOrder != Rand {
-		requestBody.Order = string(assetOrder)
+		requestBody.OrderBy = SearchOrder{
+			Direction: assetOrder,
+		}
 	}
 
 	// Include videos if show videos is enabled
 	if a.requestConfig.ShowVideos {
-		requestBody.Type = ""
+		requestBody.Filter.Type = FilterAssetType{
+			In: []AssetType{ImageType, VideoType},
+		}
 	}
 
 	filterDate(&requestBody, a.requestConfig.FilterDate)

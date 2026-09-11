@@ -319,7 +319,7 @@ type StringSimilarityFilter struct {
 	Matches string `json:"matches"`
 }
 
-type EnumFilterAssetVisibility struct {
+type FilterAssetVisibility struct {
 	// Eq Asset visibility
 	Eq AssetVisibility   `json:"eq,omitempty"`
 	In []AssetVisibility `json:"in,omitempty"`
@@ -329,7 +329,7 @@ type EnumFilterAssetVisibility struct {
 	NotIn []AssetVisibility `json:"notIn,omitempty"`
 }
 
-type EnumFilterAssetType struct {
+type FilterAssetType struct {
 	// Eq Asset type
 	Eq AssetType   `json:"eq,omitempty"`
 	In []AssetType `json:"in,omitempty"`
@@ -376,9 +376,9 @@ type SearchFilter struct {
 	TagIds           IdsFilter            `url:"tagIds,omitempty" json:"tagIds,omitempty"`
 	TakenAt          DateFilter           `url:"takenAt,omitempty" json:"takenAt,omitempty"`
 	// TrashedAt        *DateFilterNullable        `json:"trashedAt,omitempty"`
-	Type       EnumFilterAssetType       `url:"type,omitempty" json:"type,omitempty"`
-	UpdatedAt  DateFilter                `url:"updatedAt,omitempty" json:"updatedAt,omitempty"`
-	Visibility EnumFilterAssetVisibility `url:"visibility,omitempty" json:"visibility,omitempty"`
+	Type       FilterAssetType       `url:"type,omitempty" json:"type,omitempty"`
+	UpdatedAt  DateFilter            `url:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	Visibility FilterAssetVisibility `url:"visibility,omitempty" json:"visibility,omitempty"`
 }
 
 type SearchRandomBody struct {

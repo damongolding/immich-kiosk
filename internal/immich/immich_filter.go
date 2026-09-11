@@ -1,8 +1,6 @@
 package immich
 
 import (
-	"time"
-
 	"charm.land/log/v2"
 )
 
@@ -19,8 +17,10 @@ func filterDate(requestBody *SearchRandomBody, dateFilter string) {
 	if err != nil {
 		log.Error("malformed filter", "err", err)
 	} else {
-		requestBody.TakenAfter = dateStart.Format(time.RFC3339)
-		requestBody.TakenBefore = dateEnd.Format(time.RFC3339)
+		requestBody.Filter.TakenAt = DateFilter{
+			Gte: dateStart,
+			Lte: dateEnd,
+		}
 	}
 }
 
@@ -29,5 +29,7 @@ func filterFavorites(requestBody *SearchRandomBody, use bool) {
 		return
 	}
 
-	requestBody.IsFavorite = true
+	requestBody.Filter.IsFavorite = BoolFilter{
+		Eq: true,
+	}
 }
