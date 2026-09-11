@@ -21,7 +21,8 @@ import (
 templ Home(viewData common.ViewData, secret string) {
 	@HTMLTag(
 		viewData.SystemLang,
-		templ.Attributes{"hx-config:inherited": fmt.Sprintf("{\"timeout\":%d}", formatTimeout(viewData.Kiosk.HTTPTimeout))},
+		templ.Attributes{"hx-config": fmt.Sprintf("{\"timeout\":%d}", formatTimeout(viewData.Kiosk.HTTPTimeout))},
+		templ.Attributes{"hx-include": ".kiosk-param, .kiosk-history--entry"},
 	) {
 		<head>
 			@partials.Head(viewData)
@@ -35,7 +36,6 @@ templ Home(viewData common.ViewData, secret string) {
 					} else {
 						hx-post="/asset/new"
 					}
-					hx-include=".kiosk-history--entry"
 					hx-trigger={ triggers(viewData.Config) }
 					hx-on::before:request="kiosk.setRequestLock(event)"
 					hx-on::after:swap="kiosk.releaseRequestLock(), kiosk.cleanupFrames()"

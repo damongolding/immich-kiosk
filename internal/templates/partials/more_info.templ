@@ -69,7 +69,6 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 								class="more-info--webhook"
 								hx-post="/webhooks"
 								hx-trigger="click throttle:2s"
-								hx-include=".kiosk-history--entry"
 								hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.webhook.trigger.info_overlay"}`, time.Now().Unix(), WebhookSignature(secret)) }
 								hx-swap="textContent"
 							>
@@ -121,7 +120,6 @@ templ LikeButton(ID, selectedUser string, isLiked bool, liked bool, isButtonEnab
 			hx-post="/webhooks"
 			hx-trigger="click from:closest .more-info--like-asset"
 			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), WebhookSignature(secret), webhook) }
-			hx-include=".kiosk-history--entry"
 			hx-swap="none"
 			style="display: none"
 		></div>
@@ -183,7 +181,6 @@ templ HideButton(ID, selectedUser string, isHidden bool, isButtonEnabled bool, s
 			hx-post="/webhooks"
 			hx-trigger="click from:closest .more-info--hide-asset"
 			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), WebhookSignature(secret), webhook) }
-			hx-include=".kiosk-history--entry"
 			hx-swap="none"
 			style="display: none"
 		></div>

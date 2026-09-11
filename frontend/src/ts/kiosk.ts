@@ -151,7 +151,8 @@ let burnInTimerId: number | null = null;
  * @returns {Promise<void>} Promise that resolves when initialization is complete
  */
 async function init(): Promise<void> {
-    // htmx.config.implicitInheritance = true;
+    // Use htmx 2 implicit inheritance
+    htmx.config.implicitInheritance = true;
     htmx.config.noSwap = [204, 304];
 
     if (kioskData.debugVerbose) {
@@ -655,32 +656,40 @@ function kioskClass(
     if (classOn) kioskContainer?.classList.add(classOn);
 }
 
-// Add kiosk query parameters to HTMX requests
-if (kioskQueries.length > 0) {
-    document.body.addEventListener("htmx:config:request", (event: Event) => {
-        const e = event as HTMXEvent;
+// Add client data to HTMX requests
 
-        try {
-            kioskQueries.forEach((q: Element) => {
-                if (!(q instanceof HTMLInputElement)) {
-                    console.warn(`Element ${q} is not an input`);
-                    return;
-                }
+document.body.addEventListener("htmx:config:request", (event: Event) => {
+    const e = event as HTMXEvent;
 
-                if (!q.name || !q.value) {
-                    console.debug(`Skipping invalid input: ${q}`);
-                    return;
-                }
+    const cData = clientData();
 
-                const sanitizedValue = DOMPurify.sanitize(q.value);
+    for (const key in cData) {
+        e.detail.ctx.request.body.set(
+            key,
+            String(cData[key as keyof BrowserData]),
+        );
+    }
 
-                e.detail.ctx.request.body.set(q.name, sanitizedValue);
-            });
-        } catch (error) {
-            console.error("Error processing parameters:", error);
-        }
-    });
-}
+    // try {
+    //     kioskQueries.forEach((q: Element) => {
+    //         if (!(q instanceof HTMLInputElement)) {
+    //             console.warn(`Element ${q} is not an input`);
+    //             return;
+    //         }
+
+    //         if (!q.name || !q.value) {
+    //             console.debug(`Skipping invalid input: ${q}`);
+    //             return;
+    //         }
+
+    //         const sanitizedValue = DOMPurify.sanitize(q.value);
+
+    //         e.detail.ctx.request.body.set(q.name, sanitizedValue);
+    //     });
+    // } catch (error) {
+    //     console.error("Error processing parameters:", error);
+    // }
+});
 
 // Initialize Kiosk when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
