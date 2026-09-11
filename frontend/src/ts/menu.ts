@@ -4,8 +4,6 @@
  * @description Controls menu behavior and navigation between assets in a kiosk interface
  */
 
-
-
 let disableNavigation: boolean = false;
 
 let nextAssetMenuButton: HTMLElement;
