@@ -415,9 +415,10 @@ type UpsertTagResponse []struct {
 
 type SearchMetadataResponse struct {
 	Assets struct {
-		Items    []Asset `json:"items"`
-		NextPage string  `json:"nextPage"`
-		Total    int     `json:"total"`
+		Items      []Asset `json:"items"`
+		NextPage   string  `json:"nextPage"`
+		NextCursor string  `json:"nextCursor"`
+		Total      int     `json:"total"`
 	} `json:"assets"`
 }
 
