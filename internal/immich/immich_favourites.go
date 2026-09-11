@@ -20,21 +20,33 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 	}
 
 	requestBody := SearchRandomBody{
-		Visibility: Timeline,
-		Type:       string(ImageType),
-		IsFavorite: true,
+		Filter: SearchFilter{
+			Visibility: FilterAssetVisibility{
+				In: []AssetVisibility{Timeline},
+			},
+			Type: FilterAssetType{
+				In: []AssetType{ImageType},
+			},
+			IsFavorite: BoolFilter{
+				Eq: true,
+			},
+		},
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
 
 	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = ""
+		requestBody.Filter.Visibility = FilterAssetVisibility{
+			In: []AssetVisibility{Timeline, Archive},
+		}
 	}
 
 	// Include videos if show videos is enabled
 	if a.requestConfig.ShowVideos {
-		requestBody.Type = ""
+		requestBody.Filter.Type = FilterAssetType{
+			In: []AssetType{ImageType, VideoType},
+		}
 	}
 
 	filterDate(&requestBody, a.requestConfig.FilterDate)
@@ -82,9 +94,17 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 	for range MaxRetries {
 
 		requestBody := SearchRandomBody{
-			Visibility: Timeline,
-			Type:       string(ImageType),
-			IsFavorite: true,
+			Filter: SearchFilter{
+				Visibility: FilterAssetVisibility{
+					Eq: Timeline,
+				},
+				Type: FilterAssetType{
+					Eq: ImageType,
+				},
+				IsFavorite: BoolFilter{
+					Eq: true,
+				},
+			},
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
@@ -92,11 +112,15 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 
 		// Include videos if show videos is enabled
 		if a.requestConfig.ShowVideos {
-			requestBody.Type = ""
+			requestBody.Filter.Type = FilterAssetType{
+				In: []AssetType{ImageType, VideoType},
+			}
 		}
 
 		if a.requestConfig.ShowArchived {
-			requestBody.Visibility = ""
+			requestBody.Filter.Visibility = FilterAssetVisibility{
+				In: []AssetVisibility{Timeline, Archive},
+			}
 		}
 
 		assets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)

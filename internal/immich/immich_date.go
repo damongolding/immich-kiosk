@@ -59,22 +59,34 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 		}
 
 		requestBody := SearchRandomBody{
-			Visibility:  Timeline,
-			Type:        string(ImageType),
-			TakenAfter:  dateStart.Format(time.RFC3339),
-			TakenBefore: dateEnd.Format(time.RFC3339),
-			WithExif:    true,
-			WithPeople:  true,
-			Size:        a.requestConfig.Kiosk.FetchedAssetsSize,
+			Filter: SearchFilter{
+				Visibility: FilterAssetVisibility{
+					Eq: Timeline,
+				},
+				Type: FilterAssetType{
+					Eq: ImageType,
+				},
+				TakenAt: DateFilter{
+					Gte: dateStart,
+					Lte: dateEnd,
+				},
+			},
+			WithExif:   true,
+			WithPeople: true,
+			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
 		// Include videos if show videos is enabled
 		if a.requestConfig.ShowVideos {
-			requestBody.Type = ""
+			requestBody.Filter.Type = FilterAssetType{
+				In: []AssetType{ImageType, VideoType},
+			}
 		}
 
 		if a.requestConfig.ShowArchived {
-			requestBody.Visibility = ""
+			requestBody.Filter.Visibility = FilterAssetVisibility{
+				In: []AssetVisibility{Timeline, Archive},
+			}
 		}
 
 		filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
