@@ -10,9 +10,6 @@ templ RefreshCheck(kioskVersion, reloadTimeStamp string, queries url.Values) {
 	<form
 		hx-post="/refresh/check"
 		hx-trigger="every 7s"
-		if len(queries) > 0 {
-			hx-include=".kiosk-param, .kiosk-history--entry"
-		}
 		hx-headers={ fmt.Sprintf(`{"kiosk-version": "%s", "kiosk-reload-timestamp":"%s"}`, kioskVersion, reloadTimeStamp) }
 	></form>
 }
