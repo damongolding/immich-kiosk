@@ -36,8 +36,6 @@ func webhookAttributes(viewData common.ViewData, event, secret string) templ.Att
 
 	attr := templ.Attributes{
 		"hx-headers": headerStr,
-		"hx-include": ".kiosk-history--entry",
-		"hx-vals":    "js:{...kiosk.clientData()}",
 	}
 
 	if validEvent {
@@ -79,7 +77,6 @@ templ Menu(viewData common.ViewData, queries url.Values, secret string) {
 			id="navigation-interaction-area--previous-asset"
 			hx-post="/asset/previous"
 			hx-target="#kiosk"
-			hx-include=".kiosk-history--entry"
 			hx-trigger={ prevAssetTrigger(viewData.Config) }
 			hx-on::before-request="kiosk.checkHistoryExists(event)"
 			hx-on::after-swap="kiosk.cleanupFrames(), kiosk.releaseRequestLock()"
