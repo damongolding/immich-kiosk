@@ -4,7 +4,7 @@
  * @description Controls menu behavior and navigation between assets in a kiosk interface
  */
 
-import htmx from "htmx.org";
+
 
 let disableNavigation: boolean = false;
 
