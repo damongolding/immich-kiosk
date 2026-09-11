@@ -25,7 +25,7 @@ templ Video(viewData common.ViewData, secret string, JSScripts ...components.Ass
 			videoOrientation = kiosk.PortraitOrientation
 		}
 	}}
-	<div class="frame" hx-on::load={ videoHandler(ID) }>
+	<div class="frame" hx-on::after:init={ videoHandler(ID) }>
 		<div class="frame--background">
 			<img src={ video.ImageBlurData } alt="Blurred image background"/>
 		</div>

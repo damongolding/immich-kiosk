@@ -10,7 +10,7 @@ templ Message(message MessageData) {
 	<div
 		class="frame frame-message"
 		if message.IsDownloading {
-			hx-on:htmx:load="setTimeout(function() { kiosk.triggerNewAsset(); }, 5000);"
+			hx-on::after:init="setTimeout(function() { kiosk.triggerNewAsset(); }, 5000);"
 		}
 	>
 		<div class="message-container">

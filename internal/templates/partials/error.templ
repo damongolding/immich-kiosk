@@ -13,7 +13,7 @@ templ Error(data ErrorData) {
 	<div
 		class="frame frame-error"
 		if data.Retry {
-			hx-on:htmx:load="setTimeout(function() { kiosk.triggerNewAsset(); }, 5000);"
+			hx-on::after:init="setTimeout(function() { kiosk.triggerNewAsset(); }, 5000);"
 		}
 	>
 		<div class="error-container">

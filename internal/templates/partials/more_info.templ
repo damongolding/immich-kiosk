@@ -118,7 +118,7 @@ templ LikeButton(ID, selectedUser string, isLiked bool, liked bool, isButtonEnab
 	>
 		<div
 			hx-post="/webhooks"
-			hx-trigger="click from:closest .more-info--like-asset"
+			hx-trigger="click from:'closest .more-info--like-asset'"
 			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), WebhookSignature(secret), webhook) }
 			hx-swap="none"
 			style="display: none"
@@ -179,7 +179,7 @@ templ HideButton(ID, selectedUser string, isHidden bool, isButtonEnabled bool, s
 	>
 		<div
 			hx-post="/webhooks"
-			hx-trigger="click from:closest .more-info--hide-asset"
+			hx-trigger="click from:'closest .more-info--hide-asset'"
 			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), WebhookSignature(secret), webhook) }
 			hx-swap="none"
 			style="display: none"
