@@ -34,8 +34,8 @@ function disableAssetNavigationButtons(): void {
         console.debug("Navigation buttons not initialized.");
         return;
     }
-    htmx.addClass(nextAssetMenuButton, "disabled");
-    htmx.addClass(prevAssetMenuButton, "disabled");
+    nextAssetMenuButton.classList.add("disabled");
+    prevAssetMenuButton.classList.add("disabled");
 }
 
 /**
@@ -48,8 +48,8 @@ function enableAssetNavigationButtons(): void {
         console.error("Navigation buttons not initialized");
         return;
     }
-    htmx.removeClass(nextAssetMenuButton, "disabled");
-    htmx.removeClass(prevAssetMenuButton, "disabled");
+    nextAssetMenuButton.classList.remove("disabled");
+    prevAssetMenuButton.classList.remove("disabled");
 }
 
 /**
