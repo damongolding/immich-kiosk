@@ -195,8 +195,8 @@ async function init(): Promise<void> {
     }
 
     if (!fullscreenAPI.requestFullscreen) {
-        fullscreenButton && htmx.remove(fullscreenButton);
-        fullScreenButtonSeperator && htmx.remove(fullScreenButtonSeperator);
+        fullscreenButton?.remove();
+        fullScreenButtonSeperator?.remove();
     }
 
     if (pollInterval) {
@@ -373,7 +373,7 @@ function addEventListeners(): void {
             return;
         }
 
-        htmx.addClass(offlineSVG, "offline");
+        offlineSVG.classList.add("offline");
     });
 
     // Server online check. Fires after every AJAX request.
@@ -385,10 +385,10 @@ function addEventListeners(): void {
         }
 
         if (e.detail.successful) {
-            htmx.removeClass(offlineSVG, "offline");
+            offlineSVG.classList.remove("offline");
             timeouts[e.detail.pathInfo.requestPath] = 0;
         } else {
-            htmx.addClass(offlineSVG, "offline");
+            offlineSVG.classList.add("offline");
         }
     });
 
@@ -506,7 +506,7 @@ async function cleanupFrames(): Promise<void> {
     const kioskScripts = htmx.findAll(kiosk as HTMLElement, "script");
     if (kioskScripts?.length) {
         kioskScripts.forEach((s) => {
-            htmx.remove(s, 1000);
+            setTimeout(() => s.remove(), 1000);
         });
     }
 
@@ -521,7 +521,7 @@ async function cleanupFrames(): Promise<void> {
             ? frames.length - 1
             : 0;
         try {
-            htmx.remove(frames[toRemove]);
+            frames[toRemove].remove();
         } catch (error) {
             console.error("Failed to remove frame:", error);
         }
