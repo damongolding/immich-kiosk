@@ -239,43 +239,155 @@ type Album struct {
 
 type Albums []Album
 
+type StringFilter struct {
+	Eq    string   `json:"eq,omitempty"`
+	In    []string `json:"in,omitempty"`
+	Ne    string   `json:"ne,omitempty"`
+	NotIn []string `json:"notIn,omitempty"`
+}
+
+type StringFilterNullable struct {
+	Eq    string   `json:"eq"`
+	In    []string `json:"in,omitempty"`
+	Ne    string   `json:"ne"`
+	NotIn []string `json:"notIn,omitempty"`
+}
+
+type BoolFilter struct {
+	Eq bool `json:"eq"`
+}
+
+type DateFilter struct {
+	Eq  time.Time `json:"eq,omitempty"`
+	Gt  time.Time `json:"gt,omitempty"`
+	Gte time.Time `json:"gte,omitempty"`
+	Lt  time.Time `json:"lt,omitempty"`
+	Lte time.Time `json:"lte,omitempty"`
+	Ne  time.Time `json:"ne,omitempty"`
+}
+
+type IdsFilter struct {
+	All  []string `json:"all,omitempty"`
+	Any  []string `json:"any,omitempty"`
+	None []string `json:"none,omitempty"`
+}
+
+type StringPatternFilter struct {
+	EndsWith   string   `json:"endsWith,omitempty"`
+	Eq         string   `json:"eq"`
+	In         []string `json:"in,omitempty"`
+	Like       string   `json:"like,omitempty"`
+	Ne         string   `json:"ne"`
+	NotIn      []string `json:"notIn,omitempty"`
+	NotLike    string   `json:"notLike,omitempty"`
+	StartsWith string   `json:"startsWith,omitempty"`
+}
+
+type NumberFilter struct {
+	Eq    float64   `json:"eq,omitempty"`
+	Gt    float64   `json:"gt,omitempty"`
+	Gte   float64   `json:"gte,omitempty"`
+	In    []float64 `json:"in,omitempty"`
+	Lt    float64   `json:"lt,omitempty"`
+	Lte   float64   `json:"lte,omitempty"`
+	Ne    float64   `json:"ne,omitempty"`
+	NotIn []float64 `json:"notIn,omitempty"`
+}
+
+type IdFilter struct {
+	Eq string `json:"eq,omitempty"`
+	Ne string `json:"ne,omitempty"`
+}
+
+type NumberFilterNullable struct {
+	Eq    float64   `json:"eq"`
+	Gt    float64   `json:"gt,omitempty"`
+	Gte   float64   `json:"gte,omitempty"`
+	In    []float64 `json:"in,omitempty"`
+	Lt    float64   `json:"lt,omitempty"`
+	Lte   float64   `json:"lte,omitempty"`
+	Ne    float64   `json:"ne"`
+	NotIn []float64 `json:"notIn,omitempty"`
+}
+
+type IdFilterNullable struct {
+	Eq string `json:"eq"`
+	Ne string `json:"ne"`
+}
+
+type StringSimilarityFilter struct {
+	Matches string `json:"matches"`
+}
+
+type EnumFilterAssetVisibility struct {
+	// Eq Asset visibility
+	Eq AssetVisibility   `json:"eq,omitempty"`
+	In []AssetVisibility `json:"in,omitempty"`
+
+	// Ne Asset visibility
+	Ne    AssetVisibility   `json:"ne,omitempty"`
+	NotIn []AssetVisibility `json:"notIn,omitempty"`
+}
+
+type EnumFilterAssetType struct {
+	// Eq Asset type
+	Eq AssetType   `json:"eq,omitempty"`
+	In []AssetType `json:"in,omitempty"`
+
+	// Ne Asset type
+	Ne    AssetType   `json:"ne,omitempty"`
+	NotIn []AssetType `json:"notIn,omitempty"`
+}
+
+type SearchOrder struct {
+	// Direction Asset sort order
+	Direction AssetOrder `json:"direction,omitempty"`
+	Field     string     `json:"field,omitempty"`
+}
+
+type SearchFilter struct {
+	AlbumIds         IdsFilter              `url:"albumIds,omitempty" json:"albumIds,omitempty"`
+	Checksum         StringFilter           `url:"checksum,omitempty" json:"checksum,omitempty"`
+	City             StringFilterNullable   `url:"city,omitempty" json:"city,omitempty"`
+	Country          StringFilterNullable   `url:"country,omitempty" json:"country,omitempty"`
+	CreatedAt        DateFilter             `url:"createdAt,omitempty" json:"createdAt,omitempty"`
+	Description      StringPatternFilter    `url:"description,omitempty" json:"description,omitempty"`
+	EncodedVideoPath StringFilter           `url:"encodedVideoPath,omitempty" json:"encodedVideoPath,omitempty"`
+	FileSizeInBytes  NumberFilter           `url:"fileSizeInBytes,omitempty" json:"fileSizeInBytes,omitempty"`
+	HasAlbums        BoolFilter             `url:"hasAlbums,omitempty" json:"hasAlbums,omitempty"`
+	HasPeople        BoolFilter             `url:"hasPeople,omitempty" json:"hasPeople,omitempty"`
+	HasTags          BoolFilter             `url:"hasTags,omitempty" json:"hasTags,omitempty"`
+	Id               IdFilter               `url:"id,omitempty" json:"id,omitempty"`
+	IsEncoded        BoolFilter             `url:"isEncoded,omitempty" json:"isEncoded,omitempty"`
+	IsFavorite       BoolFilter             `url:"isFavorite,omitempty" json:"isFavorite,omitempty"`
+	IsMotion         BoolFilter             `url:"isMotion,omitempty" json:"isMotion,omitempty"`
+	IsOffline        BoolFilter             `url:"isOffline,omitempty" json:"isOffline,omitempty"`
+	LensModel        StringFilterNullable   `url:"lensModel,omitempty" json:"lensModel,omitempty"`
+	LibraryId        IdFilterNullable       `url:"libraryId,omitempty" json:"libraryId,omitempty"`
+	Make             StringFilterNullable   `url:"make,omitempty" json:"make,omitempty"`
+	Model            StringFilterNullable   `url:"model,omitempty" json:"model,omitempty"`
+	Ocr              StringSimilarityFilter `url:"ocr,omitempty" json:"ocr,omitempty"`
+	// Or               *[]SearchFilterBranch      `json:"or,omitempty"`
+	OriginalFileName StringPatternFilter  `url:"originalFileName,omitempty" json:"originalFileName,omitempty"`
+	OriginalPath     StringPatternFilter  `url:"originalPath,omitempty" json:"originalPath,omitempty"`
+	PersonIds        IdsFilter            `url:"personIds,omitempty" json:"personIds,omitempty"`
+	Rating           NumberFilterNullable `url:"rating,omitempty" json:"rating,omitempty"`
+	State            StringFilterNullable `json:"state,omitempty"`
+	TagIds           IdsFilter            `url:"tagIds,omitempty" json:"tagIds,omitempty"`
+	TakenAt          DateFilter           `url:"takenAt,omitempty" json:"takenAt,omitempty"`
+	// TrashedAt        *DateFilterNullable        `json:"trashedAt,omitempty"`
+	Type       EnumFilterAssetType       `url:"type,omitempty" json:"type,omitempty"`
+	UpdatedAt  DateFilter                `url:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	Visibility EnumFilterAssetVisibility `url:"visibility,omitempty" json:"visibility,omitempty"`
+}
+
 type SearchRandomBody struct {
-	AlbumIDs      []string        `url:"albumIds,omitempty" json:"albumIds,omitempty"`
-	City          string          `url:"city,omitempty" json:"city,omitempty"`
-	Country       string          `url:"country,omitempty" json:"country,omitempty"`
-	CreatedAfter  string          `url:"createdAfter,omitempty" json:"createdAfter,omitempty"`
-	CreatedBefore string          `url:"createdBefore,omitempty" json:"createdBefore,omitempty"`
-	DeviceID      string          `url:"deviceId,omitempty" json:"deviceId,omitempty"`
-	LensModel     string          `url:"lensModel,omitempty" json:"lensModel,omitempty"`
-	LibraryID     string          `url:"libraryId,omitempty" json:"libraryId,omitempty"`
-	Make          string          `url:"make,omitempty" json:"make,omitempty"`
-	Model         string          `url:"model,omitempty" json:"model,omitempty"`
-	Ocr           string          `url:"ocr,omitempty" json:"ocr,omitempty"`
-	Order         string          `url:"order,omitempty" json:"order,omitempty"`
-	State         string          `url:"state,omitempty" json:"state,omitempty"`
-	TakenAfter    string          `url:"takenAfter,omitempty" json:"takenAfter,omitempty"`
-	TakenBefore   string          `url:"takenBefore,omitempty" json:"takenBefore,omitempty"`
-	TrashedAfter  string          `url:"trashedAfter,omitempty" json:"trashedAfter,omitempty"`
-	TrashedBefore string          `url:"trashedBefore,omitempty" json:"trashedBefore,omitempty"`
-	Type          string          `url:"type,omitempty" json:"type,omitempty"`
-	UpdatedAfter  string          `url:"updatedAfter,omitempty" json:"updatedAfter,omitempty"`
-	UpdatedBefore string          `url:"updatedBefore,omitempty" json:"updatedBefore,omitempty"`
-	Rating        *float32        `url:"rating,omitempty" json:"rating,omitempty"`
-	PersonIDs     []string        `url:"personIds,omitempty" json:"personIds,omitempty"`
-	TagIDs        []string        `url:"tagIds,omitempty" json:"tagIds,omitempty"`
-	Size          int             `url:"size,omitempty" json:"size,omitempty"`
-	Page          int             `url:"page,omitempty" json:"page,omitempty"`
-	IsArchived    bool            `url:"isArchived,omitempty" json:"isArchived,omitempty"`
-	IsEncoded     bool            `url:"isEncoded,omitempty" json:"isEncoded,omitempty"`
-	IsFavorite    bool            `url:"isFavorite,omitempty" json:"isFavorite,omitempty"`
-	IsMotion      bool            `url:"isMotion,omitempty" json:"isMotion,omitempty"`
-	IsNotInAlbum  bool            `url:"isNotInAlbum,omitempty" json:"isNotInAlbum,omitempty"`
-	IsOffline     bool            `url:"isOffline,omitempty" json:"isOffline,omitempty"`
-	WithDeleted   bool            `url:"withDeleted,omitempty" json:"withDeleted,omitempty"`
-	WithExif      bool            `url:"withExif,omitempty" json:"withExif,omitempty"`
-	WithPeople    bool            `url:"withPeople,omitempty" json:"withPeople,omitempty"`
-	WithStacked   bool            `url:"withStacked,omitempty" json:"withStacked,omitempty"`
-	Visibility    AssetVisibility `url:"visibility,omitempty" json:"visibility,omitempty"`
+	Filter      SearchFilter `url:"filter,omitempty" json:"filter,omitempty"`
+	OrderBy     SearchOrder  `url:"orderBy,omitempty" json:"orderBy,omitempty"`
+	Size        int          `url:"size,omitempty" json:"size,omitempty"`
+	WithExif    bool         `url:"withExif,omitempty" json:"withExif,omitempty"`
+	WithPeople  bool         `url:"withPeople,omitempty" json:"withPeople,omitempty"`
+	WithStacked bool         `url:"withStacked,omitempty" json:"withStacked,omitempty"`
 
 	// Kiosk specific fields
 	PaginationComplete bool `url:"paginationComplete,omitempty" json:"paginationComplete,omitempty"`
