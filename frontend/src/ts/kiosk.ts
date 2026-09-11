@@ -1,5 +1,4 @@
 import { formatRFC3339 } from "date-fns/formatRFC3339";
-import DOMPurify from "dompurify";
 import htmx from "htmx.org";
 import type { TimeFormat } from "./clock";
 import { initClock } from "./clock";
@@ -107,7 +106,6 @@ const fullScreenButtonSeperator = htmx.find(
 ) as HTMLElement | null;
 const kioskContainer = htmx.find("#kiosk-container") as HTMLElement | null;
 const kiosk = htmx.find("#kiosk") as HTMLElement | null;
-const kioskQueries = htmx.findAll(".kiosk-param");
 const menu = htmx.find(".navigation") as HTMLElement | null;
 const menuInteraction = htmx.find(
     "#navigation-interaction-area--menu",
@@ -645,38 +643,6 @@ function kioskClass(
 ): void {
     if (classOff) kioskContainer?.classList.remove(classOff);
     if (classOn) kioskContainer?.classList.add(classOn);
-}
-
-// Add kiosk query parameters to HTMX requests
-if (kioskQueries.length > 0) {
-    document.body.addEventListener("htmx:configRequest", (event: Event) => {
-        const e = event as HTMXEvent;
-
-        if (!e.detail?.parameters) {
-            console.warn("Request parameters object not found");
-            return;
-        }
-
-        try {
-            kioskQueries.forEach((q: Element) => {
-                if (!(q instanceof HTMLInputElement)) {
-                    console.warn(`Element ${q} is not an input`);
-                    return;
-                }
-
-                if (!q.name || !q.value) {
-                    console.debug(`Skipping invalid input: ${q}`);
-                    return;
-                }
-
-                const sanitizedValue = DOMPurify.sanitize(q.value);
-
-                e.detail.parameters.append(q.name, sanitizedValue);
-            });
-        } catch (error) {
-            console.error("Error processing parameters:", error);
-        }
-    });
 }
 
 // Initialize Kiosk when the DOM is fully loaded
