@@ -32,7 +32,7 @@ templ Image(viewData common.ViewData, secret string, JSScripts ...components.Ass
 		@layoutSplitView(viewData)
 	}
 	@partials.RenderHistory(viewData)
-	if viewData.ShowMoreInfo {
+	if viewData.MoreInfo.Display {
 		@partials.RenderMoreInfo(viewData, secret)
 	}
 

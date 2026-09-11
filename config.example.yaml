@@ -118,9 +118,17 @@ show_image_qr: false
 hide_countries:
   - "country to hide"
 show_image_id: false
-show_more_info: true
-show_more_info_image_link: true
-show_more_info_qr_code: true
+
+more_info:
+  display: true # show the more info overlay
+  like_button_action: favorite # album, favorite or both [album, favorite]
+  hide_button_action: tag # tag, archive, or both [tag, archive]
+  show:
+    asset_link: true
+    qr_code: true
+    rating: true
+    like_button: true
+    hide_button: true
 
 like_button_action: favorite # album, favorite or both [album, favorite]
 hide_button_action: tag # tag, archive, or both [tag, archive]
