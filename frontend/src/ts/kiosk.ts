@@ -35,14 +35,14 @@ import { weatherRotationPosition } from "./weather";
 ("use strict");
 
 interface HTMXEvent extends Event {
-  detail: {
-    ctx: {
-      request: {
-        action: string;
-        form: FormData;
-      };
-      response: {
-        status: number;
+    detail: {
+        ctx: {
+            request: {
+                body: FormData;
+                action: string;
+            };
+            response: {
+                status: number;
             };
         };
     };
@@ -151,9 +151,8 @@ let burnInTimerId: number | null = null;
  * @returns {Promise<void>} Promise that resolves when initialization is complete
  */
 async function init(): Promise<void> {
-
-  // htmx.config.implicitInheritance = true;
-  htmx.config.noSwap = [204, 304];
+    // htmx.config.implicitInheritance = true;
+    htmx.config.noSwap = [204, 304];
 
     if (kioskData.debugVerbose) {
         htmx.config.logAll = true;
@@ -386,15 +385,17 @@ function addEventListeners(): void {
     });
 
     // Server online check. Fires after every AJAX request.
-  htmx.on("htmx:after:request", (event: Event) => {
-    console.log("htmx:after:request", event);
+    htmx.on("htmx:after:request", (event: Event) => {
         const e = event as HTMXEvent;
         if (!offlineSVG) {
             console.error("offline svg missing");
             return;
         }
 
-        if (e.detail.ctx.response.status === 200 || e.detail.ctx.response.status === 204) {
+        if (
+            e.detail.ctx.response.status === 200 ||
+            e.detail.ctx.response.status === 204
+        ) {
             offlineSVG.classList.remove("offline");
             timeouts[e.detail.ctx.request.action] = 0;
         } else {
@@ -413,9 +414,7 @@ function addEventListeners(): void {
     });
 
     htmx.on("htmx:error", (event: Event) => {
-      const e = event as HTMXEvent;
-
-      console.log("error", e);
+        const e = event as HTMXEvent;
 
         let currentTimeout = timeouts[e.detail.ctx.request.action];
 
@@ -659,15 +658,7 @@ function kioskClass(
 // Add kiosk query parameters to HTMX requests
 if (kioskQueries.length > 0) {
     document.body.addEventListener("htmx:config:request", (event: Event) => {
-      const e = event as HTMXEvent;
-
-      console.log("foo", kioskQueries, e);
-      console.log(e.detail?.ctx?.request);
-
-        if (!e.detail?.ctx?.request?.form) {
-            console.warn("Request parameters object not found");
-            return;
-        }
+        const e = event as HTMXEvent;
 
         try {
             kioskQueries.forEach((q: Element) => {
@@ -683,7 +674,7 @@ if (kioskQueries.length > 0) {
 
                 const sanitizedValue = DOMPurify.sanitize(q.value);
 
-                e.detail.ctx.request.form.append(q.name, sanitizedValue);
+                e.detail.ctx.request.body.set(q.name, sanitizedValue);
             });
         } catch (error) {
             console.error("Error processing parameters:", error);
