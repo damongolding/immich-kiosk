@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
@@ -391,6 +392,60 @@ type SearchRandomBody struct {
 
 	// Kiosk specific fields
 	PaginationComplete bool `url:"paginationComplete,omitempty" json:"paginationComplete,omitempty"`
+}
+
+func NewSearchFilterBuilder() *SearchFilter {
+	return &SearchFilter{
+		Visibility: FilterAssetVisibility{In: []AssetVisibility{Timeline}},
+		Type:       FilterAssetType{In: []AssetType{ImageType}},
+	}
+}
+
+func (b *SearchFilter) WithAnyAlbums(albumIDs ...string) *SearchFilter {
+	b.AlbumIds.Any = albumIDs
+	return b
+}
+
+func (b *SearchFilter) WithArchived(enabled bool) *SearchFilter {
+	if enabled {
+		b.Visibility.In = append(b.Visibility.In, Archive)
+	}
+	return b
+}
+
+func (b *SearchFilter) WithVideos(enabled bool) *SearchFilter {
+	if enabled {
+		b.Type.In = append(b.Type.In, VideoType)
+	}
+	return b
+}
+
+func (b *SearchFilter) WithFavoritesOnly(enabled bool) *SearchFilter {
+	if enabled {
+		b.IsFavorite = BoolFilter{Eq: true}
+	}
+	return b
+}
+
+func (b *SearchFilter) WithFilterDate(dateFilter string) *SearchFilter {
+	if dateFilter == "" {
+		return b
+	}
+
+	dateStart, dateEnd, err := determineDateRange(dateFilter)
+	if err != nil {
+		log.Error("malformed filter", "err", err)
+	} else {
+		b.TakenAt = DateFilter{
+			Gte: dateStart,
+			Lte: dateEnd,
+		}
+	}
+	return b
+}
+
+func (b *SearchFilter) Build() SearchFilter {
+	return *b
 }
 
 type TagAssetsBody struct {
