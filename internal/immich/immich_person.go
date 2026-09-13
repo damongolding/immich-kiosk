@@ -195,6 +195,21 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 
 	for range MaxRetries {
 
+		filter := NewSearchFilterBuilder().
+			WithAllPeople(personID).
+			WithArchived(a.requestConfig.ShowArchived).
+			WithVideos(a.requestConfig.ShowVideos).
+			WithFavoritesOnly(favoritesOnly).
+			WithFilterDate(a.requestConfig.FilterDate).
+			Build()
+
+		requestBody := SearchRandomBody{
+			Filter:     filter,
+			WithPeople: true,
+			WithExif:   true,
+			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
+		}
+
 		requestBody := SearchRandomBody{
 			Visibility: Timeline,
 			PersonIDs:  []string{personID},
