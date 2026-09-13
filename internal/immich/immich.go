@@ -406,6 +406,11 @@ func (b *SearchFilter) WithAnyAlbums(albumIDs ...string) *SearchFilter {
 	return b
 }
 
+func (b *SearchFilter) WithAllPeople(personIDs ...string) {
+	b.PersonIds.All = personIDs
+	return b
+}
+
 func (b *SearchFilter) WithArchived(enabled bool) *SearchFilter {
 	if enabled {
 		b.Visibility.In = append(b.Visibility.In, Archive)
