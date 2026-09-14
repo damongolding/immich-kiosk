@@ -974,6 +974,7 @@ func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRa
 
 	if nextCursor == "" {
 		a.cachePaginatedMetadata(apiURL, deviceID, res)
+
 		return res, nil
 	}
 
@@ -1057,15 +1058,19 @@ func (a *Asset) fetchMetadataPage(ctx context.Context, u *url.URL, requestBody S
 // under an already-computed cache key (see paginatedCache — apiURL here
 // is expected to already have PaginationComplete=true baked in).
 func (a *Asset) cachePaginatedMetadata(apiURL string, deviceID string, res PaginatedMetadataResponse) {
-	jsonBytes, err := json.Marshal(res)
-	if err != nil {
-		log.Error("Failed to marshal assetsToCache", "error", err)
-		return
-	}
-
 	cacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
-	cache.Set(cacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
+	err := AppendToPaginatedCache(cacheKey, res, a.requestConfig.Duration, a.requestConfig.CacheDuration)
+	if err != nil {
+
+		jsonBytes, err := json.Marshal(res)
+		if err != nil {
+			log.Error("Failed to marshal assetsToCache", "error", err)
+			return
+		}
+
+		cache.Set(cacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
+	}
 }
 
 func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error {
@@ -1126,4 +1131,80 @@ func AlbumOrder(albumAssetsOrder string) AssetOrder {
 	default:
 		return Rand
 	}
+}
+
+func removeAssetFromPaginatedCache(key string, assetID string, deviceDuration, cacheDuration int) error {
+	c := PaginatedMetadataResponse{}
+
+	var data any
+	var found bool
+
+	if data, found = cache.Get(key); !found {
+		log.Info("removeAssetFromPaginatedCache", "not found", key)
+		return errors.New("Not found")
+	}
+
+	bytesData, ok := data.([]byte)
+	if !ok {
+		return errors.New("Cache data is not a byte slice")
+	}
+	if err := json.Unmarshal(bytesData, &c); err != nil {
+		log.Error("Failed to unmarshal cache data", "error", err)
+		return errors.New("Failed to unmarshal cache data")
+	}
+
+	log.Info("removeAssetFromPaginatedCache before", "len", len(c.Assets))
+
+	for i, asset := range c.Assets {
+		if asset.ID == assetID {
+			c.Assets = slices.Delete(c.Assets, i, i+1)
+			break
+		}
+	}
+
+	log.Info("removeAssetFromPaginatedCache before", "len", len(c.Assets))
+
+	jsonBytes, marshalErr := json.Marshal(c)
+	if marshalErr != nil {
+		log.Error("Failed to marshal assetsToCache", "error", marshalErr)
+		return marshalErr
+	}
+
+	// replace with cache minus used asset
+	cache.Set(key, jsonBytes, deviceDuration, cacheDuration)
+
+	return nil
+}
+
+func AppendToPaginatedCache(key string, dataToAdd PaginatedMetadataResponse, deviceDuration, cacheDuration int) error {
+	c := PaginatedMetadataResponse{}
+
+	var data any
+	var found bool
+
+	if data, found = cache.Get(key); !found {
+		return errors.New("Not found")
+	}
+
+	bytesData, ok := data.([]byte)
+	if !ok {
+		return errors.New("Cache data is not a byte slice")
+	}
+	if err := json.Unmarshal(bytesData, &c); err != nil {
+		log.Error("Failed to unmarshal cache data", "error", err)
+		return errors.New("Failed to unmarshal cache data")
+	}
+
+	c.Assets = append(c.Assets, dataToAdd.Assets...)
+
+	jsonBytes, marshalErr := json.Marshal(c)
+	if marshalErr != nil {
+		log.Error("Failed to marshal assetsToCache", "error", marshalErr)
+		return marshalErr
+	}
+
+	// replace with cache minus used asset
+	cache.Set(key, jsonBytes, deviceDuration, cacheDuration)
+
+	return nil
 }
