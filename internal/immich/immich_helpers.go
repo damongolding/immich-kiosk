@@ -1063,9 +1063,9 @@ func (a *Asset) cachePaginatedMetadata(apiURL string, deviceID string, res Pagin
 	err := AppendToPaginatedCache(cacheKey, res, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 	if err != nil {
 
-		jsonBytes, err := json.Marshal(res)
-		if err != nil {
-			log.Error("Failed to marshal assetsToCache", "error", err)
+		jsonBytes, marshalErr := json.Marshal(res)
+		if marshalErr != nil {
+			log.Error("marshal assetsToCache", "error", err)
 			return
 		}
 
@@ -1140,20 +1140,16 @@ func removeAssetFromPaginatedCache(key string, assetID string, deviceDuration, c
 	var found bool
 
 	if data, found = cache.Get(key); !found {
-		log.Info("removeAssetFromPaginatedCache", "not found", key)
-		return errors.New("Not found")
+		return errors.New("cache item not found")
 	}
 
 	bytesData, ok := data.([]byte)
 	if !ok {
-		return errors.New("Cache data is not a byte slice")
+		return errors.New("cache data is not a byte slice")
 	}
 	if err := json.Unmarshal(bytesData, &c); err != nil {
-		log.Error("Failed to unmarshal cache data", "error", err)
-		return errors.New("Failed to unmarshal cache data")
+		return errors.New("unmarshal cache data")
 	}
-
-	log.Info("removeAssetFromPaginatedCache before", "len", len(c.Assets))
 
 	for i, asset := range c.Assets {
 		if asset.ID == assetID {
@@ -1162,11 +1158,8 @@ func removeAssetFromPaginatedCache(key string, assetID string, deviceDuration, c
 		}
 	}
 
-	log.Info("removeAssetFromPaginatedCache before", "len", len(c.Assets))
-
 	jsonBytes, marshalErr := json.Marshal(c)
 	if marshalErr != nil {
-		log.Error("Failed to marshal assetsToCache", "error", marshalErr)
 		return marshalErr
 	}
 
@@ -1183,23 +1176,21 @@ func AppendToPaginatedCache(key string, dataToAdd PaginatedMetadataResponse, dev
 	var found bool
 
 	if data, found = cache.Get(key); !found {
-		return errors.New("Not found")
+		return errors.New("cache item not found")
 	}
 
 	bytesData, ok := data.([]byte)
 	if !ok {
-		return errors.New("Cache data is not a byte slice")
+		return errors.New("cache data is not a byte slice")
 	}
 	if err := json.Unmarshal(bytesData, &c); err != nil {
-		log.Error("Failed to unmarshal cache data", "error", err)
-		return errors.New("Failed to unmarshal cache data")
+		return errors.New("unmarshal cache data")
 	}
 
 	c.Assets = append(c.Assets, dataToAdd.Assets...)
 
 	jsonBytes, marshalErr := json.Marshal(c)
 	if marshalErr != nil {
-		log.Error("Failed to marshal assetsToCache", "error", marshalErr)
 		return marshalErr
 	}
 
