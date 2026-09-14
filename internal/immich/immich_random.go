@@ -35,21 +35,21 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 
 	for range MaxRetries {
 
+		filter := NewSearchFilterBuilder().
+			WithVideos(a.requestConfig.ShowVideos).
+			WithArchived(a.requestConfig.ShowArchived).
+			ExcludePeople(a.requestConfig.ExcludedPeople).
+			ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+			ExcludeTags(a.requestConfig.ExcludedTags).
+			WithFilterDate(a.requestConfig.FilterDate).
+			WithFilterFavorites(a.requestConfig.FilterFavorites).
+			Build()
+
 		requestBody := SearchRandomBody{
-			Visibility: Timeline,
-			Type:       string(ImageType),
+			Filter:     filter,
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-		}
-
-		// Include videos if show videos is enabled
-		if a.requestConfig.ShowVideos {
-			requestBody.Type = ""
-		}
-
-		if a.requestConfig.ShowArchived {
-			requestBody.Visibility = ""
 		}
 
 		immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)

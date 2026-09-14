@@ -56,7 +56,7 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 		apiCacheKey := cache.APICacheKey(apiURL, deviceID, requestConfig.SelectedUser)
 
 		if apiData, found := cache.Get(apiCacheKey); found {
-			log.Debug(strings.TrimSpace(requestID+" Cache hit"), "url", apiURL)
+			log.Debug(strings.TrimSpace(requestID+" Cache hit"), "url", utils.TruncateAfter(apiURL, "?"))
 			data, ok := apiData.([]byte)
 			if !ok {
 				return nil, contentType, usingCache, errors.New("withImmichAPICache: cache data type assertion failed")
@@ -240,18 +240,15 @@ func (a *Asset) fetchAssets(requestID, deviceID string, requestBody SearchRandom
 		return nil, url.URL{}, err
 	}
 
-	filterDate(&requestBody, a.requestConfig.FilterDate)
-	filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
-
 	if filterNewest {
 		requestBody.Size = a.requestConfig.FilterNewest
 	}
 
 	queries, _ := query.Values(requestBody)
 
-	apiPath := "api/search/random"
+	apiPath := SearchRandomEndpoint
 	if filterNewest {
-		apiPath = MetadataEndpoint
+		apiPath = SearchMetadataEndpoint
 	}
 
 	apiURL := url.URL{
@@ -860,9 +857,11 @@ type PaginatedMetadataResponse struct {
 func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string) (PaginatedMetadataResponse, error) {
 	res := PaginatedMetadataResponse{}
 
+	page := 1
+
 	for {
 
-		if requestBody.Page > MaxPages {
+		if page > MaxPages {
 			log.Warn(requestID + " Reached maximum page count when fetching Metadata")
 			break
 		}
@@ -875,7 +874,7 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 		apiURL := url.URL{
 			Scheme:   u.Scheme,
 			Host:     u.Host,
-			Path:     MetadataEndpoint,
+			Path:     SearchMetadataEndpoint,
 			RawQuery: queries.Encode(),
 		}
 
@@ -900,11 +899,13 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 
 		res.Assets = append(res.Assets, response.Assets.Items...)
 
-		if response.Assets.NextPage == "" {
+		if response.Assets.NextCursor == "" {
 			break
 		}
 
-		requestBody.Page++
+		requestBody.Cursor = response.Assets.NextCursor
+
+		page++
 	}
 
 	return res, nil
@@ -922,7 +923,7 @@ func paginatedCache(u *url.URL, requestBody *SearchRandomBody, deviceID, selecte
 	apiURL := url.URL{
 		Scheme:   u.Scheme,
 		Host:     u.Host,
-		Path:     MetadataEndpoint,
+		Path:     SearchMetadataEndpoint,
 		RawQuery: queries.Encode(),
 	}
 

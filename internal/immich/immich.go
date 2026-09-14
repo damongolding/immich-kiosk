@@ -51,7 +51,8 @@ const (
 	Locked   AssetVisibility = "locked"
 	Timeline AssetVisibility = "timeline"
 
-	MetadataEndpoint = "api/search/metadata"
+	SearchRandomEndpoint   = "api/search/random"
+	SearchMetadataEndpoint = "api/search/metadata"
 )
 
 var (
@@ -241,150 +242,151 @@ type Album struct {
 type Albums []Album
 
 type StringFilter struct {
-	Eq    string   `json:"eq,omitempty"`
-	In    []string `json:"in,omitempty"`
-	Ne    string   `json:"ne,omitempty"`
-	NotIn []string `json:"notIn,omitempty"`
+	Eq    string   `json:"eq,omitempty,omitzero"`
+	In    []string `json:"in,omitempty,omitzero"`
+	Ne    string   `json:"ne,omitempty,omitzero"`
+	NotIn []string `json:"notIn,omitempty,omitzero"`
 }
 
 type StringFilterNullable struct {
-	Eq    string   `json:"eq"`
-	In    []string `json:"in,omitempty"`
-	Ne    string   `json:"ne"`
-	NotIn []string `json:"notIn,omitempty"`
+	Eq    string   `json:"eq,omitempty,omitzero"`
+	In    []string `json:"in,omitempty,omitzero"`
+	Ne    string   `json:"ne,omitempty,omitzero"`
+	NotIn []string `json:"notIn,omitempty,omitzero"`
 }
 
 type BoolFilter struct {
-	Eq bool `json:"eq"`
+	Eq bool `json:"eq,omitempty,omitzero"`
 }
 
 type DateFilter struct {
-	Eq  time.Time `json:"eq,omitempty"`
-	Gt  time.Time `json:"gt,omitempty"`
-	Gte time.Time `json:"gte,omitempty"`
-	Lt  time.Time `json:"lt,omitempty"`
-	Lte time.Time `json:"lte,omitempty"`
-	Ne  time.Time `json:"ne,omitempty"`
+	Eq  time.Time `json:"eq,omitempty,omitzero"`
+	Gt  time.Time `json:"gt,omitempty,omitzero"`
+	Gte time.Time `json:"gte,omitempty,omitzero"`
+	Lt  time.Time `json:"lt,omitempty,omitzero"`
+	Lte time.Time `json:"lte,omitempty,omitzero"`
+	Ne  time.Time `json:"ne,omitempty,omitzero"`
 }
 
-type IdsFilter struct {
-	All  []string `json:"all,omitempty"`
-	Any  []string `json:"any,omitempty"`
-	None []string `json:"none,omitempty"`
+type IDsFilter struct {
+	All  []string `json:"all,omitempty,omitzero"`
+	Any  []string `json:"any,omitempty,omitzero"`
+	None []string `json:"none,omitempty,omitzero"`
 }
 
 type StringPatternFilter struct {
-	EndsWith   string   `json:"endsWith,omitempty"`
-	Eq         string   `json:"eq"`
-	In         []string `json:"in,omitempty"`
-	Like       string   `json:"like,omitempty"`
-	Ne         string   `json:"ne"`
-	NotIn      []string `json:"notIn,omitempty"`
-	NotLike    string   `json:"notLike,omitempty"`
-	StartsWith string   `json:"startsWith,omitempty"`
+	EndsWith   string   `json:"endsWith,omitempty,omitzero"`
+	Eq         string   `json:"eq,omitempty,omitzero"`
+	In         []string `json:"in,omitempty,omitzero"`
+	Like       string   `json:"like,omitempty,omitzero"`
+	Ne         string   `json:"ne,omitempty,omitzero"`
+	NotIn      []string `json:"notIn,omitempty,omitzero"`
+	NotLike    string   `json:"notLike,omitempty,omitzero"`
+	StartsWith string   `json:"startsWith,omitempty,omitzero"`
 }
 
 type NumberFilter struct {
-	Eq    float64   `json:"eq,omitempty"`
-	Gt    float64   `json:"gt,omitempty"`
-	Gte   float64   `json:"gte,omitempty"`
-	In    []float64 `json:"in,omitempty"`
-	Lt    float64   `json:"lt,omitempty"`
-	Lte   float64   `json:"lte,omitempty"`
-	Ne    float64   `json:"ne,omitempty"`
-	NotIn []float64 `json:"notIn,omitempty"`
+	Eq    float64   `json:"eq,omitempty,omitzero"`
+	Gt    float64   `json:"gt,omitempty,omitzero"`
+	Gte   float64   `json:"gte,omitempty,omitzero"`
+	In    []float64 `json:"in,omitempty,omitzero"`
+	Lt    float64   `json:"lt,omitempty,omitzero"`
+	Lte   float64   `json:"lte,omitempty,omitzero"`
+	Ne    float64   `json:"ne,omitempty,omitzero"`
+	NotIn []float64 `json:"notIn,omitempty,omitzero"`
 }
 
-type IdFilter struct {
-	Eq string `json:"eq,omitempty"`
-	Ne string `json:"ne,omitempty"`
+type IDFilter struct {
+	Eq string `json:"eq,omitempty,omitzero"`
+	Ne string `json:"ne,omitempty,omitzero"`
 }
 
 type NumberFilterNullable struct {
-	Eq    float64   `json:"eq"`
-	Gt    float64   `json:"gt,omitempty"`
-	Gte   float64   `json:"gte,omitempty"`
-	In    []float64 `json:"in,omitempty"`
-	Lt    float64   `json:"lt,omitempty"`
-	Lte   float64   `json:"lte,omitempty"`
-	Ne    float64   `json:"ne"`
-	NotIn []float64 `json:"notIn,omitempty"`
+	Eq    float64   `json:"eq,omitempty,omitzero"`
+	Gt    float64   `json:"gt,omitempty,omitzero"`
+	Gte   float64   `json:"gte,omitempty,omitzero"`
+	In    []float64 `json:"in,omitempty,omitzero"`
+	Lt    float64   `json:"lt,omitempty,omitzero"`
+	Lte   float64   `json:"lte,omitempty,omitzero"`
+	Ne    float64   `json:"ne,omitempty,omitzero"`
+	NotIn []float64 `json:"notIn,omitempty,omitzero"`
 }
 
-type IdFilterNullable struct {
-	Eq string `json:"eq"`
-	Ne string `json:"ne"`
+type IDFilterNullable struct {
+	Eq string `json:"eq,omitempty,omitzero"`
+	Ne string `json:"ne,omitempty,omitzero"`
 }
 
 type StringSimilarityFilter struct {
-	Matches string `json:"matches"`
+	Matches string `json:"matches,omitempty,omitzero"`
 }
 
 type FilterAssetVisibility struct {
 	// Eq Asset visibility
-	Eq AssetVisibility   `json:"eq,omitempty"`
-	In []AssetVisibility `json:"in,omitempty"`
+	Eq AssetVisibility   `json:"eq,omitempty,omitzero"`
+	In []AssetVisibility `json:"in,omitempty,omitzero"`
 
 	// Ne Asset visibility
-	Ne    AssetVisibility   `json:"ne,omitempty"`
-	NotIn []AssetVisibility `json:"notIn,omitempty"`
+	Ne    AssetVisibility   `json:"ne,omitempty,omitzero"`
+	NotIn []AssetVisibility `json:"notIn,omitempty,omitzero"`
 }
 
 type FilterAssetType struct {
 	// Eq Asset type
-	Eq AssetType   `json:"eq,omitempty"`
-	In []AssetType `json:"in,omitempty"`
+	Eq AssetType   `json:"eq,omitempty,omitzero"`
+	In []AssetType `json:"in,omitempty,omitzero"`
 
 	// Ne Asset type
-	Ne    AssetType   `json:"ne,omitempty"`
-	NotIn []AssetType `json:"notIn,omitempty"`
+	Ne    AssetType   `json:"ne,omitempty,omitzero"`
+	NotIn []AssetType `json:"notIn,omitempty,omitzero"`
 }
 
 type SearchOrder struct {
 	// Direction Asset sort order
-	Direction AssetOrder `json:"direction,omitempty"`
-	Field     string     `json:"field,omitempty"`
+	Direction AssetOrder `json:"direction,omitempty,omitzero"`
+	Field     string     `json:"field,omitempty,omitzero"`
 }
 
 type SearchFilter struct {
-	AlbumIds         IdsFilter              `url:"albumIds,omitempty" json:"albumIds,omitempty"`
-	Checksum         StringFilter           `url:"checksum,omitempty" json:"checksum,omitempty"`
-	City             StringFilterNullable   `url:"city,omitempty" json:"city,omitempty"`
-	Country          StringFilterNullable   `url:"country,omitempty" json:"country,omitempty"`
-	CreatedAt        DateFilter             `url:"createdAt,omitempty" json:"createdAt,omitempty"`
-	Description      StringPatternFilter    `url:"description,omitempty" json:"description,omitempty"`
-	EncodedVideoPath StringFilter           `url:"encodedVideoPath,omitempty" json:"encodedVideoPath,omitempty"`
-	FileSizeInBytes  NumberFilter           `url:"fileSizeInBytes,omitempty" json:"fileSizeInBytes,omitempty"`
-	HasAlbums        BoolFilter             `url:"hasAlbums,omitempty" json:"hasAlbums,omitempty"`
-	HasPeople        BoolFilter             `url:"hasPeople,omitempty" json:"hasPeople,omitempty"`
-	HasTags          BoolFilter             `url:"hasTags,omitempty" json:"hasTags,omitempty"`
-	Id               IdFilter               `url:"id,omitempty" json:"id,omitempty"`
-	IsEncoded        BoolFilter             `url:"isEncoded,omitempty" json:"isEncoded,omitempty"`
-	IsFavorite       BoolFilter             `url:"isFavorite,omitempty" json:"isFavorite,omitempty"`
-	IsMotion         BoolFilter             `url:"isMotion,omitempty" json:"isMotion,omitempty"`
-	IsOffline        BoolFilter             `url:"isOffline,omitempty" json:"isOffline,omitempty"`
-	LensModel        StringFilterNullable   `url:"lensModel,omitempty" json:"lensModel,omitempty"`
-	LibraryId        IdFilterNullable       `url:"libraryId,omitempty" json:"libraryId,omitempty"`
-	Make             StringFilterNullable   `url:"make,omitempty" json:"make,omitempty"`
-	Model            StringFilterNullable   `url:"model,omitempty" json:"model,omitempty"`
-	Ocr              StringSimilarityFilter `url:"ocr,omitempty" json:"ocr,omitempty"`
-	// Or               *[]SearchFilterBranch      `json:"or,omitempty"`
-	OriginalFileName StringPatternFilter  `url:"originalFileName,omitempty" json:"originalFileName,omitempty"`
-	OriginalPath     StringPatternFilter  `url:"originalPath,omitempty" json:"originalPath,omitempty"`
-	PersonIds        IdsFilter            `url:"personIds,omitempty" json:"personIds,omitempty"`
-	Rating           NumberFilterNullable `url:"rating,omitempty" json:"rating,omitempty"`
-	State            StringFilterNullable `json:"state,omitempty"`
-	TagIds           IdsFilter            `url:"tagIds,omitempty" json:"tagIds,omitempty"`
-	TakenAt          DateFilter           `url:"takenAt,omitempty" json:"takenAt,omitempty"`
-	// TrashedAt        *DateFilterNullable        `json:"trashedAt,omitempty"`
-	Type       FilterAssetType       `url:"type,omitempty" json:"type,omitempty"`
-	UpdatedAt  DateFilter            `url:"updatedAt,omitempty" json:"updatedAt,omitempty"`
-	Visibility FilterAssetVisibility `url:"visibility,omitempty" json:"visibility,omitempty"`
+	AlbumIDs         IDsFilter              `url:"albumIds,omitempty,omitzero" json:"albumIds,omitempty,omitzero"`
+	Checksum         StringFilter           `url:"checksum,omitempty,omitzero" json:"checksum,omitempty,omitzero"`
+	City             StringFilterNullable   `url:"city,omitempty,omitzero" json:"city,omitempty,omitzero"`
+	Country          StringFilterNullable   `url:"country,omitempty,omitzero" json:"country,omitempty,omitzero"`
+	CreatedAt        DateFilter             `url:"createdAt,omitempty,omitzero" json:"createdAt,omitempty,omitzero"`
+	Description      StringPatternFilter    `url:"description,omitempty,omitzero" json:"description,omitempty,omitzero"`
+	EncodedVideoPath StringFilter           `url:"encodedVideoPath,omitempty,omitzero" json:"encodedVideoPath,omitempty,omitzero"`
+	FileSizeInBytes  NumberFilter           `url:"fileSizeInBytes,omitempty,omitzero" json:"fileSizeInBytes,omitempty,omitzero"`
+	HasAlbums        BoolFilter             `url:"hasAlbums,omitempty,omitzero" json:"hasAlbums,omitempty,omitzero"`
+	HasPeople        BoolFilter             `url:"hasPeople,omitempty,omitzero" json:"hasPeople,omitempty,omitzero"`
+	HasTags          BoolFilter             `url:"hasTags,omitempty,omitzero" json:"hasTags,omitempty,omitzero"`
+	ID               IDFilter               `url:"id,omitempty,omitzero" json:"id,omitempty,omitzero"`
+	IsEncoded        BoolFilter             `url:"isEncoded,omitempty,omitzero" json:"isEncoded,omitempty,omitzero"`
+	IsFavorite       BoolFilter             `url:"isFavorite,omitempty,omitzero" json:"isFavorite,omitempty,omitzero"`
+	IsMotion         BoolFilter             `url:"isMotion,omitempty,omitzero" json:"isMotion,omitempty,omitzero"`
+	IsOffline        BoolFilter             `url:"isOffline,omitempty,omitzero" json:"isOffline,omitempty,omitzero"`
+	LensModel        StringFilterNullable   `url:"lensModel,omitempty,omitzero" json:"lensModel,omitempty,omitzero"`
+	LibraryID        IDFilterNullable       `url:"libraryId,omitempty,omitzero" json:"libraryId,omitempty,omitzero"`
+	Make             StringFilterNullable   `url:"make,omitempty,omitzero" json:"make,omitempty,omitzero"`
+	Model            StringFilterNullable   `url:"model,omitempty,omitzero" json:"model,omitempty,omitzero"`
+	Ocr              StringSimilarityFilter `url:"ocr,omitempty,omitzero" json:"ocr,omitempty,omitzero"`
+	// Or               *[]SearchFilterBranch      `json:"or,omitempty,omitzero"`
+	OriginalFileName StringPatternFilter  `url:"originalFileName,omitempty,omitzero" json:"originalFileName,omitempty,omitzero"`
+	OriginalPath     StringPatternFilter  `url:"originalPath,omitempty,omitzero" json:"originalPath,omitempty,omitzero"`
+	PersonIDs        IDsFilter            `url:"personIds,omitempty,omitzero" json:"personIds,omitempty,omitzero"`
+	Rating           NumberFilterNullable `url:"rating,omitempty,omitzero" json:"rating,omitempty,omitzero"`
+	State            StringFilterNullable `json:"state,omitempty,omitzero"`
+	TagIDs           IDsFilter            `url:"tagIds,omitempty,omitzero" json:"tagIds,omitempty,omitzero"`
+	TakenAt          DateFilter           `url:"takenAt,omitempty,omitzero" json:"takenAt,omitempty,omitzero"`
+	// TrashedAt        *DateFilterNullable        `json:"trashedAt,omitempty,omitzero"`
+	Type       FilterAssetType       `url:"type,omitempty,omitzero" json:"type,omitempty,omitzero"`
+	UpdatedAt  DateFilter            `url:"updatedAt,omitempty,omitzero" json:"updatedAt,omitempty,omitzero"`
+	Visibility FilterAssetVisibility `url:"visibility,omitempty,omitzero" json:"visibility,omitempty,omitzero"`
 }
 
 type SearchRandomBody struct {
+	Cursor      string       `url:"cursor,omitempty" json:"cursor,omitempty"`
 	Filter      SearchFilter `url:"filter,omitempty" json:"filter,omitempty"`
-	OrderBy     SearchOrder  `url:"orderBy,omitempty" json:"orderBy,omitempty"`
+	OrderBy     SearchOrder  `url:"orderBy,omitempty,omitzero" json:"orderBy,omitempty,omitzero"`
 	Size        int          `url:"size,omitempty" json:"size,omitempty"`
 	WithExif    bool         `url:"withExif,omitempty" json:"withExif,omitempty"`
 	WithPeople  bool         `url:"withPeople,omitempty" json:"withPeople,omitempty"`
@@ -401,13 +403,13 @@ func NewSearchFilterBuilder() *SearchFilter {
 	}
 }
 
-func (b *SearchFilter) WithAnyAlbums(albumIDs ...string) *SearchFilter {
-	b.AlbumIds.Any = albumIDs
+func (b *SearchFilter) WithAlbumsAny(albumIDs ...string) *SearchFilter {
+	b.AlbumIDs.Any = albumIDs
 	return b
 }
 
-func (b *SearchFilter) WithAllPeople(personIDs ...string) {
-	b.PersonIds.All = personIDs
+func (b *SearchFilter) WithPeopleAll(personIDs ...string) *SearchFilter {
+	b.PersonIDs.All = personIDs
 	return b
 }
 
@@ -425,9 +427,23 @@ func (b *SearchFilter) WithVideos(enabled bool) *SearchFilter {
 	return b
 }
 
-func (b *SearchFilter) WithFavoritesOnly(enabled bool) *SearchFilter {
+func (b *SearchFilter) WithFilterFavorites(enabled bool) *SearchFilter {
 	if enabled {
 		b.IsFavorite = BoolFilter{Eq: true}
+	}
+	return b
+}
+
+func (b *SearchFilter) WithRating(r *float32) *SearchFilter {
+	if r != nil {
+		b.Rating = NumberFilterNullable{Eq: float64(*r)}
+	}
+	return b
+}
+
+func (b *SearchFilter) WithTagsAll(tags ...string) *SearchFilter {
+	if len(tags) > 0 {
+		b.TagIDs.All = tags
 	}
 	return b
 }
@@ -445,6 +461,27 @@ func (b *SearchFilter) WithFilterDate(dateFilter string) *SearchFilter {
 			Gte: dateStart,
 			Lte: dateEnd,
 		}
+	}
+	return b
+}
+
+func (b *SearchFilter) ExcludePeople(p []string) *SearchFilter {
+	if len(p) > 0 {
+		b.PersonIDs.None = p
+	}
+	return b
+}
+
+func (b *SearchFilter) ExcludeAlbums(a []string) *SearchFilter {
+	if len(a) > 0 {
+		b.AlbumIDs.None = a
+	}
+	return b
+}
+
+func (b *SearchFilter) ExcludeTags(t []string) *SearchFilter {
+	if len(t) > 0 {
+		b.TagIDs.None = t
 	}
 	return b
 }

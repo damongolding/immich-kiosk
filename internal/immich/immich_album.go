@@ -148,11 +148,14 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly b
 	}
 
 	filter := NewSearchFilterBuilder().
-		WithAnyAlbums(albumID).
+		WithAlbumsAny(albumID).
 		WithArchived(a.requestConfig.ShowArchived).
-		WithVideos(a.requestConfig.ShowVideos).
-		WithFavoritesOnly(favoritesOnly).
 		WithFilterDate(a.requestConfig.FilterDate).
+		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+		ExcludeTags(a.requestConfig.ExcludedTags).
+		WithVideos(a.requestConfig.ShowVideos).
+		WithFilterFavorites(favoritesOnly).
 		Build()
 
 	requestBody := SearchRandomBody{
