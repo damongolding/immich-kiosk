@@ -962,8 +962,6 @@ func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRa
 		return cacheData, nil
 	}
 
-	log.Info("fetching page one")
-
 	firstPageAssets, nextCursor, err := a.fetchMetadataPage(a.ctx, u, requestBody, requestID, deviceID)
 	if err != nil {
 		return PaginatedMetadataResponse{}, err
@@ -987,8 +985,6 @@ func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRa
 	requestBody.Cursor = nextCursor
 	go a.backfillPaginatedMetadata(u, requestBody, requestID, deviceID, apiURL, firstPageAssets)
 
-	log.Info("Done fetching page one")
-
 	return res, nil
 }
 
@@ -1001,7 +997,6 @@ func (a *Asset) backfillPaginatedMetadata(u *url.URL, requestBody SearchRandomBo
 	page := 2
 
 	for {
-		log.Info("fetching", "page", page)
 
 		if page > MaxPages {
 			log.Warn(requestID + " Reached maximum page count when backfilling Metadata")
@@ -1023,8 +1018,6 @@ func (a *Asset) backfillPaginatedMetadata(u *url.URL, requestBody SearchRandomBo
 		requestBody.Cursor = nextCursor
 		page++
 	}
-
-	log.Info("backfill complete", "page", page)
 
 	a.cachePaginatedMetadata(apiURL, deviceID, PaginatedMetadataResponse{
 		Assets: assets,
