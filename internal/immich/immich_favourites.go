@@ -78,34 +78,20 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 
 	for range MaxRetries {
 
+		filter := NewSearchFilterBuilder().
+			WithVideos(a.requestConfig.ShowVideos).
+			WithArchived(a.requestConfig.ShowArchived).
+			ExcludePeople(a.requestConfig.ExcludedPeople).
+			ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+			ExcludeTags(a.requestConfig.ExcludedTags).
+			WithFilterFavorites(true).
+			Build()
+
 		requestBody := SearchRandomBody{
-			Filter: SearchFilter{
-				Visibility: FilterAssetVisibility{
-					Eq: Timeline,
-				},
-				Type: FilterAssetType{
-					Eq: ImageType,
-				},
-				IsFavorite: BoolFilter{
-					Eq: true,
-				},
-			},
+			Filter:     filter,
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-		}
-
-		// Include videos if show videos is enabled
-		if a.requestConfig.ShowVideos {
-			requestBody.Filter.Type = FilterAssetType{
-				In: []AssetType{ImageType, VideoType},
-			}
-		}
-
-		if a.requestConfig.ShowArchived {
-			requestBody.Filter.Visibility = FilterAssetVisibility{
-				In: []AssetVisibility{Timeline, Archive},
-			}
 		}
 
 		assets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)

@@ -148,13 +148,13 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly b
 	}
 
 	filter := NewSearchFilterBuilder().
+		WithVideos(a.requestConfig.ShowVideos).
 		WithAlbumsAny(albumID).
 		WithArchived(a.requestConfig.ShowArchived).
 		WithFilterDate(a.requestConfig.FilterDate).
 		ExcludePeople(a.requestConfig.ExcludedPeople).
 		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 		ExcludeTags(a.requestConfig.ExcludedTags).
-		WithVideos(a.requestConfig.ShowVideos).
 		WithFilterFavorites(favoritesOnly).
 		Build()
 
