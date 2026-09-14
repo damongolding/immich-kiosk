@@ -979,7 +979,7 @@ func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRa
 	}
 
 	requestBody.Cursor = nextCursor
-	go a.backfillPaginatedMetadata(u, requestBody, requestID, deviceID, apiURL, firstPageAssets)
+	go a.backfillPaginatedMetadata(u, requestBody, requestID, deviceID, apiURL)
 
 	return res, nil
 }
@@ -987,8 +987,10 @@ func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRa
 // backfillPaginatedMetadata continues fetching remaining pages after the
 // caller has already received page one, then writes the merged result to
 // the cache.
-func (a *Asset) backfillPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string, apiURL string, assets []Asset) {
+func (a *Asset) backfillPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string, apiURL string) {
 	page := 2
+
+	assets := []Asset{}
 
 	for {
 
