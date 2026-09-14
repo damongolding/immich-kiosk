@@ -972,16 +972,11 @@ func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRa
 		URL:    apiURL,
 	}
 
-	// Single page — nothing to backfill, cache now and return as before.
 	if nextCursor == "" {
 		a.cachePaginatedMetadata(apiURL, deviceID, res)
 		return res, nil
 	}
 
-	// More pages exist: return page one now, keep fetching the rest in
-	// the background against a.ctx — it's the app-lifetime context, so
-	// this naturally gets torn down on Kiosk shutdown rather than
-	// outliving the process or dying early with the request.
 	requestBody.Cursor = nextCursor
 	go a.backfillPaginatedMetadata(u, requestBody, requestID, deviceID, apiURL, firstPageAssets)
 
@@ -990,9 +985,7 @@ func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRa
 
 // backfillPaginatedMetadata continues fetching remaining pages after the
 // caller has already received page one, then writes the merged result to
-// the cache. Runs against a.ctx, so it's cancelled on Kiosk shutdown like
-// any other background work. On error it logs and returns without
-// caching, leaving whatever (if anything) was already cached untouched.
+// the cache.
 func (a *Asset) backfillPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string, apiURL string, assets []Asset) {
 	page := 2
 
@@ -1025,10 +1018,7 @@ func (a *Asset) backfillPaginatedMetadata(u *url.URL, requestBody SearchRandomBo
 	})
 }
 
-// fetchMetadataPage fetches a single page of metadata. ctx is passed
-// explicitly (rather than reading a.ctx) so a background continuation
-// can supply its own long-lived context instead of one tied to an
-// HTTP request that may already be gone.
+// fetchMetadataPage fetches a single page of metadata.
 func (a *Asset) fetchMetadataPage(ctx context.Context, u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string) ([]Asset, string, error) {
 	var response SearchMetadataResponse
 
