@@ -951,33 +951,138 @@ func paginatedCache(u *url.URL, requestBody *SearchRandomBody, deviceID, selecte
 	return PaginatedMetadataResponse{}, apiURL.String(), false
 }
 
-// fetchPaginatedMetadataWithCache fetches paginated asset metadata, using the cache
-// where possible. On a cache miss it calls fetchPaginatedMetadata, serialises the
-// result to JSON, and stores it in the cache for subsequent requests.
+// fetchPaginatedMetadataWithCache fetches paginated asset metadata, using
+// the cache where possible. On a miss it fetches page one synchronously
+// and returns immediately; if more pages remain it continues fetching
+// them in the background and amends the cache once the full set is in,
+// under the same key a synchronous fetch would have used.
 func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string) (PaginatedMetadataResponse, error) {
 	cacheData, apiURL, cacheHit := paginatedCache(u, &requestBody, deviceID, a.requestConfig.SelectedUser)
 	if cacheHit {
 		return cacheData, nil
 	}
 
-	res, err := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
+	log.Info("fetching page one")
+
+	firstPageAssets, nextCursor, err := a.fetchMetadataPage(a.ctx, u, requestBody, requestID, deviceID)
 	if err != nil {
-		return res, err
+		return PaginatedMetadataResponse{}, err
 	}
 
-	res.URL = apiURL
+	res := PaginatedMetadataResponse{
+		Assets: firstPageAssets,
+		URL:    apiURL,
+	}
 
-	jsonBytes, marshalErr := json.Marshal(res)
-	if marshalErr != nil {
-		log.Error("Failed to marshal assetsToCache", "error", marshalErr)
-		return res, marshalErr
+	// Single page — nothing to backfill, cache now and return as before.
+	if nextCursor == "" {
+		a.cachePaginatedMetadata(apiURL, deviceID, res)
+		return res, nil
+	}
+
+	// More pages exist: return page one now, keep fetching the rest in
+	// the background against a.ctx — it's the app-lifetime context, so
+	// this naturally gets torn down on Kiosk shutdown rather than
+	// outliving the process or dying early with the request.
+	requestBody.Cursor = nextCursor
+	go a.backfillPaginatedMetadata(u, requestBody, requestID, deviceID, apiURL, firstPageAssets)
+
+	log.Info("Done fetching page one")
+
+	return res, nil
+}
+
+// backfillPaginatedMetadata continues fetching remaining pages after the
+// caller has already received page one, then writes the merged result to
+// the cache. Runs against a.ctx, so it's cancelled on Kiosk shutdown like
+// any other background work. On error it logs and returns without
+// caching, leaving whatever (if anything) was already cached untouched.
+func (a *Asset) backfillPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string, apiURL string, assets []Asset) {
+	page := 2
+
+	for {
+		log.Info("fetching", "page", page)
+
+		if page > MaxPages {
+			log.Warn(requestID + " Reached maximum page count when backfilling Metadata")
+			break
+		}
+
+		pageAssets, nextCursor, err := a.fetchMetadataPage(a.ctx, u, requestBody, requestID, deviceID)
+		if err != nil {
+			log.Error(requestID+" background pagination backfill failed", "error", err)
+			return
+		}
+
+		assets = append(assets, pageAssets...)
+
+		if nextCursor == "" {
+			break
+		}
+
+		requestBody.Cursor = nextCursor
+		page++
+	}
+
+	log.Info("backfill complete", "page", page)
+
+	a.cachePaginatedMetadata(apiURL, deviceID, PaginatedMetadataResponse{
+		Assets: assets,
+		URL:    apiURL,
+	})
+}
+
+// fetchMetadataPage fetches a single page of metadata. ctx is passed
+// explicitly (rather than reading a.ctx) so a background continuation
+// can supply its own long-lived context instead of one tied to an
+// HTTP request that may already be gone.
+func (a *Asset) fetchMetadataPage(ctx context.Context, u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string) ([]Asset, string, error) {
+	var response SearchMetadataResponse
+
+	// convert body to queries so url is unique and can be cached
+	queries, _ := query.Values(requestBody)
+
+	apiURL := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     SearchMetadataEndpoint,
+		RawQuery: queries.Encode(),
+	}
+
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		_, _, err = immichAPIFail([]Asset(nil), err, nil, apiURL.String())
+		return nil, "", err
+	}
+
+	immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, response)
+	apiBody, _, _, err := immichAPICall(ctx, http.MethodPost, apiURL.String(), jsonBody)
+	if err != nil {
+		_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
+		return nil, "", err
+	}
+
+	if err = json.Unmarshal(apiBody, &response); err != nil {
+		_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
+		return nil, "", err
+	}
+
+	return response.Assets.Items, response.Assets.NextCursor, nil
+}
+
+// cachePaginatedMetadata marshals and stores a PaginatedMetadataResponse
+// under an already-computed cache key (see paginatedCache — apiURL here
+// is expected to already have PaginationComplete=true baked in).
+func (a *Asset) cachePaginatedMetadata(apiURL string, deviceID string, res PaginatedMetadataResponse) {
+	jsonBytes, err := json.Marshal(res)
+	if err != nil {
+		log.Error("Failed to marshal assetsToCache", "error", err)
+		return
 	}
 
 	cacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 	cache.Set(cacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
-
-	return res, nil
 }
 
 func (a *Asset) updateAsset(deviceID string, requestBody UpdateAssetBody) error {
