@@ -19,37 +19,22 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 		return 0, err
 	}
 
+	filter := NewSearchFilterBuilder().
+		WithVideos(a.requestConfig.ShowVideos).
+		WithArchived(a.requestConfig.ShowArchived).
+		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+		ExcludeTags(a.requestConfig.ExcludedTags).
+		WithFilterFavorites(true).
+		WithFilterDate(a.requestConfig.FilterDate).
+		Build()
+
 	requestBody := SearchRandomBody{
-		Filter: SearchFilter{
-			Visibility: FilterAssetVisibility{
-				In: []AssetVisibility{Timeline},
-			},
-			Type: FilterAssetType{
-				In: []AssetType{ImageType},
-			},
-			IsFavorite: BoolFilter{
-				Eq: true,
-			},
-		},
+		Filter:     filter,
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
-
-	if a.requestConfig.ShowArchived {
-		requestBody.Filter.Visibility = FilterAssetVisibility{
-			In: []AssetVisibility{Timeline, Archive},
-		}
-	}
-
-	// Include videos if show videos is enabled
-	if a.requestConfig.ShowVideos {
-		requestBody.Filter.Type = FilterAssetType{
-			In: []AssetType{ImageType, VideoType},
-		}
-	}
-
-	filterDate(&requestBody, a.requestConfig.FilterDate)
 
 	res, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {
