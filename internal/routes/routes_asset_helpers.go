@@ -461,28 +461,27 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview
 func processImage(immichAsset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
-	if requestConfig.LivePhotos && immichAsset.LivePhotoVideoID != "" {
-
-		isDownloaded := VideoManager.IsDownloaded(immichAsset.LivePhotoVideoID)
-		isDownloading := VideoManager.IsDownloading(immichAsset.LivePhotoVideoID)
-
-		if !isDownloaded && !isDownloading {
-
-			livePhoto := immich.New(context.TODO(), requestConfig)
-			livePhoto.ID = immichAsset.LivePhotoVideoID
-			if immichAsset.SelectedUser() != "" && !strings.Contains(immichAsset.LivePhotoVideoID, kiosk.MultipleUserIndicator) {
-				withUser := fmt.Sprintf("%s%s%s", livePhoto.ID, kiosk.MultipleUserIndicator, immichAsset.SelectedUser())
-				_, _ = livePhoto.ApplyUserFromAssetID(withUser)
-			}
-
-			err := livePhoto.AssetInfo(requestID, deviceID)
-			if err != nil {
-				return nil, err
-			}
-
-			go VideoManager.DownloadVideo(livePhoto, requestConfig, deviceID, "")
-		}
+	if !requestConfig.LivePhotos || immichAsset.LivePhotoVideoID == "" {
+		return fetchImagePreview(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 	}
+
+	videoID := immichAsset.LivePhotoVideoID
+	if VideoManager.IsDownloaded(videoID) || VideoManager.IsDownloading(videoID) {
+		return fetchImagePreview(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
+	}
+
+	livePhoto := immich.New(context.TODO(), requestConfig)
+	livePhoto.ID = videoID
+
+	if user := immichAsset.SelectedUser(); user != "" && !strings.Contains(videoID, kiosk.MultipleUserIndicator) {
+		_, _ = livePhoto.ApplyUserFromAssetID(fmt.Sprintf("%s%s%s", videoID, kiosk.MultipleUserIndicator, user))
+	}
+
+	if err := livePhoto.AssetInfo(requestID, deviceID); err != nil {
+		return nil, err
+	}
+
+	go VideoManager.DownloadVideo(livePhoto, requestConfig, deviceID, "")
 
 	return fetchImagePreview(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 }
