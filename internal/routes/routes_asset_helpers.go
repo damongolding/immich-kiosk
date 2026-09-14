@@ -470,6 +470,11 @@ func processImage(immichAsset *immich.Asset, requestConfig config.Config, reques
 
 			livePhoto := immich.New(context.TODO(), requestConfig)
 			livePhoto.ID = immichAsset.LivePhotoVideoID
+			if immichAsset.SelectedUser() != "" && !strings.Contains(immichAsset.LivePhotoVideoID, kiosk.MultipleUserIndicator) {
+				withUser := fmt.Sprintf("%s%s%s", livePhoto.ID, kiosk.MultipleUserIndicator, immichAsset.SelectedUser())
+				_, _ = livePhoto.ApplyUserFromAssetID(withUser)
+			}
+
 			err := livePhoto.AssetInfo(requestID, deviceID)
 			if err != nil {
 				return nil, err
