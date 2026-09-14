@@ -58,26 +58,22 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 			return fmt.Errorf("parsing url: %w", err)
 		}
 
+		filter := NewSearchFilterBuilder().
+			WithVideos(a.requestConfig.ShowVideos).
+			WithArchived(a.requestConfig.ShowArchived).
+			ExcludePeople(a.requestConfig.ExcludedPeople).
+			ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+			ExcludeTags(a.requestConfig.ExcludedTags).
+			WithFilterDate(dateRange).
+			WithFilterFavorites(a.requestConfig.FilterFavorites).
+			Build()
+
 		requestBody := SearchRandomBody{
-			Visibility:  Timeline,
-			Type:        string(ImageType),
-			TakenAfter:  dateStart.Format(time.RFC3339),
-			TakenBefore: dateEnd.Format(time.RFC3339),
-			WithExif:    true,
-			WithPeople:  true,
-			Size:        a.requestConfig.Kiosk.FetchedAssetsSize,
+			Filter:     filter,
+			WithExif:   true,
+			WithPeople: true,
+			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 		}
-
-		// Include videos if show videos is enabled
-		if a.requestConfig.ShowVideos {
-			requestBody.Type = ""
-		}
-
-		if a.requestConfig.ShowArchived {
-			requestBody.Visibility = ""
-		}
-
-		filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
 
 		// convert body to queries so url is unique and can be cached
 		queries, _ := query.Values(requestBody)
@@ -85,7 +81,7 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 		apiURL := url.URL{
 			Scheme:   u.Scheme,
 			Host:     u.Host,
-			Path:     "api/search/random",
+			Path:     SearchRandomEndpoint,
 			RawQuery: fmt.Sprintf("kiosk=%x", sha256.Sum256([]byte(queries.Encode()))),
 		}
 

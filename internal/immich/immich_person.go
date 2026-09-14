@@ -195,27 +195,25 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 
 	for range MaxRetries {
 
+		filter := NewSearchFilterBuilder().
+			WithPeopleAll(personID).
+			WithVideos(a.requestConfig.ShowVideos).
+			WithArchived(a.requestConfig.ShowArchived).
+			ExcludePeople(a.requestConfig.ExcludedPeople).
+			ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+			ExcludeTags(a.requestConfig.ExcludedTags).
+			Build()
+
 		requestBody := SearchRandomBody{
-			Visibility: Timeline,
-			PersonIDs:  []string{personID},
-			Type:       string(ImageType),
-			WithExif:   true,
+			Filter:     filter,
 			WithPeople: true,
+			WithExif:   true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 		}
 
-		// Include videos if show videos is enabled
-		if a.requestConfig.ShowVideos {
-			requestBody.Type = ""
-		}
-
 		if a.requestConfig.RequireAllPeople {
-			requestBody.PersonIDs = make([]string, len(a.requestConfig.People))
-			copy(requestBody.PersonIDs, a.requestConfig.People)
-		}
-
-		if a.requestConfig.ShowArchived {
-			requestBody.Visibility = ""
+			requestBody.Filter.PersonIDs.All = make([]string, len(a.requestConfig.People))
+			copy(requestBody.Filter.PersonIDs.All, a.requestConfig.People)
 		}
 
 		immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)

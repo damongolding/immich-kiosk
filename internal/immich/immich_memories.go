@@ -17,6 +17,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/immich_open_api"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 )
 
 const MaxPastMemoryDays = 365
@@ -87,7 +88,7 @@ func (a *Asset) memoriesWithPastDays(requestID, deviceID string, assetCount bool
 	cacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 	if apiData, found := cache.Get(cacheKey); found {
-		log.Debug(requestID+" Cache hit", "url", apiURL)
+		log.Debug(requestID+" Cache hit", "url", utils.TruncateAfter(apiURL, "?"))
 		data, ok := apiData.([]byte)
 		if !ok {
 			return memories, apiURL, errors.New("could not parse past memories data")

@@ -39,8 +39,8 @@ import (
 
 const (
 	supportedImmichVersionMajor = 3
-	supportedImmichVersionMinor = 0
-	supportedImmichVersionPatch = 3
+	supportedImmichVersionMinor = 2
+	supportedImmichVersionPatch = 0
 )
 
 // version current build version number

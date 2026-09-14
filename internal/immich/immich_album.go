@@ -147,31 +147,30 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly b
 		return immichAPIFail(album, err, nil, "")
 	}
 
+	filter := NewSearchFilterBuilder().
+		WithVideos(a.requestConfig.ShowVideos).
+		WithAlbumsAny(albumID).
+		WithArchived(a.requestConfig.ShowArchived).
+		WithFilterDate(a.requestConfig.FilterDate).
+		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+		ExcludeTags(a.requestConfig.ExcludedTags).
+		WithFilterFavorites(favoritesOnly).
+		Build()
+
 	requestBody := SearchRandomBody{
-		Visibility: Timeline,
-		Type:       string(ImageType),
-		AlbumIDs:   []string{albumID},
+		Filter:     filter,
 		WithPeople: true,
 		WithExif:   true,
-		IsFavorite: favoritesOnly,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-	}
-
-	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = ""
 	}
 
 	assetOrder := AlbumOrder(a.requestConfig.AlbumOrder)
 	if assetOrder != Rand {
-		requestBody.Order = string(assetOrder)
+		requestBody.OrderBy = SearchOrder{
+			Direction: assetOrder,
+		}
 	}
-
-	// Include videos if show videos is enabled
-	if a.requestConfig.ShowVideos {
-		requestBody.Type = ""
-	}
-
-	filterDate(&requestBody, a.requestConfig.FilterDate)
 
 	var res PaginatedMetadataResponse
 
