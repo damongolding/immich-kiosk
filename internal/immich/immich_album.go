@@ -311,8 +311,6 @@ func (a *Asset) AssetFromAlbum(albumID string, requestID, deviceID string) error
 
 		for assetIndex, asset := range album.Assets {
 
-			log.Info("album.Assets", "len", len(album.Assets))
-
 			asset.Bucket = kiosk.SourceAlbum
 			asset.requestConfig = a.requestConfig
 			asset.ctx = a.ctx
@@ -325,7 +323,7 @@ func (a *Asset) AssetFromAlbum(albumID string, requestID, deviceID string) error
 
 				err = removeAssetFromPaginatedCache(apiCacheKey, asset.ID, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 				if err != nil {
-					log.Error("Failed to remove asset from paginated cache", "error", err)
+					log.Debug("removing asset from paginated cache", "error", err)
 
 					// from Immich V3 album assets use the PaginatedMetadataResponse type
 					assetsToCache := PaginatedMetadataResponse{
