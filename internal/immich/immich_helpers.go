@@ -15,6 +15,7 @@ import (
 	"reflect"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"charm.land/log/v2"
@@ -1066,7 +1067,7 @@ func (a *Asset) fetchMetadataPage(ctx context.Context, u *url.URL, requestBody S
 func (a *Asset) cachePaginatedMetadata(apiURL string, deviceID string, res PaginatedMetadataResponse) {
 	cacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
-	err := AppendToPaginatedCache(cacheKey, res, a.requestConfig.Duration, a.requestConfig.CacheDuration)
+	err := appendToPaginatedCache(cacheKey, res, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 	if err != nil {
 
 		jsonBytes, marshalErr := json.Marshal(res)
@@ -1139,7 +1140,12 @@ func AlbumOrder(albumAssetsOrder string) AssetOrder {
 	}
 }
 
+var paginationCacheMutex = &sync.Mutex{}
+
 func removeAssetFromPaginatedCache(key string, assetID string, deviceDuration, cacheDuration int) error {
+	paginationCacheMutex.Lock()
+	defer paginationCacheMutex.Unlock()
+
 	c := PaginatedMetadataResponse{}
 
 	var data any
@@ -1175,7 +1181,10 @@ func removeAssetFromPaginatedCache(key string, assetID string, deviceDuration, c
 	return nil
 }
 
-func AppendToPaginatedCache(key string, dataToAdd PaginatedMetadataResponse, deviceDuration, cacheDuration int) error {
+func appendToPaginatedCache(key string, dataToAdd PaginatedMetadataResponse, deviceDuration, cacheDuration int) error {
+	paginationCacheMutex.Lock()
+	defer paginationCacheMutex.Unlock()
+
 	c := PaginatedMetadataResponse{}
 
 	var data any
