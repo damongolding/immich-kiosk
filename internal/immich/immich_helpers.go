@@ -974,16 +974,14 @@ func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRa
 		URL:    apiURL,
 	}
 
-	if nextCursor == "" {
-		a.cachePaginatedMetadata(apiURL, deviceID, res)
+	a.cachePaginatedMetadata(apiURL, deviceID, res)
 
+	if nextCursor == "" {
 		return res, nil
 	}
 
 	requestBody.Cursor = nextCursor
 	go a.backfillPaginatedMetadata(u, requestBody, requestID, deviceID, apiURL)
-
-	a.cachePaginatedMetadata(apiURL, deviceID, res)
 
 	return res, nil
 }
