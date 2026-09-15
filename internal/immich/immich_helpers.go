@@ -33,7 +33,7 @@ func immichAPIFail[T APIResponse](value T, err error, body []byte, apiURL string
 	var immichError ErrorResponse
 	errorUnmarshalErr := json.Unmarshal(body, &immichError)
 	if errorUnmarshalErr != nil {
-		log.Error("Couldn't read error", "body", string(body), "url", apiURL)
+		log.Error("Couldn't read error", "body", string(body), "url", utils.TruncateAfter(apiURL, "?"))
 		return value, apiURL, err
 	}
 	log.Errorf("%s : %v", immichError.Message, immichError.Errors)
@@ -1006,7 +1006,7 @@ func (a *Asset) backfillPaginatedMetadata(u *url.URL, requestBody SearchRandomBo
 
 		pageAssets, nextCursor, err := a.fetchMetadataPage(a.ctx, u, requestBody, requestID, deviceID)
 		if err != nil {
-			log.Error(requestID+" background pagination backfill failed", "error", err)
+			log.Warn(requestID+" background pagination backfill: fetchMetadataPage", "page", page, "cursor", requestBody.Cursor, "album(s)", requestBody.Filter.AlbumIDs, "error", err)
 			return
 		}
 
@@ -1065,6 +1065,9 @@ func (a *Asset) fetchMetadataPage(ctx context.Context, u *url.URL, requestBody S
 // under an already-computed cache key (see paginatedCache — apiURL here
 // is expected to already have PaginationComplete=true baked in).
 func (a *Asset) cachePaginatedMetadata(apiURL string, deviceID string, res PaginatedMetadataResponse) {
+	paginationCacheMutex.Lock()
+	defer paginationCacheMutex.Unlock()
+
 	cacheKey := cache.APICacheKey(apiURL, deviceID, a.requestConfig.SelectedUser)
 
 	err := appendToPaginatedCache(cacheKey, res, a.requestConfig.Duration, a.requestConfig.CacheDuration)
@@ -1182,9 +1185,6 @@ func removeAssetFromPaginatedCache(key string, assetID string, deviceDuration, c
 }
 
 func appendToPaginatedCache(key string, dataToAdd PaginatedMetadataResponse, deviceDuration, cacheDuration int) error {
-	paginationCacheMutex.Lock()
-	defer paginationCacheMutex.Unlock()
-
 	c := PaginatedMetadataResponse{}
 
 	var data any
