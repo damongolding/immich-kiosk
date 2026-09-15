@@ -130,9 +130,6 @@ more_info:
     like_button: true
     hide_button: true
 
-like_button_action: favorite # album, favorite or both [album, favorite]
-hide_button_action: tag # tag, archive, or both [tag, archive]
-
 ## Weather feature - you’ll need an API key from OpenWeatherMap
 # weather:
 #   rotation_interval: 60 # in seconds (minimum: 10); rotation must be enabled via URL parameter
