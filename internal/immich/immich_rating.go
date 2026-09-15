@@ -58,6 +58,8 @@ func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]
 		ExcludePeople(a.requestConfig.ExcludedPeople).
 		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 		ExcludeTags(a.requestConfig.ExcludedTags).
+		WithFilterDate(a.requestConfig.FilterDate).
+		WithFilterFavorites(a.requestConfig.FilterFavorites).
 		Build()
 
 	requestBody := SearchRandomBody{
