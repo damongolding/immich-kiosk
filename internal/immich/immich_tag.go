@@ -78,26 +78,23 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 		return totalAssetsCount, err
 	}
 
+	filter := NewSearchFilterBuilder().
+		WithVideos(a.requestConfig.ShowVideos).
+		WithTagsAll(tagID).
+		WithArchived(a.requestConfig.ShowArchived).
+		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+		ExcludeTags(a.requestConfig.ExcludedTags).
+		WithFilterDate(a.requestConfig.FilterDate).
+		WithFilterFavorites(a.requestConfig.FilterFavorites).
+		Build()
+
 	requestBody := SearchRandomBody{
-		Visibility: Timeline,
-		Type:       string(ImageType),
-		TagIDs:     []string{tagID},
+		Filter:     filter,
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
-
-	// Include videos if show videos is enabled
-	if a.requestConfig.ShowVideos {
-		requestBody.Type = ""
-	}
-
-	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = ""
-	}
-
-	filterDate(&requestBody, a.requestConfig.FilterDate)
-	filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
 
 	res, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {
@@ -114,26 +111,23 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 // The requestID and deviceID are used for caching and logging purposes.
 // It returns the list of assets, the API URL used, and any error encountered.
 func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset, string, error) {
+	filter := NewSearchFilterBuilder().
+		WithVideos(a.requestConfig.ShowVideos).
+		WithTagsAll(tagID).
+		WithArchived(a.requestConfig.ShowArchived).
+		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+		ExcludeTags(a.requestConfig.ExcludedTags).
+		WithFilterDate(a.requestConfig.FilterDate).
+		WithFilterFavorites(a.requestConfig.FilterFavorites).
+		Build()
+
 	requestBody := SearchRandomBody{
-		Visibility: Timeline,
-		Type:       string(ImageType),
-		TagIDs:     []string{tagID},
+		Filter:     filter,
 		WithExif:   true,
 		WithPeople: true,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
-
-	// Include videos if show videos is enabled
-	if a.requestConfig.ShowVideos {
-		requestBody.Type = ""
-	}
-
-	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = ""
-	}
-
-	filterDate(&requestBody, a.requestConfig.FilterDate)
-	filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
 
 	immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)
 	if err != nil {

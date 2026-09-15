@@ -1094,3 +1094,11 @@ func ContainsWholeWord(a, b string) bool {
 func RunningInContainer() bool {
 	return runningInContainer == "true"
 }
+
+func TruncateAfter(s string, cutAt string) string {
+	before, _, ok := strings.Cut(s, cutAt)
+	if !ok {
+		return s
+	}
+	return before + "..."
+}
