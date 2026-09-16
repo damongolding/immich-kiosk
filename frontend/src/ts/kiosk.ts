@@ -27,6 +27,7 @@ import {
     triggerNewAsset,
     videoHandler,
 } from "./polling";
+import { tryRecoveryMode } from "./recovery";
 import { sleepMode } from "./sleep";
 import { preventSleep } from "./wakelock";
 import { weatherRotationPosition } from "./weather";
@@ -87,6 +88,9 @@ const MAX_FRAMES: number = 2 as const;
 
 const TIMEOUT_RETRIES: number = 2 as const;
 const timeouts: Record<string, number> = {};
+
+const FAILED_REQUEST_RETRIES: number = 3 as const;
+let consecutiveFailedRequests = 0;
 
 // Parse kiosk data from the HTML element
 const kioskData: KioskData = JSON.parse(
@@ -184,14 +188,30 @@ async function init(): Promise<void> {
     }
 
     if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/assets/js/sw.js").then(
-            () => {
-                console.log("ServiceWorker registration successful");
-            },
-            (err) => {
-                console.log("ServiceWorker registration failed: ", err);
-            },
-        );
+        navigator.serviceWorker
+            .register("/assets/js/sw.js", { scope: "/" })
+            .then(
+                () => {
+                    console.log("ServiceWorker registration successful");
+                },
+                (err) => {
+                    console.log("ServiceWorker registration failed: ", err);
+                },
+            );
+
+        navigator.serviceWorker
+            .getRegistrations()
+            .then((registrations) => {
+                for (const registration of registrations) {
+                    if (!registration.scope.endsWith("/assets/js/")) {
+                        continue;
+                    }
+                    registration.unregister();
+                }
+            })
+            .catch(() => {
+                /* nothing we can do */
+            });
     }
 
     if (!fullscreenAPI.requestFullscreen) {
@@ -387,8 +407,14 @@ function addEventListeners(): void {
         if (e.detail.successful) {
             offlineSVG.classList.remove("offline");
             timeouts[e.detail.pathInfo.requestPath] = 0;
+            consecutiveFailedRequests = 0;
         } else {
             offlineSVG.classList.add("offline");
+            consecutiveFailedRequests += 1;
+            if (consecutiveFailedRequests > FAILED_REQUEST_RETRIES) {
+                consecutiveFailedRequests = 0;
+                tryRecoveryMode();
+            }
         }
     });
 
@@ -415,7 +441,9 @@ function addEventListeners(): void {
         timeouts[e.detail.pathInfo.requestPath] = currentTimeout;
 
         if (currentTimeout > TIMEOUT_RETRIES) {
-            window.location.reload();
+            // window.location.reload();
+            consecutiveFailedRequests = 0;
+            tryRecoveryMode();
         }
     });
 
