@@ -35,31 +35,37 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 				<div class="more-info--image--data">
 					if !viewData.UseOfflineMode {
 						<div class="more-info--button-group">
-							@LikeButton(
-								img.ImmichAsset.ID,
-								img.ImmichAsset.SelectedUser(),
-								img.ImmichAsset.IsFavorite,
-								false,
-								img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
-								secret,
-							)
-							@HideButton(
-								img.ImmichAsset.ID,
-								img.ImmichAsset.SelectedUser(),
-								img.ImmichAsset.HasTag(kiosk.TagSkip),
-								img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
-								secret,
-							)
+							if viewData.MoreInfo.Show.LikeButton {
+								@LikeButton(
+									img.ImmichAsset.ID,
+									img.ImmichAsset.SelectedUser(),
+									img.ImmichAsset.IsFavorite,
+									false,
+									img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
+									secret,
+								)
+							}
+							if viewData.MoreInfo.Show.HideButton {
+								@HideButton(
+									img.ImmichAsset.ID,
+									img.ImmichAsset.SelectedUser(),
+									img.ImmichAsset.HasTag(kiosk.TagSkip),
+									img.ImmichAsset.UserOwnsAsset(viewData.RequestID, viewData.DeviceID),
+									secret,
+								)
+							}
 						</div>
 					}
-					@rating(img.ImmichAsset.ID, img.ImmichAsset.SelectedUser(), img.ImmichAsset.ExifInfo.Rating, viewData.UseOfflineMode)
+					if viewData.MoreInfo.Show.Rating{
+						@rating(img.ImmichAsset.ID, img.ImmichAsset.SelectedUser(), img.ImmichAsset.ExifInfo.Rating, viewData.UseOfflineMode)
+					}
 					@originalImageTimeLocation(viewData, i)
 					@cameraData(img.ImmichAsset.ExifInfo)
 					@originalAssetData(img.ImmichAsset)
 					@people(img.ImmichAsset.People, viewData.ShowAgeYearUnit, viewData.AgeSwitchToYearsAfter, img.ImmichAsset.LocalDateTime)
 					@tags(img.ImmichAsset.Tags)
 					<div class="more-info--button-group">
-						if viewData.ShowMoreInfoImageLink {
+						if viewData.MoreInfo.Show.AssetLink {
 							<a class="more-info--image-link" href={ templ.SafeURL(ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID, viewData.ButtonOpenInApp, viewData.Kiosk.DemoMode)) } target="_blank">
 								{ t("immich_link_btn") }
 							</a>
@@ -69,7 +75,6 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 								class="more-info--webhook"
 								hx-post="/webhooks"
 								hx-trigger="click throttle:2s"
-								hx-include=".kiosk-history--entry"
 								hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "user.webhook.trigger.info_overlay"}`, time.Now().Unix(), WebhookSignature(secret)) }
 								hx-swap="textContent"
 							>
@@ -78,7 +83,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 						}
 					</div>
 				</div>
-				if viewData.ShowMoreInfoQrCode {
+				if viewData.MoreInfo.Show.QRCode {
 					<div class="more-info--image--qr-code">
 						<img src={ utils.CreateQrCode(ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID, viewData.QrCodeOpenInApp, viewData.Kiosk.DemoMode)) }/>
 					</div>
@@ -121,7 +126,6 @@ templ LikeButton(ID, selectedUser string, isLiked bool, liked bool, isButtonEnab
 			hx-post="/webhooks"
 			hx-trigger="click from:closest .more-info--like-asset"
 			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), WebhookSignature(secret), webhook) }
-			hx-include=".kiosk-history--entry"
 			hx-swap="none"
 			style="display: none"
 		></div>
@@ -183,7 +187,6 @@ templ HideButton(ID, selectedUser string, isHidden bool, isButtonEnabled bool, s
 			hx-post="/webhooks"
 			hx-trigger="click from:closest .more-info--hide-asset"
 			hx-headers={ fmt.Sprintf(`{"X-Timestamp": "%d", "X-Signature": "%s", "kiosk-webhook-event": "%s"}`, time.Now().Unix(), WebhookSignature(secret), webhook) }
-			hx-include=".kiosk-history--entry"
 			hx-swap="none"
 			style="display: none"
 		></div>

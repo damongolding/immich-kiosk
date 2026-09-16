@@ -19,25 +19,22 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 		return 0, err
 	}
 
+	filter := NewSearchFilterBuilder().
+		WithVideos(a.requestConfig.ShowVideos).
+		WithArchived(a.requestConfig.ShowArchived).
+		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+		ExcludeTags(a.requestConfig.ExcludedTags).
+		WithFilterFavorites(true).
+		WithFilterDate(a.requestConfig.FilterDate).
+		Build()
+
 	requestBody := SearchRandomBody{
-		Visibility: Timeline,
-		Type:       string(ImageType),
-		IsFavorite: true,
+		Filter:     filter,
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
-
-	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = ""
-	}
-
-	// Include videos if show videos is enabled
-	if a.requestConfig.ShowVideos {
-		requestBody.Type = ""
-	}
-
-	filterDate(&requestBody, a.requestConfig.FilterDate)
 
 	res, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {
@@ -81,22 +78,20 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 
 	for range MaxRetries {
 
+		filter := NewSearchFilterBuilder().
+			WithVideos(a.requestConfig.ShowVideos).
+			WithArchived(a.requestConfig.ShowArchived).
+			ExcludePeople(a.requestConfig.ExcludedPeople).
+			ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+			ExcludeTags(a.requestConfig.ExcludedTags).
+			WithFilterFavorites(true).
+			Build()
+
 		requestBody := SearchRandomBody{
-			Visibility: Timeline,
-			Type:       string(ImageType),
-			IsFavorite: true,
+			Filter:     filter,
 			WithExif:   true,
 			WithPeople: true,
 			Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-		}
-
-		// Include videos if show videos is enabled
-		if a.requestConfig.ShowVideos {
-			requestBody.Type = ""
-		}
-
-		if a.requestConfig.ShowArchived {
-			requestBody.Visibility = ""
 		}
 
 		assets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)

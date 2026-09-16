@@ -147,31 +147,30 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly b
 		return immichAPIFail(album, err, nil, "")
 	}
 
+	filter := NewSearchFilterBuilder().
+		WithVideos(a.requestConfig.ShowVideos).
+		WithAlbumsAny(albumID).
+		WithArchived(a.requestConfig.ShowArchived).
+		WithFilterDate(a.requestConfig.FilterDate).
+		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+		ExcludeTags(a.requestConfig.ExcludedTags).
+		WithFilterFavorites(favoritesOnly).
+		Build()
+
 	requestBody := SearchRandomBody{
-		Visibility: Timeline,
-		Type:       string(ImageType),
-		AlbumIDs:   []string{albumID},
+		Filter:     filter,
 		WithPeople: true,
 		WithExif:   true,
-		IsFavorite: favoritesOnly,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-	}
-
-	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = ""
 	}
 
 	assetOrder := AlbumOrder(a.requestConfig.AlbumOrder)
 	if assetOrder != Rand {
-		requestBody.Order = string(assetOrder)
+		requestBody.OrderBy = SearchOrder{
+			Direction: assetOrder,
+		}
 	}
-
-	// Include videos if show videos is enabled
-	if a.requestConfig.ShowVideos {
-		requestBody.Type = ""
-	}
-
-	filterDate(&requestBody, a.requestConfig.FilterDate)
 
 	var res PaginatedMetadataResponse
 
@@ -321,21 +320,27 @@ func (a *Asset) AssetFromAlbum(albumID string, requestID, deviceID string) error
 			}
 
 			if a.requestConfig.Kiosk.Cache {
-				// from Immich V3 album assets use the PaginatedMetadataResponse type
-				assetsToCache := PaginatedMetadataResponse{
-					URL: apiURL,
-					// Remove the current image from the slice
-					Assets: slices.Delete(album.Assets, assetIndex, assetIndex+1),
-				}
 
-				jsonBytes, marshalErr := json.Marshal(assetsToCache)
-				if marshalErr != nil {
-					log.Error("Failed to marshal assetsToCache", "error", marshalErr)
-					return marshalErr
-				}
+				err = removeAssetFromPaginatedCache(apiCacheKey, asset.ID, a.requestConfig.Duration, a.requestConfig.CacheDuration)
+				if err != nil {
+					log.Debug("removing asset from paginated cache", "error", err)
 
-				// replace with cache minus used asset
-				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
+					// from Immich V3 album assets use the PaginatedMetadataResponse type
+					assetsToCache := PaginatedMetadataResponse{
+						URL: apiURL,
+						// Remove the current image from the slice
+						Assets: slices.Delete(album.Assets, assetIndex, assetIndex+1),
+					}
+
+					jsonBytes, marshalErr := json.Marshal(assetsToCache)
+					if marshalErr != nil {
+						log.Error("Failed to marshal assetsToCache", "error", marshalErr)
+						return marshalErr
+					}
+
+					// replace with cache minus used asset
+					cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
+				}
 			}
 
 			asset.BucketID = album.ID

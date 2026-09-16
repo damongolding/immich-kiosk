@@ -22,26 +22,23 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 		return totalAssetsCount, err
 	}
 
+	filter := NewSearchFilterBuilder().
+		WithVideos(a.requestConfig.ShowVideos).
+		WithRating(&rating).
+		WithArchived(a.requestConfig.ShowArchived).
+		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+		ExcludeTags(a.requestConfig.ExcludedTags).
+		WithFilterDate(a.requestConfig.FilterDate).
+		WithFilterFavorites(a.requestConfig.FilterFavorites).
+		Build()
+
 	requestBody := SearchRandomBody{
-		Visibility: Timeline,
-		Type:       string(ImageType),
-		Rating:     &rating,
+		Filter:     filter,
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
 	}
-
-	// Include videos if show videos is enabled
-	if a.requestConfig.ShowVideos {
-		requestBody.Type = ""
-	}
-
-	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = ""
-	}
-
-	filterDate(&requestBody, a.requestConfig.FilterDate)
-	filterFavorites(&requestBody, a.requestConfig.FilterFavorites)
 
 	res, assetsErr := a.fetchPaginatedMetadata(u, requestBody, requestID, deviceID)
 	if assetsErr != nil {
@@ -54,22 +51,22 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 }
 
 func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]Asset, string, error) {
+	filter := NewSearchFilterBuilder().
+		WithVideos(a.requestConfig.ShowVideos).
+		WithRating(&rating).
+		WithArchived(a.requestConfig.ShowArchived).
+		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
+		ExcludeTags(a.requestConfig.ExcludedTags).
+		WithFilterDate(a.requestConfig.FilterDate).
+		WithFilterFavorites(a.requestConfig.FilterFavorites).
+		Build()
+
 	requestBody := SearchRandomBody{
-		Visibility: Timeline,
-		Type:       string(ImageType),
-		Rating:     &rating,
+		Filter:     filter,
 		WithExif:   true,
 		WithPeople: true,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
-	}
-
-	// Include videos if show videos is enabled
-	if a.requestConfig.ShowVideos {
-		requestBody.Type = ""
-	}
-
-	if a.requestConfig.ShowArchived {
-		requestBody.Visibility = ""
 	}
 
 	immichAssets, apiURL, err := a.fetchAssets(requestID, deviceID, requestBody)
