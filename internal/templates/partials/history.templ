@@ -63,12 +63,12 @@ templ renderEntries(viewData common.ViewData) {
 					@renderHistoryInput(entry)
 				} else {
 					// New asset
-					@renderHistoryInput(strings.Replace(entry, kiosk.HistoryIndicator, "", -1))
+					@renderHistoryInput(strings.ReplaceAll(entry, kiosk.HistoryIndicator, ""))
 					@renderHistoryInput(newEntry)
 				}
 				{{ continue }}
 			}
-			@renderHistoryInput(strings.Replace(entry, kiosk.HistoryIndicator, "", -1))
+			@renderHistoryInput(strings.ReplaceAll(entry, kiosk.HistoryIndicator, ""))
 		}
 	}
 }
