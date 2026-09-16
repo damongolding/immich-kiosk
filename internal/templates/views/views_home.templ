@@ -88,6 +88,7 @@ templ Home(viewData common.ViewData, secret string) {
 				@partials.History()
 				@partials.RefreshCheck(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
 				@partials.Status()
+				@partials.Recovery()
 				@kioskData(map[string]any{
 					"debug":              viewData.Kiosk.Debug,
 					"debugVerbose":       viewData.Kiosk.DebugVerbose,
