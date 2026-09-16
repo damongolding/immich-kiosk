@@ -1,0 +1,20 @@
+package partials
+
+templ Recovery() {
+	<div id="kiosk-offline-overlay" role="alert">
+		<style>@keyframes kiosk-offline-pulse{0%,100%{opacity:.25}50%{opacity:1}}</style>
+		<div style="padding:2rem;max-width:22rem">
+			<h1 style="font-size:1rem;font-weight:600;color:#c9c9c9;margin:0 0 .5rem">
+				<span
+					style="width:.6rem;height:.6rem;border-radius:50%;background:#c23b3b;
+        display:inline-block;margin-right:.5rem;vertical-align:middle;
+        animation:kiosk-offline-pulse 1.6s ease-in-out infinite"
+				></span>
+				Kiosk unavailable
+			</h1>
+			<p style="font-size:.8rem;line-height:1.5;margin:0">
+				Trying to reconnect automatically&hellip;
+			</p>
+		</div>
+	</div>
+}
