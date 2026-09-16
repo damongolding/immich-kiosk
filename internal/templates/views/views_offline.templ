@@ -1,0 +1,17 @@
+package views
+
+import (
+	"github.com/damongolding/immich-kiosk/internal/common"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+)
+
+templ Offline(viewData common.ViewData) {
+	@HTMLTag(viewData.SystemLang) {
+		<html>
+			<head></head>
+			<body>
+				@partials.Recovery()
+			</body>
+		</html>
+	}
+}
