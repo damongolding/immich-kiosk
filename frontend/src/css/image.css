@@ -65,8 +65,11 @@
 
 .asset--metadata--has-icon {
     display: flex;
-    gap: 0.5rem;
     align-items: center;
+}
+
+.asset--metadata--has-icon > :not(.asset--metadata--icon) {
+    margin-left: 0.5rem;
 }
 
 .asset--metadata--icon {
