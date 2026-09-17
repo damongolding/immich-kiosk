@@ -23,6 +23,7 @@
     --z-overlay: 500;
     --z-navigation: 600;
     --z-offline: 700;
+    --z-recovery: 800;
 
     /* gradients */
     --fade-gradient:

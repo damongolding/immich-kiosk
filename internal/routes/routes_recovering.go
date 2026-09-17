@@ -35,6 +35,6 @@ func Recovering(baseConfig *config.Config) echo.HandlerFunc {
 			Config:       requestConfig,
 		}
 
-		return Render(c, http.StatusOK, views.Recovering(viewData.SystemLang))
+		return Render(c, http.StatusOK, views.Recovering(viewData.SystemLang, KioskVersion))
 	}
 }
