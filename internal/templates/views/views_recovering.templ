@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-templ Recovering(lang monday.Locale, kioskVersion string) {
+templ Recovering(lang monday.Locale, kioskVersion string, inlineCSS []byte) {
 	@HTMLTag(lang) {
 		<head>
 			<meta charset="UTF-8"/>
@@ -18,35 +18,12 @@ templ Recovering(lang monday.Locale, kioskVersion string) {
 			<meta name="apple-mobile-web-app-status-bar" content="black-translucent"/>
 			<meta name="theme-color" content="black"/>
 			<meta name="google" content="notranslate"/>
-			<title>Immich Kiosk</title>
+			<title>Immich Kiosk - Recovering</title>
 			<link rel="manifest" href="/assets/manifest.json"/>
-			<link rel="stylesheet" href={ string(templ.URL(fmt.Sprintf("/assets/css/kiosk.%s.css", kioskVersion))) }/>
 			<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png"/>
 			<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png"/>
 			<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png"/>
-			// <style>
-			// 	#kiosk-offline-overlay {
-   //  				position: fixed;
-   //                  inset: 0;
-   //                  z-index: 2147483647;
-   //                  display: none;
-   //                  align-items: center;
-   //                  justify-content: center;
-   //                  font-family: Barlow, Arial, Helvetica, sans-serif;
-   //                  color: white;
-   //                  text-align: center;
-   //                  -webkit-user-select: none;
-   //                  user-select: none;
-   //                  background: var(--cool-grey);
-   //                  opacity: 0;
-   //                  transition: opacity 1s ease-in-out;
-			// 	}
-
-			// 	#kiosk-offline-overlay.visible {
-   //                      display: flex;
-   //                      opacity: 1;
-   //                  }
-			// </style>
+			@templ.Raw(fmt.Sprintf("<style>%s</style>", string(inlineCSS)))
 		</head>
 		<body>
 			@partials.Recovery(true)
