@@ -1,7 +1,7 @@
 package partials
 
-templ Recovery() {
-	<div id="kiosk-offline-overlay" role="alert">
+templ Recovery(visable bool) {
+	<div id="kiosk-offline-overlay" role="alert" class={ templ.KV("visible", visable) }>
 		<style>@keyframes kiosk-offline-pulse{0%,100%{opacity:.25}50%{opacity:1}}</style>
 		<div style="padding:2rem;max-width:22rem">
 			<h1 style="font-size:1rem;font-weight:600;color:#c9c9c9;margin:0 0 .5rem">

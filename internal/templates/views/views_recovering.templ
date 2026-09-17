@@ -1,0 +1,84 @@
+package views
+
+import (
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
+	"github.com/goodsign/monday"
+)
+
+templ Recovering(lang monday.Locale) {
+	@HTMLTag(lang) {
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta name="description" content="Highly configurable slideshows for displaying Immich assets on browsers and devices"/>
+			<meta name="mobile-web-app-capable" content="yes"/>
+			<meta name="apple-mobile-web-app-capable" content="yes"/>
+			<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+			<meta name="apple-mobile-web-app-status-bar" content="black-translucent"/>
+			<meta name="theme-color" content="black"/>
+			<meta name="google" content="notranslate"/>
+			<title>Immich Kiosk</title>
+			<link rel="manifest" href="/assets/manifest.json"/>
+			<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png"/>
+			<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png"/>
+			<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png"/>
+			<style>
+				#kiosk-offline-overlay {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 2147483647;
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    font-family:
+                        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    color: #8a8a8a;
+                    text-align: center;
+                    -webkit-user-select: none;
+                    user-select: none;
+                    background: #000;
+                    opacity: 0;
+                    transition: opacity 1s ease-in-out;
+
+				}
+
+				#kiosk-offline-overlay.visible {
+                        display: flex;
+                        opacity: 1;
+                    }
+			</style>
+		</head>
+		<body>
+			@partials.Recovery(true)
+			<script>
+				// (function () {
+				// 	var RETRY_MS = 3000;
+
+				// 	function check() {
+				// 		fetch("/health", { method: "GET", cache: "no-store" })
+				// 			.then(function (r) {
+				// 				if (r && r.ok) {
+				// 					window.location.reload();
+				// 				}
+				// 			})
+				// 			.catch(function () {
+				// 				/* still offline */
+				// 			}
+				// 		);
+				// 	}
+
+				// 	setInterval(check, RETRY_MS);
+				// 	window.addEventListener("online", check);
+				// 	window.addEventListener("pageshow", check);
+				// 	document.addEventListener("visibilitychange", function () {
+				// 		if (!document.hidden) {
+				// 			check();
+				// 		}
+				// 	});
+				// 	check();
+				// })();
+
+			</script>
+		</body>
+	}
+}
