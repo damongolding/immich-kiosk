@@ -1,22 +1,71 @@
 #kiosk-offline-overlay {
-    position: fixed;
-    inset: 0;
+    /*position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 2147483647;
     display: none;
     align-items: center;
     justify-content: center;
-    font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #8a8a8a;
+    font-family: Barlow, Arial, Helvetica, sans-serif;
+    color: white;
     text-align: center;
     -webkit-user-select: none;
     user-select: none;
-    background: #000;
+    background: var(--cool-grey);
+    opacity: 0;
+    transition: opacity 1s ease-in-out;*/
+
+
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #fff;
+    background-image: url(../../public/assets/images/logo-bg.svg);
+    background-size: 60vw auto;
+    background-position: top right;
+    background-repeat: no-repeat;
+    background-color: #1f262f;
     opacity: 0;
     transition: opacity 1s ease-in-out;
+    z-index: var(--z-recovery);
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url(../../public/assets/images/noise-lite.png);
+        background-repeat: repeat;
+    }
+
 
     &.visible {
         display: flex;
         opacity: 1;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 4.5rem;
+        font-weight: 500;
+        text-align: center;
+        letter-spacing: 0.03em;
+        color: white;
+    }
+
+    img {
+        max-width: 160px;
+        height: auto;
     }
 }
