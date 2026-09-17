@@ -188,7 +188,7 @@ func main() {
 
 		var buf bytes.Buffer
 
-		err = views.Recovering(baseConfig.SystemLang).Render(c.Request().Context(), &buf)
+		err = views.Recovering(baseConfig.SystemLang, version).Render(c.Request().Context(), &buf)
 		if err != nil {
 			return err
 		}
