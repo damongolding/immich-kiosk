@@ -7,6 +7,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/subtle"
 	"embed"
@@ -17,6 +18,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	"charm.land/lipgloss/v2"
@@ -32,6 +34,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/routes"
+	"github.com/damongolding/immich-kiosk/internal/templates/views"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/video"
 	"github.com/damongolding/immich-kiosk/internal/weather"
@@ -163,13 +166,46 @@ func main() {
 	e.FileFS("/assets/js/url-builder.*.js", "frontend/public/assets/js/url-builder.js", public, StaticCacheMiddlewareWithConfig(baseConfig))
 
 	// Service Worker
-	e.FileFS("/assets/js/sw.js", "frontend/public/assets/js/sw.js", public, func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c *echo.Context) error {
-			c.Response().Header().Set("Service-Worker-Allowed", "/")
-			c.Response().Header().Set("Cache-Control", "no-cache")
-			return next(c)
+	// e.FileFS("/assets/js/sw.js", "frontend/public/assets/js/sw.js", public, func(next echo.HandlerFunc) echo.HandlerFunc {
+	// 	return func(c *echo.Context) error {
+	// 		c.Response().Header().Set("Service-Worker-Allowed", "/")
+	// 		c.Response().Header().Set("Cache-Control", "no-cache")
+	// 		return next(c)
+	// 	}
+	// })
+
+	e.GET("/assets/js/sw.js", func(c *echo.Context) error {
+		c.Response().Header().Set("Content-Type", "application/javascript")
+		c.Response().Header().Set("Service-Worker-Allowed", "/")
+		c.Response().Header().Set("Cache-Control", "no-cache")
+
+		f, err := public.ReadFile("frontend/public/assets/js/sw.js.tmpl")
+		if err != nil {
+			return err
 		}
+
+		swTmpl := template.Must(template.New("sw").Parse(string(f)))
+
+		var buf bytes.Buffer
+
+		err = views.Recovering(baseConfig.SystemLang).Render(c.Request().Context(), &buf)
+		if err != nil {
+			return err
+		}
+
+		html := buf.String()
+
+		w := c.Response()
+
+		swTmpl.Execute(w, map[string]string{
+			"Version":      version,
+			"FallbackHtml": html,
+		})
+
+		return nil
 	})
+
+	e.GET("/recover", routes.Recovering(baseConfig))
 
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))

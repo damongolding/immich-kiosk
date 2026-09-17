@@ -10,16 +10,11 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func About(baseConfig *config.Config) echo.HandlerFunc {
+func Recovering(baseConfig *config.Config) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
-		}
-
-		if requestData == nil {
-			log.Info("Refreshing clients")
-			return nil
 		}
 
 		requestConfig := requestData.RequestConfig
@@ -40,6 +35,6 @@ func About(baseConfig *config.Config) echo.HandlerFunc {
 			Config:       requestConfig,
 		}
 
-		return Render(c, http.StatusOK, views.About(viewData))
+		return Render(c, http.StatusOK, views.Recovering(viewData.SystemLang))
 	}
 }
