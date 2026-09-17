@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"embed"
 	"net/http"
 
 	"charm.land/log/v2"
@@ -10,7 +11,7 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func Recovering(baseConfig *config.Config) echo.HandlerFunc {
+func Recovering(baseConfig *config.Config, public *embed.FS) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
@@ -35,6 +36,11 @@ func Recovering(baseConfig *config.Config) echo.HandlerFunc {
 			Config:       requestConfig,
 		}
 
-		return Render(c, http.StatusOK, views.Recovering(viewData.SystemLang, KioskVersion))
+		css, err := public.ReadFile("frontend/public/assets/css/kiosk.css")
+		if err != nil {
+			return err
+		}
+
+		return Render(c, http.StatusOK, views.Recovering(viewData.SystemLang, KioskVersion, css))
 	}
 }
