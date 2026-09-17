@@ -179,16 +179,24 @@ func main() {
 		c.Response().Header().Set("Service-Worker-Allowed", "/")
 		c.Response().Header().Set("Cache-Control", "no-cache")
 
-		f, err := public.ReadFile("frontend/public/assets/js/sw.js.tmpl")
+		var sw, css []byte
+		var err error
+
+		sw, err = public.ReadFile("frontend/public/assets/js/sw.js.tmpl")
 		if err != nil {
 			return err
 		}
 
-		swTmpl := template.Must(template.New("sw").Parse(string(f)))
+		css, err = public.ReadFile("frontend/public/assets/css/kiosk.css")
+		if err != nil {
+			return err
+		}
+
+		swTmpl := template.Must(template.New("sw").Parse(string(sw)))
 
 		var buf bytes.Buffer
 
-		err = views.Recovering(baseConfig.SystemLang, version).Render(c.Request().Context(), &buf)
+		err = views.Recovering(baseConfig.SystemLang, version, css).Render(c.Request().Context(), &buf)
 		if err != nil {
 			return err
 		}
@@ -205,8 +213,6 @@ func main() {
 		return nil
 	})
 
-	e.GET("/recover", routes.Recovering(baseConfig))
-
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))
 
@@ -221,6 +227,8 @@ func main() {
 	e.GET("/health", func(c *echo.Context) error {
 		return c.String(http.StatusOK, "OK")
 	})
+
+	e.GET("/recover", routes.Recovering(baseConfig, &public))
 
 	if baseConfig.Kiosk.EnableURLBuilder {
 		e.GET("/url-builder", routes.URLBuilderPage(baseConfig, c, false))
