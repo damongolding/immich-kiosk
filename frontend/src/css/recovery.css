@@ -24,14 +24,25 @@
     justify-content: center;
     height: 100vh;
     color: #fff;
-    background-image: url(../../public/assets/images/logo-bg.svg);
+    /*background-image: url(../../public/assets/images/logo-bg.svg);
     background-size: 60vw auto;
     background-position: top right;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat;*/
     background-color: #1f262f;
     opacity: 0;
     transition: opacity 1s ease-in-out;
     z-index: var(--z-recovery);
+
+
+    img {
+        position: absolute;
+        width: 60vw;
+        height: auto;
+        top: 0;
+        right: 0;
+        transform: translate(-50% -50%);
+        z-index: -1;
+    }
 
     &::after {
         content: "";
