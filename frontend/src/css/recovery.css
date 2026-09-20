@@ -34,7 +34,7 @@
     z-index: var(--z-recovery);
 
 
-    img {
+    svg {
         position: absolute;
         width: 60vw;
         height: auto;
@@ -42,6 +42,19 @@
         right: 0;
         transform: translate(-50% -50%);
         z-index: -1;
+        transform: rotate(-45deg);
+        transition: transform 1s ease-out;
+    }
+
+    /* TODO fix z-index */
+    &::before{
+        content: "";
+        position: absolute;
+        bottom: 0px;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to top, rgb(14, 20, 27), transparent);
     }
 
     &::after {
@@ -64,6 +77,10 @@
         right: 0;
         bottom: 0;
         left: 0;
+
+        svg {
+            transform: rotate(0deg);
+        }
     }
 
     h1 {
