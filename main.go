@@ -205,9 +205,15 @@ func main() {
 
 		swTmpl := template.Must(template.New("sw").Parse(string(sw)))
 
+		var customCSS []byte
+		customCSS, err = utils.LoadCustomCSS()
+		if err != nil {
+			return err
+		}
+
 		var buf bytes.Buffer
 
-		err = views.Recovering(baseConfig.SystemLang, version, css).Render(c.Request().Context(), &buf)
+		err = views.Recovering(baseConfig.SystemLang, version, css, customCSS, baseConfig.CustomCSS).Render(c.Request().Context(), &buf)
 		if err != nil {
 			return err
 		}
