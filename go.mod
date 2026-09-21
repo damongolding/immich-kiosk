@@ -8,7 +8,7 @@ require (
 	github.com/EdlinOrg/prominentcolor v1.0.0
 	github.com/a-h/templ v0.3.1020
 	github.com/disintegration/imaging v1.6.2
-	github.com/dustin/go-humanize v1.0.1
+	github.com/dustin/go-humanize v1.1.0
 	github.com/fogleman/gg v1.3.0
 	github.com/goodsign/monday v1.0.2
 	github.com/google/go-querystring v1.2.0
