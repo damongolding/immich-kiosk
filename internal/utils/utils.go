@@ -1102,3 +1102,10 @@ func TruncateAfter(s string, cutAt string) string {
 	}
 	return before + "..."
 }
+
+func LoadCustomCSS() ([]byte, error) {
+	if !FileExists("./custom.css") {
+		return nil, nil
+	}
+	return os.ReadFile("./custom.css")
+}

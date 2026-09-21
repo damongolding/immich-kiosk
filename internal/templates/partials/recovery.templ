@@ -73,14 +73,12 @@ templ Recovery(visable bool) {
 		const animationEl = document.getElementById('reconnect-animation');
 		const dots = animationEl.querySelectorAll('div');
 		let activeIndex = 0;
-		let direction = 1; // 1 = forward, -1 = reverse
+		let direction = 1;
+		let isRunning = false;
 
-		function reconnectAnimation() {
+		function animationTick() {
 			dots.forEach((dot, index) => {
-				dot.classList.remove('active');
-				if (index === activeIndex) {
-					dot.classList.add('active');
-				}
+				dot.classList.toggle('active', index === activeIndex);
 			});
 
 			// flip direction at either end
@@ -91,7 +89,13 @@ templ Recovery(visable bool) {
 			}
 
 			activeIndex += direction;
-			setTimeout(window.reconnectAnimation , 300);
+			setTimeout(animationTick, 300);
+		}
+
+		function reconnectAnimation() {
+			if (isRunning) return;
+			isRunning = true;
+			animationTick();
 		}
 
 		window.reconnectAnimation = reconnectAnimation;

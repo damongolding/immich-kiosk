@@ -8,6 +8,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/templates/views"
+	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/labstack/echo/v5"
 )
 
@@ -29,10 +30,18 @@ func Recovering(baseConfig *config.Config, public *embed.FS) echo.HandlerFunc {
 			"requestConfig", requestConfig.String(),
 		)
 
+		var customCSS []byte
+
+		customCSS, err = utils.LoadCustomCSS()
+		if err != nil {
+			log.Error("loading custom css", "err", err)
+		}
+
 		viewData := common.ViewData{
 			KioskVersion: KioskVersion,
 			RequestID:    requestID,
 			DeviceID:     deviceID,
+			CustomCSS:    customCSS,
 			Config:       requestConfig,
 		}
 
@@ -41,6 +50,6 @@ func Recovering(baseConfig *config.Config, public *embed.FS) echo.HandlerFunc {
 			return err
 		}
 
-		return Render(c, http.StatusOK, views.Recovering(viewData.SystemLang, KioskVersion, css))
+		return Render(c, http.StatusOK, views.Recovering(viewData.SystemLang, KioskVersion, css, viewData.CustomCSS, baseConfig.CustomCSS))
 	}
 }
