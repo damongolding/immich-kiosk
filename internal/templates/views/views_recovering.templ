@@ -38,7 +38,12 @@ templ Recovering(lang monday.Locale, kioskVersion string, inlineCSS []byte, cust
 						if (recoveryInFlight) return;
 						recoveryInFlight = true;
 
-						fetch("/health", { method: "GET", cache: "no-store" })
+						var controller = new AbortController();
+						var timeoutID = setTimeout(function () {
+						    controller.abort();
+						  }, RETRY_MS);
+
+						fetch("/health", { method: "GET", cache: "no-store", signal: controller.signal })
 							.then(function (r) {
 								if (r && r.ok) {
 									window.location.reload();
@@ -46,9 +51,11 @@ templ Recovering(lang monday.Locale, kioskVersion string, inlineCSS []byte, cust
 							})
 							.catch(function () {
 								/* still offline */
+							})
+							.then(function () {
+								clearTimeout(timeoutID);
+								recoveryInFlight = false;
 							});
-
-						recoveryInFlight = false;
 
 					}
 
