@@ -82,15 +82,24 @@ function tryRecoveryMode(): void {
     if (recoveryInFlight) return;
     recoveryInFlight = true;
 
-    fetch("/health", { method: "GET", cache: "no-store" })
+    const controller = new AbortController();
+    const timeoutID = window.setTimeout(() => controller.abort(), RETRY_MS);
+
+    fetch("/health", {
+        method: "GET",
+        cache: "no-store",
+        signal: controller.signal,
+    })
         .then((response) => {
             if (!response.ok) {
                 enterRecoveryMode();
             }
         })
-        .catch(() => enterRecoveryMode());
-
-    recoveryInFlight = false;
+        .catch(() => enterRecoveryMode())
+        .then(() => {
+            clearTimeout(timeoutID);
+            recoveryInFlight = false;
+        });
 }
 
 export { tryRecoveryMode };
