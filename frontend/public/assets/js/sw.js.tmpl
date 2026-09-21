@@ -1,10 +1,7 @@
 // Immich Kiosk service worker.
 //
 // Its job is to keep the installed PWA usable when the Kiosk server is
-// unreachable *or* reachable but not responding. iOS "Add to Home Screen" apps
-// otherwise get permanently stuck on Safari's native error page ("Safari could
-// not open the page because the server stopped responding") and the home-screen
-// shortcut has to be deleted and recreated.
+// unreachable *or* reachable but not responding.
 
 var CACHE = "immich-kiosk-{{ .Version }}";
 var OFFLINE_URL = "/recover";
@@ -16,10 +13,14 @@ var OFFLINE_URL = "/recover";
 var NAV_TIMEOUT_MS = 5000;
 
 // Last-resort offline page, embedded so a navigation is *always* answered with a
-// real document even when the Cache Storage entry is missing (first launch
-// happened while the server was down, iOS evicted the cache, install failed,
-// ...). Keep this in sync with frontend/public/assets/offline.html.
+// real document. This is injected at runtime.
 var FALLBACK_HTML = `{{ .FallbackHtml }}`;
+
+function internalRecoverRequest() {
+	return new Request(OFFLINE_URL, {
+		headers: { "X-Kiosk-Internal": "1" },
+	});
+}
 
 // Resolve to the cached offline page, or the embedded fallback if it is not
 // there. Never rejects.
@@ -43,7 +44,7 @@ self.addEventListener("install", function (event) {
         caches
             .open(CACHE)
             .then(function (cache) {
-                return cache.add(OFFLINE_URL);
+                return cache.add(internalRecoverRequest());
             })
             .catch(function () {
                 // Server was down while the worker installed. The embedded
@@ -103,9 +104,6 @@ self.addEventListener("fetch", function (event) {
             fetch(request).then(
                 function (response) {
                     clearTimeout(timer);
-                    // A crashing/restarting container behind a reverse proxy
-                    // answers navigations with 502/503/504 (or 500 while the Go
-                    // server is still booting) rather than failing outright.
                     // Treat any server-side error as "not ready yet" and show
                     // the self-retrying offline page. 4xx (auth prompts, bad
                     // paths) is passed through so the user still sees it.
@@ -117,7 +115,7 @@ self.addEventListener("fetch", function (event) {
                     // later cold launch has an up-to-date copy to fall back on.
                     // (offline.html itself, not this navigation response.)
                     caches.open(CACHE).then(function (cache) {
-                        cache.add(OFFLINE_URL).catch(function () {});
+                        cache.add(internalRecoverRequest()).catch(function () {});
                     });
                     settle(response);
                 },
