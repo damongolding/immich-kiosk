@@ -18,6 +18,9 @@ func Recovering(baseConfig *config.Config, public *embed.FS) echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
+		if requestData == nil {
+			return echo.ErrBadRequest
+		}
 
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
@@ -50,6 +53,6 @@ func Recovering(baseConfig *config.Config, public *embed.FS) echo.HandlerFunc {
 			return err
 		}
 
-		return Render(c, http.StatusOK, views.Recovering(viewData.SystemLang, KioskVersion, css, viewData.CustomCSS, baseConfig.CustomCSS))
+		return Render(c, http.StatusOK, views.Recovering(viewData.SystemLang, KioskVersion, css, viewData.CustomCSS, requestConfig.CustomCSS))
 	}
 }
