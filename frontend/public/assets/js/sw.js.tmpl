@@ -5,10 +5,6 @@
 // otherwise get permanently stuck on Safari's native error page ("Safari could
 // not open the page because the server stopped responding") and the home-screen
 // shortcut has to be deleted and recreated.
-//
-// This script must be registered with an explicit scope of "/" (the server
-// sends a `Service-Worker-Allowed: /` header) so it can intercept top-level
-// navigations and not just requests under /assets/js/.
 
 var CACHE = "immich-kiosk-{{ .Version }}";
 var OFFLINE_URL = "/recover";
