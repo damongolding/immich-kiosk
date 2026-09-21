@@ -7,7 +7,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"crypto/subtle"
 	"embed"
@@ -19,7 +18,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 
 	"charm.land/lipgloss/v2"
@@ -36,7 +34,6 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/routes"
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
-	"github.com/damongolding/immich-kiosk/internal/templates/views"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/video"
 	"github.com/damongolding/immich-kiosk/internal/weather"
@@ -176,59 +173,7 @@ func main() {
 	e.FileFS("/assets/js/kiosk.*.js", "frontend/public/assets/js/kiosk.js", public, StaticCacheMiddlewareWithConfig(baseConfig))
 	e.FileFS("/assets/js/url-builder.*.js", "frontend/public/assets/js/url-builder.js", public, StaticCacheMiddlewareWithConfig(baseConfig))
 
-	// Service Worker
-	// e.FileFS("/assets/js/sw.js", "frontend/public/assets/js/sw.js", public, func(next echo.HandlerFunc) echo.HandlerFunc {
-	// 	return func(c *echo.Context) error {
-	// 		c.Response().Header().Set("Service-Worker-Allowed", "/")
-	// 		c.Response().Header().Set("Cache-Control", "no-cache")
-	// 		return next(c)
-	// 	}
-	// })
-
-	e.GET("/assets/js/sw.js", func(c *echo.Context) error {
-		c.Response().Header().Set("Content-Type", "application/javascript")
-		c.Response().Header().Set("Service-Worker-Allowed", "/")
-		c.Response().Header().Set("Cache-Control", "no-cache")
-
-		var sw, css []byte
-		var err error
-
-		sw, err = public.ReadFile("frontend/public/assets/js/sw.js.tmpl")
-		if err != nil {
-			return err
-		}
-
-		css, err = public.ReadFile("frontend/public/assets/css/kiosk.css")
-		if err != nil {
-			return err
-		}
-
-		swTmpl := template.Must(template.New("sw").Parse(string(sw)))
-
-		var customCSS []byte
-		customCSS, err = utils.LoadCustomCSS()
-		if err != nil {
-			return err
-		}
-
-		var buf bytes.Buffer
-
-		err = views.Recovering(baseConfig.SystemLang, version, css, customCSS, baseConfig.CustomCSS).Render(c.Request().Context(), &buf)
-		if err != nil {
-			return err
-		}
-
-		html := buf.String()
-
-		w := c.Response()
-
-		swTmpl.Execute(w, map[string]string{
-			"Version":      version,
-			"FallbackHtml": html,
-		})
-
-		return nil
-	})
+	e.GET("/assets/js/sw.js", routes.ServiceWorker(baseConfig, public))
 
 	// serve embdedd staic assets
 	e.StaticFS("/assets", echo.MustSubFS(public, "frontend/public/assets"))

@@ -31,9 +31,13 @@ templ Recovering(lang monday.Locale, kioskVersion string, inlineCSS []byte, cust
 			@partials.Recovery(true)
 			<script>
 				(function () {
+				    let recoveryInFlight = false;
 					var RETRY_MS = 3000;
 
 					function check() {
+						if (recoveryInFlight) return;
+						recoveryInFlight = true;
+
 						fetch("/health", { method: "GET", cache: "no-store" })
 							.then(function (r) {
 								if (r && r.ok) {
@@ -42,8 +46,10 @@ templ Recovering(lang monday.Locale, kioskVersion string, inlineCSS []byte, cust
 							})
 							.catch(function () {
 								/* still offline */
-							}
-						);
+							});
+
+						recoveryInFlight = false;
+
 					}
 
 					setInterval(check, RETRY_MS);

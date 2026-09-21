@@ -1,6 +1,8 @@
 import { stopPolling } from "./polling";
 
-const offlineOverlayEl: HTMLElement | null = null;
+let recoveryInFlight = false;
+
+let recoveryModeActive = false;
 
 /**
  * Probes `/health` and, once it answers, reloads onto a fresh kiosk page.
@@ -40,7 +42,8 @@ function onOfflineVisibilityChange(): void {
  * service worker's offline page stays as the safety net for a cold start.
  */
 function enterRecoveryMode(): void {
-    if (offlineOverlayEl) return;
+    if (recoveryModeActive) return;
+    recoveryModeActive = true;
 
     stopPolling();
 
@@ -61,15 +64,18 @@ function enterRecoveryMode(): void {
 }
 
 function tryRecoveryMode(): void {
+    if (recoveryInFlight) return;
+    recoveryInFlight = true;
+
     fetch("/health", { method: "GET", cache: "no-store" })
         .then((response) => {
             if (!response.ok) {
                 enterRecoveryMode();
             }
         })
-        .catch(() => {
-            enterRecoveryMode();
-        });
+        .catch(() => enterRecoveryMode());
+
+    recoveryInFlight = false;
 }
 
 export { tryRecoveryMode };
