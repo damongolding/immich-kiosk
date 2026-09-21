@@ -44,6 +44,8 @@ function enterRecoveryMode(): void {
 
     stopPolling();
 
+    window.reconnectAnimation?.();
+
     const el = document.getElementById("kiosk-offline-overlay");
     if (el) {
         el.style.display = "flex";
