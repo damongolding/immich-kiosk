@@ -3,10 +3,9 @@ package views
 import (
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/goodsign/monday"
-	"fmt"
 )
 
-templ Recovering(lang monday.Locale, kioskVersion string, inlineCSS []byte) {
+templ Recovering(lang monday.Locale, kioskVersion string, inlineCSS []byte, customCSS []byte, UseCustomCSS bool) {
 	@HTMLTag(lang) {
 		<head>
 			<meta charset="UTF-8"/>
@@ -23,7 +22,10 @@ templ Recovering(lang monday.Locale, kioskVersion string, inlineCSS []byte) {
 			<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png"/>
 			<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png"/>
 			<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png"/>
-			@templ.Raw(fmt.Sprintf("<style>%s</style>", string(inlineCSS)))
+			@templ.Raw(partials.AddCustomCss(inlineCSS))
+			if len(customCSS) > 0 && UseCustomCSS {
+				@templ.Raw(partials.AddCustomCss(customCSS))
+			}
 		</head>
 		<body>
 			@partials.Recovery(true)
