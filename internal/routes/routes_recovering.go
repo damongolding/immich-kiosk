@@ -14,6 +14,10 @@ import (
 
 func Recovering(baseConfig *config.Config, public *embed.FS) echo.HandlerFunc {
 	return func(c *echo.Context) error {
+		if c.Request().Header.Get("X-Kiosk-Internal") != "1" {
+			return echo.ErrBadRequest
+		}
+
 		requestData, err := InitializeRequestData(c, baseConfig)
 		if err != nil {
 			return err
