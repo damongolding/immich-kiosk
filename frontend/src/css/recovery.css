@@ -1,82 +1,61 @@
 #kiosk-offline-overlay {
-    /*position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 2147483647;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    font-family: Barlow, Arial, Helvetica, sans-serif;
-    color: white;
-    text-align: center;
-    -webkit-user-select: none;
-    user-select: none;
-    background: var(--cool-grey);
-    opacity: 0;
-    transition: opacity 1s ease-in-out;*/
-
-
+    z-index: var(--z-recovery);
     display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
     color: #fff;
-    /*background-image: url(../../public/assets/images/logo-bg.svg);
-    background-size: 60vw auto;
-    background-position: top right;
-    background-repeat: no-repeat;*/
     background-color: #1f262f;
     opacity: 0;
     transition: opacity 1s ease-in-out;
-    z-index: var(--z-recovery);
 
+    #kiosk-offline-overlay-content {
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
 
     svg {
         position: absolute;
-        width: 60vw;
-        height: auto;
         top: 0;
         right: 0;
-        transform: translate(-50% -50%);
         z-index: -1;
-        transform: rotate(-45deg);
-        transition: transform 1s ease-out;
+        width: 60vw;
+        height: auto;
     }
 
-    /* TODO fix z-index */
-    &::before{
-        content: "";
+    &::before {
         position: absolute;
         bottom: 0px;
         left: 0;
         width: 100%;
         height: 100%;
+        content: "";
         background: linear-gradient(to top, rgb(14, 20, 27), transparent);
     }
 
     &::after {
-        content: "";
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+        content: "";
         background-image: url(../../public/assets/images/noise-lite.png);
         background-repeat: repeat;
     }
 
-
     &.visible {
-        display: flex;
-        opacity: 1;
         position: fixed;
         top: 0;
         right: 0;
         bottom: 0;
         left: 0;
+        display: flex;
+        opacity: 1;
 
         svg {
             transform: rotate(0deg);
@@ -87,9 +66,9 @@
         margin: 0;
         font-size: 4.5rem;
         font-weight: 500;
+        color: white;
         text-align: center;
         letter-spacing: 0.03em;
-        color: white;
     }
 
     img {
