@@ -11,6 +11,7 @@ import (
 	"context"
 	"crypto/subtle"
 	"embed"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -34,6 +35,7 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/routes"
+	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/damongolding/immich-kiosk/internal/templates/views"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/video"
@@ -62,6 +64,15 @@ func init() {
 	routes.KioskVersion = version
 	config.SchemaJSON = SchemaJSON
 	i18n.LocaleFS = localeFS
+
+	bg, err := public.ReadFile("frontend/public/assets/images/noise-lite.png")
+	if err != nil {
+		log.Error(err)
+	}
+	partials.BGNoiseURI = fmt.Sprintf(
+		"data:image/png;base64,%s",
+		base64.StdEncoding.EncodeToString(bg),
+	)
 }
 
 // main initializes and starts the Immich Kiosk web server, sets up configuration, middleware, routes, and manages graceful shutdown.

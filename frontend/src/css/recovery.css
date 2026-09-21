@@ -37,14 +37,12 @@
         background: linear-gradient(to top, rgb(14, 20, 27), transparent);
     }
 
-    &::after {
+    #kiosk-offline-overlay-noise {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        content: "";
-        background-image: url(../../public/assets/images/noise-lite.png);
         background-repeat: repeat;
     }
 
