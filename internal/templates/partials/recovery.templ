@@ -1,11 +1,17 @@
 package partials
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/damongolding/immich-kiosk/internal/i18n"
+)
 
 var BGNoiseURI string
 
 templ Recovery(visable bool) {
-	{{ bg := fmt.Sprintf("background-image: url(%s)", BGNoiseURI) }}
+	{{
+		t := i18n.T()
+		bg := fmt.Sprintf("background-image: url(%s)", BGNoiseURI)
+	}}
 	<div id="kiosk-offline-overlay" role="alert" class={ templ.KV("visible", visable) }>
 		<svg width="1081" height="982" viewBox="0 0 1081 982" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<g clip-path="url(#clip0_146_338)">
@@ -63,12 +69,11 @@ templ Recovery(visable bool) {
 				Immich Kiosk
 			</h1>
 			<p>
-				Trying to reconnect automatically&hellip;
+				{ t("reconnection_message") }&hellip;
 			</p>
-			<div id="kiosk-offline-overlay-noise" style={templ.SafeCSS(bg)}></div>
+			<div id="kiosk-offline-overlay-noise" style={ templ.SafeCSS(bg) }></div>
 		</div>
 	</div>
-
 	<script>
 		const animationEl = document.getElementById('reconnect-animation');
 		const dots = animationEl.querySelectorAll('div');
@@ -100,7 +105,6 @@ templ Recovery(visable bool) {
 
 		window.reconnectAnimation = reconnectAnimation;
 	</script>
-
 	if visable {
 		@templ.JSFuncCall("window.reconnectAnimation")
 	}
