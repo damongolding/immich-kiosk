@@ -1,5 +1,7 @@
 import { stopPolling } from "./polling";
 
+const RETRY_MS = 3000 as const;
+
 let recoveryInFlight = false;
 
 let recoveryModeActive = false;
@@ -11,7 +13,16 @@ let recoveryModeActive = false;
  * because the navigation is guaranteed to succeed.
  */
 function probeHealthAndRecover(): void {
-    fetch("/health", { method: "GET", cache: "no-store" })
+    var controller = new AbortController();
+    var timeoutID = setTimeout(() => {
+        controller.abort();
+    }, RETRY_MS);
+
+    fetch("/health", {
+        method: "GET",
+        cache: "no-store",
+        signal: controller.signal,
+    })
         .then((response) => {
             if (response.ok) {
                 window.location.reload();
@@ -19,6 +30,10 @@ function probeHealthAndRecover(): void {
         })
         .catch(() => {
             /* still down — keep waiting */
+        })
+        .then(() => {
+            clearTimeout(timeoutID);
+            recoveryInFlight = false;
         });
 }
 
