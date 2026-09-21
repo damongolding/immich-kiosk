@@ -5,6 +5,7 @@ import (
 	"embed"
 	"html/template"
 
+	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/templates/views"
 	"github.com/damongolding/immich-kiosk/internal/utils"
@@ -35,7 +36,7 @@ func ServiceWorker(baseConfig *config.Config, public embed.FS) echo.HandlerFunc 
 		var customCSS []byte
 		customCSS, err = utils.LoadCustomCSS()
 		if err != nil {
-			return err
+			log.Error("ServiceWorker: loading custom css", "err", err)
 		}
 
 		var buf bytes.Buffer
