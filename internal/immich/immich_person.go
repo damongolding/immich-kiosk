@@ -202,6 +202,8 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 			ExcludePeople(a.requestConfig.ExcludedPeople).
 			ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 			ExcludeTags(a.requestConfig.ExcludedTags).
+			WithFilterDate(a.requestConfig.FilterDate).
+			WithFilterFavorites(a.requestConfig.FilterFavorites).
 			Build()
 
 		requestBody := SearchRandomBody{
