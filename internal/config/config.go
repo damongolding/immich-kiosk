@@ -826,13 +826,15 @@ func (c *Config) String() string {
 	return string(out)
 }
 
-func (c *Config) SanitizedYaml() string {
+func (c *Config) SanitizedYaml(immichVersion string) string {
 	red := RedactedCopy(*c) // deep redacted clone
 	out, err := yaml.Marshal(red)
 	if err != nil {
 		log.Error("yaml marshal", "err", err)
 		return ""
 	}
+
+	out = append(out, []byte("immich_version: "+immichVersion+"\n")...)
 	return string(out)
 }
 
