@@ -151,12 +151,22 @@ func AlbumRedirects(baseConfig *config.Config, com *common.Common) echo.HandlerF
 		requestConfig := requestData.RequestConfig
 		requestID := requestData.RequestID
 
+		tabIndexStr := c.Request().URL.Query().Get("tabindex")
+		if tabIndexStr == "" {
+			tabIndexStr = "0"
+		}
+
+		tabIndex, err := strconv.Atoi(tabIndexStr)
+		if err != nil {
+			tabIndex = 0
+		}
+
 		log.Debug(
 			requestID,
 			"method", c.Request().Method,
 			"path", c.Request().URL.String(),
 		)
 
-		return Render(c, http.StatusOK, partials.AlbumRedirectsFragment(requestConfig, c.QueryParams(), com.Context()))
+		return Render(c, http.StatusOK, partials.AlbumRedirectsFragment(requestConfig, c.QueryParams(), com.Context(), tabIndex))
 	}
 }
