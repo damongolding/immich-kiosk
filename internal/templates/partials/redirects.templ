@@ -125,7 +125,9 @@ templ Redirects(c config.Config, redirects config.Redirects, queries url.Values)
 				for _, group := range groupedRedirects {
 					{{ tabIndex++ }}
 					if group.Category == "" {
-						@RedirectList(group.Redirects, hasPassword, password, paramType)
+						<div tabindex={ tabIndex }>
+							@RedirectList(group.Redirects, hasPassword, password, paramType)
+						</div>
 					} else {
 						<div class="redirect-category" tabindex={ tabIndex }>
 							<h3 class="category-title">{ group.Category }</h3>
