@@ -82,6 +82,9 @@ function toggleAssetOverlay(): void {
 }
 
 function redirectKeyHandler(e: KeyboardEvent) {
+    if (redirectsContainer) {
+        redirects = redirectsContainer.querySelectorAll("a");
+    }
     if (!redirects) return;
 
     switch (e.code) {
