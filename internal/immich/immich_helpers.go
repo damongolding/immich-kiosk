@@ -981,8 +981,12 @@ func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRa
 		return res, nil
 	}
 
+	log.Info("fetchPaginatedMetadataWithCache", "cursor", requestBody.Cursor, "album(s)", requestBody.Filter.AlbumIDs, "api", a.requestConfig.ImmichAPIKey)
+
+	fetcher := New(a.ctx, a.requestConfig)
+
 	requestBody.Cursor = nextCursor
-	go a.backfillPaginatedMetadata(u, requestBody, requestID, deviceID, apiURL)
+	go fetcher.backfillPaginatedMetadata(u, requestBody, requestID, deviceID, apiURL)
 
 	return res, nil
 }
@@ -1000,13 +1004,15 @@ func (a *Asset) backfillPaginatedMetadata(u *url.URL, requestBody SearchRandomBo
 	for {
 
 		if page > MaxPages {
-			log.Warn(requestID + " Reached maximum page count when backfilling Metadata")
+			log.Warn("reached maximum page count when backfilling Metadata")
 			break
 		}
 
+		log.Info("fetchMetadataPage", "page", page, "cursor", requestBody.Cursor, "album(s)", requestBody.Filter.AlbumIDs, "api", a.requestConfig.ImmichAPIKey)
+
 		pageAssets, nextCursor, err := a.fetchMetadataPage(a.ctx, u, requestBody, requestID, deviceID)
 		if err != nil {
-			log.Warn(requestID+" background pagination backfill: fetchMetadataPage", "page", page, "cursor", requestBody.Cursor, "album(s)", requestBody.Filter.AlbumIDs, "error", err)
+			log.Warn("background pagination backfill: fetchMetadataPage", "page", page, "cursor", requestBody.Cursor, "album(s)", requestBody.Filter.AlbumIDs, "error", err)
 			return
 		}
 
@@ -1050,6 +1056,7 @@ func (a *Asset) fetchMetadataPage(ctx context.Context, u *url.URL, requestBody S
 	apiBody, _, _, err := immichAPICall(ctx, http.MethodPost, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
+		log.Error("fetchMetadataPage: immichAPICall", "error", err, "cursor", requestBody.Cursor, "album(s)", requestBody.Filter.AlbumIDs, "user", a.requestConfig.SelectedUser, "api", a.requestConfig.ImmichAPIKey)
 		return nil, "", err
 	}
 
