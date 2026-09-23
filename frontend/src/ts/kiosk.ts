@@ -459,6 +459,10 @@ function addEventListeners(): void {
     document.addEventListener("keydown", (e) => {
         if (e.target !== document.body) return;
 
+        const isMoreInfoOpen = document.body.classList.contains("more-info");
+        const isRedirectsOpen =
+            document.body.classList.contains("redirects-open");
+
         switch (e.code) {
             case "KeyP":
                 if (!e.shiftKey) {
@@ -496,9 +500,11 @@ function addEventListeners(): void {
                 break;
 
             case "ArrowUp":
+                if (isMoreInfoOpen || isRedirectsOpen) return;
                 handleCustomKeyboardAction(e, kioskData.upArrowAction);
                 break;
             case "ArrowDown":
+                if (isMoreInfoOpen || isRedirectsOpen) return;
                 handleCustomKeyboardAction(e, kioskData.downArrowAction);
                 break;
         }
