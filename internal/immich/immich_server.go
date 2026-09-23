@@ -65,6 +65,7 @@ func (a *Asset) AboutInfo() (ServerAboutResponse, error) {
 
 	apiBody, _, _, err := a.immichAPICall(a.ctx, http.MethodGet, apiURL.String(), nil)
 	if err != nil {
+		log.Error("getting server about info", "body", string(apiBody))
 		return serverAboutResponse, err
 	}
 
