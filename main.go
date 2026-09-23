@@ -123,7 +123,10 @@ func main() {
 		cache.DemoMode = true
 	}
 
-	if !versionCheck(c.Context(), baseConfig.ImmichURL) {
+	var immichVersion string
+	var versionOK bool
+	immichVersion, versionOK = versionCheck(c.Context(), baseConfig.ImmichURL)
+	if !versionOK {
 		os.Exit(1)
 	}
 
@@ -180,7 +183,7 @@ func main() {
 
 	if !baseConfig.Kiosk.DisableConfigEndpoint {
 		e.GET("/config", func(c *echo.Context) error {
-			return c.String(http.StatusOK, baseConfig.SanitizedYaml())
+			return c.String(http.StatusOK, baseConfig.SanitizedYaml(immichVersion))
 		})
 	}
 
@@ -424,14 +427,15 @@ func healthCheck() int {
 	return 0
 }
 
-func versionCheck(c context.Context, immichURL string) bool {
+func versionCheck(c context.Context, immichURL string) (string, bool) {
 	immich.HTTPClient.Timeout = time.Second * 20
 	immichVersion, immichVersionErr := immich.Version(c, immichURL)
+	var iv string
 	if immichVersionErr != nil {
 		log.Error("Failed to get Immich version. Skipping version check.", "err", immichVersionErr)
 	} else {
 		sv := fmt.Sprintf("%d.%d.%d", supportedImmichVersionMajor, supportedImmichVersionMinor, supportedImmichVersionPatch)
-		iv := fmt.Sprintf("%d.%d.%d", immichVersion.Major, immichVersion.Minor, immichVersion.Patch)
+		iv = fmt.Sprintf("%d.%d.%d", immichVersion.Major, immichVersion.Minor, immichVersion.Patch)
 
 		unsupported := immichVersion.Major < supportedImmichVersionMajor ||
 			(immichVersion.Major == supportedImmichVersionMajor && immichVersion.Minor < supportedImmichVersionMinor) ||
@@ -439,9 +443,9 @@ func versionCheck(c context.Context, immichURL string) bool {
 
 		if unsupported {
 			log.Error("Immich version not supported", "Immich version", iv, "supported version", sv)
-			return false
+			return iv, false
 		}
 	}
 
-	return true
+	return iv, true
 }
