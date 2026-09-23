@@ -68,6 +68,11 @@ templ Recovery(visable bool) {
 			<h1>
 				Immich Kiosk
 			</h1>
+			<div hx-ext="sse"
+			   sse-connect="/sse?stream=maintenance"
+			   sse-swap="maintenance"
+			   hx-swap="innerHTML">
+			</div>
 			<p>
 				{ t("reconnection_message") }&hellip;
 			</p>

@@ -25,6 +25,7 @@ import (
 	"github.com/goodsign/monday"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
+	"github.com/r3labs/sse/v2"
 	"golang.org/x/time/rate"
 
 	"github.com/damongolding/immich-kiosk/internal/cache"
@@ -244,6 +245,58 @@ func main() {
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 	e.GET("/redirects/albums", routes.AlbumRedirects(baseConfig, c))
 
+	// TODO: make this a config option
+	if true {
+		sseServer := sse.New()
+		sseServer.AutoReplay = false
+		_ = sseServer.CreateStream("maintenance")
+
+		maintenanceManager := routes.NewMaintenance(c.Context(), "./MAINTENANCE", 1*time.Second)
+
+		t := i18n.T()
+		dm := t("maintenance_message")
+
+		go func(s *sse.Server, m *routes.MaintenanceState, ctx context.Context, defaultMessage string) {
+			ticker := time.NewTicker(1 * time.Second)
+			defer ticker.Stop()
+
+			for {
+				select {
+				case <-ticker.C:
+					active, msg := m.IsActive()
+
+					if msg == "" {
+						msg = defaultMessage
+					}
+
+					if active {
+						msg = fmt.Sprintf("<span class=\"offline-custom-message active\">%s</span>", msg)
+					} else {
+						msg = fmt.Sprintf("<span class=\"offline-custom-message\">%s</span>", msg)
+					}
+
+					s.Publish("maintenance", &sse.Event{
+						Event: []byte("maintenance"),
+						Data:  []byte(msg),
+					})
+				case <-ctx.Done():
+					return
+				}
+			}
+		}(sseServer, maintenanceManager, c.Context(), dm)
+
+		e.GET("/sse", func(c *echo.Context) error { // longer variant with disconnect logic
+			log.Debug("SSE client connected", "ip", c.RealIP())
+			go func() {
+				<-c.Request().Context().Done() // Received Browser Disconnection
+				log.Debug("SSE client disconnected", "ip", c.RealIP())
+			}()
+
+			sseServer.ServeHTTP(c.Response(), c.Request())
+			return nil
+		})
+	}
+
 	for _, w := range baseConfig.Weather.Locations {
 		go weather.AddWeatherLocationWithForecast(c.Context(), w)
 	}
@@ -261,6 +314,13 @@ func main() {
 		HideBanner:      true,
 		HidePort:        true,
 		GracefulTimeout: 10 * time.Second,
+		BeforeServeFunc: func(s *http.Server) error {
+			// TODO: make this a config option
+			if true {
+				s.WriteTimeout = 0 // IMPORTANT: disable for SSE
+			}
+			return nil
+		},
 	}
 
 	startErr := sc.Start(c.Context(), e)

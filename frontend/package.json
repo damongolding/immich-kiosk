@@ -37,5 +37,8 @@
   ],
   "allowScripts": {
     "esbuild@0.28.2": true
+  },
+  "dependencies": {
+    "htmx-ext-sse": "^2.2.4"
   }
 }
