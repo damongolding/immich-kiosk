@@ -115,8 +115,8 @@ func albumRedirects(ctx context.Context, c config.Config) []config.RedirectItem 
 
 templ Redirects(c config.Config, redirects config.Redirects, queries url.Values) {
 	{{
-	hasPassword, password, paramType := checkAuthParam(queries)
-	groupedRedirects := groupRedirects(redirects.Items)
+		hasPassword, password, paramType := checkAuthParam(queries)
+		groupedRedirects := groupRedirects(redirects.Items)
 	}}
 	<div id="redirects-container">
 		<div class="redirects">
@@ -150,8 +150,8 @@ templ Redirects(c config.Config, redirects config.Redirects, queries url.Values)
 
 templ AlbumRedirectsFragment(c config.Config, queries url.Values, ctx context.Context, tabIndex int) {
 	{{
-	hasPassword, password, paramType := checkAuthParam(queries)
-	albumRedirects := albumRedirects(ctx, c)
+		hasPassword, password, paramType := checkAuthParam(queries)
+		albumRedirects := albumRedirects(ctx, c)
 	}}
 	<div class="redirect-category" tabindex={ tabIndex }>
 		<h3 class="category-title">Albums</h3>
