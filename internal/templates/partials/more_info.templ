@@ -56,7 +56,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 							}
 						</div>
 					}
-					if viewData.MoreInfo.Show.Rating{
+					if viewData.MoreInfo.Show.Rating {
 						@rating(img.ImmichAsset.ID, img.ImmichAsset.SelectedUser(), img.ImmichAsset.ExifInfo.Rating, viewData.UseOfflineMode)
 					}
 					@originalImageTimeLocation(viewData, i)

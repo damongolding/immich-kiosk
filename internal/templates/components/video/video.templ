@@ -72,7 +72,6 @@ templ Video(viewData common.ViewData, secret string, JSScripts ...components.Ass
 	if viewData.MoreInfo.Display {
 		@partials.RenderMoreInfo(viewData, secret)
 	}
-
 	for _, s := range JSScripts {
 		@templ.JSFuncCall(s.FuncName, s.Args...)
 	}

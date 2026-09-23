@@ -113,9 +113,14 @@ tasks:
       - cmd: gofumpt -w .
         if: command -v gofumpt >/dev/null 2>&1
 
+  templ:fmt:
+    desc: Run templ fmt on the codebase
+    cmds:
+      - cmd: go tool templ fmt internal/templates
+
   fmt:
     desc: Run formatters on the codebase
-    deps: [go:fmt, frontend:fmt]
+    deps: [go:fmt, templ:fmt, frontend:fmt]
 
   outdated:
     desc: Check for outdated Go and frontend dependencies
