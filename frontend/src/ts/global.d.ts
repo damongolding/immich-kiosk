@@ -11,7 +11,7 @@ type ImmichKioskBrowserApi = {
 
 declare global {
     interface Window {
-      immichKiosk?: ImmichKioskBrowserApi;
-      reconnectAnimation?: () => void;
+        immichKiosk?: ImmichKioskBrowserApi;
+        reconnectAnimation?: () => void;
     }
 }
