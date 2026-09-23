@@ -300,7 +300,7 @@ func main() {
 	// 		})
 	// 	}
 
-	maintenanceManager := routes.NewMaintenance(c.Context(), "./MAINTENANCE", 1*time.Second)
+	maintenanceManager := routes.NewMaintenance(c.Context(), "./config/MAINTENANCE", 1*time.Second)
 
 	e.GET("/sse", routes.SSE(baseConfig, maintenanceManager))
 
