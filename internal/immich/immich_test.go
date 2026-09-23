@@ -4,6 +4,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/stretchr/testify/assert"
 )
@@ -215,6 +216,53 @@ func TestRemoveExcludedAlbums(t *testing.T) {
 			albums := tt.albums
 			albums.RemoveExcludedAlbums(tt.exclude)
 			assert.Equal(t, tt.expected, albums, "RemoveExcludedAlbums returned unexpected result")
+		})
+	}
+}
+
+func TestHasValidPeopleAppliesExclusionsForSelectedUser(t *testing.T) {
+	const personID = "b5ba61de-f16c-43b1-9fdf-d8aa30e1cd9f"
+
+	tests := []struct {
+		name           string
+		excludedPeople []string
+		wantFilter     []string
+		want           bool
+	}{
+		{
+			name:           "normal excluded person",
+			excludedPeople: []string{personID},
+			wantFilter:     []string{personID},
+			want:           false,
+		},
+		{
+			name:           "excluded person belonging to selected user",
+			excludedPeople: []string{personID + "@antonis"},
+			wantFilter:     []string{personID},
+			want:           false,
+		},
+		{
+			name:           "excluded person belonging to another user",
+			excludedPeople: []string{personID + "@wife"},
+			want:           true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			asset := Asset{
+				People: []Person{{ID: personID}},
+				requestConfig: config.Config{
+					SelectedUser:   "antonis",
+					ExcludedPeople: test.excludedPeople,
+				},
+			}
+
+			excludedPeople := asset.excludedPeopleForSelectedUser()
+			filter := NewSearchFilterBuilder().ExcludePeople(excludedPeople).Build()
+
+			assert.Equal(t, test.wantFilter, filter.PersonIDs.None)
+			assert.Equal(t, test.want, asset.hasValidPeople("request-id", "device-id"))
 		})
 	}
 }

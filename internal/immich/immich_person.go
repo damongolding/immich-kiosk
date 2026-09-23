@@ -199,7 +199,7 @@ func (a *Asset) RandomAssetOfPerson(personID, requestID, deviceID string, isPref
 			WithPeopleAll(personID).
 			WithVideos(a.requestConfig.ShowVideos).
 			WithArchived(a.requestConfig.ShowArchived).
-			ExcludePeople(a.requestConfig.ExcludedPeople).
+			ExcludePeople(a.excludedPeopleForSelectedUser()).
 			ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 			ExcludeTags(a.requestConfig.ExcludedTags).
 			Build()
@@ -294,9 +294,9 @@ func (a *Asset) RandomPersonFromAllPeople(requestID, deviceID string, knowPeople
 		return "", errors.New("no valid people found with names")
 	}
 
-	if len(a.requestConfig.ExcludedPeople) > 0 {
+	if excludedPeople := a.excludedPeopleForSelectedUser(); len(excludedPeople) > 0 {
 		people = slices.DeleteFunc(people, func(person Person) bool {
-			return slices.Contains(a.requestConfig.ExcludedPeople, person.ID)
+			return slices.Contains(excludedPeople, person.ID)
 		})
 	}
 

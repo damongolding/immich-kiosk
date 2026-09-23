@@ -82,7 +82,7 @@ func (a *Asset) AssetsWithTagCount(tagID string, requestID, deviceID string) (in
 		WithVideos(a.requestConfig.ShowVideos).
 		WithTagsAll(tagID).
 		WithArchived(a.requestConfig.ShowArchived).
-		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludePeople(a.excludedPeopleForSelectedUser()).
 		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 		ExcludeTags(a.requestConfig.ExcludedTags).
 		WithFilterDate(a.requestConfig.FilterDate).
@@ -115,7 +115,7 @@ func (a *Asset) AssetsWithTag(tagID string, requestID, deviceID string) ([]Asset
 		WithVideos(a.requestConfig.ShowVideos).
 		WithTagsAll(tagID).
 		WithArchived(a.requestConfig.ShowArchived).
-		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludePeople(a.excludedPeopleForSelectedUser()).
 		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 		ExcludeTags(a.requestConfig.ExcludedTags).
 		WithFilterDate(a.requestConfig.FilterDate).

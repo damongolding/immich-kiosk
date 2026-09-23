@@ -22,7 +22,7 @@ func (a *Asset) favouriteAssetsCount(requestID, deviceID string) (int, error) {
 	filter := NewSearchFilterBuilder().
 		WithVideos(a.requestConfig.ShowVideos).
 		WithArchived(a.requestConfig.ShowArchived).
-		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludePeople(a.excludedPeopleForSelectedUser()).
 		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 		ExcludeTags(a.requestConfig.ExcludedTags).
 		WithFilterFavorites(true).
@@ -81,7 +81,7 @@ func (a *Asset) RandomAssetFromFavourites(requestID, deviceID string, isPrefetch
 		filter := NewSearchFilterBuilder().
 			WithVideos(a.requestConfig.ShowVideos).
 			WithArchived(a.requestConfig.ShowArchived).
-			ExcludePeople(a.requestConfig.ExcludedPeople).
+			ExcludePeople(a.excludedPeopleForSelectedUser()).
 			ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 			ExcludeTags(a.requestConfig.ExcludedTags).
 			WithFilterFavorites(true).

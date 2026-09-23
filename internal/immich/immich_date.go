@@ -61,7 +61,7 @@ func (a *Asset) RandomAssetInDateRange(dateRange, requestID, deviceID string, is
 		filter := NewSearchFilterBuilder().
 			WithVideos(a.requestConfig.ShowVideos).
 			WithArchived(a.requestConfig.ShowArchived).
-			ExcludePeople(a.requestConfig.ExcludedPeople).
+			ExcludePeople(a.excludedPeopleForSelectedUser()).
 			ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 			ExcludeTags(a.requestConfig.ExcludedTags).
 			WithFilterDate(dateRange).

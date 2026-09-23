@@ -152,7 +152,7 @@ func (a *Asset) albumAssets(albumID, requestID, deviceID string, favoritesOnly b
 		WithAlbumsAny(albumID).
 		WithArchived(a.requestConfig.ShowArchived).
 		WithFilterDate(a.requestConfig.FilterDate).
-		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludePeople(a.excludedPeopleForSelectedUser()).
 		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 		ExcludeTags(a.requestConfig.ExcludedTags).
 		WithFilterFavorites(favoritesOnly).

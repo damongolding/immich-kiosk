@@ -763,12 +763,13 @@ func (a *Asset) hasValidAlbums(requestID, deviceID string) bool {
 // Returns:
 //   - bool: true if asset contains no excluded people, false otherwise
 func (a *Asset) hasValidPeople(requestID, deviceID string) bool {
-	if len(a.requestConfig.ExcludedPeople) > 0 && len(a.People) == 0 {
+	excludedPeople := a.excludedPeopleForSelectedUser()
+	if len(excludedPeople) > 0 && len(a.People) == 0 {
 		a.AddFaces(requestID, deviceID)
 	}
 
 	return !slices.ContainsFunc(a.People, func(person Person) bool {
-		return slices.Contains(a.requestConfig.ExcludedPeople, person.ID)
+		return slices.Contains(excludedPeople, person.ID)
 	})
 }
 

@@ -26,7 +26,7 @@ func (a *Asset) AssetsWithRatingCount(rating float32, requestID, deviceID string
 		WithVideos(a.requestConfig.ShowVideos).
 		WithRating(&rating).
 		WithArchived(a.requestConfig.ShowArchived).
-		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludePeople(a.excludedPeopleForSelectedUser()).
 		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 		ExcludeTags(a.requestConfig.ExcludedTags).
 		WithFilterDate(a.requestConfig.FilterDate).
@@ -55,7 +55,7 @@ func (a *Asset) AssetsWithRating(rating float32, requestID, deviceID string) ([]
 		WithVideos(a.requestConfig.ShowVideos).
 		WithRating(&rating).
 		WithArchived(a.requestConfig.ShowArchived).
-		ExcludePeople(a.requestConfig.ExcludedPeople).
+		ExcludePeople(a.excludedPeopleForSelectedUser()).
 		ExcludeAlbums(a.requestConfig.ExcludedAlbums).
 		ExcludeTags(a.requestConfig.ExcludedTags).
 		WithFilterDate(a.requestConfig.FilterDate).

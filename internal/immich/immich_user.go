@@ -100,3 +100,15 @@ func (a *Asset) ApplyDefaultUser() {
 func (a *Asset) SelectedUser() string {
 	return a.requestConfig.SelectedUser
 }
+
+func (a *Asset) excludedPeopleForSelectedUser() []string {
+	excludedPeople := make([]string, 0, len(a.requestConfig.ExcludedPeople))
+	for _, excludedPerson := range a.requestConfig.ExcludedPeople {
+		personID, user, hasUser := strings.Cut(excludedPerson, kiosk.MultipleUserIndicator)
+		if !hasUser || user == a.requestConfig.SelectedUser {
+			excludedPeople = append(excludedPeople, personID)
+		}
+	}
+
+	return excludedPeople
+}
