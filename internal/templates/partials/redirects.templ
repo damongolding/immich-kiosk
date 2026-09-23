@@ -121,11 +121,13 @@ templ Redirects(c config.Config, redirects config.Redirects, queries url.Values)
 	<div id="redirects-container">
 		<div class="redirects">
 			<div class="redirects--shadow">
+				{{ tabIndex := 0 }}
 				for _, group := range groupedRedirects {
+					{{ tabIndex++ }}
 					if group.Category == "" {
 						@RedirectList(group.Redirects, hasPassword, password, paramType)
 					} else {
-						<div class="redirect-category">
+						<div class="redirect-category" tabindex={ tabIndex }>
 							<h3 class="category-title">{ group.Category }</h3>
 							@RedirectList(group.Redirects, hasPassword, password, paramType)
 						</div>
@@ -134,7 +136,7 @@ templ Redirects(c config.Config, redirects config.Redirects, queries url.Values)
 				if redirects.ShowAlbums {
 					<div
 						class="redirect-category"
-						hx-get={ fmt.Sprintf("/redirects/albums?%s", queries.Encode()) }
+						hx-get={ fmt.Sprintf("/redirects/albums?%s&tabindex=%d", queries.Encode(), tabIndex+1) }
 						hx-trigger="load"
 						hx-swap="outerHTML"
 					></div>
@@ -144,12 +146,12 @@ templ Redirects(c config.Config, redirects config.Redirects, queries url.Values)
 	</div>
 }
 
-templ AlbumRedirectsFragment(c config.Config, queries url.Values, ctx context.Context) {
+templ AlbumRedirectsFragment(c config.Config, queries url.Values, ctx context.Context, tabIndex int) {
 	{{
 	hasPassword, password, paramType := checkAuthParam(queries)
 	albumRedirects := albumRedirects(ctx, c)
 	}}
-	<div class="redirect-category">
+	<div class="redirect-category" tabindex={ tabIndex }>
 		<h3 class="category-title">Albums</h3>
 		@AlbumRedirectList(albumRedirects, hasPassword, password, paramType)
 	</div>
