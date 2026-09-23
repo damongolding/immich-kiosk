@@ -212,13 +212,14 @@ func ImageWithID(baseConfig *config.Config, com *common.Common) echo.HandlerFunc
 
 		if requestConfig.UseOriginalImage {
 			if assetInfoErr := immichAsset.AssetInfo(requestID, ""); assetInfoErr != nil {
-				log.Error(requestID, "error getting asset info", "imageID", imageID, "error", assetInfoErr)
+				log.Error(requestID, "getting asset info", "imageID", imageID, "error", assetInfoErr)
 				return assetInfoErr
 			}
 		}
 
 		imgBytes, _, previewErr := immichAsset.ImagePreview()
 		if previewErr != nil {
+			log.Error(requestID, "getting image preview", "imageID", imageID, "error", previewErr)
 			return echo.NewHTTPError(http.StatusBadRequest, "unable to retrieve image")
 		}
 
