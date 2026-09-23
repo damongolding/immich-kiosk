@@ -28,14 +28,12 @@ export function livePhoto(delay: number) {
 
             otherVideo.currentTime = 0;
 
-            if (isTop) {
-                target.classList.add(LivePhoto.FADE_CLASS);
-            } else {
-                otherVideo.classList.remove(LivePhoto.FADE_CLASS);
-            }
+            target.classList.add(LivePhoto.FADE_CLASS);
+            otherVideo.classList.add(LivePhoto.FADE_CLASS);
 
             setTimeout(() => {
                 if (!otherVideo.isConnected) return;
+                otherVideo.classList.remove(LivePhoto.FADE_CLASS);
                 otherVideo.play();
             }, delay);
         },
