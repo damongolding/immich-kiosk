@@ -980,8 +980,6 @@ func (a *Asset) fetchPaginatedMetadataWithCache(u *url.URL, requestBody SearchRa
 		return res, nil
 	}
 
-	log.Info("fetchPaginatedMetadataWithCache", "cursor", requestBody.Cursor, "album(s)", requestBody.Filter.AlbumIDs, "api", a.requestConfig.ImmichAPIKey)
-
 	fetcher := New(a.ctx, a.requestConfig)
 
 	requestBody.Cursor = nextCursor
@@ -1006,8 +1004,6 @@ func (a *Asset) backfillPaginatedMetadata(u *url.URL, requestBody SearchRandomBo
 			log.Warn("reached maximum page count when backfilling Metadata")
 			break
 		}
-
-		log.Info("fetchMetadataPage", "page", page, "cursor", requestBody.Cursor, "album(s)", requestBody.Filter.AlbumIDs, "api", a.requestConfig.ImmichAPIKey)
 
 		pageAssets, nextCursor, err := a.fetchMetadataPage(a.ctx, u, requestBody, requestID, deviceID)
 		if err != nil {
