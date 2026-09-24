@@ -1051,7 +1051,6 @@ func (a *Asset) fetchMetadataPage(ctx context.Context, u *url.URL, requestBody S
 	apiBody, _, _, err := immichAPICall(ctx, http.MethodPost, apiURL.String(), jsonBody)
 	if err != nil {
 		_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
-		log.Error("fetchMetadataPage: immichAPICall", "error", err, "cursor", requestBody.Cursor, "album(s)", requestBody.Filter.AlbumIDs, "user", a.requestConfig.SelectedUser, "api", a.requestConfig.ImmichAPIKey)
 		return nil, "", err
 	}
 
