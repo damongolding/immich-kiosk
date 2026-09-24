@@ -87,8 +87,8 @@ type PersonStatistics struct {
 }
 
 type Error struct {
-	Path    []string `json:"path"`
-	Message string   `json:"message"`
+	Path    []any  `json:"path"`
+	Message string `json:"message"`
 }
 
 type ErrorResponse struct {

@@ -33,7 +33,7 @@ func immichAPIFail[T APIResponse](value T, err error, body []byte, apiURL string
 	var immichError ErrorResponse
 	errorUnmarshalErr := json.Unmarshal(body, &immichError)
 	if errorUnmarshalErr != nil {
-		log.Error("Couldn't read error", "body", string(body), "url", utils.TruncateAfter(apiURL, "?"))
+		log.Error("Couldn't read error", "err", errorUnmarshalErr, "body", string(body), "url", utils.TruncateAfter(apiURL, "?"))
 		return value, apiURL, err
 	}
 	log.Errorf("%s : %v", immichError.Message, immichError.Errors)
@@ -73,21 +73,20 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 		apiBody, contentType, _, err := immichAPICall(ctx, method, apiURL, body)
 		if err != nil {
 			log.Error(err)
-			return nil, contentType, usingCache, err
+			return apiBody, contentType, usingCache, err
 		}
 
 		// Unpack api json into struct which discards data we don't use (for smaller cache size)
 		err = json.Unmarshal(apiBody, &jsonShape)
 		if err != nil {
-			log.Error(err, "body", string(apiBody))
-			return nil, contentType, usingCache, err
+			return apiBody, contentType, usingCache, err
 		}
 
 		// get bytes and store in cache
 		jsonBytes, err := json.Marshal(jsonShape)
 		if err != nil {
 			log.Error(err)
-			return nil, contentType, usingCache, err
+			return apiBody, contentType, usingCache, err
 		}
 
 		cache.Set(apiCacheKey, jsonBytes, requestConfig.Duration, requestConfig.CacheDuration)
