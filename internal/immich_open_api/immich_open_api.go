@@ -290,6 +290,7 @@ const (
 
 // Defines values for MemoryType.
 const (
+	Birthday  MemoryType = "birthday"
 	OnThisDay MemoryType = "on_this_day"
 )
 
@@ -2929,7 +2930,7 @@ type MemoriesUpdate struct {
 type MemoryCreateDto struct {
 	// AssetIds Asset IDs to associate with memory
 	AssetIds *[]openapi_types.UUID `json:"assetIds,omitempty"`
-	Data     OnThisDayDto          `json:"data"`
+	Data     MemoryDataDto         `json:"data"`
 
 	// HideAt Date when memory should be hidden
 	HideAt *time.Time `json:"hideAt,omitempty"`
@@ -2950,13 +2951,25 @@ type MemoryCreateDto struct {
 	Type MemoryType `json:"type"`
 }
 
+// MemoryDataDto defines model for MemoryDataDto.
+type MemoryDataDto struct {
+	// PersonId Person ID (birthday memories)
+	PersonId *openapi_types.UUID `json:"personId,omitempty"`
+
+	// PersonName Name of the person when the memory was created (birthday memories)
+	PersonName *string `json:"personName,omitempty"`
+
+	// Year Year of the memory
+	Year int `json:"year"`
+}
+
 // MemoryResponseDto defines model for MemoryResponseDto.
 type MemoryResponseDto struct {
 	Assets []AssetResponseDto `json:"assets"`
 
 	// CreatedAt Creation date
-	CreatedAt time.Time    `json:"createdAt"`
-	Data      OnThisDayDto `json:"data"`
+	CreatedAt time.Time     `json:"createdAt"`
+	Data      MemoryDataDto `json:"data"`
 
 	// DeletedAt Deletion date
 	DeletedAt *time.Time `json:"deletedAt,omitempty"`
@@ -3337,12 +3350,6 @@ type OAuthConfigDto struct {
 
 // OAuthTokenEndpointAuthMethod OAuth token endpoint auth method
 type OAuthTokenEndpointAuthMethod string
-
-// OnThisDayDto defines model for OnThisDayDto.
-type OnThisDayDto struct {
-	// Year Year for on this day memory
-	Year int `json:"year"`
-}
 
 // OnboardingDto defines model for OnboardingDto.
 type OnboardingDto struct {
