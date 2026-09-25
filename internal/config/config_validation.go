@@ -16,7 +16,14 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-var SchemaJSON string
+const uuidPattern = `[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`
+
+var (
+	uuidRe           = regexp.MustCompile(`^` + uuidPattern + `$`)
+	uuidWithSuffixRe = regexp.MustCompile(`^` + uuidPattern + `(@.+)?$`)
+
+	SchemaJSON string
+)
 
 // IsSchemaLoaded returns true if the schema has been initialized
 func IsSchemaLoaded() bool {
@@ -697,27 +704,19 @@ func (c *Config) checkFilterNewest() {
 	}
 }
 
-var uuidWithSuffixRe = regexp.MustCompile(
-	`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(@.+)?$`,
-)
-
-var uuidRe = regexp.MustCompile(
-	`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}?$`,
-)
-
 func (c *Config) checkIDs(key string, s []string, allowSuffix bool) {
+	re := uuidRe
+	if allowSuffix {
+		re = uuidWithSuffixRe
+	}
+
 	for _, id := range s {
 		switch id {
 		case kiosk.AlbumKeywordAll, kiosk.AlbumKeywordOwned,
 			kiosk.AlbumKeywordShared, kiosk.AlbumKeywordFavourites,
 			kiosk.AlbumKeywordFavorites:
 		default:
-
-			if allowSuffix && !uuidWithSuffixRe.MatchString(id) {
-				log.Warn("Invalid ID format", "type", key, "value", id)
-			}
-
-			if !allowSuffix && !uuidRe.MatchString(id) {
+			if !re.MatchString(id) {
 				log.Warn("Invalid ID format", "type", key, "value", id)
 			}
 		}
