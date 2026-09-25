@@ -378,6 +378,20 @@ func TestConfig_checkIDs(t *testing.T) {
 			wantValues:  []string{"garbage"},
 		},
 		{
+			name: "keywords",
+			key:  "keywords",
+			ids: []string{
+				kiosk.AlbumKeywordAll,
+				kiosk.AlbumKeywordFavorites,
+				kiosk.AlbumKeywordFavourites,
+				kiosk.AlbumKeywordOwned,
+				kiosk.AlbumKeywordShared,
+				kiosk.PersonKeywordAll,
+			},
+			allowSuffix: true,
+			wantWarn:    false,
+		},
+		{
 			name:        "empty slice",
 			key:         "album_ids",
 			ids:         []string{},
