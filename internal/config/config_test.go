@@ -11,6 +11,7 @@ import (
 
 	"charm.land/log/v2"
 
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"
 )
@@ -313,6 +314,91 @@ func TestCheckWeatherLocations(t *testing.T) {
 				assert.Empty(t, output)
 			} else {
 				assert.NotEmpty(t, output)
+			}
+		})
+	}
+}
+
+func TestConfig_checkIDs(t *testing.T) {
+	tests := []struct {
+		name       string
+		key        string
+		ids        []string
+		wantWarn   bool
+		wantValues []string // ids expected to appear in the warning output
+	}{
+		{
+			name:     "valid uuid",
+			key:      "album_ids",
+			ids:      []string{"550e8400-e29b-41d4-a716-446655440000"},
+			wantWarn: false,
+		},
+		{
+			name:     "valid uuid with suffix",
+			key:      "album_ids",
+			ids:      []string{"550e8400-e29b-41d4-a716-446655440000@user"},
+			wantWarn: false,
+		},
+		{
+			name:     "keyword all",
+			key:      "album_ids",
+			ids:      []string{kiosk.AlbumKeywordAll},
+			wantWarn: false,
+		},
+		{
+			name: "keyword owned/shared/favourites/favorites",
+			key:  "album_ids",
+			ids: []string{
+				kiosk.AlbumKeywordOwned,
+				kiosk.AlbumKeywordShared,
+				kiosk.AlbumKeywordFavourites,
+				kiosk.AlbumKeywordFavorites,
+			},
+			wantWarn: false,
+		},
+		{
+			name:       "invalid id",
+			key:        "album_ids",
+			ids:        []string{"not-a-uuid"},
+			wantWarn:   true,
+			wantValues: []string{"not-a-uuid"},
+		},
+		{
+			name:       "mixed valid and invalid",
+			key:        "person_ids",
+			ids:        []string{"550e8400-e29b-41d4-a716-446655440000", "garbage", kiosk.AlbumKeywordAll},
+			wantWarn:   true,
+			wantValues: []string{"garbage"},
+		},
+		{
+			name:     "empty slice",
+			key:      "album_ids",
+			ids:      []string{},
+			wantWarn: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			log.SetOutput(&buf)
+			defer log.SetOutput(os.Stderr)
+
+			c := &Config{}
+			c.checkIDs(tt.key, tt.ids)
+
+			out := buf.String()
+
+			if tt.wantWarn && !strings.Contains(out, "Invalid ID format") {
+				t.Errorf("expected warning log, got none. output: %q", out)
+			}
+			if !tt.wantWarn && strings.Contains(out, "Invalid ID format") {
+				t.Errorf("expected no warning log, got: %q", out)
+			}
+			for _, v := range tt.wantValues {
+				if !strings.Contains(out, v) {
+					t.Errorf("expected log output to contain %q, got: %q", v, out)
+				}
 			}
 		})
 	}

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -693,5 +694,32 @@ func (c *Config) checkFilterNewest() {
 	if c.FilterNewest > 1000 {
 		log.Warn("FilterNewest must be 1000 or less; setting to 1000", "value", c.FilterNewest)
 		c.FilterNewest = 1000
+	}
+}
+
+var uuidWithSuffixRe = regexp.MustCompile(
+	`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(@.+)?$`,
+)
+
+var uuidRe = regexp.MustCompile(
+	`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}?$`,
+)
+
+func (c *Config) checkIDs(key string, s []string, allowSuffix bool) {
+	for _, id := range s {
+		switch id {
+		case kiosk.AlbumKeywordAll, kiosk.AlbumKeywordOwned,
+			kiosk.AlbumKeywordShared, kiosk.AlbumKeywordFavourites,
+			kiosk.AlbumKeywordFavorites:
+		default:
+
+			if allowSuffix && !uuidWithSuffixRe.MatchString(id) {
+				log.Warn("Invalid ID format", "type", key, "value", id)
+			}
+
+			if !allowSuffix && !uuidRe.MatchString(id) {
+				log.Warn("Invalid ID format", "type", key, "value", id)
+			}
+		}
 	}
 }
