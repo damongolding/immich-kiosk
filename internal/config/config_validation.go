@@ -704,21 +704,24 @@ func (c *Config) checkFilterNewest() {
 	}
 }
 
-func (c *Config) checkIDs(key string, s []string, allowSuffix bool) {
+func (c *Config) checkIDs(key string, s []string, allowSuffix, allowKeywords bool) {
 	re := uuidRe
 	if allowSuffix {
 		re = uuidWithSuffixRe
 	}
 
 	for _, id := range s {
-		switch id {
-		case kiosk.AlbumKeywordAll, kiosk.AlbumKeywordOwned,
-			kiosk.AlbumKeywordShared, kiosk.AlbumKeywordFavourites,
-			kiosk.AlbumKeywordFavorites:
-		default:
-			if !re.MatchString(id) {
-				log.Warn("Invalid ID format", "type", key, "value", id)
+		if allowKeywords {
+			switch id {
+			case kiosk.AlbumKeywordAll, kiosk.AlbumKeywordOwned,
+				kiosk.AlbumKeywordShared, kiosk.AlbumKeywordFavourites,
+				kiosk.AlbumKeywordFavorites:
+				continue
 			}
+		}
+
+		if !re.MatchString(id) {
+			log.Warn("Invalid ID format", "type", key, "value", id)
 		}
 	}
 }
