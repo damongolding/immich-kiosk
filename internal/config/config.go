@@ -717,7 +717,7 @@ func (c *Config) Load() error {
 	c.checkAssetBuckets()
 	c.checkIDs("blacklist", c.Blacklist, false, false)
 	c.checkIDs("people", c.People, true, true)
-	c.checkIDs("excluded_people", c.ExcludedPeople, false, false)
+	c.checkIDs("excluded_people", c.ExcludedPeople, false, true)
 	c.checkIDs("albums", c.Albums, true, true)
 	c.checkIDs("excluded_albums", c.ExcludedAlbums, false, false)
 	c.checkIDs("excluded_partners", c.ExcludedPartners, false, false)
