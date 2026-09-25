@@ -3,7 +3,7 @@
 // Its job is to keep the installed PWA usable when the Kiosk server is
 // unreachable *or* reachable but not responding.
 
-var CACHE = "immich-kiosk-{{ .Version }}";
+var CACHE = {{ .CacheName }};
 var OFFLINE_URL = "/recover";
 
 // How long to wait for a navigation response before giving up and showing the
@@ -14,7 +14,7 @@ var NAV_TIMEOUT_MS = 5000;
 
 // Last-resort offline page, embedded so a navigation is *always* answered with a
 // real document. This is injected at runtime.
-var FALLBACK_HTML = `{{ .FallbackHtml }}`;
+var FALLBACK_HTML = {{ .FallbackHtml }};
 
 function internalRecoverRequest() {
 	return new Request(OFFLINE_URL, {
