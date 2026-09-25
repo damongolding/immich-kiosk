@@ -19,7 +19,7 @@ func TestRenderServiceWorkerFallbackHTML(t *testing.T) {
 	version := "0.44.0\"\nself.skipWaiting();"
 
 	var output bytes.Buffer
-	if err := renderServiceWorker(&output, sw, version, fallbackHTML); err != nil {
+	if err = renderServiceWorker(&output, sw, version, fallbackHTML); err != nil {
 		t.Fatal(err)
 	}
 
