@@ -3,7 +3,9 @@ package routes
 import (
 	"bytes"
 	"embed"
-	"html/template"
+	"encoding/json"
+	"io"
+	"text/template"
 
 	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/config"
@@ -31,8 +33,6 @@ func ServiceWorker(baseConfig *config.Config, public embed.FS) echo.HandlerFunc 
 			return err
 		}
 
-		swTmpl := template.Must(template.New("sw").Parse(string(sw)))
-
 		var customCSS []byte
 		customCSS, err = utils.LoadCustomCSS()
 		if err != nil {
@@ -46,15 +46,28 @@ func ServiceWorker(baseConfig *config.Config, public embed.FS) echo.HandlerFunc 
 			return err
 		}
 
-		html := buf.String()
+		return renderServiceWorker(c.Response(), sw, baseConfig.Kiosk.Version, buf.String())
+	}
+}
 
-		w := c.Response()
-
-		err = swTmpl.Execute(w, map[string]string{
-			"Version":      baseConfig.Kiosk.Version,
-			"FallbackHtml": html,
-		})
-
+func renderServiceWorker(w io.Writer, sw []byte, version, fallbackHTML string) error {
+	cacheName, err := json.Marshal("immich-kiosk-" + version)
+	if err != nil {
 		return err
 	}
+
+	fallbackJSON, err := json.Marshal(fallbackHTML)
+	if err != nil {
+		return err
+	}
+
+	swTmpl, err := template.New("sw").Parse(string(sw))
+	if err != nil {
+		return err
+	}
+
+	return swTmpl.Execute(w, map[string]string{
+		"CacheName":    string(cacheName),
+		"FallbackHtml": string(fallbackJSON),
+	})
 }
