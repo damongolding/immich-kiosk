@@ -321,29 +321,33 @@ func TestCheckWeatherLocations(t *testing.T) {
 
 func TestConfig_checkIDs(t *testing.T) {
 	tests := []struct {
-		name       string
-		key        string
-		ids        []string
-		wantWarn   bool
-		wantValues []string // ids expected to appear in the warning output
+		name        string
+		key         string
+		ids         []string
+		allowSuffix bool
+		wantWarn    bool
+		wantValues  []string // ids expected to appear in the warning output
 	}{
 		{
-			name:     "valid uuid",
-			key:      "album_ids",
-			ids:      []string{"550e8400-e29b-41d4-a716-446655440000"},
-			wantWarn: false,
+			name:        "valid uuid",
+			key:         "album_ids",
+			ids:         []string{"550e8400-e29b-41d4-a716-446655440000"},
+			allowSuffix: true,
+			wantWarn:    false,
 		},
 		{
-			name:     "valid uuid with suffix",
-			key:      "album_ids",
-			ids:      []string{"550e8400-e29b-41d4-a716-446655440000@user"},
-			wantWarn: false,
+			name:        "valid uuid with suffix",
+			key:         "album_ids",
+			ids:         []string{"550e8400-e29b-41d4-a716-446655440000@user"},
+			allowSuffix: true,
+			wantWarn:    false,
 		},
 		{
-			name:     "keyword all",
-			key:      "album_ids",
-			ids:      []string{kiosk.AlbumKeywordAll},
-			wantWarn: false,
+			name:        "keyword all",
+			key:         "album_ids",
+			ids:         []string{kiosk.AlbumKeywordAll},
+			allowSuffix: true,
+			wantWarn:    false,
 		},
 		{
 			name: "keyword owned/shared/favourites/favorites",
@@ -354,27 +358,38 @@ func TestConfig_checkIDs(t *testing.T) {
 				kiosk.AlbumKeywordFavourites,
 				kiosk.AlbumKeywordFavorites,
 			},
-			wantWarn: false,
+			allowSuffix: true,
+			wantWarn:    false,
 		},
 		{
-			name:       "invalid id",
-			key:        "album_ids",
-			ids:        []string{"not-a-uuid"},
-			wantWarn:   true,
-			wantValues: []string{"not-a-uuid"},
+			name:        "invalid id",
+			key:         "album_ids",
+			ids:         []string{"not-a-uuid"},
+			allowSuffix: true,
+			wantWarn:    true,
+			wantValues:  []string{"not-a-uuid"},
 		},
 		{
-			name:       "mixed valid and invalid",
-			key:        "person_ids",
-			ids:        []string{"550e8400-e29b-41d4-a716-446655440000", "garbage", kiosk.AlbumKeywordAll},
-			wantWarn:   true,
-			wantValues: []string{"garbage"},
+			name:        "mixed valid and invalid",
+			key:         "person_ids",
+			ids:         []string{"550e8400-e29b-41d4-a716-446655440000", "garbage", kiosk.AlbumKeywordAll},
+			allowSuffix: true,
+			wantWarn:    true,
+			wantValues:  []string{"garbage"},
 		},
 		{
-			name:     "empty slice",
-			key:      "album_ids",
-			ids:      []string{},
-			wantWarn: false,
+			name:        "empty slice",
+			key:         "album_ids",
+			ids:         []string{},
+			allowSuffix: true,
+			wantWarn:    false,
+		},
+		{
+			name:        "excluded album with suffix",
+			key:         "excluded_albums",
+			ids:         []string{"550e8400-e29b-41d4-a716-446655440000@user"},
+			allowSuffix: false,
+			wantWarn:    true,
 		},
 	}
 
@@ -385,7 +400,7 @@ func TestConfig_checkIDs(t *testing.T) {
 			defer log.SetOutput(os.Stderr)
 
 			c := &Config{}
-			c.checkIDs(tt.key, tt.ids)
+			c.checkIDs(tt.key, tt.ids, tt.allowSuffix)
 
 			out := buf.String()
 
