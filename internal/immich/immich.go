@@ -87,8 +87,8 @@ type PersonStatistics struct {
 }
 
 type Error struct {
-	Path    []any  `json:"path"`
-	Message string `json:"message"`
+	Path    []string `json:"path"`
+	Message string   `json:"message"`
 }
 
 type ErrorResponse struct {
@@ -481,9 +481,9 @@ func (b *SearchFilter) ExcludeAlbums(a []string) *SearchFilter {
 
 // TODO: These need to be tag IDs not value(s). Disabling for now
 func (b *SearchFilter) ExcludeTags(t []string) *SearchFilter {
-	// if len(t) > 0 {
-	// 	b.TagIDs.None = t
-	// }
+	//if len(t) > 0 {
+	//	b.TagIDs.None = t
+	//}
 	return b
 }
 
