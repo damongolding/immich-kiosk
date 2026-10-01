@@ -386,7 +386,7 @@ func TestConfig_checkIDs(t *testing.T) {
 		},
 		{
 			name: "keywords",
-			key:  "keywords",
+			key:  "albums",
 			ids: []string{
 				kiosk.AlbumKeywordAll,
 				kiosk.AlbumKeywordFavorites,
@@ -394,6 +394,21 @@ func TestConfig_checkIDs(t *testing.T) {
 				kiosk.AlbumKeywordOwned,
 				kiosk.AlbumKeywordShared,
 				kiosk.PersonKeywordAll,
+			},
+			allowSuffix:   true,
+			allowKeywords: true,
+			wantWarn:      false,
+		},
+		{
+			name: "keywords with suffix",
+			key:  "albums",
+			ids: []string{
+				kiosk.AlbumKeywordAll + "@user",
+				kiosk.AlbumKeywordFavorites + "@user",
+				kiosk.AlbumKeywordFavourites + "@user",
+				kiosk.AlbumKeywordOwned + "@user",
+				kiosk.AlbumKeywordShared + "@user",
+				kiosk.PersonKeywordAll + "@user",
 			},
 			allowSuffix:   true,
 			allowKeywords: true,
