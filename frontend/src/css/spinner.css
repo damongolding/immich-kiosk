@@ -22,8 +22,11 @@
     max-height: 80px;
     margin-top: -2.5rem;
     margin-left: -2.5rem;
+    transition:
+        opacity 1s ease,
+        display 1s allow-discrete;
     animation: rotate-spinner 3.96s cubic-bezier(0.5, 0.65, 0.55, 0.4) infinite;
-    will-change: transform;
+    will-change: transform, opacity;
 }
 
 @keyframes rotate-spinner {
@@ -34,4 +37,10 @@
     to {
         transform: rotate(0deg);
     }
+}
+
+.kiosk--spinner-rotate:not(:only-child) {
+    display: none;
+    opacity: 0;
+    animation: none;
 }
