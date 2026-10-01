@@ -712,7 +712,18 @@ func (c *Config) checkIDs(key string, s []string, allowSuffix, allowKeywords boo
 
 	for _, id := range s {
 		if allowKeywords {
-			switch id {
+
+			base := id
+			var user string
+			var found bool
+			if allowSuffix {
+				base, user, found = strings.Cut(id, kiosk.MultipleUserIndicator)
+				if found && user == "" {
+					log.Warn("User should not be empty", "type", key, "value", id)
+				}
+			}
+
+			switch base {
 			case kiosk.AlbumKeywordAll, kiosk.AlbumKeywordOwned,
 				kiosk.AlbumKeywordShared, kiosk.AlbumKeywordFavourites,
 				kiosk.AlbumKeywordFavorites:

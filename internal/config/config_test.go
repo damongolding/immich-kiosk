@@ -346,6 +346,14 @@ func TestConfig_checkIDs(t *testing.T) {
 			wantWarn:      false,
 		},
 		{
+			name:          "valid uuid with invalid suffix",
+			key:           "album_ids",
+			ids:           []string{"550e8400-e29b-41d4-a716-446655440000@"},
+			allowSuffix:   true,
+			allowKeywords: true,
+			wantWarn:      true,
+		},
+		{
 			name:          "keyword all",
 			key:           "album_ids",
 			ids:           []string{kiosk.AlbumKeywordAll},
@@ -386,7 +394,7 @@ func TestConfig_checkIDs(t *testing.T) {
 		},
 		{
 			name: "keywords",
-			key:  "keywords",
+			key:  "albums",
 			ids: []string{
 				kiosk.AlbumKeywordAll,
 				kiosk.AlbumKeywordFavorites,
@@ -399,6 +407,52 @@ func TestConfig_checkIDs(t *testing.T) {
 			allowKeywords: true,
 			wantWarn:      false,
 		},
+		{
+			name: "keywords with suffix",
+			key:  "albums",
+			ids: []string{
+				kiosk.AlbumKeywordAll + "@user",
+				kiosk.AlbumKeywordFavorites + "@user",
+				kiosk.AlbumKeywordFavourites + "@user",
+				kiosk.AlbumKeywordOwned + "@user",
+				kiosk.AlbumKeywordShared + "@user",
+				kiosk.PersonKeywordAll + "@user",
+			},
+			allowSuffix:   true,
+			allowKeywords: true,
+			wantWarn:      false,
+		},
+		{
+			name: "keywords with suffix but no user",
+			key:  "albums",
+			ids: []string{
+				kiosk.AlbumKeywordAll + "@",
+				kiosk.AlbumKeywordFavorites + "@",
+				kiosk.AlbumKeywordFavourites + "@",
+				kiosk.AlbumKeywordOwned + "@",
+				kiosk.AlbumKeywordShared + "@",
+				kiosk.PersonKeywordAll + "@",
+			},
+			allowSuffix:   true,
+			allowKeywords: true,
+			wantWarn:      true,
+		},
+		{
+			name: "keywords with suffix",
+			key:  "albums",
+			ids: []string{
+				kiosk.AlbumKeywordAll + "@user",
+				kiosk.AlbumKeywordFavorites + "@user",
+				kiosk.AlbumKeywordFavourites + "@user",
+				kiosk.AlbumKeywordOwned + "@user",
+				kiosk.AlbumKeywordShared + "@user",
+				kiosk.PersonKeywordAll + "@user",
+			},
+			allowSuffix:   true,
+			allowKeywords: true,
+			wantWarn:      false,
+		},
+
 		{
 			name:          "empty slice",
 			key:           "album_ids",
@@ -446,10 +500,10 @@ func TestConfig_checkIDs(t *testing.T) {
 
 			out := buf.String()
 
-			if tt.wantWarn && !strings.Contains(out, "Invalid ID format") {
+			if tt.wantWarn && !strings.Contains(out, "WARN") {
 				t.Errorf("expected warning log, got none. output: %q", out)
 			}
-			if !tt.wantWarn && strings.Contains(out, "Invalid ID format") {
+			if !tt.wantWarn && strings.Contains(out, "WARN") {
 				t.Errorf("expected no warning log, got: %q", out)
 			}
 			for _, v := range tt.wantValues {
