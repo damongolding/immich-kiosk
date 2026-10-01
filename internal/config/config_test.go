@@ -415,6 +415,37 @@ func TestConfig_checkIDs(t *testing.T) {
 			wantWarn:      false,
 		},
 		{
+			name: "keywords with suffix but no user",
+			key:  "albums",
+			ids: []string{
+				kiosk.AlbumKeywordAll + "@",
+				kiosk.AlbumKeywordFavorites + "@",
+				kiosk.AlbumKeywordFavourites + "@",
+				kiosk.AlbumKeywordOwned + "@",
+				kiosk.AlbumKeywordShared + "@",
+				kiosk.PersonKeywordAll + "@",
+			},
+			allowSuffix:   true,
+			allowKeywords: true,
+			wantWarn:      true,
+		},
+		{
+			name: "keywords with suffix",
+			key:  "albums",
+			ids: []string{
+				kiosk.AlbumKeywordAll + "@user",
+				kiosk.AlbumKeywordFavorites + "@user",
+				kiosk.AlbumKeywordFavourites + "@user",
+				kiosk.AlbumKeywordOwned + "@user",
+				kiosk.AlbumKeywordShared + "@user",
+				kiosk.PersonKeywordAll + "@user",
+			},
+			allowSuffix:   true,
+			allowKeywords: true,
+			wantWarn:      false,
+		},
+
+		{
 			name:          "empty slice",
 			key:           "album_ids",
 			ids:           []string{},
@@ -461,10 +492,10 @@ func TestConfig_checkIDs(t *testing.T) {
 
 			out := buf.String()
 
-			if tt.wantWarn && !strings.Contains(out, "Invalid ID format") {
+			if tt.wantWarn && !strings.Contains(out, "WARN") {
 				t.Errorf("expected warning log, got none. output: %q", out)
 			}
-			if !tt.wantWarn && strings.Contains(out, "Invalid ID format") {
+			if !tt.wantWarn && strings.Contains(out, "WARN") {
 				t.Errorf("expected no warning log, got: %q", out)
 			}
 			for _, v := range tt.wantValues {
