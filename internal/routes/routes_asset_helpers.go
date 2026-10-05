@@ -147,6 +147,9 @@ func gatherPeopleAlbums(d *gatherData, config gatherPeopleAlbumsConfig) error {
 			Asset:  utils.WeightedAsset{Type: config.sourceType, ID: item},
 			Weight: assetCount,
 		})
+
+		// reset for next item
+		d.immichAsset.ApplyDefaultUser()
 	}
 	return nil
 }
@@ -157,7 +160,7 @@ func gatherPeople(d *gatherData) error {
 		items:         d.requestConfig.People,
 		countFn:       d.immichAsset.PersonAssetCount,
 		notFoundMsg:   "person",
-		userErrorFmt:  "user '<b>%s</b>' has no Person '%s'. error='%w'",
+		userErrorFmt:  "user '<strong>%s</strong>' has no Person '%s'. error='%w'",
 		countErrorFmt: "getting person image count: %w",
 	})
 }
@@ -168,7 +171,7 @@ func gatherAlbums(d *gatherData) error {
 		items:         d.requestConfig.Albums,
 		countFn:       d.immichAsset.AlbumImageCount,
 		notFoundMsg:   "album",
-		userErrorFmt:  "user '<b>%s</b>' has no Album '%s'. error='%w'",
+		userErrorFmt:  "user '<strong>%s</strong>' has no Album '%s'. error='%w'",
 		countErrorFmt: "getting album asset count: %w",
 	})
 }
@@ -613,7 +616,7 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		urlString: c.URL.String(),
 	}
 
-	immichAsset := setupImmichAsset(requestConfig, options.ImageOrientation)
+	immichAsset := setupImmichAsset(c.Ctx, requestConfig, options.ImageOrientation)
 
 	// Handle relative asset configuration if needed
 	if options.RelativeAssetWanted {
@@ -658,8 +661,8 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 
 // setupImmichAsset creates and configures a new ImmichAsset based on the provided config
 // and orientation settings
-func setupImmichAsset(config config.Config, orientation immich.ImageOrientation) immich.Asset {
-	asset := immich.New(context.Background(), config)
+func setupImmichAsset(ctx context.Context, config config.Config, orientation immich.ImageOrientation) immich.Asset {
+	asset := immich.New(ctx, config)
 	if orientation == immich.PortraitOrientation || orientation == immich.LandscapeOrientation {
 		asset.RatioWanted = orientation
 	}

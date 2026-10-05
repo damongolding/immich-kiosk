@@ -60,6 +60,7 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 		}
 
 		requestCtx := common.CopyContext(c)
+		requestCtx.Ctx = com.Context()
 
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
