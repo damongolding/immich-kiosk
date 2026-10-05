@@ -114,6 +114,7 @@ type ContextCopy struct {
 	RequestHeader  http.Header // Headers from the incoming request
 	ResponseHeader http.Header // Headers for the outgoing response
 	URL            url.URL     // The request URL
+	Ctx            context.Context
 }
 
 // CopyContext creates a copy of essential context data from an echo.Context
