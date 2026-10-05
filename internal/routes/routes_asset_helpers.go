@@ -131,14 +131,17 @@ func gatherPeopleAlbums(d *gatherData, config gatherPeopleAlbumsConfig) error {
 			var countErr error
 			assetCount, countErr = config.countFn(itemTmp, d.requestID, d.deviceID)
 			if countErr != nil {
-				if d.immichAsset.SelectedUser() != "" {
-					return fmt.Errorf(config.userErrorFmt, d.immichAsset.SelectedUser(), itemTmp, countErr)
+				if usedUser := d.immichAsset.SelectedUser(); usedUser != "" {
+					d.immichAsset.ApplyDefaultUser()
+					return fmt.Errorf(config.userErrorFmt, usedUser, itemTmp, countErr)
 				}
+				d.immichAsset.ApplyDefaultUser()
 				return fmt.Errorf(config.countErrorFmt, countErr)
 			}
 		}
 
 		if assetCount == 0 {
+			d.immichAsset.ApplyDefaultUser()
 			log.Error("No assets found for", config.notFoundMsg, itemTmp)
 			continue
 		}
@@ -148,7 +151,6 @@ func gatherPeopleAlbums(d *gatherData, config gatherPeopleAlbumsConfig) error {
 			Weight: assetCount,
 		})
 
-		// reset for next item
 		d.immichAsset.ApplyDefaultUser()
 	}
 	return nil
