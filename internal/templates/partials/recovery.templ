@@ -4,14 +4,21 @@ import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/i18n"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"net/url"
 )
 
 var BGNoiseURI string
 
-templ Recovery(visable, maintenceMode bool) {
+templ Recovery(visable, maintenceMode bool, queries url.Values) {
 	{{
 		t := i18n.T()
 		bg := fmt.Sprintf("background-image: url(%s)", BGNoiseURI)
+		sseQueries := queries.Clone()
+		if sseQueries == nil {
+			sseQueries = make(url.Values, len(queries)+1)
+		}
+		sseQueries.Set("stream", kiosk.SSEMainenance)
+		sseQuery := sseQueries.Encode()
 	}}
 	<div id="kiosk-offline-overlay" role="alert" class={ templ.KV("visible", visable) }>
 		<svg width="1081" height="982" viewBox="0 0 1081 982" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -72,7 +79,7 @@ templ Recovery(visable, maintenceMode bool) {
 			if maintenceMode {
 				<div
 					hx-ext="sse"
-					sse-connect={ fmt.Sprintf("/sse?stream=%s", kiosk.SSEMainenance) }
+					sse-connect={ fmt.Sprintf("/sse?%s", sseQuery) }
 					sse-swap={ kiosk.SSEMainenance }
 					hx-swap="innerHTML"
 				></div>
