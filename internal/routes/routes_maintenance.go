@@ -54,7 +54,7 @@ func (m *MaintenanceState) watch(ctx context.Context, path string, interval time
 }
 
 func (m *MaintenanceState) broadcast(active bool, msg string) {
-	log.Info("broadcasting", "active", active, "message", msg)
+	log.Debug("broadcasting", "active", active, "message", msg)
 	payload := "inactive"
 	if active {
 		payload = "active:" + msg

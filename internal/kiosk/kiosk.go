@@ -72,6 +72,9 @@ const (
 	MimeTypeBmp  string = "image/bmp"  // currently unsupported
 
 	StatusStopHTMXPolling = 286
+
+	SSEMainenance string = "maintenance"
+	SSEClock      string = "clock"
 )
 
 var (

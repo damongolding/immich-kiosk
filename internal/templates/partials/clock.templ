@@ -3,6 +3,7 @@ package partials
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/config"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/goodsign/monday"
 	"net/url"
@@ -70,6 +71,27 @@ templ Clock(requestConfig config.Config) {
 	}
 }
 
+templ ClockContainer(source string, theme string, queries url.Values) {
+	{{
+		queries.Set("stream", kiosk.SSEClock)
+		q := queries.Encode()
+	}}
+	<div
+		id="clock"
+		class={ fmt.Sprintf("clock--theme-%s", theme) }
+		if source == kiosk.Server {
+			hx-ext="sse"
+			sse-connect={ fmt.Sprintf("/sse?%s", q) }
+			sse-swap={ kiosk.SSEClock }
+			hx-include=".kiosk-param"
+			hx-swap="innerHTML"
+		}
+	>
+		<div class="clock--date"></div>
+		<div class="clock--time"></div>
+	</div>
+}
+
 // ClockContainer renders a clock html
 // templ ClockContainer(source string, theme string, showTime, showSeconds bool) {
 // 	<div
@@ -89,23 +111,3 @@ templ Clock(requestConfig config.Config) {
 // 		<div class="clock--time"></div>
 // 	</div>
 // }
-templ ClockContainer(source string, theme string, showTime, showSeconds bool, queries url.Values) {
-	{{
-		queries.Set("stream", "time")
-		q := queries.Encode()
-	}}
-	<div
-		id="clock"
-		class={ fmt.Sprintf("clock--theme-%s", theme) }
-		if source == "server" {
-			hx-ext="sse"
-			sse-connect={ fmt.Sprintf("/sse?%s", q) }
-			sse-swap="time"
-			hx-include=".kiosk-param"
-			hx-swap="innerHTML"
-		}
-	>
-		<div class="clock--date"></div>
-		<div class="clock--time"></div>
-	</div>
-}

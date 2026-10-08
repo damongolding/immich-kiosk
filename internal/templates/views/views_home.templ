@@ -64,7 +64,7 @@ templ Home(viewData common.ViewData, secret string) {
 					<section id="clock-weather-container">
 						<div>
 							if (viewData.ShowTime || viewData.ShowDate) {
-								@partials.ClockContainer(viewData.ClockSource, viewData.Theme, viewData.ShowTime, viewData.ShowSeconds, viewData.Queries)
+								@partials.ClockContainer(viewData.ClockSource, viewData.Theme, viewData.Queries)
 							}
 						</div>
 						<div>
@@ -88,7 +88,7 @@ templ Home(viewData common.ViewData, secret string) {
 				@partials.History()
 				@partials.RefreshCheck(viewData.KioskVersion, viewData.ReloadTimeStamp, viewData.Queries)
 				@partials.Status()
-				@partials.Recovery(false)
+				@partials.Recovery(false, viewData.Kiosk.MaintenanceFile != "")
 				@kioskData(map[string]any{
 					"debug":              viewData.Kiosk.Debug,
 					"debugVerbose":       viewData.Kiosk.DebugVerbose,
