@@ -3,6 +3,7 @@ package views
 import (
 	"github.com/damongolding/immich-kiosk/internal/templates/partials"
 	"github.com/goodsign/monday"
+	"net/url"
 )
 
 templ Recovering(lang monday.Locale, kioskVersion string, inlineCSS []byte, customCSS []byte, UseCustomCSS bool) {
@@ -28,7 +29,7 @@ templ Recovering(lang monday.Locale, kioskVersion string, inlineCSS []byte, cust
 			}
 		</head>
 		<body>
-			@partials.Recovery(true, false)
+			@partials.Recovery(true, false, url.Values{})
 			<script>
 				(function () {
 				    let recoveryInFlight = false;

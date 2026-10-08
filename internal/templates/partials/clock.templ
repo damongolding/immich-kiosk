@@ -73,8 +73,12 @@ templ Clock(requestConfig config.Config) {
 
 templ ClockContainer(source string, theme string, queries url.Values) {
 	{{
-		queries.Set("stream", kiosk.SSEClock)
-		q := queries.Encode()
+		sseQueries := queries.Clone()
+		if sseQueries == nil {
+			sseQueries = make(url.Values, len(queries)+1)
+		}
+		sseQueries.Set("stream", kiosk.SSEClock)
+		q := sseQueries.Encode()
 	}}
 	<div
 		id="clock"
