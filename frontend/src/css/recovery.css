@@ -69,9 +69,14 @@
         letter-spacing: 0.03em;
     }
 
-    img {
-        max-width: 10rem;
-        height: auto;
+    .offline-custom-message {
+        display: none;
+        padding: 0.5rem 0;
+        font-size: 1.5rem;
+
+        &.active {
+            display: block;
+        }
     }
 }
 
