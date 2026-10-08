@@ -59,26 +59,27 @@ func SSE(baseConfig *config.Config, maintenanceManager *MaintenanceState) echo.H
 				return nil
 
 			case <-ticker.C:
-				var out string
+				var payload string
 
 				switch stream {
 				case "maintenance":
-					out = maintenanceHTML(maintenanceManager, dm)
+					payload = maintenanceHTML(maintenanceManager, dm)
 				case "time":
 					var tp bytes.Buffer
 					if err = partials.Clock(requestData.RequestConfig).Render(ctx, &tp); err != nil {
 						log.Warn("rendering view", "err", err)
 						continue
 					}
-					out = tp.String()
+					payload = tp.String()
 				}
 
-				if out == prev {
+				if payload == prev {
 					continue
 				}
-				prev = out
 
-				if err = writeSSEvent(w, stream, out); err != nil {
+				prev = payload
+
+				if err = writeSSEvent(w, stream, payload); err != nil {
 					return nil
 				}
 				if err = rc.Flush(); err != nil {
