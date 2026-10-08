@@ -638,6 +638,10 @@
         "watch_config": {
           "type": "boolean"
         },
+        "maintenance_file": {
+          "type": "string",
+          "description": "Setting this enables maintenance mode .e.g. `./config/MAINTENANCE`"
+        },
         "fetched_assets_size": {
           "type": "integer",
           "minimum": 1,

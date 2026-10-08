@@ -3,11 +3,12 @@ package partials
 import (
 	"fmt"
 	"github.com/damongolding/immich-kiosk/internal/i18n"
+	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
 var BGNoiseURI string
 
-templ Recovery(visable bool) {
+templ Recovery(visable, maintenceMode bool) {
 	{{
 		t := i18n.T()
 		bg := fmt.Sprintf("background-image: url(%s)", BGNoiseURI)
@@ -68,12 +69,14 @@ templ Recovery(visable bool) {
 			<h1>
 				Immich Kiosk
 			</h1>
-			<div
-				hx-ext="sse"
-				sse-connect="/sse?stream=maintenance"
-				sse-swap="maintenance"
-				hx-swap="innerHTML"
-			></div>
+			if maintenceMode {
+				<div
+					hx-ext="sse"
+					sse-connect={ fmt.Sprintf("/sse?stream=%s", kiosk.SSEMainenance) }
+					sse-swap={ kiosk.SSEMainenance }
+					hx-swap="innerHTML"
+				></div>
+			}
 			<p>
 				{ t("reconnection_message") }&hellip;
 			</p>
