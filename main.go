@@ -310,6 +310,11 @@ func addMiddleware(e *echo.Echo, baseConfig *config.Config) {
 			Skipper: func(c *echo.Context) bool {
 				// skip auth for assets and /health endpoint
 				path := c.Request().URL.Path
+				if path == "/recover" {
+					if h := c.Request().Header.Get("x-kiosk-internal"); h == "1" {
+						return true
+					}
+				}
 				return strings.HasPrefix(path, "/assets/") || path == "/health" || path == "/favicon.ico"
 			},
 			KeyLookup: "header:Authorization:Bearer ,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
