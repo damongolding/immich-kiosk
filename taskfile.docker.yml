@@ -19,7 +19,6 @@ tasks:
     cmds:
       - colima stop
 
-      -
   docker:build-orb:
     desc: Build docker image locally
     cmds:

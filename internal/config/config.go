@@ -149,6 +149,9 @@ type KioskSettings struct {
 	// WatchConfig if kiosk should watch config file for changes
 	WatchConfig bool `json:"watchConfig" yaml:"watch_config" mapstructure:"watch_config" default:"false"`
 
+	// MaintenanceFile setting this enables maintenance mode .e.g. "./config/MAINTENANCE"
+	MaintenanceFile string `json:"maintenanceFile" yaml:"maintenance_file" mapstructure:"maintenance_file" default:""`
+
 	// Cache enable/disable api call and image caching
 	Cache bool `json:"cache" yaml:"cache" mapstructure:"cache" default:"true"`
 

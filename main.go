@@ -147,6 +147,13 @@ func main() {
 		baseConfig.WatchConfig(c.Context())
 	}
 
+	var maintenanceManager *routes.MaintenanceState
+
+	if baseConfig.Kiosk.MaintenanceFile != "" {
+		log.Info("Watching for maintenance file", "at", baseConfig.Kiosk.MaintenanceFile)
+		maintenanceManager = routes.NewMaintenance(c.Context(), baseConfig.Kiosk.MaintenanceFile, 1*time.Second)
+	}
+
 	if baseConfig.Kiosk.Debug {
 		log.SetLevel(log.DebugLevel)
 		if baseConfig.Kiosk.DebugVerbose {
@@ -247,6 +254,8 @@ func main() {
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 	e.GET("/redirects/albums", routes.AlbumRedirects(baseConfig, c))
 
+	e.GET("/sse", routes.SSE(c.Context(), baseConfig, maintenanceManager))
+
 	for _, w := range baseConfig.Weather.Locations {
 		go weather.AddWeatherLocationWithForecast(c.Context(), w)
 	}
@@ -301,6 +310,11 @@ func addMiddleware(e *echo.Echo, baseConfig *config.Config) {
 			Skipper: func(c *echo.Context) bool {
 				// skip auth for assets and /health endpoint
 				path := c.Request().URL.Path
+				if path == "/recover" {
+					if h := c.Request().Header.Get("x-kiosk-internal"); h == "1" {
+						return true
+					}
+				}
 				return strings.HasPrefix(path, "/assets/") || path == "/health" || path == "/favicon.ico"
 			},
 			KeyLookup: "header:Authorization:Bearer ,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",

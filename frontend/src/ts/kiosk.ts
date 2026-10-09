@@ -1,5 +1,6 @@
 import { formatRFC3339 } from "date-fns/formatRFC3339";
 import htmx from "htmx.org";
+import "htmx-ext-sse";
 import type { TimeFormat } from "./clock";
 import { initClock } from "./clock";
 import {
