@@ -28,7 +28,7 @@ const (
 // SSE streams server-sent events for a single stream.
 // Events are only written when the payload changes, with a periodic comment
 // heartbeat to keep proxies from closing idle connections.
-func SSE(ctx context.Context, baseConfig *config.Config, maintenanceManager *MaintenanceState) echo.HandlerFunc {
+func SSE(ctx context.Context, baseConfig *config.Config, maintenance *MaintenanceHolder) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		stream := c.QueryParam("stream")
 
@@ -72,10 +72,17 @@ func SSE(ctx context.Context, baseConfig *config.Config, maintenanceManager *Mai
 
 			switch stream {
 			case kiosk.SSEMainenance:
-				if maintenanceManager == nil {
+				m := maintenance.Get()
+				if m == nil {
 					return errors.New("maintenance mode not enabled")
 				}
-				payload = maintenanceHTML(maintenanceManager, dm)
+
+				if m.IsStopped() {
+					return errors.New("sse: restart stream")
+				}
+
+				payload = maintenanceHTML(m, dm)
+
 			case kiosk.SSEClock:
 				var tp bytes.Buffer
 				if err = partials.Clock(requestData.RequestConfig).Render(reqCtx, &tp); err != nil {

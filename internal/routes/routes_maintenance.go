@@ -2,9 +2,11 @@ package routes
 
 import (
 	"context"
+	"errors"
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"charm.land/log/v2"
@@ -16,18 +18,23 @@ type MaintenanceState struct {
 	message  string
 	clients  map[chan string]struct{}
 	clientMu sync.Mutex
+	kioskCtx context.Context
+	cancel   context.CancelFunc
+	stopped  atomic.Bool
 }
 
 func NewMaintenance(ctx context.Context, path string, pollInterval time.Duration) *MaintenanceState {
-	m := &MaintenanceState{clients: make(map[chan string]struct{})}
-	go m.watch(ctx, path, pollInterval)
+	mCtx, cancel := context.WithCancel(ctx)
+	m := &MaintenanceState{clients: make(map[chan string]struct{}), kioskCtx: ctx, cancel: cancel}
+	go m.watch(mCtx, path, pollInterval)
 	return m
 }
 
 func (m *MaintenanceState) watch(ctx context.Context, path string, interval time.Duration) {
+	log.Info("Watching for maintenance file", "at", path)
 	check := func() {
 		data, err := os.ReadFile(path)
-		active := err == nil
+		active := !errors.Is(err, os.ErrNotExist)
 		msg := strings.TrimSpace(string(data))
 
 		m.mu.Lock()
@@ -46,6 +53,7 @@ func (m *MaintenanceState) watch(ctx context.Context, path string, interval time
 	for range ticker.C {
 		select {
 		case <-ctx.Done():
+			log.Info("Stopped watching for maintenance file", "at", path)
 			return
 		default:
 			check()
@@ -74,3 +82,20 @@ func (m *MaintenanceState) IsActive() (bool, string) {
 	defer m.mu.RUnlock()
 	return m.active, m.message
 }
+
+func (m *MaintenanceState) Stop() context.Context {
+	if m.cancel != nil {
+		m.cancel()
+		m.stopped.Store(true)
+	}
+	return m.kioskCtx
+}
+
+func (m *MaintenanceState) IsStopped() bool { return m.stopped.Load() }
+
+type MaintenanceHolder struct {
+	p atomic.Pointer[MaintenanceState]
+}
+
+func (h *MaintenanceHolder) Get() *MaintenanceState  { return h.p.Load() }
+func (h *MaintenanceHolder) Set(m *MaintenanceState) { h.p.Store(m) }

@@ -142,16 +142,27 @@ func main() {
 		routes.VideoManager = videoManager
 	}
 
-	if baseConfig.Kiosk.WatchConfig {
-		log.Info("Watching config for changes", "file", baseConfig.V.ConfigFileUsed())
-		baseConfig.WatchConfig(c.Context())
-	}
-
-	var maintenanceManager *routes.MaintenanceState
+	maintenance := &routes.MaintenanceHolder{}
 
 	if baseConfig.Kiosk.MaintenanceFile != "" {
-		log.Info("Watching for maintenance file", "at", baseConfig.Kiosk.MaintenanceFile)
-		maintenanceManager = routes.NewMaintenance(c.Context(), baseConfig.Kiosk.MaintenanceFile, 1*time.Second)
+		maintenance.Set(routes.NewMaintenance(c.Context(), baseConfig.Kiosk.MaintenanceFile, 1*time.Second))
+	}
+
+	if baseConfig.Kiosk.WatchConfig {
+
+		postReloadFuncs := []func(config.Config) error{}
+
+		if maintenance.Get() != nil {
+			postReloadFuncs = append(postReloadFuncs, func(_ config.Config) error {
+				log.Info("Reloading maintenanceManager")
+				ctx := maintenance.Get().Stop()
+				maintenance.Set(routes.NewMaintenance(ctx, baseConfig.Kiosk.MaintenanceFile, 1*time.Second))
+				return nil
+			})
+		}
+
+		log.Info("Watching config for changes", "file", baseConfig.V.ConfigFileUsed())
+		baseConfig.WatchConfig(c.Context(), postReloadFuncs...)
 	}
 
 	if baseConfig.Kiosk.Debug {
@@ -254,7 +265,7 @@ func main() {
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 	e.GET("/redirects/albums", routes.AlbumRedirects(baseConfig, c))
 
-	e.GET("/sse", routes.SSE(c.Context(), baseConfig, maintenanceManager))
+	e.GET("/sse", routes.SSE(c.Context(), baseConfig, maintenance))
 
 	for _, w := range baseConfig.Weather.Locations {
 		go weather.AddWeatherLocationWithForecast(c.Context(), w)
