@@ -14,7 +14,7 @@ import (
 
 // WatchConfig sets up a configuration file watcher that monitors for changes
 // and reloads the configuration when necessary.
-func (c *Config) WatchConfig(ctx context.Context) {
+func (c *Config) WatchConfig(ctx context.Context, reloadFns ...PostReloadFunc) {
 	configPath := c.V.ConfigFileUsed()
 
 	if fileErr := validateConfigFile(configPath); fileErr != nil {
@@ -27,12 +27,12 @@ func (c *Config) WatchConfig(ctx context.Context) {
 		return
 	}
 
-	go c.watchConfigChanges(ctx)
+	go c.watchConfigChanges(ctx, reloadFns...)
 }
 
 // watchConfigChanges continuously monitors the configuration file for changes
 // and triggers a reload when necessary.
-func (c *Config) watchConfigChanges(ctx context.Context) {
+func (c *Config) watchConfigChanges(ctx context.Context, reloadFns ...PostReloadFunc) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
@@ -45,14 +45,14 @@ func (c *Config) watchConfigChanges(ctx context.Context) {
 			return
 		case <-ticker.C:
 			if c.hasConfigMtimeChanged() {
-				c.reloadConfig("mTime changed")
+				c.reloadConfig("mTime changed", reloadFns...)
 				hashCheckCount = 0
 				continue
 			}
 
 			if hashCheckCount >= hashCheckInterval {
 				if c.hasConfigHashChanged() {
-					c.reloadConfig("hash changed")
+					c.reloadConfig("hash changed", reloadFns...)
 				}
 				hashCheckCount = 0
 			}
@@ -81,7 +81,7 @@ func (c *Config) initializeConfigState() error {
 }
 
 // reloadConfig reloads the configuration when a change is detected.
-func (c *Config) reloadConfig(reason string) {
+func (c *Config) reloadConfig(reason string, reloadFns ...PostReloadFunc) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -99,6 +99,14 @@ func (c *Config) reloadConfig(reason string) {
 	*c = *newConfig
 
 	c.updateConfigState()
+
+	// run post reload functions
+	for _, fn := range reloadFns {
+		err := fn(*c)
+		if err != nil {
+			log.Error("reloadFns", "err", err)
+		}
+	}
 }
 
 // updateConfigState updates the configuration state after a reload.
