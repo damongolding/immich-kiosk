@@ -307,16 +307,7 @@ func addMiddleware(e *echo.Echo, baseConfig *config.Config) {
 
 	if baseConfig.Kiosk.Password != "" {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
-			Skipper: func(c *echo.Context) bool {
-				// skip auth for assets and /health endpoint
-				path := c.Request().URL.Path
-				if path == "/recover" {
-					if h := c.Request().Header.Get("x-kiosk-internal"); h == "1" {
-						return true
-					}
-				}
-				return strings.HasPrefix(path, "/assets/") || path == "/health" || path == "/favicon.ico"
-			},
+			Skipper:   passwordSkipper,
 			KeyLookup: "header:Authorization:Bearer ,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
 			Validator: func(c *echo.Context, key string, _ middleware.ExtractorSource) (bool, error) {
 				if subtle.ConstantTimeCompare([]byte(key), []byte(baseConfig.Kiosk.Password)) == 1 {
@@ -340,6 +331,17 @@ func addMiddleware(e *echo.Echo, baseConfig *config.Config) {
 	if len(baseConfig.Kiosk.AllowedOrigins) > 0 {
 		e.Use(middleware.CORS(baseConfig.Kiosk.AllowedOrigins...))
 	}
+}
+
+func passwordSkipper(c *echo.Context) bool {
+	// skip auth for assets and /health endpoint
+	path := c.Request().URL.Path
+	if path == "/recover" {
+		if h := c.Request().Header.Get("x-kiosk-internal"); h == "1" {
+			return true
+		}
+	}
+	return strings.HasPrefix(path, "/assets/") || path == "/health" || path == "/favicon.ico"
 }
 
 func setLogLevel(logLevel *log.Level) {
