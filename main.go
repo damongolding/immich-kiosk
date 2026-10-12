@@ -312,7 +312,7 @@ func addMiddleware(e *echo.Echo, baseConfig *config.Config) {
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 6,
 		Skipper: func(c *echo.Context) bool {
-			return strings.Contains(c.Path(), "image")
+			return strings.Contains(c.Path(), "/image") || strings.Contains(c.Path(), "/sse")
 		},
 	}))
 
