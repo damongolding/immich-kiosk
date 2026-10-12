@@ -134,6 +134,8 @@ func main() {
 
 	cache.Initialize()
 
+	postConfigReloadFuncs := []func(config.Config) error{}
+
 	videoManager, videoManagerErr := video.New(c.Context())
 	if videoManagerErr != nil {
 		log.Error("Failed to initialize video manager", "err", videoManagerErr)
@@ -146,23 +148,16 @@ func main() {
 
 	if baseConfig.Kiosk.MaintenanceFile != "" {
 		maintenance.Set(routes.NewMaintenance(c.Context(), baseConfig.Kiosk.MaintenanceFile, 1*time.Second))
+		postConfigReloadFuncs = append(postConfigReloadFuncs, func(_ config.Config) error {
+			ctx := maintenance.Get().Stop()
+			maintenance.Set(routes.NewMaintenance(ctx, baseConfig.Kiosk.MaintenanceFile, 1*time.Second))
+			return nil
+		})
 	}
 
 	if baseConfig.Kiosk.WatchConfig {
-
-		postReloadFuncs := []func(config.Config) error{}
-
-		if maintenance.Get() != nil {
-			postReloadFuncs = append(postReloadFuncs, func(_ config.Config) error {
-				log.Info("Reloading maintenanceManager")
-				ctx := maintenance.Get().Stop()
-				maintenance.Set(routes.NewMaintenance(ctx, baseConfig.Kiosk.MaintenanceFile, 1*time.Second))
-				return nil
-			})
-		}
-
 		log.Info("Watching config for changes", "file", baseConfig.V.ConfigFileUsed())
-		baseConfig.WatchConfig(c.Context(), postReloadFuncs...)
+		baseConfig.WatchConfig(c.Context(), postConfigReloadFuncs...)
 	}
 
 	if baseConfig.Kiosk.Debug {
