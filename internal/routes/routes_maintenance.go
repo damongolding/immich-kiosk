@@ -83,12 +83,12 @@ func (m *MaintenanceState) IsActive() (bool, string) {
 	return m.active, m.message
 }
 
-func (m *MaintenanceState) Stop() context.Context {
-	if m.cancel != nil {
-		m.cancel()
-		m.stopped.Store(true)
+func (m *MaintenanceState) Stop() {
+	if m.cancel == nil {
+		return
 	}
-	return m.kioskCtx
+	m.cancel()
+	m.stopped.Store(true)
 }
 
 func (m *MaintenanceState) IsStopped() bool { return m.stopped.Load() }

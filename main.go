@@ -148,12 +148,18 @@ func main() {
 
 	if baseConfig.Kiosk.MaintenanceFile != "" {
 		maintenance.Set(routes.NewMaintenance(c.Context(), baseConfig.Kiosk.MaintenanceFile, 1*time.Second))
-		postConfigReloadFuncs = append(postConfigReloadFuncs, func(_ config.Config) error {
-			ctx := maintenance.Get().Stop()
-			maintenance.Set(routes.NewMaintenance(ctx, baseConfig.Kiosk.MaintenanceFile, 1*time.Second))
-			return nil
-		})
 	}
+	postConfigReloadFuncs = append(postConfigReloadFuncs, func(newCfg config.Config) error {
+		if m := maintenance.Get(); m != nil {
+			m.Stop()
+		}
+		if newCfg.Kiosk.MaintenanceFile == "" {
+			maintenance.Set(nil)
+			return nil
+		}
+		maintenance.Set(routes.NewMaintenance(c.Context(), newCfg.Kiosk.MaintenanceFile, 1*time.Second))
+		return nil
+	})
 
 	if baseConfig.Kiosk.WatchConfig {
 		log.Info("Watching config for changes", "file", baseConfig.V.ConfigFileUsed())
