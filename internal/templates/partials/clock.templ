@@ -7,6 +7,7 @@ import (
 	"github.com/goodsign/monday"
 	"strings"
 	"time"
+	"net/url"
 )
 
 // clockDate returns the current date formatted according to the configuration settings.
@@ -70,17 +71,38 @@ templ Clock(requestConfig config.Config) {
 }
 
 // ClockContainer renders a clock html
-templ ClockContainer(source string, theme string, showTime, showSeconds bool) {
+// templ ClockContainer(source string, theme string, showTime, showSeconds bool) {
+// 	<div
+// 		id="clock"
+// 		class={ fmt.Sprintf("clock--theme-%s", theme) }
+// 		if source == "server" {
+// 			hx-post="/clock"
+// 			if showTime && showSeconds {
+// 				hx-trigger="load, every 1s"
+// 			} else {
+// 				hx-trigger="load, every 15s"
+// 			}
+// 			hx-swap="innerHTML"
+// 		}
+// 	>
+// 		<div class="clock--date"></div>
+// 		<div class="clock--time"></div>
+// 	</div>
+// }
+
+templ ClockContainer(source string, theme string, showTime, showSeconds bool, queries url.Values) {
+	{{
+		queries.Set("stream", "time")
+		q := queries.Encode()
+	}}
 	<div
 		id="clock"
 		class={ fmt.Sprintf("clock--theme-%s", theme) }
 		if source == "server" {
-			hx-post="/clock"
-			if showTime && showSeconds {
-				hx-trigger="load, every 1s"
-			} else {
-				hx-trigger="load, every 15s"
-			}
+			hx-ext="sse"
+			sse-connect={fmt.Sprintf("/sse?%s"), q}
+			sse-swap="time"
+			hx-include=".kiosk-param"
 			hx-swap="innerHTML"
 		}
 	>
