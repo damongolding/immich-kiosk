@@ -14,7 +14,7 @@ import (
 
 // WatchConfig sets up a configuration file watcher that monitors for changes
 // and reloads the configuration when necessary.
-func (c *Config) WatchConfig(ctx context.Context, reloadFns ...func(c Config) error) {
+func (c *Config) WatchConfig(ctx context.Context, reloadFns ...PostReloadFunc) {
 	configPath := c.V.ConfigFileUsed()
 
 	if fileErr := validateConfigFile(configPath); fileErr != nil {
@@ -32,7 +32,7 @@ func (c *Config) WatchConfig(ctx context.Context, reloadFns ...func(c Config) er
 
 // watchConfigChanges continuously monitors the configuration file for changes
 // and triggers a reload when necessary.
-func (c *Config) watchConfigChanges(ctx context.Context, reloadFns ...func(c Config) error) {
+func (c *Config) watchConfigChanges(ctx context.Context, reloadFns ...PostReloadFunc) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
@@ -81,7 +81,7 @@ func (c *Config) initializeConfigState() error {
 }
 
 // reloadConfig reloads the configuration when a change is detected.
-func (c *Config) reloadConfig(reason string, reloadFns ...func(c Config) error) {
+func (c *Config) reloadConfig(reason string, reloadFns ...PostReloadFunc) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 

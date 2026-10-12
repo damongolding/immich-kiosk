@@ -68,6 +68,8 @@ const (
 	weatherAPIKeyFileEnv = "KIOSK_WEATHER_API_KEY_FILE"
 )
 
+type PostReloadFunc func(Config) error
+
 type OfflineMode struct {
 	// MaxSize specifies the maximum storage size for offline assets in a human-readable format e.g. "1GB", "2TB", "500MB"
 	MaxSize string `yaml:"max_size" mapstructure:"max_size" default:"0"`

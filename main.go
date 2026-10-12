@@ -134,7 +134,7 @@ func main() {
 
 	cache.Initialize()
 
-	postConfigReloadFuncs := []func(config.Config) error{}
+	postConfigReloadFuncs := []config.PostReloadFunc{}
 
 	videoManager, videoManagerErr := video.New(c.Context())
 	if videoManagerErr != nil {
