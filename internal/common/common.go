@@ -111,10 +111,10 @@ type ViewImageDataOptions struct {
 
 // ContextCopy stores a copy of key HTTP context information including URL and headers
 type ContextCopy struct {
-	RequestHeader  http.Header // Headers from the incoming request
-	ResponseHeader http.Header // Headers for the outgoing response
-	URL            url.URL     // The request URL
-	Ctx            context.Context
+	RequestHeader  http.Header     // Headers from the incoming request
+	ResponseHeader http.Header     // Headers for the outgoing response
+	URL            url.URL         // The request URL
+	Ctx            context.Context // The context to use. Normally will be the main/app context
 }
 
 // CopyContext creates a copy of essential context data from an echo.Context
