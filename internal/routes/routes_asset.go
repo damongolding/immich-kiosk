@@ -59,7 +59,7 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return NextHistoryAsset(baseConfig, com, c)
 		}
 
-		requestCtx := common.CopyContext(c)
+		requestCtx := common.CopyContext(c, com.Context())
 		requestCtx.Ctx = com.Context()
 
 		// get and use prefetch data (if found)
