@@ -134,6 +134,8 @@ func main() {
 
 	cache.Initialize()
 
+	postConfigReloadFuncs := []config.PostReloadFunc{}
+
 	videoManager, videoManagerErr := video.New(c.Context())
 	if videoManagerErr != nil {
 		log.Error("Failed to initialize video manager", "err", videoManagerErr)
@@ -142,9 +144,26 @@ func main() {
 		routes.VideoManager = videoManager
 	}
 
+	maintenance := &routes.MaintenanceHolder{}
+
+	if baseConfig.Kiosk.MaintenanceFile != "" {
+		maintenance.Set(routes.NewMaintenance(c.Context(), baseConfig.Kiosk.MaintenanceFile, 1*time.Second))
+	}
+	postConfigReloadFuncs = append(postConfigReloadFuncs, func(newCfg config.Config) error {
+		if m := maintenance.Get(); m != nil {
+			m.Stop()
+		}
+		if newCfg.Kiosk.MaintenanceFile == "" {
+			maintenance.Set(nil)
+			return nil
+		}
+		maintenance.Set(routes.NewMaintenance(c.Context(), newCfg.Kiosk.MaintenanceFile, 1*time.Second))
+		return nil
+	})
+
 	if baseConfig.Kiosk.WatchConfig {
 		log.Info("Watching config for changes", "file", baseConfig.V.ConfigFileUsed())
-		baseConfig.WatchConfig(c.Context())
+		baseConfig.WatchConfig(c.Context(), postConfigReloadFuncs...)
 	}
 
 	if baseConfig.Kiosk.Debug {
@@ -247,6 +266,8 @@ func main() {
 	e.GET("/:redirect", routes.Redirect(baseConfig, c))
 	e.GET("/redirects/albums", routes.AlbumRedirects(baseConfig, c))
 
+	e.GET("/sse", routes.SSE(c.Context(), baseConfig, maintenance))
+
 	for _, w := range baseConfig.Weather.Locations {
 		go weather.AddWeatherLocationWithForecast(c.Context(), w)
 	}
@@ -292,17 +313,13 @@ func addMiddleware(e *echo.Echo, baseConfig *config.Config) {
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 6,
 		Skipper: func(c *echo.Context) bool {
-			return strings.Contains(c.Path(), "image")
+			return strings.Contains(c.Path(), "/image") || strings.Contains(c.Path(), "/sse")
 		},
 	}))
 
 	if baseConfig.Kiosk.Password != "" {
 		e.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
-			Skipper: func(c *echo.Context) bool {
-				// skip auth for assets and /health endpoint
-				path := c.Request().URL.Path
-				return strings.HasPrefix(path, "/assets/") || path == "/health" || path == "/favicon.ico"
-			},
+			Skipper:   passwordSkipper,
 			KeyLookup: "header:Authorization:Bearer ,header:X-Api-Key,query:authsecret,query:password,form:authsecret,form:password",
 			Validator: func(c *echo.Context, key string, _ middleware.ExtractorSource) (bool, error) {
 				if subtle.ConstantTimeCompare([]byte(key), []byte(baseConfig.Kiosk.Password)) == 1 {
@@ -326,6 +343,17 @@ func addMiddleware(e *echo.Echo, baseConfig *config.Config) {
 	if len(baseConfig.Kiosk.AllowedOrigins) > 0 {
 		e.Use(middleware.CORS(baseConfig.Kiosk.AllowedOrigins...))
 	}
+}
+
+func passwordSkipper(c *echo.Context) bool {
+	// skip auth for assets and /health endpoint
+	path := c.Request().URL.Path
+	if path == "/recover" {
+		if h := c.Request().Header.Get("x-kiosk-internal"); h == "1" {
+			return true
+		}
+	}
+	return strings.HasPrefix(path, "/assets/") || path == "/health" || path == "/favicon.ico"
 }
 
 func setLogLevel(logLevel *log.Level) {

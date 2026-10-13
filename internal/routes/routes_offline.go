@@ -456,7 +456,7 @@ func generateCacheFilename(uuids ...string) string {
 //
 // Returns an error if the render operation fails
 func handleNoOfflineAssets(c *echo.Context, requestConfig config.Config, com *common.Common, requestID, deviceID string) error {
-	requestCtx := common.CopyContext(c)
+	requestCtx := common.CopyContext(c, com.Context())
 	go func(c common.ContextCopy) {
 		downloadErr := downloadOfflineAssets(requestConfig, c, com, requestID, deviceID)
 		if downloadErr != nil {
