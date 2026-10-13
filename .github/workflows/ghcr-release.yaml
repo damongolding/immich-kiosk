@@ -1,9 +1,8 @@
 name: GHCR Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -112,6 +111,7 @@ jobs:
             ${{ env.RELEASE_URL }}
 
   trigger:
+    needs: build
     runs-on: ubuntu-latest
     if: needs.build.outputs.is_prerelease == 'false'
     steps:
