@@ -18,7 +18,6 @@
         left: 0;
         z-index: var(--z-overlay);
         display: flex;
-        gap: 0.4rem;
         width: 100%;
         height: 100%;
         padding: 0.4rem;
@@ -26,7 +25,6 @@
         .more-info--image {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
             align-items: center;
             justify-content: space-between;
             width: 100%;
@@ -37,6 +35,11 @@
             background-color: rgb(51 52 96 / 60%);
             border-radius: 0.74rem;
 
+            &:not(:first-child) {
+                margin-top: 0;
+                margin-left: 0.4rem;
+            }
+
             &.more-info--image-bottom {
                 padding: 3rem 3rem 6rem 3rem;
             }
@@ -45,9 +48,13 @@
                 display: flex;
                 flex: 1;
                 flex-direction: column;
-                gap: 1rem;
                 justify-content: center;
                 width: fit-content;
+                margin-bottom: 2rem;
+
+                > div:not(:first-child) {
+                    margin-top: 1rem;
+                }
             }
 
             h3 {
@@ -93,7 +100,24 @@
 
             .more-info--image {
                 flex-direction: row;
+
+                &:not(:first-child) {
+                    margin-top: 0.4rem;
+                    margin-left: 0;
+                }
+
+                .more-info--image--data {
+                    margin-bottom: 0rem;
+                }
             }
+        }
+    }
+
+    .more-info--button-group:last-child {
+        flex-direction: column;
+        .more-info--webhook {
+            margin-top: 1rem;
+            margin-left: 0;
         }
     }
 }
@@ -101,8 +125,17 @@
 .more-info--button-group {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    align-content: flex-start;
     padding-top: 1rem;
+
+    a {
+        text-align: center;
+    }
+
+    > a:not(:first-child) {
+        margin-top: 0;
+        margin-left: 1rem;
+    }
 }
 
 .more-info--rating {
@@ -112,7 +145,9 @@
 .more-info--tag-wrapper {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    > span:not(:first-child) {
+        margin-left: 0.5rem;
+    }
 }
 
 .more-info--tag {
