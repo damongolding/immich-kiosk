@@ -106,7 +106,6 @@
     > div:not(:first-child) {
         margin-top: 0.2rem;
     }
-
 }
 
 .weather--temperature-range--value--high,
