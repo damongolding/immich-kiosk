@@ -132,9 +132,23 @@
         text-align: center;
     }
 
-    > a:not(:first-child) {
+    > a:not(:first-child),
+    > button:not(:first-child) {
         margin-top: 0;
         margin-left: 1rem;
+    }
+}
+
+@supports (gap: 1rem) {
+    .more-info--button-group {
+        gap: 1rem;
+
+        > a,
+        > button,
+        .more-info--webhook {
+            margin-top: 0 !important;
+            margin-left: 0 !important;
+        }
     }
 }
 
