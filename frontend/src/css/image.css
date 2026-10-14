@@ -70,7 +70,7 @@
     align-items: center;
 }
 
-.asset--metadata--has-icon > :not(.asset--metadata--icon) {
+.asset--metadata--has-icon > :not(:first-child) {
     margin-left: 0.5rem;
 }
 
@@ -88,6 +88,7 @@
 
 .right-align-icons .asset--metadata--icon {
     order: 2;
+    margin-left: 0.5rem;
 }
 
 .asset--metadata--datetime {
