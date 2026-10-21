@@ -129,7 +129,8 @@ func formatTimeout(timeout int) int {
 		return 0
 	}
 
-	return timeout * 100 * 4
+	// http_timeout is in seconds, htmx expects milliseconds
+	return timeout * 1000 * 4
 }
 
 // isIframeUrl checks if iframeURL is a valid URL. If not, it tries to read it as a file path.
