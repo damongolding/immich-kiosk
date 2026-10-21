@@ -773,7 +773,8 @@ func getHistory(queries url.Values) []string {
 func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error {
 	if c.Kiosk.DisableURLQueries {
 		c.History = getHistory(queries)
-		return nil
+		// Client data describes the device rather than overriding config, and is needed by features like optimize_images.
+		return e.Bind(&c.ClientData)
 	}
 
 	// check for person or album in quries and empty baseconfig slice if found
