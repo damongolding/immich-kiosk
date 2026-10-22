@@ -9,7 +9,7 @@ RUN npm ci
 RUN task frontend
 
 # Go Builder
-FROM --platform=$BUILDPLATFORM golang:1.27.2-bookworm AS build
+FROM --platform=$BUILDPLATFORM golang:1.27.3-bookworm AS build
 
 ARG VERSION=demo
 ARG TARGETOS
