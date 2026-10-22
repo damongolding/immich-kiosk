@@ -233,6 +233,36 @@ func TestAlbumAndPerson(t *testing.T) {
 	}
 }
 
+// TestDisableURLQueriesStillBindsClientData tests that client data is bound when URL queries are disabled
+func TestDisableURLQueriesStillBindsClientData(t *testing.T) {
+	c := New()
+	c.Duration = 600
+	c.Kiosk.DisableURLQueries = true
+
+	e := echo.New()
+
+	form := make(url.Values)
+	form.Add("client_width", "1280")
+	form.Add("client_height", "800")
+	form.Add("duration", "5")
+
+	req := httptest.NewRequest(http.MethodPost, "/asset/new", strings.NewReader(form.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+
+	echoContenx := e.NewContext(req, rec)
+
+	formValues, err := echoContenx.FormValues()
+	assert.NoError(t, err, "FormValues should not return an error")
+
+	err = c.ConfigWithOverrides(formValues, echoContenx)
+	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
+
+	assert.Equal(t, 1280, c.ClientData.Width, "Client width should be bound")
+	assert.Equal(t, 800, c.ClientData.Height, "Client height should be bound")
+	assert.Equal(t, 600, c.Duration, "Duration should not be overridden")
+}
+
 func TestCheckWeatherLocations(t *testing.T) {
 	tests := []struct {
 		name     string
