@@ -10,10 +10,6 @@
 * fix: bind client data when url queries are disabled by @zackpollard in https://github.com/damongolding/immich-kiosk/pull/933
 ### 🔨 Maintenance
 * fix: release test by @damongolding in https://github.com/damongolding/immich-kiosk/pull/924
-### Other changes
-* chore(main): release 0.45.1 by @damongolding in https://github.com/damongolding/immich-kiosk/pull/925
-* chore(main): release 0.46.0 by @damongolding in https://github.com/damongolding/immich-kiosk/pull/926
-* chore(main): release 0.45.1 by @damongolding in https://github.com/damongolding/immich-kiosk/pull/927
 
 ## New Contributors
 * @zackpollard made their first contribution in https://github.com/damongolding/immich-kiosk/pull/934
