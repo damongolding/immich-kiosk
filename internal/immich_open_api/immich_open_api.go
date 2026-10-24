@@ -192,6 +192,7 @@ const (
 	JobNameAssetGenerateThumbnails         JobName = "AssetGenerateThumbnails"
 	JobNameAssetGenerateThumbnailsQueueAll JobName = "AssetGenerateThumbnailsQueueAll"
 	JobNameAuditTableCleanup               JobName = "AuditTableCleanup"
+	JobNameAuthChallengeCleanup            JobName = "AuthChallengeCleanup"
 	JobNameDatabaseBackup                  JobName = "DatabaseBackup"
 	JobNameFacialRecognition               JobName = "FacialRecognition"
 	JobNameFacialRecognitionQueueAll       JobName = "FacialRecognitionQueueAll"
@@ -327,8 +328,13 @@ const (
 
 // Defines values for PartnerDirection.
 const (
-	SharedBy   PartnerDirection = "shared-by"
-	SharedWith PartnerDirection = "shared-with"
+	PartnerDirectionSharedBy   PartnerDirection = "shared-by"
+	PartnerDirectionSharedWith PartnerDirection = "shared-with"
+)
+
+// Defines values for PeopleUsersUpsertType.
+const (
+	PeopleUsersUpsertTypeEveryone PeopleUsersUpsertType = "everyone"
 )
 
 // Defines values for Permission.
@@ -424,6 +430,9 @@ const (
 	PermissionPartnerDelete             Permission = "partner.delete"
 	PermissionPartnerRead               Permission = "partner.read"
 	PermissionPartnerUpdate             Permission = "partner.update"
+	PermissionPasskeyDelete             Permission = "passkey.delete"
+	PermissionPasskeyRead               Permission = "passkey.read"
+	PermissionPasskeyUpdate             Permission = "passkey.update"
 	PermissionPersonCreate              Permission = "person.create"
 	PermissionPersonDelete              Permission = "person.delete"
 	PermissionPersonMerge               Permission = "person.merge"
@@ -503,6 +512,19 @@ const (
 	PermissionWorkflowUpdate            Permission = "workflow.update"
 )
 
+// Defines values for PersonUpdateStrategy.
+const (
+	PersonUpdateStrategyEveryone PersonUpdateStrategy = "everyone"
+	PersonUpdateStrategySelf     PersonUpdateStrategy = "self"
+)
+
+// Defines values for PersonUserRole.
+const (
+	Admin PersonUserRole = "admin"
+	Read  PersonUserRole = "read"
+	Write PersonUserRole = "write"
+)
+
 // Defines values for QueueCommand.
 const (
 	QueueCommandClearFailed QueueCommand = "clear-failed"
@@ -518,7 +540,6 @@ const (
 	QueueJobStatusCompleted QueueJobStatus = "completed"
 	QueueJobStatusDelayed   QueueJobStatus = "delayed"
 	QueueJobStatusFailed    QueueJobStatus = "failed"
-	QueueJobStatusPaused    QueueJobStatus = "paused"
 	QueueJobStatusWaiting   QueueJobStatus = "waiting"
 )
 
@@ -587,6 +608,12 @@ const (
 	INDIVIDUAL SharedLinkType = "INDIVIDUAL"
 )
 
+// Defines values for SharingDirection.
+const (
+	SharingDirectionSharedBy   SharingDirection = "shared-by"
+	SharingDirectionSharedWith SharingDirection = "shared-with"
+)
+
 // Defines values for SourceType.
 const (
 	Exif            SourceType = "exif"
@@ -643,7 +670,9 @@ const (
 	SyncEntityTypeMemoryDeleteV1             SyncEntityType = "MemoryDeleteV1"
 	SyncEntityTypeMemoryToAssetDeleteV1      SyncEntityType = "MemoryToAssetDeleteV1"
 	SyncEntityTypeMemoryToAssetV1            SyncEntityType = "MemoryToAssetV1"
+	SyncEntityTypeMemoryToAssetV2            SyncEntityType = "MemoryToAssetV2"
 	SyncEntityTypeMemoryV1                   SyncEntityType = "MemoryV1"
+	SyncEntityTypeMemoryV2                   SyncEntityType = "MemoryV2"
 	SyncEntityTypePartnerAssetBackfillV1     SyncEntityType = "PartnerAssetBackfillV1"
 	SyncEntityTypePartnerAssetBackfillV2     SyncEntityType = "PartnerAssetBackfillV2"
 	SyncEntityTypePartnerAssetDeleteV1       SyncEntityType = "PartnerAssetDeleteV1"
@@ -690,7 +719,9 @@ const (
 	SyncRequestTypeAuthUsersV1         SyncRequestType = "AuthUsersV1"
 	SyncRequestTypeAuthUsersV2         SyncRequestType = "AuthUsersV2"
 	SyncRequestTypeMemoriesV1          SyncRequestType = "MemoriesV1"
+	SyncRequestTypeMemoriesV2          SyncRequestType = "MemoriesV2"
 	SyncRequestTypeMemoryToAssetsV1    SyncRequestType = "MemoryToAssetsV1"
+	SyncRequestTypeMemoryToAssetsV2    SyncRequestType = "MemoryToAssetsV2"
 	SyncRequestTypePartnerAssetExifsV1 SyncRequestType = "PartnerAssetExifsV1"
 	SyncRequestTypePartnerAssetsV1     SyncRequestType = "PartnerAssetsV1"
 	SyncRequestTypePartnerAssetsV2     SyncRequestType = "PartnerAssetsV2"
@@ -877,6 +908,7 @@ type AdminConfigDto struct {
 	NightlyTasks     AdminConfigNightlyTasksDto     `json:"nightlyTasks"`
 	Notifications    AdminConfigNotificationsDto    `json:"notifications"`
 	Oauth            AdminConfigOAuthDto            `json:"oauth"`
+	Passkey          AdminConfigPasskeyDto          `json:"passkey"`
 	PasswordLogin    AdminConfigPasswordLoginDto    `json:"passwordLogin"`
 	ReverseGeocoding AdminConfigReverseGeocodingDto `json:"reverseGeocoding"`
 	Server           AdminConfigServerDto           `json:"server"`
@@ -1292,6 +1324,18 @@ type AdminConfigOcrDto struct {
 
 	// ModelName Name of the model to use
 	ModelName string `json:"modelName"`
+}
+
+// AdminConfigPasskeyDto defines model for AdminConfigPasskeyDto.
+type AdminConfigPasskeyDto struct {
+	// AdditionalDomains Additional domains
+	AdditionalDomains []string `json:"additionalDomains"`
+
+	// Domain Passkey domain
+	Domain *string `json:"domain"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
 }
 
 // AdminConfigPasswordLoginDto defines model for AdminConfigPasswordLoginDto.
@@ -1760,6 +1804,9 @@ type AssetFaceCreateDto struct {
 	// PersonId Person ID
 	PersonId openapi_types.UUID `json:"personId"`
 
+	// UserId User ID
+	UserId *openapi_types.UUID `json:"userId,omitempty"`
+
 	// Width Face bounding box width
 	Width int `json:"width"`
 
@@ -1817,6 +1864,9 @@ type AssetFaceUpdateItem struct {
 
 	// PersonId Person ID
 	PersonId openapi_types.UUID `json:"personId"`
+
+	// UserId User ID
+	UserId *openapi_types.UUID `json:"userId,omitempty"`
 }
 
 // AssetFileResponseDto defines model for AssetFileResponseDto.
@@ -3402,6 +3452,73 @@ type PartnerUpdateDto struct {
 	InTimeline bool `json:"inTimeline"`
 }
 
+// PasskeyAuthenticationFinishDto defines model for PasskeyAuthenticationFinishDto.
+type PasskeyAuthenticationFinishDto struct {
+	// Response Response returned by @simplewebauthn/browser's `startAuthentication()`
+	Response PasskeyAuthenticationFinishDto_Response `json:"response"`
+}
+
+// PasskeyAuthenticationFinishDto_Response_Response defines model for PasskeyAuthenticationFinishDto.Response.Response.
+type PasskeyAuthenticationFinishDto_Response_Response struct {
+	// UserHandle User handle
+	UserHandle           *string                `json:"userHandle,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"-"`
+}
+
+// PasskeyAuthenticationFinishDto_Response Response returned by @simplewebauthn/browser's `startAuthentication()`
+type PasskeyAuthenticationFinishDto_Response struct {
+	// Id Credential ID
+	Id                   string                                           `json:"id"`
+	Response             PasskeyAuthenticationFinishDto_Response_Response `json:"response"`
+	AdditionalProperties map[string]interface{}                           `json:"-"`
+}
+
+// PasskeyAuthenticationOptionsDto Response returned by @simplewebauthn/server's `generateAuthenticationOptions`
+type PasskeyAuthenticationOptionsDto map[string]interface{}
+
+// PasskeyRegistrationFinishDto defines model for PasskeyRegistrationFinishDto.
+type PasskeyRegistrationFinishDto struct {
+	// Name Passkey name
+	Name *string `json:"name,omitempty"`
+
+	// Response Response returned by @simplewebauthn/browser's `startAuthentication()`
+	Response interface{} `json:"response"`
+}
+
+// PasskeyRegistrationOptionsDto Response returned by @simplewebauthn/server's `generateRegistrationOptions`
+type PasskeyRegistrationOptionsDto map[string]interface{}
+
+// PasskeyResponseDto defines model for PasskeyResponseDto.
+type PasskeyResponseDto struct {
+	// CreatedAt Creation date
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Id Passkey ID
+	Id openapi_types.UUID `json:"id"`
+
+	// Name Passkey name
+	Name *string `json:"name"`
+
+	// UpdatedAt Last update date
+	UpdatedAt time.Time `json:"updatedAt"`
+
+	// UsedAt Last used date
+	UsedAt *time.Time `json:"usedAt"`
+}
+
+// PasskeyUpdateDto defines model for PasskeyUpdateDto.
+type PasskeyUpdateDto struct {
+	// Name Passkey name
+	Name *string `json:"name"`
+}
+
+// PeopleDeleteDto defines model for PeopleDeleteDto.
+type PeopleDeleteDto struct {
+	// Ids IDs to process
+	Ids    []openapi_types.UUID `json:"ids"`
+	UserId *string              `json:"userId,omitempty"`
+}
+
 // PeopleResponse defines model for PeopleResponse.
 type PeopleResponse struct {
 	// Enabled Whether people are enabled
@@ -3412,6 +3529,9 @@ type PeopleResponse struct {
 
 	// SidebarWeb Whether people appear in web sidebar
 	SidebarWeb bool `json:"sidebarWeb"`
+
+	// UpdateStrategy Which person records to update when editing a person
+	UpdateStrategy PersonUpdateStrategy `json:"updateStrategy"`
 }
 
 // PeopleResponseDto People response
@@ -3437,6 +3557,9 @@ type PeopleUpdate struct {
 
 	// SidebarWeb Whether people appear in web sidebar
 	SidebarWeb *bool `json:"sidebarWeb,omitempty"`
+
+	// UpdateStrategy Which person records to update when editing a person
+	UpdateStrategy *PersonUpdateStrategy `json:"updateStrategy,omitempty"`
 }
 
 // PeopleUpdateDto defines model for PeopleUpdateDto.
@@ -3467,7 +3590,52 @@ type PeopleUpdateItem struct {
 
 	// Name Person name
 	Name *string `json:"name,omitempty"`
+
+	// UserId Restrict the update to the person record of this User ID
+	UserId *openapi_types.UUID `json:"userId,omitempty"`
 }
+
+// PeopleUserResponseDto defines model for PeopleUserResponseDto.
+type PeopleUserResponseDto struct {
+	// AvatarColor User avatar color
+	AvatarColor UserAvatarColor `json:"avatarColor"`
+
+	// Email User email
+	Email openapi_types.Email `json:"email"`
+
+	// Id User ID
+	Id openapi_types.UUID `json:"id"`
+
+	// Name User name
+	Name string `json:"name"`
+
+	// ProfileChangedAt Profile change date
+	ProfileChangedAt time.Time `json:"profileChangedAt"`
+
+	// ProfileImagePath Profile image path
+	ProfileImagePath string `json:"profileImagePath"`
+
+	// Role Levels of access for managing people resources on behalf of another user.
+	Role PersonUserRole `json:"role"`
+}
+
+// PeopleUsersUpsertDto defines model for PeopleUsersUpsertDto.
+type PeopleUsersUpsertDto struct {
+	// PersonIds Person IDs, required when type is omitted
+	PersonIds *[]openapi_types.UUID `json:"personIds,omitempty"`
+
+	// Role Levels of access for managing people resources on behalf of another user.
+	Role PersonUserRole `json:"role"`
+
+	// SharedWithIds User IDs that should be given access to the person
+	SharedWithIds []openapi_types.UUID `json:"sharedWithIds"`
+
+	// Type Which people to update when personIds is omitted
+	Type *PeopleUsersUpsertType `json:"type,omitempty"`
+}
+
+// PeopleUsersUpsertType Which people to update when personIds is omitted
+type PeopleUsersUpsertType string
 
 // Permission List of permissions
 type Permission string
@@ -3490,6 +3658,21 @@ type PersonCreateDto struct {
 	Name *string `json:"name,omitempty"`
 }
 
+// PersonDeleteDto defines model for PersonDeleteDto.
+type PersonDeleteDto struct {
+	UserId *string `json:"userId,omitempty"`
+}
+
+// PersonOtherResponseDto defines model for PersonOtherResponseDto.
+type PersonOtherResponseDto struct {
+	BirthDate *string `json:"birthDate"`
+	Name      string  `json:"name"`
+
+	// Role Levels of access for managing people resources on behalf of another user.
+	Role       PersonUserRole     `json:"role"`
+	SharedById openapi_types.UUID `json:"sharedById"`
+}
+
 // PersonResponseDto defines model for PersonResponseDto.
 type PersonResponseDto struct {
 	// BirthDate Person date of birth
@@ -3508,7 +3691,14 @@ type PersonResponseDto struct {
 	IsHidden bool `json:"isHidden"`
 
 	// Name Person name
-	Name string `json:"name"`
+	Name        string                   `json:"name"`
+	OtherPeople []PersonOtherResponseDto `json:"otherPeople"`
+
+	// SharedBy Users that gave the current user access to this person
+	SharedBy []PeopleUserResponseDto `json:"sharedBy"`
+
+	// SharedWith Users the current user gave access to this person
+	SharedWith []PeopleUserResponseDto `json:"sharedWith"`
 
 	// ThumbnailPath Thumbnail path
 	ThumbnailPath string `json:"thumbnailPath"`
@@ -3542,6 +3732,44 @@ type PersonUpdateDto struct {
 
 	// Name Person name
 	Name *string `json:"name,omitempty"`
+
+	// UserId Restrict the update to the person record of this User ID
+	UserId *openapi_types.UUID `json:"userId,omitempty"`
+}
+
+// PersonUpdateStrategy Which person records to update when editing a person
+type PersonUpdateStrategy string
+
+// PersonUserRole Levels of access for managing people resources on behalf of another user.
+type PersonUserRole string
+
+// PersonUsersDeleteDto defines model for PersonUsersDeleteDto.
+type PersonUsersDeleteDto = []struct {
+	// PersonId Person ID
+	PersonId openapi_types.UUID `json:"personId"`
+
+	// SharedById User ID of the user that gave access to the person
+	SharedById *openapi_types.UUID `json:"sharedById,omitempty"`
+
+	// SharedWithId User ID of the user that was given access to the person
+	SharedWithId openapi_types.UUID `json:"sharedWithId"`
+}
+
+// PersonUsersResponseDto defines model for PersonUsersResponseDto.
+type PersonUsersResponseDto = []struct {
+	// PersonId Person ID
+	PersonId openapi_types.UUID `json:"personId"`
+
+	// Role Levels of access for managing people resources on behalf of another user.
+	Role     PersonUserRole  `json:"role"`
+	SharedBy UserResponseDto `json:"sharedBy"`
+
+	// SharedById User ID of the user that gave access to this person
+	SharedById openapi_types.UUID `json:"sharedById"`
+	SharedWith UserResponseDto    `json:"sharedWith"`
+
+	// SharedWithId User ID of the user that was given access to this person
+	SharedWithId openapi_types.UUID `json:"sharedWithId"`
 }
 
 // PinCodeChangeDto defines model for PinCodeChangeDto.
@@ -3677,10 +3905,35 @@ type PluginTemplateStepResponseDto struct {
 
 // PublicConfigDto Configuration properties that are visible to everyone
 type PublicConfigDto struct {
+	Ffmpeg        PublicConfigFFmpegDto        `json:"ffmpeg"`
+	Map           PublicConfigMapDto           `json:"map"`
 	Oauth         PublicConfigOAuthDto         `json:"oauth"`
+	Passkey       PublicConfigPasskeyDto       `json:"passkey"`
 	PasswordLogin PublicConfigPasswordLoginDto `json:"passwordLogin"`
 	Server        PublicConfigServerDto        `json:"server"`
-	Theme         PublicConfigThemeDto         `json:"theme"`
+}
+
+// PublicConfigFFmpegDto defines model for PublicConfigFFmpegDto.
+type PublicConfigFFmpegDto struct {
+	Realtime PublicConfigFFmpegRealtimeDto `json:"realtime"`
+}
+
+// PublicConfigFFmpegRealtimeDto defines model for PublicConfigFFmpegRealtimeDto.
+type PublicConfigFFmpegRealtimeDto struct {
+	// Enabled Enable real-time HLS transcoding (alpha)
+	Enabled bool `json:"enabled"`
+}
+
+// PublicConfigMapDto defines model for PublicConfigMapDto.
+type PublicConfigMapDto struct {
+	// DarkStyle Dark map style URL
+	DarkStyle string `json:"darkStyle"`
+
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+
+	// LightStyle Light map style URL
+	LightStyle string `json:"lightStyle"`
 }
 
 // PublicConfigOAuthDto defines model for PublicConfigOAuthDto.
@@ -3695,6 +3948,12 @@ type PublicConfigOAuthDto struct {
 	Enabled bool `json:"enabled"`
 }
 
+// PublicConfigPasskeyDto defines model for PublicConfigPasskeyDto.
+type PublicConfigPasskeyDto struct {
+	// Enabled Enabled
+	Enabled bool `json:"enabled"`
+}
+
 // PublicConfigPasswordLoginDto defines model for PublicConfigPasswordLoginDto.
 type PublicConfigPasswordLoginDto struct {
 	// Enabled Enabled
@@ -3705,12 +3964,6 @@ type PublicConfigPasswordLoginDto struct {
 type PublicConfigServerDto struct {
 	// LoginPageMessage Login page message
 	LoginPageMessage string `json:"loginPageMessage"`
-}
-
-// PublicConfigThemeDto defines model for PublicConfigThemeDto.
-type PublicConfigThemeDto struct {
-	// CustomCss Custom CSS for theming
-	CustomCss string `json:"customCss"`
 }
 
 // PurchaseResponse defines model for PurchaseResponse.
@@ -4428,6 +4681,9 @@ type ServerVersionHistoryResponseDto struct {
 
 // ServerVersionResponseDto defines model for ServerVersionResponseDto.
 type ServerVersionResponseDto struct {
+	// FeatureLevel Highest feature level supported by the server, which increments independently of the release version
+	FeatureLevel int `json:"featureLevel"`
+
 	// Major Major version number
 	Major int `json:"major"`
 
@@ -4665,6 +4921,9 @@ type SharedLinksUpdate struct {
 	// SidebarWeb Whether shared links appear in web sidebar
 	SidebarWeb *bool `json:"sidebarWeb,omitempty"`
 }
+
+// SharingDirection Sharing direction
+type SharingDirection string
 
 // SignUpDto defines model for SignUpDto.
 type SignUpDto struct {
@@ -5466,11 +5725,12 @@ type UserConfigDto struct {
 	Image            UserConfigImageDto            `json:"image"`
 	MachineLearning  UserConfigMachineLearningDto  `json:"machineLearning"`
 	Map              UserConfigMapDto              `json:"map"`
+	Notifications    UserConfigNotificationsDto    `json:"notifications"`
 	Oauth            UserConfigOAuthDto            `json:"oauth"`
+	Passkey          UserConfigPasskeyDto          `json:"passkey"`
 	PasswordLogin    UserConfigPasswordLoginDto    `json:"passwordLogin"`
 	ReverseGeocoding UserConfigReverseGeocodingDto `json:"reverseGeocoding"`
 	Server           UserConfigServerDto           `json:"server"`
-	Theme            UserConfigThemeDto            `json:"theme"`
 	Trash            UserConfigTrashDto            `json:"trash"`
 	User             UserConfigUserDto             `json:"user"`
 }
@@ -5549,8 +5809,16 @@ type UserConfigMapDto struct {
 	LightStyle string `json:"lightStyle"`
 }
 
+// UserConfigNotificationsDto defines model for UserConfigNotificationsDto.
+type UserConfigNotificationsDto struct {
+	Smtp UserConfigSmtpDto `json:"smtp"`
+}
+
 // UserConfigOAuthDto defines model for UserConfigOAuthDto.
 type UserConfigOAuthDto struct {
+	// AccountManagementUrl Account management URL
+	AccountManagementUrl *string `json:"accountManagementUrl,omitempty"`
+
 	// AutoLaunch Auto launch
 	AutoLaunch bool `json:"autoLaunch"`
 
@@ -5564,6 +5832,12 @@ type UserConfigOAuthDto struct {
 // UserConfigOcrDto defines model for UserConfigOcrDto.
 type UserConfigOcrDto struct {
 	// Enabled Whether the task is enabled
+	Enabled bool `json:"enabled"`
+}
+
+// UserConfigPasskeyDto defines model for UserConfigPasskeyDto.
+type UserConfigPasskeyDto struct {
+	// Enabled Enabled
 	Enabled bool `json:"enabled"`
 }
 
@@ -5591,10 +5865,10 @@ type UserConfigServerDto struct {
 	PublicUsers bool `json:"publicUsers"`
 }
 
-// UserConfigThemeDto defines model for UserConfigThemeDto.
-type UserConfigThemeDto struct {
-	// CustomCss Custom CSS for theming
-	CustomCss string `json:"customCss"`
+// UserConfigSmtpDto defines model for UserConfigSmtpDto.
+type UserConfigSmtpDto struct {
+	// Enabled Whether SMTP email notifications are enabled
+	Enabled bool `json:"enabled"`
 }
 
 // UserConfigTrashDto defines model for UserConfigTrashDto.
@@ -5691,10 +5965,6 @@ type UserUpdateMeDto struct {
 
 	// Name User name
 	Name *string `json:"name,omitempty"`
-
-	// Password User password (deprecated, use change password endpoint)
-	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
-	Password *string `json:"password,omitempty"`
 }
 
 // ValidateAccessTokenResponseDto defines model for ValidateAccessTokenResponseDto.
@@ -6194,6 +6464,12 @@ type GetPartnersParams struct {
 	Direction PartnerDirection `form:"direction" json:"direction"`
 }
 
+// SearchPasskeysParams defines parameters for SearchPasskeys.
+type SearchPasskeysParams struct {
+	// Id Filter by passkey ID
+	Id *openapi_types.UUID `form:"id,omitempty" json:"id,omitempty"`
+}
+
 // GetAllPeopleParams defines parameters for GetAllPeople.
 type GetAllPeopleParams struct {
 	// ClosestAssetId Closest asset ID for similarity search
@@ -6202,14 +6478,46 @@ type GetAllPeopleParams struct {
 	// ClosestPersonId Closest person ID for similarity search
 	ClosestPersonId *openapi_types.UUID `form:"closestPersonId,omitempty" json:"closestPersonId,omitempty"`
 
+	// IsFavorite Filter by favorite status
+	IsFavorite *bool `form:"isFavorite,omitempty" json:"isFavorite,omitempty"`
+
+	// IsHidden Filter by hidden status
+	IsHidden *bool `form:"isHidden,omitempty" json:"isHidden,omitempty"`
+
+	// Name Filter by person name
+	Name *string `form:"name,omitempty" json:"name,omitempty"`
+
 	// Page Page number for pagination
 	Page *int `form:"page,omitempty" json:"page,omitempty"`
+
+	// SharedById Only include people to which the user gave access
+	SharedById *openapi_types.UUID `form:"sharedById,omitempty" json:"sharedById,omitempty"`
+
+	// SharedWithId Only include people to which the user was given access
+	SharedWithId *openapi_types.UUID `form:"sharedWithId,omitempty" json:"sharedWithId,omitempty"`
 
 	// Size Number of items per page
 	Size *int `form:"size,omitempty" json:"size,omitempty"`
 
 	// WithHidden Include hidden people
 	WithHidden *bool `form:"withHidden,omitempty" json:"withHidden,omitempty"`
+}
+
+// GetUsersForPeopleParams defines parameters for GetUsersForPeople.
+type GetUsersForPeopleParams struct {
+	Direction *SharingDirection `form:"direction,omitempty" json:"direction,omitempty"`
+
+	// PersonId Person ID
+	PersonId *openapi_types.UUID `form:"personId,omitempty" json:"personId,omitempty"`
+
+	// Role Role of user
+	Role *PersonUserRole `form:"role,omitempty" json:"role,omitempty"`
+
+	// SharedById User ID of the user that gave access
+	SharedById *openapi_types.UUID `form:"sharedById,omitempty" json:"sharedById,omitempty"`
+
+	// SharedWithId User ID of the user that was given access
+	SharedWithId *openapi_types.UUID `form:"sharedWithId,omitempty" json:"sharedWithId,omitempty"`
 }
 
 // SearchPluginsParams defines parameters for SearchPlugins.
@@ -6756,8 +7064,17 @@ type CreatePartnerJSONRequestBody = PartnerCreateDto
 // UpdatePartnerJSONRequestBody defines body for UpdatePartner for application/json ContentType.
 type UpdatePartnerJSONRequestBody = PartnerUpdateDto
 
+// FinishAuthenticationJSONRequestBody defines body for FinishAuthentication for application/json ContentType.
+type FinishAuthenticationJSONRequestBody = PasskeyAuthenticationFinishDto
+
+// FinishRegistrationJSONRequestBody defines body for FinishRegistration for application/json ContentType.
+type FinishRegistrationJSONRequestBody = PasskeyRegistrationFinishDto
+
+// UpdatePasskeyJSONRequestBody defines body for UpdatePasskey for application/json ContentType.
+type UpdatePasskeyJSONRequestBody = PasskeyUpdateDto
+
 // DeletePeopleJSONRequestBody defines body for DeletePeople for application/json ContentType.
-type DeletePeopleJSONRequestBody = BulkIdsDto
+type DeletePeopleJSONRequestBody = PeopleDeleteDto
 
 // CreatePersonJSONRequestBody defines body for CreatePerson for application/json ContentType.
 type CreatePersonJSONRequestBody = PersonCreateDto
@@ -6767,6 +7084,15 @@ type UpdatePeopleJSONRequestBody = PeopleUpdateDto
 
 // MergePeopleJSONRequestBody defines body for MergePeople for application/json ContentType.
 type MergePeopleJSONRequestBody = MergePersonDto
+
+// RemoveUsersFromPeopleJSONRequestBody defines body for RemoveUsersFromPeople for application/json ContentType.
+type RemoveUsersFromPeopleJSONRequestBody = PersonUsersDeleteDto
+
+// UpsertPeopleUsersJSONRequestBody defines body for UpsertPeopleUsers for application/json ContentType.
+type UpsertPeopleUsersJSONRequestBody = PeopleUsersUpsertDto
+
+// DeletePersonJSONRequestBody defines body for DeletePerson for application/json ContentType.
+type DeletePersonJSONRequestBody = PersonDeleteDto
 
 // UpdatePersonJSONRequestBody defines body for UpdatePerson for application/json ContentType.
 type UpdatePersonJSONRequestBody = PersonUpdateDto
@@ -6884,6 +7210,153 @@ type CreateWorkflowJSONRequestBody = WorkflowCreateDto
 
 // UpdateWorkflowJSONRequestBody defines body for UpdateWorkflow for application/json ContentType.
 type UpdateWorkflowJSONRequestBody = WorkflowUpdateDto
+
+// Getter for additional properties for PasskeyAuthenticationFinishDto_Response_Response. Returns the specified
+// element and whether it was found
+func (a PasskeyAuthenticationFinishDto_Response_Response) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for PasskeyAuthenticationFinishDto_Response_Response
+func (a *PasskeyAuthenticationFinishDto_Response_Response) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for PasskeyAuthenticationFinishDto_Response_Response to handle AdditionalProperties
+func (a *PasskeyAuthenticationFinishDto_Response_Response) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["userHandle"]; found {
+		err = json.Unmarshal(raw, &a.UserHandle)
+		if err != nil {
+			return fmt.Errorf("error reading 'userHandle': %w", err)
+		}
+		delete(object, "userHandle")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for PasskeyAuthenticationFinishDto_Response_Response to handle AdditionalProperties
+func (a PasskeyAuthenticationFinishDto_Response_Response) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.UserHandle != nil {
+		object["userHandle"], err = json.Marshal(a.UserHandle)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'userHandle': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
+// Getter for additional properties for PasskeyAuthenticationFinishDto_Response. Returns the specified
+// element and whether it was found
+func (a PasskeyAuthenticationFinishDto_Response) Get(fieldName string) (value interface{}, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for PasskeyAuthenticationFinishDto_Response
+func (a *PasskeyAuthenticationFinishDto_Response) Set(fieldName string, value interface{}) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]interface{})
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for PasskeyAuthenticationFinishDto_Response to handle AdditionalProperties
+func (a *PasskeyAuthenticationFinishDto_Response) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["id"]; found {
+		err = json.Unmarshal(raw, &a.Id)
+		if err != nil {
+			return fmt.Errorf("error reading 'id': %w", err)
+		}
+		delete(object, "id")
+	}
+
+	if raw, found := object["response"]; found {
+		err = json.Unmarshal(raw, &a.Response)
+		if err != nil {
+			return fmt.Errorf("error reading 'response': %w", err)
+		}
+		delete(object, "response")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]interface{})
+		for fieldName, fieldBuf := range object {
+			var fieldVal interface{}
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for PasskeyAuthenticationFinishDto_Response to handle AdditionalProperties
+func (a PasskeyAuthenticationFinishDto_Response) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	object["id"], err = json.Marshal(a.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'id': %w", err)
+	}
+
+	object["response"], err = json.Marshal(a.Response)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling 'response': %w", err)
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
 
 // AsCropParameters returns the union data inside the AssetEditActionItemDto_Parameters as a CropParameters
 func (t AssetEditActionItemDto_Parameters) AsCropParameters() (CropParameters, error) {
@@ -7727,6 +8200,36 @@ type ClientInterface interface {
 
 	UpdatePartner(ctx context.Context, id openapi_types.UUID, body UpdatePartnerJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// SearchPasskeys request
+	SearchPasskeys(ctx context.Context, params *SearchPasskeysParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FinishAuthenticationWithBody request with any body
+	FinishAuthenticationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FinishAuthentication(ctx context.Context, body FinishAuthenticationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// StartAuthentication request
+	StartAuthentication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FinishRegistrationWithBody request with any body
+	FinishRegistrationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FinishRegistration(ctx context.Context, body FinishRegistrationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// StartRegistration request
+	StartRegistration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeletePasskey request
+	DeletePasskey(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPasskey request
+	GetPasskey(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdatePasskeyWithBody request with any body
+	UpdatePasskeyWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdatePasskey(ctx context.Context, id openapi_types.UUID, body UpdatePasskeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeletePeopleWithBody request with any body
 	DeletePeopleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -7750,8 +8253,23 @@ type ClientInterface interface {
 
 	MergePeople(ctx context.Context, body MergePeopleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DeletePerson request
-	DeletePerson(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// RemoveUsersFromPeopleWithBody request with any body
+	RemoveUsersFromPeopleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RemoveUsersFromPeople(ctx context.Context, body RemoveUsersFromPeopleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetUsersForPeople request
+	GetUsersForPeople(ctx context.Context, params *GetUsersForPeopleParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpsertPeopleUsersWithBody request with any body
+	UpsertPeopleUsersWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpsertPeopleUsers(ctx context.Context, body UpsertPeopleUsersJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeletePersonWithBody request with any body
+	DeletePersonWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DeletePerson(ctx context.Context, id openapi_types.UUID, body DeletePersonJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetPerson request
 	GetPerson(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -10803,6 +11321,138 @@ func (c *Client) UpdatePartner(ctx context.Context, id openapi_types.UUID, body 
 	return c.Client.Do(req)
 }
 
+func (c *Client) SearchPasskeys(ctx context.Context, params *SearchPasskeysParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSearchPasskeysRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FinishAuthenticationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFinishAuthenticationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FinishAuthentication(ctx context.Context, body FinishAuthenticationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFinishAuthenticationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) StartAuthentication(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStartAuthenticationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FinishRegistrationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFinishRegistrationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FinishRegistration(ctx context.Context, body FinishRegistrationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFinishRegistrationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) StartRegistration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewStartRegistrationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeletePasskey(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeletePasskeyRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetPasskey(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPasskeyRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdatePasskeyWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePasskeyRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdatePasskey(ctx context.Context, id openapi_types.UUID, body UpdatePasskeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePasskeyRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) DeletePeopleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeletePeopleRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -10911,8 +11561,80 @@ func (c *Client) MergePeople(ctx context.Context, body MergePeopleJSONRequestBod
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeletePerson(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeletePersonRequest(c.Server, id)
+func (c *Client) RemoveUsersFromPeopleWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveUsersFromPeopleRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveUsersFromPeople(ctx context.Context, body RemoveUsersFromPeopleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveUsersFromPeopleRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetUsersForPeople(ctx context.Context, params *GetUsersForPeopleParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetUsersForPeopleRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpsertPeopleUsersWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpsertPeopleUsersRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpsertPeopleUsers(ctx context.Context, body UpsertPeopleUsersJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpsertPeopleUsersRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeletePersonWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeletePersonRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeletePerson(ctx context.Context, id openapi_types.UUID, body DeletePersonJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeletePersonRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -20041,6 +20763,304 @@ func NewUpdatePartnerRequestWithBody(server string, id openapi_types.UUID, conte
 	return req, nil
 }
 
+// NewSearchPasskeysRequest generates requests for SearchPasskeys
+func NewSearchPasskeysRequest(server string, params *SearchPasskeysParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/passkeys")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Id != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "id", runtime.ParamLocationQuery, *params.Id); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewFinishAuthenticationRequest calls the generic FinishAuthentication builder with application/json body
+func NewFinishAuthenticationRequest(server string, body FinishAuthenticationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFinishAuthenticationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFinishAuthenticationRequestWithBody generates requests for FinishAuthentication with any type of body
+func NewFinishAuthenticationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/passkeys/authentication/finish")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewStartAuthenticationRequest generates requests for StartAuthentication
+func NewStartAuthenticationRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/passkeys/authentication/start")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewFinishRegistrationRequest calls the generic FinishRegistration builder with application/json body
+func NewFinishRegistrationRequest(server string, body FinishRegistrationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFinishRegistrationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFinishRegistrationRequestWithBody generates requests for FinishRegistration with any type of body
+func NewFinishRegistrationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/passkeys/registration/finish")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewStartRegistrationRequest generates requests for StartRegistration
+func NewStartRegistrationRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/passkeys/registration/start")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeletePasskeyRequest generates requests for DeletePasskey
+func NewDeletePasskeyRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/passkeys/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetPasskeyRequest generates requests for GetPasskey
+func NewGetPasskeyRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/passkeys/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdatePasskeyRequest calls the generic UpdatePasskey builder with application/json body
+func NewUpdatePasskeyRequest(server string, id openapi_types.UUID, body UpdatePasskeyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdatePasskeyRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewUpdatePasskeyRequestWithBody generates requests for UpdatePasskey with any type of body
+func NewUpdatePasskeyRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/passkeys/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewDeletePeopleRequest calls the generic DeletePeople builder with application/json body
 func NewDeletePeopleRequest(server string, body DeletePeopleJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -20135,9 +21155,89 @@ func NewGetAllPeopleRequest(server string, params *GetAllPeopleParams) (*http.Re
 
 		}
 
+		if params.IsFavorite != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isFavorite", runtime.ParamLocationQuery, *params.IsFavorite); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.IsHidden != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "isHidden", runtime.ParamLocationQuery, *params.IsHidden); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Name != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name", runtime.ParamLocationQuery, *params.Name); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.Page != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "page", runtime.ParamLocationQuery, *params.Page); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.SharedById != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sharedById", runtime.ParamLocationQuery, *params.SharedById); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.SharedWithId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sharedWithId", runtime.ParamLocationQuery, *params.SharedWithId); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -20314,8 +21414,212 @@ func NewMergePeopleRequestWithBody(server string, contentType string, body io.Re
 	return req, nil
 }
 
-// NewDeletePersonRequest generates requests for DeletePerson
-func NewDeletePersonRequest(server string, id openapi_types.UUID) (*http.Request, error) {
+// NewRemoveUsersFromPeopleRequest calls the generic RemoveUsersFromPeople builder with application/json body
+func NewRemoveUsersFromPeopleRequest(server string, body RemoveUsersFromPeopleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRemoveUsersFromPeopleRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRemoveUsersFromPeopleRequestWithBody generates requests for RemoveUsersFromPeople with any type of body
+func NewRemoveUsersFromPeopleRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/people/users")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetUsersForPeopleRequest generates requests for GetUsersForPeople
+func NewGetUsersForPeopleRequest(server string, params *GetUsersForPeopleParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/people/users")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Direction != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction", runtime.ParamLocationQuery, *params.Direction); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PersonId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "personId", runtime.ParamLocationQuery, *params.PersonId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Role != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "role", runtime.ParamLocationQuery, *params.Role); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.SharedById != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sharedById", runtime.ParamLocationQuery, *params.SharedById); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.SharedWithId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "sharedWithId", runtime.ParamLocationQuery, *params.SharedWithId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpsertPeopleUsersRequest calls the generic UpsertPeopleUsers builder with application/json body
+func NewUpsertPeopleUsersRequest(server string, body UpsertPeopleUsersJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpsertPeopleUsersRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpsertPeopleUsersRequestWithBody generates requests for UpsertPeopleUsers with any type of body
+func NewUpsertPeopleUsersRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/people/users")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeletePersonRequest calls the generic DeletePerson builder with application/json body
+func NewDeletePersonRequest(server string, id openapi_types.UUID, body DeletePersonJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDeletePersonRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewDeletePersonRequestWithBody generates requests for DeletePerson with any type of body
+func NewDeletePersonRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -20340,10 +21644,12 @@ func NewDeletePersonRequest(server string, id openapi_types.UUID) (*http.Request
 		return nil, err
 	}
 
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	req, err := http.NewRequest("DELETE", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -26685,6 +27991,36 @@ type ClientWithResponsesInterface interface {
 
 	UpdatePartnerWithResponse(ctx context.Context, id openapi_types.UUID, body UpdatePartnerJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePartnerResponse, error)
 
+	// SearchPasskeysWithResponse request
+	SearchPasskeysWithResponse(ctx context.Context, params *SearchPasskeysParams, reqEditors ...RequestEditorFn) (*SearchPasskeysResponse, error)
+
+	// FinishAuthenticationWithBodyWithResponse request with any body
+	FinishAuthenticationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FinishAuthenticationResponse, error)
+
+	FinishAuthenticationWithResponse(ctx context.Context, body FinishAuthenticationJSONRequestBody, reqEditors ...RequestEditorFn) (*FinishAuthenticationResponse, error)
+
+	// StartAuthenticationWithResponse request
+	StartAuthenticationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StartAuthenticationResponse, error)
+
+	// FinishRegistrationWithBodyWithResponse request with any body
+	FinishRegistrationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FinishRegistrationResponse, error)
+
+	FinishRegistrationWithResponse(ctx context.Context, body FinishRegistrationJSONRequestBody, reqEditors ...RequestEditorFn) (*FinishRegistrationResponse, error)
+
+	// StartRegistrationWithResponse request
+	StartRegistrationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StartRegistrationResponse, error)
+
+	// DeletePasskeyWithResponse request
+	DeletePasskeyWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeletePasskeyResponse, error)
+
+	// GetPasskeyWithResponse request
+	GetPasskeyWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetPasskeyResponse, error)
+
+	// UpdatePasskeyWithBodyWithResponse request with any body
+	UpdatePasskeyWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePasskeyResponse, error)
+
+	UpdatePasskeyWithResponse(ctx context.Context, id openapi_types.UUID, body UpdatePasskeyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePasskeyResponse, error)
+
 	// DeletePeopleWithBodyWithResponse request with any body
 	DeletePeopleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeletePeopleResponse, error)
 
@@ -26708,8 +28044,23 @@ type ClientWithResponsesInterface interface {
 
 	MergePeopleWithResponse(ctx context.Context, body MergePeopleJSONRequestBody, reqEditors ...RequestEditorFn) (*MergePeopleResponse, error)
 
-	// DeletePersonWithResponse request
-	DeletePersonWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeletePersonResponse, error)
+	// RemoveUsersFromPeopleWithBodyWithResponse request with any body
+	RemoveUsersFromPeopleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RemoveUsersFromPeopleResponse, error)
+
+	RemoveUsersFromPeopleWithResponse(ctx context.Context, body RemoveUsersFromPeopleJSONRequestBody, reqEditors ...RequestEditorFn) (*RemoveUsersFromPeopleResponse, error)
+
+	// GetUsersForPeopleWithResponse request
+	GetUsersForPeopleWithResponse(ctx context.Context, params *GetUsersForPeopleParams, reqEditors ...RequestEditorFn) (*GetUsersForPeopleResponse, error)
+
+	// UpsertPeopleUsersWithBodyWithResponse request with any body
+	UpsertPeopleUsersWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpsertPeopleUsersResponse, error)
+
+	UpsertPeopleUsersWithResponse(ctx context.Context, body UpsertPeopleUsersJSONRequestBody, reqEditors ...RequestEditorFn) (*UpsertPeopleUsersResponse, error)
+
+	// DeletePersonWithBodyWithResponse request with any body
+	DeletePersonWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeletePersonResponse, error)
+
+	DeletePersonWithResponse(ctx context.Context, id openapi_types.UUID, body DeletePersonJSONRequestBody, reqEditors ...RequestEditorFn) (*DeletePersonResponse, error)
 
 	// GetPersonWithResponse request
 	GetPersonWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetPersonResponse, error)
@@ -30490,6 +31841,181 @@ func (r UpdatePartnerResponse) StatusCode() int {
 	return 0
 }
 
+type SearchPasskeysResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]PasskeyResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r SearchPasskeysResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SearchPasskeysResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FinishAuthenticationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *LoginResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r FinishAuthenticationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FinishAuthenticationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type StartAuthenticationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PasskeyAuthenticationOptionsDto
+}
+
+// Status returns HTTPResponse.Status
+func (r StartAuthenticationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StartAuthenticationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FinishRegistrationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *PasskeyResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r FinishRegistrationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FinishRegistrationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type StartRegistrationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PasskeyRegistrationOptionsDto
+}
+
+// Status returns HTTPResponse.Status
+func (r StartRegistrationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r StartRegistrationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeletePasskeyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r DeletePasskeyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeletePasskeyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPasskeyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PasskeyResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPasskeyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPasskeyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdatePasskeyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PasskeyResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdatePasskeyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdatePasskeyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type DeletePeopleResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -30593,6 +32119,70 @@ func (r MergePeopleResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r MergePeopleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RemoveUsersFromPeopleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r RemoveUsersFromPeopleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveUsersFromPeopleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetUsersForPeopleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PersonUsersResponseDto
+}
+
+// Status returns HTTPResponse.Status
+func (r GetUsersForPeopleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetUsersForPeopleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpsertPeopleUsersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r UpsertPeopleUsersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpsertPeopleUsersResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -35037,6 +36627,102 @@ func (c *ClientWithResponses) UpdatePartnerWithResponse(ctx context.Context, id 
 	return ParseUpdatePartnerResponse(rsp)
 }
 
+// SearchPasskeysWithResponse request returning *SearchPasskeysResponse
+func (c *ClientWithResponses) SearchPasskeysWithResponse(ctx context.Context, params *SearchPasskeysParams, reqEditors ...RequestEditorFn) (*SearchPasskeysResponse, error) {
+	rsp, err := c.SearchPasskeys(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSearchPasskeysResponse(rsp)
+}
+
+// FinishAuthenticationWithBodyWithResponse request with arbitrary body returning *FinishAuthenticationResponse
+func (c *ClientWithResponses) FinishAuthenticationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FinishAuthenticationResponse, error) {
+	rsp, err := c.FinishAuthenticationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFinishAuthenticationResponse(rsp)
+}
+
+func (c *ClientWithResponses) FinishAuthenticationWithResponse(ctx context.Context, body FinishAuthenticationJSONRequestBody, reqEditors ...RequestEditorFn) (*FinishAuthenticationResponse, error) {
+	rsp, err := c.FinishAuthentication(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFinishAuthenticationResponse(rsp)
+}
+
+// StartAuthenticationWithResponse request returning *StartAuthenticationResponse
+func (c *ClientWithResponses) StartAuthenticationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StartAuthenticationResponse, error) {
+	rsp, err := c.StartAuthentication(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStartAuthenticationResponse(rsp)
+}
+
+// FinishRegistrationWithBodyWithResponse request with arbitrary body returning *FinishRegistrationResponse
+func (c *ClientWithResponses) FinishRegistrationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FinishRegistrationResponse, error) {
+	rsp, err := c.FinishRegistrationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFinishRegistrationResponse(rsp)
+}
+
+func (c *ClientWithResponses) FinishRegistrationWithResponse(ctx context.Context, body FinishRegistrationJSONRequestBody, reqEditors ...RequestEditorFn) (*FinishRegistrationResponse, error) {
+	rsp, err := c.FinishRegistration(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFinishRegistrationResponse(rsp)
+}
+
+// StartRegistrationWithResponse request returning *StartRegistrationResponse
+func (c *ClientWithResponses) StartRegistrationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*StartRegistrationResponse, error) {
+	rsp, err := c.StartRegistration(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseStartRegistrationResponse(rsp)
+}
+
+// DeletePasskeyWithResponse request returning *DeletePasskeyResponse
+func (c *ClientWithResponses) DeletePasskeyWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeletePasskeyResponse, error) {
+	rsp, err := c.DeletePasskey(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeletePasskeyResponse(rsp)
+}
+
+// GetPasskeyWithResponse request returning *GetPasskeyResponse
+func (c *ClientWithResponses) GetPasskeyWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetPasskeyResponse, error) {
+	rsp, err := c.GetPasskey(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPasskeyResponse(rsp)
+}
+
+// UpdatePasskeyWithBodyWithResponse request with arbitrary body returning *UpdatePasskeyResponse
+func (c *ClientWithResponses) UpdatePasskeyWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePasskeyResponse, error) {
+	rsp, err := c.UpdatePasskeyWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdatePasskeyResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdatePasskeyWithResponse(ctx context.Context, id openapi_types.UUID, body UpdatePasskeyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePasskeyResponse, error) {
+	rsp, err := c.UpdatePasskey(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdatePasskeyResponse(rsp)
+}
+
 // DeletePeopleWithBodyWithResponse request with arbitrary body returning *DeletePeopleResponse
 func (c *ClientWithResponses) DeletePeopleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeletePeopleResponse, error) {
 	rsp, err := c.DeletePeopleWithBody(ctx, contentType, body, reqEditors...)
@@ -35114,9 +36800,60 @@ func (c *ClientWithResponses) MergePeopleWithResponse(ctx context.Context, body 
 	return ParseMergePeopleResponse(rsp)
 }
 
-// DeletePersonWithResponse request returning *DeletePersonResponse
-func (c *ClientWithResponses) DeletePersonWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeletePersonResponse, error) {
-	rsp, err := c.DeletePerson(ctx, id, reqEditors...)
+// RemoveUsersFromPeopleWithBodyWithResponse request with arbitrary body returning *RemoveUsersFromPeopleResponse
+func (c *ClientWithResponses) RemoveUsersFromPeopleWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RemoveUsersFromPeopleResponse, error) {
+	rsp, err := c.RemoveUsersFromPeopleWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveUsersFromPeopleResponse(rsp)
+}
+
+func (c *ClientWithResponses) RemoveUsersFromPeopleWithResponse(ctx context.Context, body RemoveUsersFromPeopleJSONRequestBody, reqEditors ...RequestEditorFn) (*RemoveUsersFromPeopleResponse, error) {
+	rsp, err := c.RemoveUsersFromPeople(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveUsersFromPeopleResponse(rsp)
+}
+
+// GetUsersForPeopleWithResponse request returning *GetUsersForPeopleResponse
+func (c *ClientWithResponses) GetUsersForPeopleWithResponse(ctx context.Context, params *GetUsersForPeopleParams, reqEditors ...RequestEditorFn) (*GetUsersForPeopleResponse, error) {
+	rsp, err := c.GetUsersForPeople(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetUsersForPeopleResponse(rsp)
+}
+
+// UpsertPeopleUsersWithBodyWithResponse request with arbitrary body returning *UpsertPeopleUsersResponse
+func (c *ClientWithResponses) UpsertPeopleUsersWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpsertPeopleUsersResponse, error) {
+	rsp, err := c.UpsertPeopleUsersWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpsertPeopleUsersResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpsertPeopleUsersWithResponse(ctx context.Context, body UpsertPeopleUsersJSONRequestBody, reqEditors ...RequestEditorFn) (*UpsertPeopleUsersResponse, error) {
+	rsp, err := c.UpsertPeopleUsers(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpsertPeopleUsersResponse(rsp)
+}
+
+// DeletePersonWithBodyWithResponse request with arbitrary body returning *DeletePersonResponse
+func (c *ClientWithResponses) DeletePersonWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DeletePersonResponse, error) {
+	rsp, err := c.DeletePersonWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeletePersonResponse(rsp)
+}
+
+func (c *ClientWithResponses) DeletePersonWithResponse(ctx context.Context, id openapi_types.UUID, body DeletePersonJSONRequestBody, reqEditors ...RequestEditorFn) (*DeletePersonResponse, error) {
+	rsp, err := c.DeletePerson(ctx, id, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -39959,6 +41696,204 @@ func ParseUpdatePartnerResponse(rsp *http.Response) (*UpdatePartnerResponse, err
 	return response, nil
 }
 
+// ParseSearchPasskeysResponse parses an HTTP response from a SearchPasskeysWithResponse call
+func ParseSearchPasskeysResponse(rsp *http.Response) (*SearchPasskeysResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SearchPasskeysResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []PasskeyResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFinishAuthenticationResponse parses an HTTP response from a FinishAuthenticationWithResponse call
+func ParseFinishAuthenticationResponse(rsp *http.Response) (*FinishAuthenticationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FinishAuthenticationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest LoginResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseStartAuthenticationResponse parses an HTTP response from a StartAuthenticationWithResponse call
+func ParseStartAuthenticationResponse(rsp *http.Response) (*StartAuthenticationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StartAuthenticationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PasskeyAuthenticationOptionsDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFinishRegistrationResponse parses an HTTP response from a FinishRegistrationWithResponse call
+func ParseFinishRegistrationResponse(rsp *http.Response) (*FinishRegistrationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FinishRegistrationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest PasskeyResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseStartRegistrationResponse parses an HTTP response from a StartRegistrationWithResponse call
+func ParseStartRegistrationResponse(rsp *http.Response) (*StartRegistrationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &StartRegistrationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PasskeyRegistrationOptionsDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeletePasskeyResponse parses an HTTP response from a DeletePasskeyWithResponse call
+func ParseDeletePasskeyResponse(rsp *http.Response) (*DeletePasskeyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeletePasskeyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetPasskeyResponse parses an HTTP response from a GetPasskeyWithResponse call
+func ParseGetPasskeyResponse(rsp *http.Response) (*GetPasskeyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPasskeyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PasskeyResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdatePasskeyResponse parses an HTTP response from a UpdatePasskeyWithResponse call
+func ParseUpdatePasskeyResponse(rsp *http.Response) (*UpdatePasskeyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdatePasskeyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PasskeyResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseDeletePeopleResponse parses an HTTP response from a DeletePeopleWithResponse call
 func ParseDeletePeopleResponse(rsp *http.Response) (*DeletePeopleResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -40074,6 +42009,64 @@ func ParseMergePeopleResponse(rsp *http.Response) (*MergePeopleResponse, error) 
 		}
 		response.JSON200 = &dest
 
+	}
+
+	return response, nil
+}
+
+// ParseRemoveUsersFromPeopleResponse parses an HTTP response from a RemoveUsersFromPeopleWithResponse call
+func ParseRemoveUsersFromPeopleResponse(rsp *http.Response) (*RemoveUsersFromPeopleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveUsersFromPeopleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseGetUsersForPeopleResponse parses an HTTP response from a GetUsersForPeopleWithResponse call
+func ParseGetUsersForPeopleResponse(rsp *http.Response) (*GetUsersForPeopleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetUsersForPeopleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PersonUsersResponseDto
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpsertPeopleUsersResponse parses an HTTP response from a UpsertPeopleUsersWithResponse call
+func ParseUpsertPeopleUsersResponse(rsp *http.Response) (*UpsertPeopleUsersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpsertPeopleUsersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
 	}
 
 	return response, nil
