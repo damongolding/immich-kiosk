@@ -64,7 +64,7 @@ function initCopyToClipboard(): void {
         const url = document.getElementById("url-result--url");
         if (!url) return;
 
-        copyToClipboard(copyButton, url.textConent);
+        copyToClipboard(copyButton, url.textContent);
     });
 }
 
