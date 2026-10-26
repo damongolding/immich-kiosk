@@ -368,6 +368,8 @@ type Config struct {
 	PastMemoryDays int     `json:"pastMemoryDays" yaml:"past_memory_days" mapstructure:"past_memory_days" query:"past_memory_days" form:"past_memory_days" default:"0"`
 	MemoryWeight   float64 `json:"memoryWeight" yaml:"memory_weight" mapstructure:"memory_weight" default:"1.0"`
 
+	Timelines []string `json:"timelines" yaml:"timelines" mapstructure:"timelines" default:"[]"`
+
 	// FilterDate filter certain asset bucket assets by date range
 	FilterDate string `json:"filterDate" yaml:"filter_date" mapstructure:"filter_date" query:"filter_date" form:"filter_date" default:""`
 	// FilterNewest filter certain asset bucket assets by the newest X assets
@@ -718,6 +720,7 @@ func (c *Config) Load() error {
 	c.checkSecrets()
 	c.checkRequiredFields()
 	c.checkUsersAPIKeys()
+	c.checkTimelines()
 	c.checkLowercaseTaggedFields()
 	c.checkAssetBuckets()
 	c.checkIDs("blacklist", c.Blacklist, false, false)
