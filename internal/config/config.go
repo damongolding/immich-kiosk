@@ -781,7 +781,7 @@ func getHistory(queries url.Values) []string {
 	return h
 }
 
-func (c *Config) ResetRawFilter(q []string) {
+func (c *Config) RawFilterURLQueries(q []string) {
 	if len(q) == 0 {
 		c.RawFilters = []RawFilter{}
 		return
@@ -815,8 +815,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 	// check for person or album in quries and empty baseconfig slice if found
 	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") || queries.Has("rating") || queries.Has("timeline") || queries.Has("raw_filter") {
 		c.ResetBuckets()
-		log.Info("URL", "r", queries["raw_filter"])
-		c.ResetRawFilter(queries["raw_filter"])
+		c.RawFilterURLQueries(queries["raw_filter"])
 	}
 
 	const none = "none"
