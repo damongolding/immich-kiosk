@@ -152,7 +152,6 @@ func Image(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 			return err
 		}
 
-		// Add Immich asset ID to HTTP response headers
 		c.Response().Header().Set("X-Immich-Asset-ID", immichAsset.ID)
 
 		return c.Blob(http.StatusOK, kiosk.MimeTypeJpeg, imgBytes)
