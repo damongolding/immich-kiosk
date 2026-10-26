@@ -59,7 +59,7 @@ func (a *Asset) RawFilterCount(requestID, deviceID string, index int) (int, erro
 		return 0, assetsErr
 	}
 
-	log.Debug("RawFilterCount", "name", a.requestConfig.RawFilters[index].Name, "user", a.requestConfig.RawFilters[index].User, "count", len(res.Assets))
+	log.Debug(requestID+" RawFilterCount", "name", a.requestConfig.RawFilters[index].Name, "user", a.requestConfig.RawFilters[index].User, "assets matched", len(res.Assets))
 
 	return len(res.Assets), nil
 }
@@ -107,8 +107,6 @@ func (a *Asset) RandomAssetFromRawFilter(requestID, deviceID, id string) error {
 			return fecthErr
 		}
 
-		// log.Info("SUCC rawFilter", "len", len(immichAssets), "immichAssets", immichAssets)
-
 		apiCacheKey := cache.APICacheKey(apiURL.String(), deviceID, a.requestConfig.SelectedUser)
 
 		if len(immichAssets) == 0 {
@@ -116,11 +114,6 @@ func (a *Asset) RandomAssetFromRawFilter(requestID, deviceID, id string) error {
 			cache.Delete(apiCacheKey)
 			continue
 		}
-
-		// wantedAssetType := ImageOnlyAssetTypes
-		// if a.requestConfig.ShowVideos {
-		// 	wantedAssetType = AllAssetTypes
-		// }
 
 		for immichAssetIndex, asset := range immichAssets {
 
@@ -141,16 +134,11 @@ func (a *Asset) RandomAssetFromRawFilter(requestID, deviceID, id string) error {
 					return cacheMarshalErr
 				}
 
-				log.Debug("left in raw cache", "items", len(immichAssetsToCache), "key", apiCacheKey)
-
 				// Replace cache with remaining assets after removing used asset(s)
 				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 			}
 
 			asset.BucketID = "RAW_FILTER"
-			// if asset.requestConfig.SelectedUser != "" {
-			// 	asset.BucketID = fmt.Sprintf("%s%s%s", personID, kiosk.MultipleUserIndicator, asset.requestConfig.SelectedUser)
-			// }
 
 			*a = asset
 

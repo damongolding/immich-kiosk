@@ -81,8 +81,6 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 				return nil, err
 			}
 
-			log.Info("using raw filer", "count", rawCount)
-
 			*d.assets = append(*d.assets, utils.AssetWithWeighting{
 				Asset:  utils.WeightedAsset{Type: kiosk.SourceRawFilter, ID: fmt.Sprintf("%s#%d", string(kiosk.SourceRawFilter), rfi)},
 				Weight: rawCount,
@@ -416,7 +414,6 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, e
 		return immichAsset.RandomAssetWithRating(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
 	case kiosk.SourceRawFilter:
-		log.Debug("choosen raw filter")
 		return immichAsset.RandomAssetFromRawFilter(requestID, deviceID, pickedAsset.ID)
 
 	case kiosk.SourceTimeline:
