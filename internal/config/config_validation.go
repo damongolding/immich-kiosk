@@ -745,8 +745,8 @@ func (c *Config) checkTimelines() {
 	t := make([]string, 0, len(c.Timelines))
 
 	for _, user := range c.Timelines {
-		if u, found := c.ImmichUsersAPIKeys[user]; found {
-			t = append(t, u)
+		if _, found := c.ImmichUsersAPIKeys[user]; found {
+			t = append(t, user)
 		} else {
 			log.Warn("Timeline: user not found in immich_users_api_keys", "user", user)
 		}
