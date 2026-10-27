@@ -31,7 +31,6 @@
 
 .weather--temp {
     display: flex;
-    gap: 0.5rem;
     font-size: 3rem;
     font-weight: bold;
 }
@@ -49,17 +48,21 @@
     z-index: var(--z-clock);
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
     align-items: flex-end;
     font-size: 1rem;
     text-align: right;
+    > div:not(:first-child) {
+        margin-top: 0.5rem;
+    }
 }
 
 .weather--stat {
     display: flex;
-    gap: 0.5rem;
     align-items: center;
     padding-top: 0.1rem;
+    > div:not(:first-child) {
+        margin-left: 0.5rem;
+    }
 }
 
 .weather--stat--icon {
@@ -90,15 +93,19 @@
 .weather--forecast {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
     padding-top: 1rem;
+    > div:not(:first-child) {
+        margin-left: 1rem;
+    }
 }
 
 .weather--forecast--item {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
     align-items: center;
+    > div:not(:first-child) {
+        margin-top: 0.2rem;
+    }
 }
 
 .weather--temperature-range--value--high,

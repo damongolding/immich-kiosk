@@ -3,7 +3,6 @@
     right: 0;
     bottom: 0;
     display: flex;
-    gap: 0.5rem;
     align-items: flex-end;
     justify-content: space-between;
     width: 100%;
@@ -40,13 +39,16 @@
     bottom: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
     align-items: flex-start;
     max-width: 70vw;
     font-size: 1.1rem;
     color: #fff;
     text-align: left;
     text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.6);
+
+    > div:not(:first-child) {
+        margin-top: 0.5rem;
+    }
 }
 
 .asset--metadata .responsive-break {
@@ -65,8 +67,11 @@
 
 .asset--metadata--has-icon {
     display: flex;
-    gap: 0.5rem;
     align-items: center;
+}
+
+.asset--metadata--has-icon > :not(:first-child) {
+    margin-left: 0.5rem;
 }
 
 .asset--metadata--icon {
@@ -83,6 +88,7 @@
 
 .right-align-icons .asset--metadata--icon {
     order: 2;
+    margin-left: 0.5rem;
 }
 
 .asset--metadata--datetime {
@@ -108,15 +114,16 @@
 }
 
 .asset--metadata--rating-stars {
-    gap: 0.3rem;
     width: 100%;
+    > span:not(:first-child) {
+        margin-left: 0.3rem;
+    }
 }
 
 .frame--layout-splitview:nth-child(2) {
     .asset--metadata {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
         align-items: flex-end;
         order: 2;
         max-width: 70vw;
@@ -197,7 +204,6 @@
         .asset--metadata {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
             align-items: flex-start;
             order: 1;
             max-width: 70vw;

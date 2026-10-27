@@ -212,7 +212,7 @@ templ URLBuilderForm(c config.Config, d common.URLViewData, extended bool) {
 							<div class="form-group--description">
 								These options only apply when “Show image location” is enabled.
 							</div>
-							<div style="padding-left: 1rem; display: flex; flex-direction: column; gap: 1.5rem">
+							<div class="location-hide">
 								@URLBuilderRadio("Hide city", "image_location_hide_city", "Hide the city name in the location.", "true", "true", "false", "false")
 								@URLBuilderRadio("Hide state", "image_location_hide_state", "Hide the state name in the location.", "true", "true", "false", "false")
 								@URLBuilderRadio("Hide country", "image_location_hide_country", "Hide the country name in the location.", "true", "true", "false", "false")
