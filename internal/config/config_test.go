@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 
@@ -540,6 +541,85 @@ func TestConfig_checkIDs(t *testing.T) {
 				if !strings.Contains(out, v) {
 					t.Errorf("expected log output to contain %q, got: %q", v, out)
 				}
+			}
+		})
+	}
+}
+
+func TestCheckTimelines(t *testing.T) {
+	tests := []struct {
+		name      string
+		timelines []string
+		apiKeys   map[string]string
+		want      []string
+	}{
+		{
+			name:      "nil timelines is a no-op",
+			timelines: nil,
+			apiKeys:   map[string]string{"alice": "key-a"},
+			want:      nil,
+		},
+		{
+			name:      "empty timelines is a no-op",
+			timelines: []string{},
+			apiKeys:   map[string]string{"alice": "key-a"},
+			want:      []string{},
+		},
+		{
+			name:      "all users valid",
+			timelines: []string{"alice", "bob"},
+			apiKeys:   map[string]string{"alice": "key-a", "bob": "key-b"},
+			want:      []string{"alice", "bob"},
+		},
+		{
+			name:      "unknown user is removed",
+			timelines: []string{"alice", "ghost"},
+			apiKeys:   map[string]string{"alice": "key-a"},
+			want:      []string{"alice"},
+		},
+		{
+			name:      "user with empty api key is removed",
+			timelines: []string{"alice", "bob"},
+			apiKeys:   map[string]string{"alice": "key-a", "bob": ""},
+			want:      []string{"alice"},
+		},
+		{
+			name:      "all users invalid leaves empty list",
+			timelines: []string{"ghost", "phantom"},
+			apiKeys:   map[string]string{"alice": "key-a"},
+			want:      []string{},
+		},
+		{
+			name:      "nil api key map removes everyone",
+			timelines: []string{"alice"},
+			apiKeys:   nil,
+			want:      []string{},
+		},
+		{
+			name:      "order is preserved",
+			timelines: []string{"carol", "alice", "bob"},
+			apiKeys:   map[string]string{"alice": "a", "bob": "b", "carol": "c"},
+			want:      []string{"carol", "alice", "bob"},
+		},
+		{
+			name:      "usernames are case sensitive",
+			timelines: []string{"Alice"},
+			apiKeys:   map[string]string{"alice": "key-a"},
+			want:      []string{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &Config{
+				Timelines:          tt.timelines,
+				ImmichUsersAPIKeys: tt.apiKeys,
+			}
+
+			c.checkTimelines()
+
+			if !slices.Equal(c.Timelines, tt.want) {
+				t.Errorf("Timelines = %v, want %v", c.Timelines, tt.want)
 			}
 		})
 	}

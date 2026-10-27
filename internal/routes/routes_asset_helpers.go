@@ -190,6 +190,11 @@ func gatherTimelines(d *gatherData) {
 
 		c := d.immichAsset.TotalAssetCount()
 
+		if c == 0 {
+			log.Error("No assets found for users timeline", "user", user)
+			continue
+		}
+
 		*d.assets = append(*d.assets, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceTimeline, ID: user},
 			Weight: c,
