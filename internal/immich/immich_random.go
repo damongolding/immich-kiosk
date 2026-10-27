@@ -72,7 +72,15 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 
 		for immichAssetIndex, asset := range immichAssets {
 
-			asset.Bucket = kiosk.SourceRandom
+			asset.Bucket = a.Bucket
+
+			switch asset.Bucket {
+			case kiosk.SourceTimeline:
+				asset.BucketID = a.SelectedUser()
+			default:
+				asset.BucketID = string(kiosk.SourceRandom)
+			}
+
 			asset.requestConfig = a.requestConfig
 			asset.ctx = a.ctx
 
@@ -92,8 +100,6 @@ func (a *Asset) RandomAsset(requestID, deviceID string, isPrefetch bool) error {
 				// replace with cache minus used asset
 				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 			}
-
-			asset.BucketID = string(kiosk.SourceRandom)
 
 			*a = asset
 

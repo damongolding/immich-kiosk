@@ -397,6 +397,7 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, e
 
 	case kiosk.SourceTimeline:
 		immichAsset.ApplyUser(pickedAsset.ID)
+		immichAsset.Bucket = kiosk.SourceTimeline
 		fallthrough
 
 	case kiosk.SourceRandom:
@@ -718,6 +719,8 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 		config.Dates = append(config.Dates, options.RelativeAssetBucketID)
 	case kiosk.SourceTag:
 		config.Tags = append(config.Tags, options.RelativeAssetBucketID)
+	case kiosk.SourceTimeline:
+		config.Timelines = append(config.Timelines, options.RelativeAssetBucketID)
 	case kiosk.SourceMemories:
 		config.Memories = true
 		config.MemoriesOnly = true
