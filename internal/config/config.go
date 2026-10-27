@@ -781,7 +781,6 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 		return e.Bind(&c.ClientData)
 	}
 
-	// check for person or album in quries and empty baseconfig slice if found
 	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") || queries.Has("rating") || queries.Has("timeline") {
 		c.ResetBuckets()
 	}
@@ -807,6 +806,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 
 	c.checkFilterNewest()
 	c.checkExcludedAlbums()
+	c.checkTimelines()
 
 	// Disabled features in demo mode
 	if c.Kiosk.DemoMode {

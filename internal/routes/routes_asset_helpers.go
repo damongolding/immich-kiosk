@@ -445,7 +445,9 @@ func processAsset(asset *immich.Asset, requestConfig config.Config, requestID st
 
 		pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
 
-		pickedAsset.ID, _ = asset.ApplyUserFromAssetID(pickedAsset.ID)
+		if pickedAsset.Type != kiosk.SourceTimeline {
+			pickedAsset.ID, _ = asset.ApplyUserFromAssetID(pickedAsset.ID)
+		}
 
 		err = retrieveImage(asset, pickedAsset, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
 		if err != nil {
