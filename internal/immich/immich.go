@@ -359,38 +359,38 @@ type DateFilterNullable struct {
 
 // SearchFilterBranch defines model for SearchFilterBranch.
 type SearchFilterBranch struct {
-	AlbumIds         IDsFilter              `json:"albumIds,omitempty"`
-	Checksum         StringFilter           `json:"checksum,omitempty"`
-	City             StringFilterNullable   `json:"city,omitempty"`
-	Country          StringFilterNullable   `json:"country,omitempty"`
-	CreatedAt        DateFilter             `json:"createdAt,omitempty"`
-	Description      StringPatternFilter    `json:"description,omitempty"`
-	EncodedVideoPath StringFilter           `json:"encodedVideoPath,omitempty"`
-	FileSizeInBytes  NumberFilter           `json:"fileSizeInBytes,omitempty"`
-	HasAlbums        BoolFilter             `json:"hasAlbums,omitempty"`
-	HasPeople        BoolFilter             `json:"hasPeople,omitempty"`
-	HasTags          BoolFilter             `json:"hasTags,omitempty"`
-	Id               IDFilter               `json:"id,omitempty"`
-	IsEncoded        BoolFilter             `json:"isEncoded,omitempty"`
-	IsFavorite       BoolFilter             `json:"isFavorite,omitempty"`
-	IsMotion         BoolFilter             `json:"isMotion,omitempty"`
-	IsOffline        BoolFilter             `json:"isOffline,omitempty"`
-	LensModel        StringFilterNullable   `json:"lensModel,omitempty"`
-	LibraryId        IDFilterNullable       `json:"libraryId,omitempty"`
-	Make             StringFilterNullable   `json:"make,omitempty"`
-	Model            StringFilterNullable   `json:"model,omitempty"`
-	Ocr              StringSimilarityFilter `json:"ocr,omitempty"`
-	OriginalFileName StringPatternFilter    `json:"originalFileName,omitempty"`
-	OriginalPath     StringPatternFilter    `json:"originalPath,omitempty"`
-	PersonIds        IDsFilter              `json:"personIds,omitempty"`
-	Rating           NumberFilterNullable   `json:"rating,omitempty"`
-	State            StringFilterNullable   `json:"state,omitempty"`
-	TagIds           IDsFilter              `json:"tagIds,omitempty"`
-	TakenAt          DateFilter             `json:"takenAt,omitempty"`
-	TrashedAt        DateFilterNullable     `json:"trashedAt,omitempty"`
-	Type             FilterAssetType        `json:"type,omitempty"`
-	UpdatedAt        DateFilter             `json:"updatedAt,omitempty"`
-	Visibility       FilterAssetVisibility  `json:"visibility,omitempty"`
+	AlbumIDs         IDsFilter              `json:"albumIds,omitzero"`
+	Checksum         StringFilter           `json:"checksum,omitzero"`
+	City             StringFilterNullable   `json:"city,omitzero"`
+	Country          StringFilterNullable   `json:"country,omitzero"`
+	CreatedAt        DateFilter             `json:"createdAt,omitzero"`
+	Description      StringPatternFilter    `json:"description,omitzero"`
+	EncodedVideoPath StringFilter           `json:"encodedVideoPath,omitzero"`
+	FileSizeInBytes  NumberFilter           `json:"fileSizeInBytes,omitzero"`
+	HasAlbums        BoolFilter             `json:"hasAlbums,omitzero"`
+	HasPeople        BoolFilter             `json:"hasPeople,omitzero"`
+	HasTags          BoolFilter             `json:"hasTags,omitzero"`
+	ID               IDFilter               `json:"id,omitzero"`
+	IsEncoded        BoolFilter             `json:"isEncoded,omitzero"`
+	IsFavorite       BoolFilter             `json:"isFavorite,omitzero"`
+	IsMotion         BoolFilter             `json:"isMotion,omitzero"`
+	IsOffline        BoolFilter             `json:"isOffline,omitzero"`
+	LensModel        StringFilterNullable   `json:"lensModel,omitzero"`
+	LibraryID        IDFilterNullable       `json:"libraryId,omitzero"`
+	Make             StringFilterNullable   `json:"make,omitzero"`
+	Model            StringFilterNullable   `json:"model,omitzero"`
+	Ocr              StringSimilarityFilter `json:"ocr,omitzero"`
+	OriginalFileName StringPatternFilter    `json:"originalFileName,omitzero"`
+	OriginalPath     StringPatternFilter    `json:"originalPath,omitzero"`
+	PersonIDs        IDsFilter              `json:"personIds,omitzero"`
+	Rating           NumberFilterNullable   `json:"rating,omitzero"`
+	State            StringFilterNullable   `json:"state,omitzero"`
+	TagIDs           IDsFilter              `json:"tagIds,omitzero"`
+	TakenAt          DateFilter             `json:"takenAt,omitzero"`
+	TrashedAt        DateFilterNullable     `json:"trashedAt,omitzero"`
+	Type             FilterAssetType        `json:"type,omitzero"`
+	UpdatedAt        DateFilter             `json:"updatedAt,omitzero"`
+	Visibility       FilterAssetVisibility  `json:"visibility,omitzero"`
 }
 
 type SearchFilter struct {
@@ -415,15 +415,15 @@ type SearchFilter struct {
 	Make             StringFilterNullable   `url:"make,omitempty,omitzero" json:"make,omitzero"`
 	Model            StringFilterNullable   `url:"model,omitempty,omitzero" json:"model,omitzero"`
 	Ocr              StringSimilarityFilter `url:"ocr,omitempty,omitzero" json:"ocr,omitzero"`
-	Or               []SearchFilterBranch   `json:"or,omitempty,omitzero"`
+	Or               []SearchFilterBranch   `url:"or,omitempty,omitzero" json:"or,omitempty,omitzero"`
 	OriginalFileName StringPatternFilter    `url:"originalFileName,omitempty,omitzero" json:"originalFileName,omitzero"`
 	OriginalPath     StringPatternFilter    `url:"originalPath,omitempty,omitzero" json:"originalPath,omitzero"`
 	PersonIDs        IDsFilter              `url:"personIds,omitempty,omitzero" json:"personIds,omitzero"`
 	Rating           NumberFilterNullable   `url:"rating,omitempty,omitzero" json:"rating,omitzero"`
-	State            StringFilterNullable   `json:"state,omitzero"`
+	State            StringFilterNullable   `url:"state,omitzero" json:"state,omitzero"`
 	TagIDs           IDsFilter              `url:"tagIds,omitempty,omitzero" json:"tagIds,omitzero"`
 	TakenAt          DateFilter             `url:"takenAt,omitempty,omitzero" json:"takenAt,omitzero"`
-	TrashedAt        *DateFilterNullable    `json:"trashedAt,omitempty,omitzero"`
+	TrashedAt        DateFilterNullable     `url:"trashedAt,omitempty,omitzero" json:"trashedAt,omitempty,omitzero"`
 	Type             FilterAssetType        `url:"type,omitempty,omitzero" json:"type,omitzero"`
 	UpdatedAt        DateFilter             `url:"updatedAt,omitempty,omitzero" json:"updatedAt,omitzero"`
 	Visibility       FilterAssetVisibility  `url:"visibility,omitempty,omitzero" json:"visibility,omitzero"`

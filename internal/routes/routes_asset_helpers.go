@@ -73,6 +73,25 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		requestConfig: requestConfig,
 	}
 
+	if len(requestConfig.RawFilters) != 0 {
+		for rfi := range requestConfig.RawFilters {
+
+			rawCount, err := immichAsset.RawFilterCount(requestID, deviceID, rfi)
+			if err != nil {
+				return nil, err
+			}
+
+			log.Info("using raw filer", "count", rawCount)
+
+			*d.assets = append(*d.assets, utils.AssetWithWeighting{
+				Asset:  utils.WeightedAsset{Type: kiosk.SourceRawFilter, ID: fmt.Sprintf("%s#%d", string(kiosk.SourceRawFilter), rfi)},
+				Weight: rawCount,
+			})
+
+		}
+		// return assets, nil
+	}
+
 	// People bucket
 	err := gatherPeople(&d)
 	if err != nil {
@@ -346,6 +365,7 @@ func isSleepMode(requestConfig config.Config) bool {
 // It returns an error if the image retrieval fails.
 func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, excludedAlbums []string, requestID, deviceID string, isPrefetch bool) error {
 	switch pickedAsset.Type {
+
 	case kiosk.SourceAlbum:
 		switch pickedAsset.ID {
 		case kiosk.AlbumKeywordAll:
@@ -394,6 +414,10 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, e
 
 	case kiosk.SourceRating:
 		return immichAsset.RandomAssetWithRating(pickedAsset.ID, requestID, deviceID, isPrefetch)
+
+	case kiosk.SourceRawFilter:
+		log.Debug("choosen raw filter")
+		return immichAsset.RandomAssetFromRawFilter(requestID, deviceID, pickedAsset.ID)
 
 	case kiosk.SourceTimeline:
 		immichAsset.ApplyUser(pickedAsset.ID)
