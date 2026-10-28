@@ -5,15 +5,14 @@ import (
 	"errors"
 	"net/url"
 	"slices"
-	"strconv"
-	"strings"
 
 	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/cache"
+	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
-func checkRawFilter(f string) (*SearchFilter, error) {
+func validateRawFilter(f string) (*SearchFilter, error) {
 	filter := NewSearchFilterBuilder()
 
 	b := []byte(f)
@@ -33,22 +32,31 @@ func checkRawFilter(f string) (*SearchFilter, error) {
 	return filter, nil
 }
 
-func (a *Asset) RawFilterCount(requestID, deviceID string, index int) (int, error) {
+func (a *Asset) RawFilterCount(requestID, deviceID string, id string) (int, error) {
+	var rawFilter config.RawFilter
+	var filter *SearchFilter
+
 	u, err := url.Parse(a.requestConfig.ImmichURL)
 	if err != nil {
 		_, _, err = immichAPIFail(0, err, nil, "")
 		return 0, err
 	}
 
-	rawFiler, err := checkRawFilter(a.requestConfig.RawFilters[index].Filter)
+	rawFilter, err = a.requestConfig.RawFilters.GetByID(id)
+	if err != nil {
+		_, _, err = immichAPIFail(0, err, nil, "")
+		return 0, err
+	}
+
+	filter, err = validateRawFilter(rawFilter.Filter)
 	if err != nil {
 		return 0, err
 	}
 
-	a.requestConfig.SelectedUser = a.requestConfig.RawFilters[index].User
+	a.requestConfig.SelectedUser = rawFilter.User
 
 	requestBody := SearchRandomBody{
-		Filter:     rawFiler.Build(),
+		Filter:     filter.Build(),
 		WithPeople: false,
 		WithExif:   false,
 		Size:       a.requestConfig.Kiosk.FetchedAssetsSize,
@@ -59,39 +67,25 @@ func (a *Asset) RawFilterCount(requestID, deviceID string, index int) (int, erro
 		return 0, assetsErr
 	}
 
-	log.Debug(requestID+" RawFilterCount", "name", a.requestConfig.RawFilters[index].Name, "user", a.requestConfig.RawFilters[index].User, "assets matched", len(res.Assets))
+	log.Debug(requestID+" RawFilterCount", "name", rawFilter.Name, "user", rawFilter.User, "assets matched", len(res.Assets))
 
 	return len(res.Assets), nil
-}
-
-func indexFromID(s string) (int, error) {
-	_, a, found := strings.Cut(s, "#")
-	if !found {
-		return 0, errors.New("malformed ID")
-	}
-
-	i, err := strconv.ParseInt(a, 0, 0)
-	if err != nil {
-		return 0, err
-	}
-
-	return int(i), nil
 }
 
 func (a *Asset) RandomAssetFromRawFilter(requestID, deviceID, id string) error {
 	var rawFiler *SearchFilter
 
-	i, err := indexFromID(id)
+	f, err := a.requestConfig.RawFilters.GetByID(id)
 	if err != nil {
 		return err
 	}
 
-	rawFiler, err = checkRawFilter(a.requestConfig.RawFilters[i].Filter)
+	rawFiler, err = validateRawFilter(f.Filter)
 	if err != nil {
 		return err
 	}
 
-	a.requestConfig.SelectedUser = a.requestConfig.RawFilters[i].User
+	a.requestConfig.SelectedUser = f.User
 
 	for range MaxRetries {
 
@@ -138,7 +132,7 @@ func (a *Asset) RandomAssetFromRawFilter(requestID, deviceID, id string) error {
 				cache.Set(apiCacheKey, jsonBytes, a.requestConfig.Duration, a.requestConfig.CacheDuration)
 			}
 
-			asset.BucketID = "RAW_FILTER"
+			asset.BucketID = id
 
 			*a = asset
 
