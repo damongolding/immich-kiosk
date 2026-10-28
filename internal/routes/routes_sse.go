@@ -43,7 +43,7 @@ func SSE(ctx context.Context, baseConfig *config.Config, maintenance *Maintenanc
 			return err
 		}
 
-		log.Debug("SSE client connected", "ip", c.RealIP(), "stream", stream)
+		log.Debug(requestData.RequestID+" SSE client connected", "ip", c.RealIP(), "stream", stream)
 
 		t := i18n.T()
 		dm := t("maintenance_message")
@@ -115,7 +115,7 @@ func SSE(ctx context.Context, baseConfig *config.Config, maintenance *Maintenanc
 		for {
 			select {
 			case <-reqCtx.Done():
-				log.Debug("SSE client disconnected", "ip", c.RealIP(), "stream", stream)
+				log.Debug(requestData.RequestID+" SSE client disconnected", "ip", c.RealIP(), "stream", stream)
 				return nil
 
 			case <-ctx.Done():

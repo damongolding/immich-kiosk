@@ -368,6 +368,8 @@ type Config struct {
 	PastMemoryDays int     `json:"pastMemoryDays" yaml:"past_memory_days" mapstructure:"past_memory_days" query:"past_memory_days" form:"past_memory_days" default:"0"`
 	MemoryWeight   float64 `json:"memoryWeight" yaml:"memory_weight" mapstructure:"memory_weight" default:"1.0"`
 
+	Timelines []string `json:"timelines" yaml:"timelines" mapstructure:"timelines" query:"timeline" form:"timeline" default:"[]" redact:"true"`
+
 	// FilterDate filter certain asset bucket assets by date range
 	FilterDate string `json:"filterDate" yaml:"filter_date" mapstructure:"filter_date" query:"filter_date" form:"filter_date" default:""`
 	// FilterNewest filter certain asset bucket assets by the newest X assets
@@ -718,6 +720,7 @@ func (c *Config) Load() error {
 	c.checkSecrets()
 	c.checkRequiredFields()
 	c.checkUsersAPIKeys()
+	c.checkTimelines()
 	c.checkLowercaseTaggedFields()
 	c.checkAssetBuckets()
 	c.checkIDs("blacklist", c.Blacklist, false, false)
@@ -754,6 +757,7 @@ func (c *Config) ResetBuckets() {
 	c.Albums = []string{}
 	c.Dates = []string{}
 	c.Tags = []string{}
+	c.Timelines = []string{}
 	c.Rating = -1
 }
 
@@ -777,8 +781,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 		return e.Bind(&c.ClientData)
 	}
 
-	// check for person or album in quries and empty baseconfig slice if found
-	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") || queries.Has("rating") {
+	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") || queries.Has("rating") || queries.Has("timeline") {
 		c.ResetBuckets()
 	}
 
@@ -803,6 +806,7 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 
 	c.checkFilterNewest()
 	c.checkExcludedAlbums()
+	c.checkTimelines()
 
 	// Disabled features in demo mode
 	if c.Kiosk.DemoMode {

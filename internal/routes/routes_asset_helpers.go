@@ -88,6 +88,8 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 	// Use the default user for the rest of the request (tags, dates, memories)
 	d.immichAsset.ApplyDefaultUser()
 
+	gatherTimelines(&d)
+
 	// Tags bucket
 	err = gatherTags(&d)
 	if err != nil {
@@ -176,6 +178,30 @@ func gatherAlbums(d *gatherData) error {
 		userErrorFmt:  "user '<strong>%s</strong>' has no Album '%s'. error='%w'",
 		countErrorFmt: "getting album asset count: %w",
 	})
+}
+
+func gatherTimelines(d *gatherData) {
+	for _, user := range d.requestConfig.Timelines {
+		au := d.immichAsset.ApplyUser(user)
+		if user != au {
+			log.Warn("could not apply", "user", user, "au", au)
+			continue
+		}
+
+		c := d.immichAsset.TotalAssetCount()
+
+		if c == 0 {
+			log.Error("No assets found for users timeline", "user", user)
+			continue
+		}
+
+		*d.assets = append(*d.assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceTimeline, ID: user},
+			Weight: c,
+		})
+	}
+
+	d.immichAsset.ApplyDefaultUser()
 }
 
 func gatherTags(d *gatherData) error {
@@ -369,6 +395,11 @@ func retrieveImage(immichAsset *immich.Asset, pickedAsset utils.WeightedAsset, e
 	case kiosk.SourceRating:
 		return immichAsset.RandomAssetWithRating(pickedAsset.ID, requestID, deviceID, isPrefetch)
 
+	case kiosk.SourceTimeline:
+		immichAsset.ApplyUser(pickedAsset.ID)
+		immichAsset.Bucket = kiosk.SourceTimeline
+		fallthrough
+
 	case kiosk.SourceRandom:
 		fallthrough
 
@@ -415,7 +446,9 @@ func processAsset(asset *immich.Asset, requestConfig config.Config, requestID st
 
 		pickedAsset := utils.PickRandomImageType(requestConfig.Kiosk.AssetWeighting, assets)
 
-		pickedAsset.ID, _ = asset.ApplyUserFromAssetID(pickedAsset.ID)
+		if pickedAsset.Type != kiosk.SourceTimeline {
+			pickedAsset.ID, _ = asset.ApplyUserFromAssetID(pickedAsset.ID)
+		}
 
 		err = retrieveImage(asset, pickedAsset, requestConfig.ExcludedAlbums, requestID, deviceID, isPrefetch)
 		if err != nil {
@@ -686,6 +719,8 @@ func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDa
 		config.Dates = append(config.Dates, options.RelativeAssetBucketID)
 	case kiosk.SourceTag:
 		config.Tags = append(config.Tags, options.RelativeAssetBucketID)
+	case kiosk.SourceTimeline:
+		config.Timelines = append(config.Timelines, options.RelativeAssetBucketID)
 	case kiosk.SourceMemories:
 		config.Memories = true
 		config.MemoriesOnly = true

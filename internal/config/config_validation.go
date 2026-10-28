@@ -736,3 +736,21 @@ func (c *Config) checkIDs(key string, s []string, allowSuffix, allowKeywords boo
 		}
 	}
 }
+
+func (c *Config) checkTimelines() {
+	if len(c.Timelines) == 0 {
+		return
+	}
+
+	t := make([]string, 0, len(c.Timelines))
+
+	for _, user := range c.Timelines {
+		if api, found := c.ImmichUsersAPIKeys[user]; found && api != "" {
+			t = append(t, user)
+		} else {
+			log.Warn("Timeline: user not found in immich_users_api_keys", "user", user)
+		}
+	}
+
+	c.Timelines = t
+}

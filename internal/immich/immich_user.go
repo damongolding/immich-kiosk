@@ -88,6 +88,23 @@ func (a *Asset) ApplyUserFromAssetID(assetID string) (string, string) {
 	return assetID, ""
 }
 
+// ApplyUser apply provided user, fallsback to the default user.
+// returns applied user
+func (a *Asset) ApplyUser(user string) string {
+	if userAPI, userFound := a.requestConfig.ImmichUsersAPIKeys[user]; userFound {
+		a.requestConfig.SelectedUser = user
+		a.requestConfig.ImmichAPIKey = userAPI
+		return user
+	}
+
+	log.Warn("Supplied user not found in API keys", "user", user)
+
+	// use default
+	a.ApplyDefaultUser()
+
+	return ""
+}
+
 func (a *Asset) ApplyDefaultUser() {
 	if defaultAPI, apiFound := a.requestConfig.ImmichUsersAPIKeys["default"]; apiFound {
 		a.requestConfig.SelectedUser = ""
