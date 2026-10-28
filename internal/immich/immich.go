@@ -423,7 +423,7 @@ type SearchFilter struct {
 	State            StringFilterNullable   `url:"state,omitzero" json:"state,omitzero"`
 	TagIDs           IDsFilter              `url:"tagIds,omitempty,omitzero" json:"tagIds,omitzero"`
 	TakenAt          DateFilter             `url:"takenAt,omitempty,omitzero" json:"takenAt,omitzero"`
-	TrashedAt        DateFilterNullable     `url:"trashedAt,omitempty,omitzero" json:"trashedAt,omitempty,omitzero"`
+	TrashedAt        DateFilterNullable     `url:"trashedAt,omitempty,omitzero" json:"trashedAt,omitzero"`
 	Type             FilterAssetType        `url:"type,omitempty,omitzero" json:"type,omitzero"`
 	UpdatedAt        DateFilter             `url:"updatedAt,omitempty,omitzero" json:"updatedAt,omitzero"`
 	Visibility       FilterAssetVisibility  `url:"visibility,omitempty,omitzero" json:"visibility,omitzero"`

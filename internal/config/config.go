@@ -251,6 +251,12 @@ type ImageLocation struct {
 	HideCountry bool `json:"hideCountry" yaml:"hide_country" mapstructure:"hide_country" query:"image_location_hide_country" form:"image_location_hide_country" default:"false"`
 }
 
+type RawFilter struct {
+	Name   string `json:"name" yaml:"name" mapstructure:"name" default:""`
+	User   string `json:"user" yaml:"user" mapstructure:"user" default:""`
+	Filter string `json:"filter" yaml:"filter" mapstructure:"filter" default:""`
+}
+
 // Config represents the main configuration structure for the Immich Kiosk application.
 // It contains all the settings that control the behavior and appearance of the kiosk,
 // including connection details, display options, image settings, and various feature toggles.
@@ -523,7 +529,7 @@ type Config struct {
 	// CacheDuration user specified duration (in seconds) for which cache entries should be kept before expiring.
 	CacheDuration int `json:"cacheDuration" yaml:"cache_duration" mapstructure:"cache_duration" query:"cache_duration" form:"cache_duration" default:"0"`
 
-	RawFilters []string `json:"rawFilters" yaml:"raw_filters" mapstructure:"raw_filters" default:"[]" redact:"true"`
+	RawFilters []RawFilter `json:"rawFilters" yaml:"raw_filters" mapstructure:"raw_filters" default:"[]" redact:"true"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `json:"kiosk" yaml:"kiosk" mapstructure:"kiosk"`
@@ -761,7 +767,6 @@ func (c *Config) ResetBuckets() {
 	c.Tags = []string{}
 	c.Timelines = []string{}
 	c.Rating = -1
-	c.RawFilters = []string{}
 }
 
 func getHistory(queries url.Values) []string {
@@ -776,6 +781,29 @@ func getHistory(queries url.Values) []string {
 	return h
 }
 
+func (c *Config) ResetRawFilter(q []string) {
+	if len(q) == 0 {
+		c.RawFilters = []RawFilter{}
+		return
+	}
+
+	o := make([]RawFilter, 0, len(c.RawFilters))
+
+	for _, s := range q {
+		for _, rf := range c.RawFilters {
+			if s == rf.Name {
+				o = append(o, rf)
+			}
+		}
+	}
+
+	if len(o) == 0 {
+		log.Warn("No Raw filters found with", "name", q)
+	}
+
+	c.RawFilters = o
+}
+
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
 func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error {
 	if c.Kiosk.DisableURLQueries {
@@ -784,8 +812,11 @@ func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error 
 		return e.Bind(&c.ClientData)
 	}
 
-	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") || queries.Has("rating") || queries.Has("timeline") {
+	// check for person or album in quries and empty baseconfig slice if found
+	if queries.Has("person") || queries.Has("album") || queries.Has("date") || queries.Has("tag") || queries.Has("memories") || queries.Has("rating") || queries.Has("timeline") || queries.Has("raw_filter") {
 		c.ResetBuckets()
+		log.Info("URL", "r", queries["raw_filter"])
+		c.ResetRawFilter(queries["raw_filter"])
 	}
 
 	const none = "none"

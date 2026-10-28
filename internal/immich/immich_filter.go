@@ -40,10 +40,12 @@ func (a *Asset) RawFilterCount(requestID, deviceID string, index int) (int, erro
 		return 0, err
 	}
 
-	rawFiler, err := checkRawFilter(a.requestConfig.RawFilters[index])
+	rawFiler, err := checkRawFilter(a.requestConfig.RawFilters[index].Filter)
 	if err != nil {
 		return 0, err
 	}
+
+	a.requestConfig.SelectedUser = a.requestConfig.RawFilters[index].User
 
 	requestBody := SearchRandomBody{
 		Filter:     rawFiler.Build(),
@@ -56,6 +58,8 @@ func (a *Asset) RawFilterCount(requestID, deviceID string, index int) (int, erro
 	if assetsErr != nil {
 		return 0, assetsErr
 	}
+
+	log.Debug("RawFilterCount", "name", a.requestConfig.RawFilters[index].Name, "user", a.requestConfig.RawFilters[index].User, "count", len(res.Assets))
 
 	return len(res.Assets), nil
 }
@@ -82,10 +86,12 @@ func (a *Asset) RandomAssetFromRawFilter(requestID, deviceID, id string) error {
 		return err
 	}
 
-	rawFiler, err = checkRawFilter(a.requestConfig.RawFilters[i])
+	rawFiler, err = checkRawFilter(a.requestConfig.RawFilters[i].Filter)
 	if err != nil {
 		return err
 	}
+
+	a.requestConfig.SelectedUser = a.requestConfig.RawFilters[i].User
 
 	for range MaxRetries {
 
