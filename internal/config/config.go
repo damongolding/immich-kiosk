@@ -523,6 +523,8 @@ type Config struct {
 	// CacheDuration user specified duration (in seconds) for which cache entries should be kept before expiring.
 	CacheDuration int `json:"cacheDuration" yaml:"cache_duration" mapstructure:"cache_duration" query:"cache_duration" form:"cache_duration" default:"0"`
 
+	RawFilters []string `json:"rawFilters" yaml:"raw_filters" mapstructure:"raw_filters" default:"[]" redact:"true"`
+
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `json:"kiosk" yaml:"kiosk" mapstructure:"kiosk"`
 }
@@ -759,6 +761,7 @@ func (c *Config) ResetBuckets() {
 	c.Tags = []string{}
 	c.Timelines = []string{}
 	c.Rating = -1
+	c.RawFilters = []string{}
 }
 
 func getHistory(queries url.Values) []string {

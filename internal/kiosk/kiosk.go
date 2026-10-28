@@ -28,6 +28,7 @@ const (
 	SourceTimeline  Source = "TIMELINE"
 	SourceRating    Source = "RATING"
 	SourceMemories  Source = "MEMORIES"
+	SourceRawFilter Source = "RAW_FILTER"
 
 	LayoutLandscape          string = "landscape"
 	LayoutPortrait           string = "portrait"
