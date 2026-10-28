@@ -13,6 +13,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/google/uuid"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -753,4 +754,13 @@ func (c *Config) checkTimelines() {
 	}
 
 	c.Timelines = t
+}
+
+func (c *Config) checkRawFilters() {
+	for i, f := range c.RawFilters {
+		c.RawFilters[i].ID = uuid.NewSHA1(
+			uuid.NameSpaceURL,
+			[]byte(f.Name+"\x00"+f.User+"\x00"+f.Filter),
+		).String()
+	}
 }

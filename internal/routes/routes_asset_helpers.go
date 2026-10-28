@@ -73,23 +73,6 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 		requestConfig: requestConfig,
 	}
 
-	if len(requestConfig.RawFilters) != 0 {
-		for rfi := range requestConfig.RawFilters {
-
-			rawCount, err := immichAsset.RawFilterCount(requestID, deviceID, rfi)
-			if err != nil {
-				return nil, err
-			}
-
-			*d.assets = append(*d.assets, utils.AssetWithWeighting{
-				Asset:  utils.WeightedAsset{Type: kiosk.SourceRawFilter, ID: fmt.Sprintf("%s#%d", string(kiosk.SourceRawFilter), rfi)},
-				Weight: rawCount,
-			})
-
-		}
-		// return assets, nil
-	}
-
 	// People bucket
 	err := gatherPeople(&d)
 	if err != nil {
@@ -98,6 +81,12 @@ func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, 
 
 	// Albums bucket
 	err = gatherAlbums(&d)
+	if err != nil {
+		return nil, err
+	}
+
+	// RawFilters
+	err = gatherRawFilters(&d)
 	if err != nil {
 		return nil, err
 	}
@@ -219,6 +208,28 @@ func gatherTimelines(d *gatherData) {
 	}
 
 	d.immichAsset.ApplyDefaultUser()
+}
+
+func gatherRawFilters(d *gatherData) error {
+	if len(d.requestConfig.RawFilters) == 0 {
+		return nil
+	}
+
+	for _, rf := range d.requestConfig.RawFilters {
+
+		rawCount, err := d.immichAsset.RawFilterCount(d.requestID, d.deviceID, rf.ID)
+		if err != nil {
+			return err
+		}
+
+		*d.assets = append(*d.assets, utils.AssetWithWeighting{
+			Asset:  utils.WeightedAsset{Type: kiosk.SourceRawFilter, ID: rf.ID},
+			Weight: rawCount,
+		})
+
+	}
+
+	return nil
 }
 
 func gatherTags(d *gatherData) error {
@@ -727,24 +738,30 @@ func setupImmichAsset(ctx context.Context, config config.Config, orientation imm
 
 // handleRelativeAssetConfig updates the config buckets based on the relative asset options.
 // Resets existing buckets and configures the appropriate bucket based on the asset source type.
-func handleRelativeAssetConfig(config *config.Config, options common.ViewImageDataOptions) {
-	config.ResetBuckets()
-	config.Memories = false
+func handleRelativeAssetConfig(c *config.Config, options common.ViewImageDataOptions) {
+	c.ResetBuckets()
+	c.Memories = false
 
 	switch options.RelativeAssetBucket {
 	case kiosk.SourceAlbum:
-		config.Albums = append(config.Albums, options.RelativeAssetBucketID)
+		c.Albums = append(c.Albums, options.RelativeAssetBucketID)
 	case kiosk.SourcePerson:
-		config.People = append(config.People, options.RelativeAssetBucketID)
+		c.People = append(c.People, options.RelativeAssetBucketID)
 	case kiosk.SourceDateRange:
-		config.Dates = append(config.Dates, options.RelativeAssetBucketID)
+		c.Dates = append(c.Dates, options.RelativeAssetBucketID)
 	case kiosk.SourceTag:
-		config.Tags = append(config.Tags, options.RelativeAssetBucketID)
+		c.Tags = append(c.Tags, options.RelativeAssetBucketID)
 	case kiosk.SourceTimeline:
-		config.Timelines = append(config.Timelines, options.RelativeAssetBucketID)
+		c.Timelines = append(c.Timelines, options.RelativeAssetBucketID)
+	case kiosk.SourceRawFilter:
+		f, err := c.RawFilters.GetByID(options.RelativeAssetBucketID)
+		if err != nil {
+			log.Error("handleRelativeAssetConfig", "err", err)
+		}
+		c.RawFilters = config.RawFilters{f}
 	case kiosk.SourceMemories:
-		config.Memories = true
-		config.MemoriesOnly = true
+		c.Memories = true
+		c.MemoriesOnly = true
 	case kiosk.SourceRandom:
 	}
 }

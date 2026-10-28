@@ -252,9 +252,22 @@ type ImageLocation struct {
 }
 
 type RawFilter struct {
+	ID     string `json:"-" yaml:"-" mapstructure:"-"`
 	Name   string `json:"name" yaml:"name" mapstructure:"name" default:""`
 	User   string `json:"user" yaml:"user" mapstructure:"user" default:""`
 	Filter string `json:"filter" yaml:"filter" mapstructure:"filter" default:""`
+}
+
+type RawFilters []RawFilter
+
+func (f RawFilters) GetByID(id string) (RawFilter, error) {
+	for _, filter := range f {
+		if filter.ID == id {
+			return filter, nil
+		}
+	}
+
+	return RawFilter{}, errors.New("filter not found")
 }
 
 // Config represents the main configuration structure for the Immich Kiosk application.
@@ -529,7 +542,7 @@ type Config struct {
 	// CacheDuration user specified duration (in seconds) for which cache entries should be kept before expiring.
 	CacheDuration int `json:"cacheDuration" yaml:"cache_duration" mapstructure:"cache_duration" query:"cache_duration" form:"cache_duration" default:"0"`
 
-	RawFilters []RawFilter `json:"rawFilters" yaml:"raw_filters" mapstructure:"raw_filters" default:"[]" redact:"true"`
+	RawFilters RawFilters `json:"rawFilters" yaml:"raw_filters" mapstructure:"raw_filters" default:"[]" redact:"true"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `json:"kiosk" yaml:"kiosk" mapstructure:"kiosk"`
@@ -737,6 +750,7 @@ func (c *Config) Load() error {
 	c.checkIDs("albums", c.Albums, true, true)
 	c.checkIDs("excluded_albums", c.ExcludedAlbums, false, false)
 	c.checkIDs("excluded_partners", c.ExcludedPartners, false, false)
+	c.checkRawFilters()
 	c.checkAlbumOrder()
 	c.checkExcludedAlbums()
 	c.checkTags()
@@ -895,7 +909,7 @@ func RedactedCopy[T any](in T) T {
 	dst := reflect.New(src.Type()).Elem()
 	seen := make(map[unsafe.Pointer]reflect.Value) // cycle-guard
 	copyRec(src, dst, seen)
-	out, ok := dst.Interface().(T)
+	out, ok := reflect.TypeAssert[T](dst)
 	if !ok {
 		var zero T
 		return zero
