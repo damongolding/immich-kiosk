@@ -67,7 +67,9 @@ func (a *Asset) RawFilterCount(requestID, deviceID string, id string) (int, erro
 		return 0, assetsErr
 	}
 
-	log.Debug(requestID+" RawFilterCount", "name", rawFilter.Name, "user", rawFilter.User, "assets matched", len(res.Assets))
+	if !res.FromCache {
+		log.Debug(requestID+" RawFilterCount", "id", rawFilter.ID, "name", rawFilter.Name, "user", rawFilter.User, "assets matched", len(res.Assets))
+	}
 
 	return len(res.Assets), nil
 }
