@@ -763,7 +763,8 @@ func (c *Config) checkRawFilters() {
 		return
 	}
 
-	for i, f := range c.RawFilters {
+	valid := make(RawFilters, 0, len(c.RawFilters))
+	for _, f := range c.RawFilters {
 
 		err := ValidateRawFilter(f.Filter)
 		if err != nil {
@@ -771,9 +772,12 @@ func (c *Config) checkRawFilters() {
 			continue
 		}
 
-		c.RawFilters[i].ID = uuid.NewSHA1(
+		f.ID = uuid.NewSHA1(
 			uuid.NameSpaceURL,
 			[]byte(f.Name+"\x00"+f.User+"\x00"+f.Filter),
 		).String()
+
+		valid = append(valid, f)
 	}
+	c.RawFilters = valid
 }

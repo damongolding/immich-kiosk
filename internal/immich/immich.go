@@ -256,7 +256,7 @@ type StringFilterNullable struct {
 }
 
 type BoolFilter struct {
-	Eq bool `json:"eq,omitempty,omitzero"`
+	Eq bool `json:"eq"`
 }
 
 type DateFilter struct {
@@ -368,7 +368,7 @@ type SearchFilterBranch struct {
 	EncodedVideoPath StringFilter           `json:"encodedVideoPath,omitzero"`
 	FileSizeInBytes  NumberFilter           `json:"fileSizeInBytes,omitzero"`
 	HasAlbums        BoolFilter             `json:"hasAlbums,omitzero"`
-	HasPeople        BoolFilter             `json:"hasPeople,omitzero"`
+	HasPeople        *BoolFilter            `json:"hasPeople,omitempty"`
 	HasTags          BoolFilter             `json:"hasTags,omitzero"`
 	ID               IDFilter               `json:"id,omitzero"`
 	IsEncoded        BoolFilter             `json:"isEncoded,omitzero"`
@@ -403,7 +403,7 @@ type SearchFilter struct {
 	EncodedVideoPath StringFilter           `url:"encodedVideoPath,omitempty,omitzero" json:"encodedVideoPath,omitzero"`
 	FileSizeInBytes  NumberFilter           `url:"fileSizeInBytes,omitempty,omitzero" json:"fileSizeInBytes,omitzero"`
 	HasAlbums        BoolFilter             `url:"hasAlbums,omitempty,omitzero" json:"hasAlbums,omitzero"`
-	HasPeople        BoolFilter             `url:"hasPeople,omitempty,omitzero" json:"hasPeople,omitzero"`
+	HasPeople        *BoolFilter            `url:"hasPeople,omitempty,omitzero" json:"hasPeople,omitempty"`
 	HasTags          BoolFilter             `url:"hasTags,omitempty,omitzero" json:"hasTags,omitzero"`
 	ID               IDFilter               `url:"id,omitempty,omitzero" json:"id,omitzero"`
 	IsEncoded        BoolFilter             `url:"isEncoded,omitempty,omitzero" json:"isEncoded,omitzero"`

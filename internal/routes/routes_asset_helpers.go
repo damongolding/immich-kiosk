@@ -222,6 +222,11 @@ func gatherRawFilters(d *gatherData) error {
 			return err
 		}
 
+		if rawCount == 0 {
+			log.Error("No assets found for raw filter", "name", rf.Name)
+			continue
+		}
+
 		*d.assets = append(*d.assets, utils.AssetWithWeighting{
 			Asset:  utils.WeightedAsset{Type: kiosk.SourceRawFilter, ID: rf.ID},
 			Weight: rawCount,
@@ -741,6 +746,10 @@ func setupImmichAsset(ctx context.Context, config config.Config, orientation imm
 func handleRelativeAssetConfig(c *config.Config, options common.ViewImageDataOptions) {
 	c.ResetBuckets()
 	c.Memories = false
+
+	if options.RelativeAssetBucket != kiosk.SourceRawFilter {
+		c.RawFilters = config.RawFilters{}
+	}
 
 	switch options.RelativeAssetBucket {
 	case kiosk.SourceAlbum:
