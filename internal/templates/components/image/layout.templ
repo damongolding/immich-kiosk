@@ -77,7 +77,7 @@ templ layoutView(viewData common.ViewData, isSingle bool) {
 templ renderImageBackground(viewData common.ViewData, imageData common.ViewImageData) {
 	if viewData.BackgroundBlur && !strings.EqualFold(viewData.ImageFit, "cover") && len(imageData.ImageBlurData) > 0 {
 		<div class="frame--background">
-			<img src={ imageData.ImageBlurData } alt="Blurred image background"/>
+			<img src={ templ.SafeURL(imageData.ImageBlurData) } alt="Blurred image background"/>
 		</div>
 	}
 }
@@ -152,7 +152,7 @@ templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData
 			@partials.AssetMetadata(viewData, imageIndex)
 			<div class="asset-metadata-qr">
 				if (viewData.ShowImageQR) {
-					<img src={ utils.CreateQrCode(partials.ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, imageData.ImmichAsset.ID, viewData.QrCodeOpenInApp, viewData.Kiosk.DemoMode)) }/>
+					<img src={ templ.SafeURL(utils.CreateQrCode(partials.ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, imageData.ImmichAsset.ID, viewData.QrCodeOpenInApp, viewData.Kiosk.DemoMode))) }/>
 				}
 			</div>
 		</div>
@@ -196,7 +196,7 @@ templ RenderImageWithCoverFit(ImageData, imageOrientation string, tags ...immich
 		if len(tags) > 0 {
 			data-tags={ components.CreateDataTag(tags) }
 		}
-		src={ ImageData }
+		src={ templ.SafeURL(ImageData) }
 		alt="Main image"
 	/>
 }
@@ -207,7 +207,7 @@ templ RenderImageWithSmartCoverFit(asset immich.Asset, imageData, imageOrientati
 		if len(tags) > 0 {
 			data-tags={ components.CreateDataTag(tags) }
 		}
-		src={ imageData }
+		src={ templ.SafeURL(imageData) }
 		alt="Main image"
 	/>
 }
@@ -223,7 +223,7 @@ templ RenderImageWithoutFit(ImageData, imageOrientation string, tags ...immich.T
 		if len(tags) > 0 {
 			data-tags={ components.CreateDataTag(tags) }
 		}
-		src={ ImageData }
+		src={ templ.SafeURL(ImageData) }
 		alt="Main image"
 	/>
 }
@@ -236,7 +236,7 @@ templ RenderImageWithoutFit(ImageData, imageOrientation string, tags ...immich.T
 templ RenderImageWithContainFit(ImageData, imageOrientation string, tags ...immich.Tag) {
 	<img
 		class={ "frame--image-fit-contain", "frame--image--"+imageOrientation }
-		src={ ImageData }
+		src={ templ.SafeURL(ImageData) }
 		if len(tags) > 0 {
 			data-tags={ components.CreateDataTag(tags) }
 		}
