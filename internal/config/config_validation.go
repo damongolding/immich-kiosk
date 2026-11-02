@@ -758,6 +758,8 @@ func (c *Config) checkTimelines() {
 	c.Timelines = t
 }
 
+// checkRawFilters removes filters rejected by the validator and assigns IDs to
+// the remaining filters. If no validator is configured, it leaves them unchanged.
 func (c *Config) checkRawFilters() {
 	if ValidateRawFilter == nil {
 		return

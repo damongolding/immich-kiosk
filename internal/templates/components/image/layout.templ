@@ -131,7 +131,7 @@ templ renderLivePhoto(viewData common.ViewData, imageData common.ViewImageData) 
 // Parameters:
 //   - viewData: ViewData containing rendering settings.
 //   - imageData: ImageData for the image to be rendered.
-//   - imageIndex: The index of the image in the viewData.Images slice.
+//   - imageIndex: The index of the image in the viewData.Assets slice.
 templ renderSingleImage(viewData common.ViewData, imageData common.ViewImageData, imageIndex int) {
 	{{
 		livePhotos := viewData.LivePhotos && imageData.ImmichAsset.LivePhotoVideoID != ""
@@ -201,6 +201,7 @@ templ RenderImageWithCoverFit(ImageData, imageOrientation string, tags ...immich
 	/>
 }
 
+// RenderImageWithSmartCoverFit renders an image with smart cover positioning based on the asset.
 templ RenderImageWithSmartCoverFit(asset immich.Asset, imageData, imageOrientation string, tags ...immich.Tag) {
 	<img
 		class={ "frame--image-fit-smart-cover", "frame--image--"+imageOrientation, smartCover(asset) }

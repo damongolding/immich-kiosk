@@ -260,6 +260,7 @@ type RawFilter struct {
 
 type RawFilters []RawFilter
 
+// GetByID returns the first filter with the given ID, or an error if none matches.
 func (f RawFilters) GetByID(id string) (RawFilter, error) {
 	for _, filter := range f {
 		if filter.ID == id {
@@ -795,6 +796,8 @@ func getHistory(queries url.Values) []string {
 	return h
 }
 
+// RawFilterURLQueries keeps filters whose names match q, in query order.
+// Repeated names can repeat filters; an empty or unmatched q clears the filters.
 func (c *Config) RawFilterURLQueries(q []string) {
 	if len(q) == 0 {
 		c.RawFilters = []RawFilter{}
@@ -819,6 +822,9 @@ func (c *Config) RawFilterURLQueries(q []string) {
 }
 
 // ConfigWithOverrides overwrites base config with ones supplied via URL queries
+// When URL queries are enabled and a source query is present, it resets the
+// existing buckets and selects raw filters by name. It returns binding errors
+// from the request context.
 func (c *Config) ConfigWithOverrides(queries url.Values, e *echo.Context) error {
 	if c.Kiosk.DisableURLQueries {
 		c.History = getHistory(queries)

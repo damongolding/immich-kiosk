@@ -45,20 +45,10 @@ type gatherPeopleAlbumsConfig struct {
 
 var errVideoNotReady = errors.New("video not ready")
 
-// gatherAssetBuckets collects asset weightings for people, albums and date ranges.
-// For each person, it gets the count of images containing that person.
-// For each album, it gets the total count of images in the album.
-// For date ranges, it currently assigns a fixed weighting of 1000.
-// These weightings are used to determine the probability of selecting images from each source.
-//
-// Parameters:
-//   - immichAsset: The Immich asset used to query image counts
-//   - requestConfig: Configuration containing people, albums and dates to gather assets for
-//   - requestID: Identifier for the current request for logging
-//
-// Returns:
-//   - A slice of AssetWithWeighting containing the weightings for each asset source
-//   - An error if any database queries fail
+// gatherAssetBuckets collects configured asset sources and their selection weights.
+// Raw filters are weighted by their fetched asset counts; date ranges use the
+// configured fetch size or FilterNewest. Errors gathering people, albums, raw
+// filters, or tags are returned; rating count errors are logged and skipped.
 func gatherAssetBuckets(immichAsset *immich.Asset, requestConfig config.Config, requestID, deviceID string) ([]utils.AssetWithWeighting, error) {
 	assets := []utils.AssetWithWeighting{}
 
@@ -210,6 +200,8 @@ func gatherTimelines(d *gatherData) {
 	d.immichAsset.ApplyDefaultUser()
 }
 
+// gatherRawFilters appends a weighted source for each raw filter with matches.
+// It skips zero counts and returns the first count error, retaining earlier entries.
 func gatherRawFilters(d *gatherData) error {
 	if len(d.requestConfig.RawFilters) == 0 {
 		return nil
@@ -743,6 +735,7 @@ func setupImmichAsset(ctx context.Context, config config.Config, orientation imm
 
 // handleRelativeAssetConfig updates the config buckets based on the relative asset options.
 // Resets existing buckets and configures the appropriate bucket based on the asset source type.
+// A missing raw filter ID leaves a single zero-value filter in the config.
 func handleRelativeAssetConfig(c *config.Config, options common.ViewImageDataOptions) {
 	c.ResetBuckets()
 	c.Memories = false
