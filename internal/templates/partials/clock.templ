@@ -95,23 +95,3 @@ templ ClockContainer(source string, theme string, queries url.Values) {
 		<div class="clock--time"></div>
 	</div>
 }
-
-// ClockContainer renders a clock html
-// templ ClockContainer(source string, theme string, showTime, showSeconds bool) {
-// 	<div
-// 		id="clock"
-// 		class={ fmt.Sprintf("clock--theme-%s", theme) }
-// 		if source == "server" {
-// 			hx-post="/clock"
-// 			if showTime && showSeconds {
-// 				hx-trigger="load, every 1s"
-// 			} else {
-// 				hx-trigger="load, every 15s"
-// 			}
-// 			hx-swap="innerHTML"
-// 		}
-// 	>
-// 		<div class="clock--date"></div>
-// 		<div class="clock--time"></div>
-// 	</div>
-// }
