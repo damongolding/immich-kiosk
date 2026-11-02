@@ -855,8 +855,10 @@ type PaginatedMetadataResponse struct {
 	FromCache bool    `json:"-"`
 }
 
-// fetchPaginatedMetadata fetches metadata for a paginated request, combining all pages into a single response.
+// fetchPaginatedMetadata fetches metadata for a paginated request, combining fetched pages into a single response.
 // runs synchronously.
+// It stops at MaxPages; FromCache reports whether the last fetched page came from cache.
+// On an encoding, request, or decoding error, it returns the pages collected so far and the error.
 func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string) (PaginatedMetadataResponse, error) {
 	res := PaginatedMetadataResponse{}
 

@@ -12,11 +12,16 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
+// ValidateRawFilter checks whether f can be decoded as a search filter.
+// It returns JSON syntax or decoding errors; it does not check the filter with Immich.
 func ValidateRawFilter(f string) error {
 	_, err := validateRawFilter(f)
 	return err
 }
 
+// validateRawFilter decodes f into a search filter with default image and timeline
+// visibility settings. On a decoding error, it returns the partially decoded filter
+// and the error.
 func validateRawFilter(f string) (*SearchFilter, error) {
 	filter := NewSearchFilterBuilder()
 
@@ -37,6 +42,9 @@ func validateRawFilter(f string) (*SearchFilter, error) {
 	return filter, nil
 }
 
+// RawFilterCount returns the number of assets fetched for the configured filter ID,
+// up to the metadata pagination limit. It selects the filter's user for subsequent
+// requests and returns URL, filter lookup, decoding, or metadata request errors.
 func (a *Asset) RawFilterCount(requestID, deviceID string, id string) (int, error) {
 	var rawFilter config.RawFilter
 	var filter *SearchFilter
@@ -79,6 +87,10 @@ func (a *Asset) RawFilterCount(requestID, deviceID string, id string) (int, erro
 	return len(res.Assets), nil
 }
 
+// RandomAssetFromRawFilter selects a viable asset for the configured filter ID
+// and replaces a with it. It selects the filter's user and may update or clear
+// cached assets. Lookup, decoding, fetch, and cache serialization errors are
+// returned, as is an error when no viable asset is found within MaxRetries.
 func (a *Asset) RandomAssetFromRawFilter(requestID, deviceID, id string) error {
 	var rawFiler *SearchFilter
 

@@ -5,6 +5,8 @@ import (
 	"net/url"
 )
 
+// LivePhoto renders two video layers for a live photo. When provided, password
+// is included in the video source URL and videoMimeType is set on each source.
 templ LivePhoto(videoID, videoMimeType, videoOrientation, password string) {
 	<video
 		data-live-photo

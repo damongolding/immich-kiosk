@@ -16,6 +16,8 @@ script videoHandler(id string) {
 	kiosk.videoHandler(id);
 }
 
+// Video renders the first asset as a video with optional metadata and scripts.
+// viewData.Assets must contain at least one asset.
 templ Video(viewData common.ViewData, secret string, JSScripts ...components.AssetScript) {
 	{{ ID := uuid.New().String() }}
 	{{ video := viewData.Assets[0] }}

@@ -40,6 +40,7 @@ css background(service string) {
 	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url('/assets/images/%s-logo.svg');", service)) };
 }
 
+// Stats renders a service's current version, latest release, and online status.
 templ Stats(service, version string, online bool, c config.Config) {
 	{{ t := i18n.T() }}
 	{{ tag, link := getLatestRelease(service, service) }}
