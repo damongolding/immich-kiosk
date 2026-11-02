@@ -24,6 +24,8 @@ var (
 	uuidWithSuffixRe = regexp.MustCompile(`^` + uuidPattern + `(@.+)?$`)
 
 	SchemaJSON string
+
+	ValidateRawFilter func(string) error
 )
 
 // IsSchemaLoaded returns true if the schema has been initialized
@@ -757,7 +759,18 @@ func (c *Config) checkTimelines() {
 }
 
 func (c *Config) checkRawFilters() {
+	if ValidateRawFilter == nil {
+		return
+	}
+
 	for i, f := range c.RawFilters {
+
+		err := ValidateRawFilter(f.Filter)
+		if err != nil {
+			log.Warn("Skipping invalid raw filter", "name", f.Name, "err", err)
+			continue
+		}
+
 		c.RawFilters[i].ID = uuid.NewSHA1(
 			uuid.NameSpaceURL,
 			[]byte(f.Name+"\x00"+f.User+"\x00"+f.Filter),

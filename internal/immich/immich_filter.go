@@ -12,6 +12,11 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 )
 
+func ValidateRawFilter(f string) error {
+	_, err := validateRawFilter(f)
+	return err
+}
+
 func validateRawFilter(f string) (*SearchFilter, error) {
 	filter := NewSearchFilterBuilder()
 
