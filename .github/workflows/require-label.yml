@@ -1,4 +1,3 @@
-# .github/workflows/require-label.yml
 name: Require PR label
 
 on:
