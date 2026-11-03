@@ -1,0 +1,22 @@
+# .github/workflows/require-label.yml
+name: Require PR label
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  require-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR has at least one label
+        env:
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          if [ "$(echo "$LABELS" | jq 'length')" -eq 0 ]; then
+            echo "::error::This PR needs at least one label."
+            exit 1
+          fi
