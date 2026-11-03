@@ -617,6 +617,25 @@
       "minimum": 0,
       "description": "Specified duration (in seconds) for which cache entries should be kept before expiring."
     },
+    "raw_filters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          },
+          "filter": {
+            "type": "string"
+          }
+        },
+        "required": ["filter"]
+      }
+    },
     "kiosk": {
       "type": "object",
       "additionalProperties": false,

@@ -850,12 +850,15 @@ func (a *Asset) hasValidTags(requestID, deviceID string) bool {
 // PaginatedMetadataResponse
 // Holds the response from a paginated (all pages combined) metadata request, including the assets and the URL of the request.
 type PaginatedMetadataResponse struct {
-	Assets []Asset `json:"assets"`
-	URL    string  `json:"url"`
+	Assets    []Asset `json:"assets"`
+	URL       string  `json:"url"`
+	FromCache bool    `json:"-"`
 }
 
-// fetchPaginatedMetadata fetches metadata for a paginated request, combining all pages into a single response.
+// fetchPaginatedMetadata fetches metadata for a paginated request, combining fetched pages into a single response.
 // runs synchronously.
+// It stops at MaxPages; FromCache reports whether the last fetched page came from cache.
+// On an encoding, request, or decoding error, it returns the pages collected so far and the error.
 func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody, requestID string, deviceID string) (PaginatedMetadataResponse, error) {
 	res := PaginatedMetadataResponse{}
 
@@ -887,7 +890,7 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 		}
 
 		immichAPICall := withImmichAPICache(a.immichAPICall, requestID, deviceID, a.requestConfig, response)
-		apiBody, _, _, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
+		apiBody, _, fromCache, err := immichAPICall(a.ctx, http.MethodPost, apiURL.String(), jsonBody)
 		if err != nil {
 			_, _, err = immichAPIFail(response, err, apiBody, apiURL.String())
 			return res, err
@@ -900,6 +903,7 @@ func (a *Asset) fetchPaginatedMetadata(u *url.URL, requestBody SearchRandomBody,
 		}
 
 		res.Assets = append(res.Assets, response.Assets.Items...)
+		res.FromCache = fromCache
 
 		if response.Assets.NextCursor == "" {
 			break

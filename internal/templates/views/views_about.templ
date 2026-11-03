@@ -40,6 +40,7 @@ css background(service string) {
 	background-image: { templ.SafeCSSProperty(fmt.Sprintf("url('/assets/images/%s-logo.svg');", service)) };
 }
 
+// Stats renders a service's current version, latest release, and online status.
 templ Stats(service, version string, online bool, c config.Config) {
 	{{ t := i18n.T() }}
 	{{ tag, link := getLatestRelease(service, service) }}
@@ -47,7 +48,7 @@ templ Stats(service, version string, online bool, c config.Config) {
 		<div class={ fmt.Sprintf("about-container--%s--content", service) }>
 			<div class={ "background", background(service) }></div>
 			<div class="logo">
-				<img src={ fmt.Sprintf("/assets/images/%s-logo.svg", service) } alt="Immich Logo"/>
+				<img src={ templ.SafeURL(fmt.Sprintf("/assets/images/%s-logo.svg", service)) } alt="Immich Logo"/>
 			</div>
 			<div class="about_content">
 				<h1>{ cases.Title(language.Und).String(service) }</h1>

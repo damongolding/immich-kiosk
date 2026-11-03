@@ -5,6 +5,8 @@ import (
 	"net/url"
 )
 
+// LivePhoto renders two video layers for a live photo. When provided, password
+// is included in the video source URL and videoMimeType is set on each source.
 templ LivePhoto(videoID, videoMimeType, videoOrientation, password string) {
 	<video
 		data-live-photo
@@ -18,9 +20,9 @@ templ LivePhoto(videoID, videoMimeType, videoOrientation, password string) {
 	>
 		<source
 			if password != "" {
-				src={ fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password)) }
+				src={ templ.SafeURL(fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password))) }
 			} else {
-				src={ fmt.Sprintf("/video/%s", videoID) }
+				src={ templ.SafeURL(fmt.Sprintf("/video/%s", videoID)) }
 			}
 			if videoMimeType != "" {
 				type={ videoMimeType }
@@ -41,9 +43,9 @@ templ LivePhoto(videoID, videoMimeType, videoOrientation, password string) {
 	>
 		<source
 			if password != "" {
-				src={ fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password)) }
+				src={ templ.SafeURL(fmt.Sprintf("/video/%s?password=%s", videoID, url.QueryEscape(password))) }
 			} else {
-				src={ fmt.Sprintf("/video/%s", videoID) }
+				src={ templ.SafeURL(fmt.Sprintf("/video/%s", videoID)) }
 			}
 			if videoMimeType != "" {
 				type={ videoMimeType }

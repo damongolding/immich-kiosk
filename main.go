@@ -60,6 +60,7 @@ var SchemaJSON string
 func init() {
 	routes.KioskVersion = version
 	config.SchemaJSON = SchemaJSON
+	config.ValidateRawFilter = immich.ValidateRawFilter
 	i18n.LocaleFS = localeFS
 
 	bg, err := public.ReadFile("frontend/public/assets/images/noise-lite.png")

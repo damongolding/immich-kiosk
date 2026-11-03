@@ -13,6 +13,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
+	"github.com/google/uuid"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -23,6 +24,8 @@ var (
 	uuidWithSuffixRe = regexp.MustCompile(`^` + uuidPattern + `(@.+)?$`)
 
 	SchemaJSON string
+
+	ValidateRawFilter func(string) error
 )
 
 // IsSchemaLoaded returns true if the schema has been initialized
@@ -753,4 +756,30 @@ func (c *Config) checkTimelines() {
 	}
 
 	c.Timelines = t
+}
+
+// checkRawFilters removes filters rejected by the validator and assigns IDs to
+// the remaining filters. If no validator is configured, it leaves them unchanged.
+func (c *Config) checkRawFilters() {
+	if ValidateRawFilter == nil {
+		return
+	}
+
+	valid := make(RawFilters, 0, len(c.RawFilters))
+	for _, f := range c.RawFilters {
+
+		err := ValidateRawFilter(f.Filter)
+		if err != nil {
+			log.Warn("Skipping invalid raw filter", "name", f.Name, "err", err)
+			continue
+		}
+
+		f.ID = uuid.NewSHA1(
+			uuid.NameSpaceURL,
+			[]byte(f.Name+"\x00"+f.User+"\x00"+f.Filter),
+		).String()
+
+		valid = append(valid, f)
+	}
+	c.RawFilters = valid
 }

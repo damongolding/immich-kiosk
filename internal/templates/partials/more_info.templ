@@ -85,7 +85,7 @@ templ RenderMoreInfo(viewData common.ViewData, secret string) {
 				</div>
 				if viewData.MoreInfo.Show.QRCode {
 					<div class="more-info--image--qr-code">
-						<img src={ utils.CreateQrCode(ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID, viewData.QrCodeOpenInApp, viewData.Kiosk.DemoMode)) }/>
+						<img src={ templ.SafeURL(utils.CreateQrCode(ImmichAssetUrl(viewData.ImmichURL, viewData.ImmichExternalURL, img.ImmichAsset.ID, viewData.QrCodeOpenInApp, viewData.Kiosk.DemoMode))) }/>
 					</div>
 				}
 			</div>

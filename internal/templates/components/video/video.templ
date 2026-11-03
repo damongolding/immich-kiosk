@@ -16,6 +16,8 @@ script videoHandler(id string) {
 	kiosk.videoHandler(id);
 }
 
+// Video renders the first asset as a video with optional metadata and scripts.
+// viewData.Assets must contain at least one asset.
 templ Video(viewData common.ViewData, secret string, JSScripts ...components.AssetScript) {
 	{{ ID := uuid.New().String() }}
 	{{ video := viewData.Assets[0] }}
@@ -27,7 +29,7 @@ templ Video(viewData common.ViewData, secret string, JSScripts ...components.Ass
 	}}
 	<div class="frame" hx-on::load={ videoHandler(ID) }>
 		<div class="frame--background">
-			<img src={ video.ImageBlurData } alt="Blurred image background"/>
+			<img src={ templ.SafeURL(video.ImageBlurData) } alt="Blurred image background"/>
 		</div>
 		<div class="frame--video">
 			<video
