@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -115,7 +115,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.build.outputs.is_prerelease == 'false'
     steps:
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.PAT_TOKEN }}
           script: |
