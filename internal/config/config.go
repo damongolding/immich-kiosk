@@ -28,6 +28,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -253,9 +254,9 @@ type ImageLocation struct {
 
 type RawFilter struct {
 	ID     string `json:"-" yaml:"-" mapstructure:"-"`
-	Name   string `json:"name" yaml:"name" mapstructure:"name" default:""`
-	User   string `json:"user" yaml:"user" mapstructure:"user" default:""`
-	Filter string `json:"filter" yaml:"filter" mapstructure:"filter" default:""`
+	Name   string `json:"name" yaml:"name" mapstructure:"name" default:"" redact:"true"`
+	User   string `json:"user" yaml:"user" mapstructure:"user" default:"" redact:"true"`
+	Filter string `json:"filter" yaml:"filter" mapstructure:"filter" default:"" redact:"true"`
 }
 
 type RawFilters []RawFilter
@@ -543,7 +544,7 @@ type Config struct {
 	// CacheDuration user specified duration (in seconds) for which cache entries should be kept before expiring.
 	CacheDuration int `json:"cacheDuration" yaml:"cache_duration" mapstructure:"cache_duration" query:"cache_duration" form:"cache_duration" default:"0"`
 
-	RawFilters RawFilters `json:"rawFilters" yaml:"raw_filters" mapstructure:"raw_filters" default:"[]" redact:"true"`
+	RawFilters RawFilters `json:"rawFilters" yaml:"raw_filters" mapstructure:"raw_filters" default:"[]"`
 
 	// Kiosk settings that are unable to be changed via URL queries
 	Kiosk KioskSettings `json:"kiosk" yaml:"kiosk" mapstructure:"kiosk"`
@@ -799,7 +800,7 @@ func getHistory(queries url.Values) []string {
 // RawFilterURLQueries keeps filters whose names match q, in query order.
 // Repeated names can repeat filters; an empty or unmatched q clears the filters.
 func (c *Config) RawFilterURLQueries(q []string) {
-	if len(q) == 0 {
+	if len(q) == 0 || slices.Contains(q, "none") {
 		c.RawFilters = []RawFilter{}
 		return
 	}
