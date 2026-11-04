@@ -28,6 +28,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -255,7 +256,7 @@ type RawFilter struct {
 	ID     string `json:"-" yaml:"-" mapstructure:"-"`
 	Name   string `json:"name" yaml:"name" mapstructure:"name" default:""`
 	User   string `json:"user" yaml:"user" mapstructure:"user" default:""`
-	Filter string `json:"filter" yaml:"filter" mapstructure:"filter" default:""`
+	Filter string `json:"filter" yaml:"filter" mapstructure:"filter" default:"" redact:"true"`
 }
 
 type RawFilters []RawFilter
@@ -799,7 +800,7 @@ func getHistory(queries url.Values) []string {
 // RawFilterURLQueries keeps filters whose names match q, in query order.
 // Repeated names can repeat filters; an empty or unmatched q clears the filters.
 func (c *Config) RawFilterURLQueries(q []string) {
-	if len(q) == 0 {
+	if len(q) == 0 || slices.Contains(q, "none") {
 		c.RawFilters = []RawFilter{}
 		return
 	}
