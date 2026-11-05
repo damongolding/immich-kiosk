@@ -253,10 +253,11 @@ type ImageLocation struct {
 }
 
 type RawFilter struct {
-	ID     string `json:"-" yaml:"-" mapstructure:"-"`
-	Name   string `json:"name" yaml:"name" mapstructure:"name" default:"" redact:"true"`
-	User   string `json:"user" yaml:"user" mapstructure:"user" default:"" redact:"true"`
-	Filter string `json:"filter" yaml:"filter" mapstructure:"filter" default:"" redact:"true"`
+	ID        string `json:"-" yaml:"-" mapstructure:"-"`
+	Name      string `json:"name" yaml:"name" mapstructure:"name" default:"" redact:"true"`
+	User      string `json:"user" yaml:"user" mapstructure:"user" default:"" redact:"true"`
+	QueryOnly bool   `json:"queryOnly" yaml:"query_only" mapstructure:"query_only" default:"false"`
+	Filter    string `json:"filter" yaml:"filter" mapstructure:"filter" default:"" redact:"true"`
 }
 
 type RawFilters []RawFilter
@@ -810,6 +811,7 @@ func (c *Config) RawFilterURLQueries(q []string) {
 	for _, s := range q {
 		for _, rf := range c.RawFilters {
 			if s == rf.Name {
+				rf.QueryOnly = false
 				o = append(o, rf)
 			}
 		}
