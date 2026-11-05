@@ -209,6 +209,10 @@ func gatherRawFilters(d *gatherData) error {
 
 	for _, rf := range d.requestConfig.RawFilters {
 
+		if rf.QueryOnly {
+			continue
+		}
+
 		rawCount, err := d.immichAsset.RawFilterCount(d.requestID, d.deviceID, rf.ID)
 		if err != nil {
 			return err
