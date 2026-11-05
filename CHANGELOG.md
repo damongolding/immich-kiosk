@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.47.0 (2026-11-05)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### 🚀 New Features
+* feat: raw filters query_only by @damongolding in https://github.com/damongolding/immich-kiosk/pull/950
+### ⚡ Fixes
+* fix: iframe srcdoc by @damongolding in https://github.com/damongolding/immich-kiosk/pull/947
+* fix: redact and allow none in URL for raw filters by @damongolding in https://github.com/damongolding/immich-kiosk/pull/948
+
+
+**Full Changelog**: https://github.com/damongolding/immich-kiosk/compare/v0.46.0...v0.47.0
+
 ## 0.46.0 (2026-11-03)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
