@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.47.1 (2026-11-09)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### ⚡ Fixes
+* fix: video safe URLS by @damongolding in https://github.com/damongolding/immich-kiosk/pull/955
+### 🔨 Maintenance
+* chore: openapi by @damongolding in https://github.com/damongolding/immich-kiosk/pull/953
+
+
+**Full Changelog**: https://github.com/damongolding/immich-kiosk/compare/v0.47.0...v0.47.1
+
 ## 0.47.0 (2026-11-05)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
