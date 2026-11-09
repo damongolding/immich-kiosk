@@ -164,6 +164,7 @@ const (
 // Defines values for ImageFormat.
 const (
 	Jpeg ImageFormat = "jpeg"
+	Jxl  ImageFormat = "jxl"
 	Webp ImageFormat = "webp"
 )
 
@@ -259,6 +260,7 @@ const (
 const (
 	MaintenanceActionEnd                   MaintenanceAction = "end"
 	MaintenanceActionRestoreDatabase       MaintenanceAction = "restore_database"
+	MaintenanceActionRollback              MaintenanceAction = "rollback"
 	MaintenanceActionSelectDatabaseRestore MaintenanceAction = "select_database_restore"
 	MaintenanceActionStart                 MaintenanceAction = "start"
 )
@@ -393,6 +395,7 @@ const (
 	PermissionBackupDownload            Permission = "backup.download"
 	PermissionBackupList                Permission = "backup.list"
 	PermissionBackupUpload              Permission = "backup.upload"
+	PermissionClusterGroupAdmin         Permission = "clusterGroup.admin"
 	PermissionClusterGroupLeave         Permission = "clusterGroup.leave"
 	PermissionClusterGroupRead          Permission = "clusterGroup.read"
 	PermissionClusterGroupRequestCreate Permission = "clusterGroupRequest.create"
@@ -807,6 +810,7 @@ const (
 const (
 	AssetCreate             WorkflowTrigger = "AssetCreate"
 	AssetMetadataExtraction WorkflowTrigger = "AssetMetadataExtraction"
+	AssetOcrExtraction      WorkflowTrigger = "AssetOcrExtraction"
 	AssetTagged             WorkflowTrigger = "AssetTagged"
 )
 
@@ -866,6 +870,8 @@ type AddUsersDto struct {
 
 // AdminConfigBackupsDto defines model for AdminConfigBackupsDto.
 type AdminConfigBackupsDto struct {
+	// Beta Whether the backups feature is enabled
+	Beta     *bool                        `json:"beta,omitempty"`
 	Database AdminConfigDatabaseBackupDto `json:"database"`
 }
 
@@ -2909,11 +2915,14 @@ type MaintenanceLoginDto struct {
 // MaintenanceStatusResponseDto defines model for MaintenanceStatusResponseDto.
 type MaintenanceStatusResponseDto struct {
 	// Action Maintenance action
-	Action   MaintenanceAction `json:"action"`
-	Active   bool              `json:"active"`
-	Error    *string           `json:"error,omitempty"`
-	Progress *int              `json:"progress,omitempty"`
-	Task     *string           `json:"task,omitempty"`
+	Action MaintenanceAction `json:"action"`
+	Active bool              `json:"active"`
+	Error  *string           `json:"error,omitempty"`
+
+	// FutoBackupsJobId FUTO Backups job ID
+	FutoBackupsJobId *string `json:"futoBackupsJobId,omitempty"`
+	Progress         *int    `json:"progress,omitempty"`
+	Task             *string `json:"task,omitempty"`
 }
 
 // ManualJobName Manual job name
@@ -4556,6 +4565,9 @@ type ServerConfigDto struct {
 
 // ServerFeaturesDto defines model for ServerFeaturesDto.
 type ServerFeaturesDto struct {
+	// Backups Whether the backups feature is enabled
+	Backups bool `json:"backups"`
+
 	// ConfigFile Whether config file is available
 	ConfigFile bool `json:"configFile"`
 
@@ -4794,6 +4806,12 @@ type SetMaintenanceModeDto struct {
 
 	// RestoreBackupFilename Restore backup filename
 	RestoreBackupFilename *string `json:"restoreBackupFilename,omitempty"`
+
+	// RollbackRepositoryId Rollback repository ID
+	RollbackRepositoryId *string `json:"rollbackRepositoryId,omitempty"`
+
+	// RollbackSnapshotId Rollback snapshot ID
+	RollbackSnapshotId *string `json:"rollbackSnapshotId,omitempty"`
 }
 
 // SharedLinkCreateDto defines model for SharedLinkCreateDto.

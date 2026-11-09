@@ -137,14 +137,36 @@ func (bd BirthDate) Time() (time.Time, error) {
 	return time.Parse("2006-01-02", string(bd))
 }
 
+type PeopleUserResponseDto struct {
+	AvatarColor      UserAvatarColor `json:"avatarColor"`
+	Email            string          `json:"email"`
+	Id               string          `json:"id"`
+	Name             string          `json:"name"`
+	ProfileChangedAt time.Time       `json:"profileChangedAt"`
+	ProfileImagePath string          `json:"profileImagePath"`
+	Role             string          `json:"role"`
+}
+
+type PersonOtherResponseDto struct {
+	BirthDate *string `json:"birthDate"`
+	Name      string  `json:"name"`
+
+	// Role Levels of access for managing people resources on behalf of another user.
+	Role       string `json:"role"`
+	SharedById string `json:"sharedById"`
+}
+
 type Person struct {
-	UpdatedAt     time.Time `json:"-"` // `json:"updatedAt"`
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	BirthDate     BirthDate `json:"birthDate"`
-	ThumbnailPath string    `json:"-"` // `json:"thumbnailPath"`
-	Faces         []Face    `json:"faces"`
-	IsHidden      bool      `json:"-"` // `json:"isHidden"`
+	UpdatedAt     time.Time                `json:"-"` // `json:"updatedAt"`
+	ID            string                   `json:"id"`
+	Name          string                   `json:"name"`
+	BirthDate     BirthDate                `json:"birthDate"`
+	ThumbnailPath string                   `json:"-"` // `json:"thumbnailPath"`
+	Faces         []Face                   `json:"faces"`
+	IsHidden      bool                     `json:"-"` // `json:"isHidden"`
+	OtherPeople   []PersonOtherResponseDto `json:"otherPeople"`
+	SharedBy      []PeopleUserResponseDto  `json:"sharedBy"`
+	SharedWith    []PeopleUserResponseDto  `json:"sharedWith"`
 }
 
 type Tag struct {
