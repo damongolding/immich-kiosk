@@ -140,7 +140,7 @@ func (bd BirthDate) Time() (time.Time, error) {
 type PeopleUserResponseDto struct {
 	AvatarColor      UserAvatarColor `json:"avatarColor"`
 	Email            string          `json:"email"`
-	Id               string          `json:"id"`
+	ID               string          `json:"id"`
 	Name             string          `json:"name"`
 	ProfileChangedAt time.Time       `json:"profileChangedAt"`
 	ProfileImagePath string          `json:"profileImagePath"`
@@ -153,7 +153,7 @@ type PersonOtherResponseDto struct {
 
 	// Role Levels of access for managing people resources on behalf of another user.
 	Role       string `json:"role"`
-	SharedById string `json:"sharedById"`
+	SharedByID string `json:"sharedById"`
 }
 
 type Person struct {
