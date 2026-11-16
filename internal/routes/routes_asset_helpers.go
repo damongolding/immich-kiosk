@@ -966,7 +966,8 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, request
 
 		// Second image
 		if secondAssetErr := fetchSecondSplitViewAsset(&viewData, viewDataSplitView, requestConfig, c, isPrefetch, options); secondAssetErr != nil {
-			return viewData, secondAssetErr
+			log.Error("retrieving second asset for split view", "err", secondAssetErr)
+			return viewData, nil
 		}
 
 	case kiosk.LayoutSplitviewLandscape:
@@ -989,7 +990,8 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, request
 
 		// Second image
 		if secondAssetErr := fetchSecondSplitViewAsset(&viewData, viewDataSplitView, requestConfig, c, isPrefetch, options); secondAssetErr != nil {
-			return viewData, secondAssetErr
+			log.Error("retrieving second asset for split view", "err", secondAssetErr)
+			return viewData, nil
 		}
 
 	default:
