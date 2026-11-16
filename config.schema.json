@@ -234,6 +234,12 @@
     "layout": {
       "type": "string"
     },
+    "splitview_source": {
+      "type": "string",
+      "enum": ["same", "random"],
+      "default": "same",
+      "description": "Controls where the second asset in the splitview layout is picked from. 'same' (default) picks both assets from the same source, e.g. the same album, person or date range. 'random' picks the second asset independently of the first asset's source. Only applies when layout is 'splitview'."
+    },
     "sleep_start": {
       "type": ["string", "integer"]
     },
@@ -633,7 +639,7 @@
             "type": "string"
           },
           "query_only": {
-            "type":"boolean",
+            "type": "boolean",
             "default": false,
             "description": "When set to true this filter will be off by default and has to be enabled via URL queries."
           }

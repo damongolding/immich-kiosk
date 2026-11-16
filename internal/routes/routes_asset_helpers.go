@@ -958,7 +958,7 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, request
 		}
 
 		options := common.ViewImageDataOptions{
-			RelativeAssetWanted:   true,
+			RelativeAssetWanted:   requestConfig.SplitviewSource == kiosk.SplitviewSourceSame,
 			RelativeAssetBucket:   viewDataSplitView.ImmichAsset.Bucket,
 			RelativeAssetBucketID: viewDataSplitView.ImmichAsset.BucketID,
 			ImageOrientation:      immich.PortraitOrientation,
@@ -981,7 +981,7 @@ func generateViewData(requestConfig config.Config, c common.ContextCopy, request
 		}
 
 		options := common.ViewImageDataOptions{
-			RelativeAssetWanted:   true,
+			RelativeAssetWanted:   requestConfig.SplitviewSource == kiosk.SplitviewSourceSame,
 			RelativeAssetBucket:   viewDataSplitView.ImmichAsset.Bucket,
 			RelativeAssetBucketID: viewDataSplitView.ImmichAsset.BucketID,
 			ImageOrientation:      immich.LandscapeOrientation,
