@@ -3,7 +3,6 @@ version: "3"
 silent: true
 
 tasks:
-  # Docker tasks
   docker:build:
     desc: Build docker image locally
     cmds:

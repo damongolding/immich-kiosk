@@ -14,6 +14,10 @@ includes:
     taskfile: ./taskfile.docker.yml
     flatten: true
 
+  container:
+    taskfile: ./taskfile.container.yml
+    flatten: true
+
 tasks:
   # Development tasks
   default:

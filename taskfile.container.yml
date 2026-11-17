@@ -1,0 +1,37 @@
+version: "3"
+
+silent: true
+
+tasks:
+  container:start:
+    cmds:
+      - container system start
+
+  container:stop:
+    cmds:
+      - container system stop
+
+  container:build:
+    desc: Build image locally using Apple's container
+    deps: [container:start]
+    cmds:
+      - container build --no-cache --build-arg VERSION={{.VERSION}} -t local/immich-kiosk:{{.VERSION}} -t local/immich-kiosk:latest -f Dockerfile .
+
+  container:run:
+    desc: Run image locally using Apple's container
+    deps: [container:start]
+    cmds:
+      - |
+        container run \
+        -v ./config.yaml:/config/config.yaml \
+        -p 3000:3000 \
+        -e LANG="en_GB" \
+        -e TZ="Europe/London" \
+        -e KIOSK_LOG_LEVEL=info \
+        --tty \
+        local/immich-kiosk:latest
+
+  container:clean:
+    cmds:
+      - container prune
+      - container i prune -a
