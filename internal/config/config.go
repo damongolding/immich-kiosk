@@ -428,6 +428,8 @@ type Config struct {
 	// Layout which layout to use
 	Layout string `json:"layout" yaml:"layout" mapstructure:"layout" query:"layout" form:"layout" default:"single" lowercase:"true"`
 
+	SplitviewSource string `json:"splitviewSource" yaml:"splitview_source" mapstructure:"splitview_source" query:"splitview_source" form:"splitview_source" default:"same" lowercase:"true"`
+
 	// UpArrowAction action to perform when up arrow is pressed
 	UpArrowAction string `json:"upArrowAction" yaml:"up_arrow_action" mapstructure:"up_arrow_action" query:"up_arrow_action" form:"up_arrow_action" default:"" lowercase:"true"`
 	// DownArrowAction action to perform when down arrow is pressed

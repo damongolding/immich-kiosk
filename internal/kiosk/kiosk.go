@@ -35,6 +35,9 @@ const (
 	LayoutSplitview          string = "splitview"
 	LayoutSplitviewLandscape string = "splitview-landscape"
 
+	SplitviewSourceSame   string = "same"
+	SplitviewSourceRandom string = "random"
+
 	PortraitOrientation  string = LayoutPortrait
 	LandscapeOrientation string = LayoutLandscape
 	SquareOrientation    string = "square"
