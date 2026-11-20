@@ -167,6 +167,46 @@ func TestFacesCenterPoint(t *testing.T) {
 			wantX: 0,
 			wantY: 0,
 		},
+		{
+			name: "Unassigned face only",
+			asset: Asset{
+				UnassignedFaces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}},
+			},
+			wantX: 15,
+			wantY: 15,
+		},
+		{
+			name: "People and unassigned faces",
+			asset: Asset{
+				People: []Person{
+					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
+				},
+				UnassignedFaces: []Face{{BoundingBoxX1: 300, BoundingBoxY1: 300, BoundingBoxX2: 400, BoundingBoxY2: 400, ImageWidth: 1000, ImageHeight: 1000}},
+			},
+			wantX: 25,
+			wantY: 25,
+		},
+		{
+			name: "Clamped on X only",
+			asset: Asset{
+				People: []Person{
+					{Faces: []Face{{BoundingBoxX1: 1900, BoundingBoxY1: 400, BoundingBoxX2: 2100, BoundingBoxY2: 600, ImageWidth: 1000, ImageHeight: 1000}}},
+				},
+			},
+			wantX: 100,
+			wantY: 50,
+		},
+		{
+			name: "First person has no faces",
+			asset: Asset{
+				People: []Person{
+					{Faces: []Face{}},
+					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
+				},
+			},
+			wantX: 15,
+			wantY: 15,
+		},
 	}
 
 	for _, tt := range tests {
