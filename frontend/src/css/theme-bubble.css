@@ -1,11 +1,13 @@
 /* Bubble theme */
 .asset--metadata--theme-bubble {
-    gap: 0.3rem;
     .asset--metadata--has-icon {
         padding: 0.4rem 1rem;
         text-shadow: none;
         border-radius: 10rem;
         backdrop-filter: blur(0.2rem);
+    }
+    > div:not(:first-child) {
+        margin-top: 0.3rem;
     }
 }
 

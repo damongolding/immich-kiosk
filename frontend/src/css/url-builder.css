@@ -15,11 +15,13 @@ body#url-builder {
     z-index: var(--z-base);
     width: 50%;
     padding: 1.5rem;
+    margin: 0 1.5rem 0 0;
     background-color: white;
     border-radius: 0.5rem;
 
     @media screen and (max-width: 60rem) {
         width: 100%;
+        margin: 0 0 1.5rem 0;
     }
 }
 
@@ -74,7 +76,6 @@ body#url-builder {
 
 .url-container--form--content {
     display: flex;
-    gap: 1.5rem;
     width: 100%;
     padding: 1.5rem;
     margin: 0 auto;
@@ -87,13 +88,19 @@ body#url-builder {
 .url-container--form--content #url-builder-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+
+    > div {
+        margin-top: 1.5rem;
+    }
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+
+    > *:not(:first-child) {
+        margin-top: 0.5rem;
+    }
 
     label,
     legend {
@@ -144,7 +151,6 @@ body#url-builder {
     /* Radio Group */
     .form-group--radio-group {
         display: flex;
-        gap: 1.5rem;
         label,
         legend {
             font-weight: 400;
@@ -159,9 +165,12 @@ body#url-builder {
 
     .form-group--radio {
         display: flex;
-        gap: 0.3rem;
         align-items: center;
+        margin-right: 1.5rem;
         cursor: pointer;
+        input {
+            margin-right: 0.3rem;
+        }
     }
 
     /* Select */
@@ -275,6 +284,19 @@ body#url-builder {
     transition: filter 0.2s ease;
     &:hover {
         filter: brightness(85%);
+    }
+}
+
+.location-hide {
+    display: flex;
+    flex-direction: column;
+    padding-left: 1rem;
+    .form-group:first-child {
+        margin-top: 0.5rem;
+    }
+
+    .form-group:not(:first-child) {
+        margin-top: 1.5rem;
     }
 }
 
