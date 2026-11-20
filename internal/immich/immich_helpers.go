@@ -469,9 +469,11 @@ func (a *Asset) ImagePreview() ([]byte, string, error) {
 // all faces and returning its center as x,y percentages relative to the image dimensions.
 // Results are clamped to the range 0-100.
 // Returns (0,0) if no faces are detected or if image dimensions are invalid.
-func (a *Asset) FacesCenterPoint() (float64, float64) {
+// ok is false when no faces are detected or the image dimensions are invalid,
+// so a valid 0% can be told apart from missing data.
+func (a *Asset) FacesCenterPoint() (float64, float64, bool) {
 	if len(a.People) == 0 && len(a.UnassignedFaces) == 0 {
-		return 0, 0
+		return 0, 0, false
 	}
 
 	var minX, minY, maxX, maxY int
@@ -521,7 +523,7 @@ func (a *Asset) FacesCenterPoint() (float64, float64) {
 	}
 
 	if !initialized || imageWidth == 0 || imageHeight == 0 {
-		return 0, 0
+		return 0, 0, false
 	}
 
 	centerX := float64(minX+maxX) / 2
@@ -530,7 +532,7 @@ func (a *Asset) FacesCenterPoint() (float64, float64) {
 	percentX := centerX / float64(imageWidth) * 100
 	percentY := centerY / float64(imageHeight) * 100
 
-	return max(0, min(100, percentX)), max(0, min(100, percentY))
+	return max(0, min(100, percentX)), max(0, min(100, percentY)), true
 }
 
 // FacesCenterPointPX calculates the center point of all detected faces in an image in pixels.

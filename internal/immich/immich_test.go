@@ -59,10 +59,11 @@ func TestArchiveLogic(t *testing.T) {
 // TestFacesCenterPoint tests the calculation of the center point between detected faces in an asset
 func TestFacesCenterPoint(t *testing.T) {
 	tests := []struct {
-		name  string
-		asset Asset
-		wantX float64
-		wantY float64
+		name   string
+		asset  Asset
+		wantX  float64
+		wantY  float64
+		wantOK bool
 	}{
 		{
 			name: "No people",
@@ -70,8 +71,9 @@ func TestFacesCenterPoint(t *testing.T) {
 				People:          []Person{},
 				UnassignedFaces: []Face{},
 			},
-			wantX: 0,
-			wantY: 0,
+			wantX:  0,
+			wantY:  0,
+			wantOK: false,
 		},
 		{
 			name: "People but no faces",
@@ -82,8 +84,9 @@ func TestFacesCenterPoint(t *testing.T) {
 				},
 				UnassignedFaces: []Face{},
 			},
-			wantX: 0,
-			wantY: 0,
+			wantX:  0,
+			wantY:  0,
+			wantOK: false,
 		},
 		{
 			name: "Zero dimensions",
@@ -93,8 +96,9 @@ func TestFacesCenterPoint(t *testing.T) {
 				},
 				UnassignedFaces: []Face{},
 			},
-			wantX: 0,
-			wantY: 0,
+			wantX:  0,
+			wantY:  0,
+			wantOK: false,
 		},
 		{
 			name: "Single face",
@@ -104,8 +108,9 @@ func TestFacesCenterPoint(t *testing.T) {
 				},
 				UnassignedFaces: []Face{},
 			},
-			wantX: 15,
-			wantY: 15,
+			wantX:  15,
+			wantY:  15,
+			wantOK: true,
 		},
 		{
 			name: "Multiple faces",
@@ -116,8 +121,9 @@ func TestFacesCenterPoint(t *testing.T) {
 				},
 				UnassignedFaces: []Face{},
 			},
-			wantX: 25,
-			wantY: 25,
+			wantX:  25,
+			wantY:  25,
+			wantOK: true,
 		},
 		{
 			name: "Multiple faces but not on the first person",
@@ -129,8 +135,9 @@ func TestFacesCenterPoint(t *testing.T) {
 				},
 				UnassignedFaces: []Face{},
 			},
-			wantX: 25,
-			wantY: 25,
+			wantX:  25,
+			wantY:  25,
+			wantOK: true,
 		},
 		{
 			name: "Multiple faces but not on the second person",
@@ -142,8 +149,9 @@ func TestFacesCenterPoint(t *testing.T) {
 				},
 				UnassignedFaces: []Face{},
 			},
-			wantX: 25,
-			wantY: 25,
+			wantX:  25,
+			wantY:  25,
+			wantOK: true,
 		},
 		{
 			name: "Out of bounds 100",
@@ -153,8 +161,9 @@ func TestFacesCenterPoint(t *testing.T) {
 				},
 				UnassignedFaces: []Face{},
 			},
-			wantX: 100,
-			wantY: 100,
+			wantX:  100,
+			wantY:  100,
+			wantOK: true,
 		},
 		{
 			name: "Out of bounds 0",
@@ -164,16 +173,18 @@ func TestFacesCenterPoint(t *testing.T) {
 				},
 				UnassignedFaces: []Face{},
 			},
-			wantX: 0,
-			wantY: 0,
+			wantX:  0,
+			wantY:  0,
+			wantOK: true,
 		},
 		{
 			name: "Unassigned face only",
 			asset: Asset{
 				UnassignedFaces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}},
 			},
-			wantX: 15,
-			wantY: 15,
+			wantX:  15,
+			wantY:  15,
+			wantOK: true,
 		},
 		{
 			name: "People and unassigned faces",
@@ -183,8 +194,9 @@ func TestFacesCenterPoint(t *testing.T) {
 				},
 				UnassignedFaces: []Face{{BoundingBoxX1: 300, BoundingBoxY1: 300, BoundingBoxX2: 400, BoundingBoxY2: 400, ImageWidth: 1000, ImageHeight: 1000}},
 			},
-			wantX: 25,
-			wantY: 25,
+			wantX:  25,
+			wantY:  25,
+			wantOK: true,
 		},
 		{
 			name: "Clamped on X only",
@@ -193,8 +205,9 @@ func TestFacesCenterPoint(t *testing.T) {
 					{Faces: []Face{{BoundingBoxX1: 1900, BoundingBoxY1: 400, BoundingBoxX2: 2100, BoundingBoxY2: 600, ImageWidth: 1000, ImageHeight: 1000}}},
 				},
 			},
-			wantX: 100,
-			wantY: 50,
+			wantX:  100,
+			wantY:  50,
+			wantOK: true,
 		},
 		{
 			name: "First person has no faces",
@@ -204,16 +217,51 @@ func TestFacesCenterPoint(t *testing.T) {
 					{Faces: []Face{{BoundingBoxX1: 100, BoundingBoxY1: 100, BoundingBoxX2: 200, BoundingBoxY2: 200, ImageWidth: 1000, ImageHeight: 1000}}},
 				},
 			},
-			wantX: 15,
-			wantY: 15,
+			wantX:  15,
+			wantY:  15,
+			wantOK: true,
+		},
+		{
+			name: "Valid zero on X only",
+			asset: Asset{
+				People: []Person{
+					{Faces: []Face{{BoundingBoxX1: -100, BoundingBoxY1: 400, BoundingBoxX2: 100, BoundingBoxY2: 600, ImageWidth: 1000, ImageHeight: 1000}}},
+				},
+			},
+			wantX:  0,
+			wantY:  50,
+			wantOK: true,
+		},
+		{
+			name: "Valid zero on Y only",
+			asset: Asset{
+				People: []Person{
+					{Faces: []Face{{BoundingBoxX1: 400, BoundingBoxY1: -100, BoundingBoxX2: 600, BoundingBoxY2: 100, ImageWidth: 1000, ImageHeight: 1000}}},
+				},
+			},
+			wantX:  50,
+			wantY:  0,
+			wantOK: true,
+		},
+		{
+			name: "Valid zero on both axes",
+			asset: Asset{
+				People: []Person{
+					{Faces: []Face{{BoundingBoxX1: -100, BoundingBoxY1: -100, BoundingBoxX2: 100, BoundingBoxY2: 100, ImageWidth: 1000, ImageHeight: 1000}}},
+				},
+			},
+			wantX:  0,
+			wantY:  0,
+			wantOK: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotX, gotY := tt.asset.FacesCenterPoint()
+			gotX, gotY, gotOK := tt.asset.FacesCenterPoint()
 			assert.Equal(t, tt.wantX, gotX, "Unexpected X coordinate")
 			assert.Equal(t, tt.wantY, gotY, "Unexpected Y coordinate")
+			assert.Equal(t, tt.wantOK, gotOK, "Unexpected ok value")
 		})
 	}
 }
