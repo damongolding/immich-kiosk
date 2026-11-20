@@ -467,13 +467,17 @@ func (a *Asset) ImagePreview() ([]byte, string, error) {
 // FacesCenterPoint calculates the center point of all detected faces in an image as percentages.
 // It analyzes both assigned (People) and unassigned faces, finding the bounding box that encompasses
 // all faces and returning its center as x,y percentages relative to the image dimensions.
+// Results are clamped to the range 0-100.
 // Returns (0,0) if no faces are detected or if image dimensions are invalid.
-func (a *Asset) FacesCenterPoint() (float64, float64) {
+// bool is false when no faces are detected or the image dimensions are invalid,
+// so a valid 0% can be told apart from missing data.
+func (a *Asset) FacesCenterPoint() (float64, float64, bool) {
 	if len(a.People) == 0 && len(a.UnassignedFaces) == 0 {
-		return 0, 0
+		return 0, 0, false
 	}
 
 	var minX, minY, maxX, maxY int
+	var imageWidth, imageHeight int
 	initialized := false
 
 	for _, person := range a.People {
@@ -486,6 +490,7 @@ func (a *Asset) FacesCenterPoint() (float64, float64) {
 			if !initialized {
 				minX, minY = face.BoundingBoxX1, face.BoundingBoxY1
 				maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
+				imageWidth, imageHeight = face.ImageWidth, face.ImageHeight
 				initialized = true
 				continue
 			}
@@ -506,6 +511,7 @@ func (a *Asset) FacesCenterPoint() (float64, float64) {
 		if !initialized {
 			minX, minY = face.BoundingBoxX1, face.BoundingBoxY1
 			maxX, maxY = face.BoundingBoxX2, face.BoundingBoxY2
+			imageWidth, imageHeight = face.ImageWidth, face.ImageHeight
 			initialized = true
 			continue
 		}
@@ -516,35 +522,17 @@ func (a *Asset) FacesCenterPoint() (float64, float64) {
 		maxY = max(maxY, face.BoundingBoxY2)
 	}
 
-	if !initialized {
-		return 0, 0
+	if !initialized || imageWidth == 0 || imageHeight == 0 {
+		return 0, 0, false
 	}
 
 	centerX := float64(minX+maxX) / 2
 	centerY := float64(minY+maxY) / 2
 
-	var percentX, percentY float64
-	var imageWidth, imageHeight int
+	percentX := centerX / float64(imageWidth) * 100
+	percentY := centerY / float64(imageHeight) * 100
 
-	switch {
-	case len(a.People) != 0 && len(a.People[0].Faces) != 0:
-		imageWidth = a.People[0].Faces[0].ImageWidth
-		imageHeight = a.People[0].Faces[0].ImageHeight
-	case len(a.UnassignedFaces) != 0:
-		imageWidth = a.UnassignedFaces[0].ImageWidth
-		imageHeight = a.UnassignedFaces[0].ImageHeight
-	default:
-		return 0, 0
-	}
-
-	if imageWidth == 0 || imageHeight == 0 {
-		return 0, 0
-	}
-
-	percentX = centerX / float64(imageWidth) * 100
-	percentY = centerY / float64(imageHeight) * 100
-
-	return percentX, percentY
+	return max(0, min(100, percentX)), max(0, min(100, percentY)), true
 }
 
 // FacesCenterPointPX calculates the center point of all detected faces in an image in pixels.
