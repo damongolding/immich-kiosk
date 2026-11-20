@@ -145,6 +145,28 @@ func TestFacesCenterPoint(t *testing.T) {
 			wantX: 25,
 			wantY: 25,
 		},
+		{
+			name: "Out of bounds 100",
+			asset: Asset{
+				People: []Person{
+					{Faces: []Face{{BoundingBoxX1: 2000, BoundingBoxY1: 2000, BoundingBoxX2: 2200, BoundingBoxY2: 2200, ImageWidth: 1000, ImageHeight: 1000}}},
+				},
+				UnassignedFaces: []Face{},
+			},
+			wantX: 100,
+			wantY: 100,
+		},
+		{
+			name: "Out of bounds 0",
+			asset: Asset{
+				People: []Person{
+					{Faces: []Face{{BoundingBoxX1: -2000, BoundingBoxY1: -2000, BoundingBoxX2: -2200, BoundingBoxY2: -2200, ImageWidth: 1000, ImageHeight: 1000}}},
+				},
+				UnassignedFaces: []Face{},
+			},
+			wantX: 0,
+			wantY: 0,
+		},
 	}
 
 	for _, tt := range tests {

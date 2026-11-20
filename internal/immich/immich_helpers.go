@@ -544,7 +544,7 @@ func (a *Asset) FacesCenterPoint() (float64, float64) {
 	percentX = centerX / float64(imageWidth) * 100
 	percentY = centerY / float64(imageHeight) * 100
 
-	return percentX, percentY
+	return max(0, min(100, percentX)), max(0, min(100, percentY))
 }
 
 // FacesCenterPointPX calculates the center point of all detected faces in an image in pixels.
