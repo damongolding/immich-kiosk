@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.48.0 (2026-11-20)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### 🚀 New Features
+* feat: splitview source by @damongolding in https://github.com/damongolding/immich-kiosk/pull/960
+### ⚡ Fixes
+* fix: facepoint clamp by @damongolding in https://github.com/damongolding/immich-kiosk/pull/964
+### 🔨 Maintenance
+* task: apple container local support by @damongolding in https://github.com/damongolding/immich-kiosk/pull/961
+* chore: deps by @damongolding in https://github.com/damongolding/immich-kiosk/pull/957
+
+
+**Full Changelog**: https://github.com/damongolding/immich-kiosk/compare/v0.47.1...v0.48.0
+
 ## 0.47.1 (2026-11-09)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
