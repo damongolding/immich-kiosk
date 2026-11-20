@@ -469,7 +469,7 @@ func (a *Asset) ImagePreview() ([]byte, string, error) {
 // all faces and returning its center as x,y percentages relative to the image dimensions.
 // Results are clamped to the range 0-100.
 // Returns (0,0) if no faces are detected or if image dimensions are invalid.
-// ok is false when no faces are detected or the image dimensions are invalid,
+// bool is false when no faces are detected or the image dimensions are invalid,
 // so a valid 0% can be told apart from missing data.
 func (a *Asset) FacesCenterPoint() (float64, float64, bool) {
 	if len(a.People) == 0 && len(a.UnassignedFaces) == 0 {

@@ -43,9 +43,9 @@ func smartZoom(image immich.Asset) templ.CSSClass {
 		return transformOrigin(fmt.Sprintf("%s%% %s%%", utils.RandomItem([]string{"30", "70"}), utils.RandomItem([]string{"30", "70"})))
 	}
 
-	x, y, ok := image.FacesCenterPoint()
+	x, y, found := image.FacesCenterPoint()
 
-	if !ok {
+	if !found {
 		return transformOrigin(fmt.Sprintf("%s%% %s%%", utils.RandomItem([]string{"30", "70"}), utils.RandomItem([]string{"30", "70"})))
 	}
 
@@ -57,9 +57,9 @@ func smartCover(image immich.Asset) templ.CSSClass {
 		return transformOrigin("center")
 	}
 
-	x, y, ok := image.FacesCenterPoint()
+	x, y, found := image.FacesCenterPoint()
 
-	if !ok {
+	if !found {
 		return transformOrigin("center")
 	}
 
