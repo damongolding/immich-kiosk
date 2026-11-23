@@ -13,11 +13,11 @@ require (
 	github.com/goodsign/monday v1.0.2
 	github.com/google/go-querystring v1.2.0
 	github.com/google/uuid v1.6.0
-	github.com/klauspost/compress v1.20.4
-	github.com/labstack/echo/v5 v5.4.6
+	github.com/klauspost/compress v1.20.5
+	github.com/labstack/echo/v5 v5.4.7
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/nicksnyder/go-i18n/v2 v2.7.0
-	github.com/oapi-codegen/runtime v1.9.0
+	github.com/oapi-codegen/runtime v1.9.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
