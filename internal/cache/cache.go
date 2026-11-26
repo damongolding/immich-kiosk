@@ -3,6 +3,8 @@ package cache
 import (
 	"crypto/sha256"
 	"fmt"
+	"slices"
+	"sync"
 	"time"
 
 	"charm.land/log/v2"
@@ -132,6 +134,12 @@ func AssetToCacheWithPosition[T any](viewDataToAdd T, requestConfig *config.Conf
 	assetToCache(viewDataToAdd, requestConfig, deviceID, url, position)
 }
 
+// viewMu serialises read-modify-write updates to view queues. go-cache locks
+// individual Get/Set calls, but not the gap between them, so without this
+// concurrent prefetches, video-ready prepends and pops for the same device
+// can overwrite each other: dropping queued assets or showing one twice.
+var viewMu sync.Mutex
+
 // assetToCache is an internal helper function that handles adding items to the cache array.
 // It maintains a limited history size, retrieves existing cached data if available,
 // and adds the new item either at the beginning (PREPEND) or end (APPEND) of the array.
@@ -139,25 +147,68 @@ func AssetToCacheWithPosition[T any](viewDataToAdd T, requestConfig *config.Conf
 func assetToCache[T any](viewDataToAdd T, requestConfig *config.Config, deviceID, url string, position Position) {
 	utils.TrimHistory(&requestConfig.History, kiosk.HistoryLimit)
 
-	cachedViewData := []T{}
-
 	viewCacheKey := ViewCacheKey(url, deviceID)
 
+	viewMu.Lock()
+	defer viewMu.Unlock()
+
+	var existing []T
 	if data, found := Get(viewCacheKey); found {
 		if typedData, ok := data.([]T); ok {
-			cachedViewData = typedData
+			existing = typedData
 		} else {
 			log.Error("Invalid cache data type")
-			cachedViewData = []T{}
 		}
 	}
 
+	// Always build a new slice: the cached one may share its backing array
+	// with a slice a reader is still holding.
+	updated := make([]T, 0, len(existing)+1)
 	switch position {
-	case APPEND:
-		cachedViewData = append(cachedViewData, viewDataToAdd)
 	case PREPEND:
-		cachedViewData = append([]T{viewDataToAdd}, cachedViewData...)
+		updated = append(updated, viewDataToAdd)
+		updated = append(updated, existing...)
+	default:
+		updated = append(updated, existing...)
+		updated = append(updated, viewDataToAdd)
 	}
 
-	Set(viewCacheKey, cachedViewData, requestConfig.Duration, requestConfig.CacheDuration)
+	Set(viewCacheKey, updated, requestConfig.Duration, requestConfig.CacheDuration)
+}
+
+// PopView removes and returns the first item in the view queue for url and
+// deviceID. It returns false if the queue is missing, empty or holds a
+// different type (in which case the bad entry is removed). The key is
+// deleted once the queue is drained.
+func PopView[T any](requestConfig *config.Config, deviceID, url string) (T, bool) {
+	var zero T
+	key := ViewCacheKey(url, deviceID)
+
+	viewMu.Lock()
+	defer viewMu.Unlock()
+
+	data, found := Get(key)
+	if !found {
+		return zero, false
+	}
+
+	queue, ok := data.([]T)
+	if !ok {
+		log.Error("cache: invalid view data type", "type", fmt.Sprintf("%T", data), "key", key)
+		Delete(key)
+		return zero, false
+	}
+
+	if len(queue) == 0 {
+		Delete(key)
+		return zero, false
+	}
+
+	if len(queue) == 1 {
+		Delete(key)
+	} else {
+		Set(key, slices.Clone(queue[1:]), requestConfig.Duration, requestConfig.CacheDuration)
+	}
+
+	return queue[0], true
 }
