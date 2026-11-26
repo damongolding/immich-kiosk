@@ -11,6 +11,7 @@ import (
 	"charm.land/log/v2"
 	"github.com/labstack/echo/v5"
 
+	"github.com/damongolding/immich-kiosk/internal/cache"
 	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/i18n"
@@ -64,9 +65,11 @@ func NewAsset(baseConfig *config.Config, com *common.Common) echo.HandlerFunc {
 
 		// get and use prefetch data (if found)
 		if requestConfig.Kiosk.PreFetch {
-			if cachedViewData := fromCache(requestCtx.URL.String(), deviceID); cachedViewData != nil {
+			// Pop atomically before starting the next prefetch, so the asset shown
+			// here can't be re-queued or overwritten by a concurrent cache write.
+			if cachedViewData, ok := cache.PopView[common.ViewData](&requestConfig, deviceID, requestCtx.URL.String()); ok {
 				go assetPreFetch(com, requestData, requestCtx)
-				go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NewAsset, cachedViewData[0])
+				go webhooks.Trigger(com.Context(), requestData, KioskVersion, webhooks.NewAsset, cachedViewData)
 
 				return renderCachedViewData(c, cachedViewData, &requestConfig, requestID, deviceID, com.Secret())
 			}
