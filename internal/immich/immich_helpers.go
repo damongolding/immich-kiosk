@@ -98,6 +98,31 @@ func withImmichAPICache[T APIResponse](immichAPICall apiCall, requestID, deviceI
 	}
 }
 
+// logRequestFailure logs a failed HTTP request, including the underlying
+// operation when the error is a *url.Error.
+func logRequestFailure(attempt int, apiURL, method string, err error) {
+	if urlErr, ok := errors.AsType[*url.Error](err); ok {
+		log.Error("Request failed",
+			"attempt", attempt,
+			"URL", apiURL,
+			"method", method,
+			"operation", urlErr.Op,
+			"error_type", fmt.Sprintf("%T", urlErr.Err),
+			"error", urlErr.Err)
+		return
+	}
+
+	log.Error("Request failed",
+		"attempt", attempt,
+		"URL", apiURL,
+		"method", method,
+		"error_type", fmt.Sprintf("%T", err),
+		"error", err)
+}
+
+// maxAPIRetries is the number of times immichAPICall will attempt a request.
+const maxAPIRetries = 3
+
 // immichAPICall bootstrap for immich api call
 func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, bool, error) {
 	var responseBody []byte
@@ -110,7 +135,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		return responseBody, contentType, false, err
 	}
 
-	for attempts := range 3 {
+	for attempts := range maxAPIRetries {
 
 		var bodyReader io.Reader
 		if body != nil {
@@ -161,29 +186,16 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		res, resErr := HTTPClient.Do(req)
 		if resErr != nil {
 			lastErr = resErr
+			logRequestFailure(attempts, apiURL, method, resErr)
 
-			// Type assert to get more details about the error
-			if urlErr, ok := errors.AsType[*url.Error](resErr); ok {
-				log.Error("Request failed",
-					"attempt", attempts,
-					"URL", apiURL,
-					"method", method,
-					"operation", urlErr.Op,
-					"error_type", fmt.Sprintf("%T", urlErr.Err),
-					"error", urlErr.Err)
-			} else {
-				log.Error("Request failed",
-					"attempt", attempts,
-					"URL", apiURL,
-					"method", method,
-					"error_type", fmt.Sprintf("%T", resErr),
-					"error", resErr)
+			// no point backing off after the final attempt
+			if attempts < maxAPIRetries-1 {
+				if sleepErr := utils.SleepWithContext(ctx, time.Duration(1<<attempts)*time.Second); sleepErr != nil {
+					return responseBody, contentType, false, fmt.Errorf("request cancelled during retry: %w (last err=%w)", sleepErr, lastErr)
+				}
 			}
-			time.Sleep(time.Duration(1<<attempts) * time.Second)
 			continue
 		}
-
-		defer res.Body.Close()
 
 		contentType = res.Header.Get("Content-Type")
 
@@ -191,6 +203,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		if res.StatusCode == http.StatusUnauthorized && a.requestConfig.Kiosk.DemoMode {
 			_, _ = io.Copy(io.Discard, res.Body)
 			if !demo.ValidateToken(a.ctx, demo.DemoToken) {
+				res.Body.Close()
 				_, err = demo.Login(a.ctx, true)
 				if err != nil {
 					return responseBody, contentType, false, err
@@ -199,8 +212,10 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			}
 		}
 
+		responseBody, err = io.ReadAll(res.Body)
+		res.Body.Close()
+
 		if res.StatusCode < 200 || res.StatusCode >= 300 {
-			responseBody, err = io.ReadAll(res.Body)
 			if err != nil {
 				log.Error("reading unexpected response body", "method", method, "url", apiURL, "err", err)
 				return responseBody, contentType, false, err
@@ -213,7 +228,6 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 			return responseBody, contentType, false, fmt.Errorf("HTTP %d: unexpected status code", res.StatusCode)
 		}
 
-		responseBody, err = io.ReadAll(res.Body)
 		if err != nil {
 			log.Error("reading response body", "method", method, "url", apiURL, "err", err)
 			return responseBody, contentType, false, err

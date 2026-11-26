@@ -245,11 +245,12 @@ func processDateRange(dateRange string) (time.Time, time.Time, error) {
 	return dateStart, dateEnd, nil
 }
 
+var daysRe = regexp.MustCompile(`\d+`)
+
 // extractDays extracts a number from a string using regex.
 // Returns the first number found in the string or an error if no number is found.
 func extractDays(s string) (int, error) {
-	re := regexp.MustCompile(`\d+`)
-	match := re.FindString(s)
+	match := daysRe.FindString(s)
 	if match == "" {
 		return 0, errors.New("no number found")
 	}
