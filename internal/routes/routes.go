@@ -55,6 +55,19 @@ func videosAvailable() bool {
 	return VideoManager != nil
 }
 
+// withoutUnavailableVideos turns ShowVideos off when video playback is
+// unavailable, so asset sources skip videos before selection instead of
+// picking one that can never be shown. Without this, sources that don't
+// advance between retries (e.g. an unshuffled album with caching off) return
+// the same video on every retry and the request fails even when images exist.
+// Apply it before immich.New, which copies the config into the asset.
+func withoutUnavailableVideos(requestConfig config.Config) config.Config {
+	if requestConfig.ShowVideos && !videosAvailable() {
+		requestConfig.ShowVideos = false
+	}
+	return requestConfig
+}
+
 func ShouldDrawFacesOnImages() bool {
 	return drawFacesOnImages == "true"
 }

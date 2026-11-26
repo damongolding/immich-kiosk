@@ -692,6 +692,8 @@ func processViewImageData(requestConfig config.Config, c common.ContextCopy, isP
 		urlString: c.URL.String(),
 	}
 
+	requestConfig = withoutUnavailableVideos(requestConfig)
+
 	immichAsset := setupImmichAsset(c.Ctx, requestConfig, options.ImageOrientation)
 
 	// Handle relative asset configuration if needed
