@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -183,25 +184,54 @@ func TestImmichAPICall_RetriesTransportErrors(t *testing.T) {
 }
 
 func TestImmichAPICall_CancelledDuringBackoff(t *testing.T) {
-	// Long enough that the test would time out if cancellation were ignored.
-	setRetryBackoff(t, time.Hour)
+	// Signal when immichAPICall reaches the back-off, and return a delay long
+	// enough that the test only finishes if cancellation is honoured.
+	reachedBackoff := make(chan struct{})
+	var once sync.Once
+	orig := retryBackoff
+	retryBackoff = func(int) time.Duration {
+		once.Do(func() { close(reachedBackoff) })
+		return time.Hour
+	}
+	t.Cleanup(func() { retryBackoff = orig })
+
 	srv := newFakeImmich(t, dropConnection(t))
 	a := newTestAsset(t, testConfig(srv.URL))
 
-	ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 
-	start := time.Now()
+	// Cancel only once the first request has failed and the back-off has
+	// started, so slow setup (e.g. under -race on CI) can't stop that request
+	// being sent. The watchdog fails the test rather than hanging if the
+	// back-off is never reached.
+	watchdogFired := make(chan struct{})
+	stop := make(chan struct{})
+	defer close(stop)
+	go func() {
+		select {
+		case <-reachedBackoff:
+		case <-time.After(30 * time.Second):
+			close(watchdogFired)
+		case <-stop:
+			return
+		}
+		cancel()
+	}()
+
 	_, _, _, err := a.immichAPICall(ctx, http.MethodPost, srv.URL+"/api/x", []byte(`{}`))
+
+	select {
+	case <-watchdogFired:
+		t.Fatal("watchdog fired: immichAPICall never reached the retry back-off")
+	default:
+	}
 
 	if err == nil || !strings.Contains(err.Error(), "request cancelled during retry") {
 		t.Fatalf("error = %v, want it to contain %q", err, "request cancelled during retry")
 	}
-	if !errors.Is(err, context.DeadlineExceeded) {
-		t.Fatalf("error = %v, want it to wrap context.DeadlineExceeded", err)
-	}
-	if elapsed := time.Since(start); elapsed >= 5*time.Second {
-		t.Errorf("took %v, want it to return promptly after cancellation", elapsed)
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("error = %v, want it to wrap context.Canceled", err)
 	}
 	if got := srv.RequestCount(); got != 1 {
 		t.Errorf("requests = %d, want 1 (should not retry once cancelled)", got)
