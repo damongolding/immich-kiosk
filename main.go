@@ -139,7 +139,7 @@ func main() {
 
 	videoManager, videoManagerErr := video.New(c.Context())
 	if videoManagerErr != nil {
-		log.Error("Failed to initialize video manager", "err", videoManagerErr)
+		log.Error("Failed to initialize video manager; videos will be skipped and live photos shown as stills", "err", videoManagerErr)
 	} else {
 		videoManager.MaxAge = time.Minute * 10
 		routes.VideoManager = videoManager

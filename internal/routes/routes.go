@@ -49,6 +49,22 @@ type requestMetadata struct {
 	urlString string
 }
 
+// videosAvailable reports whether video playback is possible. VideoManager is
+// nil when it failed to start (e.g. its temp directory couldn't be created)
+func videosAvailable() bool {
+	return VideoManager != nil
+}
+
+// withoutUnavailableVideos turns ShowVideos off when video playback is
+// unavailable, so asset sources skip videos before selection instead of
+// picking one that can never be shown.
+func withoutUnavailableVideos(requestConfig config.Config) config.Config {
+	if requestConfig.ShowVideos && !videosAvailable() {
+		requestConfig.ShowVideos = false
+	}
+	return requestConfig
+}
+
 func ShouldDrawFacesOnImages() bool {
 	return drawFacesOnImages == "true"
 }
