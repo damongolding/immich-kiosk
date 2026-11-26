@@ -184,7 +184,12 @@ func newRouteTest(t *testing.T) *routeTest {
 	cfg.ImmichAPIKey = "test-api-key"
 	cfg.Kiosk.PreFetch = false
 
-	return &routeTest{t: t, immich: srv, cfg: cfg, com: common.New()}
+	// common.New starts a goroutine listening for signals; release it (and
+	// cancel the shared context) when the test ends.
+	com := common.New()
+	t.Cleanup(com.Shutdown)
+
+	return &routeTest{t: t, immich: srv, cfg: cfg, com: com}
 }
 
 // serve runs h for a request to target and returns the recorder and the

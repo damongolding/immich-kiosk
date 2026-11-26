@@ -23,6 +23,7 @@ type Common struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 	secret string
+	done   chan struct{}
 }
 
 func New() *Common {
@@ -30,6 +31,7 @@ func New() *Common {
 	c := &Common{
 		ctx:    ctx,
 		cancel: cancel,
+		done:   make(chan struct{}),
 	}
 
 	if err := c.initializeSecret(); err != nil {
@@ -54,6 +56,8 @@ func (c *Common) initializeSecret() error {
 
 func (c *Common) handleGracefulShutdown() {
 	go func() {
+		defer close(c.done)
+
 		sigChan := make(chan os.Signal, 2)
 		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 		select {
@@ -63,6 +67,16 @@ func (c *Common) handleGracefulShutdown() {
 		}
 		signal.Stop(sigChan)
 	}()
+}
+
+// Shutdown cancels the shared context and waits for the shutdown goroutine to
+// exit, which also stops it listening for signals. It is safe to call more
+// than once. Tests use it to release each Common they create.
+func (c *Common) Shutdown() {
+	c.cancel()
+	if c.done != nil {
+		<-c.done
+	}
 }
 
 func (c *Common) Context() context.Context {
