@@ -1,11 +1,16 @@
 # Frontend Base Image
 FROM node:26-alpine AS frontend-build
 
-COPY . /app
+RUN npm install -g @go-task/cli
+
 WORKDIR /app/frontend
 
-RUN npm install -g @go-task/cli
+COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
+
+COPY taskfile*.yml /app/
+COPY frontend/ ./
+
 RUN task frontend
 
 # Go Builder
@@ -17,11 +22,13 @@ ARG TARGETARCH
 
 WORKDIR /app
 
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 COPY --from=frontend-build /app/frontend/public/assets/css /app/frontend/public/assets/css
 COPY --from=frontend-build /app/frontend/public/assets/js/ /app/frontend/public/assets/js/
 
-RUN go mod download
 RUN go tool templ generate
 
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -a -installsuffix cgo -ldflags "-X main.version=${VERSION} -X github.com/damongolding/immich-kiosk/internal/utils.runningInContainer=true -s -w" -o dist/kiosk .
