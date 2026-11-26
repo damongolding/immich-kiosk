@@ -49,6 +49,12 @@ type requestMetadata struct {
 	urlString string
 }
 
+// videosAvailable reports whether video playback is possible. VideoManager is
+// nil when it failed to start (e.g. its temp directory couldn't be created)
+func videosAvailable() bool {
+	return VideoManager != nil
+}
+
 func ShouldDrawFacesOnImages() bool {
 	return drawFacesOnImages == "true"
 }

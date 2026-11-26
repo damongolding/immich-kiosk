@@ -43,7 +43,10 @@ type gatherPeopleAlbumsConfig struct {
 	countErrorFmt string
 }
 
-var errVideoNotReady = errors.New("video not ready")
+var (
+	errVideoNotReady    = errors.New("video not ready")
+	errVideoUnavailable = errors.New("video playback unavailable")
+)
 
 // gatherAssetBuckets collects configured asset sources and their selection weights.
 // Raw filters are weighted by their fetched asset counts; date ranges use the
@@ -495,9 +498,9 @@ func processAsset(asset *immich.Asset, requestConfig config.Config, requestID st
 			if err == nil {
 				return img, nil
 			}
-			if errors.Is(err, errVideoNotReady) {
+			if errors.Is(err, errVideoNotReady) || errors.Is(err, errVideoUnavailable) {
 				// try another asset
-				log.Debug(requestID+" Video not ready, trying another asset", "video", asset.ID)
+				log.Debug(requestID+" Video can't be shown yet, trying another asset", "video", asset.ID, "reason", err)
 				continue
 			}
 			return nil, err
@@ -516,6 +519,10 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 	// if so, return nil
 	// if it hasn't been downloaded, download it and return a image
 
+	if !videosAvailable() {
+		return nil, errVideoUnavailable
+	}
+
 	// Video is available
 	if VideoManager.IsDownloaded(immichAsset.ID) {
 		return fetchImagePreview(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
@@ -532,7 +539,8 @@ func processVideo(immichAsset *immich.Asset, requestConfig config.Config, reques
 
 // processImage prepares an image asset for display by setting its source type and retrieving a preview
 func processImage(immichAsset *immich.Asset, requestConfig config.Config, requestID string, deviceID string, isPrefetch bool) (image.Image, error) {
-	if !requestConfig.LivePhotos || immichAsset.LivePhotoVideoID == "" {
+	// Without a video manager, live photos fall back to their still image.
+	if !requestConfig.LivePhotos || immichAsset.LivePhotoVideoID == "" || !videosAvailable() {
 		return fetchImagePreview(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 	}
 

@@ -28,6 +28,10 @@ func NewVideo(demoMode bool) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "Video ID is required")
 		}
 
+		if !videosAvailable() {
+			return echo.NewHTTPError(http.StatusNotFound, "Video not found")
+		}
+
 		vid, err := VideoManager.GetVideo(videoID)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusNotFound, "Video not found")
@@ -82,6 +86,10 @@ func LivePhoto(demoMode bool, password string) echo.HandlerFunc {
 
 		if pollCount >= maxPollCount {
 			log.Warn("Max retries reached for live photo", "ID", liveID)
+			return c.NoContent(kiosk.StatusStopHTMXPolling)
+		}
+
+		if !videosAvailable() {
 			return c.NoContent(kiosk.StatusStopHTMXPolling)
 		}
 
