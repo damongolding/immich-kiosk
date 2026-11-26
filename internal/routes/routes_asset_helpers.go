@@ -541,7 +541,7 @@ func processImage(immichAsset *immich.Asset, requestConfig config.Config, reques
 		return fetchImagePreview(immichAsset, requestConfig.UseOriginalImage, requestID, deviceID, isPrefetch)
 	}
 
-	livePhoto := immich.New(context.TODO(), requestConfig)
+	livePhoto := immich.New(immichAsset.Context(), requestConfig)
 	livePhoto.ID = videoID
 
 	if user := immichAsset.SelectedUser(); user != "" && !strings.Contains(videoID, kiosk.MultipleUserIndicator) {
