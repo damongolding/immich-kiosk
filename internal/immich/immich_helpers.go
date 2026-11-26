@@ -158,7 +158,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 		switch a.requestConfig.Kiosk.DemoMode {
 		case true:
-			token, demoLoginErr := demo.Login(a.ctx, false)
+			token, demoLoginErr := demo.Login(ctx, false)
 			if demoLoginErr != nil {
 				log.Error(demoLoginErr)
 				return responseBody, contentType, false, demoLoginErr
@@ -208,9 +208,9 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 		// in demo mode and unauthorized, attempt to login again
 		if res.StatusCode == http.StatusUnauthorized && a.requestConfig.Kiosk.DemoMode {
 			_, _ = io.Copy(io.Discard, res.Body)
-			if !demo.ValidateToken(a.ctx, demo.DemoToken) {
+			if !demo.ValidateToken(ctx, demo.DemoToken) {
 				res.Body.Close()
-				_, err = demo.Login(a.ctx, true)
+				_, err = demo.Login(ctx, true)
 				if err != nil {
 					return responseBody, contentType, false, err
 				}
