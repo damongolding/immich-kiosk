@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"reflect"
 	"slices"
 	"strings"
 	"testing"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
 	"github.com/labstack/echo/v5"
-	"github.com/stretchr/testify/assert"
 )
 
 // TestConfigWithOverrides testing whether ImmichURL and ImmichApiKey are immutable
@@ -43,11 +43,19 @@ func TestImmichURLImmichApiKeyImmutability(t *testing.T) {
 	echoContenx := e.NewContext(req, rec)
 
 	err := c.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
-	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
+	if err != nil {
+		t.Errorf("ConfigWithOverrides should not return an error: %v", err)
+	}
 
-	assert.Equal(t, originalURL, c.ImmichURL, "ImmichURL field was allowed to be changed")
-	assert.Equal(t, originalAPI, c.ImmichAPIKey, "ImmichAPIKey field was allowed to be changed")
-	assert.Equal(t, originalUsersAPIKeys, c.ImmichUsersAPIKeys, "ImmichUsersAPIKeys field was allowed to be changed")
+	if c.ImmichURL != originalURL {
+		t.Errorf("ImmichURL field was allowed to be changed: got %q, want %q", c.ImmichURL, originalURL)
+	}
+	if c.ImmichAPIKey != originalAPI {
+		t.Errorf("ImmichAPIKey field was allowed to be changed: got %q, want %q", c.ImmichAPIKey, originalAPI)
+	}
+	if !reflect.DeepEqual(c.ImmichUsersAPIKeys, originalUsersAPIKeys) {
+		t.Errorf("ImmichUsersAPIKeys field was allowed to be changed: got %v, want %v", c.ImmichUsersAPIKeys, originalUsersAPIKeys)
+	}
 }
 
 // TestImmichURLImmichMultiplePerson tests the addition of multiple persons to the config
@@ -68,11 +76,19 @@ func TestImmichURLImmichMultiplePerson(t *testing.T) {
 	t.Log("Trying to add:", echoContenx.QueryParams())
 
 	err := c.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
-	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
+	if err != nil {
+		t.Errorf("ConfigWithOverrides should not return an error: %v", err)
+	}
 
-	assert.Equal(t, 2, len(c.People), "Expected 2 people to be added")
-	assert.Contains(t, c.People, "bea", "Expected 'bea' to be added to Person slice")
-	assert.Contains(t, c.People, "laura", "Expected 'laura' to be added to Person slice")
+	if got := len(c.People); got != 2 {
+		t.Errorf("Expected 2 people to be added: got %d, want 2 (%v)", got, c.People)
+	}
+	if !slices.Contains(c.People, "bea") {
+		t.Errorf("Expected 'bea' to be added to Person slice: got %v", c.People)
+	}
+	if !slices.Contains(c.People, "laura") {
+		t.Errorf("Expected 'laura' to be added to Person slice: got %v", c.People)
+	}
 }
 
 // TestMalformedURLs testing urls without scheme or ports
@@ -96,9 +112,13 @@ func TestMalformedURLs(t *testing.T) {
 			c := New()
 
 			err := c.Load()
-			assert.NoError(t, err, "Config load should not return an error")
+			if err != nil {
+				t.Errorf("Config load should not return an error: %v", err)
+			}
 
-			assert.Equal(t, test.Want, c.ImmichURL, "ImmichURL should be formatted correctly")
+			if c.ImmichURL != test.Want {
+				t.Errorf("ImmichURL = %q, want %q", c.ImmichURL, test.Want)
+			}
 		})
 	}
 }
@@ -123,14 +143,24 @@ func TestImmichURLImmichMultipleAlbum(t *testing.T) {
 	t.Log("Trying to add:", echoContenx.QueryParams())
 
 	err := configWithBase.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
-	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
+	if err != nil {
+		t.Errorf("ConfigWithOverrides should not return an error: %v", err)
+	}
 
 	t.Log("album", configWithBase.Albums)
 
-	assert.NotContains(t, configWithBase.Albums, "BASE_ALBUM", "BASE_ALBUM should not be present")
-	assert.Equal(t, 2, len(configWithBase.Albums), "Expected 2 albums to be added")
-	assert.Contains(t, configWithBase.Albums, "ALBUM_1", "ALBUM_1 should be present")
-	assert.Contains(t, configWithBase.Albums, "ALBUM_2", "ALBUM_2 should be present")
+	if slices.Contains(configWithBase.Albums, "BASE_ALBUM") {
+		t.Errorf("BASE_ALBUM should not be present: got %v", configWithBase.Albums)
+	}
+	if got := len(configWithBase.Albums); got != 2 {
+		t.Errorf("Expected 2 albums to be added: got %d, want 2 (%v)", got, configWithBase.Albums)
+	}
+	if !slices.Contains(configWithBase.Albums, "ALBUM_1") {
+		t.Errorf("ALBUM_1 should be present: got %v", configWithBase.Albums)
+	}
+	if !slices.Contains(configWithBase.Albums, "ALBUM_2") {
+		t.Errorf("ALBUM_2 should be present: got %v", configWithBase.Albums)
+	}
 
 	// configWithoutBase
 	configWithoutBase := New()
@@ -147,13 +177,21 @@ func TestImmichURLImmichMultipleAlbum(t *testing.T) {
 	t.Log("Trying to add:", echoContenx.QueryParams())
 
 	err = configWithoutBase.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
-	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
+	if err != nil {
+		t.Errorf("ConfigWithOverrides should not return an error: %v", err)
+	}
 
 	t.Log("album", configWithoutBase.Albums)
 
-	assert.Equal(t, 2, len(configWithoutBase.Albums), "Expected 2 albums to be added")
-	assert.Contains(t, configWithoutBase.Albums, "ALBUM_1", "ALBUM_1 should be present")
-	assert.Contains(t, configWithoutBase.Albums, "ALBUM_2", "ALBUM_2 should be present")
+	if got := len(configWithoutBase.Albums); got != 2 {
+		t.Errorf("Expected 2 albums to be added: got %d, want 2 (%v)", got, configWithoutBase.Albums)
+	}
+	if !slices.Contains(configWithoutBase.Albums, "ALBUM_1") {
+		t.Errorf("ALBUM_1 should be present: got %v", configWithoutBase.Albums)
+	}
+	if !slices.Contains(configWithoutBase.Albums, "ALBUM_2") {
+		t.Errorf("ALBUM_2 should be present: got %v", configWithoutBase.Albums)
+	}
 
 	// configWithBaseOnly
 	configWithBaseOnly := New()
@@ -165,13 +203,21 @@ func TestImmichURLImmichMultipleAlbum(t *testing.T) {
 	echoContenx = e.NewContext(req, rec)
 
 	err = configWithBaseOnly.ConfigWithOverrides(echoContenx.QueryParams(), echoContenx)
-	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
+	if err != nil {
+		t.Errorf("ConfigWithOverrides should not return an error: %v", err)
+	}
 
 	t.Log("album", configWithBaseOnly.Albums)
 
-	assert.Equal(t, 2, len(configWithBaseOnly.Albums), "Base albums should persist")
-	assert.Contains(t, configWithBaseOnly.Albums, "BASE_ALBUM_1", "BASE_ALBUM_1 should be present")
-	assert.Contains(t, configWithBaseOnly.Albums, "BASE_ALBUM_2", "BASE_ALBUM_2 should be present")
+	if got := len(configWithBaseOnly.Albums); got != 2 {
+		t.Errorf("Base albums should persist: got %d, want 2 (%v)", got, configWithBaseOnly.Albums)
+	}
+	if !slices.Contains(configWithBaseOnly.Albums, "BASE_ALBUM_1") {
+		t.Errorf("BASE_ALBUM_1 should be present: got %v", configWithBaseOnly.Albums)
+	}
+	if !slices.Contains(configWithBaseOnly.Albums, "BASE_ALBUM_2") {
+		t.Errorf("BASE_ALBUM_2 should be present: got %v", configWithBaseOnly.Albums)
+	}
 }
 
 func TestAlbumAndPerson(t *testing.T) {
@@ -228,8 +274,12 @@ func TestAlbumAndPerson(t *testing.T) {
 
 			c.checkAssetBuckets()
 
-			assert.Equal(t, tc.expectedAlbum, c.Albums, "Album mismatch")
-			assert.Equal(t, tc.expectedPerson, c.People, "Person mismatch")
+			if !reflect.DeepEqual(c.Albums, tc.expectedAlbum) {
+				t.Errorf("Albums = %#v, want %#v", c.Albums, tc.expectedAlbum)
+			}
+			if !reflect.DeepEqual(c.People, tc.expectedPerson) {
+				t.Errorf("People = %#v, want %#v", c.People, tc.expectedPerson)
+			}
 		})
 	}
 }
@@ -254,14 +304,24 @@ func TestDisableURLQueriesStillBindsClientData(t *testing.T) {
 	echoContenx := e.NewContext(req, rec)
 
 	formValues, err := echoContenx.FormValues()
-	assert.NoError(t, err, "FormValues should not return an error")
+	if err != nil {
+		t.Errorf("FormValues should not return an error: %v", err)
+	}
 
 	err = c.ConfigWithOverrides(formValues, echoContenx)
-	assert.NoError(t, err, "ConfigWithOverrides should not return an error")
+	if err != nil {
+		t.Errorf("ConfigWithOverrides should not return an error: %v", err)
+	}
 
-	assert.Equal(t, 1280, c.ClientData.Width, "Client width should be bound")
-	assert.Equal(t, 800, c.ClientData.Height, "Client height should be bound")
-	assert.Equal(t, 600, c.Duration, "Duration should not be overridden")
+	if c.ClientData.Width != 1280 {
+		t.Errorf("ClientData.Width = %d, want 1280 (client width should be bound)", c.ClientData.Width)
+	}
+	if c.ClientData.Height != 800 {
+		t.Errorf("ClientData.Height = %d, want 800 (client height should be bound)", c.ClientData.Height)
+	}
+	if c.Duration != 600 {
+		t.Errorf("Duration = %d, want 600 (should not be overridden)", c.Duration)
+	}
 }
 
 func TestCheckWeatherLocations(t *testing.T) {
@@ -341,10 +401,11 @@ func TestCheckWeatherLocations(t *testing.T) {
 			tt.config.checkWeatherLocations()
 
 			output := strings.TrimSpace(buf.String())
-			if tt.expected == "" {
-				assert.Empty(t, output)
-			} else {
-				assert.NotEmpty(t, output)
+			if tt.expected == "" && output != "" {
+				t.Errorf("expected no log output, got %q", output)
+			}
+			if tt.expected != "" && output == "" {
+				t.Error("expected log output, got none")
 			}
 		})
 	}

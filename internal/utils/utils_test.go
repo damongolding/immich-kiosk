@@ -4,10 +4,9 @@ import (
 	"math"
 	"net/url"
 	"reflect"
+	"slices"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 // TestCombineQueries test to see if referer queries overwrite url queries
@@ -20,12 +19,22 @@ func TestCombineQueries(t *testing.T) {
 	refererQueries := "/demo-url?transition=none&image_fit=cover&raw=true"
 
 	q, err := CombineQueries(baseQueries, refererQueries)
-	assert.NoError(t, err)
+	if err != nil {
+		t.Errorf("CombineQueries() error = %v", err)
+	}
 
-	assert.Equal(t, []string{"fade", "none"}, q["transition"])
-	assert.Equal(t, "cover", q.Get("image_fit"))
-	assert.Equal(t, "60", q.Get("duration"))
-	assert.True(t, q.Has("raw"))
+	if want := []string{"fade", "none"}; !reflect.DeepEqual(q["transition"], want) {
+		t.Errorf("transition = %#v, want %#v", q["transition"], want)
+	}
+	if got := q.Get("image_fit"); got != "cover" {
+		t.Errorf("image_fit = %q, want %q", got, "cover")
+	}
+	if got := q.Get("duration"); got != "60" {
+		t.Errorf("duration = %q, want %q", got, "60")
+	}
+	if !q.Has("raw") {
+		t.Error("expected raw query to be present")
+	}
 }
 
 // TestRandomSingleItem test a single item
@@ -34,7 +43,9 @@ func TestRandomSingleItem(t *testing.T) {
 
 	out := RandomItem(s)
 
-	assert.Equal(t, "cheese", out, "RandomItem should return the only item in a single-item slice")
+	if out != "cheese" {
+		t.Errorf("RandomItem() = %q, want %q (the only item in a single-item slice)", out, "cheese")
+	}
 }
 
 // TestRandomSingleItem test a single item
@@ -43,19 +54,25 @@ func TestRandomEmptyItem(t *testing.T) {
 
 	out := RandomItem(s)
 
-	assert.Equal(t, "", out, "RandomItem should return an empty string for an empty string slice")
+	if out != "" {
+		t.Errorf("RandomItem() = %q, want empty string for an empty string slice", out)
+	}
 
 	n := []int{}
 
 	out2 := RandomItem(n)
 
-	assert.Equal(t, 0, out2, "RandomItem should return 0 for an empty int slice")
+	if out2 != 0 {
+		t.Errorf("RandomItem() = %d, want 0 for an empty int slice", out2)
+	}
 
 	i := []any{}
 
 	out3 := RandomItem(i)
 
-	assert.Nil(t, out3, "RandomItem should return nil for an empty interface slice")
+	if out3 != nil {
+		t.Errorf("RandomItem() = %#v, want nil for an empty interface slice", out3)
+	}
 }
 
 // TestRandomMutate tests that RandomItem does not modify the original slice.
@@ -66,7 +83,9 @@ func TestRandomMutate(t *testing.T) {
 
 	RandomItem(original)
 
-	assert.Equal(t, originalCopy, original, "RandomItem should not mutate the original slice")
+	if !reflect.DeepEqual(original, originalCopy) {
+		t.Errorf("RandomItem mutated the original slice: got %v, want %v", original, originalCopy)
+	}
 }
 
 // TestRandomStruct get out what we expect
@@ -83,11 +102,13 @@ func TestRandomStruct(t *testing.T) {
 
 	out := RandomItem(s)
 
-	assert.Equal(t, "utils.RendomStructDemo", reflect.TypeFor[RendomStructDemo]().String(), "Unexpected type returned from RandomItem")
+	if got := reflect.TypeFor[RendomStructDemo]().String(); got != "utils.RendomStructDemo" {
+		t.Errorf("type = %q, want %q", got, "utils.RendomStructDemo")
+	}
 
-	assert.Contains(t, s, out, "RandomItem should return an item from the input slice")
-
-	assert.NotNil(t, out, "RandomItem should not return nil for a non-empty slice")
+	if !slices.Contains(s, out) {
+		t.Errorf("RandomItem() = %#v, not an item from the input slice", out)
+	}
 }
 
 // TestDateToLayout tests the DateToLayout function with various input formats.
@@ -111,7 +132,9 @@ func TestDateToLayout(t *testing.T) {
 
 	for _, test := range tests {
 		result := DateToLayout(test.In)
-		assert.Equal(t, test.Want, result, "DateToLayout(%q) = %q, want %q", test.In, result, test.Want)
+		if result != test.Want {
+			t.Errorf("DateToLayout(%q) = %q, want %q", test.In, result, test.Want)
+		}
 	}
 }
 
@@ -123,10 +146,15 @@ func TestStringToColor(t *testing.T) {
 	a := StringToColor(in)
 	b := StringToColor(in)
 
-	assert.Equal(t, a.Hex, b.Hex, "Colors should match for the same input string")
-	assert.NotEmpty(t, a.Hex, "Generated color should not be empty")
-	assert.Len(t, a.Hex, 7, "Generated color should be in '#RRGGBB' format")
-	assert.Equal(t, "#", a.Hex[:1], "Generated color should start with '#'")
+	if a.Hex != b.Hex {
+		t.Errorf("colors differ for the same input: %q vs %q", a.Hex, b.Hex)
+	}
+	if len(a.Hex) != 7 {
+		t.Fatalf("color = %q, want '#RRGGBB' format (7 chars)", a.Hex)
+	}
+	if a.Hex[:1] != "#" {
+		t.Errorf("color = %q, want it to start with '#'", a.Hex)
+	}
 }
 
 // TestColorContrast checks the contrast ratio calculation between different colors
@@ -136,12 +164,16 @@ func TestColorContrast(t *testing.T) {
 	black := Color{R: 0, G: 0, B: 0}
 
 	maxRatio := calculateContrastRatio(white, black)
-	assert.Equal(t, float64(21), maxRatio, "The contrast ratio between white and black should be 21")
+	if maxRatio != 21 {
+		t.Errorf("contrast ratio white/black = %v, want 21", maxRatio)
+	}
 
 	textWhite := calculateContrastRatio(white, black)
 	textBlack := calculateContrastRatio(black, black)
 
-	assert.Greater(t, textWhite, textBlack, "White text on black background should have a better contrast ratio than black text on black background")
+	if textWhite <= textBlack {
+		t.Errorf("white-on-black contrast (%v) should exceed black-on-black (%v)", textWhite, textBlack)
+	}
 }
 
 func TestIsSleepTime(t *testing.T) {
@@ -239,12 +271,12 @@ func TestIsSleepTime(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got, err := IsSleepTime(test.sleepStartTime, test.sleepEndTime, test.currentTime)
-			if test.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
+			if (err != nil) != test.wantErr {
+				t.Errorf("IsSleepTime() error = %v, wantErr %v", err, test.wantErr)
 			}
-			assert.Equal(t, test.want, got)
+			if got != test.want {
+				t.Errorf("IsSleepTime() = %v, want %v", got, test.want)
+			}
 		})
 	}
 }
@@ -343,16 +375,25 @@ func TestMergeQueries(t *testing.T) {
 			result := MergeQueries(tt.queryA, tt.queryB)
 
 			// Compare lengths
-			assert.Equal(t, len(tt.expected), len(result), "MergeQueries() got length %v, want %v", len(result), len(tt.expected))
+			if len(result) != len(tt.expected) {
+				t.Errorf("MergeQueries() got length %v, want %v", len(result), len(tt.expected))
+			}
 
 			// Compare values
 			for key, expectedVals := range tt.expected {
 				resultVals, exists := result[key]
-				assert.True(t, exists, "MergeQueries() missing key %v", key)
-				assert.Equal(t, len(expectedVals), len(resultVals), "MergeQueries() key %v got %v values, want %v", key, len(resultVals), len(expectedVals))
+				if !exists {
+					t.Errorf("MergeQueries() missing key %v", key)
+				}
+				if len(resultVals) != len(expectedVals) {
+					t.Errorf("MergeQueries() key %v got %v values, want %v", key, len(resultVals), len(expectedVals))
+					continue
+				}
 
 				for i, val := range expectedVals {
-					assert.Equal(t, val, resultVals[i], "MergeQueries() key %v index %v got %v, want %v", key, i, resultVals[i], val)
+					if resultVals[i] != val {
+						t.Errorf("MergeQueries() key %v index %v got %v, want %v", key, i, resultVals[i], val)
+					}
 				}
 			}
 		})

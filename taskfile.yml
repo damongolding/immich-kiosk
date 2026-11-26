@@ -49,6 +49,13 @@ tasks:
       - go test ./...
       - task: frontend:typecheck
 
+  test:race:
+    desc: Run tests
+    deps: [templ]
+    cmds:
+      - go test -race ./...
+      - task: frontend:typecheck
+
   lint:
     desc: Run linters
     deps: [templ]

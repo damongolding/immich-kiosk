@@ -8,6 +8,7 @@ package utils
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	crand "crypto/rand"
 	"crypto/sha256"
@@ -623,6 +624,12 @@ func PickRandomImageType(useWeighting bool, assetBuckets []AssetWithWeighting) W
 	return pickedImage
 }
 
+var (
+	digitRe               = regexp.MustCompile(`\d`)
+	sizeRe                = regexp.MustCompile(`^(\d+)\s*([BKMGbkmg][Bb]?)$`)
+	classNameDisallowedRe = regexp.MustCompile(`[^a-z0-9_/-]+`)
+)
+
 // parseTimeString parses a time string in various formats and returns a time.Time value.
 // It accepts formats like "1", "12", "130", "1430" and converts them to hours and minutes.
 func parseTimeString(timeStr string) (time.Time, error) {
@@ -633,7 +640,7 @@ func parseTimeString(timeStr string) (time.Time, error) {
 	}
 
 	// Extract only the digits
-	digits := regexp.MustCompile(`\d`).FindAllString(timeStr, -1)
+	digits := digitRe.FindAllString(timeStr, -1)
 
 	if len(digits) == 0 {
 		return time.Time{}, fmt.Errorf("invalid time format: no digits found in %s", timeStr)
@@ -891,8 +898,7 @@ func ParseSize(sizeStr string) (int64, error) {
 		return 0, nil
 	}
 
-	re := regexp.MustCompile(`^(\d+)\s*([BKMGbkmg][Bb]?)$`)
-	matches := re.FindStringSubmatch(sizeStr)
+	matches := sizeRe.FindStringSubmatch(sizeStr)
 
 	if matches == nil {
 		return 0, fmt.Errorf("invalid size format: %s", sizeStr)
@@ -1066,15 +1072,13 @@ func ExtractDominantColor(img image.Image) (color.RGBA, error) {
 }
 
 func SanitizeClassName(s string) string {
-	allowed := regexp.MustCompile(`[^a-z0-9_/-]+`)
-
 	s = strings.ToLower(strings.TrimSpace(s))
 
 	// replace whitespace with hyphen
 	s = strings.ReplaceAll(s, " ", "-")
 
 	// remove anything NOT in the allowed set
-	s = allowed.ReplaceAllString(s, "")
+	s = classNameDisallowedRe.ReplaceAllString(s, "")
 
 	// remove trailing and leading hyphens made during joining
 	s = strings.Trim(s, "-")
@@ -1108,4 +1112,18 @@ func LoadCustomCSS() ([]byte, error) {
 		return nil, nil
 	}
 	return os.ReadFile("./custom.css")
+}
+
+// SleepWithContext pauses for d, returning early with ctx.Err() if ctx is
+// cancelled first.
+func SleepWithContext(ctx context.Context, d time.Duration) error {
+	t := time.NewTimer(d)
+	defer t.Stop()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-t.C:
+		return nil
+	}
 }

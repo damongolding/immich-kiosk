@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
 	"sync"
@@ -15,6 +16,27 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/immich"
 	"github.com/damongolding/immich-kiosk/internal/utils"
 )
+
+// maxWebhookResponseDrain caps how much of a webhook response body is read
+// (and discarded) before closing, so a large response isn't read in full.
+const maxWebhookResponseDrain = 64 << 10
+
+// defaultWebhookTimeout bounds each webhook request when http_timeout is zero
+// or negative (which net/http treats as "no timeout"). Webhooks are
+// fire-and-forget, so a receiver that never responds must not hold a goroutine
+// and connection open indefinitely. Matches the http_timeout config default.
+// It is a variable so tests can shorten it.
+var defaultWebhookTimeout = 20 * time.Second
+
+// webhookTimeout returns the per-request timeout for webhooks: http_timeout
+// when it is positive, otherwise defaultWebhookTimeout. The timeout covers the
+// whole request, including draining the response body.
+func webhookTimeout(httpTimeoutSeconds int) time.Duration {
+	if httpTimeoutSeconds <= 0 {
+		return defaultWebhookTimeout
+	}
+	return time.Duration(httpTimeoutSeconds) * time.Second
+}
 
 type WebhookEvent string
 
@@ -88,7 +110,7 @@ func Trigger(ctx context.Context, requestData *common.RouteRequestData, kioskVer
 
 	requestConfig := requestData.RequestConfig
 
-	httpClient := newHTTPClient(time.Second * time.Duration(requestConfig.Kiosk.HTTPTimeout))
+	httpClient := newHTTPClient(webhookTimeout(requestConfig.Kiosk.HTTPTimeout))
 
 	var wg sync.WaitGroup
 	for _, userWebhook := range requestConfig.Webhooks {
@@ -150,6 +172,8 @@ func Trigger(ctx context.Context, requestData *common.RouteRequestData, kioskVer
 				return
 			}
 			defer resp.Body.Close()
+
+			_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, maxWebhookResponseDrain))
 
 			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 				log.Error("webhook request failed",

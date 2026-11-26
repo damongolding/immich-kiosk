@@ -18,10 +18,8 @@ jobs:
       - name: Get dependencies
         run: go mod download
 
-      - name: Install templ and generate
-        run: |
-          go mod download
-          go tool templ generate
+      - name: Generate templ
+        run: go tool templ generate
 
       - name: Run tests
         shell: bash
@@ -29,7 +27,7 @@ jobs:
           CI: true
         run: |
           set -o pipefail
-          go test -v ./... 2>&1 | tee test-results.log
+          go test -race -v ./... 2>&1 | tee test-results.log
 
       - name: Upload test results
         uses: actions/upload-artifact@v7

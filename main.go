@@ -428,8 +428,7 @@ func healthCheck() int {
 		return 1
 	}
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "FAIL")
 		return 1
@@ -448,10 +447,6 @@ func healthCheck() int {
 	}
 
 	fmt.Println(string(body))
-
-	if resp.StatusCode != http.StatusOK {
-		return 1
-	}
 
 	return 0
 }

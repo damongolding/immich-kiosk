@@ -81,7 +81,12 @@ func Weather(baseConfig *config.Config) echo.HandlerFunc {
 				log.Warn("weather data fetch attempt failed",
 					"attempt", attempts+1,
 					"location", locationName)
-				time.Sleep(time.Duration(1<<attempts) * time.Second)
+				if attempts < maxWeatherRetries-1 {
+					if sleepErr := utils.SleepWithContext(c.Request().Context(), time.Duration(1<<attempts)*time.Second); sleepErr != nil {
+						log.Debug("weather request cancelled during retry", "location", locationName, "err", sleepErr)
+						return c.NoContent(http.StatusNoContent)
+					}
+				}
 				continue
 			}
 			if !requestData.RequestConfig.Kiosk.DisableURLQueries {

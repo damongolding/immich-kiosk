@@ -715,3 +715,9 @@ func New(ctx context.Context, base config.Config) Asset {
 		ctx:           ctx,
 	}
 }
+
+// Context returns the context the asset was created with, so derived assets
+// (e.g. a live photo's video) can share the same lifetime.
+func (a *Asset) Context() context.Context {
+	return a.ctx
+}

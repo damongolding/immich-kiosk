@@ -1,11 +1,11 @@
 package immich
 
 import (
+	"reflect"
 	"slices"
 	"testing"
 
 	"github.com/damongolding/immich-kiosk/internal/kiosk"
-	"github.com/stretchr/testify/assert"
 )
 
 // TestArchiveLogic tests the handling of archived and trashed assets
@@ -51,7 +51,9 @@ func TestArchiveLogic(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			simulatedContinueTriggered := test.Type != "IMAGE" || test.IsTrashed || (test.IsArchived && !test.ArchivedWantedByUser)
 
-			assert.Equal(t, test.WantSimulatedContinue, simulatedContinueTriggered, "Unexpected simulatedContinueTriggered value")
+			if simulatedContinueTriggered != test.WantSimulatedContinue {
+				t.Errorf("simulatedContinueTriggered = %v, want %v", simulatedContinueTriggered, test.WantSimulatedContinue)
+			}
 		})
 	}
 }
@@ -259,9 +261,15 @@ func TestFacesCenterPoint(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotX, gotY, gotOK := tt.asset.FacesCenterPoint()
-			assert.Equal(t, tt.wantX, gotX, "Unexpected X coordinate")
-			assert.Equal(t, tt.wantY, gotY, "Unexpected Y coordinate")
-			assert.Equal(t, tt.wantOK, gotOK, "Unexpected ok value")
+			if gotX != tt.wantX {
+				t.Errorf("X = %v, want %v", gotX, tt.wantX)
+			}
+			if gotY != tt.wantY {
+				t.Errorf("Y = %v, want %v", gotY, tt.wantY)
+			}
+			if gotOK != tt.wantOK {
+				t.Errorf("ok = %v, want %v", gotOK, tt.wantOK)
+			}
 		})
 	}
 }
@@ -324,7 +332,9 @@ func TestRemoveExcludedAlbums(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			albums := tt.albums
 			albums.RemoveExcludedAlbums(tt.exclude)
-			assert.Equal(t, tt.expected, albums, "RemoveExcludedAlbums returned unexpected result")
+			if !reflect.DeepEqual(albums, tt.expected) {
+				t.Errorf("RemoveExcludedAlbums() = %#v, want %#v", albums, tt.expected)
+			}
 		})
 	}
 }
@@ -481,12 +491,12 @@ func TestMergeAssetInfo(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.baseAsset.mergeAssetInfo(tt.additionalInfo)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("error = %v, wantErr %v", err, tt.wantErr)
 			}
-			assert.Equal(t, tt.expected, tt.baseAsset)
+			if !reflect.DeepEqual(tt.baseAsset, tt.expected) {
+				t.Errorf("merged asset = %#v, want %#v", tt.baseAsset, tt.expected)
+			}
 		})
 	}
 }

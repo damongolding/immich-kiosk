@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -17,7 +18,6 @@ import (
 	"github.com/damongolding/immich-kiosk/internal/utils"
 	"github.com/damongolding/immich-kiosk/internal/video"
 	"github.com/labstack/echo/v5"
-	"github.com/stretchr/testify/assert"
 )
 
 // TestRawImage tests the NewRawImage handler function.
@@ -61,8 +61,11 @@ func TestRawImage(t *testing.T) {
 	h := Image(baseConfig, common.New())
 
 	// Assertions
-	if assert.NoError(t, h(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
+	if handlerErr := h(c); handlerErr != nil {
+		t.Fatalf("handler returned error: %v", handlerErr)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("status = %d, want %d", rec.Code, http.StatusOK)
 	}
 }
 
@@ -103,7 +106,9 @@ func TestTrimHistory(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			history := tc.history
 			utils.TrimHistory(&history, tc.maxLength)
-			assert.Equal(t, tc.expected, history, "Trimmed history does not match expected result")
+			if !reflect.DeepEqual(history, tc.expected) {
+				t.Errorf("trimmed history = %#v, want %#v", history, tc.expected)
+			}
 		})
 	}
 }
