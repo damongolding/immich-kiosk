@@ -1,7 +1,6 @@
 package i18n
 
 import (
-	"embed"
 	"io/fs"
 
 	"charm.land/log/v2"
@@ -11,7 +10,7 @@ import (
 )
 
 var (
-	LocaleFS         embed.FS
+	LocaleFS         fs.FS
 	Bundle           *i18n.Bundle
 	lang             string
 	localizer        *i18n.Localizer

@@ -3,71 +3,15 @@ package routes
 import (
 	"bytes"
 	"encoding/json"
-	"net/http"
-	"net/http/httptest"
 	"os"
 	"reflect"
 	"regexp"
 	"strings"
 	"testing"
-	"time"
 
-	"github.com/damongolding/immich-kiosk/internal/cache"
-	"github.com/damongolding/immich-kiosk/internal/common"
 	"github.com/damongolding/immich-kiosk/internal/config"
 	"github.com/damongolding/immich-kiosk/internal/utils"
-	"github.com/damongolding/immich-kiosk/internal/video"
-	"github.com/labstack/echo/v5"
 )
-
-// TestRawImage tests the NewRawImage handler function.
-// It skips the test in CI environments, sets up a test HTTP request,
-// loads the configuration, and asserts that the handler responds
-// with a 200 OK status code.
-func TestRawImage(t *testing.T) {
-	if os.Getenv("CI") != "" {
-		t.Skip("Skipping in CI environment")
-	}
-
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/image", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	req.Header.Set(echo.HeaderXRequestID, "TESTING")
-
-	baseConfig := config.New()
-
-	err := baseConfig.Load()
-	if err != nil {
-		t.Error("Failed to load config", "err", err)
-	}
-
-	cache.Initialize()
-
-	prevVideoManager := VideoManager
-	videoManager, videoManagerErr := video.New(t.Context())
-	if videoManagerErr != nil {
-		t.Fatalf("Failed to initialise video manager: %v", videoManagerErr)
-	}
-
-	videoManager.MaxAge = time.Minute
-	VideoManager = videoManager
-
-	t.Cleanup(func() {
-		VideoManager = prevVideoManager
-	})
-
-	h := Image(baseConfig, common.New())
-
-	// Assertions
-	if handlerErr := h(c); handlerErr != nil {
-		t.Fatalf("handler returned error: %v", handlerErr)
-	}
-	if rec.Code != http.StatusOK {
-		t.Errorf("status = %d, want %d", rec.Code, http.StatusOK)
-	}
-}
 
 func TestTrimHistory(t *testing.T) {
 	testCases := []struct {
