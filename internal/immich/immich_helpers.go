@@ -123,6 +123,12 @@ func logRequestFailure(attempt int, apiURL, method string, err error) {
 // maxAPIRetries is the number of times immichAPICall will attempt a request.
 const maxAPIRetries = 3
 
+// retryBackoff returns how long immichAPICall waits before the next attempt
+// after a transport error. It is a variable so tests can shorten it.
+var retryBackoff = func(attempt int) time.Duration {
+	return time.Duration(1<<attempt) * time.Second
+}
+
 // immichAPICall bootstrap for immich api call
 func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body []byte, headers ...map[string]string) ([]byte, string, bool, error) {
 	var responseBody []byte
@@ -190,7 +196,7 @@ func (a *Asset) immichAPICall(ctx context.Context, method, apiURL string, body [
 
 			// no point backing off after the final attempt
 			if attempts < maxAPIRetries-1 {
-				if sleepErr := utils.SleepWithContext(ctx, time.Duration(1<<attempts)*time.Second); sleepErr != nil {
+				if sleepErr := utils.SleepWithContext(ctx, retryBackoff(attempts)); sleepErr != nil {
 					return responseBody, contentType, false, fmt.Errorf("request cancelled during retry: %w (last err=%w)", sleepErr, lastErr)
 				}
 			}
